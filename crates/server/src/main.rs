@@ -1,8 +1,8 @@
 #![allow(unused)]
-use fhir_client::axum::FHIRRequestExtractor;
+use fhir_client::request::FHIRRequest;
 use fhir_model::r4::types::{
     Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRInteger, FHIRString,
-    HumanName, Identifier, Patient, ResourceType,
+    HumanName, Identifier, Patient, Resource, ResourceType,
 };
 use fhir_serialization_json::{
     FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
@@ -15,10 +15,12 @@ use tracing::info;
 
 use axum::{
     Extension, Json, Router,
-    extract::{Path, Query, State},
+    body::Body,
+    debug_handler,
+    extract::{Path, Query, Request, State},
     http::Method,
-    response::{Html, IntoResponse},
-    routing::{get, post},
+    response::{Html, IntoResponse, Response},
+    routing::{any, get, post},
 };
 use axum_extra::routing::{
     // for `Router::typed_*`
@@ -33,7 +35,10 @@ use tower_http::services::ServeDir;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 
-use crate::{pg::get_pool, repository::FHIRRepository};
+use crate::{
+    pg::get_pool,
+    repository::{FHIRRepository, ProjectId, TenantId},
+};
 
 mod fhir_http;
 mod oidc;
@@ -63,6 +68,8 @@ enum ServerErrors {
     Deserialize(#[from] serde_json::Error),
     #[error("Failed to render template.")]
     TemplateRender,
+    #[error("Internal server error")]
+    InternalServerError,
 }
 
 impl IntoResponse for ServerErrors {
@@ -103,6 +110,11 @@ impl IntoResponse for ServerErrors {
                 "Failed to render template.".to_string(),
             )
                 .into_response(),
+            ServerErrors::InternalServerError => (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal server error".to_string(),
+            )
+                .into_response(),
         }
     }
 }
@@ -112,217 +124,80 @@ struct AppState<Store: repository::FHIRRepository> {
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
-#[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
-pub enum FHIRMethod {
-    Create,
-    Delete,
-    Patch,
-    Update,
-}
-
-#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")]
-pub enum FHIRVersion {
+pub enum SupportedFHIRVersions {
     R4,
     R4B,
     R5,
 }
-
-#[derive(Clone, Debug, sqlx::FromRow, Serialize)]
-struct ResourceRow {
-    #[serde(rename(serialize = "_id"))]
-    id: String,
-    resource: serde_json::Value,
-    fhir_method: FHIRMethod,
-}
-
-fn get_random_string(rng: &mut StdRng) -> String {
-    rng.sample_iter(&Alphanumeric)
-        .take(7)
-        .map(char::from)
-        .collect()
-}
-
-async fn post_resource<FR: FHIRRepository>(
-    State(state): State<Arc<AppState<FR>>>,
-    // Json(payload): Json<serde_json::Value>,
-    FHIRRequestExtractor(fhir_request): FHIRRequestExtractor,
-) -> Result<String, ServerErrors> {
-    // println!("RECEIVED PAYLOAD: {0:?}", payload);
-
-    // let now = Instant::now();
-
-    // let resource = from_value::<Resource>(payload)?;
-
-    // let elapsed = now.elapsed();
-
-    // println!("Serde Deserialization time: {:.2?}", elapsed);
-
-    // let now = Instant::now();
-    // let json = fhir_serialization_json::to_string(&resource);
-    // let elapsed = now.elapsed();
-
-    // println!("Serde Serialization time: {:.2?}", elapsed);
-    // println!("Received resource: {0:?}", resource);
-
-    Ok("OK".to_string())
+impl std::fmt::Display for SupportedFHIRVersions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SupportedFHIRVersions::R4 => write!(f, "R4"),
+            SupportedFHIRVersions::R4B => write!(f, "R4B"),
+            SupportedFHIRVersions::R5 => write!(f, "R5"),
+        }
+    }
 }
 
 #[derive(Deserialize)]
-struct FPQuerys {
-    query: String,
+struct FHIRHandlerPath {
+    tenant: TenantId,
+    project: ProjectId,
+    fhir_version: SupportedFHIRVersions,
+    fhir_location: String,
 }
 
-async fn fp_handler<FR: FHIRRepository>(
+async fn convert_to_fhir_request(
     method: Method,
-    State(state): State<Arc<AppState<FR>>>,
-    Query(fp): Query<FPQuerys>,
-    Extension(fp_engine): Extension<Arc<FPEngine>>,
-) -> Result<String, ServerErrors> {
-    let mut patient = Patient::default();
-    let mut name = HumanName::default();
-    let mut identifier = Identifier::default();
-    let mut given = FHIRString::default();
+    path: FHIRHandlerPath,
+    body: String,
+) -> Result<FHIRRequest, ServerErrors> {
+    // let resource = fhir_serialization_json::from_str::<Resource>(&body)?;
 
-    let mut id_extension = FPExtension::default();
-    id_extension.url = "http://example.com/fhir/StructureDefinition/patient-id".to_string();
-
-    id_extension.value = Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
-        id: None,
-        extension: None,
-        value: Some("1234567890".to_string()),
-    })));
-
-    println!(
-        "{:?}",
-        fhir_serialization_json::from_str::<Patient>(
-            r#"
-    {
-        "resourceType": "Patient",
-        "id": "123",
-        "name": [
-            {
-                "given": ["Bob"],
-                "family": "Smith"
-            }
-        ],
-        "identifier": [
-            {
-                "id": "asdf",
-                "value": "1234567890",
-                "_value": {
-                    "id": "123",
-                    "extension": [
-                        {
-                            "url": "http://example.com/fhir/StructureDefinition/patient-id",
-                            "valueString": "1234567890"
-                        }
-                    ]
-                }
-            }
-        ]
+    match method {
+        Method::POST => {
+            todo!();
+        }
+        Method::GET => {
+            todo!();
+        }
+        Method::PUT => {
+            todo!();
+        }
+        Method::PATCH => {
+            todo!();
+        }
+        Method::DELETE => {
+            todo!();
+        }
+        _ => Err(ServerErrors::InternalServerError),
     }
-    "#
-        )
-    );
-
-    let mut given_extension = FPExtension::default();
-
-    let mut address = Address::default();
-    address.extension = Some(vec![Box::new(FPExtension {
-        id: None,
-        extension: None,
-        url: "http://example.com/fhir/StructureDefinition/address-line".to_string(),
-        value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }))),
-    })]);
-
-    address.line = Some(vec![
-        Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }),
-        Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }),
-        Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }),
-        Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }),
-        Box::new(FHIRString {
-            id: Some("Hello world".to_string()),
-            extension: None,
-            value: None,
-        }),
-        Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }),
-        Box::new(FHIRString {
-            id: None,
-            extension: None,
-            value: Some("Myline".to_string()),
-        }),
-    ]);
-    given_extension.value = Some(ExtensionValueTypeChoice::Address(Box::new(address)));
-
-    given.value = Some("Bob".to_string());
-    given.extension = Some(vec![Box::new(given_extension)]);
-    identifier.value = Some(Box::new(FHIRString {
-        id: None,
-        extension: Some(vec![Box::new(id_extension)]),
-        value: Some("1234567890".to_string()),
-    }));
-
-    name.given = Some(vec![Box::new(given)]);
-    patient.name = Some(vec![Box::new(name)]);
-    patient.identifier_ = Some(vec![Box::new(identifier)]);
-
-    let now = Instant::now();
-
-    for i in 0..10000 {
-        let result = fp_engine.evaluate(&fp.query, vec![&patient])?;
-        let values: Vec<&dyn MetaValue> = result.iter().collect();
-    }
-
-    let elapsed = now.elapsed();
-    println!("Elapsed time: {:.2?}", elapsed);
-
-    let result = fp_engine.evaluate(&fp.query, vec![&patient])?;
-    let values: Vec<&dyn MetaValue> = result.iter().collect();
-
-    let now = Instant::now();
-    let serialized = patient.serialize_value().unwrap();
-    let elapsed = now.elapsed();
-    println!("Custom Serialized time: {:.2?}", elapsed);
-    println!("Custom Serialized: {}", serialized);
-
-    Ok(format!("Evaluation: {:?}", values))
 }
 
-async fn test_bed_get<FR: FHIRRepository>(
-    State(state): State<Arc<AppState<FR>>>,
-) -> Result<Html<String>, ServerErrors> {
-    let name = "Lyra";
-    let markup = html! {
-        h1 { "HELLO WORLD!"}
-        p { "Hi, " (name) "!" }
-    };
+#[debug_handler]
+async fn fhir_handler(
+    method: Method,
+    Path(fhir_path): Path<FHIRHandlerPath>,
+    State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
+    body: String,
+) -> Result<Response, ServerErrors> {
+    let start = Instant::now();
+    info!("[{}] '{}'", method, fhir_path.fhir_location);
 
-    Ok(Html(markup.into_string()))
+    if body != "" {
+        let resource = fhir_serialization_json::from_str::<Resource>(&body).unwrap();
+        // println!("Resource: {:?}", resource);
+    }
+
+    // info!(
+    //     "tenant: '{}', project: '{}', version: '{}', location: '{}'",
+    //     fhir_path.tenant, fhir_path.project, fhir_path.fhir_version, fhir_path.fhir_location
+    // );
+
+    info!("Request processed in {:?}", start.elapsed());
+
+    Ok((axum::http::StatusCode::OK, "Request successful".to_string()).into_response())
 }
 
 #[tokio::main]
@@ -347,9 +222,10 @@ async fn main() -> Result<(), ServerErrors> {
     let shared_state = Arc::new(AppState { fhir_store: store });
 
     let app = Router::new()
-        .route("/test/fhirpath", get(test_bed_get))
-        .route("/{tenant}/api/v1/{project}/fhir/{}", post(post_resource))
-        .route("/fhirpath", get(fp_handler))
+        .route(
+            "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{fhir_location}",
+            any(fhir_handler),
+        )
         .nest("/oidc", oidc::create_router())
         .layer(session_layer)
         .with_state(shared_state)
