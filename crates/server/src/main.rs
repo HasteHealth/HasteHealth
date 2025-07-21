@@ -69,7 +69,7 @@ enum ServerErrors {
     #[error("Failed to render template.")]
     TemplateRender,
     #[error("Internal server error")]
-    INTERNAL_SERVER_ERROR,
+    InternalServerError,
 }
 
 impl IntoResponse for ServerErrors {
@@ -110,7 +110,7 @@ impl IntoResponse for ServerErrors {
                 "Failed to render template.".to_string(),
             )
                 .into_response(),
-            ServerErrors::INTERNAL_SERVER_ERROR => (
+            ServerErrors::InternalServerError => (
                 axum::http::StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal server error".to_string(),
             )
@@ -153,7 +153,7 @@ async fn convert_to_fhir_request(
     path: FHIRHandlerPath,
     body: String,
 ) -> Result<FHIRRequest, ServerErrors> {
-    let resource = fhir_serialization_json::from_str::<Resource>(&body)?;
+    // let resource = fhir_serialization_json::from_str::<Resource>(&body)?;
 
     match method {
         Method::POST => {
@@ -171,7 +171,7 @@ async fn convert_to_fhir_request(
         Method::DELETE => {
             todo!();
         }
-        _ => Err(ServerErrors::INTERNAL_SERVER_ERROR),
+        _ => Err(ServerErrors::InternalServerError),
     }
 }
 
@@ -183,17 +183,17 @@ async fn fhir_handler(
     body: String,
 ) -> Result<Response, ServerErrors> {
     let start = Instant::now();
-    info!("[{}] '{}'", method, body);
+    info!("[{}] '{}'", method, fhir_path.fhir_location);
 
     if body != "" {
-        let resource = fhir_serialization_json::from_str::<Resource>(&body);
-        println!("Resource: {:?}", resource);
+        let resource = fhir_serialization_json::from_str::<Resource>(&body).unwrap();
+        // println!("Resource: {:?}", resource);
     }
 
-    info!(
-        "tenant: '{}', project: '{}', version: '{}', location: '{}'",
-        fhir_path.tenant, fhir_path.project, fhir_path.fhir_version, fhir_path.fhir_location
-    );
+    // info!(
+    //     "tenant: '{}', project: '{}', version: '{}', location: '{}'",
+    //     fhir_path.tenant, fhir_path.project, fhir_path.fhir_version, fhir_path.fhir_location
+    // );
 
     info!("Request processed in {:?}", start.elapsed());
 
