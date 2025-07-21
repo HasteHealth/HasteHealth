@@ -1,8 +1,8 @@
 #![allow(unused)]
-use fhir_client::axum::FHIRRequestExtractor;
+use fhir_client::request::FHIRRequest;
 use fhir_model::r4::types::{
     Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRInteger, FHIRString,
-    HumanName, Identifier, Patient, ResourceType,
+    HumanName, Identifier, Patient, Resource, ResourceType,
 };
 use fhir_serialization_json::{
     FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
@@ -15,10 +15,12 @@ use tracing::info;
 
 use axum::{
     Extension, Json, Router,
-    extract::{Path, Query, State},
+    body::Body,
+    debug_handler,
+    extract::{Path, Query, Request, State},
     http::Method,
-    response::{Html, IntoResponse},
-    routing::{get, post},
+    response::{Html, IntoResponse, Response},
+    routing::{any, get, post},
 };
 use axum_extra::routing::{
     // for `Router::typed_*`
@@ -66,6 +68,8 @@ enum ServerErrors {
     Deserialize(#[from] serde_json::Error),
     #[error("Failed to render template.")]
     TemplateRender,
+    #[error("Internal server error")]
+    INTERNAL_SERVER_ERROR,
 }
 
 impl IntoResponse for ServerErrors {
@@ -106,6 +110,11 @@ impl IntoResponse for ServerErrors {
                 "Failed to render template.".to_string(),
             )
                 .into_response(),
+            ServerErrors::INTERNAL_SERVER_ERROR => (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal server error".to_string(),
+            )
+                .into_response(),
         }
     }
 }
@@ -116,37 +125,79 @@ struct AppState<Store: repository::FHIRRepository> {
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")]
-pub enum FHIRVersion {
+pub enum SupportedFHIRVersions {
     R4,
     R4B,
     R5,
 }
+impl std::fmt::Display for SupportedFHIRVersions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SupportedFHIRVersions::R4 => write!(f, "R4"),
+            SupportedFHIRVersions::R4B => write!(f, "R4B"),
+            SupportedFHIRVersions::R5 => write!(f, "R5"),
+        }
+    }
+}
 
+#[derive(Deserialize)]
 struct FHIRHandlerPath {
     tenant: TenantId,
     project: ProjectId,
-    fhir_version: FHIRVersion,
+    fhir_version: SupportedFHIRVersions,
     fhir_location: String,
 }
 
+async fn convert_to_fhir_request(
+    method: Method,
+    path: FHIRHandlerPath,
+    body: String,
+) -> Result<FHIRRequest, ServerErrors> {
+    let resource = fhir_serialization_json::from_str::<Resource>(&body)?;
+
+    match method {
+        Method::POST => {
+            todo!();
+        }
+        Method::GET => {
+            todo!();
+        }
+        Method::PUT => {
+            todo!();
+        }
+        Method::PATCH => {
+            todo!();
+        }
+        Method::DELETE => {
+            todo!();
+        }
+        _ => Err(ServerErrors::INTERNAL_SERVER_ERROR),
+    }
+}
+
+#[debug_handler]
 async fn fhir_handler(
+    method: Method,
     Path(fhir_path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
-    request: FHIRRequestExtractor,
-) -> Result<Json<serde_json::Value>, ServerErrors> {
+    body: String,
+) -> Result<Response, ServerErrors> {
     let start = Instant::now();
+    info!("[{}] '{}'", method, body);
+
+    if body != "" {
+        let resource = fhir_serialization_json::from_str::<Resource>(&body);
+        println!("Resource: {:?}", resource);
+    }
+
     info!(
-        "Received request for tenant: {}, project: {}, version: {}, location: {}",
-        tenant, project, fhir_version, fhir_location
+        "tenant: '{}', project: '{}', version: '{}', location: '{}'",
+        fhir_path.tenant, fhir_path.project, fhir_path.fhir_version, fhir_path.fhir_location
     );
 
-    let response = state
-        .fhir_store
-        .handle_request(tenant, project, fhir_version, fhir_location, request)
-        .await?;
-
     info!("Request processed in {:?}", start.elapsed());
-    Ok(Json(response))
+
+    Ok((axum::http::StatusCode::OK, "Request successful".to_string()).into_response())
 }
 
 #[tokio::main]
@@ -171,12 +222,10 @@ async fn main() -> Result<(), ServerErrors> {
     let shared_state = Arc::new(AppState { fhir_store: store });
 
     let app = Router::new()
-        .route("/test/fhirpath", get(test_bed_get))
         .route(
-            "/{tenant}/api/v1/{project}/fhir/{:fhir_version}/{:fhir_location}",
-            all(fhir_handler),
+            "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{fhir_location}",
+            any(fhir_handler),
         )
-        .route("/fhirpath", get(fp_handler))
         .nest("/oidc", oidc::create_router())
         .layer(session_layer)
         .with_state(shared_state)
