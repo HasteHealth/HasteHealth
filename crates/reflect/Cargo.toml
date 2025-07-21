@@ -1,0 +1,10 @@
+[package]
+name = "reflect"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+derive = ["dep:reflect-derive"]
+
+[dependencies]
+reflect-derive = { path = "../reflect-derive", optional = true }

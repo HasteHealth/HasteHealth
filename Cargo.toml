@@ -1,0 +1,28 @@
+[package]
+name = "oxidized-health"
+version = "0.1.0"
+edition = "2024"
+
+# [profile.release]
+# strip = true    # Automatically strip symbols from the binary.
+# opt-level = "z" # Optimize for size in release builds.
+
+[workspace]
+resolver = "3"
+members = [
+    "crates/math",
+    "crates/server",
+    "crates/lambda-test",
+    "crates/fhirpath",
+    "crates/cli",
+    "crates/codegen",
+    "crates/reflect",
+    "crates/reflect-derive",
+    "crates/fhir-model",
+    "crates/fhir-serialization-json",
+    "crates/fhir-serialization-json-derive", "crates/fhir-client",
+]
+
+[dependencies]
+tokio = { version = "1.45.1", features = ["full"] }
+futures = "0.3"
