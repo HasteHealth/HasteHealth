@@ -38,9 +38,10 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
                         }
 
                         if has_extension || has_id {
+                            tmp_buffer.flush()?;
                             let value = tmp_buffer.into_inner()?;
                             writer.write_all(&[b'{'])?;
-                            writer.write_all(&value);
+                            writer.write_all(&value)?;
                             writer.write_all(&[b'}'])?;
                             Ok(true)
                         } else{
@@ -56,6 +57,7 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
                         let has_extension = self.serialize_extension(&mut extension_buffer)?;
 
                         if has_value {
+                             value_buffer.flush()?;
                             let value = value_buffer.into_inner()?;
                             writer.write_all(&value)?;
                             if has_extension {
@@ -63,6 +65,7 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
                             }
                         }
                         if has_extension {
+                            extension_buffer.flush()?;
                             let extension = extension_buffer.into_inner()?;
                             writer.write_all(&[b'"', b'_'])?;
                             writer.write_all(field.as_bytes())?;
@@ -186,6 +189,7 @@ pub fn complex_serialization(
                 quote! {
                     // Means successful serialization so increment total.
                    if self.#accessor.serialize_field(#field_str, &mut tmp_buffer)? {
+                       tmp_buffer.write_all(&[b','])?;
                        total += 1;
                    }
                 }
@@ -217,6 +221,7 @@ pub fn complex_serialization(
 
 
                         writer.write_all(&[b'{'])?;
+                        tmp_buffer.flush()?;
                         let tmp_buffer = tmp_buffer.into_inner()?;
                         // Slice off the last comma.
                         writer.write_all(&tmp_buffer[0..(tmp_buffer.len()-1)])?;
@@ -239,6 +244,7 @@ pub fn complex_serialization(
                         writer.write_all(&[b'"'])?;
                         writer.write_all(field.as_bytes())?;
                         writer.write_all(&[b'"', b':'])?;
+                        tmp_buffer.flush()?;
                         let tmp_buffer = tmp_buffer.into_inner()?;
                         writer.write_all(&tmp_buffer)?;
 

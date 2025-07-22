@@ -330,7 +330,7 @@ pub struct FHIRUri {
     Reflect,
     Debug,
     Default,
-    // fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    fhir_serialization_json :: derive :: FHIRJSONSerialize,
     fhir_serialization_json :: derive :: FHIRJSONDeserialize,
 )]
 #[fhir_serialize_type = "primitive"]

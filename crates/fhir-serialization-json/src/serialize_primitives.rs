@@ -213,7 +213,7 @@ impl<T> FHIRJSONSerializer for Vec<T>
 where
     T: FHIRJSONSerializer,
 {
-    fn serialize_value(&self, _writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
         if self.is_empty() {
             return Ok(false);
         }
@@ -239,13 +239,16 @@ where
         }
 
         tmp_buffer.write_all(&[b']'])?;
-        Ok(total > 0)
+        if total > 0 {
+            tmp_buffer.flush()?;
+            writer.write_all(&tmp_buffer.into_inner()?)?;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
-    fn serialize_extension(
-        &self,
-        _writer: &mut dyn std::io::Write,
-    ) -> Result<bool, SerializeError> {
+    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
         if self.is_empty() {
             return Ok(false);
         }
@@ -272,7 +275,14 @@ where
             }
 
             tmp_buffer.write_all(&[b']'])?;
-            Ok(total > 0)
+
+            if total > 0 {
+                tmp_buffer.flush()?;
+                writer.write_all(&tmp_buffer.into_inner()?)?;
+                Ok(true)
+            } else {
+                Ok(false)
+            }
         } else {
             Ok(false)
         }
@@ -289,7 +299,10 @@ where
         let should_serialize_extension = self.serialize_extension(&mut extension_buffer)?;
         let shoud_serialize_value = self.serialize_value(&mut value_buffer)?;
 
+        value_buffer.flush()?;
         let value_u8 = value_buffer.into_inner()?;
+
+        extension_buffer.flush()?;
         let extension_u8 = extension_buffer.into_inner()?;
 
         if should_serialize_extension {
