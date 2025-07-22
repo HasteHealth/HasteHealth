@@ -188,6 +188,18 @@ fn parse_request_1<'a>(
         parse_request_1_non_empty(fhir_version, url_chunks, req)
     }
 }
+
+/*
+(operation)	        /[type]/$[name]                     POST	R	Parameters	N/A	N/A
+                                                        GET	N/A	N/A	N/A	N/A
+                                                        POST	application/x-www-form-urlencoded	form data	N/A	N/A
+search-type         /[type]/_search?	                POST	application/x-www-form-urlencoded	form data	N/A	N/A
+read            	/[type]/[id]	                    GET‡	N/A	N/A	N/A	O: If-Modified-Since, If-None-Match
+update             	/[type]/[id]                      	PUT	R	Resource	O	O: If-Match
+patch        	    /[type]/[id]                      	PATCH	R (may be a patch type)	Patch	O	O: If-Match
+delete	            /[type]/[id]	                    DELETE	N/A	N/A	N/A	N/A
+history-type	    /[type]/_history	                GET	N/A	N/A	N/A	N/A
+*/
 fn parse_request_2<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
