@@ -1,7 +1,7 @@
 use axum::http::Method;
 use fhir_client::request::{
-    FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRInvokeSystemRequest, FHIRRequest,
-    Operation,
+    FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteTypeRequest,
+    FHIRHistorySystemRequest, FHIRInvokeSystemRequest, FHIRRequest, Operation,
 };
 use fhir_model::r4::types::{Resource, ResourceType};
 use serde_json::error;
@@ -96,6 +96,30 @@ fn parse_request_1_non_empty<'a>(
                     resource: fhir_serialization_json::from_str::<Resource>(&req.body)?,
                 },
             )),
+            Method::DELETE => Ok(FHIRRequest::DeleteType(FHIRDeleteTypeRequest {
+                parameters: vec![],
+                resource_type: ResourceType::new(url_chunks[0].to_string())?,
+            })),
+            Method::GET => {
+                match url_chunks[0] {
+                    "capabilities" => {
+                        // Handle capabilities request
+                        Ok(FHIRRequest::Capabilities)
+                    }
+                    "_history" => Ok(FHIRRequest::HistorySystem(FHIRHistorySystemRequest {
+                        parameters: vec![],
+                    })),
+                    _ => {
+                        // Handle search request
+                        Ok(FHIRRequest::SearchType(
+                            fhir_client::request::FHIRSearchTypeRequest {
+                                resource_type: ResourceType::new(url_chunks[0].to_string())?,
+                                parameters: vec![],
+                            },
+                        ))
+                    }
+                }
+            }
             _ => Err(FHIRRequestParsingError::Unsupported(
                 "Unsupported method for FHIR request".to_string(),
             )
