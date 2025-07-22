@@ -2,7 +2,6 @@
 use std::any::type_name;
 
 use lambda_http::{Body, Error, Request, RequestExt, Response};
-use math;
 use serde::{Deserialize, Serialize};
 
 trait Resource {
@@ -76,8 +75,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, E
         }
     }
 
-    let result = math::add(10, 5);
-    let message = format!("Hello {who}, this is an AWS Lambda HTTP request. {result}");
+    let message = format!("Hello {who}, this is an AWS Lambda HTTP request.");
 
     // Return something that implements IntoResponse.
     // It will be serialized to the right response event automatically by the runtime

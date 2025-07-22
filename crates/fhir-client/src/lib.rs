@@ -3,8 +3,6 @@ use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};
 
-#[cfg(feature = "axum")]
-pub mod axum;
 pub mod request;
 pub mod url;
 

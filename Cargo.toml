@@ -10,7 +10,6 @@ edition = "2024"
 [workspace]
 resolver = "3"
 members = [
-    "crates/math",
     "crates/server",
     "crates/lambda-test",
     "crates/fhirpath",
@@ -20,7 +19,8 @@ members = [
     "crates/reflect-derive",
     "crates/fhir-model",
     "crates/fhir-serialization-json",
-    "crates/fhir-serialization-json-derive", "crates/fhir-client",
+    "crates/fhir-serialization-json-derive",
+    "crates/fhir-client",
 ]
 
 [dependencies]
