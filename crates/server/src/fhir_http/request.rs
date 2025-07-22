@@ -1,9 +1,10 @@
 use axum::http::Method;
 use fhir_client::request::{
-    FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteTypeRequest,
-    FHIRHistorySystemRequest, FHIRInvokeSystemRequest, FHIRRequest, Operation,
+    FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteSystemRequest,
+    FHIRDeleteTypeRequest, FHIRHistorySystemRequest, FHIRInvokeSystemRequest, FHIRRequest,
+    FHIRSearchSystemRequest, FHIRTransactionRequest, Operation,
 };
-use fhir_model::r4::types::{Resource, ResourceType};
+use fhir_model::r4::types::{Bundle, Resource, ResourceType};
 use serde_json::error;
 use thiserror::Error;
 
@@ -139,7 +140,41 @@ fn parse_request_1_empty<'a>(
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> anyhow::Result<FHIRRequest> {
-    todo!();
+    match req.method {
+        Method::POST => {
+            let bundle = fhir_serialization_json::from_str::<Bundle>(&req.body)?;
+
+            match bundle.type_.value.as_ref().map(|s| s.as_str()) {
+                Some("transaction") => {
+                    // Handle transaction request
+                    Ok(FHIRRequest::Transaction(FHIRTransactionRequest {
+                        resource: bundle,
+                    }))
+                }
+                Some("batch") => {
+                    // Handle batch request
+                    Ok(FHIRRequest::Batch(FHIRBatchRequest { resource: bundle }))
+                }
+                _ => Err(FHIRRequestParsingError::Unsupported(
+                    "Unsupported bundle type".to_string(),
+                )
+                .into()),
+            }
+        }
+        Method::GET => {
+            // Handle search system request
+            Ok(FHIRRequest::SearchSystem(FHIRSearchSystemRequest {
+                parameters: vec![],
+            }))
+        }
+        Method::DELETE => Ok(FHIRRequest::DeleteSystem(FHIRDeleteSystemRequest {
+            parameters: vec![],
+        })),
+        _ => Err(FHIRRequestParsingError::Unsupported(
+            "Unsupported method for FHIR request".to_string(),
+        )
+        .into()),
+    }
 }
 
 fn parse_request_1<'a>(
