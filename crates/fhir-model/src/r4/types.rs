@@ -2,6 +2,7 @@
 use fhir_serialization_json;
 use fhir_serialization_json::FHIRJSONDeserializer;
 use reflect::{derive::Reflect, MetaValue};
+use thiserror::Error;
 #[derive(
     Reflect,
     Debug,
@@ -29121,6 +29122,11 @@ pub enum Resource {
     VerificationResult(VerificationResult),
     VisionPrescription(VisionPrescription),
 }
+#[derive(Error, Debug)]
+pub enum ResourceTypeError {
+    #[error("Invalid resource type: {0}")]
+    Invalid(String),
+}
 static _RESOURCE_TYPES: [&str; 146usize] = [
     "Account",
     "ActivityDefinition",
@@ -29272,9 +29278,9 @@ static _RESOURCE_TYPES: [&str; 146usize] = [
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ResourceType(String);
 impl ResourceType {
-    pub fn new(s: String) -> Result<Self, String> {
+    pub fn new(s: String) -> Result<Self, ResourceTypeError> {
         if !_RESOURCE_TYPES.contains(&s.as_str()) {
-            Err(format!("Invalid resource type: {}", s))
+            Err(ResourceTypeError::Invalid(s))
         } else {
             Ok(ResourceType(s))
         }

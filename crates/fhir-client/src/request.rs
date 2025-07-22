@@ -1,5 +1,6 @@
 use fhir_model::r4::types::{Bundle, CapabilityStatement, Parameters, Resource, ResourceType};
 use json_patch::Patch;
+use thiserror::Error;
 
 use crate::ParsedParameter;
 
@@ -86,7 +87,25 @@ pub struct FHIRInvokeTypeRequest {
     pub parameters: Parameters,
 }
 
+#[derive(Error, Debug)]
+pub enum OperationParseError {
+    #[error("Invalid operation name")]
+    Invalid,
+}
+
+pub struct Operation(String);
+impl Operation {
+    pub fn new(name: &str) -> Result<Self, OperationParseError> {
+        let operation_name = name.trim_start_matches('$');
+        Ok(Operation(operation_name.to_string()))
+    }
+    pub fn name(&self) -> &str {
+        &self.0
+    }
+}
+
 pub struct FHIRInvokeSystemRequest {
+    pub operation: Operation,
     pub parameters: Parameters,
 }
 

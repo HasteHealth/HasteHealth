@@ -283,6 +283,12 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
     let count = resource_types.len();
 
     quote! {
+        #[derive(Error, Debug)]
+        pub enum ResourceTypeError {
+            #[error("Invalid resource type: {0}")]
+            Invalid(String),
+        }
+
         static _RESOURCE_TYPES: [&str; #count] = [
             #(#resource_types),*
         ];
@@ -290,9 +296,9 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
         #[derive(Debug, Clone, PartialEq, Eq, Hash)]
         pub struct ResourceType(String);
         impl ResourceType {
-            pub fn new(s: String) -> Result<Self, String> {
+            pub fn new(s: String) -> Result<Self, ResourceTypeError> {
                 if !_RESOURCE_TYPES.contains(&s.as_str()) {
-                    Err(format!("Invalid resource type: {}", s))
+                    Err(ResourceTypeError::Invalid(s))
                 } else {
                     Ok(ResourceType(s))
                 }
@@ -318,6 +324,7 @@ pub fn generate_fhir_types_from_files(
         use reflect::{MetaValue, derive::Reflect};
         use fhir_serialization_json;
         use fhir_serialization_json::FHIRJSONDeserializer;
+        use thiserror::Error;
     };
 
     let mut resource_types: Vec<String> = vec![];

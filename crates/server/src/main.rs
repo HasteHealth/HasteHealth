@@ -36,6 +36,7 @@ use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 
 use crate::{
+    fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRRepository, ProjectId, TenantId},
 };
@@ -148,52 +149,18 @@ struct FHIRHandlerPath {
     fhir_location: String,
 }
 
-async fn convert_to_fhir_request(
-    method: Method,
-    path: FHIRHandlerPath,
-    body: String,
-) -> Result<FHIRRequest, ServerErrors> {
-    // let resource = fhir_serialization_json::from_str::<Resource>(&body)?;
-
-    match method {
-        Method::POST => {
-            todo!();
-        }
-        Method::GET => {
-            todo!();
-        }
-        Method::PUT => {
-            todo!();
-        }
-        Method::PATCH => {
-            todo!();
-        }
-        Method::DELETE => {
-            todo!();
-        }
-        _ => Err(ServerErrors::InternalServerError),
-    }
-}
-
 #[debug_handler]
 async fn fhir_handler(
     method: Method,
-    Path(fhir_path): Path<FHIRHandlerPath>,
+    Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
     body: String,
 ) -> Result<Response, ServerErrors> {
     let start = Instant::now();
-    info!("[{}] '{}'", method, fhir_path.fhir_location);
+    info!("[{}] '{}'", method, path.fhir_location);
 
-    if body != "" {
-        let resource = fhir_serialization_json::from_str::<Resource>(&body).unwrap();
-        // println!("Resource: {:?}", resource);
-    }
-
-    // info!(
-    //     "tenant: '{}', project: '{}', version: '{}', location: '{}'",
-    //     fhir_path.tenant, fhir_path.project, fhir_path.fhir_version, fhir_path.fhir_location
-    // );
+    let http_req = HTTPRequest::new(method, path.fhir_location, body);
+    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req).unwrap();
 
     info!("Request processed in {:?}", start.elapsed());
 
