@@ -342,6 +342,10 @@ fn parse_request_3<'a>(
         }
     }
 }
+
+/*
+vread            	  /[type]/[id]/_history/[vid]	        GET‡	N/A	N/A	N/A	N/A
+*/
 fn parse_request_4<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
