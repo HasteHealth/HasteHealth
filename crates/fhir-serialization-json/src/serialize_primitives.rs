@@ -1,19 +1,32 @@
-use crate::traits::FHIRJSONSerializer;
+use std::io::{BufWriter, Write};
+
+use crate::{SerializeError, traits::FHIRJSONSerializer};
 
 impl FHIRJSONSerializer for i64 {
-    fn serialize_value(&self) -> Option<String> {
-        Some(self.to_string())
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        writer.write_all(self.to_string().as_bytes())?;
+
+        Ok(true)
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        None
+    fn serialize_extension(
+        &self,
+        _writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        Ok(false)
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        let mut name = "\"".to_string();
-        name.push_str(field);
-        name.push_str("\":");
-        Some(name + &self.serialize_value()?)
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
+        self.serialize_value(writer)?;
+
+        Ok(true)
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -22,19 +35,30 @@ impl FHIRJSONSerializer for i64 {
 }
 
 impl FHIRJSONSerializer for u64 {
-    fn serialize_value(&self) -> Option<String> {
-        Some(self.to_string())
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        writer.write_all(self.to_string().as_bytes())?;
+
+        Ok(true)
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        None
+    fn serialize_extension(
+        &self,
+        _writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        Ok(false)
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        let mut name = "\"".to_string();
-        name.push_str(field);
-        name.push_str("\":");
-        Some(name + &self.serialize_value()?)
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
+        self.serialize_value(writer)?;
+
+        Ok(true)
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -43,19 +67,30 @@ impl FHIRJSONSerializer for u64 {
 }
 
 impl FHIRJSONSerializer for f64 {
-    fn serialize_value(&self) -> Option<String> {
-        Some(self.to_string())
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        writer.write_all(self.to_string().as_bytes())?;
+
+        Ok(true)
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        None
+    fn serialize_extension(
+        &self,
+        _writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        Ok(false)
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        let mut name = "\"".to_string();
-        name.push_str(field);
-        name.push_str("\":");
-        Some(name + &self.serialize_value()?)
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
+        self.serialize_value(writer)?;
+
+        Ok(true)
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -64,19 +99,30 @@ impl FHIRJSONSerializer for f64 {
 }
 
 impl FHIRJSONSerializer for bool {
-    fn serialize_value(&self) -> Option<String> {
-        Some(self.to_string())
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        writer.write_all(self.to_string().as_bytes())?;
+
+        Ok(true)
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        None
+    fn serialize_extension(
+        &self,
+        _writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        Ok(false)
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        let mut name = "\"".to_string();
-        name.push_str(field);
-        name.push_str("\":");
-        Some(name + &self.serialize_value()?)
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
+        self.serialize_value(writer)?;
+
+        Ok(true)
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -98,60 +144,64 @@ impl FHIRJSONSerializer for bool {
 //               %x74 /          ; t    tab             U+0009
 //               %x75 4HEXDIG )  ; uXXXX                U+XXXX
 impl FHIRJSONSerializer for String {
-    fn serialize_value(&self) -> Option<String> {
-        let mut char_arr: Vec<char> = Vec::with_capacity(self.len() + 2);
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        writer.write_all(&[b'"'])?;
         for c in self.chars() {
             match c {
                 // Simple escapes just reuse character
                 // | '\u{005C}' | '\u{002F}'
                 '\u{0022}' => {
-                    char_arr.push('\x5c');
-                    char_arr.push(c);
+                    writer.write_all(&[b'\x5c', c as u8])?;
                 }
                 // Backspace
                 '\u{0008}' => {
-                    char_arr.push('\x5c');
-                    char_arr.push('\x62');
+                    writer.write_all(&[b'\x5c', b'\x62'])?;
                 }
                 // Form feed
                 '\u{000C}' => {
-                    char_arr.push('\x5c');
-                    char_arr.push('\x66');
+                    writer.write_all(&[b'\x5c', b'\x66'])?;
                 }
                 // Line Feed
                 '\u{000A}' => {
-                    char_arr.push('\x5c');
-                    char_arr.push('\x6e');
+                    writer.write_all(&[b'\x5c', b'\x6e'])?;
                 }
                 // Carriage return
                 '\u{000D}' => {
-                    char_arr.push('\x5c');
-                    char_arr.push('\x72');
+                    writer.write_all(&[b'\x5c', b'\x72'])?;
                 }
                 // Tab
                 '\u{0009}' => {
-                    char_arr.push('\x5c');
-                    char_arr.push('\x74');
+                    writer.write_all(&[b'\x5c', b'\x74'])?;
                 }
 
-                ch => char_arr.push(ch),
+                ch => {
+                    writer.write_all(&[ch as u8])?;
+                }
             }
         }
 
-        let k: String = char_arr.into_iter().collect();
+        writer.write_all(&[b'"'])?;
 
-        Some("\"".to_string() + &k + "\"")
+        Ok(true)
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        None
+    fn serialize_extension(
+        &self,
+        _writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        Ok(false)
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        let mut name = "\"".to_string();
-        name.push_str(field);
-        name.push_str("\":");
-        Some(name + &self.serialize_value()?)
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        writer.write_all(&[b'"'])?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all(&[b'"', b':'])?;
+        self.serialize_value(writer)?;
+        Ok(true)
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -163,92 +213,117 @@ impl<T> FHIRJSONSerializer for Vec<T>
 where
     T: FHIRJSONSerializer,
 {
-    fn serialize_value(&self) -> Option<String> {
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
         if self.is_empty() {
-            return None;
+            return Ok(false);
         }
 
         let mut total = 0;
-        let mut string_value = "[".to_string();
 
-        string_value.push_str(
-            &self
-                .iter()
-                .map(|v| {
-                    if let Some(string_value) = v.serialize_value() {
-                        total += 1;
-                        string_value
-                    } else {
-                        "null".to_string()
-                    }
-                })
-                .collect::<Vec<String>>()
-                .join(","),
-        );
+        let mut tmp_buffer = BufWriter::new(Vec::new());
+        tmp_buffer.write_all(&[b'['])?;
 
-        string_value.push_str("]");
+        for i in 0..(self.len() - 1) {
+            let v = &self[i];
+            if v.serialize_value(&mut tmp_buffer)? {
+                total += 1;
+                tmp_buffer.write_all(&[b','])?;
+            } else {
+                tmp_buffer.write_all("null".as_bytes())?;
+            }
+        }
 
-        if total > 0 { Some(string_value) } else { None }
+        // Last one don't want trailing comma.
+        if self[self.len() - 1].serialize_value(&mut tmp_buffer)? {
+            total += 1;
+        }
+
+        tmp_buffer.write_all(&[b']'])?;
+        if total > 0 {
+            tmp_buffer.flush()?;
+            writer.write_all(&tmp_buffer.into_inner()?)?;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
-    fn serialize_extension(&self) -> Option<String> {
+    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
         if self.is_empty() {
-            return None;
+            return Ok(false);
         }
 
         if self[0].is_fp_primitive() {
             let mut total = 0;
-            let mut string_value = "[".to_string();
-            string_value.push_str(
-                &self
-                    .iter()
-                    .map(|v| {
-                        if let Some(extension_string) = v.serialize_extension() {
-                            total += 1;
-                            extension_string
-                        } else {
-                            "null".to_string()
-                        }
-                    })
-                    .collect::<Vec<String>>()
-                    .join(","),
-            );
 
-            string_value.push_str("]");
+            let mut tmp_buffer = BufWriter::new(Vec::new());
+            tmp_buffer.write_all(&[b'['])?;
 
-            if total > 0 { Some(string_value) } else { None }
+            for i in 0..(self.len() - 1) {
+                let v = &self[i];
+                if v.serialize_extension(&mut tmp_buffer)? {
+                    total += 1;
+                    tmp_buffer.write_all(&[b','])?;
+                } else {
+                    tmp_buffer.write_all("null".as_bytes())?;
+                }
+            }
+
+            // Last one don't want trailing comma.
+            if self[self.len() - 1].serialize_extension(&mut tmp_buffer)? {
+                total += 1;
+            }
+
+            tmp_buffer.write_all(&[b']'])?;
+
+            if total > 0 {
+                tmp_buffer.flush()?;
+                writer.write_all(&tmp_buffer.into_inner()?)?;
+                Ok(true)
+            } else {
+                Ok(false)
+            }
         } else {
-            None
+            Ok(false)
         }
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        let extension_value = self.serialize_extension();
-        let value = self.serialize_value();
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        let mut extension_buffer = BufWriter::new(Vec::new());
+        let mut value_buffer = BufWriter::new(Vec::new());
 
-        let mut result = Vec::with_capacity(2);
+        let should_serialize_extension = self.serialize_extension(&mut extension_buffer)?;
+        let shoud_serialize_value = self.serialize_value(&mut value_buffer)?;
 
-        if let Some(extension_value) = extension_value {
-            let mut ext_string = "\"_".to_string();
-            ext_string.push_str(field);
-            ext_string.push_str("\":");
-            ext_string.push_str(&extension_value);
-            result.push(ext_string);
+        value_buffer.flush()?;
+        let value_u8 = value_buffer.into_inner()?;
+
+        extension_buffer.flush()?;
+        let extension_u8 = extension_buffer.into_inner()?;
+
+        if should_serialize_extension {
+            writer.write_all(&[b'"', b'_'])?;
+            writer.write_all(field.as_bytes())?;
+            writer.write_all(&[b'"', b':'])?;
+            writer.write_all(&extension_u8)?;
+            // If value not empty put trailing comma after extension value.
+            if shoud_serialize_value {
+                writer.write_all(&[b','])?;
+            }
         }
 
-        if let Some(value) = value {
-            let mut value_string = "\"".to_string();
-            value_string.push_str(field);
-            value_string.push_str("\":");
-            value_string.push_str(&value);
-            result.push(value_string);
+        if shoud_serialize_value {
+            writer.write_all(&[b'"'])?;
+            writer.write_all(field.as_bytes())?;
+            writer.write_all(&[b'"', b':'])?;
+            writer.write_all(&value_u8)?;
         }
 
-        if result.is_empty() {
-            None
-        } else {
-            Some(result.join(","))
-        }
+        Ok(shoud_serialize_value || should_serialize_extension)
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -260,16 +335,29 @@ impl<T> FHIRJSONSerializer for Option<T>
 where
     T: FHIRJSONSerializer,
 {
-    fn serialize_value(&self) -> Option<String> {
-        self.as_ref().and_then(|v| v.serialize_value())
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        match self {
+            Some(v) => v.serialize_value(writer),
+            None => Ok(false),
+        }
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        self.as_ref().and_then(|v| v.serialize_extension())
+    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        match self {
+            Some(v) => v.serialize_extension(writer),
+            None => Ok(false),
+        }
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        self.as_ref().and_then(|v| v.serialize_field(field))
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        match self {
+            Some(v) => v.serialize_field(field, writer),
+            None => Ok(false),
+        }
     }
 
     fn is_fp_primitive(&self) -> bool {
@@ -284,16 +372,20 @@ impl<T> FHIRJSONSerializer for Box<T>
 where
     T: FHIRJSONSerializer,
 {
-    fn serialize_value(&self) -> Option<String> {
-        self.as_ref().serialize_value()
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        self.as_ref().serialize_value(writer)
     }
 
-    fn serialize_extension(&self) -> Option<String> {
-        self.as_ref().serialize_extension()
+    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
+        self.as_ref().serialize_extension(writer)
     }
 
-    fn serialize_field(&self, field: &str) -> Option<String> {
-        self.as_ref().serialize_field(field)
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError> {
+        self.as_ref().serialize_field(field, writer)
     }
 
     fn is_fp_primitive(&self) -> bool {

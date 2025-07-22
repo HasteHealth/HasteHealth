@@ -1,11 +1,24 @@
+use std::io::BufWriter;
+
 use crate::errors::DeserializeError;
 use serde_json::Value;
+use thiserror::Error;
 
+#[derive(Error, Debug)]
+pub enum SerializeError {
+    #[error("Serialization error: {0}")]
+    IOError(#[from] std::io::Error),
+    #[error("Serialization error: {0}")]
+    SerializeError(#[from] std::io::IntoInnerError<BufWriter<Vec<u8>>>),
+}
 pub trait FHIRJSONSerializer {
-    fn serialize_value(&self) -> Option<String>;
-    fn serialize_extension(&self) -> Option<String>;
-
-    fn serialize_field(&self, field: &str) -> Option<String>;
+    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError>;
+    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError>;
+    fn serialize_field(
+        &self,
+        field: &str,
+        writer: &mut dyn std::io::Write,
+    ) -> Result<bool, SerializeError>;
     fn is_fp_primitive(&self) -> bool;
 }
 
