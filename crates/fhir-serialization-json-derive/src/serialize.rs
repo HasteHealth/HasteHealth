@@ -16,51 +16,60 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
         Data::Struct(_data) => {
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut std::io::Write) -> Option<String> {
+                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         self.value.serialize_value(writer)
                     }
 
-                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Option<String> {
-                        let mut result = Vec::with_capacity(2);
-                        if let Some(extension) = &self.extension {
-                            let mut ext_field = "\"extension\":".to_string();
-                            ext_field.push_str(&extension.serialize_value()?);
-                            result.push(ext_field);
+                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                        let tmp_buffer = BufWriter::new(Vec::new());
+                        let has_extension = self.extension.is_some();
+                        let has_id = self.id.is_some();
+
+                        if has_extension {
+                            tmp_buffer.write_all("\"extension\":".as_bytes())?;
+                            extension.serialize_value(tmp_buffer)?;
+                            if has_id {
+                                tmp_buffer.write_all(&[b","])?;
+                            }
                         }
 
-                        if let Some(id_string) = self.id.serialize_field("id") {
-                            result.push(id_string);
+                        if has_id {
+                            self.id.serialize_field("id", tmp_buffer)?;
                         }
 
-                        if result.is_empty() {
-                            None
-                        } else {
-                            let mut res  = "{".to_string();
-                            res.push_str(&result.join(","));
-                            res.push_str("}");
-                            Some(res)
+                        if has_extension || has_id {
+                            let value = tmp_buffer.into_inner()?;
+                            writer.write_all(&[b'{'])?;
+                            writer.write_all(&value);
+                            writer.write_all(&[b'}'])?;
+                            Some(true)
+                        } else{
+                            Ok(false)
                         }
                     }
 
-                    fn serialize_field(&self, field: &str) -> Option<String> {
-                        let value_field_string = self.value.serialize_field(field);
-                        let extension_string = self.serialize_extension();
+                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                        let mut value_buffer = BufWriter::new(Vec::new());
+                        let mut extension_buffer = BufWriter::new(Vec::new());
 
-                        let mut result = Vec::with_capacity(2);
+                        let has_value = self.value.serialize_field(field, &mut value_buffer)?;
+                        let has_extension = self.serialize_extension(&mut extension_buffer)?;
 
-                        if let Some(value_field_string) = value_field_string {
-                            result.push(value_field_string);
+                        if has_value {
+                            let value = value_buffer.into_inner()?;
+                            writer.write_all(&value)?;
+                            if has_extension {
+                                writer.write_all(&[b","])?;
+                            }
                         }
-                        if let Some(extension_string) = extension_string {
-                            let mut extension_field = "\"_".to_string();
-                            extension_field.push_str(field);
-                            extension_field.push_str("\"");
-                            extension_field.push_str(":");
-                            extension_field.push_str(&extension_string);
-                            result.push(extension_field);
+                        if has_extension {
+                            let extension = extension_buffer.into_inner()?;
+                            writer.write_all(&[b'"', b'_'])?;
+                            writer.write_all(field.as_bytes())?;
+                            writer.write_all(&[b'"', b':'])?;
+                            writer.write_all(&extension)?;
                         }
-
-                        Some(result.join(","))
+                        Ok(has_value || has_extension)
                     }
 
                     fn is_fp_primitive(&self) -> bool {
@@ -84,21 +93,21 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
             let variants_serialize_value = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(k) => k.serialize_value()
+                    Self::#name(k) => k.serialize_value(writer)
                 }
             });
 
             let variants_serialize_extension = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(k) => k.serialize_extension()
+                    Self::#name(k) => k.serialize_extension(writer)
                 }
             });
 
             let variants_serialize_field = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(k) => k.serialize_field(&field)
+                    Self::#name(k) => k.serialize_field(&field, writer)
                 }
             });
 
@@ -119,19 +128,19 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
 
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self) -> Option<String> {
+                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
                         }
                     }
 
-                    fn serialize_extension(&self) -> Option<String> {
+                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         match self {
                             #(#variants_serialize_extension),*
                         }
                     }
 
-                    fn serialize_field(&self, field: &str) -> Option<String> {
+                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         let field = match self {
                             #(#variants_field_name),*
                         };
@@ -175,7 +184,7 @@ pub fn complex_serialization(
 
                 let accessor = field.ident.to_owned().unwrap();
                 quote! {
-                   if let Some(field_value) = self.#accessor.serialize_field(#field_str) {
+                   if let Some(field_value) = self.#accessor.serialize_field(#field_str, writer) {
                     serialized_fields.push(field_value);
                    }
                 }
@@ -194,7 +203,7 @@ pub fn complex_serialization(
 
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self) -> Option<String> {
+                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         let mut total  = 0;
                         let mut serialized_fields = Vec::with_capacity(#vector_capacity);
 
@@ -214,11 +223,11 @@ pub fn complex_serialization(
                         Some(string_value)
                     }
 
-                    fn serialize_extension(&self) -> Option<String> {
-                        None
+                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                        Ok(false)
                     }
 
-                    fn serialize_field(&self, field: &str) -> Option<String> {
+                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         let mut string_value = "\"".to_string();
 
                         string_value.push_str(field);
@@ -251,21 +260,21 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
             let variants_serialize_value = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(k) => k.serialize_value()
+                    Self::#name(k) => k.serialize_value(writer)
                 }
             });
 
             let variants_serialize_extension = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(k) => k.serialize_extension()
+                    Self::#name(k) => k.serialize_extension(writer)
                 }
             });
 
             let variants_serialize_fields = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(k) => k.serialize_field(field)
+                    Self::#name(k) => k.serialize_field(field, writer)
                 }
             });
 
@@ -278,19 +287,19 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
 
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self) -> Option<String> {
+                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
                         }
                     }
 
-                    fn serialize_extension(&self) -> Option<String> {
+                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         match self {
                             #(#variants_serialize_extension),*
                         }
                     }
 
-                    fn serialize_field(&self, field: &str) -> Option<String> {
+                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
                         match self {
                             #(#variants_serialize_fields),*
                         }
