@@ -153,13 +153,25 @@ fn parse_request_1<'a>(
         parse_request_1_non_empty(fhir_version, url_chunks, req)
     }
 }
-fn parse_request_2() -> anyhow::Result<FHIRRequest> {
+fn parse_request_2<'a>(
+    fhir_version: SupportedFHIRVersions,
+    url_chunks: Vec<&'a str>,
+    req: &HTTPRequest,
+) -> anyhow::Result<FHIRRequest> {
     todo!()
 }
-fn parse_request_3() -> anyhow::Result<FHIRRequest> {
+fn parse_request_3<'a>(
+    fhir_version: SupportedFHIRVersions,
+    url_chunks: Vec<&'a str>,
+    req: &HTTPRequest,
+) -> anyhow::Result<FHIRRequest> {
     todo!()
 }
-fn parse_request_4() -> anyhow::Result<FHIRRequest> {
+fn parse_request_4<'a>(
+    fhir_version: SupportedFHIRVersions,
+    url_chunks: Vec<&'a str>,
+    req: &HTTPRequest,
+) -> anyhow::Result<FHIRRequest> {
     todo!()
 }
 
@@ -171,8 +183,9 @@ pub fn http_request_to_fhir_request(
 
     match url_pieces.len() {
         1 => parse_request_1(fhir_version, url_pieces, req),
-        _ => {
-            todo!();
-        }
+        2 => parse_request_2(fhir_version, url_pieces, req),
+        3 => parse_request_3(fhir_version, url_pieces, req),
+        4 => parse_request_4(fhir_version, url_pieces, req),
+        _ => Err(FHIRRequestParsingError::InvalidPath.into()),
     }
 }
