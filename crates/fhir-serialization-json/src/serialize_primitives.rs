@@ -175,7 +175,8 @@ impl FHIRJSONSerializer for String {
                 }
 
                 ch => {
-                    writer.write_all(&[ch as u8])?;
+                    let mut buf = [0; 4];
+                    writer.write_all(ch.encode_utf8(&mut buf).as_bytes())?;
                 }
             }
         }

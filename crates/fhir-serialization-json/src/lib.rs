@@ -14,10 +14,11 @@ pub fn from_str<T: FHIRJSONDeserializer>(s: &str) -> Result<T, errors::Deseriali
     T::from_json_str(s)
 }
 
-pub fn to_string<T: FHIRJSONSerializer>(value: &T) -> Option<String> {
+pub fn to_string<T: FHIRJSONSerializer>(value: &T) -> Result<String, SerializeError> {
     let mut writer = BufWriter::new(Vec::new());
-    value.serialize_value(&mut writer).ok()?;
-    writer.flush().ok()?;
+    value.serialize_value(&mut writer)?;
+    writer.flush()?;
+    let content = writer.into_inner()?;
 
-    Some(String::from_utf8(writer.into_inner().ok()?).ok()?)
+    Ok(String::from_utf8(content)?)
 }
