@@ -1,7 +1,8 @@
 #![allow(non_snake_case)]
 use fhir_serialization_json;
 use fhir_serialization_json::FHIRJSONDeserializer;
-use reflect::{derive::Reflect, MetaValue};
+use reflect::{MetaValue, derive::Reflect};
+use std::io::Write;
 use thiserror::Error;
 #[derive(
     Reflect,
@@ -18,6 +19,7 @@ pub struct Element {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
 }
+
 #[derive(
     Reflect,
     Debug,

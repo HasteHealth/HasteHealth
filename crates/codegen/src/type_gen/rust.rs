@@ -325,6 +325,7 @@ pub fn generate_fhir_types_from_files(
         use fhir_serialization_json;
         use fhir_serialization_json::FHIRJSONDeserializer;
         use thiserror::Error;
+        use std::io::Write;
     };
 
     let mut resource_types: Vec<String> = vec![];
