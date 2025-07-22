@@ -2251,6 +2251,7 @@ dependencies = [
  "fhir-model",
  "fhir-serialization-json",
  "fhirpath",
+ "json-patch",
  "jsonwebtoken",
  "maud",
  "rand 0.9.1",
