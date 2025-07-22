@@ -9,7 +9,7 @@ use fhir_serialization_json::{
 };
 use reflect::MetaValue;
 use serde::{Deserialize, Serialize};
-use std::{env::VarError, sync::Arc, time::Instant};
+use std::{env::VarError, io::BufWriter, sync::Arc, time::Instant};
 use thiserror::Error;
 use tracing::info;
 
@@ -204,6 +204,11 @@ async fn main() -> Result<(), ServerErrors> {
 
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
+
+    use std::io::Write;
+    let mut k = BufWriter::new(Vec::new());
+
+    k.write("hello".as_bytes());
 
     Ok(())
 }

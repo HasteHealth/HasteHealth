@@ -16,11 +16,11 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
         Data::Struct(_data) => {
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self) -> Option<String> {
-                        self.value.serialize_value()
+                    fn serialize_value(&self, writer: &mut std::io::Write) -> Option<String> {
+                        self.value.serialize_value(writer)
                     }
 
-                    fn serialize_extension(&self) -> Option<String> {
+                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Option<String> {
                         let mut result = Vec::with_capacity(2);
                         if let Some(extension) = &self.extension {
                             let mut ext_field = "\"extension\":".to_string();
