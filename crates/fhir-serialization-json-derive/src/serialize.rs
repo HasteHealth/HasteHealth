@@ -16,25 +16,25 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
         Data::Struct(_data) => {
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         self.value.serialize_value(writer)
                     }
 
-                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
-                        let tmp_buffer = BufWriter::new(Vec::new());
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                        let mut tmp_buffer = std::io::BufWriter::new(Vec::new());
                         let has_extension = self.extension.is_some();
                         let has_id = self.id.is_some();
 
                         if has_extension {
                             tmp_buffer.write_all("\"extension\":".as_bytes())?;
-                            extension.serialize_value(tmp_buffer)?;
+                            self.extension.serialize_value(&mut tmp_buffer)?;
                             if has_id {
-                                tmp_buffer.write_all(&[b","])?;
+                                tmp_buffer.write_all(&[b','])?;
                             }
                         }
 
                         if has_id {
-                            self.id.serialize_field("id", tmp_buffer)?;
+                            self.id.serialize_field("id", &mut tmp_buffer)?;
                         }
 
                         if has_extension || has_id {
@@ -42,15 +42,15 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
                             writer.write_all(&[b'{'])?;
                             writer.write_all(&value);
                             writer.write_all(&[b'}'])?;
-                            Some(true)
+                            Ok(true)
                         } else{
                             Ok(false)
                         }
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
-                        let mut value_buffer = BufWriter::new(Vec::new());
-                        let mut extension_buffer = BufWriter::new(Vec::new());
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                        let mut value_buffer = std::io::BufWriter::new(Vec::new());
+                        let mut extension_buffer = std::io::BufWriter::new(Vec::new());
 
                         let has_value = self.value.serialize_field(field, &mut value_buffer)?;
                         let has_extension = self.serialize_extension(&mut extension_buffer)?;
@@ -59,7 +59,7 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
                             let value = value_buffer.into_inner()?;
                             writer.write_all(&value)?;
                             if has_extension {
-                                writer.write_all(&[b","])?;
+                                writer.write_all(&[b','])?;
                             }
                         }
                         if has_extension {
@@ -128,19 +128,19 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
 
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
                         }
                     }
 
-                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_extension),*
                         }
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         let field = match self {
                             #(#variants_field_name),*
                         };
@@ -184,59 +184,65 @@ pub fn complex_serialization(
 
                 let accessor = field.ident.to_owned().unwrap();
                 quote! {
-                   if let Some(field_value) = self.#accessor.serialize_field(#field_str, writer) {
-                    serialized_fields.push(field_value);
+                    // Means successful serialization so increment total.
+                   if self.#accessor.serialize_field(#field_str, &mut tmp_buffer)? {
+                       total += 1;
                    }
                 }
             });
 
             let include_resource_type = match complex_type {
                 ComplexSerializeType::Resource => quote! {
-                    let mut resource_type_field = "\"resourceType\":".to_string();
-                    resource_type_field.push_str(#resource_type);
-                    serialized_fields.push(resource_type_field);
+                    tmp_buffer.write_all("\"resourceType\":".as_bytes())?;
+                    tmp_buffer.write_all(#resource_type.as_bytes())?;
+                    tmp_buffer.write_all(&[b','])?;
+                    total += 1;
                 },
                 ComplexSerializeType::Complex => quote! {},
             };
 
-            let vector_capacity = data.fields.len() + 1;
-
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
-                        let mut total  = 0;
-                        let mut serialized_fields = Vec::with_capacity(#vector_capacity);
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                        let mut tmp_buffer = std::io::BufWriter::new(Vec::new());
+                        let mut total = 0;
 
                         #include_resource_type
 
                         #(#serializers)*
 
-                        if serialized_fields.is_empty() {
-                            return None
+                        if total == 0  {
+                            return Ok(false);
                         }
 
-                        let mut string_value = "{".to_string();
 
-                        string_value.push_str(&serialized_fields.join(","));
-                        string_value.push_str("}");
+                        writer.write_all(&[b'{'])?;
+                        let tmp_buffer = tmp_buffer.into_inner()?;
+                        // Slice off the last comma.
+                        writer.write_all(&tmp_buffer[0..(tmp_buffer.len()-1)])?;
+                        writer.write_all(&[b'}'])?;
 
-                        Some(string_value)
+                        Ok(true)
                     }
 
-                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         Ok(false)
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
-                        let mut string_value = "\"".to_string();
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                        let mut tmp_buffer = std::io::BufWriter::new(Vec::new());
+                        let should_serialize = self.serialize_value(&mut tmp_buffer)?;
+                        if !should_serialize {
+                            return Ok(false);
+                        }
 
-                        string_value.push_str(field);
+                        writer.write_all(&[b'"'])?;
+                        writer.write_all(field.as_bytes())?;
+                        writer.write_all(&[b'"', b':'])?;
+                        let tmp_buffer = tmp_buffer.into_inner()?;
+                        writer.write_all(&tmp_buffer)?;
 
-                        string_value.push_str("\":");
-
-                        string_value.push_str(&self.serialize_value()?);
-
-                        Some(string_value)
+                        Ok(true)
                     }
 
                     fn is_fp_primitive(&self) -> bool {
@@ -287,19 +293,19 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
 
             let expanded = quote! {
                 impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
                         }
                     }
 
-                    fn serialize_extension(&self, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_extension),*
                         }
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut std::io::Write) -> Result<bool, SerializeError> {
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_fields),*
                         }

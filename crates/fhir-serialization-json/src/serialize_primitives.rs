@@ -21,9 +21,9 @@ impl FHIRJSONSerializer for i64 {
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError> {
-        writer.write("\"".as_bytes())?;
-        writer.write(field.as_bytes())?;
-        writer.write("\":".as_bytes())?;
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
         self.serialize_value(writer)?;
 
         Ok(true)
@@ -53,9 +53,9 @@ impl FHIRJSONSerializer for u64 {
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError> {
-        writer.write("\"".as_bytes())?;
-        writer.write(field.as_bytes())?;
-        writer.write("\":".as_bytes())?;
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
         self.serialize_value(writer)?;
 
         Ok(true)
@@ -85,9 +85,9 @@ impl FHIRJSONSerializer for f64 {
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError> {
-        writer.write("\"".as_bytes())?;
-        writer.write(field.as_bytes())?;
-        writer.write("\":".as_bytes())?;
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
         self.serialize_value(writer)?;
 
         Ok(true)
@@ -117,9 +117,9 @@ impl FHIRJSONSerializer for bool {
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError> {
-        writer.write("\"".as_bytes())?;
-        writer.write(field.as_bytes())?;
-        writer.write("\":".as_bytes())?;
+        writer.write_all("\"".as_bytes())?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all("\":".as_bytes())?;
         self.serialize_value(writer)?;
 
         Ok(true)
@@ -145,42 +145,42 @@ impl FHIRJSONSerializer for bool {
 //               %x75 4HEXDIG )  ; uXXXX                U+XXXX
 impl FHIRJSONSerializer for String {
     fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, SerializeError> {
-        writer.write(&[b'"'])?;
+        writer.write_all(&[b'"'])?;
         for c in self.chars() {
             match c {
                 // Simple escapes just reuse character
                 // | '\u{005C}' | '\u{002F}'
                 '\u{0022}' => {
-                    writer.write(&[b'\x5c', c as u8])?;
+                    writer.write_all(&[b'\x5c', c as u8])?;
                 }
                 // Backspace
                 '\u{0008}' => {
-                    writer.write(&[b'\x5c', b'\x62'])?;
+                    writer.write_all(&[b'\x5c', b'\x62'])?;
                 }
                 // Form feed
                 '\u{000C}' => {
-                    writer.write(&[b'\x5c', b'\x66'])?;
+                    writer.write_all(&[b'\x5c', b'\x66'])?;
                 }
                 // Line Feed
                 '\u{000A}' => {
-                    writer.write(&[b'\x5c', b'\x6e'])?;
+                    writer.write_all(&[b'\x5c', b'\x6e'])?;
                 }
                 // Carriage return
                 '\u{000D}' => {
-                    writer.write(&[b'\x5c', b'\x72'])?;
+                    writer.write_all(&[b'\x5c', b'\x72'])?;
                 }
                 // Tab
                 '\u{0009}' => {
-                    writer.write(&[b'\x5c', b'\x74'])?;
+                    writer.write_all(&[b'\x5c', b'\x74'])?;
                 }
 
                 ch => {
-                    writer.write(&[ch as u8])?;
+                    writer.write_all(&[ch as u8])?;
                 }
             }
         }
 
-        writer.write(&[b'"'])?;
+        writer.write_all(&[b'"'])?;
 
         Ok(true)
     }
@@ -197,9 +197,9 @@ impl FHIRJSONSerializer for String {
         field: &str,
         writer: &mut dyn std::io::Write,
     ) -> Result<bool, SerializeError> {
-        writer.write(&[b'"'])?;
-        writer.write(field.as_bytes())?;
-        writer.write(&[b'"', b':'])?;
+        writer.write_all(&[b'"'])?;
+        writer.write_all(field.as_bytes())?;
+        writer.write_all(&[b'"', b':'])?;
         self.serialize_value(writer)?;
         Ok(true)
     }
@@ -221,15 +221,15 @@ where
         let mut total = 0;
 
         let mut tmp_buffer = BufWriter::new(Vec::new());
-        tmp_buffer.write(&[b'['])?;
+        tmp_buffer.write_all(&[b'['])?;
 
         for i in 0..(self.len() - 1) {
             let v = &self[i];
             if v.serialize_value(&mut tmp_buffer)? {
                 total += 1;
-                tmp_buffer.write(&[b','])?;
+                tmp_buffer.write_all(&[b','])?;
             } else {
-                tmp_buffer.write("null".as_bytes())?;
+                tmp_buffer.write_all("null".as_bytes())?;
             }
         }
 
@@ -238,7 +238,7 @@ where
             total += 1;
         }
 
-        tmp_buffer.write(&[b']'])?;
+        tmp_buffer.write_all(&[b']'])?;
         Ok(total > 0)
     }
 
@@ -254,15 +254,15 @@ where
             let mut total = 0;
 
             let mut tmp_buffer = BufWriter::new(Vec::new());
-            tmp_buffer.write(&[b'['])?;
+            tmp_buffer.write_all(&[b'['])?;
 
             for i in 0..(self.len() - 1) {
                 let v = &self[i];
                 if v.serialize_extension(&mut tmp_buffer)? {
                     total += 1;
-                    tmp_buffer.write(&[b','])?;
+                    tmp_buffer.write_all(&[b','])?;
                 } else {
-                    tmp_buffer.write("null".as_bytes())?;
+                    tmp_buffer.write_all("null".as_bytes())?;
                 }
             }
 
@@ -271,7 +271,7 @@ where
                 total += 1;
             }
 
-            tmp_buffer.write(&[b']'])?;
+            tmp_buffer.write_all(&[b']'])?;
             Ok(total > 0)
         } else {
             Ok(false)
@@ -293,21 +293,21 @@ where
         let extension_u8 = extension_buffer.into_inner()?;
 
         if should_serialize_extension {
-            writer.write(&[b'"', b'_'])?;
-            writer.write(field.as_bytes())?;
-            writer.write(&[b'"', b':'])?;
-            writer.write(&extension_u8)?;
+            writer.write_all(&[b'"', b'_'])?;
+            writer.write_all(field.as_bytes())?;
+            writer.write_all(&[b'"', b':'])?;
+            writer.write_all(&extension_u8)?;
             // If value not empty put trailing comma after extension value.
             if shoud_serialize_value {
-                writer.write(&[b','])?;
+                writer.write_all(&[b','])?;
             }
         }
 
         if shoud_serialize_value {
-            writer.write(&[b'"'])?;
-            writer.write(field.as_bytes())?;
-            writer.write(&[b'"', b':'])?;
-            writer.write(&value_u8)?;
+            writer.write_all(&[b'"'])?;
+            writer.write_all(field.as_bytes())?;
+            writer.write_all(&[b'"', b':'])?;
+            writer.write_all(&value_u8)?;
         }
 
         Ok(shoud_serialize_value || should_serialize_extension)
