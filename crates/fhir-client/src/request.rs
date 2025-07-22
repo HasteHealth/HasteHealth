@@ -76,17 +76,6 @@ pub struct FHIRSearchSystemRequest {
     pub parameters: Vec<ParsedParameter>,
 }
 
-pub struct FHIRInvokeInstanceRequest {
-    pub resource_type: ResourceType,
-    pub id: String,
-    pub parameters: Parameters,
-}
-
-pub struct FHIRInvokeTypeRequest {
-    pub resource_type: ResourceType,
-    pub parameters: Parameters,
-}
-
 #[derive(Error, Debug)]
 pub enum OperationParseError {
     #[error("Invalid operation name")]
@@ -102,6 +91,19 @@ impl Operation {
     pub fn name(&self) -> &str {
         &self.0
     }
+}
+
+pub struct FHIRInvokeInstanceRequest {
+    pub operation: Operation,
+    pub resource_type: ResourceType,
+    pub id: String,
+    pub parameters: Parameters,
+}
+
+pub struct FHIRInvokeTypeRequest {
+    pub operation: Operation,
+    pub resource_type: ResourceType,
+    pub parameters: Parameters,
 }
 
 pub struct FHIRInvokeSystemRequest {

@@ -164,7 +164,15 @@ async fn fhir_handler(
 
     info!("Request processed in {:?}", start.elapsed());
 
-    Ok((axum::http::StatusCode::OK, "Request successful".to_string()).into_response())
+    if let FHIRRequest::Create(create_request) = fhir_request {
+        Ok((
+            axum::http::StatusCode::CREATED,
+            fhir_serialization_json::to_string(&create_request.resource).unwrap(),
+        )
+            .into_response())
+    } else {
+        Ok((axum::http::StatusCode::OK, "Request successful".to_string()).into_response())
+    }
 }
 
 #[tokio::main]
