@@ -3,7 +3,6 @@ use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};
 
-pub mod middleware;
 pub mod request;
 mod test_impl;
 pub mod url;

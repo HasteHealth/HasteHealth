@@ -22,3 +22,10 @@ pub fn to_string<T: FHIRJSONSerializer>(value: &T) -> Result<String, SerializeEr
 
     Ok(String::from_utf8(content)?)
 }
+
+pub fn to_writer<T: FHIRJSONSerializer>(
+    writer: &mut dyn Write,
+    value: &T,
+) -> Result<bool, SerializeError> {
+    value.serialize_value(writer)
+}

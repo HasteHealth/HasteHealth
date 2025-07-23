@@ -6,7 +6,7 @@ edition = "2024"
 
 [dependencies]
 fhirpath = { path = "../fhirpath" }
-fhir-model = { path = "../fhir-model" }
+fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 fhir-serialization-json = { path = "../fhir-serialization-json" }
 fhir-client = { path = "../fhir-client" }
 reflect = { path = "../reflect", features = ["derive"] }

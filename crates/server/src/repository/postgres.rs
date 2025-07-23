@@ -1,5 +1,6 @@
-use sqlx::{Executor, PgPool, Pool};
-use sqlx_postgres::PgPoolOptions;
+use fhir_model::r4::types::Resource;
+use sqlx::{Decode, Executor, FromRow, PgPool, Pool, Postgres, Row, ValueRef, error::BoxDynError};
+use sqlx_postgres::{PgPoolOptions, PgRow};
 
 use crate::repository::FHIRRepository;
 
@@ -19,7 +20,6 @@ impl FHIRRepository for PostgresSQL {
         resource: fhir_model::r4::types::Resource,
     ) -> impl Future<Output = Result<fhir_model::r4::types::Resource, crate::ServerErrors>> + Send
     {
-        async { todo!() }
     }
 
     fn read_by_version_id(

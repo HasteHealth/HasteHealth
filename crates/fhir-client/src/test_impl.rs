@@ -1,26 +1,28 @@
 use crate::{FHIRClient, request::FHIRRequest};
 use std::pin::Pin;
 
-struct Test<F>
+struct Test<CTX, F>
 where
-    F: Fn(usize) -> Pin<Box<dyn Future<Output = usize> + Send>> + Send + Sync,
+    F: FnMut(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
 {
+    _phantom: std::marker::PhantomData<CTX>,
     middleware: Vec<F>,
 }
 
-impl<F> Test<F>
+impl<CTX, F> Test<CTX, F>
 where
-    F: Fn(usize) -> Pin<Box<dyn Future<Output = usize> + Send>> + Send + Sync,
+    F: Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
 {
     pub fn new(middleware: Vec<F>) -> Self {
-        Test { middleware }
+        Test {
+            _phantom: std::marker::PhantomData,
+            middleware,
+        }
     }
-    pub async fn call(&self, x: usize) -> usize {
+    pub async fn call(&self, x: CTX) -> CTX {
         let mut ctx = x;
         for middleware in &self.middleware {
             ctx = middleware(ctx).await;
-            // Here you would typically spawn the future or handle it accordingly
-            // For demonstration, we just return the future
         }
         ctx
     }
@@ -33,11 +35,21 @@ fn what(x: usize) -> Pin<Box<dyn Future<Output = usize> + Send>> {
     })
 }
 
+fn string_concat(x: String) -> Pin<Box<dyn Future<Output = String> + Send>> {
+    Box::pin(async move {
+        println!("Hello {}", x);
+        format!("{} world", x)
+    })
+}
+
 fn main() {
     let test = Test::new(vec![what, what, what]);
     Test::new(vec![what]);
 
+    let test2 = Test::new(vec![string_concat, string_concat]);
+
     test.call(42);
+    test2.call("Hello".into());
 }
 
 // impl<CTX, Error, M> FHIRClient<CTX, Error> for Test<M>
