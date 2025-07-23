@@ -20,6 +20,7 @@ impl FHIRRepository for PostgresSQL {
         resource: fhir_model::r4::types::Resource,
     ) -> impl Future<Output = Result<fhir_model::r4::types::Resource, crate::ServerErrors>> + Send
     {
+        async { todo!() }
     }
 
     fn read_by_version_id(

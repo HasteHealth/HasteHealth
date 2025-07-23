@@ -1,9 +1,6 @@
 #![feature(test)]
 pub mod r4;
 
-#[cfg(feature = "sqlx")]
-pub mod sqlx;
-
 #[cfg(test)]
 mod tests {
     extern crate test;
