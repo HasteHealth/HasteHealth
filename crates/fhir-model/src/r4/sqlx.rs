@@ -27,9 +27,8 @@ where
 {
     fn decode(value: <DB as sqlx::Database>::ValueRef<'r>) -> Result<Self, BoxDynError> {
         let value = <&str>::decode(value)?;
-        Ok(FHIRJson::<T>(fhir_serialization_json::from_str::<T>(
-            value,
-        )?))
+        let resource = fhir_serialization_json::from_str::<T>(&value[1..]);
+        Ok(FHIRJson::<T>(resource?))
     }
 }
 

@@ -50,6 +50,20 @@ pub fn reflect(input: TokenStream) -> TokenStream {
                 }
             });
 
+            let mutable_accessor = data.fields.iter().map(|field| {
+                let renamed = get_attribute_rename(&field.attrs);
+                let name = if let Some(renamed_field) = renamed {
+                    renamed_field
+                } else {
+                    field.ident.to_owned().unwrap().to_string()
+                };
+
+                let accessor = field.ident.to_owned().unwrap();
+                quote! {
+                    #name => Some(&mut self.#accessor)
+                }
+            });
+
             let expanded = quote! {
                 impl reflect::MetaValue for #name {
                     fn fields(&self) -> Vec<&'static str> {
@@ -63,6 +77,17 @@ pub fn reflect(input: TokenStream) -> TokenStream {
                             #(#accessors),*
                             ,_ => None,
                         }
+                    }
+
+                    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+                         match field {
+                            #(#mutable_accessor),*
+                            ,_ => None,
+                        }
+                    }
+
+                    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+                        None
                     }
 
                     fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
@@ -111,6 +136,20 @@ pub fn reflect(input: TokenStream) -> TokenStream {
                 }
             });
 
+            let variants_get_field_mut = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                quote! {
+                    Self::#name(k) => k.get_field_mut(field)
+                }
+            });
+
+            let variants_get_index_mut = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                quote! {
+                    Self::#name(k) => k.get_index_mut(index)
+                }
+            });
+
             let variants_typename = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
@@ -149,6 +188,18 @@ pub fn reflect(input: TokenStream) -> TokenStream {
                     fn get_index<'a>(&'a self, field: usize) -> Option<&'a dyn MetaValue> {
                         match self {
                             #(#variants_get_index),*
+                        }
+                    }
+
+                    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+                         match self {
+                            #(#variants_get_field_mut),*
+                        }
+                    }
+
+                    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+                        match self {
+                            #(#variants_get_index_mut),*
                         }
                     }
 
