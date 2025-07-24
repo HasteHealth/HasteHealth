@@ -1,7 +1,7 @@
 use std::{pin::Pin, sync::Arc};
 
 type Next<CTX: Send + Sync> =
-    Box<dyn Fn(&CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+    Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
 type Middleware<CTX: Send + Sync> =
     Box<dyn Fn(CTX, Option<Next<CTX>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
