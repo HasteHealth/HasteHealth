@@ -3,8 +3,8 @@ use fhir_client::request::FHIRRequest;
 use fhir_model::r4::{
     sqlx::FHIRJson,
     types::{
-        Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRInteger, FHIRString,
-        HumanName, Identifier, Patient, Resource, ResourceType,
+        Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRId, FHIRInteger,
+        FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
     },
 };
 use fhir_serialization_json::{
@@ -48,6 +48,21 @@ mod fhir_http;
 mod oidc;
 mod pg;
 mod repository;
+
+// [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
+// Can't use _ for compliance.
+fn generate_id() -> String {
+    nanoid::nanoid!(
+        26,
+        &[
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+            'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+            'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+            'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-'
+        ]
+    )
+    .to_string()
+}
 
 #[derive(FHIRJSONSerialize)]
 #[fhir_serialize_type = "typechoice"]
@@ -165,24 +180,35 @@ async fn fhir_handler(
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
     body: String,
 ) -> Result<Response, ServerErrors> {
-    let mut v = Tester {
-        name: "John Doe".to_string(),
-        age: 30,
-    };
-
-    let k: &mut String = &mut v.name;
-
-    *k = "New Name".to_string();
-
-    println!("Tester: {:?}", v);
-
     let start = Instant::now();
     info!("[{}] '{}'", method, path.fhir_location);
 
     let http_req = HTTPRequest::new(method, path.fhir_location, body);
-    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req).unwrap();
+    let mut fhir_request =
+        http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req).unwrap();
 
     info!("Request processed in {:?}", start.elapsed());
+
+    if let FHIRRequest::Create(create_request) = &mut fhir_request {
+        let mut id: &mut dyn std::any::Any = create_request.resource.get_field_mut("id").unwrap();
+        let id: &mut Option<String> = id.downcast_mut::<Option<String>>().unwrap();
+        *id = Some(generate_id());
+
+        let mut meta: &mut dyn std::any::Any =
+            create_request.resource.get_field_mut("meta").unwrap();
+        let meta: &mut Option<Box<Meta>> = meta.downcast_mut::<Option<Box<Meta>>>().unwrap();
+
+        if meta.is_none() {
+            *meta = Some(Box::new(Meta::default()))
+        }
+        meta.as_mut().map(|meta| {
+            meta.versionId = Some(Box::new(FHIRId {
+                id: None,
+                extension: None,
+                value: Some(generate_id()),
+            }));
+        });
+    }
 
     if let FHIRRequest::Create(create_request) = &fhir_request {
         let response = state
@@ -199,8 +225,6 @@ async fn fhir_handler(
                 fhir_method: FHIRMethod::try_from(&fhir_request).unwrap(),
             })
             .await?;
-
-        println!("Resource inserted: {:?}", response);
 
         Ok((
             axum::http::StatusCode::CREATED,

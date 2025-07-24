@@ -2,7 +2,7 @@ use sqlx::{
     Decode, Encode, Postgres,
     encode::IsNull,
     error::BoxDynError,
-    postgres::{PgArgumentBuffer, PgTypeInfo},
+    postgres::{PgArgumentBuffer, PgTypeInfo, PgValueRef},
 };
 
 pub struct FHIRJson<T: ?Sized>(pub T);
@@ -20,16 +20,14 @@ where
     }
 }
 
-impl<'r, DB: sqlx::Database, T> Decode<'r, DB> for FHIRJson<T>
+impl<'r, T: 'r> Decode<'r, Postgres> for FHIRJson<T>
 where
     T: fhir_serialization_json::FHIRJSONSerializer + fhir_serialization_json::FHIRJSONDeserializer,
-    &'r str: Decode<'r, DB>,
 {
-    fn decode(value: <DB as sqlx::Database>::ValueRef<'r>) -> Result<Self, BoxDynError> {
-        let value = <&str>::decode(value)?;
-        Ok(FHIRJson::<T>(fhir_serialization_json::from_str::<T>(
-            value,
-        )?))
+    fn decode(value: PgValueRef<'r>) -> Result<Self, BoxDynError> {
+        let buf = value.as_bytes()?;
+        let resource = fhir_serialization_json::from_bytes::<T>(&buf[1..]);
+        Ok(FHIRJson::<T>(resource?))
     }
 }
 
