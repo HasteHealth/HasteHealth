@@ -1,7 +1,8 @@
 use std::fmt::Display;
 
-use crate::ServerErrors;
-use fhir_model::r4::types::Resource;
+use crate::{ServerErrors, SupportedFHIRVersions};
+use fhir_client::request::FHIRRequest;
+use fhir_model::r4::{sqlx::FHIRJson, types::Resource};
 use serde::Deserialize;
 pub mod postgres;
 
@@ -68,13 +69,54 @@ impl ResourceId {
     }
 }
 
+#[derive(sqlx::Type)]
+#[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
+pub enum FHIRMethod {
+    Create,
+    Read,
+    Update,
+    Delete,
+}
+
+impl TryFrom<&FHIRRequest> for FHIRMethod {
+    type Error = String;
+
+    fn try_from(request: &FHIRRequest) -> Result<Self, Self::Error> {
+        match request {
+            FHIRRequest::Create(_) => Ok(FHIRMethod::Create),
+            FHIRRequest::Read(_) => Ok(FHIRMethod::Read),
+            FHIRRequest::UpdateInstance(_) => Ok(FHIRMethod::Update),
+            FHIRRequest::ConditionalUpdate(_) => Ok(FHIRMethod::Update),
+            FHIRRequest::DeleteInstance(_) => Ok(FHIRMethod::Delete),
+            FHIRRequest::DeleteType(_) => Ok(FHIRMethod::Delete),
+            FHIRRequest::DeleteSystem(_) => Ok(FHIRMethod::Delete),
+            _ => Err("Unsupported FHIR request".to_string()),
+        }
+    }
+}
+
+#[derive(sqlx::FromRow)]
+pub struct InsertResourceRow {
+    pub tenant: String,
+    pub project: String,
+    // resource_type: String,
+    pub author_id: String,
+    pub resource: FHIRJson<Resource>,
+    pub deleted: bool,
+    // created_at: chrono::DateTime<Utc>,
+    pub request_method: String,
+
+    pub fhir_version: SupportedFHIRVersions,
+    pub author_type: String,
+    // version_id: String,
+    pub fhir_method: FHIRMethod,
+    // sequence: i64,
+}
+
 pub trait FHIRRepository: Send + Sync {
     fn insert(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
-        user_id: UserId,
-        resource: Resource,
+        insertion: &InsertResourceRow,
     ) -> impl Future<Output = Result<Resource, ServerErrors>> + Send;
     fn read_by_version_id(
         &self,

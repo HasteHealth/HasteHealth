@@ -1,8 +1,19 @@
-use fhir_model::r4::types::Resource;
-use sqlx::{Decode, Executor, FromRow, PgPool, Pool, Postgres, Row, ValueRef, error::BoxDynError};
+use chrono::Utc;
+use fhir_client::request::FHIRRequest;
+use fhir_model::r4::{
+    sqlx::FHIRJson,
+    types::{Patient, Resource},
+};
+use sqlx::{
+    Decode, Executor, FromRow, PgPool, Pool, Postgres, Row, ValueRef, error::BoxDynError,
+    types::Json,
+};
 use sqlx_postgres::{PgPoolOptions, PgRow};
 
-use crate::repository::FHIRRepository;
+use crate::{
+    SupportedFHIRVersions,
+    repository::{FHIRMethod, FHIRRepository, InsertResourceRow},
+};
 
 pub struct PostgresSQL(sqlx::PgPool);
 impl PostgresSQL {
@@ -11,16 +22,31 @@ impl PostgresSQL {
     }
 }
 
+struct ReturnV {
+    resource: FHIRJson<Resource>,
+}
+
 impl FHIRRepository for PostgresSQL {
-    fn insert(
-        &self,
-        tenant_id: super::TenantId,
-        project_id: super::ProjectId,
-        user_id: super::UserId,
-        resource: fhir_model::r4::types::Resource,
-    ) -> impl Future<Output = Result<fhir_model::r4::types::Resource, crate::ServerErrors>> + Send
-    {
-        async { todo!() }
+    async fn insert(&self, row: &InsertResourceRow) -> Result<Resource, crate::ServerErrors> {
+        let result = sqlx::query_as!(
+                ReturnV,
+                r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+                RETURNING resource as "resource: FHIRJson<Resource>""#,
+                row.tenant,
+                row.project,
+                row.author_id,
+                // Useless cast so that macro has access to the type information.
+                // Otherwise it will not compile on type check.
+                &row.fhir_version as &SupportedFHIRVersions,
+                &row.resource as &FHIRJson<Resource>,
+                row.deleted,
+                row.request_method,
+                row.author_type,
+                &row.fhir_method as &FHIRMethod,
+            ).fetch_one(&self.0).await?;
+
+        Ok(result.resource.0)
     }
 
     fn read_by_version_id(
