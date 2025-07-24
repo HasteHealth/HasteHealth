@@ -1,0 +1,12 @@
+[package]
+name = "fhir-operation-error"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+derive = ["dep:fhir-operation-derive"]
+
+[dependencies]
+anyhow = "1.0.98"
+fhir-operation-derive = { path = "../fhir-operation-derive", optional = true }
+fhir-model = { path = "../fhir-model" }

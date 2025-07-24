@@ -43,6 +43,7 @@ pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttrib
             complex_variants: Vec::new(),
             primitive_variants: Vec::new(),
         };
+
         let parsed_arguments = attribute_list
             .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
             .unwrap();

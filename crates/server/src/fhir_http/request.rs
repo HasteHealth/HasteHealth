@@ -5,9 +5,10 @@ use fhir_client::request::{
     FHIRHistorySystemRequest, FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest,
     FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRRequest,
     FHIRSearchSystemRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
-    FHIRVersionReadRequest, Operation,
+    FHIRVersionReadRequest, Operation, OperationParseError,
 };
-use fhir_model::r4::types::{Bundle, Resource, ResourceType};
+use fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
+use fhir_serialization_json::errors::DeserializeError;
 use json_patch::Patch;
 use serde_json::error;
 use thiserror::Error;
@@ -35,6 +36,14 @@ pub enum FHIRRequestParsingError {
     InvalidBody,
     #[error("Unsupported FHIR request '{0}'")]
     Unsupported(String),
+    #[error("Invalid Resource Type '{0}'")]
+    ResourceTypeError(#[from] ResourceTypeError),
+    #[error("Invalid Operation '{0}'")]
+    InvalidOperation(#[from] OperationParseError),
+    #[error("Deserialization error: {0}")]
+    DeserializeError(#[from] DeserializeError),
+    #[error("Failed to deserialize patch")]
+    PatchDeserializeError(#[from] serde_json::Error),
 }
 
 /*
@@ -55,7 +64,7 @@ fn parse_request_1_non_empty<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     if url_chunks[0].starts_with("$") {
         match req.method {
             Method::POST => {
@@ -143,7 +152,7 @@ fn parse_request_1_empty<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     match req.method {
         Method::POST => {
             let bundle = fhir_serialization_json::from_str::<Bundle>(&req.body)?;
@@ -185,7 +194,7 @@ fn parse_request_1<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     if url_chunks[0] == "" {
         parse_request_1_empty(fhir_version, url_chunks, req)
     } else {
@@ -208,7 +217,7 @@ fn parse_request_2<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     if url_chunks[1].starts_with("$") {
         match req.method {
             Method::POST => {
@@ -294,7 +303,7 @@ fn parse_request_3<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     if url_chunks[2].starts_with("$") {
         match req.method {
             Method::POST => {
@@ -350,7 +359,7 @@ fn parse_request_4<'a>(
     fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     if req.method == Method::GET && url_chunks[2] == "_history" {
         Ok(FHIRRequest::VersionRead(FHIRVersionReadRequest {
             resource_type: ResourceType::new(url_chunks[0].to_string())?,
@@ -368,7 +377,7 @@ fn parse_request_4<'a>(
 pub fn http_request_to_fhir_request(
     fhir_version: SupportedFHIRVersions,
     req: &HTTPRequest,
-) -> anyhow::Result<FHIRRequest> {
+) -> Result<FHIRRequest, FHIRRequestParsingError> {
     let url_pieces = req.path.split('/').collect::<Vec<&str>>();
 
     match url_pieces.len() {
