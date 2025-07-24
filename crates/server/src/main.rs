@@ -39,7 +39,7 @@ use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 
 use crate::{
-    fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
+    fhir_http::request::{FHIRRequestParsingError, HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
 };
@@ -89,6 +89,8 @@ enum ServerErrors {
     TemplateRender,
     #[error("Internal server error")]
     InternalServerError,
+    #[error("Failed to parse FHIR request.")]
+    FHIRRequestParsingError(#[from] FHIRRequestParsingError),
 }
 
 impl IntoResponse for ServerErrors {
@@ -184,19 +186,17 @@ async fn fhir_handler(
     info!("[{}] '{}'", method, path.fhir_location);
 
     let http_req = HTTPRequest::new(method, path.fhir_location, body);
-    let mut fhir_request =
-        http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req).unwrap();
+    let mut fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
 
     info!("Request processed in {:?}", start.elapsed());
 
     if let FHIRRequest::Create(create_request) = &mut fhir_request {
-        let mut id: &mut dyn std::any::Any = create_request.resource.get_field_mut("id").unwrap();
-        let id: &mut Option<String> = id.downcast_mut::<Option<String>>().unwrap();
+        let mut id: &mut dyn std::any::Any = create_request.resource.get_field_mut("id")?;
+        let id: &mut Option<String> = id.downcast_mut::<Option<String>>()?;
         *id = Some(generate_id());
 
-        let mut meta: &mut dyn std::any::Any =
-            create_request.resource.get_field_mut("meta").unwrap();
-        let meta: &mut Option<Box<Meta>> = meta.downcast_mut::<Option<Box<Meta>>>().unwrap();
+        let mut meta: &mut dyn std::any::Any = create_request.resource.get_field_mut("meta")?;
+        let meta: &mut Option<Box<Meta>> = meta.downcast_mut::<Option<Box<Meta>>>()?;
 
         if meta.is_none() {
             *meta = Some(Box::new(Meta::default()))
