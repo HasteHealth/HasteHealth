@@ -26,6 +26,7 @@ where
 {
     fn decode(value: PgValueRef<'r>) -> Result<Self, BoxDynError> {
         let buf = value.as_bytes()?;
+        // Need to remove first byte which is a marker for JSONB binary.
         let resource = fhir_serialization_json::from_bytes::<T>(&buf[1..]);
         Ok(FHIRJson::<T>(resource?))
     }
