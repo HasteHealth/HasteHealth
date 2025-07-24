@@ -1,4 +1,4 @@
-use fhir_model::r4::types::OperationOutcomeIssue;
+// use fhir_model::r4::types::OperationOutcomeIssue;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
@@ -177,56 +177,52 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
 
             let variants = data.variants.iter().map(|v| {
                 let ident = &v.ident;
-                let issues = get_issue_attributes(&v.attrs);
-                let issue_instantiation = if let Some(issues) = issues {
-                    issues.iter().map(|simple_issue| {
-                        let severity_string: String = simple_issue.severity.clone().into();
-                        let severity = quote! { Box::new(fhir_model::r4::types::FHIRCode{
-                                id: None,
-                                Extension: None,
-                                value: #severity_string.to_string(),
-                            })
-                        };
+                let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
+                let issue_instantiation = issues.iter().map(|simple_issue| {
+                    let severity_string: String = simple_issue.severity.clone().into();
+                    let severity = quote! { Box::new(fhir_model::r4::types::FHIRCode{
+                            id: None,
+                            Extension: None,
+                            value: #severity_string.to_string(),
+                        })
+                    };
 
-                        let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref()
-                        {
-                            quote! {
-                                Some(Box::new(fhir_model::r4::types::FHIRCode{
-                                    id: None,
-                                    Extension: None,
-                                    value: Some(#diagnostic.to_string()),
-                                }))
-                            }
-                        } else {
-                            quote! {
-                                None
-                            }
-                        };
-
-                        let code_string = &simple_issue.code;
-                        let code = quote! {
-                            Box::new(fhir_model::r4::types::FHIRCode{
-                                id: None,
-                                Extension: None,
-                                value: #code_string.to_string(),
-                            })
-                        };
-
+                    let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
                         quote! {
-                            OperationOutcomeIssue {
-                                severity: #severity,
-                                code: #code,
-                                diagnostics: #diagnostic,
-                            }
+                            Some(Box::new(fhir_model::r4::types::FHIRCode{
+                                id: None,
+                                Extension: None,
+                                value: Some(#diagnostic.to_string()),
+                            }))
                         }
-                    });
-                    quote! {}
-                } else {
-                    quote! {}
-                };
+                    } else {
+                        quote! {
+                            None
+                        }
+                    };
+
+                    let code_string = &simple_issue.code;
+                    let code = quote! {
+                        Box::new(fhir_model::r4::types::FHIRCode{
+                            id: None,
+                            Extension: None,
+                            value: #code_string.to_string(),
+                        })
+                    };
+
+                    quote! {
+                        OperationOutcomeIssue {
+                            severity: #severity,
+                            code: #code,
+                            diagnostics: #diagnostic,
+                        }
+                    }
+                });
 
                 quote! {
-                    #ident => write!(f, stringify!(#ident)),
+                    #ident => vec![
+                        #(#issue_instantiation),*
+                    ],
                 }
             });
 

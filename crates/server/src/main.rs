@@ -136,6 +136,11 @@ impl IntoResponse for ServerErrors {
                 "Internal server error".to_string(),
             )
                 .into_response(),
+            ServerErrors::FHIRRequestParsingError(fhirrequest_parsing_error) => (
+                axum::http::StatusCode::BAD_REQUEST,
+                "Failed to parse FHIR Request.",
+            )
+                .into_response(),
         }
     }
 }
@@ -175,6 +180,39 @@ struct Tester {
     age: u32,
 }
 
+fn set_resource_id(resource: &mut Resource) -> Result<(), crate::ServerErrors> {
+    let mut id: &mut dyn std::any::Any = resource
+        .get_field_mut("id")
+        .ok_or(ServerErrors::InternalServerError)?;
+    let id: &mut Option<String> = id
+        .downcast_mut::<Option<String>>()
+        .ok_or(ServerErrors::InternalServerError)?;
+    *id = Some(generate_id());
+    Ok(())
+}
+
+fn set_version_id(resource: &mut Resource) -> Result<(), crate::ServerErrors> {
+    let mut meta: &mut dyn std::any::Any = resource
+        .get_field_mut("meta")
+        .ok_or(ServerErrors::InternalServerError)?;
+    let meta: &mut Option<Box<Meta>> = meta
+        .downcast_mut::<Option<Box<Meta>>>()
+        .ok_or(ServerErrors::InternalServerError)?;
+
+    if meta.is_none() {
+        *meta = Some(Box::new(Meta::default()))
+    }
+    meta.as_mut().map(|meta| {
+        meta.versionId = Some(Box::new(FHIRId {
+            id: None,
+            extension: None,
+            value: Some(generate_id()),
+        }));
+    });
+
+    Ok(())
+}
+
 #[debug_handler]
 async fn fhir_handler(
     method: Method,
@@ -191,23 +229,8 @@ async fn fhir_handler(
     info!("Request processed in {:?}", start.elapsed());
 
     if let FHIRRequest::Create(create_request) = &mut fhir_request {
-        let mut id: &mut dyn std::any::Any = create_request.resource.get_field_mut("id")?;
-        let id: &mut Option<String> = id.downcast_mut::<Option<String>>()?;
-        *id = Some(generate_id());
-
-        let mut meta: &mut dyn std::any::Any = create_request.resource.get_field_mut("meta")?;
-        let meta: &mut Option<Box<Meta>> = meta.downcast_mut::<Option<Box<Meta>>>()?;
-
-        if meta.is_none() {
-            *meta = Some(Box::new(Meta::default()))
-        }
-        meta.as_mut().map(|meta| {
-            meta.versionId = Some(Box::new(FHIRId {
-                id: None,
-                extension: None,
-                value: Some(generate_id()),
-            }));
-        });
+        set_resource_id(&mut create_request.resource)?;
+        set_version_id(&mut create_request.resource)?;
     }
 
     if let FHIRRequest::Create(create_request) = &fhir_request {
