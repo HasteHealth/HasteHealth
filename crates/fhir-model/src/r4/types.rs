@@ -1,10 +1,11 @@
 #![allow(non_snake_case)]
 use fhir_serialization_json;
 use fhir_serialization_json::FHIRJSONDeserializer;
-use reflect::{MetaValue, derive::Reflect};
+use reflect::{derive::Reflect, MetaValue};
 use std::io::Write;
 use thiserror::Error;
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19,8 +20,8 @@ pub struct Element {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
 }
-
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -38,6 +39,7 @@ pub struct BackboneElement {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -55,6 +57,7 @@ pub struct FHIRBase64Binary {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -72,6 +75,7 @@ pub struct FHIRBoolean {
     pub value: Option<bool>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -89,6 +93,7 @@ pub struct FHIRCanonical {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -106,6 +111,7 @@ pub struct FHIRCode {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -123,6 +129,7 @@ pub struct FHIRDate {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -140,6 +147,7 @@ pub struct FHIRDateTime {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -157,6 +165,7 @@ pub struct FHIRDecimal {
     pub value: Option<f64>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -174,6 +183,7 @@ pub struct FHIRId {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -191,6 +201,7 @@ pub struct FHIRInstant {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -208,6 +219,7 @@ pub struct FHIRInteger {
     pub value: Option<i64>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -225,6 +237,7 @@ pub struct FHIRMarkdown {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -242,6 +255,7 @@ pub struct FHIROid {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -259,6 +273,7 @@ pub struct FHIRPositiveInt {
     pub value: Option<u64>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -276,6 +291,7 @@ pub struct FHIRString {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -293,6 +309,7 @@ pub struct FHIRTime {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -310,6 +327,7 @@ pub struct FHIRUnsignedInt {
     pub value: Option<u64>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -327,6 +345,7 @@ pub struct FHIRUri {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -344,6 +363,7 @@ pub struct FHIRUrl {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -361,6 +381,7 @@ pub struct FHIRUuid {
     pub value: Option<String>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -378,6 +399,7 @@ pub struct FHIRXhtml {
     pub value: String,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -424,6 +446,7 @@ pub struct Address {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -454,6 +477,7 @@ pub struct Age {
     pub code: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -471,6 +495,7 @@ impl Default for AnnotationAuthorTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -495,6 +520,7 @@ pub struct Annotation {
     pub text: Box<FHIRMarkdown>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -534,6 +560,7 @@ pub struct Attachment {
     pub creation: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -554,6 +581,7 @@ pub struct CodeableConcept {
     pub text: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -584,6 +612,7 @@ pub struct Coding {
     pub userSelected: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -604,6 +633,7 @@ pub struct ContactDetail {
     pub telecom: Option<Vec<Box<ContactPoint>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -634,6 +664,7 @@ pub struct ContactPoint {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -658,6 +689,7 @@ pub struct Contributor {
     pub contact: Option<Vec<Box<ContactDetail>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -688,6 +720,7 @@ pub struct Count {
     pub code: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -705,6 +738,7 @@ impl Default for DataRequirementSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -731,6 +765,7 @@ pub struct DataRequirementCodeFilter {
     pub code: Option<Vec<Box<Coding>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -749,6 +784,7 @@ impl Default for DataRequirementDateFilterValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -773,6 +809,7 @@ pub struct DataRequirementDateFilter {
     pub value: Option<DataRequirementDateFilterValueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -794,6 +831,7 @@ pub struct DataRequirementSort {
     pub direction: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -831,6 +869,7 @@ pub struct DataRequirement {
     pub sort: Option<Vec<DataRequirementSort>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -861,6 +900,7 @@ pub struct Distance {
     pub code: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -878,6 +918,7 @@ impl Default for DosageAsNeededTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -895,6 +936,7 @@ impl Default for DosageDoseAndRateDoseTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -913,6 +955,7 @@ impl Default for DosageDoseAndRateRateTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -937,6 +980,7 @@ pub struct DosageDoseAndRate {
     pub rate: Option<DosageDoseAndRateRateTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -984,6 +1028,7 @@ pub struct Dosage {
     pub maxDosePerLifetime: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1014,6 +1059,7 @@ pub struct Duration {
     pub code: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1036,6 +1082,7 @@ pub struct ElementDefinitionSlicingDiscriminator {
     pub path: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1062,6 +1109,7 @@ pub struct ElementDefinitionSlicing {
     pub rules: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1086,6 +1134,7 @@ pub struct ElementDefinitionBase {
     pub max: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1116,6 +1165,7 @@ pub struct ElementDefinitionType {
     pub versioning: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1181,6 +1231,7 @@ impl Default for ElementDefinitionDefaultValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1246,6 +1297,7 @@ impl Default for ElementDefinitionFixedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1311,6 +1363,7 @@ impl Default for ElementDefinitionPatternTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1376,6 +1429,7 @@ impl Default for ElementDefinitionExampleValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1397,6 +1451,7 @@ pub struct ElementDefinitionExample {
     pub value: ElementDefinitionExampleValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1421,6 +1476,7 @@ impl Default for ElementDefinitionMinValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1445,6 +1501,7 @@ impl Default for ElementDefinitionMaxValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1481,6 +1538,7 @@ pub struct ElementDefinitionConstraint {
     pub source: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1505,6 +1563,7 @@ pub struct ElementDefinitionBinding {
     pub valueSet: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1532,6 +1591,7 @@ pub struct ElementDefinitionMapping {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1644,6 +1704,7 @@ pub struct ElementDefinition {
     pub mapping: Option<Vec<ElementDefinitionMapping>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1674,6 +1735,7 @@ pub struct Expression {
     pub reference: Option<Box<FHIRUri>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1739,6 +1801,7 @@ impl Default for ExtensionValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1759,6 +1822,7 @@ pub struct Extension {
     pub value: Option<ExtensionValueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1795,6 +1859,7 @@ pub struct HumanName {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1827,6 +1892,7 @@ pub struct Identifier {
     pub assigner: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1855,6 +1921,7 @@ pub struct MarketingStatus {
     pub restoreDate: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1886,6 +1953,7 @@ pub struct Meta {
     pub tag: Option<Vec<Box<Coding>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1907,6 +1975,7 @@ pub struct Money {
     pub currency: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1928,6 +1997,7 @@ pub struct Narrative {
     pub div: Box<FHIRXhtml>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1966,6 +2036,7 @@ pub struct ParameterDefinition {
     pub profile: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -1987,6 +2058,7 @@ pub struct Period {
     pub end: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2004,6 +2076,7 @@ impl Default for PopulationAgeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2030,6 +2103,7 @@ pub struct Population {
     pub physiologicalCondition: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2072,6 +2146,7 @@ pub struct ProdCharacteristic {
     pub scoring: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2099,6 +2174,7 @@ pub struct ProductShelfLife {
     pub specialPrecautionsForStorage: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2129,6 +2205,7 @@ pub struct Quantity {
     pub code: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2148,6 +2225,7 @@ pub struct Range {
     pub high: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2167,6 +2245,7 @@ pub struct Ratio {
     pub denominator: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2195,6 +2274,7 @@ pub struct Reference {
     pub display: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2231,6 +2311,7 @@ pub struct RelatedArtifact {
     pub resource: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2266,6 +2347,7 @@ pub struct SampledData {
     pub data: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2300,6 +2382,7 @@ pub struct Signature {
     pub data: Option<Box<FHIRBase64Binary>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2318,6 +2401,7 @@ impl Default for SubstanceAmountAmountTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2337,6 +2421,7 @@ pub struct SubstanceAmountReferenceRange {
     pub highLimit: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2364,6 +2449,7 @@ pub struct SubstanceAmount {
     pub referenceRange: Option<SubstanceAmountReferenceRange>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2382,6 +2468,7 @@ impl Default for TimingRepeatBoundsTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2442,6 +2529,7 @@ pub struct TimingRepeat {
     pub offset: Option<Box<FHIRUnsignedInt>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2466,6 +2554,7 @@ pub struct Timing {
     pub code: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2485,6 +2574,7 @@ impl Default for TriggerDefinitionTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2514,6 +2604,7 @@ pub struct TriggerDefinition {
     pub condition: Option<Box<Expression>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2533,6 +2624,7 @@ impl Default for UsageContextValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2553,6 +2645,7 @@ pub struct UsageContext {
     pub value: UsageContextValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2575,6 +2668,7 @@ pub struct AccountCoverage {
     pub priority: Option<Box<FHIRPositiveInt>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2599,6 +2693,7 @@ pub struct AccountGuarantor {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2655,6 +2750,7 @@ pub struct Account {
     pub partOf: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2672,6 +2768,7 @@ impl Default for ActivityDefinitionSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2693,6 +2790,7 @@ impl Default for ActivityDefinitionTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2716,6 +2814,7 @@ pub struct ActivityDefinitionParticipant {
     pub role: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2733,6 +2832,7 @@ impl Default for ActivityDefinitionProductTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2755,6 +2855,7 @@ pub struct ActivityDefinitionDynamicValue {
     pub expression: Box<Expression>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2902,6 +3003,7 @@ pub struct ActivityDefinition {
     pub dynamicValue: Option<Vec<ActivityDefinitionDynamicValue>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2928,6 +3030,7 @@ pub struct AdverseEventSuspectEntityCausality {
     pub method: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -2949,6 +3052,7 @@ pub struct AdverseEventSuspectEntity {
     pub causality: Option<Vec<AdverseEventSuspectEntityCausality>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3023,6 +3127,7 @@ pub struct AdverseEvent {
     pub study: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3043,6 +3148,7 @@ impl Default for AllergyIntoleranceOnsetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3077,6 +3183,7 @@ pub struct AllergyIntoleranceReaction {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3146,6 +3253,7 @@ pub struct AllergyIntolerance {
     pub reaction: Option<Vec<AllergyIntoleranceReaction>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3176,6 +3284,7 @@ pub struct AppointmentParticipant {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3259,6 +3368,7 @@ pub struct Appointment {
     pub requestedPeriod: Option<Vec<Box<Period>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3309,6 +3419,7 @@ pub struct AppointmentResponse {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3333,6 +3444,7 @@ pub struct AuditEventAgentNetwork {
     pub type_: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3377,6 +3489,7 @@ pub struct AuditEventAgent {
     pub purposeOfUse: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3402,6 +3515,7 @@ pub struct AuditEventSource {
     pub type_: Option<Vec<Box<Coding>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3419,6 +3533,7 @@ impl Default for AuditEventEntityDetailValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3443,6 +3558,7 @@ pub struct AuditEventEntityDetail {
     pub value: AuditEventEntityDetailValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3482,6 +3598,7 @@ pub struct AuditEventEntity {
     pub detail: Option<Vec<AuditEventEntityDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3538,6 +3655,7 @@ pub struct AuditEvent {
     pub entity: Option<Vec<AuditEventEntity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3579,6 +3697,7 @@ pub struct Basic {
     pub author: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3608,6 +3727,7 @@ pub struct Binary {
     pub data: Option<Box<FHIRBase64Binary>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3627,6 +3747,7 @@ impl Default for BiologicallyDerivedProductCollectionCollectedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3651,6 +3772,7 @@ pub struct BiologicallyDerivedProductCollection {
     pub collected: Option<BiologicallyDerivedProductCollectionCollectedTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3668,6 +3790,7 @@ impl Default for BiologicallyDerivedProductProcessingTimeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3695,6 +3818,7 @@ pub struct BiologicallyDerivedProductProcessing {
     pub time: Option<BiologicallyDerivedProductProcessingTimeTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3712,6 +3836,7 @@ impl Default for BiologicallyDerivedProductManipulationTimeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3735,6 +3860,7 @@ pub struct BiologicallyDerivedProductManipulation {
     pub time: Option<BiologicallyDerivedProductManipulationTimeTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3763,6 +3889,7 @@ pub struct BiologicallyDerivedProductStorage {
     pub duration: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3818,6 +3945,7 @@ pub struct BiologicallyDerivedProduct {
     pub storage: Option<Vec<BiologicallyDerivedProductStorage>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3866,6 +3994,7 @@ pub struct BodyStructure {
     pub patient: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3889,6 +4018,7 @@ pub struct BundleLink {
     pub url: Box<FHIRUri>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3912,6 +4042,7 @@ pub struct BundleEntrySearch {
     pub score: Option<Box<FHIRDecimal>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3947,6 +4078,7 @@ pub struct BundleEntryRequest {
     pub ifNoneExist: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -3978,6 +4110,7 @@ pub struct BundleEntryResponse {
     pub outcome: Option<Box<Resource>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4008,6 +4141,7 @@ pub struct BundleEntry {
     pub response: Option<BundleEntryResponse>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4048,6 +4182,7 @@ pub struct Bundle {
     pub signature: Option<Box<Signature>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4074,6 +4209,7 @@ pub struct CapabilityStatementSoftware {
     pub releaseDate: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4099,6 +4235,7 @@ pub struct CapabilityStatementImplementation {
     pub custodian: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4124,6 +4261,7 @@ pub struct CapabilityStatementRestSecurity {
     pub description: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4147,6 +4285,7 @@ pub struct CapabilityStatementRestResourceInteraction {
     pub documentation: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4177,6 +4316,7 @@ pub struct CapabilityStatementRestResourceSearchParam {
     pub documentation: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4203,6 +4343,7 @@ pub struct CapabilityStatementRestResourceOperation {
     pub documentation: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4269,6 +4410,7 @@ pub struct CapabilityStatementRestResource {
     pub operation: Option<Vec<CapabilityStatementRestResourceOperation>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4292,6 +4434,7 @@ pub struct CapabilityStatementRestInteraction {
     pub documentation: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4328,6 +4471,7 @@ pub struct CapabilityStatementRest {
     pub compartment: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4350,6 +4494,7 @@ pub struct CapabilityStatementMessagingEndpoint {
     pub address: Box<FHIRUrl>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4373,6 +4518,7 @@ pub struct CapabilityStatementMessagingSupportedMessage {
     pub definition: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4400,6 +4546,7 @@ pub struct CapabilityStatementMessaging {
     pub supportedMessage: Option<Vec<CapabilityStatementMessagingSupportedMessage>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4426,6 +4573,7 @@ pub struct CapabilityStatementDocument {
     pub profile: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4525,6 +4673,7 @@ pub struct CapabilityStatement {
     pub document: Option<Vec<CapabilityStatementDocument>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4543,6 +4692,7 @@ impl Default for CarePlanActivityDetailScheduledTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4560,6 +4710,7 @@ impl Default for CarePlanActivityDetailProductTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4619,6 +4770,7 @@ pub struct CarePlanActivityDetail {
     pub description: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4646,6 +4798,7 @@ pub struct CarePlanActivity {
     pub detail: Option<CarePlanActivityDetail>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4729,6 +4882,7 @@ pub struct CarePlan {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4754,6 +4908,7 @@ pub struct CareTeamParticipant {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4812,6 +4967,7 @@ pub struct CareTeam {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4834,6 +4990,7 @@ pub struct CatalogEntryRelatedEntry {
     pub item: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4895,6 +5052,7 @@ pub struct CatalogEntry {
     pub relatedEntry: Option<Vec<CatalogEntryRelatedEntry>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4913,6 +5071,7 @@ impl Default for ChargeItemOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -4934,6 +5093,7 @@ pub struct ChargeItemPerformer {
     pub actor: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4951,6 +5111,7 @@ impl Default for ChargeItemProductTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5041,6 +5202,7 @@ pub struct ChargeItem {
     pub supportingInformation: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5067,6 +5229,7 @@ pub struct ChargeItemDefinitionApplicability {
     pub expression: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5095,6 +5258,7 @@ pub struct ChargeItemDefinitionPropertyGroupPriceComponent {
     pub amount: Option<Box<Money>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5116,6 +5280,7 @@ pub struct ChargeItemDefinitionPropertyGroup {
     pub priceComponent: Option<Vec<ChargeItemDefinitionPropertyGroupPriceComponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5206,6 +5371,7 @@ pub struct ChargeItemDefinition {
     pub propertyGroup: Option<Vec<ChargeItemDefinitionPropertyGroup>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5229,6 +5395,7 @@ pub struct ClaimRelated {
     pub reference: Option<Box<Identifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5251,6 +5418,7 @@ pub struct ClaimPayee {
     pub party: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5280,6 +5448,7 @@ pub struct ClaimCareTeam {
     pub qualification: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5297,6 +5466,7 @@ impl Default for ClaimSupportingInfoTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5317,6 +5487,7 @@ impl Default for ClaimSupportingInfoValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5349,6 +5520,7 @@ pub struct ClaimSupportingInfo {
     pub reason: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5366,6 +5538,7 @@ impl Default for ClaimDiagnosisDiagnosisTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5396,6 +5569,7 @@ pub struct ClaimDiagnosis {
     pub packageCode: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5413,6 +5587,7 @@ impl Default for ClaimProcedureProcedureTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5444,6 +5619,7 @@ pub struct ClaimProcedure {
     pub udi: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5480,6 +5656,7 @@ pub struct ClaimInsurance {
     pub claimResponse: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5497,6 +5674,7 @@ impl Default for ClaimAccidentLocationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5523,6 +5701,7 @@ pub struct ClaimAccident {
     pub location: Option<ClaimAccidentLocationTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5540,6 +5719,7 @@ impl Default for ClaimItemServicedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5558,6 +5738,7 @@ impl Default for ClaimItemLocationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5599,6 +5780,7 @@ pub struct ClaimItemDetailSubDetail {
     pub udi: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5642,6 +5824,7 @@ pub struct ClaimItemDetail {
     pub subDetail: Option<Vec<ClaimItemDetailSubDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5709,6 +5892,7 @@ pub struct ClaimItem {
     pub detail: Option<Vec<ClaimItemDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5798,6 +5982,7 @@ pub struct Claim {
     pub total: Option<Box<Money>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5824,6 +6009,7 @@ pub struct ClaimResponseItemAdjudication {
     pub value: Option<Box<FHIRDecimal>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5849,6 +6035,7 @@ pub struct ClaimResponseItemDetailSubDetail {
     pub adjudication: Option<Vec<ClaimResponseItemAdjudication>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5876,6 +6063,7 @@ pub struct ClaimResponseItemDetail {
     pub subDetail: Option<Vec<ClaimResponseItemDetailSubDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5903,6 +6091,7 @@ pub struct ClaimResponseItem {
     pub detail: Option<Vec<ClaimResponseItemDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5920,6 +6109,7 @@ impl Default for ClaimResponseAddItemServicedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5938,6 +6128,7 @@ impl Default for ClaimResponseAddItemLocationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -5973,6 +6164,7 @@ pub struct ClaimResponseAddItemDetailSubDetail {
     pub adjudication: Vec<ClaimResponseItemAdjudication>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6010,6 +6202,7 @@ pub struct ClaimResponseAddItemDetail {
     pub subDetail: Option<Vec<ClaimResponseAddItemDetailSubDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6070,6 +6263,7 @@ pub struct ClaimResponseAddItem {
     pub detail: Option<Vec<ClaimResponseAddItemDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6091,6 +6285,7 @@ pub struct ClaimResponseTotal {
     pub amount: Box<Money>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6123,6 +6318,7 @@ pub struct ClaimResponsePayment {
     pub identifier_: Option<Box<Identifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6152,6 +6348,7 @@ pub struct ClaimResponseProcessNote {
     pub language: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6182,6 +6379,7 @@ pub struct ClaimResponseInsurance {
     pub claimResponse: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6210,6 +6408,7 @@ pub struct ClaimResponseError {
     pub code: Box<CodeableConcept>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6302,6 +6501,7 @@ pub struct ClaimResponse {
     pub error: Option<Vec<ClaimResponseError>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6319,6 +6519,7 @@ impl Default for ClinicalImpressionEffectiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6340,6 +6541,7 @@ pub struct ClinicalImpressionInvestigation {
     pub item: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6364,6 +6566,7 @@ pub struct ClinicalImpressionFinding {
     pub basis: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6440,6 +6643,7 @@ pub struct ClinicalImpression {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6469,6 +6673,7 @@ pub struct CodeSystemFilter {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6499,6 +6704,7 @@ pub struct CodeSystemProperty {
     pub type_: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6525,6 +6731,7 @@ pub struct CodeSystemConceptDesignation {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6547,6 +6754,7 @@ impl Default for CodeSystemConceptPropertyValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6570,6 +6778,7 @@ pub struct CodeSystemConceptProperty {
     pub value: CodeSystemConceptPropertyValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6602,6 +6811,7 @@ pub struct CodeSystemConcept {
     pub concept: Option<Vec<CodeSystemConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6703,6 +6913,7 @@ pub struct CodeSystem {
     pub concept: Option<Vec<CodeSystemConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6721,6 +6932,7 @@ impl Default for CommunicationPayloadContentTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6741,6 +6953,7 @@ pub struct CommunicationPayload {
     pub content: CommunicationPayloadContentTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6823,6 +7036,7 @@ pub struct Communication {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6841,6 +7055,7 @@ impl Default for CommunicationRequestPayloadContentTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6861,6 +7076,7 @@ pub struct CommunicationRequestPayload {
     pub content: CommunicationRequestPayloadContentTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6878,6 +7094,7 @@ impl Default for CommunicationRequestOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6957,6 +7174,7 @@ pub struct CommunicationRequest {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -6983,6 +7201,7 @@ pub struct CompartmentDefinitionResource {
     pub documentation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7051,6 +7270,7 @@ pub struct CompartmentDefinition {
     pub resource: Option<Vec<CompartmentDefinitionResource>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7076,6 +7296,7 @@ pub struct CompositionAttester {
     pub party: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7093,6 +7314,7 @@ impl Default for CompositionRelatesToTargetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7116,6 +7338,7 @@ pub struct CompositionRelatesTo {
     pub target: CompositionRelatesToTargetTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7139,6 +7362,7 @@ pub struct CompositionEvent {
     pub detail: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7178,6 +7402,7 @@ pub struct CompositionSection {
     pub section: Option<Vec<CompositionSection>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7243,6 +7468,7 @@ pub struct Composition {
     pub section: Option<Vec<CompositionSection>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7260,6 +7486,7 @@ impl Default for ConceptMapSourceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7277,6 +7504,7 @@ impl Default for ConceptMapTargetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7306,6 +7534,7 @@ pub struct ConceptMapGroupElementTargetDependsOn {
     pub display: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7339,6 +7568,7 @@ pub struct ConceptMapGroupElementTarget {
     pub product: Option<Vec<ConceptMapGroupElementTargetDependsOn>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7364,6 +7594,7 @@ pub struct ConceptMapGroupElement {
     pub target: Option<Vec<ConceptMapGroupElementTarget>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7393,6 +7624,7 @@ pub struct ConceptMapGroupUnmapped {
     pub url: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7426,6 +7658,7 @@ pub struct ConceptMapGroup {
     pub unmapped: Option<ConceptMapGroupUnmapped>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7505,6 +7738,7 @@ pub struct ConceptMap {
     pub group: Option<Vec<ConceptMapGroup>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7525,6 +7759,7 @@ impl Default for ConditionOnsetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7545,6 +7780,7 @@ impl Default for ConditionAbatementTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7569,6 +7805,7 @@ pub struct ConditionStage {
     pub type_: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7590,6 +7827,7 @@ pub struct ConditionEvidence {
     pub detail: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7657,6 +7895,7 @@ pub struct Condition {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7674,6 +7913,7 @@ impl Default for ConsentSourceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7697,6 +7937,7 @@ pub struct ConsentPolicy {
     pub uri: Option<Box<FHIRUri>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7722,6 +7963,7 @@ pub struct ConsentVerification {
     pub verificationDate: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7743,6 +7985,7 @@ pub struct ConsentProvisionActor {
     pub reference: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7765,6 +8008,7 @@ pub struct ConsentProvisionData {
     pub reference: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7806,6 +8050,7 @@ pub struct ConsentProvision {
     pub provision: Option<Vec<ConsentProvision>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7865,6 +8110,7 @@ pub struct Consent {
     pub provision: Option<ConsentProvision>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7882,6 +8128,7 @@ impl Default for ContractTopicTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7915,6 +8162,7 @@ pub struct ContractContentDefinition {
     pub copyright: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7932,6 +8180,7 @@ impl Default for ContractTermTopicTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7958,6 +8207,7 @@ pub struct ContractTermSecurityLabel {
     pub control: Option<Vec<Box<Coding>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -7979,6 +8229,7 @@ pub struct ContractTermOfferParty {
     pub role: Box<CodeableConcept>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8006,6 +8257,7 @@ impl Default for ContractTermOfferAnswerValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8026,6 +8278,7 @@ pub struct ContractTermOfferAnswer {
     pub value: ContractTermOfferAnswerValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8068,6 +8321,7 @@ pub struct ContractTermOffer {
     pub securityLabelNumber: Option<Vec<Box<FHIRUnsignedInt>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8092,6 +8346,7 @@ pub struct ContractTermAssetContext {
     pub text: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8109,6 +8364,7 @@ impl Default for ContractTermAssetValuedItemEntityTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8163,6 +8419,7 @@ pub struct ContractTermAssetValuedItem {
     pub securityLabelNumber: Option<Vec<Box<FHIRUnsignedInt>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8215,6 +8472,7 @@ pub struct ContractTermAsset {
     pub valuedItem: Option<Vec<ContractTermAssetValuedItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8236,6 +8494,7 @@ pub struct ContractTermActionSubject {
     pub role: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8254,6 +8513,7 @@ impl Default for ContractTermActionOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8323,6 +8583,7 @@ pub struct ContractTermAction {
     pub securityLabelNumber: Option<Vec<Box<FHIRUnsignedInt>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8369,6 +8630,7 @@ pub struct ContractTerm {
     pub group: Option<Vec<ContractTerm>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8393,6 +8655,7 @@ pub struct ContractSigner {
     pub signature: Vec<Box<Signature>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8410,6 +8673,7 @@ impl Default for ContractFriendlyContentTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8430,6 +8694,7 @@ pub struct ContractFriendly {
     pub content: ContractFriendlyContentTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8447,6 +8712,7 @@ impl Default for ContractLegalContentTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8467,6 +8733,7 @@ pub struct ContractLegal {
     pub content: ContractLegalContentTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8484,6 +8751,7 @@ impl Default for ContractRuleContentTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8504,6 +8772,7 @@ pub struct ContractRule {
     pub content: ContractRuleContentTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8521,6 +8790,7 @@ impl Default for ContractLegallyBindingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8629,6 +8899,7 @@ pub struct Contract {
     pub legallyBinding: Option<ContractLegallyBindingTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8655,6 +8926,7 @@ pub struct CoverageClass {
     pub name: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8672,6 +8944,7 @@ impl Default for CoverageCostToBeneficiaryValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8694,6 +8967,7 @@ pub struct CoverageCostToBeneficiaryException {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8719,6 +8993,7 @@ pub struct CoverageCostToBeneficiary {
     pub exception: Option<Vec<CoverageCostToBeneficiaryException>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8790,6 +9065,7 @@ pub struct Coverage {
     pub contract: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8807,6 +9083,7 @@ impl Default for CoverageEligibilityRequestServicedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8832,6 +9109,7 @@ pub struct CoverageEligibilityRequestSupportingInfo {
     pub appliesToAll: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8857,6 +9135,7 @@ pub struct CoverageEligibilityRequestInsurance {
     pub businessArrangement: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8876,6 +9155,7 @@ impl Default for CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8896,6 +9176,7 @@ pub struct CoverageEligibilityRequestItemDiagnosis {
     pub diagnosis: Option<CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8934,6 +9215,7 @@ pub struct CoverageEligibilityRequestItem {
     pub detail: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -8996,6 +9278,7 @@ pub struct CoverageEligibilityRequest {
     pub item: Option<Vec<CoverageEligibilityRequestItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9013,6 +9296,7 @@ impl Default for CoverageEligibilityResponseServicedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9033,6 +9317,7 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoic
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9053,6 +9338,7 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9079,6 +9365,7 @@ pub struct CoverageEligibilityResponseInsuranceItemBenefit {
     pub used: Option<CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9129,6 +9416,7 @@ pub struct CoverageEligibilityResponseInsuranceItem {
     pub authorizationUrl: Option<Box<FHIRUri>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9155,6 +9443,7 @@ pub struct CoverageEligibilityResponseInsurance {
     pub item: Option<Vec<CoverageEligibilityResponseInsuranceItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9174,6 +9463,7 @@ pub struct CoverageEligibilityResponseError {
     pub code: Box<CodeableConcept>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9241,6 +9531,7 @@ pub struct CoverageEligibilityResponse {
     pub error: Option<Vec<CoverageEligibilityResponseError>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9258,6 +9549,7 @@ impl Default for DetectedIssueIdentifiedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9279,6 +9571,7 @@ pub struct DetectedIssueEvidence {
     pub detail: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9303,6 +9596,7 @@ pub struct DetectedIssueMitigation {
     pub author: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9362,6 +9656,7 @@ pub struct DetectedIssue {
     pub mitigation: Option<Vec<DetectedIssueMitigation>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9397,6 +9692,7 @@ pub struct DeviceUdiCarrier {
     pub entryType: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9421,6 +9717,7 @@ pub struct DeviceDeviceName {
     pub type_: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9443,6 +9740,7 @@ pub struct DeviceSpecialization {
     pub version: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9468,6 +9766,7 @@ pub struct DeviceVersion {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9492,6 +9791,7 @@ pub struct DeviceProperty {
     pub valueCode: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9585,6 +9885,7 @@ pub struct Device {
     pub parent: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9611,6 +9912,7 @@ pub struct DeviceDefinitionUdiDeviceIdentifier {
     pub jurisdiction: Box<FHIRUri>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9628,6 +9930,7 @@ impl Default for DeviceDefinitionManufacturerTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9652,6 +9955,7 @@ pub struct DeviceDefinitionDeviceName {
     pub type_: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9675,6 +9979,7 @@ pub struct DeviceDefinitionSpecialization {
     pub version: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9697,6 +10002,7 @@ pub struct DeviceDefinitionCapability {
     pub description: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9721,6 +10027,7 @@ pub struct DeviceDefinitionProperty {
     pub valueCode: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9746,6 +10053,7 @@ pub struct DeviceDefinitionMaterial {
     pub allergenicIndicator: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9826,6 +10134,7 @@ pub struct DeviceDefinition {
     pub material: Option<Vec<DeviceDefinitionMaterial>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9853,6 +10162,7 @@ pub struct DeviceMetricCalibration {
     pub time: Option<Box<FHIRInstant>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9907,6 +10217,7 @@ pub struct DeviceMetric {
     pub calibration: Option<Vec<DeviceMetricCalibration>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9924,6 +10235,7 @@ impl Default for DeviceRequestCodeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9943,6 +10255,7 @@ impl Default for DeviceRequestParameterValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -9965,6 +10278,7 @@ pub struct DeviceRequestParameter {
     pub value: Option<DeviceRequestParameterValueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9983,6 +10297,7 @@ impl Default for DeviceRequestOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10069,6 +10384,7 @@ pub struct DeviceRequest {
     pub relevantHistory: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10087,6 +10403,7 @@ impl Default for DeviceUseStatementTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10146,6 +10463,7 @@ pub struct DeviceUseStatement {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10163,6 +10481,7 @@ impl Default for DiagnosticReportEffectiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10185,6 +10504,7 @@ pub struct DiagnosticReportMedia {
     pub link: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10255,6 +10575,7 @@ pub struct DiagnosticReport {
     pub presentedForm: Option<Vec<Box<Attachment>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10278,6 +10599,7 @@ pub struct DocumentManifestRelated {
     pub ref_: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10337,6 +10659,7 @@ pub struct DocumentManifest {
     pub related: Option<Vec<DocumentManifestRelated>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10359,6 +10682,7 @@ pub struct DocumentReferenceRelatesTo {
     pub target: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10380,6 +10704,7 @@ pub struct DocumentReferenceContent {
     pub format: Option<Box<Coding>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10411,6 +10736,7 @@ pub struct DocumentReferenceContext {
     pub related: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10478,6 +10804,7 @@ pub struct DocumentReference {
     pub context: Option<DocumentReferenceContext>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10504,6 +10831,7 @@ pub struct EffectEvidenceSynthesisSampleSize {
     pub numberOfParticipants: Option<Box<FHIRInteger>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10531,6 +10859,7 @@ pub struct EffectEvidenceSynthesisResultsByExposure {
     pub riskEvidenceSynthesis: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10560,6 +10889,7 @@ pub struct EffectEvidenceSynthesisEffectEstimatePrecisionEstimate {
     pub to: Option<Box<FHIRDecimal>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10592,6 +10922,7 @@ pub struct EffectEvidenceSynthesisEffectEstimate {
     pub precisionEstimate: Option<Vec<EffectEvidenceSynthesisEffectEstimatePrecisionEstimate>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10616,6 +10947,7 @@ pub struct EffectEvidenceSynthesisCertaintyCertaintySubcomponent {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10639,6 +10971,7 @@ pub struct EffectEvidenceSynthesisCertainty {
     pub certaintySubcomponent: Option<Vec<EffectEvidenceSynthesisCertaintyCertaintySubcomponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10746,6 +11079,7 @@ pub struct EffectEvidenceSynthesis {
     pub certainty: Option<Vec<EffectEvidenceSynthesisCertainty>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10768,6 +11102,7 @@ pub struct EncounterStatusHistory {
     pub period: Box<Period>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10789,6 +11124,7 @@ pub struct EncounterClassHistory {
     pub period: Box<Period>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10813,6 +11149,7 @@ pub struct EncounterParticipant {
     pub individual: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10838,6 +11175,7 @@ pub struct EncounterDiagnosis {
     pub rank: Option<Box<FHIRPositiveInt>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10873,6 +11211,7 @@ pub struct EncounterHospitalization {
     pub dischargeDisposition: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10899,6 +11238,7 @@ pub struct EncounterLocation {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -10977,6 +11317,7 @@ pub struct Encounter {
     pub partOf: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11034,6 +11375,7 @@ pub struct Endpoint {
     pub header: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11080,6 +11422,7 @@ pub struct EnrollmentRequest {
     pub coverage: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11130,6 +11473,7 @@ pub struct EnrollmentResponse {
     pub requestProvider: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11152,6 +11496,7 @@ pub struct EpisodeOfCareStatusHistory {
     pub period: Box<Period>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11176,6 +11521,7 @@ pub struct EpisodeOfCareDiagnosis {
     pub rank: Option<Box<FHIRPositiveInt>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11232,6 +11578,7 @@ pub struct EpisodeOfCare {
     pub account: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11249,6 +11596,7 @@ impl Default for EventDefinitionSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11351,6 +11699,7 @@ pub struct EventDefinition {
     pub trigger: Vec<Box<TriggerDefinition>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11450,6 +11799,7 @@ pub struct Evidence {
     pub outcome: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11471,6 +11821,7 @@ impl Default for EvidenceVariableCharacteristicDefinitionTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11492,6 +11843,7 @@ impl Default for EvidenceVariableCharacteristicParticipantEffectiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11528,6 +11880,7 @@ pub struct EvidenceVariableCharacteristic {
     pub groupMeasure: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11627,6 +11980,7 @@ pub struct EvidenceVariable {
     pub characteristic: Vec<EvidenceVariableCharacteristic>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11657,6 +12011,7 @@ pub struct ExampleScenarioActor {
     pub description: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11680,6 +12035,7 @@ pub struct ExampleScenarioInstanceVersion {
     pub description: Box<FHIRMarkdown>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11703,6 +12059,7 @@ pub struct ExampleScenarioInstanceContainedInstance {
     pub versionId: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11736,6 +12093,7 @@ pub struct ExampleScenarioInstance {
     pub containedInstance: Option<Vec<ExampleScenarioInstanceContainedInstance>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11782,6 +12140,7 @@ pub struct ExampleScenarioProcessStepOperation {
     pub response: Option<ExampleScenarioInstanceContainedInstance>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11807,6 +12166,7 @@ pub struct ExampleScenarioProcessStepAlternative {
     pub step: Option<Vec<ExampleScenarioProcessStep>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11833,6 +12193,7 @@ pub struct ExampleScenarioProcessStep {
     pub alternative: Option<Vec<ExampleScenarioProcessStepAlternative>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11864,6 +12225,7 @@ pub struct ExampleScenarioProcess {
     pub step: Option<Vec<ExampleScenarioProcessStep>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11938,6 +12300,7 @@ pub struct ExampleScenario {
     pub workflow: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11961,6 +12324,7 @@ pub struct ExplanationOfBenefitRelated {
     pub reference: Option<Box<Identifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -11983,6 +12347,7 @@ pub struct ExplanationOfBenefitPayee {
     pub party: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12012,6 +12377,7 @@ pub struct ExplanationOfBenefitCareTeam {
     pub qualification: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12029,6 +12395,7 @@ impl Default for ExplanationOfBenefitSupportingInfoTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12049,6 +12416,7 @@ impl Default for ExplanationOfBenefitSupportingInfoValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12081,6 +12449,7 @@ pub struct ExplanationOfBenefitSupportingInfo {
     pub reason: Option<Box<Coding>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12100,6 +12469,7 @@ impl Default for ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12130,6 +12500,7 @@ pub struct ExplanationOfBenefitDiagnosis {
     pub packageCode: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12149,6 +12520,7 @@ impl Default for ExplanationOfBenefitProcedureProcedureTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12180,6 +12552,7 @@ pub struct ExplanationOfBenefitProcedure {
     pub udi: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12205,6 +12578,7 @@ pub struct ExplanationOfBenefitInsurance {
     pub preAuthRef: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12222,6 +12596,7 @@ impl Default for ExplanationOfBenefitAccidentLocationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12248,6 +12623,7 @@ pub struct ExplanationOfBenefitAccident {
     pub location: Option<ExplanationOfBenefitAccidentLocationTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12265,6 +12641,7 @@ impl Default for ExplanationOfBenefitItemServicedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12283,6 +12660,7 @@ impl Default for ExplanationOfBenefitItemLocationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12309,6 +12687,7 @@ pub struct ExplanationOfBenefitItemAdjudication {
     pub value: Option<Box<FHIRDecimal>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12355,6 +12734,7 @@ pub struct ExplanationOfBenefitItemDetailSubDetail {
     pub adjudication: Option<Vec<ExplanationOfBenefitItemAdjudication>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12403,6 +12783,7 @@ pub struct ExplanationOfBenefitItemDetail {
     pub subDetail: Option<Vec<ExplanationOfBenefitItemDetailSubDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12475,6 +12856,7 @@ pub struct ExplanationOfBenefitItem {
     pub detail: Option<Vec<ExplanationOfBenefitItemDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12492,6 +12874,7 @@ impl Default for ExplanationOfBenefitAddItemServicedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12510,6 +12893,7 @@ impl Default for ExplanationOfBenefitAddItemLocationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12545,6 +12929,7 @@ pub struct ExplanationOfBenefitAddItemDetailSubDetail {
     pub adjudication: Option<Vec<ExplanationOfBenefitItemAdjudication>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12582,6 +12967,7 @@ pub struct ExplanationOfBenefitAddItemDetail {
     pub subDetail: Option<Vec<ExplanationOfBenefitAddItemDetailSubDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12642,6 +13028,7 @@ pub struct ExplanationOfBenefitAddItem {
     pub detail: Option<Vec<ExplanationOfBenefitAddItemDetail>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12663,6 +13050,7 @@ pub struct ExplanationOfBenefitTotal {
     pub amount: Box<Money>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12695,6 +13083,7 @@ pub struct ExplanationOfBenefitPayment {
     pub identifier_: Option<Box<Identifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12724,6 +13113,7 @@ pub struct ExplanationOfBenefitProcessNote {
     pub language: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12744,6 +13134,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12763,6 +13154,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12789,6 +13181,7 @@ pub struct ExplanationOfBenefitBenefitBalanceFinancial {
     pub used: Option<ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12825,6 +13218,7 @@ pub struct ExplanationOfBenefitBenefitBalance {
     pub financial: Option<Vec<ExplanationOfBenefitBenefitBalanceFinancial>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -12950,6 +13344,7 @@ pub struct ExplanationOfBenefit {
     pub benefitBalance: Option<Vec<ExplanationOfBenefitBenefitBalance>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12968,6 +13363,7 @@ impl Default for FamilyMemberHistoryBornTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12986,6 +13382,7 @@ impl Default for FamilyMemberHistoryAgeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13006,6 +13403,7 @@ impl Default for FamilyMemberHistoryDeceasedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13025,6 +13423,7 @@ impl Default for FamilyMemberHistoryConditionOnsetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13054,6 +13453,7 @@ pub struct FamilyMemberHistoryCondition {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13129,6 +13529,7 @@ pub struct FamilyMemberHistory {
     pub condition: Option<Vec<FamilyMemberHistoryCondition>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13176,6 +13577,7 @@ pub struct Flag {
     pub author: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13193,6 +13595,7 @@ impl Default for GoalStartTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13215,6 +13618,7 @@ impl Default for GoalTargetDetailTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13232,6 +13636,7 @@ impl Default for GoalTargetDueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13257,6 +13662,7 @@ pub struct GoalTarget {
     pub due: Option<GoalTargetDueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13323,6 +13729,7 @@ pub struct Goal {
     pub outcomeReference: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13356,6 +13763,7 @@ pub struct GraphDefinitionLinkTargetCompartment {
     pub description: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13387,6 +13795,7 @@ pub struct GraphDefinitionLinkTarget {
     pub link: Option<Vec<GraphDefinitionLink>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13421,6 +13830,7 @@ pub struct GraphDefinitionLink {
     pub target: Option<Vec<GraphDefinitionLinkTarget>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13491,6 +13901,7 @@ pub struct GraphDefinition {
     pub link: Option<Vec<GraphDefinitionLink>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13511,6 +13922,7 @@ impl Default for GroupCharacteristicValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13538,6 +13950,7 @@ pub struct GroupCharacteristic {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13562,6 +13975,7 @@ pub struct GroupMember {
     pub inactive: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13618,6 +14032,7 @@ pub struct Group {
     pub member: Option<Vec<GroupMember>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13636,6 +14051,7 @@ impl Default for GuidanceResponseModuleTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13699,6 +14115,7 @@ pub struct GuidanceResponse {
     pub dataRequirement: Option<Vec<Box<DataRequirement>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13721,6 +14138,7 @@ pub struct HealthcareServiceEligibility {
     pub comment: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13750,6 +14168,7 @@ pub struct HealthcareServiceAvailableTime {
     pub availableEndTime: Option<Box<FHIRTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13772,6 +14191,7 @@ pub struct HealthcareServiceNotAvailable {
     pub during: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13857,6 +14277,7 @@ pub struct HealthcareService {
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13878,6 +14299,7 @@ pub struct ImagingStudySeriesPerformer {
     pub actor: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13906,6 +14328,7 @@ pub struct ImagingStudySeriesInstance {
     pub title: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -13952,6 +14375,7 @@ pub struct ImagingStudySeries {
     pub instance: Option<Vec<ImagingStudySeriesInstance>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14027,6 +14451,7 @@ pub struct ImagingStudy {
     pub series: Option<Vec<ImagingStudySeries>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14044,6 +14469,7 @@ impl Default for ImmunizationOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14065,6 +14491,7 @@ pub struct ImmunizationPerformer {
     pub actor: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14094,6 +14521,7 @@ pub struct ImmunizationEducation {
     pub presentationDate: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14119,6 +14547,7 @@ pub struct ImmunizationReaction {
     pub reported: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14136,6 +14565,7 @@ impl Default for ImmunizationProtocolAppliedDoseNumberTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14153,6 +14583,7 @@ impl Default for ImmunizationProtocolAppliedSeriesDosesTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14183,6 +14614,7 @@ pub struct ImmunizationProtocolApplied {
     pub seriesDoses: Option<ImmunizationProtocolAppliedSeriesDosesTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14276,6 +14708,7 @@ pub struct Immunization {
     pub protocolApplied: Option<Vec<ImmunizationProtocolApplied>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14293,6 +14726,7 @@ impl Default for ImmunizationEvaluationDoseNumberTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14310,6 +14744,7 @@ impl Default for ImmunizationEvaluationSeriesDosesTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14372,6 +14807,7 @@ pub struct ImmunizationEvaluation {
     pub seriesDoses: Option<ImmunizationEvaluationSeriesDosesTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14394,6 +14830,7 @@ pub struct ImmunizationRecommendationRecommendationDateCriterion {
     pub value: Box<FHIRDateTime>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14413,6 +14850,7 @@ impl Default for ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14432,6 +14870,7 @@ impl Default for ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14477,6 +14916,7 @@ pub struct ImmunizationRecommendationRecommendation {
     pub supportingPatientInformation: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14518,6 +14958,7 @@ pub struct ImmunizationRecommendation {
     pub recommendation: Vec<ImmunizationRecommendationRecommendation>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14544,6 +14985,7 @@ pub struct ImplementationGuideDependsOn {
     pub version: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14568,6 +15010,7 @@ pub struct ImplementationGuideGlobal {
     pub profile: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14591,6 +15034,7 @@ pub struct ImplementationGuideDefinitionGrouping {
     pub description: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14610,6 +15054,7 @@ impl Default for ImplementationGuideDefinitionResourceExampleTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14644,6 +15089,7 @@ pub struct ImplementationGuideDefinitionResource {
     pub groupingId: Option<Box<FHIRId>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14661,6 +15107,7 @@ impl Default for ImplementationGuideDefinitionPageNameTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14689,6 +15136,7 @@ pub struct ImplementationGuideDefinitionPage {
     pub page: Option<Vec<ImplementationGuideDefinitionPage>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14712,6 +15160,7 @@ pub struct ImplementationGuideDefinitionParameter {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14738,6 +15187,7 @@ pub struct ImplementationGuideDefinitionTemplate {
     pub scope: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14765,6 +15215,7 @@ pub struct ImplementationGuideDefinition {
     pub template: Option<Vec<ImplementationGuideDefinitionTemplate>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14782,6 +15233,7 @@ impl Default for ImplementationGuideManifestResourceExampleTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14807,6 +15259,7 @@ pub struct ImplementationGuideManifestResource {
     pub relativePath: Option<Box<FHIRUrl>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14833,6 +15286,7 @@ pub struct ImplementationGuideManifestPage {
     pub anchor: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14863,6 +15317,7 @@ pub struct ImplementationGuideManifest {
     pub other: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14945,6 +15400,7 @@ pub struct ImplementationGuide {
     pub manifest: Option<ImplementationGuideManifest>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14970,6 +15426,7 @@ pub struct InsurancePlanContact {
     pub address: Option<Box<Address>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -14991,6 +15448,7 @@ pub struct InsurancePlanCoverageBenefitLimit {
     pub code: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15016,6 +15474,7 @@ pub struct InsurancePlanCoverageBenefit {
     pub limit: Option<Vec<InsurancePlanCoverageBenefitLimit>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15040,6 +15499,7 @@ pub struct InsurancePlanCoverage {
     pub benefit: Vec<InsurancePlanCoverageBenefit>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15068,6 +15528,7 @@ pub struct InsurancePlanPlanGeneralCost {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15094,6 +15555,7 @@ pub struct InsurancePlanPlanSpecificCostBenefitCost {
     pub value: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15116,6 +15578,7 @@ pub struct InsurancePlanPlanSpecificCostBenefit {
     pub cost: Option<Vec<InsurancePlanPlanSpecificCostBenefitCost>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15137,6 +15600,7 @@ pub struct InsurancePlanPlanSpecificCost {
     pub benefit: Option<Vec<InsurancePlanPlanSpecificCostBenefit>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15168,6 +15632,7 @@ pub struct InsurancePlanPlan {
     pub specificCost: Option<Vec<InsurancePlanPlanSpecificCost>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15230,6 +15695,7 @@ pub struct InsurancePlan {
     pub plan: Option<Vec<InsurancePlanPlan>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15251,6 +15717,7 @@ pub struct InvoiceParticipant {
     pub actor: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15268,6 +15735,7 @@ impl Default for InvoiceLineItemChargeItemTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15296,6 +15764,7 @@ pub struct InvoiceLineItemPriceComponent {
     pub amount: Option<Box<Money>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15321,6 +15790,7 @@ pub struct InvoiceLineItem {
     pub priceComponent: Option<Vec<InvoiceLineItemPriceComponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15388,6 +15858,7 @@ pub struct Invoice {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15405,6 +15876,7 @@ impl Default for LibrarySubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15514,6 +15986,7 @@ pub struct Library {
     pub content: Option<Vec<Box<Attachment>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15537,6 +16010,7 @@ pub struct LinkageItem {
     pub resource: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15573,6 +16047,7 @@ pub struct Linkage {
     pub item: Vec<LinkageItem>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15600,6 +16075,7 @@ pub struct ListEntry {
     pub item: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15660,6 +16136,7 @@ pub struct List {
     pub emptyReason: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15686,6 +16163,7 @@ pub struct LocationPosition {
     pub altitude: Option<Box<FHIRDecimal>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15715,6 +16193,7 @@ pub struct LocationHoursOfOperation {
     pub closingTime: Option<Box<FHIRTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15786,6 +16265,7 @@ pub struct Location {
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15803,6 +16283,7 @@ impl Default for MeasureSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15827,6 +16308,7 @@ pub struct MeasureGroupPopulation {
     pub criteria: Box<Expression>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15851,6 +16333,7 @@ pub struct MeasureGroupStratifierComponent {
     pub criteria: Box<Expression>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15877,6 +16360,7 @@ pub struct MeasureGroupStratifier {
     pub component: Option<Vec<MeasureGroupStratifierComponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15903,6 +16387,7 @@ pub struct MeasureGroup {
     pub stratifier: Option<Vec<MeasureGroupStratifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -15929,6 +16414,7 @@ pub struct MeasureSupplementalData {
     pub criteria: Box<Expression>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16066,6 +16552,7 @@ pub struct Measure {
     pub supplementalData: Option<Vec<MeasureSupplementalData>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16090,6 +16577,7 @@ pub struct MeasureReportGroupPopulation {
     pub subjectResults: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16111,6 +16599,7 @@ pub struct MeasureReportGroupStratifierStratumComponent {
     pub value: Box<CodeableConcept>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16135,6 +16624,7 @@ pub struct MeasureReportGroupStratifierStratumPopulation {
     pub subjectResults: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16160,6 +16650,7 @@ pub struct MeasureReportGroupStratifierStratum {
     pub measureScore: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16181,6 +16672,7 @@ pub struct MeasureReportGroupStratifier {
     pub stratum: Option<Vec<MeasureReportGroupStratifierStratum>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16206,6 +16698,7 @@ pub struct MeasureReportGroup {
     pub stratifier: Option<Vec<MeasureReportGroupStratifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16263,6 +16756,7 @@ pub struct MeasureReport {
     pub evaluatedResource: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16280,6 +16774,7 @@ impl Default for MediaCreatedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16363,6 +16858,7 @@ pub struct Media {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16380,6 +16876,7 @@ impl Default for MedicationIngredientItemTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16405,6 +16902,7 @@ pub struct MedicationIngredient {
     pub strength: Option<Box<Ratio>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16428,6 +16926,7 @@ pub struct MedicationBatch {
     pub expirationDate: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16475,6 +16974,7 @@ pub struct Medication {
     pub batch: Option<MedicationBatch>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16492,6 +16992,7 @@ impl Default for MedicationAdministrationMedicationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16509,6 +17010,7 @@ impl Default for MedicationAdministrationEffectiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16530,6 +17032,7 @@ pub struct MedicationAdministrationPerformer {
     pub actor: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16547,6 +17050,7 @@ impl Default for MedicationAdministrationDosageRateTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16578,6 +17082,7 @@ pub struct MedicationAdministrationDosage {
     pub rate: Option<MedicationAdministrationDosageRateTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16650,6 +17155,7 @@ pub struct MedicationAdministration {
     pub eventHistory: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16667,6 +17173,7 @@ impl Default for MedicationDispenseStatusReasonTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16684,6 +17191,7 @@ impl Default for MedicationDispenseMedicationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16705,6 +17213,7 @@ pub struct MedicationDispensePerformer {
     pub actor: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16732,6 +17241,7 @@ pub struct MedicationDispenseSubstitution {
     pub responsibleParty: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16816,6 +17326,7 @@ pub struct MedicationDispense {
     pub eventHistory: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16838,6 +17349,7 @@ pub struct MedicationKnowledgeRelatedMedicationKnowledge {
     pub reference: Vec<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16860,6 +17372,7 @@ pub struct MedicationKnowledgeMonograph {
     pub source: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16877,6 +17390,7 @@ impl Default for MedicationKnowledgeIngredientItemTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16902,6 +17416,7 @@ pub struct MedicationKnowledgeIngredient {
     pub strength: Option<Box<Ratio>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16927,6 +17442,7 @@ pub struct MedicationKnowledgeCost {
     pub cost: Box<Money>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16950,6 +17466,7 @@ pub struct MedicationKnowledgeMonitoringProgram {
     pub name: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -16972,6 +17489,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesDosage {
     pub dosage: Vec<Box<Dosage>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16991,6 +17509,7 @@ impl Default for MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17010,6 +17529,7 @@ impl Default
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17034,6 +17554,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics {
     pub value: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17059,6 +17580,7 @@ pub struct MedicationKnowledgeAdministrationGuidelines {
         Option<Vec<MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17081,6 +17603,7 @@ pub struct MedicationKnowledgeMedicineClassification {
     pub classification: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17103,6 +17626,7 @@ pub struct MedicationKnowledgePackaging {
     pub quantity: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17124,6 +17648,7 @@ impl Default for MedicationKnowledgeDrugCharacteristicValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17147,6 +17672,7 @@ pub struct MedicationKnowledgeDrugCharacteristic {
     pub value: Option<MedicationKnowledgeDrugCharacteristicValueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17170,6 +17696,7 @@ pub struct MedicationKnowledgeRegulatorySubstitution {
     pub allowed: Box<FHIRBoolean>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17189,6 +17716,7 @@ pub struct MedicationKnowledgeRegulatorySchedule {
     pub schedule: Box<CodeableConcept>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17210,6 +17738,7 @@ pub struct MedicationKnowledgeRegulatoryMaxDispense {
     pub period: Option<Box<Duration>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17235,6 +17764,7 @@ pub struct MedicationKnowledgeRegulatory {
     pub maxDispense: Option<MedicationKnowledgeRegulatoryMaxDispense>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17258,6 +17788,7 @@ pub struct MedicationKnowledgeKinetics {
     pub halfLifePeriod: Option<Box<Duration>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17334,6 +17865,7 @@ pub struct MedicationKnowledge {
     pub kinetics: Option<Vec<MedicationKnowledgeKinetics>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17351,6 +17883,7 @@ impl Default for MedicationRequestReportedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17368,6 +17901,7 @@ impl Default for MedicationRequestMedicationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17389,6 +17923,7 @@ pub struct MedicationRequestDispenseRequestInitialFill {
     pub duration: Option<Box<Duration>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17421,6 +17956,7 @@ pub struct MedicationRequestDispenseRequest {
     pub performer: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17438,6 +17974,7 @@ impl Default for MedicationRequestSubstitutionAllowedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17460,6 +17997,7 @@ pub struct MedicationRequestSubstitution {
     pub reason: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17563,6 +18101,7 @@ pub struct MedicationRequest {
     pub eventHistory: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17580,6 +18119,7 @@ impl Default for MedicationStatementMedicationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17597,6 +18137,7 @@ impl Default for MedicationStatementEffectiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17665,6 +18206,7 @@ pub struct MedicationStatement {
     pub dosage: Option<Vec<Box<Dosage>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17688,6 +18230,7 @@ pub struct MedicinalProductNameNamePart {
     pub type_: Box<Coding>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17711,6 +18254,7 @@ pub struct MedicinalProductNameCountryLanguage {
     pub language: Box<CodeableConcept>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17735,6 +18279,7 @@ pub struct MedicinalProductName {
     pub countryLanguage: Option<Vec<MedicinalProductNameCountryLanguage>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17765,6 +18310,7 @@ pub struct MedicinalProductManufacturingBusinessOperation {
     pub regulator: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17784,6 +18330,7 @@ impl Default for MedicinalProductSpecialDesignationIndicationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17819,6 +18366,7 @@ pub struct MedicinalProductSpecialDesignation {
     pub species: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17891,6 +18439,7 @@ pub struct MedicinalProduct {
     pub specialDesignation: Option<Vec<MedicinalProductSpecialDesignation>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17919,6 +18468,7 @@ pub struct MedicinalProductAuthorizationJurisdictionalAuthorization {
     pub validityPeriod: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17936,6 +18486,7 @@ impl Default for MedicinalProductAuthorizationProcedureDateTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -17964,6 +18515,7 @@ pub struct MedicinalProductAuthorizationProcedure {
     pub application: Option<Vec<MedicinalProductAuthorizationProcedure>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18031,6 +18583,7 @@ pub struct MedicinalProductAuthorization {
     pub procedure: Option<MedicinalProductAuthorizationProcedure>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18050,6 +18603,7 @@ impl Default for MedicinalProductContraindicationOtherTherapyMedicationTypeChoic
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18072,6 +18626,7 @@ pub struct MedicinalProductContraindicationOtherTherapy {
     pub medication: MedicinalProductContraindicationOtherTherapyMedicationTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18115,6 +18670,7 @@ pub struct MedicinalProductContraindication {
     pub population: Option<Vec<Box<Population>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18134,6 +18690,7 @@ impl Default for MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18156,6 +18713,7 @@ pub struct MedicinalProductIndicationOtherTherapy {
     pub medication: MedicinalProductIndicationOtherTherapyMedicationTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18203,6 +18761,7 @@ pub struct MedicinalProductIndication {
     pub population: Option<Vec<Box<Population>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18231,6 +18790,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength
     pub country: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18264,6 +18824,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstanceStrength {
         Option<Vec<MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18289,6 +18850,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstance {
     pub strength: Option<Vec<MedicinalProductIngredientSpecifiedSubstanceStrength>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18310,6 +18872,7 @@ pub struct MedicinalProductIngredientSubstance {
     pub strength: Option<Vec<MedicinalProductIngredientSpecifiedSubstanceStrength>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18353,6 +18916,7 @@ pub struct MedicinalProductIngredient {
     pub substance: Option<MedicinalProductIngredientSubstance>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18372,6 +18936,7 @@ impl Default for MedicinalProductInteractionInteractantItemTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18392,6 +18957,7 @@ pub struct MedicinalProductInteractionInteractant {
     pub item: MedicinalProductInteractionInteractantItemTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18437,6 +19003,7 @@ pub struct MedicinalProductInteraction {
     pub management: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18480,6 +19047,7 @@ pub struct MedicinalProductManufactured {
     pub otherCharacteristics: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18501,6 +19069,7 @@ pub struct MedicinalProductPackagedBatchIdentifier {
     pub immediatePackaging: Option<Box<Identifier>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18544,6 +19113,7 @@ pub struct MedicinalProductPackagedPackageItem {
     pub manufacturer: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18593,6 +19163,7 @@ pub struct MedicinalProductPackaged {
     pub packageItem: Vec<MedicinalProductPackagedPackageItem>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18614,6 +19185,7 @@ pub struct MedicinalProductPharmaceuticalCharacteristics {
     pub status: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18638,6 +19210,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithd
     pub supportingInformation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18661,6 +19234,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies {
     >,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18693,6 +19267,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministration {
         Option<Vec<MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18737,6 +19312,7 @@ pub struct MedicinalProductPharmaceutical {
     pub routeOfAdministration: Vec<MedicinalProductPharmaceuticalRouteOfAdministration>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18776,6 +19352,7 @@ pub struct MedicinalProductUndesirableEffect {
     pub population: Option<Vec<Box<Population>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18793,6 +19370,7 @@ impl Default for MessageDefinitionEventTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18822,6 +19400,7 @@ pub struct MessageDefinitionFocus {
     pub max: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18845,6 +19424,7 @@ pub struct MessageDefinitionAllowedResponse {
     pub situation: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18941,6 +19521,7 @@ pub struct MessageDefinition {
     pub graph: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18958,6 +19539,7 @@ impl Default for MessageHeaderEventTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -18985,6 +19567,7 @@ pub struct MessageHeaderDestination {
     pub receiver: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19016,6 +19599,7 @@ pub struct MessageHeaderSource {
     pub endpoint: Box<FHIRUrl>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19042,6 +19626,7 @@ pub struct MessageHeaderResponse {
     pub details: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19095,6 +19680,7 @@ pub struct MessageHeader {
     pub definition: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19136,6 +19722,7 @@ pub struct MolecularSequenceReferenceSeq {
     pub windowEnd: Option<Box<FHIRInteger>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19170,6 +19757,7 @@ pub struct MolecularSequenceVariant {
     pub variantPointer: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19208,6 +19796,7 @@ pub struct MolecularSequenceQualityRoc {
     pub fMeasure: Option<Vec<Box<FHIRDecimal>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19267,6 +19856,7 @@ pub struct MolecularSequenceQuality {
     pub roc: Option<MolecularSequenceQualityRoc>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19303,6 +19893,7 @@ pub struct MolecularSequenceRepository {
     pub readsetId: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19326,6 +19917,7 @@ pub struct MolecularSequenceStructureVariantOuter {
     pub end: Option<Box<FHIRInteger>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19349,6 +19941,7 @@ pub struct MolecularSequenceStructureVariantInner {
     pub end: Option<Box<FHIRInteger>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19378,6 +19971,7 @@ pub struct MolecularSequenceStructureVariant {
     pub inner: Option<MolecularSequenceStructureVariantInner>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19445,6 +20039,7 @@ pub struct MolecularSequence {
     pub structureVariant: Option<Vec<MolecularSequenceStructureVariant>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19477,6 +20072,7 @@ pub struct NamingSystemUniqueId {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19541,6 +20137,7 @@ pub struct NamingSystem {
     pub uniqueId: Vec<NamingSystemUniqueId>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19562,6 +20159,7 @@ pub struct NutritionOrderOralDietNutrient {
     pub amount: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19583,6 +20181,7 @@ pub struct NutritionOrderOralDietTexture {
     pub foodType: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19614,6 +20213,7 @@ pub struct NutritionOrderOralDiet {
     pub instruction: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19644,6 +20244,7 @@ pub struct NutritionOrderSupplement {
     pub instruction: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19663,6 +20264,7 @@ impl Default for NutritionOrderEnteralFormulaAdministrationRateTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19687,6 +20289,7 @@ pub struct NutritionOrderEnteralFormulaAdministration {
     pub rate: Option<NutritionOrderEnteralFormulaAdministrationRateTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19725,6 +20328,7 @@ pub struct NutritionOrderEnteralFormula {
     pub administrationInstruction: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19795,6 +20399,7 @@ pub struct NutritionOrder {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19814,6 +20419,7 @@ impl Default for ObservationEffectiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19840,6 +20446,7 @@ impl Default for ObservationValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19871,6 +20478,7 @@ pub struct ObservationReferenceRange {
     pub text: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19897,6 +20505,7 @@ impl Default for ObservationComponentValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -19925,6 +20534,7 @@ pub struct ObservationComponent {
     pub referenceRange: Option<Vec<ObservationReferenceRange>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20007,6 +20617,7 @@ pub struct Observation {
     pub component: Option<Vec<ObservationComponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20034,6 +20645,7 @@ pub struct ObservationDefinitionQuantitativeDetails {
     pub decimalPrecision: Option<Box<FHIRInteger>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20070,6 +20682,7 @@ pub struct ObservationDefinitionQualifiedInterval {
     pub condition: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20129,6 +20742,7 @@ pub struct ObservationDefinition {
     pub criticalCodedValueSet: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20152,6 +20766,7 @@ pub struct OperationDefinitionParameterBinding {
     pub valueSet: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20175,6 +20790,7 @@ pub struct OperationDefinitionParameterReferencedFrom {
     pub sourceId: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20224,6 +20840,7 @@ pub struct OperationDefinitionParameter {
     pub part: Option<Vec<OperationDefinitionParameter>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20247,6 +20864,7 @@ pub struct OperationDefinitionOverload {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20350,6 +20968,7 @@ pub struct OperationDefinition {
     pub overload: Option<Vec<OperationDefinitionOverload>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20384,6 +21003,7 @@ pub struct OperationOutcomeIssue {
     pub expression: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20415,6 +21035,7 @@ pub struct OperationOutcome {
     pub issue: Vec<OperationOutcomeIssue>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20440,6 +21061,7 @@ pub struct OrganizationContact {
     pub address: Option<Box<Address>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20494,6 +21116,7 @@ pub struct Organization {
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20549,6 +21172,7 @@ pub struct OrganizationAffiliation {
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20614,6 +21238,7 @@ impl Default for ParametersParameterValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20641,6 +21266,7 @@ pub struct ParametersParameter {
     pub part: Option<Vec<ParametersParameter>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20664,6 +21290,7 @@ pub struct Parameters {
     pub parameter: Option<Vec<ParametersParameter>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20681,6 +21308,7 @@ impl Default for PatientDeceasedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20698,6 +21326,7 @@ impl Default for PatientMultipleBirthTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20730,6 +21359,7 @@ pub struct PatientContact {
     pub period: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20752,6 +21382,7 @@ pub struct PatientCommunication {
     pub preferred: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20775,6 +21406,7 @@ pub struct PatientLink {
     pub type_: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20842,6 +21474,7 @@ pub struct Patient {
     pub link: Option<Vec<PatientLink>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20899,6 +21532,7 @@ pub struct PaymentNotice {
     pub paymentStatus: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20939,6 +21573,7 @@ pub struct PaymentReconciliationDetail {
     pub amount: Option<Box<Money>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -20963,6 +21598,7 @@ pub struct PaymentReconciliationProcessNote {
     pub text: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21028,6 +21664,7 @@ pub struct PaymentReconciliation {
     pub processNote: Option<Vec<PaymentReconciliationProcessNote>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21050,6 +21687,7 @@ pub struct PersonLink {
     pub assurance: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21103,6 +21741,7 @@ pub struct Person {
     pub link: Option<Vec<PersonLink>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21120,6 +21759,7 @@ impl Default for PlanDefinitionSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21138,6 +21778,7 @@ impl Default for PlanDefinitionGoalTargetDetailTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21162,6 +21803,7 @@ pub struct PlanDefinitionGoalTarget {
     pub due: Option<Box<Duration>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21193,6 +21835,7 @@ pub struct PlanDefinitionGoal {
     pub target: Option<Vec<PlanDefinitionGoalTarget>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21210,6 +21853,7 @@ impl Default for PlanDefinitionActionSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21232,6 +21876,7 @@ pub struct PlanDefinitionActionCondition {
     pub expression: Option<Box<Expression>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21249,6 +21894,7 @@ impl Default for PlanDefinitionActionRelatedActionOffsetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21275,6 +21921,7 @@ pub struct PlanDefinitionActionRelatedAction {
     pub offset: Option<PlanDefinitionActionRelatedActionOffsetTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21296,6 +21943,7 @@ impl Default for PlanDefinitionActionTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21319,6 +21967,7 @@ pub struct PlanDefinitionActionParticipant {
     pub role: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21336,6 +21985,7 @@ impl Default for PlanDefinitionActionDefinitionTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21358,6 +22008,7 @@ pub struct PlanDefinitionActionDynamicValue {
     pub expression: Option<Box<Expression>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21445,6 +22096,7 @@ pub struct PlanDefinitionAction {
     pub action: Option<Vec<PlanDefinitionAction>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21555,6 +22207,7 @@ pub struct PlanDefinition {
     pub action: Option<Vec<PlanDefinitionAction>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21581,6 +22234,7 @@ pub struct PractitionerQualification {
     pub issuer: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21634,6 +22288,7 @@ pub struct Practitioner {
     pub communication: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21663,6 +22318,7 @@ pub struct PractitionerRoleAvailableTime {
     pub availableEndTime: Option<Box<FHIRTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21685,6 +22341,7 @@ pub struct PractitionerRoleNotAvailable {
     pub during: Option<Box<Period>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21745,6 +22402,7 @@ pub struct PractitionerRole {
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21765,6 +22423,7 @@ impl Default for ProcedurePerformedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21788,6 +22447,7 @@ pub struct ProcedurePerformer {
     pub onBehalfOf: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21809,6 +22469,7 @@ pub struct ProcedureFocalDevice {
     pub manipulated: Box<Reference>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21899,6 +22560,7 @@ pub struct Procedure {
     pub usedCode: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21916,6 +22578,7 @@ impl Default for ProvenanceOccurredTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21942,6 +22605,7 @@ pub struct ProvenanceAgent {
     pub onBehalfOf: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -21966,6 +22630,7 @@ pub struct ProvenanceEntity {
     pub agent: Option<Vec<ProvenanceAgent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22018,6 +22683,7 @@ pub struct Provenance {
     pub signature: Option<Vec<Box<Signature>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22043,6 +22709,7 @@ impl Default for QuestionnaireItemEnableWhenAnswerTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22069,6 +22736,7 @@ pub struct QuestionnaireItemEnableWhen {
     pub answer: QuestionnaireItemEnableWhenAnswerTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22090,6 +22758,7 @@ impl Default for QuestionnaireItemAnswerOptionValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22113,6 +22782,7 @@ pub struct QuestionnaireItemAnswerOption {
     pub initialSelected: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22140,6 +22810,7 @@ impl Default for QuestionnaireItemInitialValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22160,6 +22831,7 @@ pub struct QuestionnaireItemInitial {
     pub value: QuestionnaireItemInitialValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22221,6 +22893,7 @@ pub struct QuestionnaireItem {
     pub item: Option<Vec<QuestionnaireItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22310,6 +22983,7 @@ pub struct Questionnaire {
     pub item: Option<Vec<QuestionnaireItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22337,6 +23011,7 @@ impl Default for QuestionnaireResponseItemAnswerValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22359,6 +23034,7 @@ pub struct QuestionnaireResponseItemAnswer {
     pub item: Option<Vec<QuestionnaireResponseItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22389,6 +23065,7 @@ pub struct QuestionnaireResponseItem {
     pub item: Option<Vec<QuestionnaireResponseItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22444,6 +23121,7 @@ pub struct QuestionnaireResponse {
     pub item: Option<Vec<QuestionnaireResponseItem>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22466,6 +23144,7 @@ pub struct RelatedPersonCommunication {
     pub preferred: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22523,6 +23202,7 @@ pub struct RelatedPerson {
     pub communication: Option<Vec<RelatedPersonCommunication>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22545,6 +23225,7 @@ pub struct RequestGroupActionCondition {
     pub expression: Option<Box<Expression>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22562,6 +23243,7 @@ impl Default for RequestGroupActionRelatedActionOffsetTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22588,6 +23270,7 @@ pub struct RequestGroupActionRelatedAction {
     pub offset: Option<RequestGroupActionRelatedActionOffsetTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22609,6 +23292,7 @@ impl Default for RequestGroupActionTimingTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22676,6 +23360,7 @@ pub struct RequestGroupAction {
     pub action: Option<Vec<RequestGroupAction>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22748,6 +23433,7 @@ pub struct RequestGroup {
     pub action: Option<Vec<RequestGroupAction>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22765,6 +23451,7 @@ impl Default for ResearchDefinitionSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -22882,6 +23569,7 @@ pub struct ResearchDefinition {
     pub outcome: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22899,6 +23587,7 @@ impl Default for ResearchElementDefinitionSubjectTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22920,6 +23609,7 @@ impl Default for ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22941,6 +23631,7 @@ impl Default for ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22962,6 +23653,7 @@ impl Default for ResearchElementDefinitionCharacteristicParticipantEffectiveType
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23012,6 +23704,7 @@ pub struct ResearchElementDefinitionCharacteristic {
     pub participantEffectiveGroupMeasure: Option<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23130,6 +23823,7 @@ pub struct ResearchElementDefinition {
     pub characteristic: Vec<ResearchElementDefinitionCharacteristic>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23156,6 +23850,7 @@ pub struct ResearchStudyArm {
     pub description: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23179,6 +23874,7 @@ pub struct ResearchStudyObjective {
     pub type_: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23260,6 +23956,7 @@ pub struct ResearchStudy {
     pub objective: Option<Vec<ResearchStudyObjective>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23309,6 +24006,7 @@ pub struct ResearchSubject {
     pub consent: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23326,6 +24024,7 @@ impl Default for RiskAssessmentOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23343,6 +24042,7 @@ impl Default for RiskAssessmentPredictionProbabilityTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23360,6 +24060,7 @@ impl Default for RiskAssessmentPredictionWhenTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23393,6 +24094,7 @@ pub struct RiskAssessmentPrediction {
     pub rationale: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23460,6 +24162,7 @@ pub struct RiskAssessment {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23486,6 +24189,7 @@ pub struct RiskEvidenceSynthesisSampleSize {
     pub numberOfParticipants: Option<Box<FHIRInteger>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23515,6 +24219,7 @@ pub struct RiskEvidenceSynthesisRiskEstimatePrecisionEstimate {
     pub to: Option<Box<FHIRDecimal>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23551,6 +24256,7 @@ pub struct RiskEvidenceSynthesisRiskEstimate {
     pub precisionEstimate: Option<Vec<RiskEvidenceSynthesisRiskEstimatePrecisionEstimate>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23575,6 +24281,7 @@ pub struct RiskEvidenceSynthesisCertaintyCertaintySubcomponent {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23598,6 +24305,7 @@ pub struct RiskEvidenceSynthesisCertainty {
     pub certaintySubcomponent: Option<Vec<RiskEvidenceSynthesisCertaintyCertaintySubcomponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23701,6 +24409,7 @@ pub struct RiskEvidenceSynthesis {
     pub certainty: Option<Vec<RiskEvidenceSynthesisCertainty>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23749,6 +24458,7 @@ pub struct Schedule {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23772,6 +24482,7 @@ pub struct SearchParameterComponent {
     pub expression: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -23876,6 +24587,7 @@ pub struct SearchParameter {
     pub component: Option<Vec<SearchParameterComponent>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23894,6 +24606,7 @@ impl Default for ServiceRequestQuantityTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23912,6 +24625,7 @@ impl Default for ServiceRequestOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23929,6 +24643,7 @@ impl Default for ServiceRequestAsNeededTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24036,6 +24751,7 @@ pub struct ServiceRequest {
     pub relevantHistory: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24093,6 +24809,7 @@ pub struct Slot {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24110,6 +24827,7 @@ impl Default for SpecimenCollectionCollectedTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24127,6 +24845,7 @@ impl Default for SpecimenCollectionFastingStatusTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24160,6 +24879,7 @@ pub struct SpecimenCollection {
     pub fastingStatus: Option<SpecimenCollectionFastingStatusTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24177,6 +24897,7 @@ impl Default for SpecimenProcessingTimeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24204,6 +24925,7 @@ pub struct SpecimenProcessing {
     pub time: Option<SpecimenProcessingTimeTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24221,6 +24943,7 @@ impl Default for SpecimenContainerAdditiveTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24254,6 +24977,7 @@ pub struct SpecimenContainer {
     pub additive: Option<SpecimenContainerAdditiveTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24313,6 +25037,7 @@ pub struct Specimen {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24332,6 +25057,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24351,6 +25077,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24371,6 +25098,7 @@ pub struct SpecimenDefinitionTypeTestedContainerAdditive {
     pub additive: SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24408,6 +25136,7 @@ pub struct SpecimenDefinitionTypeTestedContainer {
     pub preparation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24434,6 +25163,7 @@ pub struct SpecimenDefinitionTypeTestedHandling {
     pub instruction: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24471,6 +25201,7 @@ pub struct SpecimenDefinitionTypeTested {
     pub handling: Option<Vec<SpecimenDefinitionTypeTestedHandling>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24514,6 +25245,7 @@ pub struct SpecimenDefinition {
     pub typeTested: Option<Vec<SpecimenDefinitionTypeTested>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24543,6 +25275,7 @@ pub struct StructureDefinitionMapping {
     pub comment: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24567,6 +25300,7 @@ pub struct StructureDefinitionContext {
     pub expression: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24586,6 +25320,7 @@ pub struct StructureDefinitionSnapshot {
     pub element: Vec<Box<ElementDefinition>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24605,6 +25340,7 @@ pub struct StructureDefinitionDifferential {
     pub element: Vec<Box<ElementDefinition>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24709,6 +25445,7 @@ pub struct StructureDefinition {
     pub differential: Option<StructureDefinitionDifferential>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24738,6 +25475,7 @@ pub struct StructureMapStructure {
     pub documentation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24768,6 +25506,7 @@ pub struct StructureMapGroupInput {
     pub documentation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24835,6 +25574,7 @@ impl Default for StructureMapGroupRuleSourceDefaultValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24886,6 +25626,7 @@ pub struct StructureMapGroupRuleSource {
     pub logMessage: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24906,6 +25647,7 @@ impl Default for StructureMapGroupRuleTargetParameterValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24926,6 +25668,7 @@ pub struct StructureMapGroupRuleTargetParameter {
     pub value: StructureMapGroupRuleTargetParameterValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24966,6 +25709,7 @@ pub struct StructureMapGroupRuleTarget {
     pub parameter: Option<Vec<StructureMapGroupRuleTargetParameter>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -24989,6 +25733,7 @@ pub struct StructureMapGroupRuleDependent {
     pub variable: Vec<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25020,6 +25765,7 @@ pub struct StructureMapGroupRule {
     pub documentation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25053,6 +25799,7 @@ pub struct StructureMapGroup {
     pub rule: Vec<StructureMapGroupRule>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25131,6 +25878,7 @@ pub struct StructureMap {
     pub group: Vec<StructureMapGroup>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25161,6 +25909,7 @@ pub struct SubscriptionChannel {
     pub header: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25209,6 +25958,7 @@ pub struct Subscription {
     pub channel: SubscriptionChannel,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25234,6 +25984,7 @@ pub struct SubstanceInstance {
     pub quantity: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25251,6 +26002,7 @@ impl Default for SubstanceIngredientSubstanceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25273,6 +26025,7 @@ pub struct SubstanceIngredient {
     pub substance: SubstanceIngredientSubstanceTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25319,6 +26072,7 @@ pub struct Substance {
     pub ingredient: Option<Vec<SubstanceIngredient>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25348,6 +26102,7 @@ pub struct SubstanceNucleicAcidSubunitLinkage {
     pub residueSite: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25374,6 +26129,7 @@ pub struct SubstanceNucleicAcidSubunitSugar {
     pub residueSite: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25410,6 +26166,7 @@ pub struct SubstanceNucleicAcidSubunit {
     pub sugar: Option<Vec<SubstanceNucleicAcidSubunitSugar>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25451,6 +26208,7 @@ pub struct SubstanceNucleicAcid {
     pub subunit: Option<Vec<SubstanceNucleicAcidSubunit>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25478,6 +26236,7 @@ pub struct SubstancePolymerMonomerSetStartingMaterial {
     pub amount: Option<Box<SubstanceAmount>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25499,6 +26258,7 @@ pub struct SubstancePolymerMonomerSet {
     pub startingMaterial: Option<Vec<SubstancePolymerMonomerSetStartingMaterial>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25520,6 +26280,7 @@ pub struct SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation {
     pub amount: Option<Box<SubstanceAmount>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25545,6 +26306,7 @@ pub struct SubstancePolymerRepeatRepeatUnitStructuralRepresentation {
     pub attachment: Option<Box<Attachment>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25574,6 +26336,7 @@ pub struct SubstancePolymerRepeatRepeatUnit {
         Option<Vec<SubstancePolymerRepeatRepeatUnitStructuralRepresentation>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25601,6 +26364,7 @@ pub struct SubstancePolymerRepeat {
     pub repeatUnit: Option<Vec<SubstancePolymerRepeatRepeatUnit>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25643,6 +26407,7 @@ pub struct SubstancePolymer {
     pub repeat: Option<Vec<SubstancePolymerRepeat>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25681,6 +26446,7 @@ pub struct SubstanceProteinSubunit {
     pub cTerminalModification: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25720,6 +26486,7 @@ pub struct SubstanceProtein {
     pub subunit: Option<Vec<SubstanceProteinSubunit>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25743,6 +26510,7 @@ pub struct SubstanceReferenceInformationGene {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25767,6 +26535,7 @@ pub struct SubstanceReferenceInformationGeneElement {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25792,6 +26561,7 @@ pub struct SubstanceReferenceInformationClassification {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25810,6 +26580,7 @@ impl Default for SubstanceReferenceInformationTargetAmountTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25845,6 +26616,7 @@ pub struct SubstanceReferenceInformationTarget {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25885,6 +26657,7 @@ pub struct SubstanceReferenceInformation {
     pub target: Option<Vec<SubstanceReferenceInformationTarget>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25907,6 +26680,7 @@ pub struct SubstanceSourceMaterialFractionDescription {
     pub materialType: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25929,6 +26703,7 @@ pub struct SubstanceSourceMaterialOrganismAuthor {
     pub authorDescription: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25960,6 +26735,7 @@ pub struct SubstanceSourceMaterialOrganismHybrid {
     pub hybridType: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -25985,6 +26761,7 @@ pub struct SubstanceSourceMaterialOrganismOrganismGeneral {
     pub order: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26019,6 +26796,7 @@ pub struct SubstanceSourceMaterialOrganism {
     pub organismGeneral: Option<SubstanceSourceMaterialOrganismOrganismGeneral>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26040,6 +26818,7 @@ pub struct SubstanceSourceMaterialPartDescription {
     pub partLocation: Option<Box<CodeableConcept>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26098,6 +26877,7 @@ pub struct SubstanceSourceMaterial {
     pub partDescription: Option<Vec<SubstanceSourceMaterialPartDescription>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26115,6 +26895,7 @@ impl Default for SubstanceSpecificationMoietyAmountTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26150,6 +26931,7 @@ pub struct SubstanceSpecificationMoiety {
     pub amount: Option<SubstanceSpecificationMoietyAmountTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26169,6 +26951,7 @@ impl Default for SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26186,6 +26969,7 @@ impl Default for SubstanceSpecificationPropertyAmountTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26216,6 +27000,7 @@ pub struct SubstanceSpecificationProperty {
     pub amount: Option<SubstanceSpecificationPropertyAmountTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26240,6 +27025,7 @@ pub struct SubstanceSpecificationStructureIsotopeMolecularWeight {
     pub amount: Option<Box<Quantity>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26268,6 +27054,7 @@ pub struct SubstanceSpecificationStructureIsotope {
     pub molecularWeight: Option<SubstanceSpecificationStructureIsotopeMolecularWeight>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26293,6 +27080,7 @@ pub struct SubstanceSpecificationStructureRepresentation {
     pub attachment: Option<Box<Attachment>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26328,6 +27116,7 @@ pub struct SubstanceSpecificationStructure {
     pub representation: Option<Vec<SubstanceSpecificationStructureRepresentation>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26357,6 +27146,7 @@ pub struct SubstanceSpecificationCode {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26381,6 +27171,7 @@ pub struct SubstanceSpecificationNameOfficial {
     pub date: Option<Box<FHIRDateTime>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26423,6 +27214,7 @@ pub struct SubstanceSpecificationName {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26442,6 +27234,7 @@ impl Default for SubstanceSpecificationRelationshipSubstanceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26461,6 +27254,7 @@ impl Default for SubstanceSpecificationRelationshipAmountTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26495,6 +27289,7 @@ pub struct SubstanceSpecificationRelationship {
     pub source: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26566,6 +27361,7 @@ pub struct SubstanceSpecification {
     pub sourceMaterial: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26583,6 +27379,7 @@ impl Default for SupplyDeliverySuppliedItemItemTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26605,6 +27402,7 @@ pub struct SupplyDeliverySuppliedItem {
     pub item: Option<SupplyDeliverySuppliedItemItemTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26623,6 +27421,7 @@ impl Default for SupplyDeliveryOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26678,6 +27477,7 @@ pub struct SupplyDelivery {
     pub receiver: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26695,6 +27495,7 @@ impl Default for SupplyRequestItemTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26714,6 +27515,7 @@ impl Default for SupplyRequestParameterValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26736,6 +27538,7 @@ pub struct SupplyRequestParameter {
     pub value: Option<SupplyRequestParameterValueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26754,6 +27557,7 @@ impl Default for SupplyRequestOccurrenceTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26819,6 +27623,7 @@ pub struct SupplyRequest {
     pub deliverTo: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26843,6 +27648,7 @@ pub struct TaskRestriction {
     pub recipient: Option<Vec<Box<Reference>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26908,6 +27714,7 @@ impl Default for TaskInputValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -26931,6 +27738,7 @@ pub struct TaskInput {
     pub value: TaskInputValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26996,6 +27804,7 @@ impl Default for TaskOutputValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27019,6 +27828,7 @@ pub struct TaskOutput {
     pub value: TaskOutputValueTypeChoice,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27120,6 +27930,7 @@ pub struct Task {
     pub output: Option<Vec<TaskOutput>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27143,6 +27954,7 @@ pub struct TerminologyCapabilitiesSoftware {
     pub version: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27166,6 +27978,7 @@ pub struct TerminologyCapabilitiesImplementation {
     pub url: Option<Box<FHIRUrl>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27189,6 +28002,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersionFilter {
     pub op: Vec<Box<FHIRCode>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27223,6 +28037,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersion {
     pub property: Option<Vec<Box<FHIRCode>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27248,6 +28063,7 @@ pub struct TerminologyCapabilitiesCodeSystem {
     pub subsumption: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27271,6 +28087,7 @@ pub struct TerminologyCapabilitiesExpansionParameter {
     pub documentation: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27302,6 +28119,7 @@ pub struct TerminologyCapabilitiesExpansion {
     pub textFilter: Option<Box<FHIRMarkdown>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27322,6 +28140,7 @@ pub struct TerminologyCapabilitiesValidateCode {
     pub translations: Box<FHIRBoolean>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27342,6 +28161,7 @@ pub struct TerminologyCapabilitiesTranslation {
     pub needsMap: Box<FHIRBoolean>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27362,6 +28182,7 @@ pub struct TerminologyCapabilitiesClosure {
     pub translation: Option<Box<FHIRBoolean>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27453,6 +28274,7 @@ pub struct TerminologyCapabilities {
     pub closure: Option<TerminologyCapabilitiesClosure>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27480,6 +28302,7 @@ pub struct TestReportParticipant {
     pub display: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27506,6 +28329,7 @@ pub struct TestReportSetupActionOperation {
     pub detail: Option<Box<FHIRUri>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27532,6 +28356,7 @@ pub struct TestReportSetupActionAssert {
     pub detail: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27553,6 +28378,7 @@ pub struct TestReportSetupAction {
     pub assert: Option<TestReportSetupActionAssert>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27572,6 +28398,7 @@ pub struct TestReportSetup {
     pub action: Vec<TestReportSetupAction>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27593,6 +28420,7 @@ pub struct TestReportTestAction {
     pub assert: Option<TestReportSetupActionAssert>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27618,6 +28446,7 @@ pub struct TestReportTest {
     pub action: Vec<TestReportTestAction>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27637,6 +28466,7 @@ pub struct TestReportTeardownAction {
     pub operation: TestReportSetupActionOperation,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27656,6 +28486,7 @@ pub struct TestReportTeardown {
     pub action: Vec<TestReportTeardownAction>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27716,6 +28547,7 @@ pub struct TestReport {
     pub teardown: Option<TestReportTeardown>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27738,6 +28570,7 @@ pub struct TestScriptOrigin {
     pub profile: Box<Coding>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27760,6 +28593,7 @@ pub struct TestScriptDestination {
     pub profile: Box<Coding>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27783,6 +28617,7 @@ pub struct TestScriptMetadataLink {
     pub description: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27821,6 +28656,7 @@ pub struct TestScriptMetadataCapability {
     pub capabilities: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27842,6 +28678,7 @@ pub struct TestScriptMetadata {
     pub capability: Vec<TestScriptMetadataCapability>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27867,6 +28704,7 @@ pub struct TestScriptFixture {
     pub resource: Option<Box<Reference>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27908,6 +28746,7 @@ pub struct TestScriptVariable {
     pub sourceId: Option<Box<FHIRId>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27931,6 +28770,7 @@ pub struct TestScriptSetupActionOperationRequestHeader {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -27998,6 +28838,7 @@ pub struct TestScriptSetupActionOperation {
     pub url: Option<Box<FHIRString>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28081,6 +28922,7 @@ pub struct TestScriptSetupActionAssert {
     pub warningOnly: Box<FHIRBoolean>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28102,6 +28944,7 @@ pub struct TestScriptSetupAction {
     pub assert: Option<TestScriptSetupActionAssert>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28121,6 +28964,7 @@ pub struct TestScriptSetup {
     pub action: Vec<TestScriptSetupAction>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28142,6 +28986,7 @@ pub struct TestScriptTestAction {
     pub assert: Option<TestScriptSetupActionAssert>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28167,6 +29012,7 @@ pub struct TestScriptTest {
     pub action: Vec<TestScriptTestAction>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28186,6 +29032,7 @@ pub struct TestScriptTeardownAction {
     pub operation: TestScriptSetupActionOperation,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28205,6 +29052,7 @@ pub struct TestScriptTeardown {
     pub action: Vec<TestScriptTeardownAction>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28294,6 +29142,7 @@ pub struct TestScript {
     pub teardown: Option<TestScriptTeardown>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28320,6 +29169,7 @@ pub struct ValueSetComposeIncludeConceptDesignation {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28345,6 +29195,7 @@ pub struct ValueSetComposeIncludeConcept {
     pub designation: Option<Vec<ValueSetComposeIncludeConceptDesignation>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28371,6 +29222,7 @@ pub struct ValueSetComposeIncludeFilter {
     pub value: Box<FHIRString>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28401,6 +29253,7 @@ pub struct ValueSetComposeInclude {
     pub valueSet: Option<Vec<Box<FHIRString>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28428,6 +29281,7 @@ pub struct ValueSetCompose {
     pub exclude: Option<Vec<ValueSetComposeInclude>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28450,6 +29304,7 @@ impl Default for ValueSetExpansionParameterValueTypeChoice {
     }
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28473,6 +29328,7 @@ pub struct ValueSetExpansionParameter {
     pub value: Option<ValueSetExpansionParameterValueTypeChoice>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28513,6 +29369,7 @@ pub struct ValueSetExpansionContains {
     pub contains: Option<Vec<ValueSetExpansionContains>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28547,6 +29404,7 @@ pub struct ValueSetExpansion {
     pub contains: Option<Vec<ValueSetExpansionContains>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28625,6 +29483,7 @@ pub struct ValueSet {
     pub expansion: Option<ValueSetExpansion>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28658,6 +29517,7 @@ pub struct VerificationResultPrimarySource {
     pub pushTypeAvailable: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28694,6 +29554,7 @@ pub struct VerificationResultAttestation {
     pub sourceSignature: Option<Box<Signature>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28718,6 +29579,7 @@ pub struct VerificationResultValidator {
     pub attestationSignature: Option<Box<Signature>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28780,6 +29642,7 @@ pub struct VerificationResult {
     pub validator: Option<Vec<VerificationResultValidator>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28803,6 +29666,7 @@ pub struct VisionPrescriptionLensSpecificationPrism {
     pub base: Box<FHIRCode>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28858,6 +29722,7 @@ pub struct VisionPrescriptionLensSpecification {
     pub note: Option<Vec<Box<Annotation>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28907,6 +29772,7 @@ pub struct VisionPrescription {
     pub lensSpecification: Vec<VisionPrescriptionLensSpecification>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     Default,
@@ -28969,6 +29835,7 @@ pub struct MetadataResource {
     pub jurisdiction: Option<Vec<Box<CodeableConcept>>>,
 }
 #[derive(
+    Clone,
     Reflect,
     Debug,
     fhir_serialization_json :: derive :: FHIRJSONSerialize,

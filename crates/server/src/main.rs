@@ -1,8 +1,11 @@
 #![allow(unused)]
 use fhir_client::request::FHIRRequest;
-use fhir_model::r4::types::{
-    Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRInteger, FHIRString,
-    HumanName, Identifier, Patient, Resource, ResourceType,
+use fhir_model::r4::{
+    sqlx::FHIRJson,
+    types::{
+        Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRInteger, FHIRString,
+        HumanName, Identifier, Patient, Resource, ResourceType,
+    },
 };
 use fhir_serialization_json::{
     FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
@@ -38,7 +41,7 @@ use tower_sessions_sqlx_store::PostgresStore;
 use crate::{
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
-    repository::{FHIRRepository, ProjectId, TenantId},
+    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
 };
 
 mod fhir_http;
@@ -125,7 +128,7 @@ struct AppState<Store: repository::FHIRRepository> {
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
-#[sqlx(type_name = "fhir_version", rename_all = "lowercase")]
+#[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
 pub enum SupportedFHIRVersions {
     R4,
     R4B,
@@ -149,6 +152,12 @@ struct FHIRHandlerPath {
     fhir_location: String,
 }
 
+#[derive(Debug)]
+struct Tester {
+    name: String,
+    age: u32,
+}
+
 #[debug_handler]
 async fn fhir_handler(
     method: Method,
@@ -156,6 +165,17 @@ async fn fhir_handler(
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
     body: String,
 ) -> Result<Response, ServerErrors> {
+    let mut v = Tester {
+        name: "John Doe".to_string(),
+        age: 30,
+    };
+
+    let k: &mut String = &mut v.name;
+
+    *k = "New Name".to_string();
+
+    println!("Tester: {:?}", v);
+
     let start = Instant::now();
     info!("[{}] '{}'", method, path.fhir_location);
 
@@ -164,7 +184,24 @@ async fn fhir_handler(
 
     info!("Request processed in {:?}", start.elapsed());
 
-    if let FHIRRequest::Create(create_request) = fhir_request {
+    if let FHIRRequest::Create(create_request) = &fhir_request {
+        let response = state
+            .fhir_store
+            .insert(&InsertResourceRow {
+                tenant: path.tenant.to_string(),
+                project: path.project.to_string(),
+                author_id: "fake_author_id".to_string(),
+                fhir_version: path.fhir_version,
+                resource: FHIRJson(create_request.resource.clone()),
+                deleted: false,
+                request_method: "POST".to_string(),
+                author_type: "member".to_string(),
+                fhir_method: FHIRMethod::try_from(&fhir_request).unwrap(),
+            })
+            .await?;
+
+        println!("Resource inserted: {:?}", response);
+
         Ok((
             axum::http::StatusCode::CREATED,
             fhir_serialization_json::to_string(&create_request.resource).unwrap(),

@@ -157,7 +157,7 @@ fn create_type_choice(sd: &Value, element: &Value) -> TokenStream {
 
     // fhir_serialization_json::derive::FHIRJSONDeserialize
     quote! {
-        #[derive(Reflect, Debug, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+        #[derive(Clone, Reflect, Debug, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
         #[fhir_serialize_type = "typechoice"]
         #[type_choice_field_name = #field_name]
         pub enum #type_name {
@@ -199,17 +199,17 @@ fn process_complex(
 
     let derive = if conditionals::is_root(sd, element) && conditionals::is_primitive_sd(sd) {
         quote! {
-           #[derive(Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+           #[derive(Clone, Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
            #[fhir_serialize_type = "primitive"]
         }
     } else if conditionals::is_root(sd, element) && conditionals::is_resource_sd(sd) {
         quote! {
-            #[derive(Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+            #[derive(Clone, Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
             #[fhir_serialize_type = "resource"]
         }
     } else {
         quote! {
-            #[derive(Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+            #[derive(Clone, Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
             #[fhir_serialize_type = "complex"]
         }
     };
@@ -352,7 +352,7 @@ pub fn generate_fhir_types_from_files(
         });
 
     let resource_enum = quote! {
-        #[derive(Reflect, Debug, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+        #[derive(Clone, Reflect, Debug, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
         #[fhir_serialize_type = "enum-variant"]
         #[determine_by = "resourceType"]
         pub enum Resource {
