@@ -32,7 +32,22 @@ where
     }
 }
 
-impl<'q, T> Encode<'q, Postgres> for FHIRJson<T>
+// More effecient impl to avoid cloning the value. No need to own as writing bytes and non mutating.
+pub struct FHIRJsonRef<'a, T: ?Sized>(pub &'a T);
+impl<'a, T> sqlx::Type<Postgres> for FHIRJsonRef<'a, T>
+where
+    T: fhir_serialization_json::FHIRJSONSerializer + fhir_serialization_json::FHIRJSONDeserializer,
+{
+    fn type_info() -> PgTypeInfo {
+        PgTypeInfo::with_name("jsonb")
+    }
+
+    fn compatible(ty: &PgTypeInfo) -> bool {
+        *ty == PgTypeInfo::with_name("json") || *ty == PgTypeInfo::with_name("jsonb")
+    }
+}
+
+impl<'q, T> Encode<'q, Postgres> for FHIRJsonRef<'q, T>
 where
     T: fhir_serialization_json::FHIRJSONSerializer + fhir_serialization_json::FHIRJSONDeserializer,
 {
@@ -50,7 +65,7 @@ where
         buf.push(1);
 
         // the JSON data written to the buffer is the same regardless of parameter type
-        fhir_serialization_json::to_writer(&mut **buf, &self.0)?;
+        fhir_serialization_json::to_writer(&mut **buf, &*self.0)?;
 
         Ok(IsNull::No)
     }

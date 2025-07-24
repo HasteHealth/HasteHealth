@@ -1,7 +1,7 @@
 #![allow(unused)]
 use fhir_client::request::FHIRRequest;
 use fhir_model::r4::{
-    sqlx::FHIRJson,
+    sqlx::{FHIRJson, FHIRJsonRef},
     types::{
         Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRId, FHIRInteger,
         FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
@@ -218,7 +218,7 @@ async fn fhir_handler(
                 project: path.project.to_string(),
                 author_id: "fake_author_id".to_string(),
                 fhir_version: path.fhir_version,
-                resource: FHIRJson(create_request.resource.clone()),
+                resource: FHIRJsonRef(&create_request.resource),
                 deleted: false,
                 request_method: "POST".to_string(),
                 author_type: "member".to_string(),

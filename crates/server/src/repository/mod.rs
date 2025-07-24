@@ -2,7 +2,10 @@ use std::fmt::Display;
 
 use crate::{ServerErrors, SupportedFHIRVersions};
 use fhir_client::request::FHIRRequest;
-use fhir_model::r4::{sqlx::FHIRJson, types::Resource};
+use fhir_model::r4::{
+    sqlx::{FHIRJson, FHIRJsonRef},
+    types::Resource,
+};
 use serde::Deserialize;
 pub mod postgres;
 
@@ -96,12 +99,12 @@ impl TryFrom<&FHIRRequest> for FHIRMethod {
 }
 
 #[derive(sqlx::FromRow)]
-pub struct InsertResourceRow {
+pub struct InsertResourceRow<'a> {
     pub tenant: String,
     pub project: String,
     // resource_type: String,
     pub author_id: String,
-    pub resource: FHIRJson<Resource>,
+    pub resource: FHIRJsonRef<'a, Resource>,
     pub deleted: bool,
     // created_at: chrono::DateTime<Utc>,
     pub request_method: String,

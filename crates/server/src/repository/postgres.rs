@@ -1,7 +1,7 @@
 use chrono::Utc;
 use fhir_client::request::FHIRRequest;
 use fhir_model::r4::{
-    sqlx::FHIRJson,
+    sqlx::{FHIRJson, FHIRJsonRef},
     types::{Patient, Resource},
 };
 use sqlx::{
@@ -27,7 +27,10 @@ struct ReturnV {
 }
 
 impl FHIRRepository for PostgresSQL {
-    async fn insert(&self, row: &InsertResourceRow) -> Result<Resource, crate::ServerErrors> {
+    async fn insert<'a>(
+        &self,
+        row: &InsertResourceRow<'a>,
+    ) -> Result<Resource, crate::ServerErrors> {
         let result = sqlx::query_as!(
                 ReturnV,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
@@ -39,7 +42,7 @@ impl FHIRRepository for PostgresSQL {
                 // Useless cast so that macro has access to the type information.
                 // Otherwise it will not compile on type check.
                 &row.fhir_version as &SupportedFHIRVersions,
-                &row.resource as &FHIRJson<Resource>,
+                &row.resource as &FHIRJsonRef<'a, Resource>,
                 row.deleted,
                 row.request_method,
                 row.author_type,
