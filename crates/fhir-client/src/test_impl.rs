@@ -1,41 +1,41 @@
-use crate::{FHIRClient, request::FHIRRequest};
 use std::pin::Pin;
 
-struct Test<CTX, F>
-where
-    F: FnMut(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
-{
+type Next<CTX> = Box<dyn FnOnce(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+type Middleware<CTX> =
+    Box<dyn Fn(CTX, Option<Next<CTX>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+
+struct Test<CTX> {
     _phantom: std::marker::PhantomData<CTX>,
-    middleware: Vec<F>,
+    middleware: Vec<Middleware<CTX>>,
 }
 
-impl<CTX, F> Test<CTX, F>
-where
-    F: Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
-{
-    pub fn new(middleware: Vec<F>) -> Self {
+impl<CTX> Test<CTX> {
+    pub fn new(middleware: Vec<Middleware<CTX>>) -> Self {
         Test {
             _phantom: std::marker::PhantomData,
-            middleware,
+            middleware: middleware,
         }
     }
     pub async fn call(&self, x: CTX) -> CTX {
         let mut ctx = x;
         for middleware in &self.middleware {
-            ctx = middleware(ctx).await;
+            ctx = middleware(ctx, None).await;
         }
         ctx
     }
 }
 
-fn what(x: usize) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+fn what(x: usize, _next: Option<Next<usize>>) -> Pin<Box<dyn Future<Output = usize> + Send>> {
     Box::pin(async move {
         println!("Hello {}", x);
         x + 1
     })
 }
 
-fn string_concat(x: String) -> Pin<Box<dyn Future<Output = String> + Send>> {
+fn string_concat(
+    x: String,
+    _next: Option<Next<String>>,
+) -> Pin<Box<dyn Future<Output = String> + Send>> {
     Box::pin(async move {
         println!("Hello {}", x);
         format!("{} world", x)
@@ -43,10 +43,10 @@ fn string_concat(x: String) -> Pin<Box<dyn Future<Output = String> + Send>> {
 }
 
 fn main() {
-    let test = Test::new(vec![what, what, what]);
-    Test::new(vec![what]);
+    let test = Test::new(vec![Box::new(what), Box::new(what), Box::new(what)]);
+    Test::new(vec![Box::new(what)]);
 
-    let test2 = Test::new(vec![string_concat, string_concat]);
+    let test2 = Test::new(vec![Box::new(string_concat), Box::new(string_concat)]);
 
     test.call(42);
     test2.call("Hello".into());
