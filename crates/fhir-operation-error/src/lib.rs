@@ -4,8 +4,29 @@ use fhir_model::r4::types::OperationOutcome;
 
 #[derive(Debug)]
 pub struct OperationError {
-    _source: Box<dyn Error + Send + Sync>,
+    _source: anyhow::Error,
     outcome: OperationOutcome,
+}
+
+impl OperationError {
+    pub fn new(source: anyhow::Error, outcome: OperationOutcome) -> Self {
+        OperationError {
+            _source: source,
+            outcome,
+        }
+    }
+
+    pub fn outcome(&self) -> &OperationOutcome {
+        &self.outcome
+    }
+
+    pub fn push_issue(&mut self, issue: fhir_model::r4::types::OperationOutcomeIssue) {
+        self.outcome.issue.push(issue);
+    }
+
+    pub fn backtrace(&self) -> &std::backtrace::Backtrace {
+        self._source.backtrace()
+    }
 }
 
 fn get_issue_diagnostics<'a>(
