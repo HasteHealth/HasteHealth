@@ -681,6 +681,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "fhir-operation-error"
+version = "0.1.0"
+
+[[package]]
 name = "fhir-serialization-json"
 version = "0.1.0"
 dependencies = [
