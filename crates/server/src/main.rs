@@ -165,24 +165,21 @@ async fn fhir_handler(
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
     body: String,
 ) -> Result<Response, ServerErrors> {
-    let mut v = Tester {
-        name: "John Doe".to_string(),
-        age: 30,
-    };
-
-    let k: &mut String = &mut v.name;
-
-    *k = "New Name".to_string();
-
-    println!("Tester: {:?}", v);
-
     let start = Instant::now();
     info!("[{}] '{}'", method, path.fhir_location);
 
     let http_req = HTTPRequest::new(method, path.fhir_location, body);
-    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req).unwrap();
+    let mut fhir_request =
+        http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req).unwrap();
 
     info!("Request processed in {:?}", start.elapsed());
+
+    if let FHIRRequest::Create(create_request) = &mut fhir_request {
+        let mut id = create_request.resource.get_field("id").unwrap();
+        let z = id.as_any().downcast_mut::<Option<String>>().unwrap();
+
+        *z = Some("random_id".to_string());
+    }
 
     if let FHIRRequest::Create(create_request) = &fhir_request {
         let response = state
