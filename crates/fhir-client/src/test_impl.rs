@@ -1,15 +1,22 @@
-use std::pin::Pin;
+use std::{pin::Pin, sync::Arc};
 
-type Next<CTX> = Box<dyn FnOnce(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
-type Middleware<CTX> =
+type Next<CTX: Send + Sync> =
+    Box<dyn Fn(&CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+
+type Middleware<CTX: Send + Sync> =
     Box<dyn Fn(CTX, Option<Next<CTX>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
-struct Test<CTX> {
+struct Test<CTX: Send + Sync> {
     _phantom: std::marker::PhantomData<CTX>,
     middleware: Vec<Middleware<CTX>>,
 }
 
-impl<CTX> Test<CTX> {
+fn create_next<CTX>(next_mid: Middleware<CTX>) -> Next<CTX> {
+    let nxt: Next<CTX> = Box::new(|v| next_mid(v, None));
+    nxt
+}
+
+impl<CTX: Send + Sync> Test<CTX> {
     pub fn new(middleware: Vec<Middleware<CTX>>) -> Self {
         Test {
             _phantom: std::marker::PhantomData,
@@ -18,9 +25,13 @@ impl<CTX> Test<CTX> {
     }
     pub async fn call(&self, x: CTX) -> CTX {
         let mut ctx = x;
-        for middleware in &self.middleware {
-            ctx = middleware(ctx, None).await;
+
+        for i in 0..self.middleware.len() {
+            let next_mid = &self.middleware[i + 1];
+            let nxt: Next<CTX> = Box::new(|v| next_mid(v, None));
+            ctx = self.middleware[i](ctx, Some(nxt)).await;
         }
+
         ctx
     }
 }
