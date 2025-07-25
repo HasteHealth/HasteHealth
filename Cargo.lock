@@ -669,6 +669,7 @@ name = "fhir-client"
 version = "0.1.0"
 dependencies = [
  "fhir-model",
+ "fhir-serialization-json",
  "http",
  "json-patch",
  "reqwest",

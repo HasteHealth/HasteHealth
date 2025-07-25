@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
+use fhir_model::r4::types::Resource;
 use reqwest::Url;
 use thiserror::Error;
 
 use crate::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
-    request::{FHIRRequest, FHIRResponse},
+    request::{FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
 
 pub struct FHIRHttpState {
@@ -40,6 +41,8 @@ pub enum FHIRHTTPError {
     NoResponse,
     #[error("Failed to parse URL for: '{0}'")]
     UrlParseError(String),
+    #[error("Failed to parse FHIR serialization: {0}")]
+    FHIRSerializationError(#[from] fhir_serialization_json::SerializeError),
 }
 
 fn fhir_request_to_http_request<CTX>(
@@ -59,6 +62,24 @@ fn fhir_request_to_http_request<CTX>(
 
             let request = state.client.get(read_request_url).build()?;
             Ok(request)
+        }
+        _ => Err(FHIRHTTPError::NotSupported),
+    }
+}
+
+async fn http_response_to_fhir_response(
+    fhir_request: FHIRRequest,
+    response: reqwest::Response,
+) -> Result<FHIRResponse, FHIRHTTPError> {
+    match fhir_request {
+        FHIRRequest::Read(_) => {
+            let status = response.status();
+            let body = response
+                .bytes()
+                .await
+                .map_err(FHIRHTTPError::RequestError)?;
+            let resource = fhir_serialization_json::from_bytes::<Resource>(&body)?;
+            Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
         }
         _ => Err(FHIRHTTPError::NotSupported),
     }
@@ -96,179 +117,179 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self.middleware
     }
 
-    async fn capabilities(&self, ctx: CTX) -> fhir_model::r4::types::CapabilityStatement {
+    async fn capabilities(&self, _ctx: CTX) -> fhir_model::r4::types::CapabilityStatement {
         todo!()
     }
 
     async fn search_system(
         &self,
-        ctx: CTX,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn search_type(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn create(
         &self,
-        ctx: CTX,
-        resource: fhir_model::r4::types::Resource,
+        _ctx: CTX,
+        _resource: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn update(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
-        resource: fhir_model::r4::types::Resource,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
+        _resource: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn conditional_update(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
-        resource: fhir_model::r4::types::Resource,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _parameters: Vec<crate::ParsedParameter>,
+        _resource: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn patch(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
-        patches: json_patch::Patch,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
+        _patches: json_patch::Patch,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn read(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
     ) -> Result<Option<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn vread(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
-        version_id: String,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
+        _version_id: String,
     ) -> Result<Option<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn delete_instance(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
     ) -> Result<(), FHIRHTTPError> {
         todo!()
     }
 
     async fn delete_type(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<(), FHIRHTTPError> {
         todo!()
     }
 
     async fn delete_system(
         &self,
-        ctx: CTX,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<(), FHIRHTTPError> {
         todo!()
     }
 
     async fn history_system(
         &self,
-        ctx: CTX,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn history_type(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn history_instance(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
-        parameters: Vec<crate::ParsedParameter>,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
+        _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn invoke_instance(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        id: String,
-        operation: String,
-        parameters: fhir_model::r4::types::Parameters,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _id: String,
+        _operation: String,
+        _parameters: fhir_model::r4::types::Parameters,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn invoke_type(
         &self,
-        ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
-        operation: String,
-        parameters: fhir_model::r4::types::Parameters,
+        _ctx: CTX,
+        _resource_type: fhir_model::r4::types::ResourceType,
+        _operation: String,
+        _parameters: fhir_model::r4::types::Parameters,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn invoke_system(
         &self,
-        ctx: CTX,
-        operation: String,
-        parameters: fhir_model::r4::types::Parameters,
+        _ctx: CTX,
+        _operation: String,
+        _parameters: fhir_model::r4::types::Parameters,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn transaction(
         &self,
-        ctx: CTX,
-        bundle: fhir_model::r4::types::Resource,
+        _ctx: CTX,
+        _bundle: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn batch(
         &self,
-        ctx: CTX,
-        bundle: fhir_model::r4::types::Resource,
+        _ctx: CTX,
+        _bundle: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
     }
