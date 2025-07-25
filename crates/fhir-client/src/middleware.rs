@@ -50,8 +50,6 @@ mod test {
             } else {
                 x
             };
-
-            println!("Last middleware 1");
             x + 1
         })
     }
@@ -61,7 +59,6 @@ mod test {
         _next: Option<Arc<Next<usize>>>,
     ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
         Box::pin(async move {
-            println!("Middleware2 {}", x);
             if let Some(next) = _next {
                 let k = next(x + 2).await;
                 k
@@ -85,10 +82,7 @@ mod test {
         x: String,
         _next: Option<Arc<Next<String>>>,
     ) -> Pin<Box<dyn Future<Output = String> + Send>> {
-        Box::pin(async move {
-            println!("Hello {}", x);
-            format!("{} world", x)
-        })
+        Box::pin(async move { format!("{} world", x) })
     }
 
     #[tokio::test]

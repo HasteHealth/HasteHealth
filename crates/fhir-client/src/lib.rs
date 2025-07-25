@@ -3,8 +3,8 @@ use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};
 
+mod middleware;
 pub mod request;
-mod test_impl;
 pub mod url;
 
 pub struct ParsedParameter {}
