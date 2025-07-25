@@ -82,17 +82,26 @@ fn string_concat(
     })
 }
 
-async fn z_main() {
-    let test = Test2::new(vec![
-        Box::new(middlware_1),
-        Box::new(middleware_2),
-        Box::new(middleware_3),
-    ]);
+async fn z_main() {}
 
-    let test2 = Test2::new(vec![Box::new(string_concat), Box::new(string_concat)]);
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    let z = test.call(42).await;
-    println!("{}", z);
+    #[tokio::test]
+    async fn test_middleware() {
+        let test = Test2::new(vec![
+            Box::new(middlware_1),
+            Box::new(middleware_2),
+            Box::new(middleware_3),
+        ]);
+
+        let test2 = Test2::new(vec![Box::new(string_concat), Box::new(string_concat)]);
+
+        let z = test.call(42).await;
+        assert_eq!(z, 43);
+        println!("{}", z);
+    }
 }
 
 // impl<CTX, Error, M> FHIRClient<CTX, Error> for Test<M>
