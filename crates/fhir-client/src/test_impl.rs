@@ -1,34 +1,43 @@
 use std::{pin::Pin, sync::Arc};
 
-type Next<CTX: Send + Sync> =
+type Next<CTX: 'static + Send + Sync> =
     Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
-type Middleware<CTX: Send + Sync> =
+type Middleware<CTX: 'static + Send + Sync> =
     Box<dyn Fn(CTX, Option<Next<CTX>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
-struct Test<CTX: Send + Sync> {
+struct Test<CTX: 'static + Send + Sync> {
     _phantom: std::marker::PhantomData<CTX>,
-    middleware: Vec<Middleware<CTX>>,
-}
-
-fn create_next<CTX>(next_mid: Middleware<CTX>) -> Next<CTX> {
-    let nxt: Next<CTX> = Box::new(|v| next_mid(v, None));
-    nxt
+    middleware: Arc<Vec<Middleware<CTX>>>,
 }
 
 impl<CTX: Send + Sync> Test<CTX> {
     pub fn new(middleware: Vec<Middleware<CTX>>) -> Self {
         Test {
             _phantom: std::marker::PhantomData,
-            middleware: middleware,
+            middleware: Arc::new(middleware),
         }
     }
+
     pub async fn call(&self, x: CTX) -> CTX {
         let mut ctx = x;
 
         for i in 0..self.middleware.len() {
-            let next_mid = &self.middleware[i + 1];
-            let nxt: Next<CTX> = Box::new(|v| next_mid(v, None));
+            let middleware = self.middleware.clone();
+            let nxt: Next<CTX> = Box::new(move |v| {
+                // next_mid(v, None);
+                if middleware.get(1).is_some() {
+                    println!("Middleware at index {} is present", i + 1);
+                } else {
+                    println!("No middleware at index {}", i + 1);
+                }
+
+                let p = middleware[i + 1](v, None);
+
+                // &self.middleware[i + 1](v, None);
+                Box::pin(async { p.await })
+            });
+
             ctx = self.middleware[i](ctx, Some(nxt)).await;
         }
 
@@ -53,9 +62,30 @@ fn string_concat(
     })
 }
 
+fn what_2(
+    x: TestCTX,
+    _next: Option<Next<TestCTX>>,
+) -> Pin<Box<dyn Future<Output = TestCTX> + Send>> {
+    Box::pin(async move {
+        println!("Hello World");
+        x
+    })
+}
+
+struct TestCTX {
+    K: String,
+    P: u32,
+}
+
 fn main() {
     let test = Test::new(vec![Box::new(what), Box::new(what), Box::new(what)]);
     Test::new(vec![Box::new(what)]);
+
+    let test3 = Test::new(vec![Box::new(what_2)]);
+    test3.call(TestCTX {
+        K: "Hello".into(),
+        P: 42,
+    });
 
     let test2 = Test::new(vec![Box::new(string_concat), Box::new(string_concat)]);
 
