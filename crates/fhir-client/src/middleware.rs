@@ -6,29 +6,31 @@ pub struct Context<CTX, Request, Response> {
     pub response: Option<Response>,
 }
 
-pub type Next<State, CTX, Request, Response> = Box<
+pub type Next<State, CTX, Request, Response, Error> = Box<
     dyn Fn(
             State,
             Context<CTX, Request, Response>,
-        ) -> Pin<Box<dyn Future<Output = Context<CTX, Request, Response>> + Send>>
+        )
+            -> Pin<Box<dyn Future<Output = Result<Context<CTX, Request, Response>, Error>> + Send>>
         + Send
         + Sync,
 >;
 
-pub type MiddlewareChain<State, CTX, Request, Response> = Box<
+pub type MiddlewareChain<State, CTX, Request, Response, Error> = Box<
     dyn Fn(
             State,
             Context<CTX, Request, Response>,
-            Option<Arc<Next<State, CTX, Request, Response>>>,
-        ) -> Pin<Box<dyn Future<Output = Context<CTX, Request, Response>> + Send>>
+            Option<Arc<Next<State, CTX, Request, Response, Error>>>,
+        )
+            -> Pin<Box<dyn Future<Output = Result<Context<CTX, Request, Response>, Error>> + Send>>
         + Send
         + Sync,
 >;
 
-pub struct Middleware<State, CTX, Request, Response> {
+pub struct Middleware<State, CTX, Request, Response, Error> {
     _state: std::marker::PhantomData<State>,
     _phantom: std::marker::PhantomData<CTX>,
-    _execute: Arc<Next<State, CTX, Request, Response>>,
+    _execute: Arc<Next<State, CTX, Request, Response, Error>>,
 }
 
 impl<
@@ -36,14 +38,17 @@ impl<
     CTX: 'static + Send + Sync,
     Request: 'static + Send + Sync,
     Response: 'static + Send + Sync,
-> Middleware<State, CTX, Request, Response>
+    Error: 'static + Send + Sync,
+> Middleware<State, CTX, Request, Response, Error>
 {
-    pub fn new(mut middleware: Vec<MiddlewareChain<State, CTX, Request, Response>>) -> Self {
+    pub fn new(mut middleware: Vec<MiddlewareChain<State, CTX, Request, Response, Error>>) -> Self {
         middleware.reverse();
-        let next: Option<Arc<Next<State, CTX, Request, Response>>> = middleware.into_iter().fold(
+        let next: Option<Arc<Next<State, CTX, Request, Response, Error>>> = middleware
+            .into_iter()
+            .fold(
             None,
-            |prev_next: Option<Arc<Next<State, CTX, Request, Response>>>,
-             middleware: MiddlewareChain<State, CTX, Request, Response>| {
+            |prev_next: Option<Arc<Next<State, CTX, Request, Response, Error>>>,
+             middleware: MiddlewareChain<State, CTX, Request, Response, Error>| {
                 Some(Arc::new(Box::new(move |state, ctx| {
                     middleware(state, ctx, prev_next.clone())
                 })))
@@ -62,7 +67,7 @@ impl<
         state: State,
         ctx: CTX,
         request: Request,
-    ) -> Context<CTX, Request, Response> {
+    ) -> Result<Context<CTX, Request, Response>, Error> {
         (self._execute)(
             state,
             Context {
@@ -79,57 +84,57 @@ impl<
 mod test {
     use super::*;
     fn middleware_1(
-        state: (),
+        _state: (),
         x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), (), usize, usize>>>,
-    ) -> Pin<Box<dyn Future<Output = Context<(), usize, usize>> + Send>> {
+        _next: Option<Arc<Next<(), (), usize, usize, String>>>,
+    ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
         Box::pin(async move {
             let mut x = if let Some(next) = _next {
                 let p = next((), x).await;
                 p
             } else {
-                x
-            };
+                Ok(x)
+            }?;
             println!("Middleware 1 executed");
             x.response = x.response.map(|r| r + 1);
-            x
+            Ok(x)
         })
     }
 
     fn middleware_2(
-        state: (),
+        _state: (),
         x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), (), usize, usize>>>,
-    ) -> Pin<Box<dyn Future<Output = Context<(), usize, usize>> + Send>> {
+        _next: Option<Arc<Next<(), (), usize, usize, String>>>,
+    ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
         Box::pin(async move {
             let mut x = if let Some(next) = _next {
                 let p = next((), x).await;
                 p
             } else {
-                x
-            };
+                Ok(x)
+            }?;
 
             println!("Middleware 2 executed {:?}", x.response);
             x.response = x.response.map(|r| r + 2);
-            x
+            Ok(x)
         })
     }
 
     fn middleware_3(
-        state: (),
+        _state: (),
         x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), (), usize, usize>>>,
-    ) -> Pin<Box<dyn Future<Output = Context<(), usize, usize>> + Send>> {
+        _next: Option<Arc<Next<(), (), usize, usize, String>>>,
+    ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
         Box::pin(async move {
             let mut x = if let Some(next) = _next {
                 let p = next((), x).await;
                 p
             } else {
-                x
-            };
+                Ok(x)
+            }?;
 
             x.response = x.response.map_or(Some(x.request + 3), |r| Some(r + 3));
-            x
+            Ok(x)
         })
     }
 
@@ -142,6 +147,6 @@ mod test {
         ]);
 
         let ret = test.call((), (), 42).await;
-        assert_eq!(Some(48), ret.response);
+        assert_eq!(Some(48), ret.unwrap().response);
     }
 }

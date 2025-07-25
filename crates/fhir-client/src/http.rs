@@ -8,7 +8,7 @@ use thiserror::Error;
 use crate::{
     FHIRClient,
     middleware::{Context, Middleware, Next},
-    request::{FHIRReadResponse, FHIRRequest, FHIRResponse},
+    request::{self, FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
 
 pub struct FHIRHttpState {
@@ -29,7 +29,7 @@ impl FHIRHttpState {
 
 pub struct FHIRHttpClient<CTX> {
     state: Arc<FHIRHttpState>,
-    middleware: Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse>,
+    middleware: Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>,
 }
 
 #[derive(Error, Debug)]
@@ -44,24 +44,32 @@ pub enum FHIRHTTPError {
     UrlParseError(String),
     #[error("Failed to parse FHIR serialization: {0}")]
     FHIRSerializationError(#[from] DeserializeError),
+    #[error("Remote error: {0}")]
+    RemoteError(reqwest::StatusCode, Url),
 }
 
-fn fhir_request_to_http_request<CTX>(
+fn fhir_request_to_http_request(
     state: &FHIRHttpState,
-    request: FHIRRequest,
+    request: &FHIRRequest,
 ) -> Result<reqwest::Request, FHIRHTTPError> {
     match request {
         FHIRRequest::Read(read_request) => {
             let read_request_url = state
                 .api_url
                 .join(&format!(
-                    "{}/{}",
+                    "{}/{}/{}",
+                    state.api_url.path(),
                     read_request.resource_type.as_str(),
                     read_request.id
                 ))
                 .map_err(|_e| FHIRHTTPError::UrlParseError("Read request".to_string()))?;
 
-            let request = state.client.get(read_request_url).build()?;
+            let request = state
+                .client
+                .get(read_request_url)
+                .header("Accept", "application/fhir+json")
+                .header("Content-Type", "application/fhir+json, application/json")
+                .build()?;
             Ok(request)
         }
         _ => Err(FHIRHTTPError::NotSupported),
@@ -69,16 +77,20 @@ fn fhir_request_to_http_request<CTX>(
 }
 
 async fn http_response_to_fhir_response(
-    fhir_request: FHIRRequest,
+    fhir_request: &FHIRRequest,
     response: reqwest::Response,
 ) -> Result<FHIRResponse, FHIRHTTPError> {
     match fhir_request {
         FHIRRequest::Read(_) => {
             let status = response.status();
+            if !status.is_success() {
+                return Err(FHIRHTTPError::RemoteError(status, response.url().clone()));
+            }
             let body = response
                 .bytes()
                 .await
                 .map_err(FHIRHTTPError::RequestError)?;
+
             let resource = fhir_serialization_json::from_bytes::<Resource>(&body)?;
             Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
         }
@@ -89,21 +101,22 @@ async fn http_response_to_fhir_response(
 fn http_middleware<CTX: Send + Sync + 'static>(
     state: Arc<FHIRHttpState>,
     context: Context<CTX, FHIRRequest, FHIRResponse>,
-    _next: Option<Arc<Next<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse>>>,
-) -> Pin<Box<dyn Future<Output = Context<CTX, FHIRRequest, FHIRResponse>> + Send>> {
-    Box::pin(async {
-        let http_request = fhir_request_to_http_request(&state, context.request)?;
+    _next: Option<Arc<Next<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>>>,
+) -> Pin<
+    Box<dyn Future<Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>> + Send>,
+> {
+    Box::pin(async move {
+        let http_request = fhir_request_to_http_request(&state, &context.request)?;
         let response = state
             .client
             .execute(http_request)
             .await
             .map_err(FHIRHTTPError::RequestError)?;
+        let mut next_context = context;
+        let fhir_response = http_response_to_fhir_response(&next_context.request, response).await?;
+        next_context.response = Some(fhir_response);
 
-        let fhir_response = http_response_to_fhir_response(context.request, response)
-            .await
-            .unwrap();
-        context.response = Some(fhir_response);
-        context
+        Ok(next_context)
     })
 }
 
@@ -118,7 +131,7 @@ impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
 }
 
 impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClient<CTX> {
-    type Middleware = Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse>;
+    type Middleware = Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>;
 
     async fn request(
         &self,
@@ -128,7 +141,8 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         let response = self
             .middleware
             .call(self.state.clone(), _ctx, request)
-            .await;
+            .await?;
+
         response.response.ok_or_else(|| FHIRHTTPError::NoResponse)
     }
 
@@ -197,11 +211,23 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
 
     async fn read(
         &self,
-        _ctx: CTX,
-        _resource_type: fhir_model::r4::types::ResourceType,
-        _id: String,
+        ctx: CTX,
+        resource_type: fhir_model::r4::types::ResourceType,
+        id: String,
     ) -> Result<Option<fhir_model::r4::types::Resource>, FHIRHTTPError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Read(request::FHIRReadRequest { resource_type, id }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Read(read_response)) => Ok(Some(read_response.resource)),
+            _ => Err(FHIRHTTPError::NoResponse),
+        }
     }
 
     async fn vread(
@@ -323,16 +349,24 @@ mod tests {
     #[tokio::test]
     async fn test_fhir_http_client() {
         let client: FHIRHttpClient<()> =
-            FHIRHttpClient::new(FHIRHttpState::new("http://example.com/fhir").unwrap());
+            FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
 
         let read_response = client
             .read(
                 (),
                 ResourceType::new("Patient".to_string()).unwrap(),
-                "123".to_string(),
+                "48426182".to_string(),
             )
             .await
             .unwrap();
+
+        assert_eq!(
+            Some("48426182".to_string()),
+            read_response.as_ref().map(|r| match r {
+                Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
+                _ => panic!("Expected Patient resource"),
+            })
+        );
 
         println!("Read response: {:?}", read_response);
     }
