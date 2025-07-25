@@ -34,59 +34,61 @@ impl<CTX: 'static + Send + Sync> Test2<CTX> {
     }
 }
 
-fn middlware_1(
-    x: usize,
-    _next: Option<Arc<Next<usize>>>,
-) -> Pin<Box<dyn Future<Output = usize> + Send>> {
-    Box::pin(async move {
-        println!("Middleware1 {}", x);
-
-        println!("Back in middleware1");
-
-        x + 1
-    })
-}
-
-fn middleware_2(
-    x: usize,
-    _next: Option<Arc<Next<usize>>>,
-) -> Pin<Box<dyn Future<Output = usize> + Send>> {
-    Box::pin(async move {
-        println!("Middleware2 {}", x);
-        if let Some(next) = _next {
-            let k = next(x + 2).await;
-            k
-        } else {
-            x + 2
-        }
-    })
-}
-
-fn middleware_3(
-    x: usize,
-    _next: Option<Arc<Next<usize>>>,
-) -> Pin<Box<dyn Future<Output = usize> + Send>> {
-    Box::pin(async move {
-        println!("Middleware3 {}", x);
-        x + 3
-    })
-}
-
-fn string_concat(
-    x: String,
-    _next: Option<Arc<Next<String>>>,
-) -> Pin<Box<dyn Future<Output = String> + Send>> {
-    Box::pin(async move {
-        println!("Hello {}", x);
-        format!("{} world", x)
-    })
-}
-
 async fn z_main() {}
 
 #[cfg(test)]
 mod test {
     use super::*;
+    fn middlware_1(
+        x: usize,
+        _next: Option<Arc<Next<usize>>>,
+    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        Box::pin(async move {
+            let x = if let Some(next) = _next {
+                let p = next(x).await;
+                p
+            } else {
+                x
+            };
+
+            x + 1
+        })
+    }
+
+    fn middleware_2(
+        x: usize,
+        _next: Option<Arc<Next<usize>>>,
+    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        Box::pin(async move {
+            println!("Middleware2 {}", x);
+            if let Some(next) = _next {
+                let k = next(x + 2).await;
+                k
+            } else {
+                x + 2
+            }
+        })
+    }
+
+    fn middleware_3(
+        x: usize,
+        _next: Option<Arc<Next<usize>>>,
+    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        Box::pin(async move {
+            println!("Middleware3 {}", x);
+            x + 3
+        })
+    }
+
+    fn string_concat(
+        x: String,
+        _next: Option<Arc<Next<String>>>,
+    ) -> Pin<Box<dyn Future<Output = String> + Send>> {
+        Box::pin(async move {
+            println!("Hello {}", x);
+            format!("{} world", x)
+        })
+    }
 
     #[tokio::test]
     async fn test_middleware() {
