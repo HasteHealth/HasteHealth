@@ -22,7 +22,7 @@ members = [
     "crates/fhir-serialization-json-derive",
     "crates/fhir-client",
     "crates/fhir-operation-error",
-    "crates/fhir-operation-derive",
+    "crates/fhir-operation-error-derive",
 ]
 
 [dependencies]

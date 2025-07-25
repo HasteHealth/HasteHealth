@@ -2,6 +2,9 @@ use std::{error::Error, fmt::Display};
 
 use fhir_model::r4::types::OperationOutcome;
 
+#[cfg(feature = "fhir-operation-error-derive")]
+pub mod derive;
+
 #[derive(Debug)]
 pub struct OperationError {
     _source: anyhow::Error,

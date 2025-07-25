@@ -690,21 +690,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "fhir-operation-derive"
-version = "0.1.0"
-dependencies = [
- "fhir-model",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "fhir-operation-error"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "fhir-model",
- "fhir-operation-derive",
+ "fhir-operation-error-derive",
+]
+
+[[package]]
+name = "fhir-operation-error-derive"
+version = "0.1.0"
+dependencies = [
+ "fhir-model",
+ "quote",
+ "syn",
 ]
 
 [[package]]

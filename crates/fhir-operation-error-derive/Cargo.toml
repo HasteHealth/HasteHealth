@@ -1,5 +1,5 @@
 [package]
-name = "fhir-operation-derive"
+name = "fhir-operation-error-derive"
 version = "0.1.0"
 edition = "2024"
 
