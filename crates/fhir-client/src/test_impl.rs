@@ -51,6 +51,7 @@ mod test {
                 x
             };
 
+            println!("Last middleware 1");
             x + 1
         })
     }
@@ -101,7 +102,7 @@ mod test {
         let test2 = Test2::new(vec![Box::new(string_concat), Box::new(string_concat)]);
 
         let z = test.call(42).await;
-        assert_eq!(z, 43);
+        assert_eq!(z, 48);
         println!("{}", z);
     }
 }
