@@ -1,106 +1,150 @@
 use std::{pin::Pin, sync::Arc};
 
-pub type Next<CTX> = Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+use crate::request::{FHIRRequest, FHIRResponse};
 
-pub type MiddlewareChain<CTX> = Box<
-    dyn Fn(CTX, Option<Arc<Next<CTX>>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
->;
-
-pub struct Middleware<CTX: Send + Sync> {
-    _phantom: std::marker::PhantomData<CTX>,
-    _execute: Arc<Next<CTX>>,
+pub struct Context<CTX, Request, Response> {
+    pub ctx: CTX,
+    pub request: Request,
+    pub response: Option<Response>,
 }
 
-impl<CTX: 'static + Send + Sync> Middleware<CTX> {
-    pub fn new(mut middleware: Vec<MiddlewareChain<CTX>>) -> Self {
+pub type Next<State, CTX, Request, Response> = Box<
+    dyn Fn(
+            State,
+            Context<CTX, Request, Response>,
+        ) -> Pin<Box<dyn Future<Output = Context<CTX, Request, Response>> + Send>>
+        + Send
+        + Sync,
+>;
+
+pub type MiddlewareChain<State, CTX, Request, Response> = Box<
+    dyn Fn(
+            State,
+            Context<CTX, Request, Response>,
+            Option<Arc<Next<State, CTX, Request, Response>>>,
+        ) -> Pin<Box<dyn Future<Output = Context<CTX, Request, Response>> + Send>>
+        + Send
+        + Sync,
+>;
+
+pub struct Middleware<State, CTX, Request, Response> {
+    _state: std::marker::PhantomData<State>,
+    _phantom: std::marker::PhantomData<CTX>,
+    _execute: Arc<Next<State, CTX, Request, Response>>,
+}
+
+impl<
+    State: 'static + Send + Sync,
+    CTX: 'static + Send + Sync,
+    Request: 'static + Send + Sync,
+    Response: 'static + Send + Sync,
+> Middleware<State, CTX, Request, Response>
+{
+    pub fn new(mut middleware: Vec<MiddlewareChain<State, CTX, Request, Response>>) -> Self {
         middleware.reverse();
-        let next: Option<Arc<Next<CTX>>> = middleware.into_iter().fold(
+        let next: Option<Arc<Next<State, CTX, Request, Response>>> = middleware.into_iter().fold(
             None,
-            |prev_next: Option<Arc<Next<CTX>>>, middleware: MiddlewareChain<CTX>| {
-                Some(Arc::new(Box::new(move |ctx| {
-                    middleware(ctx, prev_next.clone())
+            |prev_next: Option<Arc<Next<State, CTX, Request, Response>>>,
+             middleware: MiddlewareChain<State, CTX, Request, Response>| {
+                Some(Arc::new(Box::new(move |state, ctx| {
+                    middleware(state, ctx, prev_next.clone())
                 })))
             },
         );
 
         Middleware {
+            _state: std::marker::PhantomData,
             _phantom: std::marker::PhantomData,
             _execute: next.unwrap(),
         }
     }
 
-    pub async fn call(&self, ctx: CTX) -> CTX {
-        (self._execute)(ctx).await
+    pub async fn call(
+        &self,
+        state: State,
+        ctx: CTX,
+        request: Request,
+    ) -> Context<CTX, Request, Response> {
+        (self._execute)(
+            state,
+            Context {
+                ctx,
+                request,
+                response: None,
+            },
+        )
+        .await
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    fn middlware_1(
-        x: usize,
-        _next: Option<Arc<Next<usize>>>,
-    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+    fn middleware_1(
+        state: (),
+        x: Context<(), usize, usize>,
+        _next: Option<Arc<Next<(), (), usize, usize>>>,
+    ) -> Pin<Box<dyn Future<Output = Context<(), usize, usize>> + Send>> {
         Box::pin(async move {
-            let x = if let Some(next) = _next {
-                let p = next(x).await;
+            let mut x = if let Some(next) = _next {
+                let p = next((), x).await;
                 p
             } else {
                 x
             };
-            x + 1
+            println!("Middleware 1 executed");
+            x.response = x.response.map(|r| r + 1);
+            x
         })
     }
 
     fn middleware_2(
-        x: usize,
-        _next: Option<Arc<Next<usize>>>,
-    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        state: (),
+        x: Context<(), usize, usize>,
+        _next: Option<Arc<Next<(), (), usize, usize>>>,
+    ) -> Pin<Box<dyn Future<Output = Context<(), usize, usize>> + Send>> {
         Box::pin(async move {
-            if let Some(next) = _next {
-                let k = next(x + 2).await;
-                k
+            let mut x = if let Some(next) = _next {
+                let p = next((), x).await;
+                p
             } else {
-                x + 2
-            }
+                x
+            };
+
+            println!("Middleware 2 executed {:?}", x.response);
+            x.response = x.response.map(|r| r + 2);
+            x
         })
     }
 
     fn middleware_3(
-        x: usize,
-        _next: Option<Arc<Next<usize>>>,
-    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        state: (),
+        x: Context<(), usize, usize>,
+        _next: Option<Arc<Next<(), (), usize, usize>>>,
+    ) -> Pin<Box<dyn Future<Output = Context<(), usize, usize>> + Send>> {
         Box::pin(async move {
-            println!("Middleware3 {}", x);
-            x + 3
-        })
-    }
+            let mut x = if let Some(next) = _next {
+                let p = next((), x).await;
+                p
+            } else {
+                x
+            };
 
-    fn string_concat(
-        x: String,
-        _next: Option<Arc<Next<String>>>,
-    ) -> Pin<Box<dyn Future<Output = String> + Send>> {
-        Box::pin(async move { format!("{} world", x) })
+            x.response = x.response.map_or(Some(x.request + 3), |r| Some(r + 3));
+            x
+        })
     }
 
     #[tokio::test]
     async fn test_middleware() {
         let test = Middleware::new(vec![
-            Box::new(middlware_1),
+            Box::new(middleware_1),
             Box::new(middleware_2),
             Box::new(middleware_3),
         ]);
 
-        let test2 = Middleware::new(vec![Box::new(string_concat), Box::new(string_concat)]);
-
-        let z = test.call(42).await;
-        assert_eq!(z, 48);
-
-        test2.call("hello".to_string()).await;
-        assert_eq!(
-            test2.call("hello".to_string()).await,
-            "hello world".to_string()
-        );
+        let ret = test.call((), (), 42).await;
+        assert_eq!(Some(48), ret.response);
     }
 }
 
