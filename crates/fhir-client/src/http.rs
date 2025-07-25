@@ -88,19 +88,22 @@ async fn http_response_to_fhir_response(
 
 fn http_middleware<CTX: Send + Sync + 'static>(
     state: Arc<FHIRHttpState>,
-    x: Context<CTX, FHIRRequest, FHIRResponse>,
+    context: Context<CTX, FHIRRequest, FHIRResponse>,
     _next: Option<Arc<Next<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse>>>,
 ) -> Pin<Box<dyn Future<Output = Context<CTX, FHIRRequest, FHIRResponse>> + Send>> {
     Box::pin(async {
-        let mut x = if let Some(next) = _next {
-            let p = next(state, x).await;
-            p
-        } else {
-            x
-        };
+        let http_request = fhir_request_to_http_request(&state, context.request)?;
+        let response = state
+            .client
+            .execute(http_request)
+            .await
+            .map_err(FHIRHTTPError::RequestError)?;
 
-        println!("Middleware 1 executed");
-        x
+        let fhir_response = http_response_to_fhir_response(context.request, response)
+            .await
+            .unwrap();
+        context.response = Some(fhir_response);
+        context
     })
 }
 
