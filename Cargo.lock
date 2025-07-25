@@ -666,6 +666,7 @@ dependencies = [
  "http",
  "json-patch",
  "thiserror 2.0.12",
+ "tokio",
 ]
 
 [[package]]

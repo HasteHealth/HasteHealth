@@ -8,3 +8,6 @@ fhir-model = { path = "../fhir-model" }
 http = "1.3.1"
 json-patch = "4.0.0"
 thiserror = "2.0.12"
+
+[dev-dependencies]
+tokio = { version = "1.46.1", features = ["rt", "macros"] }

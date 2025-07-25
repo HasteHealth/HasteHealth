@@ -1,55 +1,110 @@
-use crate::{FHIRClient, request::FHIRRequest};
-use std::pin::Pin;
+use std::{pin::Pin, sync::Arc};
 
-struct Test<CTX, F>
-where
-    F: FnMut(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
-{
+type Next<CTX> = Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+
+type Middleware<CTX> = Box<
+    dyn Fn(CTX, Option<Arc<Next<CTX>>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
+>;
+
+struct Test2<CTX: Send + Sync> {
     _phantom: std::marker::PhantomData<CTX>,
-    middleware: Vec<F>,
+    _execute: Arc<Next<CTX>>,
 }
 
-impl<CTX, F> Test<CTX, F>
-where
-    F: Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
-{
-    pub fn new(middleware: Vec<F>) -> Self {
-        Test {
+impl<CTX: 'static + Send + Sync> Test2<CTX> {
+    pub fn new(mut middleware: Vec<Middleware<CTX>>) -> Self {
+        middleware.reverse();
+        let next: Option<Arc<Next<CTX>>> = middleware.into_iter().fold(
+            None,
+            |prev_next: Option<Arc<Next<CTX>>>, middleware: Middleware<CTX>| {
+                Some(Arc::new(Box::new(move |ctx| {
+                    middleware(ctx, prev_next.clone())
+                })))
+            },
+        );
+
+        Test2 {
             _phantom: std::marker::PhantomData,
-            middleware,
+            _execute: next.unwrap(),
         }
     }
-    pub async fn call(&self, x: CTX) -> CTX {
-        let mut ctx = x;
-        for middleware in &self.middleware {
-            ctx = middleware(ctx).await;
-        }
-        ctx
+
+    pub async fn call(&self, ctx: CTX) -> CTX {
+        (self._execute)(ctx).await
     }
 }
 
-fn what(x: usize) -> Pin<Box<dyn Future<Output = usize> + Send>> {
-    Box::pin(async move {
-        println!("Hello {}", x);
-        x + 1
-    })
-}
+async fn z_main() {}
 
-fn string_concat(x: String) -> Pin<Box<dyn Future<Output = String> + Send>> {
-    Box::pin(async move {
-        println!("Hello {}", x);
-        format!("{} world", x)
-    })
-}
+#[cfg(test)]
+mod test {
+    use super::*;
+    fn middlware_1(
+        x: usize,
+        _next: Option<Arc<Next<usize>>>,
+    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        Box::pin(async move {
+            let x = if let Some(next) = _next {
+                let p = next(x).await;
+                p
+            } else {
+                x
+            };
 
-fn main() {
-    let test = Test::new(vec![what, what, what]);
-    Test::new(vec![what]);
+            println!("Last middleware 1");
+            x + 1
+        })
+    }
 
-    let test2 = Test::new(vec![string_concat, string_concat]);
+    fn middleware_2(
+        x: usize,
+        _next: Option<Arc<Next<usize>>>,
+    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        Box::pin(async move {
+            println!("Middleware2 {}", x);
+            if let Some(next) = _next {
+                let k = next(x + 2).await;
+                k
+            } else {
+                x + 2
+            }
+        })
+    }
 
-    test.call(42);
-    test2.call("Hello".into());
+    fn middleware_3(
+        x: usize,
+        _next: Option<Arc<Next<usize>>>,
+    ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+        Box::pin(async move {
+            println!("Middleware3 {}", x);
+            x + 3
+        })
+    }
+
+    fn string_concat(
+        x: String,
+        _next: Option<Arc<Next<String>>>,
+    ) -> Pin<Box<dyn Future<Output = String> + Send>> {
+        Box::pin(async move {
+            println!("Hello {}", x);
+            format!("{} world", x)
+        })
+    }
+
+    #[tokio::test]
+    async fn test_middleware() {
+        let test = Test2::new(vec![
+            Box::new(middlware_1),
+            Box::new(middleware_2),
+            Box::new(middleware_3),
+        ]);
+
+        let test2 = Test2::new(vec![Box::new(string_concat), Box::new(string_concat)]);
+
+        let z = test.call(42).await;
+        assert_eq!(z, 48);
+        println!("{}", z);
+    }
 }
 
 // impl<CTX, Error, M> FHIRClient<CTX, Error> for Test<M>
