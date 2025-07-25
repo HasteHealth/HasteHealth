@@ -1,29 +1,29 @@
 use std::{pin::Pin, sync::Arc};
 
-type Next<CTX> = Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+pub type Next<CTX> = Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
-type Middleware<CTX> = Box<
+pub type MiddlewareChain<CTX> = Box<
     dyn Fn(CTX, Option<Arc<Next<CTX>>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
 >;
 
-struct Test2<CTX: Send + Sync> {
+pub struct Middleware<CTX: Send + Sync> {
     _phantom: std::marker::PhantomData<CTX>,
     _execute: Arc<Next<CTX>>,
 }
 
-impl<CTX: 'static + Send + Sync> Test2<CTX> {
-    pub fn new(mut middleware: Vec<Middleware<CTX>>) -> Self {
+impl<CTX: 'static + Send + Sync> Middleware<CTX> {
+    pub fn new(mut middleware: Vec<MiddlewareChain<CTX>>) -> Self {
         middleware.reverse();
         let next: Option<Arc<Next<CTX>>> = middleware.into_iter().fold(
             None,
-            |prev_next: Option<Arc<Next<CTX>>>, middleware: Middleware<CTX>| {
+            |prev_next: Option<Arc<Next<CTX>>>, middleware: MiddlewareChain<CTX>| {
                 Some(Arc::new(Box::new(move |ctx| {
                     middleware(ctx, prev_next.clone())
                 })))
             },
         );
 
-        Test2 {
+        Middleware {
             _phantom: std::marker::PhantomData,
             _execute: next.unwrap(),
         }
@@ -33,8 +33,6 @@ impl<CTX: 'static + Send + Sync> Test2<CTX> {
         (self._execute)(ctx).await
     }
 }
-
-async fn z_main() {}
 
 #[cfg(test)]
 mod test {
@@ -87,13 +85,13 @@ mod test {
 
     #[tokio::test]
     async fn test_middleware() {
-        let test = Test2::new(vec![
+        let test = Middleware::new(vec![
             Box::new(middlware_1),
             Box::new(middleware_2),
             Box::new(middleware_3),
         ]);
 
-        let test2 = Test2::new(vec![Box::new(string_concat), Box::new(string_concat)]);
+        let test2 = Middleware::new(vec![Box::new(string_concat), Box::new(string_concat)]);
 
         let z = test.call(42).await;
         assert_eq!(z, 48);
