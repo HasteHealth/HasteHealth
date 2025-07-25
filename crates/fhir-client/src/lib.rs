@@ -3,8 +3,10 @@ use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};
 
+#[cfg(feature = "http")]
+pub mod http;
+pub mod middleware;
 pub mod request;
-mod test_impl;
 pub mod url;
 
 pub struct ParsedParameter {}
@@ -17,7 +19,7 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         request: FHIRRequest,
     ) -> impl Future<Output = Result<FHIRResponse, Error>> + Send;
 
-    fn middleware(&self) -> &[Self::Middleware];
+    fn middleware(&self) -> &Self::Middleware;
 
     fn capabilities(&self, ctx: CTX) -> impl Future<Output = CapabilityStatement> + Send;
 
