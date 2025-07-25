@@ -1,60 +1,79 @@
 use std::{pin::Pin, sync::Arc};
 
-type Next<CTX: 'static + Send + Sync> =
-    Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+type Next<CTX> = Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
-type Middleware<CTX: 'static + Send + Sync> =
-    Box<dyn Fn(CTX, Option<Next<CTX>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
+type Middleware<CTX> = Box<
+    dyn Fn(CTX, Arc<Option<Next<CTX>>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
+>;
 
-struct Test<CTX: 'static + Send + Sync> {
+struct Test2<CTX: Send + Sync> {
     _phantom: std::marker::PhantomData<CTX>,
-    middleware: Arc<Vec<Middleware<CTX>>>,
+    _execute: Next<CTX>,
 }
 
-impl<CTX: Send + Sync> Test<CTX> {
-    pub fn new(middleware: Vec<Middleware<CTX>>) -> Self {
-        Test {
+impl<CTX: 'static + Send + Sync> Test2<CTX> {
+    pub fn new(mut middleware: Vec<Middleware<CTX>>) -> Self {
+        middleware.reverse();
+        let next: Arc<Option<Next<CTX>>> = middleware.into_iter().fold(
+            Arc::new(None),
+            |prev_next: Arc<Option<Next<CTX>>>, middleware: Middleware<CTX>| {
+                Arc::new(Some(Box::new(move |ctx| {
+                    middleware(ctx, prev_next.clone())
+                })))
+            },
+        );
+
+        let k = Arc::into_inner(next);
+
+        Test2 {
             _phantom: std::marker::PhantomData,
-            middleware: Arc::new(middleware),
+            _execute: k.unwrap().unwrap(),
         }
     }
 
-    pub async fn call(&self, x: CTX) -> CTX {
-        let mut ctx = x;
-
-        for i in 0..self.middleware.len() {
-            let middleware = self.middleware.clone();
-            let nxt: Next<CTX> = Box::new(move |v| {
-                // next_mid(v, None);
-                if middleware.get(1).is_some() {
-                    println!("Middleware at index {} is present", i + 1);
-                } else {
-                    println!("No middleware at index {}", i + 1);
-                }
-
-                let p = middleware[i + 1](v, None);
-
-                // &self.middleware[i + 1](v, None);
-                Box::pin(async { p.await })
-            });
-
-            ctx = self.middleware[i](ctx, Some(nxt)).await;
-        }
-
-        ctx
+    pub async fn call(&self, ctx: CTX) -> CTX {
+        (self._execute)(ctx).await
     }
 }
 
-fn what(x: usize, _next: Option<Next<usize>>) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+fn middlware_1(
+    x: usize,
+    _next: Arc<Option<Next<usize>>>,
+) -> Pin<Box<dyn Future<Output = usize> + Send>> {
     Box::pin(async move {
-        println!("Hello {}", x);
-        x + 1
+        println!("Middleware1 {}", x);
+
+        let return_v = _next.as_ref().as_ref().unwrap()(x + 1).await;
+
+        println!("Back in middleware1");
+
+        return_v + 1
+    })
+}
+
+fn middleware_2(
+    x: usize,
+    _next: Arc<Option<Next<usize>>>,
+) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+    Box::pin(async move {
+        println!("Middleware2 {}", x);
+        x + 2
+    })
+}
+
+fn middleware_3(
+    x: usize,
+    _next: Arc<Option<Next<usize>>>,
+) -> Pin<Box<dyn Future<Output = usize> + Send>> {
+    Box::pin(async move {
+        println!("Middleware3 {}", x);
+        x + 3
     })
 }
 
 fn string_concat(
     x: String,
-    _next: Option<Next<String>>,
+    _next: Arc<Option<Next<String>>>,
 ) -> Pin<Box<dyn Future<Output = String> + Send>> {
     Box::pin(async move {
         println!("Hello {}", x);
@@ -62,35 +81,17 @@ fn string_concat(
     })
 }
 
-fn what_2(
-    x: TestCTX,
-    _next: Option<Next<TestCTX>>,
-) -> Pin<Box<dyn Future<Output = TestCTX> + Send>> {
-    Box::pin(async move {
-        println!("Hello World");
-        x
-    })
-}
+async fn z_main() {
+    let test = Test2::new(vec![
+        Box::new(middlware_1),
+        Box::new(middleware_2),
+        Box::new(middleware_3),
+    ]);
 
-struct TestCTX {
-    K: String,
-    P: u32,
-}
+    let test2 = Test2::new(vec![Box::new(string_concat), Box::new(string_concat)]);
 
-fn main() {
-    let test = Test::new(vec![Box::new(what), Box::new(what), Box::new(what)]);
-    Test::new(vec![Box::new(what)]);
-
-    let test3 = Test::new(vec![Box::new(what_2)]);
-    test3.call(TestCTX {
-        K: "Hello".into(),
-        P: 42,
-    });
-
-    let test2 = Test::new(vec![Box::new(string_concat), Box::new(string_concat)]);
-
-    test.call(42);
-    test2.call("Hello".into());
+    let z = test.call(42).await;
+    println!("{}", z);
 }
 
 // impl<CTX, Error, M> FHIRClient<CTX, Error> for Test<M>
