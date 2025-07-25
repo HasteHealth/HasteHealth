@@ -1,12 +1,13 @@
-use std::sync::Arc;
+use std::{pin::Pin, sync::Arc};
 
 use fhir_model::r4::types::Resource;
+use fhir_serialization_json::errors::DeserializeError;
 use reqwest::Url;
 use thiserror::Error;
 
 use crate::{
     FHIRClient,
-    middleware::{Middleware, MiddlewareChain},
+    middleware::{Context, Middleware, Next},
     request::{FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
 
@@ -42,7 +43,7 @@ pub enum FHIRHTTPError {
     #[error("Failed to parse URL for: '{0}'")]
     UrlParseError(String),
     #[error("Failed to parse FHIR serialization: {0}")]
-    FHIRSerializationError(#[from] fhir_serialization_json::SerializeError),
+    FHIRSerializationError(#[from] DeserializeError),
 }
 
 fn fhir_request_to_http_request<CTX>(
@@ -85,12 +86,27 @@ async fn http_response_to_fhir_response(
     }
 }
 
+fn http_middleware<CTX: Send + Sync + 'static>(
+    state: Arc<FHIRHttpState>,
+    x: Context<CTX, FHIRRequest, FHIRResponse>,
+    _next: Option<Arc<Next<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse>>>,
+) -> Pin<Box<dyn Future<Output = Context<CTX, FHIRRequest, FHIRResponse>> + Send>> {
+    Box::pin(async {
+        let mut x = if let Some(next) = _next {
+            let p = next(state, x).await;
+            p
+        } else {
+            x
+        };
+
+        println!("Middleware 1 executed");
+        x
+    })
+}
+
 impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
-    pub fn new(
-        state: FHIRHttpState,
-        middleware_chain: Vec<MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse>>,
-    ) -> Self {
-        let middleware = Middleware::new(middleware_chain);
+    pub fn new(state: FHIRHttpState) -> Self {
+        let middleware = Middleware::new(vec![Box::new(http_middleware)]);
         FHIRHttpClient {
             state: Arc::new(state),
             middleware,
@@ -297,13 +313,24 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
 
 #[cfg(test)]
 mod tests {
+    use fhir_model::r4::types::ResourceType;
+
     use super::*;
 
     #[tokio::test]
     async fn test_fhir_http_client() {
-        let fhir_http: FHIRHttpClient<()> = FHIRHttpClient::new(
-            FHIRHttpState::new("http://example.com/fhir").unwrap(),
-            vec![],
-        );
+        let client: FHIRHttpClient<()> =
+            FHIRHttpClient::new(FHIRHttpState::new("http://example.com/fhir").unwrap());
+
+        let read_response = client
+            .read(
+                (),
+                ResourceType::new("Patient".to_string()).unwrap(),
+                "123".to_string(),
+            )
+            .await
+            .unwrap();
+
+        println!("Read response: {:?}", read_response);
     }
 }
