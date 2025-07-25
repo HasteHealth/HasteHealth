@@ -95,7 +95,12 @@ mod test {
 
         let z = test.call(42).await;
         assert_eq!(z, 48);
-        println!("{}", z);
+
+        test2.call("hello".to_string()).await;
+        assert_eq!(
+            test2.call("hello".to_string()).await,
+            "hello world".to_string()
+        );
     }
 }
 
