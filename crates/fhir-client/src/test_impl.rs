@@ -3,31 +3,29 @@ use std::{pin::Pin, sync::Arc};
 type Next<CTX> = Box<dyn Fn(CTX) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync>;
 
 type Middleware<CTX> = Box<
-    dyn Fn(CTX, Arc<Option<Next<CTX>>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
+    dyn Fn(CTX, Option<Arc<Next<CTX>>>) -> Pin<Box<dyn Future<Output = CTX> + Send>> + Send + Sync,
 >;
 
 struct Test2<CTX: Send + Sync> {
     _phantom: std::marker::PhantomData<CTX>,
-    _execute: Next<CTX>,
+    _execute: Arc<Next<CTX>>,
 }
 
 impl<CTX: 'static + Send + Sync> Test2<CTX> {
     pub fn new(mut middleware: Vec<Middleware<CTX>>) -> Self {
         middleware.reverse();
-        let next: Arc<Option<Next<CTX>>> = middleware.into_iter().fold(
-            Arc::new(None),
-            |prev_next: Arc<Option<Next<CTX>>>, middleware: Middleware<CTX>| {
-                Arc::new(Some(Box::new(move |ctx| {
+        let next: Option<Arc<Next<CTX>>> = middleware.into_iter().fold(
+            None,
+            |prev_next: Option<Arc<Next<CTX>>>, middleware: Middleware<CTX>| {
+                Some(Arc::new(Box::new(move |ctx| {
                     middleware(ctx, prev_next.clone())
                 })))
             },
         );
 
-        let k = Arc::into_inner(next);
-
         Test2 {
             _phantom: std::marker::PhantomData,
-            _execute: k.unwrap().unwrap(),
+            _execute: next.unwrap(),
         }
     }
 
@@ -38,32 +36,35 @@ impl<CTX: 'static + Send + Sync> Test2<CTX> {
 
 fn middlware_1(
     x: usize,
-    _next: Arc<Option<Next<usize>>>,
+    _next: Option<Arc<Next<usize>>>,
 ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
     Box::pin(async move {
         println!("Middleware1 {}", x);
 
-        let return_v = _next.as_ref().as_ref().unwrap()(x + 1).await;
-
         println!("Back in middleware1");
 
-        return_v + 1
+        x + 1
     })
 }
 
 fn middleware_2(
     x: usize,
-    _next: Arc<Option<Next<usize>>>,
+    _next: Option<Arc<Next<usize>>>,
 ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
     Box::pin(async move {
         println!("Middleware2 {}", x);
-        x + 2
+        if let Some(next) = _next {
+            let k = next(x + 2).await;
+            k
+        } else {
+            x + 2
+        }
     })
 }
 
 fn middleware_3(
     x: usize,
-    _next: Arc<Option<Next<usize>>>,
+    _next: Option<Arc<Next<usize>>>,
 ) -> Pin<Box<dyn Future<Output = usize> + Send>> {
     Box::pin(async move {
         println!("Middleware3 {}", x);
@@ -73,7 +74,7 @@ fn middleware_3(
 
 fn string_concat(
     x: String,
-    _next: Arc<Option<Next<String>>>,
+    _next: Option<Arc<Next<String>>>,
 ) -> Pin<Box<dyn Future<Output = String> + Send>> {
     Box::pin(async move {
         println!("Hello {}", x);
