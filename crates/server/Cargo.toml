@@ -8,7 +8,7 @@ edition = "2024"
 fhirpath = { path = "../fhirpath" }
 fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 fhir-serialization-json = { path = "../fhir-serialization-json" }
-fhir-client = { path = "../fhir-client" }
+fhir-client = { path = "../fhir-client", features = ["http"] }
 reflect = { path = "../reflect", features = ["derive"] }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",

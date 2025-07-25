@@ -3,6 +3,7 @@ use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};
 
+#[cfg(feature = "http")]
 pub mod http;
 pub mod middleware;
 pub mod request;
