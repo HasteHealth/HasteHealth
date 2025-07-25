@@ -1,6 +1,6 @@
 use std::{pin::Pin, sync::Arc};
 
-use fhir_model::r4::types::Resource;
+use fhir_model::r4::types::{OperationOutcome, Resource};
 use fhir_serialization_json::errors::DeserializeError;
 use reqwest::Url;
 use thiserror::Error;
@@ -44,8 +44,10 @@ pub enum FHIRHTTPError {
     UrlParseError(String),
     #[error("Failed to parse FHIR serialization: {0}")]
     FHIRSerializationError(#[from] DeserializeError),
-    #[error("Remote error: {0}")]
-    RemoteError(reqwest::StatusCode, Url),
+    #[error("Remote error: {0}, request: {1}")]
+    RemoteError(reqwest::StatusCode, String),
+    #[error("Operation Error")]
+    OperationError(OperationOutcome),
 }
 
 fn fhir_request_to_http_request(
@@ -83,13 +85,22 @@ async fn http_response_to_fhir_response(
     match fhir_request {
         FHIRRequest::Read(_) => {
             let status = response.status();
-            if !status.is_success() {
-                return Err(FHIRHTTPError::RemoteError(status, response.url().clone()));
-            }
             let body = response
                 .bytes()
                 .await
                 .map_err(FHIRHTTPError::RequestError)?;
+
+            if !status.is_success() {
+                if let Ok(operation_outcome) =
+                    fhir_serialization_json::from_bytes::<OperationOutcome>(&body)
+                {
+                    return Err(FHIRHTTPError::OperationError(operation_outcome));
+                }
+                return Err(FHIRHTTPError::RemoteError(
+                    status,
+                    "Failed to read resource".to_string(),
+                ));
+            }
 
             let resource = fhir_serialization_json::from_bytes::<Resource>(&body)?;
             Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
