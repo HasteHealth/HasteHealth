@@ -178,7 +178,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
             let variants = data.variants.iter().map(|v| {
                 let ident = &v.ident;
                 let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
-                let issue_instantiation = issues.iter().map(|simple_issue| {
+                let invariant_operation_outcome_issues = issues.iter().map(|simple_issue| {
                     let severity_string: String = simple_issue.severity.clone().into();
                     let severity = quote! { Box::new(fhir_model::r4::types::FHIRCode{
                             id: None,
@@ -226,9 +226,12 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                 });
 
                 quote! {
-                    #ident => vec![
-                        #(#issue_instantiation),*
-                    ]
+                    #ident => {
+                        let mut operation_outcome = fhir_model::r4::types::OperationOutcome::default();
+                        operation_outcome.issue = vec![
+                        #(#invariant_operation_outcome_issues),*];
+                        OperationError::new(None, operation_outcome)
+                    }
                 }
             });
 
