@@ -30,37 +30,39 @@ fn get_issue_list(attrs: &[Attribute]) -> Option<Vec<MetaList>> {
     Some(issues)
 }
 
-// invalid
-//     structure
-//     required
-//     value
-//     invariant
-// security
-//     login
-//     unknown
-//     expired
-//     forbidden
-//     suppressed
-// processing
-//     not-supported
-//     duplicate
-//     multiple-matches
-//     not-found
-//         deleted
-//     too-long
-//     code-invalid
-//     extension
-//     too-costly
-//     business-rule
-//     conflict
-// transient
-//     lock-error
-//     no-store
-//     exception
-//     timeout
-//     incomplete
-//     throttled
-// informational
+const CODES_ALLOWED: &[&str] = &[
+    "invalid",
+    "structure",
+    "required",
+    "value",
+    "invariant",
+    "security",
+    "login",
+    "unknown",
+    "expired",
+    "forbidden",
+    "suppressed",
+    "processing",
+    "not-supported",
+    "duplicate",
+    "multiple-matches",
+    "not-found",
+    "deleted",
+    "too-long",
+    "code-invalid",
+    "extension",
+    "too-costly",
+    "business-rule",
+    "conflict",
+    "transient",
+    "lock-error",
+    "no-store",
+    "exception",
+    "timeout",
+    "incomplete",
+    "throttled",
+    "informational",
+];
 
 fn get_expr_string(expr: &Expr) -> Option<String> {
     if let Expr::Lit(lit) = expr {
@@ -137,6 +139,14 @@ fn get_issue_attributes(attrs: &[Attribute]) -> Option<Vec<SimpleIssue>> {
                             match path.path.get_ident().unwrap().to_string().as_str() {
                                 "code" => {
                                     code = get_expr_string(expr_assign.right.as_ref());
+                                    if let Some(code) = code.as_ref() {
+                                        if !CODES_ALLOWED.contains(&code.as_str()) {
+                                            panic!(
+                                                "Invalid code: '{}' Must be one of '{:?}'",
+                                                code, CODES_ALLOWED
+                                            );
+                                        }
+                                    }
                                 }
                                 "diagnostic" => {
                                     diagnostic = get_expr_string(expr_assign.right.as_ref());
@@ -247,7 +257,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                 }
             };
 
-            println!("{}", expanded.to_string());
+            // println!("{}", expanded.to_string());
 
             expanded.into()
         }
