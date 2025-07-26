@@ -50,7 +50,7 @@ mod repository;
 
 #[derive(OperationOutcomeError)]
 pub enum CustomOpError {
-    #[information(code = "info", diagnostic = "Informational message")]
+    #[information(code = "informational", diagnostic = "Informational message")]
     #[fatal(code = "invalid", diagnostic = "Not Found")]
     NotFound,
     #[error(code = "not-found", diagnostic = "Resource not found")]
