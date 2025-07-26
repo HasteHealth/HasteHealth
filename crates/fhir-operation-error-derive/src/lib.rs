@@ -166,7 +166,7 @@ fn get_issue_attributes(attrs: &[Attribute]) -> Option<Vec<SimpleIssue>> {
     Some(simple_issue)
 }
 
-#[proc_macro_derive(Reflect, attributes(fatal, error, warning, information))]
+#[proc_macro_derive(OperationOutcomeError, attributes(fatal, error, warning, information))]
 pub fn operation_error(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
@@ -178,20 +178,20 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
             let variants = data.variants.iter().map(|v| {
                 let ident = &v.ident;
                 let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
-                let issue_instantiation = issues.iter().map(|simple_issue| {
+                let invariant_operation_outcome_issues = issues.iter().map(|simple_issue| {
                     let severity_string: String = simple_issue.severity.clone().into();
                     let severity = quote! { Box::new(fhir_model::r4::types::FHIRCode{
                             id: None,
-                            Extension: None,
-                            value: #severity_string.to_string(),
+                            extension: None,
+                            value: Some(#severity_string.to_string()),
                         })
                     };
 
                     let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
                         quote! {
-                            Some(Box::new(fhir_model::r4::types::FHIRCode{
+                            Some(Box::new(fhir_model::r4::types::FHIRString{
                                 id: None,
-                                Extension: None,
+                                extension: None,
                                 value: Some(#diagnostic.to_string()),
                             }))
                         }
@@ -205,28 +205,38 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                     let code = quote! {
                         Box::new(fhir_model::r4::types::FHIRCode{
                             id: None,
-                            Extension: None,
-                            value: #code_string.to_string(),
+                            extension: None,
+                            value: Some(#code_string.to_string()),
                         })
                     };
 
                     quote! {
                         OperationOutcomeIssue {
+                            id: None,
+                            extension: None,
+                            modifierExtension: None,
                             severity: #severity,
                             code: #code,
+                            details: None,
                             diagnostics: #diagnostic,
+                            location: None,
+                            expression: None,
                         }
                     }
                 });
 
                 quote! {
-                    #ident => vec![
-                        #(#issue_instantiation),*
-                    ],
+                    #ident => {
+                        let mut operation_outcome = fhir_model::r4::types::OperationOutcome::default();
+                        operation_outcome.issue = vec![
+                        #(#invariant_operation_outcome_issues),*];
+                        OperationError::new(None, operation_outcome)
+                    }
                 }
             });
 
             let expanded = quote! {
+                use fhir_model::r4::types::{OperationOutcomeIssue, FHIRCode};
                 use fhir_operation_error::OperationError;
                 impl From<#name> for OperationError {
                     fn from(value: #name) -> Self {
@@ -236,6 +246,8 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                     }
                 }
             };
+
+            println!("{}", expanded.to_string());
 
             expanded.into()
         }

@@ -2,17 +2,17 @@ use std::{error::Error, fmt::Display};
 
 use fhir_model::r4::types::OperationOutcome;
 
-#[cfg(feature = "fhir-operation-error-derive")]
+#[cfg(feature = "derive")]
 pub mod derive;
 
 #[derive(Debug)]
 pub struct OperationError {
-    _source: anyhow::Error,
+    _source: Option<anyhow::Error>,
     outcome: OperationOutcome,
 }
 
 impl OperationError {
-    pub fn new(source: anyhow::Error, outcome: OperationOutcome) -> Self {
+    pub fn new(source: Option<anyhow::Error>, outcome: OperationOutcome) -> Self {
         OperationError {
             _source: source,
             outcome,
@@ -27,8 +27,8 @@ impl OperationError {
         self.outcome.issue.push(issue);
     }
 
-    pub fn backtrace(&self) -> &std::backtrace::Backtrace {
-        self._source.backtrace()
+    pub fn backtrace(&self) -> Option<&std::backtrace::Backtrace> {
+        self._source.as_ref().map(|s| s.backtrace())
     }
 }
 
@@ -59,7 +59,11 @@ impl Display for OperationError {
 
 impl Error for OperationError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        Some(&*self._source)
+        if let Some(source) = self._source.as_ref() {
+            return Some(&**source);
+        } else {
+            None
+        }
     }
 
     fn description(&self) -> &str {

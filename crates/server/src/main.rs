@@ -1,21 +1,9 @@
 #![allow(unused)]
-use fhir_client::request::FHIRRequest;
-use fhir_model::r4::{
-    sqlx::{FHIRJson, FHIRJsonRef},
-    types::{
-        Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRId, FHIRInteger,
-        FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
-    },
+use crate::{
+    fhir_http::request::{FHIRRequestParsingError, HTTPRequest, http_request_to_fhir_request},
+    pg::get_pool,
+    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
 };
-use fhir_serialization_json::{
-    FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
-};
-use reflect::MetaValue;
-use serde::{Deserialize, Serialize};
-use std::{env::VarError, io::BufWriter, sync::Arc, time::Instant};
-use thiserror::Error;
-use tracing::info;
-
 use axum::{
     Extension, Json, Router,
     body::Body,
@@ -29,25 +17,45 @@ use axum_extra::routing::{
     // for `Router::typed_*`
     TypedPath,
 };
+use fhir_client::request::FHIRRequest;
+use fhir_model::r4::{
+    sqlx::{FHIRJson, FHIRJsonRef},
+    types::{
+        Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRId, FHIRInteger,
+        FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
+    },
+};
+use fhir_operation_error::derive::OperationOutcomeError;
+use fhir_serialization_json::{
+    FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
+};
 use fhirpath::FPEngine;
 use maud::html;
 use rand::{distr::Alphanumeric, prelude::*};
+use reflect::MetaValue;
+use serde::{Deserialize, Serialize};
 use sqlx::Pool;
 use sqlx_postgres::{PgPoolOptions, Postgres};
+use std::{env::VarError, io::BufWriter, sync::Arc, time::Instant};
+use thiserror::Error;
 use tower_http::services::ServeDir;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
-
-use crate::{
-    fhir_http::request::{FHIRRequestParsingError, HTTPRequest, http_request_to_fhir_request},
-    pg::get_pool,
-    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
-};
+use tracing::info;
 
 mod fhir_http;
 mod oidc;
 mod pg;
 mod repository;
+
+#[derive(OperationOutcomeError)]
+pub enum CustomOpError {
+    #[information(code = "info", diagnostic = "Informational message")]
+    #[fatal(code = "invalid", diagnostic = "Invalid operation")]
+    NotFound,
+    #[error(code = "not-found", diagnostic = "Resource not found")]
+    InvalidInput,
+}
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
 // Can't use _ for compliance.
@@ -294,13 +302,10 @@ async fn main() -> Result<(), ServerErrors> {
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
+    let op: OperationError = CustomOpError::NotFound.into();
+    info!("Operation outcome: {:?}", op.outcome());
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
-
-    use std::io::Write;
-    let mut k = BufWriter::new(Vec::new());
-
-    k.write("hello".as_bytes());
 
     Ok(())
 }

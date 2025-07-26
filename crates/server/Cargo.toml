@@ -5,6 +5,9 @@ edition = "2024"
 
 
 [dependencies]
+fhir-operation-error = { path = "../fhir-operation-error", features = [
+    "derive",
+] }
 fhirpath = { path = "../fhirpath" }
 fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 fhir-serialization-json = { path = "../fhir-serialization-json" }

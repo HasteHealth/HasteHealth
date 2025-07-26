@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-derive = ["dep:fhir-operation-error-derive"]
+derive = []
 
 [dependencies]
 anyhow = "1.0.98"
-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", optional = true }
+fhir-operation-error-derive = { path = "../fhir-operation-error-derive" }
 fhir-model = { path = "../fhir-model" }
