@@ -17,7 +17,7 @@ use axum_extra::routing::{
     // for `Router::typed_*`
     TypedPath,
 };
-use fhir_client::request::FHIRRequest;
+use fhir_client::request::{FHIRRequest, Operation};
 use fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
     types::{
@@ -267,6 +267,12 @@ async fn fhir_handler(
     }
 }
 
+fn test_op_error() -> Result<(), Box<dyn std::error::Error>> {
+    let op = CustomOpError::NotFound;
+    Err(Box::new(OperationError::from(op)))
+}
+
+#[derive(Debug)]
 struct Z(String, String);
 
 #[tokio::main]
@@ -307,8 +313,6 @@ async fn main() -> Result<(), ServerErrors> {
     let Z(a0, a1) = Z("asdf".to_string(), "qwer".to_string());
     format!("{a0}, {a1}");
 
-    let op: OperationError = CustomOpError::NotFound.into();
-    info!("Operation outcome: {:?}", op.outcome());
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
 
