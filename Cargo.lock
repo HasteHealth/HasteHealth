@@ -703,6 +703,7 @@ name = "fhir-operation-error-derive"
 version = "0.1.0"
 dependencies = [
  "fhir-model",
+ "proc-macro2",
  "quote",
  "syn",
 ]
