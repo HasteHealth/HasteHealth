@@ -51,7 +51,7 @@ mod repository;
 #[derive(OperationOutcomeError)]
 pub enum CustomOpError {
     #[information(code = "info", diagnostic = "Informational message")]
-    #[fatal(code = "invalid", diagnostic = "Invalid operation")]
+    #[fatal(code = "invalid", diagnostic = "Not Found")]
     NotFound,
     #[error(code = "not-found", diagnostic = "Resource not found")]
     InvalidInput,
@@ -267,6 +267,8 @@ async fn fhir_handler(
     }
 }
 
+struct Z(String, String);
+
 #[tokio::main]
 async fn main() -> Result<(), ServerErrors> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
@@ -301,6 +303,9 @@ async fn main() -> Result<(), ServerErrors> {
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+
+    let Z(a0, a1) = Z("asdf".to_string(), "qwer".to_string());
+    format!("{a0}, {a1}");
 
     let op: OperationError = CustomOpError::NotFound.into();
     info!("Operation outcome: {:?}", op.outcome());
