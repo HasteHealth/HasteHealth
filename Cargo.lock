@@ -2481,6 +2481,7 @@ dependencies = [
  "dotenvy",
  "fhir-client",
  "fhir-model",
+ "fhir-operation-error",
  "fhir-serialization-json",
  "fhirpath",
  "json-patch",

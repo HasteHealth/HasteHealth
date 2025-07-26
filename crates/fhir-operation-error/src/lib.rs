@@ -2,7 +2,7 @@ use std::{error::Error, fmt::Display};
 
 use fhir_model::r4::types::OperationOutcome;
 
-// #[cfg(feature = "derive")]
+#[cfg(feature = "derive")]
 pub mod derive;
 
 #[derive(Debug)]
