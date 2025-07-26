@@ -50,6 +50,7 @@ mod repository;
 
 #[derive(OperationOutcomeError)]
 pub enum CustomOpError {
+    #[information(code = "info", diagnostic = "Informational message")]
     #[fatal(code = "invalid", diagnostic = "Invalid operation")]
     NotFound,
     #[error(code = "not-found", diagnostic = "Resource not found")]
@@ -301,13 +302,10 @@ async fn main() -> Result<(), ServerErrors> {
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
+    let op: OperationError = CustomOpError::NotFound.into();
+    info!("Operation outcome: {:?}", op.outcome());
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
-
-    use std::io::Write;
-    let mut k = BufWriter::new(Vec::new());
-
-    k.write("hello".as_bytes());
 
     Ok(())
 }
