@@ -95,14 +95,14 @@ async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
 
     let http_req = HTTPRequest::new(method, path.fhir_location, body);
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
-    info!("Request processed in {:?}", start.elapsed());
+
     let ctx = ServerCTX {
         tenant: path.tenant,
         project: path.project,
         fhir_version: path.fhir_version,
     };
-
     let response = state.fhir_client.request(ctx, fhir_request).await?;
+    info!("Request processed in {:?}", start.elapsed());
 
     Ok((StatusCode::ACCEPTED, "Request succeeded").into_response())
 }
