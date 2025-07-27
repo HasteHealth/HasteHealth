@@ -2,7 +2,7 @@ use std::fmt::{Debug, Display};
 
 use crate::SupportedFHIRVersions;
 use fhir_client::request::FHIRRequest;
-use fhir_model::r4::{sqlx::FHIRJsonRef, types::Resource};
+use fhir_model::r4::types::Resource;
 use fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
 pub mod postgres;

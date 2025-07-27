@@ -1,22 +1,19 @@
+#![allow(unused)]
 use crate::{
     config::get_config,
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
-    repository::{
-        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId,
-        postgres::FHIRPostgresRepository,
-    },
+    repository::{FHIRRepository, ProjectId, TenantId},
     server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
-    Extension, Router, debug_handler,
+    Extension, Router,
     extract::{Path, State},
     http::{Method, StatusCode},
     response::{IntoResponse, Response},
     routing::any,
 };
-use fhir_client::{FHIRClient, request::FHIRRequest};
-use fhir_model::r4::sqlx::FHIRJsonRef;
+use fhir_client::FHIRClient;
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use fhirpath::FPEngine;
 use serde::Deserialize;
@@ -97,7 +94,7 @@ async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
     info!("[{}] '{}'", method, path.fhir_location);
 
     let http_req = HTTPRequest::new(method, path.fhir_location, body);
-    let mut fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
+    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
     info!("Request processed in {:?}", start.elapsed());
     let ctx = ServerCTX {
         tenant: path.tenant,
