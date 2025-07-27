@@ -1,16 +1,12 @@
-use chrono::Utc;
-use fhir_client::request::FHIRRequest;
 use fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
-    types::{Patient, Resource},
+    types::Resource,
 };
 use fhir_operation_error::OperationOutcomeError;
 use fhir_operation_error::derive::OperationOutcomeError;
 use sqlx::{
-    Decode, Executor, FromRow, PgPool, Pool, Postgres, Row, ValueRef, error::BoxDynError,
-    types::Json,
+    Executor, Row,
 };
-use sqlx_postgres::{PgPoolOptions, PgRow};
 
 use crate::{
     SupportedFHIRVersions,

@@ -26,7 +26,7 @@ pub enum DataTransformError {
 }
 
 pub fn set_resource_id(resource: &mut Resource) -> Result<(), OperationOutcomeError> {
-    let mut id: &mut dyn std::any::Any =
+    let id: &mut dyn std::any::Any =
         resource
             .get_field_mut("id")
             .ok_or(DataTransformError::InvalidData(
@@ -42,7 +42,7 @@ pub fn set_resource_id(resource: &mut Resource) -> Result<(), OperationOutcomeEr
 }
 
 pub fn set_version_id(resource: &mut Resource) -> Result<(), OperationOutcomeError> {
-    let mut meta: &mut dyn std::any::Any =
+    let meta: &mut dyn std::any::Any =
         resource
             .get_field_mut("meta")
             .ok_or(DataTransformError::InvalidData(
