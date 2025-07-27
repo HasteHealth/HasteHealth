@@ -9,10 +9,8 @@ use fhir_client::{
     middleware::{Context, Middleware, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRRequest, FHIRResponse,
-        Operation,
     },
 };
-use fhir_model::r4::{sqlx::FHIRJsonRef, types::OperationOutcome};
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 pub struct ServerCTX {
@@ -33,10 +31,10 @@ pub enum StorageError {
 }
 
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
-    state: Arc<(Repository)>,
+    state: Arc<Repository>,
     mut context: Context<ServerCTX, FHIRRequest, FHIRResponse>,
     next: Option<
-        Arc<Next<Arc<(Repository)>, ServerCTX, FHIRRequest, FHIRResponse, OperationOutcomeError>>,
+        Arc<Next<Arc<Repository>, ServerCTX, FHIRRequest, FHIRResponse, OperationOutcomeError>>,
     >,
 ) -> Pin<
     Box<
@@ -77,16 +75,16 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
 }
 
 pub struct FHIRServerClient<Repository: FHIRRepository + Send + Sync> {
-    state: Arc<(Repository)>,
+    state: Arc<Repository>,
     middleware:
-        Middleware<Arc<(Repository)>, ServerCTX, FHIRRequest, FHIRResponse, OperationOutcomeError>,
+        Middleware<Arc<Repository>, ServerCTX, FHIRRequest, FHIRResponse, OperationOutcomeError>,
 }
 
 impl<Repository: FHIRRepository + Send + Sync + 'static> FHIRServerClient<Repository> {
     pub fn new(repository: Repository) -> Self {
         let middleware = Middleware::new(vec![Box::new(storage_middleware)]);
         FHIRServerClient {
-            state: Arc::new((repository)),
+            state: Arc::new(repository),
             middleware,
         }
     }
