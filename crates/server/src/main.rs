@@ -4,8 +4,7 @@ use crate::{
     repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
 };
 use axum::{
-    Extension, Router,
-    debug_handler,
+    Extension, Router, debug_handler,
     extract::{Path, State},
     http::Method,
     response::{IntoResponse, Response},
@@ -139,13 +138,6 @@ async fn main() -> Result<(), OperationOutcomeError> {
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
     dotenvy::dotenv().map_err(ConfigError::from)?;
-
-    let database_pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&std::env::var("DATABASE_URL").map_err(ConfigError::from)?)
-        .await
-        .map_err(ConfigError::from)?;
-
     let pool = get_pool().await;
     let store = repository::postgres::PostgresSQL::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
