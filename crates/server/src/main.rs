@@ -55,6 +55,8 @@ pub enum CustomOpError {
     NotFound,
     #[error(code = "not-found", diagnostic = "Resource not found {arg0}")]
     InvalidInput(String),
+    #[error(code = "invalid", diagnostic = "Invalid environment!")]
+    DotEnv(#[from] dotenvy::Error),
 }
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
@@ -267,9 +269,17 @@ async fn fhir_handler(
     }
 }
 
-fn test_op_error() -> Result<(), Box<dyn std::error::Error>> {
+fn test_op_error() -> Result<(), CustomOpError> {
     let op = CustomOpError::NotFound;
-    Err(Box::new(OperationError::from(op)))
+    dotenvy::dotenv()?;
+
+    Ok(())
+}
+
+fn test_2() -> Result<(), OperationError> {
+    test_op_error()?;
+
+    Ok(())
 }
 
 #[derive(Debug)]
