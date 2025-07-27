@@ -14,9 +14,7 @@ use fhir_client::request::FHIRRequest;
 use fhir_model::r4::sqlx::FHIRJsonRef;
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use fhirpath::FPEngine;
-use reflect::MetaValue;
 use serde::Deserialize;
-use sqlx_postgres::PgPoolOptions;
 use std::{env::VarError, sync::Arc, time::Instant};
 use tower_http::services::ServeDir;
 use tower_sessions::SessionManagerLayer;
@@ -124,7 +122,7 @@ async fn fhir_handler(
 
         Ok((
             axum::http::StatusCode::CREATED,
-            fhir_serialization_json::to_string(&create_request.resource).unwrap(),
+            fhir_serialization_json::to_string(&response).unwrap(),
         )
             .into_response())
     } else {
