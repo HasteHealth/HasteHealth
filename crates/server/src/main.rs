@@ -29,8 +29,6 @@ mod repository;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum ConfigError {
-    #[error(code = "not-found", diagnostic = "Resource not found {arg0}")]
-    InvalidInput(String),
     #[error(code = "invalid", diagnostic = "Invalid environment!")]
     DotEnv(#[from] dotenvy::Error),
     #[error(code = "invalid", diagnostic = "Invalid session!")]
@@ -45,9 +43,6 @@ pub enum ConfigError {
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum CustomOpError {
-    #[information(code = "informational", diagnostic = "Informational message")]
-    #[fatal(code = "invalid", diagnostic = "Not Found")]
-    NotFound,
     #[error(code = "invalid", diagnostic = "FHIRPath error")]
     FHIRPath(#[from] fhirpath::FHIRPathError),
     #[error(code = "invalid", diagnostic = "Failed to deserialize resource")]
@@ -120,7 +115,6 @@ async fn fhir_handler(
                 fhir_method: FHIRMethod::try_from(&fhir_request).unwrap(),
             })
             .await?;
-
         Ok((
             axum::http::StatusCode::CREATED,
             fhir_serialization_json::to_string(&response).unwrap(),
