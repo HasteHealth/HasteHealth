@@ -8,6 +8,7 @@ use fhir_client::request::{
     FHIRVersionReadRequest, Operation, OperationParseError,
 };
 use fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
+use fhir_operation_error::OperationOutcomeError;
 use fhir_operation_error::derive::OperationOutcomeError;
 use fhir_serialization_json::errors::DeserializeError;
 use json_patch::Patch;
@@ -381,7 +382,7 @@ fn parse_request_4<'a>(
 pub fn http_request_to_fhir_request(
     fhir_version: SupportedFHIRVersions,
     req: &HTTPRequest,
-) -> Result<FHIRRequest, OperationError> {
+) -> Result<FHIRRequest, OperationOutcomeError> {
     let url_pieces = req.path.split('/').collect::<Vec<&str>>();
 
     match url_pieces.len() {

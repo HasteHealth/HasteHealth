@@ -212,7 +212,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
         };
 
         quote! {
-            OperationOutcomeIssue {
+            fhir_model::r4::types::OperationOutcomeIssue {
                 id: None,
                 extension: None,
                 modifierExtension: None,
@@ -323,7 +323,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                         let mut operation_outcome = fhir_model::r4::types::OperationOutcome::default();
                         operation_outcome.issue = #op_issues;
                         
-                        OperationError::new(#from_error, operation_outcome)
+                        fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
                     }
                 }
             }).collect();
@@ -343,9 +343,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
 
 
             let expanded = quote! {
-                use fhir_model::r4::types::{OperationOutcomeIssue, FHIRCode};
-                use fhir_operation_error::OperationError;
-                impl From<#name> for OperationError {
+                impl From<#name> for fhir_operation_error::OperationOutcomeError {
                     fn from(value: #name) -> Self {
                         match value {
                             #(#name::#variants),*
@@ -360,7 +358,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
             expanded.into()
         }
         _ => {
-            panic!("Can only derive operationerror from an enum.")
+            panic!("Can only derive OperationOutcomeError from an enum.")
         }
     }
 }

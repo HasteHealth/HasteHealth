@@ -25,6 +25,7 @@ use fhir_model::r4::{
         FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
     },
 };
+use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use fhir_serialization_json::{
     FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
 };
@@ -47,11 +48,8 @@ mod oidc;
 mod pg;
 mod repository;
 
-#[derive(fhir_operation_error::derive::OperationOutcomeError, Debug)]
-pub enum CustomOpError {
-    #[information(code = "informational", diagnostic = "Informational message")]
-    #[fatal(code = "invalid", diagnostic = "Not Found")]
-    NotFound,
+#[derive(OperationOutcomeError, Debug)]
+pub enum ConfigError {
     #[error(code = "not-found", diagnostic = "Resource not found {arg0}")]
     InvalidInput(String),
     #[error(code = "invalid", diagnostic = "Invalid environment!")]
@@ -62,12 +60,19 @@ pub enum CustomOpError {
     Database(#[from] sqlx::Error),
     #[error(code = "invalid", diagnostic = "Environment variable not set {arg0}")]
     EnvironmentVariable(#[from] VarError),
+    #[error(code = "invalid", diagnostic = "Failed to render template.")]
+    TemplateRender,
+}
+
+#[derive(OperationOutcomeError, Debug)]
+pub enum CustomOpError {
+    #[information(code = "informational", diagnostic = "Informational message")]
+    #[fatal(code = "invalid", diagnostic = "Not Found")]
+    NotFound,
     #[error(code = "invalid", diagnostic = "FHIRPath error")]
     FHIRPath(#[from] fhirpath::FHIRPathError),
     #[error(code = "invalid", diagnostic = "Failed to deserialize resource")]
     Deserialize(#[from] serde_json::Error),
-    #[error(code = "invalid", diagnostic = "Failed to render template.")]
-    TemplateRender,
     #[error(code = "invalid", diagnostic = "Internal server error")]
     InternalServerError,
 }
@@ -168,7 +173,7 @@ async fn fhir_handler(
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
     body: String,
-) -> Result<Response, OperationError> {
+) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
     info!("[{}] '{}'", method, path.fhir_location);
 
@@ -208,38 +213,24 @@ async fn fhir_handler(
     }
 }
 
-fn test_op_error() -> Result<(), CustomOpError> {
-    let op = CustomOpError::NotFound;
-    dotenvy::dotenv()?;
-
-    Ok(())
-}
-
-fn test_2() -> Result<(), OperationError> {
-    test_op_error()?;
-
-    Ok(())
-}
-
-#[derive(Debug)]
-struct Z(String, String);
-
-async fn server() -> Result<(), CustomOpError> {
+#[tokio::main]
+async fn main() -> Result<(), OperationOutcomeError> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
-    dotenvy::dotenv()?;
+    dotenvy::dotenv().map_err(ConfigError::from)?;
 
     let database_pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(&std::env::var("DATABASE_URL")?)
-        .await?;
+        .connect(&std::env::var("DATABASE_URL").map_err(ConfigError::from)?)
+        .await
+        .map_err(ConfigError::from)?;
 
     let pool = get_pool().await;
-    let store = repository::postgres::PostgresSQL::new(pool.clone()).await?;
+    let store = repository::postgres::PostgresSQL::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
 
-    session_store.migrate().await?;
+    session_store.migrate().await.map_err(ConfigError::from)?;
 
     let session_layer = SessionManagerLayer::new(session_store).with_secure(true);
     let shared_state = Arc::new(AppState { fhir_store: store });
@@ -261,11 +252,5 @@ async fn server() -> Result<(), CustomOpError> {
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
 
-    Ok(())
-}
-
-#[tokio::main]
-async fn main() -> Result<(), CustomOpError> {
-    server().await?;
     Ok(())
 }

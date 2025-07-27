@@ -4,6 +4,8 @@ use fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
     types::{Patient, Resource},
 };
+use fhir_operation_error::OperationOutcomeError;
+use fhir_operation_error::derive::OperationOutcomeError;
 use sqlx::{
     Decode, Executor, FromRow, PgPool, Pool, Postgres, Row, ValueRef, error::BoxDynError,
     types::Json,
@@ -12,25 +14,37 @@ use sqlx_postgres::{PgPoolOptions, PgRow};
 
 use crate::{
     SupportedFHIRVersions,
-    repository::{FHIRMethod, FHIRRepository, InsertResourceRow},
+    repository::{
+        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId, VersionId,
+    },
 };
 
 pub struct PostgresSQL(sqlx::PgPool);
 impl PostgresSQL {
-    pub async fn new(pool: sqlx::PgPool) -> Result<Self, sqlx::Error> {
-        Ok(PostgresSQL(pool))
+    pub fn new(pool: sqlx::PgPool) -> Self {
+        PostgresSQL(pool)
     }
+}
+
+trait Z {
+    fn z(&self) -> String;
 }
 
 struct ReturnV {
     resource: FHIRJson<Resource>,
 }
 
+#[derive(OperationOutcomeError, Debug)]
+pub enum StoreError {
+    #[error(code = "invalid", diagnostic = "Could not insert resource.")]
+    FailedInsert(#[from] sqlx::Error),
+}
+
 impl FHIRRepository for PostgresSQL {
     async fn insert<'a>(
         &self,
         row: &InsertResourceRow<'a>,
-    ) -> Result<Resource, crate::CustomOpError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         let result = sqlx::query_as!(
                 ReturnV,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
@@ -47,49 +61,45 @@ impl FHIRRepository for PostgresSQL {
                 row.request_method,
                 row.author_type,
                 &row.fhir_method as &FHIRMethod,
-            ).fetch_one(&self.0).await?;
+            ).fetch_one(&self.0).await.map_err(StoreError::from)?;
 
         Ok(result.resource.0)
     }
 
-    fn read_by_version_id(
+    async fn read_by_version_id(
         &self,
-        tenant_id: super::TenantId,
-        project_id: super::ProjectId,
-        version_id: Vec<super::VersionId>,
-    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
-    {
-        async { todo!() }
+        tenant_id: TenantId,
+        project_id: ProjectId,
+        version_id: Vec<VersionId>,
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+        todo!();
     }
 
-    fn read_latest(
+    async fn read_latest(
         &self,
-        tenant_id: super::TenantId,
-        project_id: super::ProjectId,
-        resource_id: super::ResourceId,
-    ) -> impl Future<Output = Result<Option<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
-    {
-        async { todo!() }
+        tenant_id: TenantId,
+        project_id: ProjectId,
+        resource_id: ResourceId,
+    ) -> Result<Option<fhir_model::r4::types::Resource>, OperationOutcomeError> {
+        todo!();
     }
 
-    fn history(
+    async fn history(
         &self,
-        tenant_id: super::TenantId,
-        project_id: super::ProjectId,
-        resource_id: super::ResourceId,
-    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
-    {
-        async { todo!() }
+        tenant_id: TenantId,
+        project_id: ProjectId,
+        resource_id: ResourceId,
+    ) -> Result<Vec<fhir_model::r4::types::Resource>, OperationOutcomeError> {
+        todo!();
     }
 
-    fn get_sequence(
+    async fn get_sequence(
         &self,
-        tenant_id: super::TenantId,
-        project_id: super::ProjectId,
+        tenant_id: TenantId,
+        project_id: ProjectId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
-    {
-        async { todo!() }
+    ) -> Result<Vec<fhir_model::r4::types::Resource>, OperationOutcomeError> {
+        todo!()
     }
 }

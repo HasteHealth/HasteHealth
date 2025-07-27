@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 use crate::{CustomOpError, SupportedFHIRVersions};
 use fhir_client::request::FHIRRequest;
@@ -6,6 +6,7 @@ use fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
     types::Resource,
 };
+use fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
 pub mod postgres;
 
@@ -116,34 +117,34 @@ pub struct InsertResourceRow<'a> {
     // sequence: i64,
 }
 
-pub trait FHIRRepository: Send + Sync {
+pub trait FHIRRepository {
     fn insert(
         &self,
         insertion: &InsertResourceRow,
-    ) -> impl Future<Output = Result<Resource, CustomOpError>> + Send;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
     fn read_by_version_id(
         &self,
         tenant_id: TenantId,
         project_id: ProjectId,
         version_id: Vec<VersionId>,
-    ) -> impl Future<Output = Result<Vec<Resource>, CustomOpError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
         tenant_id: TenantId,
         project_id: ProjectId,
         resource_id: ResourceId,
-    ) -> impl Future<Output = Result<Option<Resource>, CustomOpError>> + Send;
+    ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
     fn history(
         &self,
         tenant_id: TenantId,
         project_id: ProjectId,
         resource_id: ResourceId,
-    ) -> impl Future<Output = Result<Vec<Resource>, CustomOpError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,
         tenant_id: TenantId,
         project_id: ProjectId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<Resource>, CustomOpError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
 }

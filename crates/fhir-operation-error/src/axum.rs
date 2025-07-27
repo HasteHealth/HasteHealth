@@ -1,8 +1,8 @@
 use axum::response::IntoResponse;
 
-use crate::OperationError;
+use crate::OperationOutcomeError;
 
-impl IntoResponse for OperationError {
+impl IntoResponse for OperationOutcomeError {
     fn into_response(self) -> axum::response::Response {
         let outcome = self.outcome;
         let response = fhir_serialization_json::to_string(&outcome)

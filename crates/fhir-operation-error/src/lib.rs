@@ -9,14 +9,14 @@ pub mod derive;
 pub mod axum;
 
 #[derive(Debug)]
-pub struct OperationError {
+pub struct OperationOutcomeError {
     _source: Option<anyhow::Error>,
     outcome: OperationOutcome,
 }
 
-impl OperationError {
+impl OperationOutcomeError {
     pub fn new(source: Option<anyhow::Error>, outcome: OperationOutcome) -> Self {
-        OperationError {
+        OperationOutcomeError {
             _source: source,
             outcome,
         }
@@ -44,7 +44,7 @@ fn get_issue_diagnostics<'a>(
         .and_then(|d| d.value.as_ref().map(|v| v.as_str()))
 }
 
-impl Display for OperationError {
+impl Display for OperationOutcomeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -60,7 +60,7 @@ impl Display for OperationError {
     }
 }
 
-impl Error for OperationError {
+impl Error for OperationOutcomeError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         if let Some(source) = self._source.as_ref() {
             return Some(&**source);
