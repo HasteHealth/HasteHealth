@@ -103,7 +103,7 @@ pub struct InsertResourceRow<'a> {
     pub project: String,
     // resource_type: String,
     pub author_id: String,
-    pub resource: FHIRJsonRef<'a, Resource>,
+    pub resource: &'a mut Resource,
     pub deleted: bool,
     // created_at: chrono::DateTime<Utc>,
     pub request_method: String,
@@ -118,7 +118,7 @@ pub struct InsertResourceRow<'a> {
 pub trait FHIRRepository {
     fn insert(
         &self,
-        insertion: &InsertResourceRow,
+        insertion: &mut InsertResourceRow,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
     fn read_by_version_id(
         &self,

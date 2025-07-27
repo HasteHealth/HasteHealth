@@ -12,14 +12,11 @@ pub mod url;
 pub struct ParsedParameter {}
 
 pub trait FHIRClient<CTX, Error>: Send + Sync {
-    type Middleware;
     fn request(
         &self,
         ctx: CTX,
         request: FHIRRequest,
     ) -> impl Future<Output = Result<FHIRResponse, Error>> + Send;
-
-    fn middleware(&self) -> &Self::Middleware;
 
     fn capabilities(&self, ctx: CTX) -> impl Future<Output = CapabilityStatement> + Send;
 
@@ -38,6 +35,7 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
     fn create(
         &self,
         ctx: CTX,
+        resource_type: ResourceType,
         resource: Resource,
     ) -> impl Future<Output = Result<Resource, Error>> + Send;
 

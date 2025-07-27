@@ -3,16 +3,19 @@ use crate::{
     config::get_config,
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
-    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
+    repository::{
+        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId, postgres::PostgresSQL,
+    },
+    server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
     Extension, Router, debug_handler,
     extract::{Path, State},
-    http::Method,
+    http::{Method, StatusCode},
     response::{IntoResponse, Response},
     routing::any,
 };
-use fhir_client::request::FHIRRequest;
+use fhir_client::{FHIRClient, request::FHIRRequest};
 use fhir_model::r4::sqlx::FHIRJsonRef;
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use fhirpath::FPEngine;
@@ -54,8 +57,8 @@ pub enum CustomOpError {
     InternalServerError,
 }
 
-struct AppState<Store: repository::FHIRRepository> {
-    fhir_store: Store,
+struct AppState<Repo: FHIRRepository + Send + Sync> {
+    fhir_client: FHIRServerClient<Repo>,
     config: Box<dyn config::Config>,
 }
 
@@ -88,7 +91,7 @@ struct FHIRHandlerPath {
 async fn fhir_handler(
     method: Method,
     Path(path): Path<FHIRHandlerPath>,
-    State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
+    State(state): State<Arc<AppState<PostgresSQL>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
@@ -96,37 +99,16 @@ async fn fhir_handler(
 
     let http_req = HTTPRequest::new(method, path.fhir_location, body);
     let mut fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
-
     info!("Request processed in {:?}", start.elapsed());
+    let ctx = ServerCTX {
+        tenant: path.tenant,
+        project: path.project,
+        fhir_version: path.fhir_version,
+    };
 
-    if let FHIRRequest::Create(create_request) = &mut fhir_request {
-        repository::utilities::set_resource_id(&mut create_request.resource)?;
-        repository::utilities::set_version_id(&mut create_request.resource)?;
-    }
+    let response = state.fhir_client.request(ctx, fhir_request).await?;
 
-    if let FHIRRequest::Create(create_request) = &fhir_request {
-        let response = state
-            .fhir_store
-            .insert(&InsertResourceRow {
-                tenant: path.tenant.to_string(),
-                project: path.project.to_string(),
-                author_id: "fake_author_id".to_string(),
-                fhir_version: path.fhir_version,
-                resource: FHIRJsonRef(&create_request.resource),
-                deleted: false,
-                request_method: "POST".to_string(),
-                author_type: "member".to_string(),
-                fhir_method: FHIRMethod::try_from(&fhir_request).unwrap(),
-            })
-            .await?;
-        Ok((
-            axum::http::StatusCode::CREATED,
-            fhir_serialization_json::to_string(&response).unwrap(),
-        )
-            .into_response())
-    } else {
-        Ok((axum::http::StatusCode::OK, "Request successful".to_string()).into_response())
-    }
+    Ok((StatusCode::ACCEPTED, "Request succeeded").into_response())
 }
 
 #[tokio::main]
@@ -141,7 +123,12 @@ async fn main() -> Result<(), OperationOutcomeError> {
     session_store.migrate().await.map_err(ConfigError::from)?;
 
     let session_layer = SessionManagerLayer::new(session_store).with_secure(true);
-    let shared_state = Arc::new(AppState { fhir_store, config });
+    let fhir_client = FHIRServerClient::new(fhir_store);
+
+    let shared_state = Arc::new(AppState {
+        config,
+        fhir_client,
+    });
 
     let app = Router::new()
         .route(

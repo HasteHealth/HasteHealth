@@ -142,8 +142,6 @@ impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
 }
 
 impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClient<CTX> {
-    type Middleware = Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>;
-
     async fn request(
         &self,
         _ctx: CTX,
@@ -155,10 +153,6 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
             .await?;
 
         response.response.ok_or_else(|| FHIRHTTPError::NoResponse)
-    }
-
-    fn middleware(&self) -> &Self::Middleware {
-        &self.middleware
     }
 
     async fn capabilities(&self, _ctx: CTX) -> fhir_model::r4::types::CapabilityStatement {
@@ -185,6 +179,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
     async fn create(
         &self,
         _ctx: CTX,
+        resource_type: fhir_model::r4::types::ResourceType,
         _resource: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
