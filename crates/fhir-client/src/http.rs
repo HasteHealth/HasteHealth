@@ -179,7 +179,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
     async fn create(
         &self,
         _ctx: CTX,
-        resource_type: fhir_model::r4::types::ResourceType,
+        _resource_type: fhir_model::r4::types::ResourceType,
         _resource: fhir_model::r4::types::Resource,
     ) -> Result<fhir_model::r4::types::Resource, FHIRHTTPError> {
         todo!()
