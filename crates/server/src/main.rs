@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::{
     config::get_config,
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
