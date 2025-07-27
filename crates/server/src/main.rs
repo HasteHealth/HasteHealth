@@ -53,8 +53,8 @@ pub enum CustomOpError {
     #[information(code = "informational", diagnostic = "Informational message")]
     #[fatal(code = "invalid", diagnostic = "Not Found")]
     NotFound,
-    #[error(code = "not-found", diagnostic = "Resource not found")]
-    InvalidInput,
+    #[error(code = "not-found", diagnostic = "Resource not found {arg0}")]
+    InvalidInput(String),
 }
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
@@ -310,8 +310,16 @@ async fn main() -> Result<(), ServerErrors> {
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    let Z(a0, a1) = Z("asdf".to_string(), "qwer".to_string());
-    format!("{a0}, {a1}");
+    let k = Z("asdf".to_string(), "qwer".to_string());
+    format!("{0}, {1}", k.0, k.1);
+
+    let p: OperationError = CustomOpError::InvalidInput("HELLO_WORLD".to_string()).into();
+
+    println!(
+        "Operation Error: {:?}, Backtrace: {:?}",
+        p.outcome(),
+        p.backtrace()
+    );
 
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
