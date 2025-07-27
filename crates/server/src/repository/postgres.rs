@@ -75,7 +75,14 @@ impl FHIRRepository for FHIRPostgresRepository {
         project_id: &ProjectId,
         resource_id: &ResourceId,
     ) -> Result<fhir_model::r4::types::Resource, OperationOutcomeError> {
-        todo!();
+        let response = sqlx::query!(
+            r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3"#,
+            tenant_id as String,
+            project_id as String,
+            resource_id as String
+        ).fetch_one(&self.0).await.map_err(StoreError::from)?;
+
+        panic!();
     }
 
     async fn history(
