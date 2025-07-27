@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::{cell::RefCell, rc::Rc};
 
 use indexmap::IndexMap;

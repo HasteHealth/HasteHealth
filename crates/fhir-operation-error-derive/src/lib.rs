@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 // use fhir_model::r4::types::OperationOutcomeIssue;
 use quote::{format_ident, quote};
 use syn::{
-    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Variant
+    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Lit, Meta, MetaList, Token, Variant
 };
 
 static FATAL: &str = "fatal";
