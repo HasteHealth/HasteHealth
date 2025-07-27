@@ -22,6 +22,7 @@ use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 use tracing::info;
 
+mod config;
 mod fhir_http;
 mod oidc;
 mod pg;
@@ -129,8 +130,6 @@ async fn fhir_handler(
 async fn main() -> Result<(), OperationOutcomeError> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
-
-    dotenvy::dotenv().map_err(ConfigError::from)?;
     let pool = get_pool().await;
     let store = repository::postgres::PostgresSQL::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
