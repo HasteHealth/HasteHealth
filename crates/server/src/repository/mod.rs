@@ -120,28 +120,28 @@ pub trait FHIRRepository {
         &self,
         insertion: &mut InsertResourceRow,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
-    fn read_by_version_id(
+    fn read_by_version_ids(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
         version_id: Vec<VersionId>,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
-        resource_id: ResourceId,
-    ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_id: &ResourceId,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
     fn history(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
-        resource_id: ResourceId,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_id: &ResourceId,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
