@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Router, extract::Json, http::Response};
+use axum::{Router, extract::Json};
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,

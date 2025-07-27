@@ -1,43 +1,22 @@
 #![allow(unused)]
 use crate::{
-    fhir_http::request::{FHIRRequestParsingError, HTTPRequest, http_request_to_fhir_request},
+    fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
 };
 use axum::{
-    Extension, Json, Router,
-    body::Body,
-    debug_handler,
-    extract::{Path, Query, Request, State},
+    Extension, Router, debug_handler,
+    extract::{Path, State},
     http::Method,
-    response::{Html, IntoResponse, Response},
-    routing::{any, get, post},
+    response::{IntoResponse, Response},
+    routing::any,
 };
-use axum_extra::routing::{
-    // for `Router::typed_*`
-    TypedPath,
-};
-use fhir_client::request::{FHIRRequest, Operation};
-use fhir_model::r4::{
-    sqlx::{FHIRJson, FHIRJsonRef},
-    types::{
-        Address, Extension as FPExtension, ExtensionValueTypeChoice, FHIRId, FHIRInteger,
-        FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
-    },
-};
+use fhir_client::request::FHIRRequest;
+use fhir_model::r4::sqlx::FHIRJsonRef;
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use fhir_serialization_json::{
-    FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
-};
 use fhirpath::FPEngine;
-use maud::html;
-use rand::{distr::Alphanumeric, prelude::*};
-use reflect::MetaValue;
-use serde::{Deserialize, Serialize};
-use sqlx::Pool;
-use sqlx_postgres::{PgPoolOptions, Postgres};
-use std::{env::VarError, io::BufWriter, sync::Arc, time::Instant};
-use thiserror::Error;
+use serde::Deserialize;
+use std::{env::VarError, sync::Arc, time::Instant};
 use tower_http::services::ServeDir;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
@@ -144,7 +123,7 @@ async fn fhir_handler(
 
         Ok((
             axum::http::StatusCode::CREATED,
-            fhir_serialization_json::to_string(&create_request.resource).unwrap(),
+            fhir_serialization_json::to_string(&response).unwrap(),
         )
             .into_response())
     } else {
@@ -158,13 +137,6 @@ async fn main() -> Result<(), OperationOutcomeError> {
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
     dotenvy::dotenv().map_err(ConfigError::from)?;
-
-    let database_pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&std::env::var("DATABASE_URL").map_err(ConfigError::from)?)
-        .await
-        .map_err(ConfigError::from)?;
-
     let pool = get_pool().await;
     let store = repository::postgres::PostgresSQL::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());

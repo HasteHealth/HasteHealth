@@ -12,8 +12,6 @@ use fhir_operation_error::OperationOutcomeError;
 use fhir_operation_error::derive::OperationOutcomeError;
 use fhir_serialization_json::errors::DeserializeError;
 use json_patch::Patch;
-use serde_json::error;
-use thiserror::Error;
 
 use crate::SupportedFHIRVersions;
 
@@ -335,7 +333,7 @@ fn parse_request_3<'a>(
     } else {
         match req.method {
             Method::GET => {
-                if (url_chunks[2] == "_history") {
+                if url_chunks[2] == "_history" {
                     Ok(FHIRRequest::HistoryInstance(FHIRHistoryInstanceRequest {
                         resource_type: ResourceType::new(url_chunks[0].to_string())?,
                         id: url_chunks[1].to_string(),
