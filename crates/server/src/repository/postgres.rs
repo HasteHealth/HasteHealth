@@ -4,9 +4,7 @@ use fhir_model::r4::{
 };
 use fhir_operation_error::OperationOutcomeError;
 use fhir_operation_error::derive::OperationOutcomeError;
-use sqlx::{
-    Executor, Row,
-};
+use sqlx::{Executor, Row};
 
 use crate::{
     SupportedFHIRVersions,
