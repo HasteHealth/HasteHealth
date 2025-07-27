@@ -14,15 +14,11 @@ use crate::{
     },
 };
 
-pub struct PostgresSQL(sqlx::PgPool);
-impl PostgresSQL {
+pub struct FHIRPostgresRepository(sqlx::PgPool);
+impl FHIRPostgresRepository {
     pub fn new(pool: sqlx::PgPool) -> Self {
-        PostgresSQL(pool)
+        FHIRPostgresRepository(pool)
     }
-}
-
-trait Z {
-    fn z(&self) -> String;
 }
 
 struct ReturnV {
@@ -35,7 +31,7 @@ pub enum StoreError {
     FailedInsert(#[from] sqlx::Error),
 }
 
-impl FHIRRepository for PostgresSQL {
+impl FHIRRepository for FHIRPostgresRepository {
     async fn insert<'a>(
         &self,
         row: &mut InsertResourceRow<'a>,

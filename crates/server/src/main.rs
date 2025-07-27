@@ -4,7 +4,8 @@ use crate::{
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{
-        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId, postgres::PostgresSQL,
+        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId,
+        postgres::FHIRPostgresRepository,
     },
     server_client::{FHIRServerClient, ServerCTX},
 };
@@ -116,7 +117,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
     tracing::subscriber::set_global_default(subscriber).unwrap();
     let config = get_config("environment".into());
     let pool = get_pool(config.as_ref()).await;
-    let fhir_store = repository::postgres::PostgresSQL::new(pool.clone());
+    let fhir_store = repository::postgres::FHIRPostgresRepository::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
 
     session_store.migrate().await.map_err(ConfigError::from)?;
