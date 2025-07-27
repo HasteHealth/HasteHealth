@@ -694,8 +694,10 @@ name = "fhir-operation-error"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "axum",
  "fhir-model",
  "fhir-operation-error-derive",
+ "fhir-serialization-json",
 ]
 
 [[package]]
