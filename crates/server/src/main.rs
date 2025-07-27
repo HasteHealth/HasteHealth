@@ -28,6 +28,7 @@ mod fhir_http;
 mod oidc;
 mod pg;
 mod repository;
+mod server_client;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum ConfigError {
