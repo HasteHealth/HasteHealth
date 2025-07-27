@@ -10,6 +10,7 @@ use crate::{
     SupportedFHIRVersions,
     repository::{
         FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId, VersionId,
+        utilities,
     },
 };
 
@@ -37,8 +38,11 @@ pub enum StoreError {
 impl FHIRRepository for PostgresSQL {
     async fn insert<'a>(
         &self,
-        row: &InsertResourceRow<'a>,
+        row: &mut InsertResourceRow<'a>,
     ) -> Result<Resource, OperationOutcomeError> {
+        utilities::set_resource_id(&mut row.resource)?;
+        utilities::set_version_id(&mut row.resource)?;
+
         let result = sqlx::query_as!(
                 ReturnV,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
@@ -50,7 +54,7 @@ impl FHIRRepository for PostgresSQL {
                 // Useless cast so that macro has access to the type information.
                 // Otherwise it will not compile on type check.
                 &row.fhir_version as &SupportedFHIRVersions,
-                &row.resource as &FHIRJsonRef<'a, Resource>,
+                &FHIRJsonRef(row.resource) as &FHIRJsonRef<'_ , Resource>,
                 row.deleted,
                 row.request_method,
                 row.author_type,
