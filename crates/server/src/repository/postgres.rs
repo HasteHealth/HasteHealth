@@ -30,7 +30,7 @@ impl FHIRRepository for PostgresSQL {
     async fn insert<'a>(
         &self,
         row: &InsertResourceRow<'a>,
-    ) -> Result<Resource, crate::ServerErrors> {
+    ) -> Result<Resource, crate::CustomOpError> {
         let result = sqlx::query_as!(
                 ReturnV,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
@@ -57,7 +57,7 @@ impl FHIRRepository for PostgresSQL {
         tenant_id: super::TenantId,
         project_id: super::ProjectId,
         version_id: Vec<super::VersionId>,
-    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::ServerErrors>> + Send
+    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
     {
         async { todo!() }
     }
@@ -67,7 +67,7 @@ impl FHIRRepository for PostgresSQL {
         tenant_id: super::TenantId,
         project_id: super::ProjectId,
         resource_id: super::ResourceId,
-    ) -> impl Future<Output = Result<Option<fhir_model::r4::types::Resource>, crate::ServerErrors>> + Send
+    ) -> impl Future<Output = Result<Option<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
     {
         async { todo!() }
     }
@@ -77,7 +77,7 @@ impl FHIRRepository for PostgresSQL {
         tenant_id: super::TenantId,
         project_id: super::ProjectId,
         resource_id: super::ResourceId,
-    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::ServerErrors>> + Send
+    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
     {
         async { todo!() }
     }
@@ -88,7 +88,7 @@ impl FHIRRepository for PostgresSQL {
         project_id: super::ProjectId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::ServerErrors>> + Send
+    ) -> impl Future<Output = Result<Vec<fhir_model::r4::types::Resource>, crate::CustomOpError>> + Send
     {
         async { todo!() }
     }

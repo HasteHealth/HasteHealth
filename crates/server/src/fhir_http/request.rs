@@ -8,6 +8,7 @@ use fhir_client::request::{
     FHIRVersionReadRequest, Operation, OperationParseError,
 };
 use fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
+use fhir_operation_error::{OperationError, derive::OperationOutcomeError};
 use fhir_serialization_json::errors::DeserializeError;
 use json_patch::Patch;
 use serde_json::error;
@@ -26,23 +27,26 @@ impl HTTPRequest {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, OperationOutcomeError)]
 pub enum FHIRRequestParsingError {
-    #[error("Invalid HTTP method")]
+    #[error(code = "invalid", diagnostic = "Invalid HTTP method")]
     InvalidMethod,
-    #[error("Invalid FHIR path")]
+    #[error(code = "invalid", diagnostic = "Invalid FHIR path")]
     InvalidPath,
-    #[error("Invalid FHIR body")]
+    #[error(code = "invalid", diagnostic = "Invalid FHIR body")]
     InvalidBody,
-    #[error("Unsupported FHIR request '{0}'")]
+    #[error(
+        code = "not-supported",
+        diagnostic = "Unsupported FHIR request '{arg0}'"
+    )]
     Unsupported(String),
-    #[error("Invalid Resource Type '{0}'")]
+    #[error(code = "invalid", diagnostic = "Invalid Resource Type '{arg0}'")]
     ResourceTypeError(#[from] ResourceTypeError),
-    #[error("Invalid Operation '{0}'")]
+    #[error(code = "invalid", diagnostic = "Invalid Operation '{arg0}'")]
     InvalidOperation(#[from] OperationParseError),
-    #[error("Deserialization error: {0}")]
+    #[error(code = "invalid", diagnostic = "Deserialization error: {arg0}")]
     DeserializeError(#[from] DeserializeError),
-    #[error("Failed to deserialize patch")]
+    #[error(code = "invalid", diagnostic = "Failed to deserialize patch")]
     PatchDeserializeError(#[from] serde_json::Error),
 }
 
@@ -377,7 +381,7 @@ fn parse_request_4<'a>(
 pub fn http_request_to_fhir_request(
     fhir_version: SupportedFHIRVersions,
     req: &HTTPRequest,
-) -> Result<FHIRRequest, FHIRRequestParsingError> {
+) -> Result<FHIRRequest, OperationError> {
     let url_pieces = req.path.split('/').collect::<Vec<&str>>();
 
     match url_pieces.len() {

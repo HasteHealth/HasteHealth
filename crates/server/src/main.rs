@@ -47,7 +47,7 @@ mod oidc;
 mod pg;
 mod repository;
 
-#[derive(fhir_operation_error::derive::OperationOutcomeError)]
+#[derive(fhir_operation_error::derive::OperationOutcomeError, Debug)]
 pub enum CustomOpError {
     #[information(code = "informational", diagnostic = "Informational message")]
     #[fatal(code = "invalid", diagnostic = "Not Found")]
@@ -56,6 +56,22 @@ pub enum CustomOpError {
     InvalidInput(String),
     #[error(code = "invalid", diagnostic = "Invalid environment!")]
     DotEnv(#[from] dotenvy::Error),
+    #[error(code = "invalid", diagnostic = "Invalid session!")]
+    Session(#[from] tower_sessions::session::Error),
+    #[error(code = "invalid", diagnostic = "Database error")]
+    Database(#[from] sqlx::Error),
+    #[error(code = "invalid", diagnostic = "Environment variable not set {arg0}")]
+    EnvironmentVariable(#[from] VarError),
+    #[error(code = "invalid", diagnostic = "FHIRPath error")]
+    FHIRPath(#[from] fhirpath::FHIRPathError),
+    #[error(code = "invalid", diagnostic = "Failed to deserialize resource")]
+    Deserialize(#[from] serde_json::Error),
+    #[error(code = "invalid", diagnostic = "Failed to render template.")]
+    TemplateRender,
+    #[error(code = "invalid", diagnostic = "Internal server error")]
+    InternalServerError,
+    #[error(code = "invalid", diagnostic = "Failed to parse FHIR request.")]
+    FHIRRequestParsingError(#[from] FHIRRequestParsingError),
 }
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
@@ -78,80 +94,6 @@ fn generate_id() -> String {
 enum TypeChoiceEnum {
     String(FHIRString),
     Integer(FHIRInteger),
-}
-
-#[derive(Error, Debug)]
-enum ServerErrors {
-    #[error("Session error")]
-    Session(#[from] tower_sessions::session::Error),
-    #[error("Database error")]
-    Database(#[from] sqlx::Error),
-    #[error("Failed to load .env file")]
-    DotEnv(#[from] dotenvy::Error),
-    #[error("Environment variable not set {0}")]
-    EnvironmentVariable(#[from] VarError),
-    #[error("FHIRPath error")]
-    FHIRPath(#[from] fhirpath::FHIRPathError),
-    #[error("Failed to deserialize resource")]
-    Deserialize(#[from] serde_json::Error),
-    #[error("Failed to render template.")]
-    TemplateRender,
-    #[error("Internal server error")]
-    InternalServerError,
-    #[error("Failed to parse FHIR request.")]
-    FHIRRequestParsingError(#[from] FHIRRequestParsingError),
-}
-
-impl IntoResponse for ServerErrors {
-    fn into_response(self) -> axum::response::Response {
-        match self {
-            ServerErrors::Session(e) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                format!("Session error: {}", e),
-            )
-                .into_response(),
-            ServerErrors::EnvironmentVariable(var) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                format!("Environment variable not set: {}", var),
-            )
-                .into_response(),
-            ServerErrors::DotEnv(e) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                format!("Failed to load .env file: {}", e),
-            )
-                .into_response(),
-            ServerErrors::Database(e) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                format!("Database error: {}", e),
-            )
-                .into_response(),
-            ServerErrors::FHIRPath(e) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                format!("FP Error {}", e),
-            )
-                .into_response(),
-            ServerErrors::Deserialize(e) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                format!("Failed to deserialize resource: {}", e),
-            )
-                .into_response(),
-            ServerErrors::TemplateRender => (
-                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to render template.".to_string(),
-            )
-                .into_response(),
-            ServerErrors::InternalServerError => (
-                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                "Internal server error".to_string(),
-            )
-                .into_response(),
-            ServerErrors::FHIRRequestParsingError(fhirrequest_parsing_error) => (
-                axum::http::StatusCode::BAD_REQUEST,
-                "Failed to parse FHIR Request.",
-            )
-                .into_response(),
-        }
-    }
 }
 
 struct AppState<Store: repository::FHIRRepository> {
@@ -189,24 +131,24 @@ struct Tester {
     age: u32,
 }
 
-fn set_resource_id(resource: &mut Resource) -> Result<(), crate::ServerErrors> {
+fn set_resource_id(resource: &mut Resource) -> Result<(), crate::CustomOpError> {
     let mut id: &mut dyn std::any::Any = resource
         .get_field_mut("id")
-        .ok_or(ServerErrors::InternalServerError)?;
+        .ok_or(CustomOpError::InternalServerError)?;
     let id: &mut Option<String> = id
         .downcast_mut::<Option<String>>()
-        .ok_or(ServerErrors::InternalServerError)?;
+        .ok_or(CustomOpError::InternalServerError)?;
     *id = Some(generate_id());
     Ok(())
 }
 
-fn set_version_id(resource: &mut Resource) -> Result<(), crate::ServerErrors> {
+fn set_version_id(resource: &mut Resource) -> Result<(), crate::CustomOpError> {
     let mut meta: &mut dyn std::any::Any = resource
         .get_field_mut("meta")
-        .ok_or(ServerErrors::InternalServerError)?;
+        .ok_or(CustomOpError::InternalServerError)?;
     let meta: &mut Option<Box<Meta>> = meta
         .downcast_mut::<Option<Box<Meta>>>()
-        .ok_or(ServerErrors::InternalServerError)?;
+        .ok_or(CustomOpError::InternalServerError)?;
 
     if meta.is_none() {
         *meta = Some(Box::new(Meta::default()))
@@ -228,7 +170,7 @@ async fn fhir_handler(
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<repository::postgres::PostgresSQL>>>,
     body: String,
-) -> Result<Response, ServerErrors> {
+) -> Result<Response, OperationError> {
     let start = Instant::now();
     info!("[{}] '{}'", method, path.fhir_location);
 
@@ -284,8 +226,7 @@ fn test_2() -> Result<(), OperationError> {
 #[derive(Debug)]
 struct Z(String, String);
 
-#[tokio::main]
-async fn main() -> Result<(), ServerErrors> {
+async fn server() -> Result<(), CustomOpError> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
@@ -319,19 +260,14 @@ async fn main() -> Result<(), ServerErrors> {
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    let k = Z("asdf".to_string(), "qwer".to_string());
-    format!("{0}, {1}", k.0, k.1);
-
-    let p: OperationError = CustomOpError::InvalidInput("HELLO_WORLD".to_string()).into();
-
-    println!(
-        "Operation Error: {:?}, Backtrace: {:?}",
-        p.outcome(),
-        p.backtrace()
-    );
-
     info!("Server started");
     axum::serve(listener, app).await.unwrap();
 
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() -> Result<(), CustomOpError> {
+    server().await?;
     Ok(())
 }

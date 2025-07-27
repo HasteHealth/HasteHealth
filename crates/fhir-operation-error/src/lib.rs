@@ -5,6 +5,9 @@ use fhir_model::r4::types::OperationOutcome;
 #[cfg(feature = "derive")]
 pub mod derive;
 
+#[cfg(feature = "axum")]
+pub mod axum;
+
 #[derive(Debug)]
 pub struct OperationError {
     _source: Option<anyhow::Error>,
