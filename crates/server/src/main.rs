@@ -87,11 +87,10 @@ struct FHIRHandlerPath {
     fhir_location: String,
 }
 
-#[debug_handler]
-async fn fhir_handler(
+async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
     method: Method,
     Path(path): Path<FHIRHandlerPath>,
-    State(state): State<Arc<AppState<PostgresSQL>>>,
+    State(state): State<Arc<AppState<Repo>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
