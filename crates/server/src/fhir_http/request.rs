@@ -8,7 +8,7 @@ use fhir_client::request::{
     FHIRVersionReadRequest, Operation, OperationParseError,
 };
 use fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
-use fhir_operation_error::{OperationError, derive::OperationOutcomeError};
+use fhir_operation_error::derive::OperationOutcomeError;
 use fhir_serialization_json::errors::DeserializeError;
 use json_patch::Patch;
 use serde_json::error;
@@ -27,9 +27,9 @@ impl HTTPRequest {
     }
 }
 
-#[derive(Error, Debug, OperationOutcomeError)]
+#[derive(OperationOutcomeError, Debug)]
 pub enum FHIRRequestParsingError {
-    #[error(code = "invalid", diagnostic = "Invalid HTTP method")]
+    #[error(code = "invalid", diagnostic = "Invalid HTTP Method")]
     InvalidMethod,
     #[error(code = "invalid", diagnostic = "Invalid FHIR path")]
     InvalidPath,
@@ -391,4 +391,5 @@ pub fn http_request_to_fhir_request(
         4 => parse_request_4(fhir_version, url_pieces, req),
         _ => Err(FHIRRequestParsingError::InvalidPath.into()),
     }
+    .map_err(|e| e.into())
 }

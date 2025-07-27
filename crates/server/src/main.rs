@@ -70,8 +70,6 @@ pub enum CustomOpError {
     TemplateRender,
     #[error(code = "invalid", diagnostic = "Internal server error")]
     InternalServerError,
-    #[error(code = "invalid", diagnostic = "Failed to parse FHIR request.")]
-    FHIRRequestParsingError(#[from] FHIRRequestParsingError),
 }
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
