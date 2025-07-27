@@ -1,5 +1,6 @@
 #![allow(unused)]
 use crate::{
+    config::get_config,
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
@@ -54,6 +55,7 @@ pub enum CustomOpError {
 
 struct AppState<Store: repository::FHIRRepository> {
     fhir_store: Store,
+    config: Box<dyn config::Config>,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
@@ -130,14 +132,15 @@ async fn fhir_handler(
 async fn main() -> Result<(), OperationOutcomeError> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
-    let pool = get_pool().await;
-    let store = repository::postgres::PostgresSQL::new(pool.clone());
+    let config = get_config("environment".into());
+    let pool = get_pool(config.as_ref()).await;
+    let fhir_store = repository::postgres::PostgresSQL::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
 
     session_store.migrate().await.map_err(ConfigError::from)?;
 
     let session_layer = SessionManagerLayer::new(session_store).with_secure(true);
-    let shared_state = Arc::new(AppState { fhir_store: store });
+    let shared_state = Arc::new(AppState { fhir_store, config });
 
     let app = Router::new()
         .route(

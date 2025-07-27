@@ -19,7 +19,7 @@ impl EnvironmentConfig {
 }
 
 impl Config for EnvironmentConfig {
-    fn get(name: &str) -> Result<String, OperationOutcomeError> {
+    fn get(&self, name: &str) -> Result<String, OperationOutcomeError> {
         let k = std::env::var(name).map_err(EnvironmentConfigError::from)?;
         Ok(k)
     }
