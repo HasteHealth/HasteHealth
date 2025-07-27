@@ -109,21 +109,19 @@ async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
 
 #[tokio::main]
 async fn main() -> Result<(), OperationOutcomeError> {
+    let config = get_config("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
-    let config = get_config("environment".into());
+
     let pool = get_pool(config.as_ref()).await;
-    let fhir_store = repository::postgres::FHIRPostgresRepository::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
-
     session_store.migrate().await.map_err(ConfigError::from)?;
-
-    let session_layer = SessionManagerLayer::new(session_store).with_secure(true);
-    let fhir_client = FHIRServerClient::new(fhir_store);
 
     let shared_state = Arc::new(AppState {
         config,
-        fhir_client,
+        fhir_client: FHIRServerClient::new(repository::postgres::FHIRPostgresRepository::new(
+            pool.clone(),
+        )),
     });
 
     let app = Router::new()
@@ -132,7 +130,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
             any(fhir_handler),
         )
         .nest("/oidc", oidc::create_router())
-        .layer(session_layer)
+        .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
         .layer(Extension(Arc::new(FPEngine::new())))
         .fallback_service(ServeDir::new("public"));
