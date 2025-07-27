@@ -25,7 +25,6 @@ use fhir_model::r4::{
         FHIRString, HumanName, Identifier, Meta, Patient, Resource, ResourceType,
     },
 };
-use fhir_operation_error::derive::OperationOutcomeError;
 use fhir_serialization_json::{
     FHIRJSONDeserializer, FHIRJSONSerializer, derive::FHIRJSONSerialize,
 };
@@ -48,7 +47,7 @@ mod oidc;
 mod pg;
 mod repository;
 
-#[derive(OperationOutcomeError)]
+#[derive(fhir_operation_error::derive::OperationOutcomeError)]
 pub enum CustomOpError {
     #[information(code = "informational", diagnostic = "Informational message")]
     #[fatal(code = "invalid", diagnostic = "Not Found")]
