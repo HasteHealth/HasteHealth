@@ -236,7 +236,6 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
 /// Format is arg0, arg1, arg2, ...
 fn instantiate_args( v: &Variant) -> proc_macro2::TokenStream {
     let arg_identifiers = (0..v.fields.len()).map(|i| format_ident!("arg{}", i)).collect::<Vec<_>>();
-    let variant_name = &v.ident;
     if arg_identifiers.is_empty() {
         quote!{}
     }
