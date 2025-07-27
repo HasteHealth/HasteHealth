@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::{
     fhir_http::request::{FHIRRequestParsingError, HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
@@ -37,7 +36,6 @@ use serde::{Deserialize, Serialize};
 use sqlx::Pool;
 use sqlx_postgres::{PgPoolOptions, Postgres};
 use std::{env::VarError, io::BufWriter, sync::Arc, time::Instant};
-use thiserror::Error;
 use tower_http::services::ServeDir;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
