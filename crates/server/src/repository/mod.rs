@@ -9,6 +9,7 @@ use fhir_model::r4::{
 use fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
 pub mod postgres;
+pub mod utilities;
 
 pub struct UserId(String);
 impl UserId {
