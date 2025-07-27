@@ -1,7 +1,8 @@
+#![allow(unused)]
 use crate::{
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
-    repository::{CreateResource, FHIRMethod, FHIRRepository, ProjectId, TenantId},
+    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
 };
 use axum::{
     Extension, Router, debug_handler,
@@ -107,7 +108,7 @@ async fn fhir_handler(
     if let FHIRRequest::Create(create_request) = &fhir_request {
         let response = state
             .fhir_store
-            .insert(&CreateResource {
+            .insert(&InsertResourceRow {
                 tenant: path.tenant.to_string(),
                 project: path.project.to_string(),
                 author_id: "fake_author_id".to_string(),
