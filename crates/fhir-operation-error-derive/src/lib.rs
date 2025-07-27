@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 // use fhir_model::r4::types::OperationOutcomeIssue;
 use quote::{format_ident, quote};
 use syn::{
-    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Variant
+    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Type, Variant
 };
 
 static FATAL: &str = "fatal";
@@ -235,10 +235,17 @@ fn get_arg_identifier(i: usize) -> Ident {
     format_ident!("arg{}", i)
 }
 
+#[derive(Debug, Clone)]
+struct FromInformation {
+    variant: Variant,
+    from: usize,
+    error_type: Type,
+}
+
 /// Returns the argument identifier for the from variant.
 /// This should be an error.
-fn get_from_error(v: &Variant) -> Option<Ident> {
-    let from_fields: Vec<Ident> = v.fields.iter().enumerate().filter_map(|(i, field)| {
+fn get_from_error(v: &Variant) -> Option<FromInformation> {
+    let from_fields: Vec<FromInformation> = v.fields.iter().enumerate().filter_map(|(i, field)| {
         let from_attr = field.attrs.iter().find(|attr|{
             let p = attr.path().is_ident("from");
             p
@@ -246,7 +253,11 @@ fn get_from_error(v: &Variant) -> Option<Ident> {
 
         if from_attr.is_some() {
             if from_attr.is_some() {
-                Some(get_arg_identifier(i))
+                Some(FromInformation {
+                    variant: v.clone(),
+                    from: i,
+                    error_type: field.ty.clone()
+                })
             } else {
                 panic!("Expected a named field with 'from' attribute");
             }
@@ -279,6 +290,7 @@ fn instantiate_args( v: &Variant) -> proc_macro2::TokenStream {
     }
 }
 
+
 #[proc_macro_derive(OperationOutcomeError, attributes(fatal, error, warning, information, from))]
 pub fn operation_error(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
@@ -288,13 +300,18 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
         Data::Enum(data) => {
             let name = input.ident;
 
-            let variants = data.variants.iter().map(|v| {
+            // Errors to implement from trait for.
+            let mut from_information: Vec<FromInformation> = vec![];
+
+            let variants: Vec<proc_macro2::TokenStream> = data.variants.iter().map(|v| {
                 let ident = &v.ident;
                 let op_issues = derive_operation_issues(v);
                 let arg_instantiation = instantiate_args( v);
 
-                let from_error = if let Some(arg_identifier) = get_from_error(v) {
-                    quote!{ #arg_identifier }
+                let from_error = if let Some(from_info) = get_from_error(v) {
+                    let arg_identifier = get_arg_identifier(from_info.from);
+                    from_information.push(from_info);
+                    quote!{ Some(#arg_identifier.into()) }
                 } else {
                     quote! { None }
                 };
@@ -309,7 +326,21 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                         OperationError::new(#from_error, operation_outcome)
                     }
                 }
+            }).collect();
+
+            let from_impl = from_information.into_iter().map(|from_info| {
+                let error_type = &from_info.error_type;
+                let from_variant = &from_info.variant.ident;
+
+                quote! {
+                    impl From<#error_type> for #name {
+                        fn from(error: #error_type) -> Self {
+                            #name::#from_variant(error)
+                        }
+                    }
+                }
             });
+
 
             let expanded = quote! {
                 use fhir_model::r4::types::{OperationOutcomeIssue, FHIRCode};
@@ -321,6 +352,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                         }
                     }
                 }
+                #(#from_impl)*
             };
 
             // println!("{}", expanded.to_string());
