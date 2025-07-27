@@ -1,9 +1,8 @@
 use proc_macro::TokenStream;
 // use fhir_model::r4::types::OperationOutcomeIssue;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::{
-    Attribute, Data, DeriveInput, Expr, Lit, Meta, MetaList, Token, Variant, parse_macro_input,
-    punctuated::Punctuated,
+    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Variant
 };
 
 static FATAL: &str = "fatal";
@@ -194,7 +193,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
                 Some(Box::new(fhir_model::r4::types::FHIRString{
                     id: None,
                     extension: None,
-                    value: Some(#diagnostic.to_string()),
+                    value: Some(format!(#diagnostic)),
                 }))
             }
         } else {
@@ -232,6 +231,22 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
     }
 }
 
+/// Instantiate the arguments for the variant
+/// This is used in formatting the error message.
+/// Format is arg0, arg1, arg2, ...
+fn instantiate_args( v: &Variant) -> proc_macro2::TokenStream {
+    let arg_identifiers = (0..v.fields.len()).map(|i| format_ident!("arg{}", i)).collect::<Vec<_>>();
+    let variant_name = &v.ident;
+    if arg_identifiers.is_empty() {
+        quote!{}
+    }
+    else {
+        quote! {
+            (#(#arg_identifiers),*)
+        }
+    }
+}
+
 #[proc_macro_derive(OperationOutcomeError, attributes(fatal, error, warning, information))]
 pub fn operation_error(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
@@ -244,11 +259,14 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
             let variants = data.variants.iter().map(|v| {
                 let ident = &v.ident;
                 let op_issues = derive_operation_issues(v);
+                let arg_instantiation = instantiate_args( v);
 
                 quote! {
-                    #ident => {
+                    #ident #arg_instantiation => {
+                        
                         let mut operation_outcome = fhir_model::r4::types::OperationOutcome::default();
                         operation_outcome.issue = #op_issues;
+                        
                         OperationError::new(None, operation_outcome)
                     }
                 }
