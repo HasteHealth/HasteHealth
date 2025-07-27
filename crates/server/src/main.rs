@@ -1,5 +1,6 @@
 #![allow(unused)]
 use crate::{
+    config::get_config,
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
@@ -22,6 +23,7 @@ use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 use tracing::info;
 
+mod config;
 mod fhir_http;
 mod oidc;
 mod pg;
@@ -29,8 +31,6 @@ mod repository;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum ConfigError {
-    #[error(code = "not-found", diagnostic = "Resource not found {arg0}")]
-    InvalidInput(String),
     #[error(code = "invalid", diagnostic = "Invalid environment!")]
     DotEnv(#[from] dotenvy::Error),
     #[error(code = "invalid", diagnostic = "Invalid session!")]
@@ -45,9 +45,6 @@ pub enum ConfigError {
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum CustomOpError {
-    #[information(code = "informational", diagnostic = "Informational message")]
-    #[fatal(code = "invalid", diagnostic = "Not Found")]
-    NotFound,
     #[error(code = "invalid", diagnostic = "FHIRPath error")]
     FHIRPath(#[from] fhirpath::FHIRPathError),
     #[error(code = "invalid", diagnostic = "Failed to deserialize resource")]
@@ -58,6 +55,7 @@ pub enum CustomOpError {
 
 struct AppState<Store: repository::FHIRRepository> {
     fhir_store: Store,
+    config: Box<dyn config::Config>,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
@@ -120,7 +118,6 @@ async fn fhir_handler(
                 fhir_method: FHIRMethod::try_from(&fhir_request).unwrap(),
             })
             .await?;
-
         Ok((
             axum::http::StatusCode::CREATED,
             fhir_serialization_json::to_string(&response).unwrap(),
@@ -135,16 +132,15 @@ async fn fhir_handler(
 async fn main() -> Result<(), OperationOutcomeError> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
-
-    dotenvy::dotenv().map_err(ConfigError::from)?;
-    let pool = get_pool().await;
-    let store = repository::postgres::PostgresSQL::new(pool.clone());
+    let config = get_config("environment".into());
+    let pool = get_pool(config.as_ref()).await;
+    let fhir_store = repository::postgres::PostgresSQL::new(pool.clone());
     let session_store = PostgresStore::new(pool.clone());
 
     session_store.migrate().await.map_err(ConfigError::from)?;
 
     let session_layer = SessionManagerLayer::new(session_store).with_secure(true);
-    let shared_state = Arc::new(AppState { fhir_store: store });
+    let shared_state = Arc::new(AppState { fhir_store, config });
 
     let app = Router::new()
         .route(
