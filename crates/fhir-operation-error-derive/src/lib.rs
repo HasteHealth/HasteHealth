@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 // use fhir_model::r4::types::OperationOutcomeIssue;
 use quote::{format_ident, quote};
 use syn::{
-    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Lit, Meta, MetaList, Token, Variant
+    parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Variant
 };
 
 static FATAL: &str = "fatal";
@@ -231,11 +231,44 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
     }
 }
 
+fn get_arg_identifier(i: usize) -> Ident {
+    format_ident!("arg{}", i)
+}
+
+/// Returns the argument identifier for the from variant.
+/// This should be an error.
+fn get_from_error(v: &Variant) -> Option<Ident> {
+    let from_fields: Vec<Ident> = v.fields.iter().enumerate().filter_map(|(i, field)| {
+        let from_attr = field.attrs.iter().find(|attr|{
+            let p = attr.path().is_ident("from");
+            p
+        });
+
+        if from_attr.is_some() {
+            if from_attr.is_some() {
+                Some(get_arg_identifier(i))
+            } else {
+                panic!("Expected a named field with 'from' attribute");
+            }
+        } else {
+            None
+        }
+    }).collect();
+
+    if from_fields.len() > 1 {
+        panic!("Expected only one field with 'from' attribute");
+    }
+
+    from_fields.get(0).cloned()
+}
+
+
+
 /// Instantiate the arguments for the variant
 /// This is used in formatting the error message.
 /// Format is arg0, arg1, arg2, ...
 fn instantiate_args( v: &Variant) -> proc_macro2::TokenStream {
-    let arg_identifiers = (0..v.fields.len()).map(|i| format_ident!("arg{}", i)).collect::<Vec<_>>();
+    let arg_identifiers = (0..v.fields.len()).map(|i| get_arg_identifier(i)).collect::<Vec<_>>();
     if arg_identifiers.is_empty() {
         quote!{}
     }
@@ -246,7 +279,7 @@ fn instantiate_args( v: &Variant) -> proc_macro2::TokenStream {
     }
 }
 
-#[proc_macro_derive(OperationOutcomeError, attributes(fatal, error, warning, information))]
+#[proc_macro_derive(OperationOutcomeError, attributes(fatal, error, warning, information, from))]
 pub fn operation_error(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
@@ -260,13 +293,20 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                 let op_issues = derive_operation_issues(v);
                 let arg_instantiation = instantiate_args( v);
 
+                let from_error = if let Some(arg_identifier) = get_from_error(v) {
+                    quote!{ #arg_identifier }
+                } else {
+                    quote! { None }
+                };
+
+
                 quote! {
                     #ident #arg_instantiation => {
                         
                         let mut operation_outcome = fhir_model::r4::types::OperationOutcome::default();
                         operation_outcome.issue = #op_issues;
                         
-                        OperationError::new(None, operation_outcome)
+                        OperationError::new(#from_error, operation_outcome)
                     }
                 }
             });
