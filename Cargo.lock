@@ -1881,6 +1881,7 @@ dependencies = [
  "serde",
  "sqlx",
  "sqlx-postgres",
+ "tokio",
  "tracing",
  "tracing-subscriber",
 ]

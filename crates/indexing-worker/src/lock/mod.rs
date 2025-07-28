@@ -7,7 +7,13 @@ pub mod postgres;
 pub enum LockType {
     IndexingPosition,
 }
-
+impl AsRef<str> for LockType {
+    fn as_ref(&self) -> &str {
+        match self {
+            LockType::IndexingPosition => "indexing_position",
+        }
+    }
+}
 pub struct LockId(String);
 impl LockId {
     pub fn new(id: String) -> Self {
@@ -19,9 +25,9 @@ impl AsRef<str> for LockId {
         &self.0
     }
 }
-impl From<String> for LockId {
-    fn from(id: String) -> Self {
-        LockId::new(id)
+impl From<&str> for LockId {
+    fn from(id: &str) -> Self {
+        LockId::new(id.to_string())
     }
 }
 
