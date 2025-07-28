@@ -13,8 +13,11 @@ pub async fn main() {
         .expect("Failed to connect to the database");
 
     let mut provider = PostgresLockProvider::new(pg_connection);
-    provider
-        .get_available(LockKind::System, vec!["lock1".into(), "lock2".into()])
+
+    let locks = provider
+        .get_available(LockKind::System, vec!["tenant".into(), "lock2".into()])
         .await
         .expect("Failed to get available locks");
+
+    println!("Available locks: {:?}", locks);
 }

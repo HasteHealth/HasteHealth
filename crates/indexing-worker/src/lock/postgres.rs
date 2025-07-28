@@ -38,7 +38,7 @@ impl LockProvider for PostgresLockProvider {
         separated.push_unseparated(") ");
 
         let query = query_builder.build_query_as();
-        println!("Executing query: '{:?}'", query.sql());
+        // println!("Executing query: '{:?}'", query.sql());
         let res = query
             .fetch_all(&mut self.connection)
             .await
