@@ -81,7 +81,8 @@ impl FHIRRepository for FHIRPostgresRepository {
             project_id.as_ref(),
             resource_id.as_ref(),
         ).fetch_one(&self.0).await.map_err(StoreError::from)?;
-        panic!();
+
+        Ok(response.resource.0)
     }
 
     async fn history(

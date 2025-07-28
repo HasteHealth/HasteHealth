@@ -126,7 +126,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
 
     let app = Router::new()
         .route(
-            "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{fhir_location}",
+            "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{*fhir_location}",
             any(fhir_handler),
         )
         .nest("/oidc", oidc::create_router())
