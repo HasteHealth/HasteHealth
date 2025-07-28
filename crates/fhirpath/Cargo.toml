@@ -15,4 +15,4 @@ dashmap = "6.1.0"
 [dev-dependencies]
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 oxidized-reflect-derive = { path = "../reflect-derive" }
-insta = { version = "1.43.1" }
+insta = "1.43.1"
