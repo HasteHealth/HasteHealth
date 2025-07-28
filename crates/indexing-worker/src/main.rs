@@ -27,7 +27,7 @@ pub async fn main() {
                 Box::pin(async move {
                     let mut provider = PostgresLockProvider::new(t);
                     let locks = provider
-                        .get_available(LockKind::System, vec!["tenant".into(), "lock2".into()])
+                        .get_available(LockKind::System, vec!["tenant".into()])
                         .await?;
 
                     println!("Available locks: {:?}", locks);
