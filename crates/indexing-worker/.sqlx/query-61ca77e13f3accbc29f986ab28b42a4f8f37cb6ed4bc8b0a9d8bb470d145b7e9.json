@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT resource as \"resource: FHIRJson<Resource>\" FROM resources WHERE tenant = $1 AND sequence > $2 LIMIT $3",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "resource: FHIRJson<Resource>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "61ca77e13f3accbc29f986ab28b42a4f8f37cb6ed4bc8b0a9d8bb470d145b7e9"
+}
