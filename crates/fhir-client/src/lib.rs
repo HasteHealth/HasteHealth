@@ -3,12 +3,13 @@ use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};
 
+#[cfg(feature = "axum")]
+pub mod axum;
 #[cfg(feature = "http")]
 pub mod http;
 pub mod middleware;
 pub mod request;
 pub mod url;
-
 pub struct ParsedParameter {}
 
 pub trait FHIRClient<CTX, Error>: Send + Sync {

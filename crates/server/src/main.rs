@@ -104,7 +104,7 @@ async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
     let response = state.fhir_client.request(ctx, fhir_request).await?;
     info!("Request processed in {:?}", start.elapsed());
 
-    Ok((StatusCode::ACCEPTED, "Request succeeded").into_response())
+    Ok(response.into_response())
 }
 
 #[tokio::main]

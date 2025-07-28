@@ -12,7 +12,7 @@ fhir-operation-error = { path = "../fhir-operation-error", features = [
 fhirpath = { path = "../fhirpath" }
 fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 fhir-serialization-json = { path = "../fhir-serialization-json" }
-fhir-client = { path = "../fhir-client", features = ["http"] }
+fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
 reflect = { path = "../reflect", features = ["derive"] }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
