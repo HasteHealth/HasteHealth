@@ -6,7 +6,7 @@ use crate::{
 };
 use fhir_client::{
     FHIRClient, ParsedParameter,
-    middleware::{Context, Middleware, Next},
+    middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
         FHIRResponse,
@@ -33,15 +33,13 @@ pub enum StorageError {
 
 type ServerMiddlewareState<Repository> = Arc<Repository>;
 type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
-type ServerMiddlewareNext<Repo> =
-    Option<Arc<Next<Arc<Repo>, ServerMiddlewareContext, OperationOutcomeError>>>;
-type ServerMiddlewareOutput =
-    Pin<Box<dyn Future<Output = Result<ServerMiddlewareContext, OperationOutcomeError>> + Send>>;
+type ServerMiddlewareNext<Repo> = Next<Arc<Repo>, ServerMiddlewareContext, OperationOutcomeError>;
+type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
 
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     state: ServerMiddlewareState<Repository>,
     mut context: ServerMiddlewareContext,
-    next: ServerMiddlewareNext<Repository>,
+    next: Option<Arc<ServerMiddlewareNext<Repository>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {

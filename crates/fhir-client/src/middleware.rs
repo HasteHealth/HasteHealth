@@ -6,19 +6,16 @@ pub struct Context<CTX, Request, Response> {
     pub response: Option<Response>,
 }
 
-pub type Next<State, Context, Error> = Box<
-    dyn Fn(State, Context) -> Pin<Box<dyn Future<Output = Result<Context, Error>> + Send>>
-        + Send
-        + Sync,
->;
-
+pub type MiddlewareOutput<Context, Error> =
+    Pin<Box<dyn Future<Output = Result<Context, Error>> + Send>>;
+pub type Next<State, Context, Error> =
+    Box<dyn Fn(State, Context) -> MiddlewareOutput<Context, Error> + Send + Sync>;
 pub type MiddlewareChain<State, CTX, Request, Response, Error> = Box<
     dyn Fn(
             State,
             Context<CTX, Request, Response>,
             Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
-        )
-            -> Pin<Box<dyn Future<Output = Result<Context<CTX, Request, Response>, Error>> + Send>>
+        ) -> MiddlewareOutput<Context<CTX, Request, Response>, Error>
         + Send
         + Sync,
 >;
