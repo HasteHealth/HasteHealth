@@ -1,9 +1,9 @@
-use fhir_model::r4::{
+use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
     types::Resource,
 };
-use fhir_operation_error::OperationOutcomeError;
-use fhir_operation_error::derive::OperationOutcomeError;
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use sqlx::{Executor, Row};
 
 use crate::{
@@ -74,7 +74,7 @@ impl FHIRRepository for FHIRPostgresRepository {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         resource_id: &ResourceId,
-    ) -> Result<fhir_model::r4::types::Resource, OperationOutcomeError> {
+    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
         let response = sqlx::query!(
             r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 ORDER BY sequence DESC"#,
             tenant_id.as_ref(),
@@ -90,7 +90,7 @@ impl FHIRRepository for FHIRPostgresRepository {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         resource_id: &ResourceId,
-    ) -> Result<Vec<fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
         todo!();
     }
 
@@ -100,7 +100,7 @@ impl FHIRRepository for FHIRPostgresRepository {
         project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> Result<Vec<fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
         todo!()
     }
 }

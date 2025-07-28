@@ -1,5 +1,5 @@
 [package]
-name = "fhir-client"
+name = "oxidized-fhir-client"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,9 +8,9 @@ axum = ["dep:axum"]
 http = ["dep:reqwest"]
 
 [dependencies]
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
+oxidized-fhir-model = { path = "../fhir-model" }
 axum = { version = "0.8.4", optional = true }
-fhir-serialization-json = { path = "../fhir-serialization-json" }
-fhir-model = { path = "../fhir-model" }
 reqwest = { version = "0.12", optional = true }
 http = "1.3.1"
 json-patch = "4.0.0"

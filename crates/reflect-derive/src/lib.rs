@@ -22,7 +22,7 @@ fn get_attribute_rename(attrs: &[Attribute]) -> Option<String> {
 }
 
 #[proc_macro_derive(Reflect, attributes(rename_field))]
-pub fn reflect(input: TokenStream) -> TokenStream {
+pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -65,7 +65,7 @@ pub fn reflect(input: TokenStream) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl reflect::MetaValue for #name {
+                impl oxidized_reflect::MetaValue for #name {
                     fn fields(&self) -> Vec<&'static str> {
                         vec![
                             #(#all_fields),*
@@ -172,7 +172,7 @@ pub fn reflect(input: TokenStream) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl reflect::MetaValue for #enum_name {
+                impl oxidized_reflect::MetaValue for #enum_name {
                     fn fields(&self) -> Vec<&'static str> {
                         match self {
                             #(#variants_fields),*

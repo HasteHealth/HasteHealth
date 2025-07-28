@@ -1,0 +1,37 @@
+---
+source: crates/fhirpath/src/parser.rs
+expression: result
+---
+Operation(
+    Is(
+        Operation(
+            Add(
+                Singular(
+                    [
+                        Literal(
+                            Integer(
+                                1,
+                            ),
+                        ),
+                    ],
+                ),
+                Singular(
+                    [
+                        Literal(
+                            Integer(
+                                2,
+                            ),
+                        ),
+                    ],
+                ),
+            ),
+        ),
+        QualifiedIdentifier(
+            [
+                Identifier(
+                    "Patient",
+                ),
+            ],
+        ),
+    ),
+)

@@ -1,0 +1,36 @@
+---
+source: crates/fhirpath/src/parser.rs
+expression: result
+---
+Operation(
+    Add(
+        Singular(
+            [
+                ExternalConstant(
+                    "test",
+                ),
+                Invocation(
+                    Identifier(
+                        Identifier(
+                            "field",
+                        ),
+                    ),
+                ),
+            ],
+        ),
+        Singular(
+            [
+                Invocation(
+                    This,
+                ),
+                Invocation(
+                    Identifier(
+                        Identifier(
+                            "value",
+                        ),
+                    ),
+                ),
+            ],
+        ),
+    ),
+)

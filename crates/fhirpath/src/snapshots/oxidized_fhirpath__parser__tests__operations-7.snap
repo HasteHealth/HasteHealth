@@ -1,0 +1,49 @@
+---
+source: crates/fhirpath/src/parser.rs
+expression: result
+---
+Operation(
+    Polarity(
+        Negative,
+        Singular(
+            [
+                Invocation(
+                    This,
+                ),
+                Invocation(
+                    Identifier(
+                        Identifier(
+                            "field",
+                        ),
+                    ),
+                ),
+                Invocation(
+                    Index(
+                        Operation(
+                            Add(
+                                Singular(
+                                    [
+                                        Literal(
+                                            Integer(
+                                                45,
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                                Singular(
+                                    [
+                                        Literal(
+                                            Integer(
+                                                23,
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ],
+        ),
+    ),
+)

@@ -1,0 +1,18 @@
+---
+source: crates/fhirpath/src/parser.rs
+expression: result
+---
+Singular(
+    [
+        ExternalConstant(
+            "test",
+        ),
+        Invocation(
+            Identifier(
+                Identifier(
+                    "asdf",
+                ),
+            ),
+        ),
+    ],
+)

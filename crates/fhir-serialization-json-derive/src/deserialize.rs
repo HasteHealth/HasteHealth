@@ -35,7 +35,7 @@ fn handle_optional_require_field(
         // If not optional that means it's a required field so we should unwrap it here.
         quote! {
             #value_identifier.ok_or_else(|| {
-                fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
+                oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
                     #value_string_name.to_string(),
                 )
             })?
@@ -60,25 +60,25 @@ pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
 
             let expanded = quote! {
                 impl FHIRJSONDeserializer for #name {
-                    fn from_json_str(s: &str) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                    fn from_json_str(s: &str) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, fhir_serialization_json::Context::AsValue)
+                        Self::from_serde_value(&json, oxidized_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: fhir_serialization_json::Context) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: &serde_json::Value, context: oxidized_fhir_serialization_json::Context) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         match context {
-                            fhir_serialization_json::Context::AsField(context) => {
+                            oxidized_fhir_serialization_json::Context::AsField(context) => {
                                 let mut value = None;
                                 let mut extensions = None;
                                 let mut id = None;
 
                                 if let Some(json_value) = json.get(context.field){
-                                    value = Some(#value_type::from_serde_value(json_value, fhir_serialization_json::Context::AsValue)?);
+                                    value = Some(#value_type::from_serde_value(json_value, oxidized_fhir_serialization_json::Context::AsValue)?);
                                 }
 
                                 if let Some(json_element_fields) = json.get(&("_".to_string() + context.field)) {
                                     if !json_element_fields.is_object() {
-                                        return Err(fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                        return Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                             "Expected an object for element fields".to_string(),
                                         ));
                                     }
@@ -92,8 +92,8 @@ pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
                                     id: id,
                                 })
                             }
-                            fhir_serialization_json::Context::AsValue => {
-                                let value = #value_type::from_serde_value(json, fhir_serialization_json::Context::AsValue)?;
+                            oxidized_fhir_serialization_json::Context::AsValue => {
+                                let value = #value_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsValue)?;
                                 let mut parsed = Self::default();
                                 parsed.value = value;
                                 Ok(parsed)
@@ -130,28 +130,28 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
 
                 quote! {
                     #field_name => {
-                        Ok(Self::#name(#variant_type::from_serde_value(json, fhir_serialization_json::Context::AsField(context))?))
+                        Ok(Self::#name(#variant_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsField(context))?))
                     }
                 }
             });
 
             let expanded = quote! {
-                impl fhir_serialization_json::FHIRJSONDeserializer for #name {
-                    fn from_json_str(s: &str) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
-                        Err(fhir_serialization_json::errors::DeserializeError::CannotDeserializeTypeChoiceAsValue)
+                impl oxidized_fhir_serialization_json::FHIRJSONDeserializer for #name {
+                    fn from_json_str(s: &str) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
+                        Err(oxidized_fhir_serialization_json::errors::DeserializeError::CannotDeserializeTypeChoiceAsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: fhir_serialization_json::Context) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: &serde_json::Value, context: oxidized_fhir_serialization_json::Context) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         match context {
-                            fhir_serialization_json::Context::AsField(context) => {
+                            oxidized_fhir_serialization_json::Context::AsField(context) => {
                                 // Handle deserialization for each variant
                                 match context.field {
                                     #(#serialize_by_name_matches),*,
-                                    _ => Err(fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string())),
+                                    _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string())),
                                 }
                             }
-                            fhir_serialization_json::Context::AsValue => {
-                                Err(fhir_serialization_json::errors::DeserializeError::CannotDeserializeTypeChoiceAsValue)
+                            oxidized_fhir_serialization_json::Context::AsValue => {
+                                Err(oxidized_fhir_serialization_json::errors::DeserializeError::CannotDeserializeTypeChoiceAsValue)
                             }
                         }
                     }
@@ -217,7 +217,7 @@ fn create_type_choice_struct_handler(
     quote! {
         if [#(#all_type_choice_variants),*].contains(&#field_variable.as_str()) {
             if let Some(existing_type_choice) = #field_ident {
-                return Err(fhir_serialization_json::errors::DeserializeError::DuplicateTypeChoiceVariant(
+                return Err(oxidized_fhir_serialization_json::errors::DeserializeError::DuplicateTypeChoiceVariant(
                     #field_variable.to_string(),
                 ));
             }
@@ -242,7 +242,7 @@ fn create_complex_struct_handler(
     quote! {
         if #field_variable == #field_str {
           #found_fields_variable.insert(#field_str);
-          #field_ident = Some(#field_type::from_serde_value(#obj_variable.get(#field_str).unwrap(), fhir_serialization_json::Context::AsValue)?);
+          #field_ident = Some(#field_type::from_serde_value(#obj_variable.get(#field_str).unwrap(), oxidized_fhir_serialization_json::Context::AsValue)?);
         }
     }
 }
@@ -283,7 +283,7 @@ fn create_struct_item(fields: &Fields) -> TokenStream {
 
         quote! {
           #field_name: #field_name.ok_or_else(|| {
-            fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
+            oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
                 #field_name_str.to_string()
             )})?,
         }
@@ -323,14 +323,14 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                                 if resource_type == #name_string {
                                     #found_fields_ident.insert("resourceType");
                                 } else {
-                                    return Err(fhir_serialization_json::errors::DeserializeError::InvalidResourceType(
+                                    return Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidResourceType(
                                         #name_string.to_string(),
                                         resource_type.to_string(),
                                     ));
                                 }
                         } 
                         else {
-                            return Err(fhir_serialization_json::errors::DeserializeError::MissingRequiredField("resourceType".to_string()));
+                            return Err(oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField("resourceType".to_string()));
                         }
 
 
@@ -349,21 +349,21 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
             let return_val = create_struct_item(&data.fields);
 
             let expanded = quote! {
-                impl fhir_serialization_json::FHIRJSONDeserializer for #name {
-                    fn from_json_str(s: &str) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                impl oxidized_fhir_serialization_json::FHIRJSONDeserializer for #name {
+                    fn from_json_str(s: &str) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, fhir_serialization_json::Context::AsValue)
+                        Self::from_serde_value(&json, oxidized_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(#obj_variable: &serde_json::Value, context: fhir_serialization_json::Context) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(#obj_variable: &serde_json::Value, context: oxidized_fhir_serialization_json::Context) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         let #obj_variable = {
                             match context {
-                                fhir_serialization_json::Context::AsValue => {
+                                oxidized_fhir_serialization_json::Context::AsValue => {
                                    Ok(#obj_variable)
                                 }
-                                fhir_serialization_json::Context::AsField(context) => {
+                                oxidized_fhir_serialization_json::Context::AsField(context) => {
                                     #obj_variable.get(context.field)
-                                        .ok_or_else(|| fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()))
+                                        .ok_or_else(|| oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()))
                                 }
                             }
                         }?;
@@ -376,7 +376,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                                 if !#found_fields_ident.contains(#field_variable.as_str()){
                                   #(#set_value)else *
                                   else {
-                                    return Err(fhir_serialization_json::errors::DeserializeError::UnknownField(
+                                    return Err(oxidized_fhir_serialization_json::errors::DeserializeError::UnknownField(
                                         format!("{}: {}", #name_string, #field_variable.to_string())
                                     ));
                                   }
@@ -384,7 +384,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                             }
                             Ok(#return_val)
                         } else {
-                            Err(fhir_serialization_json::errors::DeserializeError::InvalidType(
+                            Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                 "Expected an object".to_string(),
                             ))
                         }
@@ -417,27 +417,27 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
 
                 quote! {
                     #field_name => {
-                        Ok(Self::#name(#variant_type::from_serde_value(json, fhir_serialization_json::Context::AsValue)?))
+                        Ok(Self::#name(#variant_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsValue)?))
                     }
                 }
             });
 
             let expanded = quote!{
-                impl fhir_serialization_json::FHIRJSONDeserializer for #name {
-                    fn from_json_str(s: &str) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                impl oxidized_fhir_serialization_json::FHIRJSONDeserializer for #name {
+                    fn from_json_str(s: &str) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, fhir_serialization_json::Context::AsValue)
+                        Self::from_serde_value(&json, oxidized_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: fhir_serialization_json::Context) -> Result<Self, fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: &serde_json::Value, context: oxidized_fhir_serialization_json::Context) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         let json = {
                             match &context {
-                                fhir_serialization_json::Context::AsValue => {
+                                oxidized_fhir_serialization_json::Context::AsValue => {
                                    Ok(json)
                                 }
-                                fhir_serialization_json::Context::AsField(context) => {
+                                oxidized_fhir_serialization_json::Context::AsField(context) => {
                                     json.get(context.field)
-                                        .ok_or_else(|| fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()))
+                                        .ok_or_else(|| oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()))
                                 }
                             }
                         }?;
@@ -445,12 +445,12 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
                         if let Some(json_v) = json.get(#determine_by) && let Some(#determine_by_value) = json_v.as_str()  {
                             match #determine_by_value {
                                 #(#serialize_by_name_matches),*
-                                field => Err(fhir_serialization_json::errors::DeserializeError::InvalidEnumVariant(
+                                field => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidEnumVariant(
                                     #determine_by.to_string(), field.to_string()
                                 )),
                             }                            
                         } else {
-                            Err(fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
+                            Err(oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
                                 #determine_by.to_string(),
                             ))
                         }

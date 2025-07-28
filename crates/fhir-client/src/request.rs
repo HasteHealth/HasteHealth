@@ -1,5 +1,7 @@
-use fhir_model::r4::types::{Bundle, CapabilityStatement, Parameters, Resource, ResourceType};
 use json_patch::Patch;
+use oxidized_fhir_model::r4::types::{
+    Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
+};
 use thiserror::Error;
 
 use crate::ParsedParameter;

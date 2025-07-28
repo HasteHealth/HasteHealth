@@ -1,5 +1,5 @@
 use crate::Config;
-use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 pub struct EnvironmentConfig();
 

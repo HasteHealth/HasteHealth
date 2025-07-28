@@ -1,5 +1,5 @@
 [package]
-name = "lambda-test"
+name = "oxidized-lambda-test"
 version = "0.1.0"
 edition = "2021"
 

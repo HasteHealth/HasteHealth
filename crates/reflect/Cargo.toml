@@ -1,10 +1,10 @@
 [package]
-name = "reflect"
+name = "oxidized-reflect"
 version = "0.1.0"
 edition = "2024"
 
 [features]
-derive = ["dep:reflect-derive"]
+derive = ["dep:oxidized-reflect-derive"]
 
 [dependencies]
-reflect-derive = { path = "../reflect-derive", optional = true }
+oxidized-reflect-derive = { path = "../reflect-derive", optional = true }

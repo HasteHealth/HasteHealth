@@ -1,20 +1,20 @@
 [package]
-name = "server"
+name = "oxidized-server"
 version = "0.1.0"
 edition = "2024"
 
 
 [dependencies]
 oxidized-config = { path = "../config" }
-fhir-operation-error = { path = "../fhir-operation-error", features = [
+oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
     "axum",
 ] }
-fhirpath = { path = "../fhirpath" }
-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-fhir-serialization-json = { path = "../fhir-serialization-json" }
-fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
-reflect = { path = "../reflect", features = ["derive"] }
+oxidized-fhirpath = { path = "../fhirpath" }
+oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
+oxidized-fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
+oxidized-reflect = { path = "../reflect", features = ["derive"] }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
     "tls-native-tls",

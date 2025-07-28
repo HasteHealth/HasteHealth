@@ -1,4 +1,4 @@
-use fhir_model::r4::types::{CapabilityStatement, Parameters, Resource, ResourceType};
+use oxidized_fhir_model::r4::types::{CapabilityStatement, Parameters, Resource, ResourceType};
 use json_patch::Patch;
 
 use crate::request::{FHIRRequest, FHIRResponse};

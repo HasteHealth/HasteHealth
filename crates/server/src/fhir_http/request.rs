@@ -1,17 +1,17 @@
 use axum::http::Method;
-use fhir_client::request::{
+use json_patch::Patch;
+use oxidized_fhir_client::request::{
     FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest,
     FHIRDeleteSystemRequest, FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest,
     FHIRHistorySystemRequest, FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest,
-    FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRRequest,
-    FHIRSearchSystemRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
-    FHIRVersionReadRequest, Operation, OperationParseError,
+    FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest, FHIRRequest,
+    FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
+    FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
-use fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
-use fhir_operation_error::OperationOutcomeError;
-use fhir_operation_error::derive::OperationOutcomeError;
-use fhir_serialization_json::errors::DeserializeError;
-use json_patch::Patch;
+use oxidized_fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use oxidized_fhir_serialization_json::errors::DeserializeError;
 
 use crate::SupportedFHIRVersions;
 
@@ -74,7 +74,7 @@ fn parse_request_1_non_empty<'a>(
                 // Handle operation request
                 Ok(FHIRRequest::InvokeSystem(FHIRInvokeSystemRequest {
                     operation: Operation::new(url_chunks[0])?,
-                    parameters: fhir_serialization_json::from_str(&req.body)?,
+                    parameters: oxidized_fhir_serialization_json::from_str(&req.body)?,
                 }))
             }
             Method::GET => {
@@ -101,7 +101,9 @@ fn parse_request_1_non_empty<'a>(
                         // Handle create request
                         Ok(FHIRRequest::Create(FHIRCreateRequest {
                             resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                            resource: fhir_serialization_json::from_str::<Resource>(&req.body)?,
+                            resource: oxidized_fhir_serialization_json::from_str::<Resource>(
+                                &req.body,
+                            )?,
                         }))
                     }
                 }
@@ -110,7 +112,7 @@ fn parse_request_1_non_empty<'a>(
                 FHIRConditionalUpdateRequest {
                     parameters: vec![],
                     resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                    resource: fhir_serialization_json::from_str::<Resource>(&req.body)?,
+                    resource: oxidized_fhir_serialization_json::from_str::<Resource>(&req.body)?,
                 },
             )),
             Method::DELETE => Ok(FHIRRequest::DeleteType(FHIRDeleteTypeRequest {
@@ -128,12 +130,10 @@ fn parse_request_1_non_empty<'a>(
                     })),
                     _ => {
                         // Handle search request
-                        Ok(FHIRRequest::SearchType(
-                            fhir_client::request::FHIRSearchTypeRequest {
-                                resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                                parameters: vec![],
-                            },
-                        ))
+                        Ok(FHIRRequest::SearchType(FHIRSearchTypeRequest {
+                            resource_type: ResourceType::new(url_chunks[0].to_string())?,
+                            parameters: vec![],
+                        }))
                     }
                 }
             }
@@ -158,7 +158,7 @@ fn parse_request_1_empty<'a>(
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
     match req.method {
         Method::POST => {
-            let bundle = fhir_serialization_json::from_str::<Bundle>(&req.body)?;
+            let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(&req.body)?;
 
             match bundle.type_.value.as_ref().map(|s| s.as_str()) {
                 Some("transaction") => {
@@ -228,7 +228,7 @@ fn parse_request_2<'a>(
                 Ok(FHIRRequest::InvokeType(FHIRInvokeTypeRequest {
                     resource_type: ResourceType::new(url_chunks[0].to_string())?,
                     operation: Operation::new(url_chunks[1])?,
-                    parameters: fhir_serialization_json::from_str(&req.body)?,
+                    parameters: oxidized_fhir_serialization_json::from_str(&req.body)?,
                 }))
             }
             Method::GET => {
@@ -268,7 +268,7 @@ fn parse_request_2<'a>(
                     }))
                 } else {
                     // Handle read request
-                    Ok(FHIRRequest::Read(fhir_client::request::FHIRReadRequest {
+                    Ok(FHIRRequest::Read(FHIRReadRequest {
                         resource_type: ResourceType::new(url_chunks[0].to_string())?,
                         id: url_chunks[1].to_string(),
                     }))
@@ -277,7 +277,7 @@ fn parse_request_2<'a>(
             Method::PUT => Ok(FHIRRequest::UpdateInstance(FHIRUpdateInstanceRequest {
                 resource_type: ResourceType::new(url_chunks[0].to_string())?,
                 id: url_chunks[1].to_string(),
-                resource: fhir_serialization_json::from_str::<Resource>(&req.body)?,
+                resource: oxidized_fhir_serialization_json::from_str::<Resource>(&req.body)?,
             })),
             Method::PATCH => Ok(FHIRRequest::Patch(FHIRPatchRequest {
                 resource_type: ResourceType::new(url_chunks[0].to_string())?,
@@ -315,7 +315,7 @@ fn parse_request_3<'a>(
                     resource_type: ResourceType::new(url_chunks[0].to_string())?,
                     id: url_chunks[1].to_string(),
                     operation: Operation::new(url_chunks[2])?,
-                    parameters: fhir_serialization_json::from_str(&req.body)?,
+                    parameters: oxidized_fhir_serialization_json::from_str(&req.body)?,
                 }))
             }
             Method::GET => {

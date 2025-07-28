@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use fhir_model::r4::types::OperationOutcome;
+use oxidized_fhir_model::r4::types::OperationOutcome;
 
 #[cfg(feature = "derive")]
 pub mod derive;
@@ -26,7 +26,7 @@ impl OperationOutcomeError {
         &self.outcome
     }
 
-    pub fn push_issue(&mut self, issue: fhir_model::r4::types::OperationOutcomeIssue) {
+    pub fn push_issue(&mut self, issue: oxidized_fhir_model::r4::types::OperationOutcomeIssue) {
         self.outcome.issue.push(issue);
     }
 
@@ -36,7 +36,7 @@ impl OperationOutcomeError {
 }
 
 fn get_issue_diagnostics<'a>(
-    issue: &'a fhir_model::r4::types::OperationOutcomeIssue,
+    issue: &'a oxidized_fhir_model::r4::types::OperationOutcomeIssue,
 ) -> Option<&'a str> {
     issue
         .diagnostics
