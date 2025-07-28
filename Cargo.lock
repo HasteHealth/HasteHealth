@@ -1872,12 +1872,16 @@ dependencies = [
 name = "oxidized-indexing-worker"
 version = "0.1.0"
 dependencies = [
+ "oxidized-config",
  "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "rayon",
  "sqlx",
  "sqlx-postgres",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
