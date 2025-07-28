@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use codegen::type_gen;
-use fhirpath::FHIRPathError;
+oxidized_fhirpath::FHIRPathError;
 use std::{
     io::Write,
     process::{Command, Stdio},

@@ -13,7 +13,7 @@ use axum::{
     routing::any,
 };
 use fhir_client::FHIRClient;
-use fhirpath::FPEngine;
+oxidized_fhirpath::FPEngine;
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use serde::Deserialize;
