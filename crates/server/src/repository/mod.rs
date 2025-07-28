@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display};
 
 use crate::SupportedFHIRVersions;
-use fhir_client::request::FHIRRequest;
+use oxidized_fhir_client::request::FHIRRequest;
 use oxidized_fhir_model::r4::types::Resource;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, de::Error};

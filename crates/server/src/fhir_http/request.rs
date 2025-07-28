@@ -1,13 +1,13 @@
 use axum::http::Method;
-use fhir_client::request::{
+use json_patch::Patch;
+use oxidized_fhir_client::request::{
     FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest,
     FHIRDeleteSystemRequest, FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest,
     FHIRHistorySystemRequest, FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest,
-    FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRRequest,
-    FHIRSearchSystemRequest, FHIRTransactionRequest, FHIRUpdateInstanceRequest,
-    FHIRVersionReadRequest, Operation, OperationParseError,
+    FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest, FHIRReadRequest, FHIRRequest,
+    FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
+    FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
-use json_patch::Patch;
 use oxidized_fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
@@ -130,12 +130,10 @@ fn parse_request_1_non_empty<'a>(
                     })),
                     _ => {
                         // Handle search request
-                        Ok(FHIRRequest::SearchType(
-                            fhir_client::request::FHIRSearchTypeRequest {
-                                resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                                parameters: vec![],
-                            },
-                        ))
+                        Ok(FHIRRequest::SearchType(FHIRSearchTypeRequest {
+                            resource_type: ResourceType::new(url_chunks[0].to_string())?,
+                            parameters: vec![],
+                        }))
                     }
                 }
             }
@@ -270,7 +268,7 @@ fn parse_request_2<'a>(
                     }))
                 } else {
                     // Handle read request
-                    Ok(FHIRRequest::Read(fhir_client::request::FHIRReadRequest {
+                    Ok(FHIRRequest::Read(FHIRReadRequest {
                         resource_type: ResourceType::new(url_chunks[0].to_string())?,
                         id: url_chunks[1].to_string(),
                     }))

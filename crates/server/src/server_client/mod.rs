@@ -4,7 +4,7 @@ use crate::{
     SupportedFHIRVersions,
     repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId},
 };
-use fhir_client::{
+use oxidized_fhir_client::{
     FHIRClient, ParsedParameter,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
@@ -112,7 +112,10 @@ impl<Repository: FHIRRepository + Send + Sync + 'static>
             .ok_or_else(|| StorageError::NoResponse.into())
     }
 
-    async fn capabilities(&self, _ctx: ServerCTX) -> oxidized_fhir_model::r4::types::CapabilityStatement {
+    async fn capabilities(
+        &self,
+        _ctx: ServerCTX,
+    ) -> oxidized_fhir_model::r4::types::CapabilityStatement {
         todo!()
     }
 

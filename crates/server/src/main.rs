@@ -12,10 +12,10 @@ use axum::{
     response::{IntoResponse, Response},
     routing::any,
 };
-use fhir_client::FHIRClient;
-oxidized_fhirpath::FPEngine;
 use oxidized_config::{Config, get_config};
+use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhirpath::FPEngine;
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};
 use tower_http::services::ServeDir;
@@ -46,7 +46,7 @@ pub enum ConfigError {
 #[derive(OperationOutcomeError, Debug)]
 pub enum CustomOpError {
     #[error(code = "invalid", diagnostic = "FHIRPath error")]
-    FHIRPath(#[from] fhirpath::FHIRPathError),
+    FHIRPath(#[from] oxidized_fhirpath::FHIRPathError),
     #[error(code = "invalid", diagnostic = "Failed to deserialize resource")]
     Deserialize(#[from] serde_json::Error),
     #[error(code = "invalid", diagnostic = "Internal server error")]
