@@ -39,7 +39,7 @@ impl<'a, 'b> LockProvider for PostgresLockProvider<'a, 'b> {
             separated.push_bind(lock_id.as_ref());
         }
 
-        separated.push_unseparated(") ");
+        separated.push_unseparated(") FOR UPDATE SKIP LOCKED");
 
         let query = query_builder.build_query_as();
         // println!("Executing query: '{:?}'", query.sql());

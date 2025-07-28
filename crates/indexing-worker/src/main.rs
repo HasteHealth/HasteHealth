@@ -21,21 +21,23 @@ pub async fn main() {
         .await
         .expect("Failed to connect to the database");
 
-    pg_connection
-        .transaction(|t| {
-            Box::pin(async move {
-                let mut provider = PostgresLockProvider::new(t);
-                let locks = provider
-                    .get_available(LockKind::System, vec!["tenant".into(), "lock2".into()])
-                    .await?;
+    loop {
+        pg_connection
+            .transaction(|t| {
+                Box::pin(async move {
+                    let mut provider = PostgresLockProvider::new(t);
+                    let locks = provider
+                        .get_available(LockKind::System, vec!["tenant".into(), "lock2".into()])
+                        .await?;
 
-                println!("Available locks: {:?}", locks);
+                    println!("Available locks: {:?}", locks);
 
-                let ret: Result<(), IndexingWorkerError> = Ok(());
+                    let ret: Result<(), IndexingWorkerError> = Ok(());
 
-                ret
+                    ret
+                })
             })
-        })
-        .await
-        .expect("Transaction failed");
+            .await
+            .expect("Transaction failed");
+    }
 }
