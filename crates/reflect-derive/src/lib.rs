@@ -21,7 +21,7 @@ fn get_attribute_rename(attrs: &[Attribute]) -> Option<String> {
     })
 }
 
-#[proc_macro_derive(oxidized_reflect, attributes(rename_field))]
+#[proc_macro_derive(Reflect, attributes(rename_field))]
 pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);

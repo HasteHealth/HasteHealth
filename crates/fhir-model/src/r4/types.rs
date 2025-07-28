@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 use oxidized_fhir_serialization_json;
 use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
-use oxidized_reflect::{MetaValue, derive::oxidized_reflect};
+use oxidized_reflect::{derive::Reflect, MetaValue};
 use std::io::Write;
 use thiserror::Error;
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22,7 +22,7 @@ pub struct Element {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -40,7 +40,7 @@ pub struct BackboneElement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -58,7 +58,7 @@ pub struct FHIRBase64Binary {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -76,7 +76,7 @@ pub struct FHIRBoolean {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -94,7 +94,7 @@ pub struct FHIRCanonical {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -112,7 +112,7 @@ pub struct FHIRCode {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -130,7 +130,7 @@ pub struct FHIRDate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -148,7 +148,7 @@ pub struct FHIRDateTime {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -166,7 +166,7 @@ pub struct FHIRDecimal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -184,7 +184,7 @@ pub struct FHIRId {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -202,7 +202,7 @@ pub struct FHIRInstant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -220,7 +220,7 @@ pub struct FHIRInteger {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -238,7 +238,7 @@ pub struct FHIRMarkdown {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -256,7 +256,7 @@ pub struct FHIROid {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -274,7 +274,7 @@ pub struct FHIRPositiveInt {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -292,7 +292,7 @@ pub struct FHIRString {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -310,7 +310,7 @@ pub struct FHIRTime {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -328,7 +328,7 @@ pub struct FHIRUnsignedInt {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -346,7 +346,7 @@ pub struct FHIRUri {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -364,7 +364,7 @@ pub struct FHIRUrl {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -382,7 +382,7 @@ pub struct FHIRUuid {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -400,7 +400,7 @@ pub struct FHIRXhtml {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -447,7 +447,7 @@ pub struct Address {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -478,7 +478,7 @@ pub struct Age {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -496,7 +496,7 @@ impl Default for AnnotationAuthorTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -521,7 +521,7 @@ pub struct Annotation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -561,7 +561,7 @@ pub struct Attachment {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -582,7 +582,7 @@ pub struct CodeableConcept {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -613,7 +613,7 @@ pub struct Coding {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -634,7 +634,7 @@ pub struct ContactDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -665,7 +665,7 @@ pub struct ContactPoint {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -690,7 +690,7 @@ pub struct Contributor {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -721,7 +721,7 @@ pub struct Count {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -739,7 +739,7 @@ impl Default for DataRequirementSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -766,7 +766,7 @@ pub struct DataRequirementCodeFilter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -785,7 +785,7 @@ impl Default for DataRequirementDateFilterValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -810,7 +810,7 @@ pub struct DataRequirementDateFilter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -832,7 +832,7 @@ pub struct DataRequirementSort {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -870,7 +870,7 @@ pub struct DataRequirement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -901,7 +901,7 @@ pub struct Distance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -919,7 +919,7 @@ impl Default for DosageAsNeededTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -937,7 +937,7 @@ impl Default for DosageDoseAndRateDoseTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -956,7 +956,7 @@ impl Default for DosageDoseAndRateRateTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -981,7 +981,7 @@ pub struct DosageDoseAndRate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1029,7 +1029,7 @@ pub struct Dosage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1060,7 +1060,7 @@ pub struct Duration {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1083,7 +1083,7 @@ pub struct ElementDefinitionSlicingDiscriminator {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1110,7 +1110,7 @@ pub struct ElementDefinitionSlicing {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1135,7 +1135,7 @@ pub struct ElementDefinitionBase {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1166,7 +1166,7 @@ pub struct ElementDefinitionType {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1232,7 +1232,7 @@ impl Default for ElementDefinitionDefaultValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1298,7 +1298,7 @@ impl Default for ElementDefinitionFixedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1364,7 +1364,7 @@ impl Default for ElementDefinitionPatternTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1430,7 +1430,7 @@ impl Default for ElementDefinitionExampleValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1452,7 +1452,7 @@ pub struct ElementDefinitionExample {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1477,7 +1477,7 @@ impl Default for ElementDefinitionMinValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1502,7 +1502,7 @@ impl Default for ElementDefinitionMaxValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1539,7 +1539,7 @@ pub struct ElementDefinitionConstraint {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1564,7 +1564,7 @@ pub struct ElementDefinitionBinding {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1592,7 +1592,7 @@ pub struct ElementDefinitionMapping {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1705,7 +1705,7 @@ pub struct ElementDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1736,7 +1736,7 @@ pub struct Expression {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -1802,7 +1802,7 @@ impl Default for ExtensionValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1823,7 +1823,7 @@ pub struct Extension {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1860,7 +1860,7 @@ pub struct HumanName {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1893,7 +1893,7 @@ pub struct Identifier {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1922,7 +1922,7 @@ pub struct MarketingStatus {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1954,7 +1954,7 @@ pub struct Meta {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1976,7 +1976,7 @@ pub struct Money {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -1998,7 +1998,7 @@ pub struct Narrative {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2037,7 +2037,7 @@ pub struct ParameterDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2059,7 +2059,7 @@ pub struct Period {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2077,7 +2077,7 @@ impl Default for PopulationAgeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2104,7 +2104,7 @@ pub struct Population {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2147,7 +2147,7 @@ pub struct ProdCharacteristic {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2175,7 +2175,7 @@ pub struct ProductShelfLife {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2206,7 +2206,7 @@ pub struct Quantity {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2226,7 +2226,7 @@ pub struct Range {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2246,7 +2246,7 @@ pub struct Ratio {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2275,7 +2275,7 @@ pub struct Reference {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2312,7 +2312,7 @@ pub struct RelatedArtifact {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2348,7 +2348,7 @@ pub struct SampledData {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2383,7 +2383,7 @@ pub struct Signature {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2402,7 +2402,7 @@ impl Default for SubstanceAmountAmountTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2422,7 +2422,7 @@ pub struct SubstanceAmountReferenceRange {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2450,7 +2450,7 @@ pub struct SubstanceAmount {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2469,7 +2469,7 @@ impl Default for TimingRepeatBoundsTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2530,7 +2530,7 @@ pub struct TimingRepeat {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2555,7 +2555,7 @@ pub struct Timing {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2575,7 +2575,7 @@ impl Default for TriggerDefinitionTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2605,7 +2605,7 @@ pub struct TriggerDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2625,7 +2625,7 @@ impl Default for UsageContextValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2646,7 +2646,7 @@ pub struct UsageContext {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2669,7 +2669,7 @@ pub struct AccountCoverage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2694,7 +2694,7 @@ pub struct AccountGuarantor {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2751,7 +2751,7 @@ pub struct Account {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2769,7 +2769,7 @@ impl Default for ActivityDefinitionSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2791,7 +2791,7 @@ impl Default for ActivityDefinitionTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2815,7 +2815,7 @@ pub struct ActivityDefinitionParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -2833,7 +2833,7 @@ impl Default for ActivityDefinitionProductTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -2856,7 +2856,7 @@ pub struct ActivityDefinitionDynamicValue {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3004,7 +3004,7 @@ pub struct ActivityDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3031,7 +3031,7 @@ pub struct AdverseEventSuspectEntityCausality {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3053,7 +3053,7 @@ pub struct AdverseEventSuspectEntity {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3128,7 +3128,7 @@ pub struct AdverseEvent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -3149,7 +3149,7 @@ impl Default for AllergyIntoleranceOnsetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3184,7 +3184,7 @@ pub struct AllergyIntoleranceReaction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3254,7 +3254,7 @@ pub struct AllergyIntolerance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3285,7 +3285,7 @@ pub struct AppointmentParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3369,7 +3369,7 @@ pub struct Appointment {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3420,7 +3420,7 @@ pub struct AppointmentResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3445,7 +3445,7 @@ pub struct AuditEventAgentNetwork {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3490,7 +3490,7 @@ pub struct AuditEventAgent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3516,7 +3516,7 @@ pub struct AuditEventSource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -3534,7 +3534,7 @@ impl Default for AuditEventEntityDetailValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3559,7 +3559,7 @@ pub struct AuditEventEntityDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3599,7 +3599,7 @@ pub struct AuditEventEntity {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3656,7 +3656,7 @@ pub struct AuditEvent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3698,7 +3698,7 @@ pub struct Basic {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3728,7 +3728,7 @@ pub struct Binary {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -3748,7 +3748,7 @@ impl Default for BiologicallyDerivedProductCollectionCollectedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3773,7 +3773,7 @@ pub struct BiologicallyDerivedProductCollection {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -3791,7 +3791,7 @@ impl Default for BiologicallyDerivedProductProcessingTimeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3819,7 +3819,7 @@ pub struct BiologicallyDerivedProductProcessing {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -3837,7 +3837,7 @@ impl Default for BiologicallyDerivedProductManipulationTimeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3861,7 +3861,7 @@ pub struct BiologicallyDerivedProductManipulation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3890,7 +3890,7 @@ pub struct BiologicallyDerivedProductStorage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3946,7 +3946,7 @@ pub struct BiologicallyDerivedProduct {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -3995,7 +3995,7 @@ pub struct BodyStructure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4019,7 +4019,7 @@ pub struct BundleLink {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4043,7 +4043,7 @@ pub struct BundleEntrySearch {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4079,7 +4079,7 @@ pub struct BundleEntryRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4111,7 +4111,7 @@ pub struct BundleEntryResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4142,7 +4142,7 @@ pub struct BundleEntry {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4183,7 +4183,7 @@ pub struct Bundle {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4210,7 +4210,7 @@ pub struct CapabilityStatementSoftware {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4236,7 +4236,7 @@ pub struct CapabilityStatementImplementation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4262,7 +4262,7 @@ pub struct CapabilityStatementRestSecurity {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4286,7 +4286,7 @@ pub struct CapabilityStatementRestResourceInteraction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4317,7 +4317,7 @@ pub struct CapabilityStatementRestResourceSearchParam {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4344,7 +4344,7 @@ pub struct CapabilityStatementRestResourceOperation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4411,7 +4411,7 @@ pub struct CapabilityStatementRestResource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4435,7 +4435,7 @@ pub struct CapabilityStatementRestInteraction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4472,7 +4472,7 @@ pub struct CapabilityStatementRest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4495,7 +4495,7 @@ pub struct CapabilityStatementMessagingEndpoint {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4519,7 +4519,7 @@ pub struct CapabilityStatementMessagingSupportedMessage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4547,7 +4547,7 @@ pub struct CapabilityStatementMessaging {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4574,7 +4574,7 @@ pub struct CapabilityStatementDocument {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4674,7 +4674,7 @@ pub struct CapabilityStatement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -4693,7 +4693,7 @@ impl Default for CarePlanActivityDetailScheduledTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -4711,7 +4711,7 @@ impl Default for CarePlanActivityDetailProductTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4771,7 +4771,7 @@ pub struct CarePlanActivityDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4799,7 +4799,7 @@ pub struct CarePlanActivity {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4883,7 +4883,7 @@ pub struct CarePlan {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4909,7 +4909,7 @@ pub struct CareTeamParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4968,7 +4968,7 @@ pub struct CareTeam {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -4991,7 +4991,7 @@ pub struct CatalogEntryRelatedEntry {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5053,7 +5053,7 @@ pub struct CatalogEntry {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5072,7 +5072,7 @@ impl Default for ChargeItemOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5094,7 +5094,7 @@ pub struct ChargeItemPerformer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5112,7 +5112,7 @@ impl Default for ChargeItemProductTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5203,7 +5203,7 @@ pub struct ChargeItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5230,7 +5230,7 @@ pub struct ChargeItemDefinitionApplicability {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5259,7 +5259,7 @@ pub struct ChargeItemDefinitionPropertyGroupPriceComponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5281,7 +5281,7 @@ pub struct ChargeItemDefinitionPropertyGroup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5372,7 +5372,7 @@ pub struct ChargeItemDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5396,7 +5396,7 @@ pub struct ClaimRelated {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5419,7 +5419,7 @@ pub struct ClaimPayee {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5449,7 +5449,7 @@ pub struct ClaimCareTeam {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5467,7 +5467,7 @@ impl Default for ClaimSupportingInfoTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5488,7 +5488,7 @@ impl Default for ClaimSupportingInfoValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5521,7 +5521,7 @@ pub struct ClaimSupportingInfo {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5539,7 +5539,7 @@ impl Default for ClaimDiagnosisDiagnosisTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5570,7 +5570,7 @@ pub struct ClaimDiagnosis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5588,7 +5588,7 @@ impl Default for ClaimProcedureProcedureTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5620,7 +5620,7 @@ pub struct ClaimProcedure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5657,7 +5657,7 @@ pub struct ClaimInsurance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5675,7 +5675,7 @@ impl Default for ClaimAccidentLocationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5702,7 +5702,7 @@ pub struct ClaimAccident {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5720,7 +5720,7 @@ impl Default for ClaimItemServicedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -5739,7 +5739,7 @@ impl Default for ClaimItemLocationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5781,7 +5781,7 @@ pub struct ClaimItemDetailSubDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5825,7 +5825,7 @@ pub struct ClaimItemDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5893,7 +5893,7 @@ pub struct ClaimItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -5983,7 +5983,7 @@ pub struct Claim {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6010,7 +6010,7 @@ pub struct ClaimResponseItemAdjudication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6036,7 +6036,7 @@ pub struct ClaimResponseItemDetailSubDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6064,7 +6064,7 @@ pub struct ClaimResponseItemDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6092,7 +6092,7 @@ pub struct ClaimResponseItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -6110,7 +6110,7 @@ impl Default for ClaimResponseAddItemServicedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -6129,7 +6129,7 @@ impl Default for ClaimResponseAddItemLocationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6165,7 +6165,7 @@ pub struct ClaimResponseAddItemDetailSubDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6203,7 +6203,7 @@ pub struct ClaimResponseAddItemDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6264,7 +6264,7 @@ pub struct ClaimResponseAddItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6286,7 +6286,7 @@ pub struct ClaimResponseTotal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6319,7 +6319,7 @@ pub struct ClaimResponsePayment {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6349,7 +6349,7 @@ pub struct ClaimResponseProcessNote {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6380,7 +6380,7 @@ pub struct ClaimResponseInsurance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6409,7 +6409,7 @@ pub struct ClaimResponseError {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6502,7 +6502,7 @@ pub struct ClaimResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -6520,7 +6520,7 @@ impl Default for ClinicalImpressionEffectiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6542,7 +6542,7 @@ pub struct ClinicalImpressionInvestigation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6567,7 +6567,7 @@ pub struct ClinicalImpressionFinding {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6644,7 +6644,7 @@ pub struct ClinicalImpression {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6674,7 +6674,7 @@ pub struct CodeSystemFilter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6705,7 +6705,7 @@ pub struct CodeSystemProperty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6732,7 +6732,7 @@ pub struct CodeSystemConceptDesignation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -6755,7 +6755,7 @@ impl Default for CodeSystemConceptPropertyValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6779,7 +6779,7 @@ pub struct CodeSystemConceptProperty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6812,7 +6812,7 @@ pub struct CodeSystemConcept {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6914,7 +6914,7 @@ pub struct CodeSystem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -6933,7 +6933,7 @@ impl Default for CommunicationPayloadContentTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -6954,7 +6954,7 @@ pub struct CommunicationPayload {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7037,7 +7037,7 @@ pub struct Communication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7056,7 +7056,7 @@ impl Default for CommunicationRequestPayloadContentTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7077,7 +7077,7 @@ pub struct CommunicationRequestPayload {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7095,7 +7095,7 @@ impl Default for CommunicationRequestOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7175,7 +7175,7 @@ pub struct CommunicationRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7202,7 +7202,7 @@ pub struct CompartmentDefinitionResource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7271,7 +7271,7 @@ pub struct CompartmentDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7297,7 +7297,7 @@ pub struct CompositionAttester {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7315,7 +7315,7 @@ impl Default for CompositionRelatesToTargetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7339,7 +7339,7 @@ pub struct CompositionRelatesTo {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7363,7 +7363,7 @@ pub struct CompositionEvent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7403,7 +7403,7 @@ pub struct CompositionSection {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7469,7 +7469,7 @@ pub struct Composition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7487,7 +7487,7 @@ impl Default for ConceptMapSourceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7505,7 +7505,7 @@ impl Default for ConceptMapTargetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7535,7 +7535,7 @@ pub struct ConceptMapGroupElementTargetDependsOn {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7569,7 +7569,7 @@ pub struct ConceptMapGroupElementTarget {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7595,7 +7595,7 @@ pub struct ConceptMapGroupElement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7625,7 +7625,7 @@ pub struct ConceptMapGroupUnmapped {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7659,7 +7659,7 @@ pub struct ConceptMapGroup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7739,7 +7739,7 @@ pub struct ConceptMap {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7760,7 +7760,7 @@ impl Default for ConditionOnsetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7781,7 +7781,7 @@ impl Default for ConditionAbatementTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7806,7 +7806,7 @@ pub struct ConditionStage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7828,7 +7828,7 @@ pub struct ConditionEvidence {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7896,7 +7896,7 @@ pub struct Condition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -7914,7 +7914,7 @@ impl Default for ConsentSourceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7938,7 +7938,7 @@ pub struct ConsentPolicy {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7964,7 +7964,7 @@ pub struct ConsentVerification {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -7986,7 +7986,7 @@ pub struct ConsentProvisionActor {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8009,7 +8009,7 @@ pub struct ConsentProvisionData {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8051,7 +8051,7 @@ pub struct ConsentProvision {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8111,7 +8111,7 @@ pub struct Consent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8129,7 +8129,7 @@ impl Default for ContractTopicTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8163,7 +8163,7 @@ pub struct ContractContentDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8181,7 +8181,7 @@ impl Default for ContractTermTopicTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8208,7 +8208,7 @@ pub struct ContractTermSecurityLabel {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8230,7 +8230,7 @@ pub struct ContractTermOfferParty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8258,7 +8258,7 @@ impl Default for ContractTermOfferAnswerValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8279,7 +8279,7 @@ pub struct ContractTermOfferAnswer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8322,7 +8322,7 @@ pub struct ContractTermOffer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8347,7 +8347,7 @@ pub struct ContractTermAssetContext {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8365,7 +8365,7 @@ impl Default for ContractTermAssetValuedItemEntityTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8420,7 +8420,7 @@ pub struct ContractTermAssetValuedItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8473,7 +8473,7 @@ pub struct ContractTermAsset {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8495,7 +8495,7 @@ pub struct ContractTermActionSubject {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8514,7 +8514,7 @@ impl Default for ContractTermActionOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8584,7 +8584,7 @@ pub struct ContractTermAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8631,7 +8631,7 @@ pub struct ContractTerm {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8656,7 +8656,7 @@ pub struct ContractSigner {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8674,7 +8674,7 @@ impl Default for ContractFriendlyContentTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8695,7 +8695,7 @@ pub struct ContractFriendly {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8713,7 +8713,7 @@ impl Default for ContractLegalContentTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8734,7 +8734,7 @@ pub struct ContractLegal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8752,7 +8752,7 @@ impl Default for ContractRuleContentTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8773,7 +8773,7 @@ pub struct ContractRule {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8791,7 +8791,7 @@ impl Default for ContractLegallyBindingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8900,7 +8900,7 @@ pub struct Contract {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8927,7 +8927,7 @@ pub struct CoverageClass {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -8945,7 +8945,7 @@ impl Default for CoverageCostToBeneficiaryValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8968,7 +8968,7 @@ pub struct CoverageCostToBeneficiaryException {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -8994,7 +8994,7 @@ pub struct CoverageCostToBeneficiary {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9066,7 +9066,7 @@ pub struct Coverage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9084,7 +9084,7 @@ impl Default for CoverageEligibilityRequestServicedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9110,7 +9110,7 @@ pub struct CoverageEligibilityRequestSupportingInfo {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9136,7 +9136,7 @@ pub struct CoverageEligibilityRequestInsurance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9156,7 +9156,7 @@ impl Default for CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9177,7 +9177,7 @@ pub struct CoverageEligibilityRequestItemDiagnosis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9216,7 +9216,7 @@ pub struct CoverageEligibilityRequestItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9279,7 +9279,7 @@ pub struct CoverageEligibilityRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9297,7 +9297,7 @@ impl Default for CoverageEligibilityResponseServicedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9318,7 +9318,7 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoic
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9339,7 +9339,7 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9366,7 +9366,7 @@ pub struct CoverageEligibilityResponseInsuranceItemBenefit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9417,7 +9417,7 @@ pub struct CoverageEligibilityResponseInsuranceItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9444,7 +9444,7 @@ pub struct CoverageEligibilityResponseInsurance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9464,7 +9464,7 @@ pub struct CoverageEligibilityResponseError {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9532,7 +9532,7 @@ pub struct CoverageEligibilityResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9550,7 +9550,7 @@ impl Default for DetectedIssueIdentifiedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9572,14 +9572,14 @@ pub struct DetectedIssueEvidence {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
 )]
 #[fhir_serialize_type = "complex"]
-#[doc = "Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also oxidized_reflect an observation of known mitigating factors that may reduce/eliminate the need for any action."]
+#[doc = "Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also reflect an observation of known mitigating factors that may reduce/eliminate the need for any action."]
 pub struct DetectedIssueMitigation {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
@@ -9597,7 +9597,7 @@ pub struct DetectedIssueMitigation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9652,12 +9652,12 @@ pub struct DetectedIssue {
     #[primitive]
     #[doc = "The literature, knowledge-base or similar reference that describes the propensity for the detected issue identified."]
     pub reference: Option<Box<FHIRUri>>,
-    #[doc = "Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also oxidized_reflect an observation of known mitigating factors that may reduce/eliminate the need for any action."]
+    #[doc = "Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also reflect an observation of known mitigating factors that may reduce/eliminate the need for any action."]
     pub mitigation: Option<Vec<DetectedIssueMitigation>>,
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9693,7 +9693,7 @@ pub struct DeviceUdiCarrier {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9718,7 +9718,7 @@ pub struct DeviceDeviceName {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9741,7 +9741,7 @@ pub struct DeviceSpecialization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9767,7 +9767,7 @@ pub struct DeviceVersion {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9792,7 +9792,7 @@ pub struct DeviceProperty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9886,7 +9886,7 @@ pub struct Device {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9913,7 +9913,7 @@ pub struct DeviceDefinitionUdiDeviceIdentifier {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -9931,7 +9931,7 @@ impl Default for DeviceDefinitionManufacturerTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9956,7 +9956,7 @@ pub struct DeviceDefinitionDeviceName {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -9980,7 +9980,7 @@ pub struct DeviceDefinitionSpecialization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10003,7 +10003,7 @@ pub struct DeviceDefinitionCapability {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10028,7 +10028,7 @@ pub struct DeviceDefinitionProperty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10054,7 +10054,7 @@ pub struct DeviceDefinitionMaterial {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10135,7 +10135,7 @@ pub struct DeviceDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10163,7 +10163,7 @@ pub struct DeviceMetricCalibration {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10218,7 +10218,7 @@ pub struct DeviceMetric {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -10236,7 +10236,7 @@ impl Default for DeviceRequestCodeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -10256,7 +10256,7 @@ impl Default for DeviceRequestParameterValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10279,7 +10279,7 @@ pub struct DeviceRequestParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -10298,7 +10298,7 @@ impl Default for DeviceRequestOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10385,7 +10385,7 @@ pub struct DeviceRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -10404,7 +10404,7 @@ impl Default for DeviceUseStatementTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10464,7 +10464,7 @@ pub struct DeviceUseStatement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -10482,7 +10482,7 @@ impl Default for DiagnosticReportEffectiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10505,7 +10505,7 @@ pub struct DiagnosticReportMedia {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10576,7 +10576,7 @@ pub struct DiagnosticReport {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10600,7 +10600,7 @@ pub struct DocumentManifestRelated {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10660,7 +10660,7 @@ pub struct DocumentManifest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10683,7 +10683,7 @@ pub struct DocumentReferenceRelatesTo {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10705,7 +10705,7 @@ pub struct DocumentReferenceContent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10728,7 +10728,7 @@ pub struct DocumentReferenceContext {
     pub period: Option<Box<Period>>,
     #[doc = "The kind of facility where the patient was seen."]
     pub facilityType: Option<Box<CodeableConcept>>,
-    #[doc = "This property may convey specifics about the practice setting where the content was created, often oxidized_reflecting the clinical specialty."]
+    #[doc = "This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty."]
     pub practiceSetting: Option<Box<CodeableConcept>>,
     #[doc = "The Patient Information as known when the document was published. May be a reference to a version specific, or contained."]
     pub sourcePatientInfo: Option<Box<Reference>>,
@@ -10737,7 +10737,7 @@ pub struct DocumentReferenceContext {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10805,7 +10805,7 @@ pub struct DocumentReference {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10832,7 +10832,7 @@ pub struct EffectEvidenceSynthesisSampleSize {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10860,7 +10860,7 @@ pub struct EffectEvidenceSynthesisResultsByExposure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10890,7 +10890,7 @@ pub struct EffectEvidenceSynthesisEffectEstimatePrecisionEstimate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10923,7 +10923,7 @@ pub struct EffectEvidenceSynthesisEffectEstimate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10948,7 +10948,7 @@ pub struct EffectEvidenceSynthesisCertaintyCertaintySubcomponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -10972,7 +10972,7 @@ pub struct EffectEvidenceSynthesisCertainty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11080,7 +11080,7 @@ pub struct EffectEvidenceSynthesis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11103,7 +11103,7 @@ pub struct EncounterStatusHistory {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11125,7 +11125,7 @@ pub struct EncounterClassHistory {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11150,7 +11150,7 @@ pub struct EncounterParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11176,7 +11176,7 @@ pub struct EncounterDiagnosis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11212,7 +11212,7 @@ pub struct EncounterHospitalization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11239,7 +11239,7 @@ pub struct EncounterLocation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11318,7 +11318,7 @@ pub struct Encounter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11376,7 +11376,7 @@ pub struct Endpoint {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11423,7 +11423,7 @@ pub struct EnrollmentRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11474,7 +11474,7 @@ pub struct EnrollmentResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11497,7 +11497,7 @@ pub struct EpisodeOfCareStatusHistory {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11522,7 +11522,7 @@ pub struct EpisodeOfCareDiagnosis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11579,7 +11579,7 @@ pub struct EpisodeOfCare {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -11597,7 +11597,7 @@ impl Default for EventDefinitionSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11700,7 +11700,7 @@ pub struct EventDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11800,7 +11800,7 @@ pub struct Evidence {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -11822,7 +11822,7 @@ impl Default for EvidenceVariableCharacteristicDefinitionTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -11844,7 +11844,7 @@ impl Default for EvidenceVariableCharacteristicParticipantEffectiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11881,7 +11881,7 @@ pub struct EvidenceVariableCharacteristic {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -11981,7 +11981,7 @@ pub struct EvidenceVariable {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12012,7 +12012,7 @@ pub struct ExampleScenarioActor {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12036,7 +12036,7 @@ pub struct ExampleScenarioInstanceVersion {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12060,7 +12060,7 @@ pub struct ExampleScenarioInstanceContainedInstance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12094,7 +12094,7 @@ pub struct ExampleScenarioInstance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12141,7 +12141,7 @@ pub struct ExampleScenarioProcessStepOperation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12167,7 +12167,7 @@ pub struct ExampleScenarioProcessStepAlternative {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12194,7 +12194,7 @@ pub struct ExampleScenarioProcessStep {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12226,7 +12226,7 @@ pub struct ExampleScenarioProcess {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12301,7 +12301,7 @@ pub struct ExampleScenario {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12325,7 +12325,7 @@ pub struct ExplanationOfBenefitRelated {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12348,7 +12348,7 @@ pub struct ExplanationOfBenefitPayee {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12378,7 +12378,7 @@ pub struct ExplanationOfBenefitCareTeam {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12396,7 +12396,7 @@ impl Default for ExplanationOfBenefitSupportingInfoTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12417,7 +12417,7 @@ impl Default for ExplanationOfBenefitSupportingInfoValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12450,7 +12450,7 @@ pub struct ExplanationOfBenefitSupportingInfo {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12470,7 +12470,7 @@ impl Default for ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12501,7 +12501,7 @@ pub struct ExplanationOfBenefitDiagnosis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12521,7 +12521,7 @@ impl Default for ExplanationOfBenefitProcedureProcedureTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12553,7 +12553,7 @@ pub struct ExplanationOfBenefitProcedure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12579,7 +12579,7 @@ pub struct ExplanationOfBenefitInsurance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12597,7 +12597,7 @@ impl Default for ExplanationOfBenefitAccidentLocationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12624,7 +12624,7 @@ pub struct ExplanationOfBenefitAccident {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12642,7 +12642,7 @@ impl Default for ExplanationOfBenefitItemServicedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12661,7 +12661,7 @@ impl Default for ExplanationOfBenefitItemLocationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12688,7 +12688,7 @@ pub struct ExplanationOfBenefitItemAdjudication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12735,7 +12735,7 @@ pub struct ExplanationOfBenefitItemDetailSubDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12784,7 +12784,7 @@ pub struct ExplanationOfBenefitItemDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12857,7 +12857,7 @@ pub struct ExplanationOfBenefitItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12875,7 +12875,7 @@ impl Default for ExplanationOfBenefitAddItemServicedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -12894,7 +12894,7 @@ impl Default for ExplanationOfBenefitAddItemLocationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12930,7 +12930,7 @@ pub struct ExplanationOfBenefitAddItemDetailSubDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -12968,7 +12968,7 @@ pub struct ExplanationOfBenefitAddItemDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13029,7 +13029,7 @@ pub struct ExplanationOfBenefitAddItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13051,7 +13051,7 @@ pub struct ExplanationOfBenefitTotal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13084,7 +13084,7 @@ pub struct ExplanationOfBenefitPayment {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13114,7 +13114,7 @@ pub struct ExplanationOfBenefitProcessNote {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13135,7 +13135,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13155,7 +13155,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13182,7 +13182,7 @@ pub struct ExplanationOfBenefitBenefitBalanceFinancial {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13219,7 +13219,7 @@ pub struct ExplanationOfBenefitBenefitBalance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13345,7 +13345,7 @@ pub struct ExplanationOfBenefit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13364,7 +13364,7 @@ impl Default for FamilyMemberHistoryBornTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13383,7 +13383,7 @@ impl Default for FamilyMemberHistoryAgeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13404,7 +13404,7 @@ impl Default for FamilyMemberHistoryDeceasedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13424,7 +13424,7 @@ impl Default for FamilyMemberHistoryConditionOnsetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13454,7 +13454,7 @@ pub struct FamilyMemberHistoryCondition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13530,7 +13530,7 @@ pub struct FamilyMemberHistory {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13578,7 +13578,7 @@ pub struct Flag {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13596,7 +13596,7 @@ impl Default for GoalStartTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13619,7 +13619,7 @@ impl Default for GoalTargetDetailTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13637,7 +13637,7 @@ impl Default for GoalTargetDueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13663,7 +13663,7 @@ pub struct GoalTarget {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13730,7 +13730,7 @@ pub struct Goal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13764,7 +13764,7 @@ pub struct GraphDefinitionLinkTargetCompartment {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13796,7 +13796,7 @@ pub struct GraphDefinitionLinkTarget {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13831,7 +13831,7 @@ pub struct GraphDefinitionLink {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13902,7 +13902,7 @@ pub struct GraphDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -13923,7 +13923,7 @@ impl Default for GroupCharacteristicValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13951,7 +13951,7 @@ pub struct GroupCharacteristic {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -13976,7 +13976,7 @@ pub struct GroupMember {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14033,7 +14033,7 @@ pub struct Group {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14052,7 +14052,7 @@ impl Default for GuidanceResponseModuleTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14116,7 +14116,7 @@ pub struct GuidanceResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14139,7 +14139,7 @@ pub struct HealthcareServiceEligibility {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14169,7 +14169,7 @@ pub struct HealthcareServiceAvailableTime {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14192,7 +14192,7 @@ pub struct HealthcareServiceNotAvailable {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14278,7 +14278,7 @@ pub struct HealthcareService {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14300,7 +14300,7 @@ pub struct ImagingStudySeriesPerformer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14329,7 +14329,7 @@ pub struct ImagingStudySeriesInstance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14376,7 +14376,7 @@ pub struct ImagingStudySeries {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14452,7 +14452,7 @@ pub struct ImagingStudy {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14470,7 +14470,7 @@ impl Default for ImmunizationOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14492,7 +14492,7 @@ pub struct ImmunizationPerformer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14522,7 +14522,7 @@ pub struct ImmunizationEducation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14548,7 +14548,7 @@ pub struct ImmunizationReaction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14566,7 +14566,7 @@ impl Default for ImmunizationProtocolAppliedDoseNumberTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14584,7 +14584,7 @@ impl Default for ImmunizationProtocolAppliedSeriesDosesTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14615,7 +14615,7 @@ pub struct ImmunizationProtocolApplied {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14663,7 +14663,7 @@ pub struct Immunization {
     #[doc = "The date the occurrence of the immunization was first captured in the record - potentially significantly after the occurrence of the event."]
     pub recorded: Option<Box<FHIRDateTime>>,
     #[primitive]
-    #[doc = "An indication that the content of the record is based on information from the person who administered the vaccine. This oxidized_reflects the context under which the data was originally recorded."]
+    #[doc = "An indication that the content of the record is based on information from the person who administered the vaccine. This reflects the context under which the data was originally recorded."]
     pub primarySource: Option<Box<FHIRBoolean>>,
     #[doc = "The source of the data when the report of the immunization event is not based on information from the person who administered the vaccine."]
     pub reportOrigin: Option<Box<CodeableConcept>>,
@@ -14709,7 +14709,7 @@ pub struct Immunization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14727,7 +14727,7 @@ impl Default for ImmunizationEvaluationDoseNumberTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14745,7 +14745,7 @@ impl Default for ImmunizationEvaluationSeriesDosesTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14808,7 +14808,7 @@ pub struct ImmunizationEvaluation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14831,7 +14831,7 @@ pub struct ImmunizationRecommendationRecommendationDateCriterion {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14851,7 +14851,7 @@ impl Default for ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -14871,7 +14871,7 @@ impl Default for ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14917,7 +14917,7 @@ pub struct ImmunizationRecommendationRecommendation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14959,7 +14959,7 @@ pub struct ImmunizationRecommendation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -14986,7 +14986,7 @@ pub struct ImplementationGuideDependsOn {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15011,7 +15011,7 @@ pub struct ImplementationGuideGlobal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15035,7 +15035,7 @@ pub struct ImplementationGuideDefinitionGrouping {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -15055,7 +15055,7 @@ impl Default for ImplementationGuideDefinitionResourceExampleTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15090,7 +15090,7 @@ pub struct ImplementationGuideDefinitionResource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -15108,7 +15108,7 @@ impl Default for ImplementationGuideDefinitionPageNameTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15137,7 +15137,7 @@ pub struct ImplementationGuideDefinitionPage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15161,7 +15161,7 @@ pub struct ImplementationGuideDefinitionParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15188,7 +15188,7 @@ pub struct ImplementationGuideDefinitionTemplate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15216,7 +15216,7 @@ pub struct ImplementationGuideDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -15234,7 +15234,7 @@ impl Default for ImplementationGuideManifestResourceExampleTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15260,7 +15260,7 @@ pub struct ImplementationGuideManifestResource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15287,7 +15287,7 @@ pub struct ImplementationGuideManifestPage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15318,7 +15318,7 @@ pub struct ImplementationGuideManifest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15401,7 +15401,7 @@ pub struct ImplementationGuide {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15427,7 +15427,7 @@ pub struct InsurancePlanContact {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15449,7 +15449,7 @@ pub struct InsurancePlanCoverageBenefitLimit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15475,7 +15475,7 @@ pub struct InsurancePlanCoverageBenefit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15500,7 +15500,7 @@ pub struct InsurancePlanCoverage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15529,7 +15529,7 @@ pub struct InsurancePlanPlanGeneralCost {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15556,7 +15556,7 @@ pub struct InsurancePlanPlanSpecificCostBenefitCost {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15579,7 +15579,7 @@ pub struct InsurancePlanPlanSpecificCostBenefit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15601,7 +15601,7 @@ pub struct InsurancePlanPlanSpecificCost {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15633,7 +15633,7 @@ pub struct InsurancePlanPlan {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15696,7 +15696,7 @@ pub struct InsurancePlan {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15718,7 +15718,7 @@ pub struct InvoiceParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -15736,7 +15736,7 @@ impl Default for InvoiceLineItemChargeItemTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15765,7 +15765,7 @@ pub struct InvoiceLineItemPriceComponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15791,7 +15791,7 @@ pub struct InvoiceLineItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15859,7 +15859,7 @@ pub struct Invoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -15877,7 +15877,7 @@ impl Default for LibrarySubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -15987,7 +15987,7 @@ pub struct Library {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16011,7 +16011,7 @@ pub struct LinkageItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16048,7 +16048,7 @@ pub struct Linkage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16076,7 +16076,7 @@ pub struct ListEntry {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16137,7 +16137,7 @@ pub struct List {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16164,7 +16164,7 @@ pub struct LocationPosition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16194,7 +16194,7 @@ pub struct LocationHoursOfOperation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16266,7 +16266,7 @@ pub struct Location {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -16284,7 +16284,7 @@ impl Default for MeasureSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16309,7 +16309,7 @@ pub struct MeasureGroupPopulation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16334,7 +16334,7 @@ pub struct MeasureGroupStratifierComponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16361,7 +16361,7 @@ pub struct MeasureGroupStratifier {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16388,7 +16388,7 @@ pub struct MeasureGroup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16415,7 +16415,7 @@ pub struct MeasureSupplementalData {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16553,7 +16553,7 @@ pub struct Measure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16578,7 +16578,7 @@ pub struct MeasureReportGroupPopulation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16600,7 +16600,7 @@ pub struct MeasureReportGroupStratifierStratumComponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16625,7 +16625,7 @@ pub struct MeasureReportGroupStratifierStratumPopulation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16651,7 +16651,7 @@ pub struct MeasureReportGroupStratifierStratum {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16673,7 +16673,7 @@ pub struct MeasureReportGroupStratifier {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16699,7 +16699,7 @@ pub struct MeasureReportGroup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16757,7 +16757,7 @@ pub struct MeasureReport {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -16775,7 +16775,7 @@ impl Default for MediaCreatedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16859,7 +16859,7 @@ pub struct Media {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -16877,7 +16877,7 @@ impl Default for MedicationIngredientItemTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16903,7 +16903,7 @@ pub struct MedicationIngredient {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16927,7 +16927,7 @@ pub struct MedicationBatch {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -16975,7 +16975,7 @@ pub struct Medication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -16993,7 +16993,7 @@ impl Default for MedicationAdministrationMedicationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17011,7 +17011,7 @@ impl Default for MedicationAdministrationEffectiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17033,7 +17033,7 @@ pub struct MedicationAdministrationPerformer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17051,7 +17051,7 @@ impl Default for MedicationAdministrationDosageRateTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17067,7 +17067,7 @@ pub struct MedicationAdministrationDosage {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
-    #[doc = "Free text dosage can be used for cases where the dosage administered is too complex to code. When coded dosage is present, the free text dosage may still be present for display to humans.\r\rThe dosage instructions should oxidized_reflect the dosage of the medication that was administered."]
+    #[doc = "Free text dosage can be used for cases where the dosage administered is too complex to code. When coded dosage is present, the free text dosage may still be present for display to humans.\r\rThe dosage instructions should reflect the dosage of the medication that was administered."]
     pub text: Option<Box<FHIRString>>,
     #[doc = "A coded specification of the anatomic site where the medication first entered the body.  For example, \"left arm\"."]
     pub site: Option<Box<CodeableConcept>>,
@@ -17083,7 +17083,7 @@ pub struct MedicationAdministrationDosage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17156,7 +17156,7 @@ pub struct MedicationAdministration {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17174,7 +17174,7 @@ impl Default for MedicationDispenseStatusReasonTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17192,7 +17192,7 @@ impl Default for MedicationDispenseMedicationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17214,7 +17214,7 @@ pub struct MedicationDispensePerformer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17242,7 +17242,7 @@ pub struct MedicationDispenseSubstitution {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17327,7 +17327,7 @@ pub struct MedicationDispense {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17350,7 +17350,7 @@ pub struct MedicationKnowledgeRelatedMedicationKnowledge {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17373,7 +17373,7 @@ pub struct MedicationKnowledgeMonograph {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17391,7 +17391,7 @@ impl Default for MedicationKnowledgeIngredientItemTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17417,7 +17417,7 @@ pub struct MedicationKnowledgeIngredient {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17443,7 +17443,7 @@ pub struct MedicationKnowledgeCost {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17467,7 +17467,7 @@ pub struct MedicationKnowledgeMonitoringProgram {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17490,7 +17490,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesDosage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17510,7 +17510,7 @@ impl Default for MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17530,7 +17530,7 @@ impl Default
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17555,7 +17555,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesPatientCharacteristics {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17581,7 +17581,7 @@ pub struct MedicationKnowledgeAdministrationGuidelines {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17604,7 +17604,7 @@ pub struct MedicationKnowledgeMedicineClassification {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17627,7 +17627,7 @@ pub struct MedicationKnowledgePackaging {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17649,7 +17649,7 @@ impl Default for MedicationKnowledgeDrugCharacteristicValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17673,7 +17673,7 @@ pub struct MedicationKnowledgeDrugCharacteristic {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17697,7 +17697,7 @@ pub struct MedicationKnowledgeRegulatorySubstitution {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17717,7 +17717,7 @@ pub struct MedicationKnowledgeRegulatorySchedule {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17739,7 +17739,7 @@ pub struct MedicationKnowledgeRegulatoryMaxDispense {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17765,7 +17765,7 @@ pub struct MedicationKnowledgeRegulatory {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17789,7 +17789,7 @@ pub struct MedicationKnowledgeKinetics {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17866,7 +17866,7 @@ pub struct MedicationKnowledge {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17884,7 +17884,7 @@ impl Default for MedicationRequestReportedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17902,7 +17902,7 @@ impl Default for MedicationRequestMedicationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17924,7 +17924,7 @@ pub struct MedicationRequestDispenseRequestInitialFill {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17957,7 +17957,7 @@ pub struct MedicationRequestDispenseRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -17975,7 +17975,7 @@ impl Default for MedicationRequestSubstitutionAllowedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -17998,7 +17998,7 @@ pub struct MedicationRequestSubstitution {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18102,7 +18102,7 @@ pub struct MedicationRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18120,7 +18120,7 @@ impl Default for MedicationStatementMedicationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18138,7 +18138,7 @@ impl Default for MedicationStatementEffectiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18207,7 +18207,7 @@ pub struct MedicationStatement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18231,7 +18231,7 @@ pub struct MedicinalProductNameNamePart {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18255,7 +18255,7 @@ pub struct MedicinalProductNameCountryLanguage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18280,7 +18280,7 @@ pub struct MedicinalProductName {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18311,7 +18311,7 @@ pub struct MedicinalProductManufacturingBusinessOperation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18331,7 +18331,7 @@ impl Default for MedicinalProductSpecialDesignationIndicationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18367,7 +18367,7 @@ pub struct MedicinalProductSpecialDesignation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18440,7 +18440,7 @@ pub struct MedicinalProduct {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18469,7 +18469,7 @@ pub struct MedicinalProductAuthorizationJurisdictionalAuthorization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18487,7 +18487,7 @@ impl Default for MedicinalProductAuthorizationProcedureDateTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18516,7 +18516,7 @@ pub struct MedicinalProductAuthorizationProcedure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18584,7 +18584,7 @@ pub struct MedicinalProductAuthorization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18604,7 +18604,7 @@ impl Default for MedicinalProductContraindicationOtherTherapyMedicationTypeChoic
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18627,7 +18627,7 @@ pub struct MedicinalProductContraindicationOtherTherapy {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18671,7 +18671,7 @@ pub struct MedicinalProductContraindication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18691,7 +18691,7 @@ impl Default for MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18714,7 +18714,7 @@ pub struct MedicinalProductIndicationOtherTherapy {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18762,7 +18762,7 @@ pub struct MedicinalProductIndication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18791,7 +18791,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstanceStrengthReferenceStrength
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18825,7 +18825,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstanceStrength {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18851,7 +18851,7 @@ pub struct MedicinalProductIngredientSpecifiedSubstance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18873,7 +18873,7 @@ pub struct MedicinalProductIngredientSubstance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18917,7 +18917,7 @@ pub struct MedicinalProductIngredient {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -18937,7 +18937,7 @@ impl Default for MedicinalProductInteractionInteractantItemTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -18958,7 +18958,7 @@ pub struct MedicinalProductInteractionInteractant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19004,7 +19004,7 @@ pub struct MedicinalProductInteraction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19048,7 +19048,7 @@ pub struct MedicinalProductManufactured {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19070,7 +19070,7 @@ pub struct MedicinalProductPackagedBatchIdentifier {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19114,7 +19114,7 @@ pub struct MedicinalProductPackagedPackageItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19164,7 +19164,7 @@ pub struct MedicinalProductPackaged {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19186,7 +19186,7 @@ pub struct MedicinalProductPharmaceuticalCharacteristics {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19211,7 +19211,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithd
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19235,7 +19235,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpecies {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19268,7 +19268,7 @@ pub struct MedicinalProductPharmaceuticalRouteOfAdministration {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19313,7 +19313,7 @@ pub struct MedicinalProductPharmaceutical {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19353,7 +19353,7 @@ pub struct MedicinalProductUndesirableEffect {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -19371,7 +19371,7 @@ impl Default for MessageDefinitionEventTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19390,7 +19390,7 @@ pub struct MessageDefinitionFocus {
     #[doc = "The kind of resource that must be the focus for this message."]
     pub code: Box<FHIRCode>,
     #[primitive]
-    #[doc = "A profile that oxidized_reflects constraints for the focal resource (and potentially for related resources)."]
+    #[doc = "A profile that reflects constraints for the focal resource (and potentially for related resources)."]
     pub profile: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Identifies the minimum number of resources of this type that must be pointed to by a message in order for it to be valid against this MessageDefinition."]
@@ -19401,7 +19401,7 @@ pub struct MessageDefinitionFocus {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19425,7 +19425,7 @@ pub struct MessageDefinitionAllowedResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19522,7 +19522,7 @@ pub struct MessageDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -19540,7 +19540,7 @@ impl Default for MessageHeaderEventTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19568,7 +19568,7 @@ pub struct MessageHeaderDestination {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19600,7 +19600,7 @@ pub struct MessageHeaderSource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19627,7 +19627,7 @@ pub struct MessageHeaderResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19681,7 +19681,7 @@ pub struct MessageHeader {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19723,7 +19723,7 @@ pub struct MolecularSequenceReferenceSeq {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19758,7 +19758,7 @@ pub struct MolecularSequenceVariant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19797,7 +19797,7 @@ pub struct MolecularSequenceQualityRoc {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19857,7 +19857,7 @@ pub struct MolecularSequenceQuality {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19894,7 +19894,7 @@ pub struct MolecularSequenceRepository {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19918,7 +19918,7 @@ pub struct MolecularSequenceStructureVariantOuter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19942,7 +19942,7 @@ pub struct MolecularSequenceStructureVariantInner {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -19972,7 +19972,7 @@ pub struct MolecularSequenceStructureVariant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20040,7 +20040,7 @@ pub struct MolecularSequence {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20073,7 +20073,7 @@ pub struct NamingSystemUniqueId {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20138,7 +20138,7 @@ pub struct NamingSystem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20160,7 +20160,7 @@ pub struct NutritionOrderOralDietNutrient {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20182,7 +20182,7 @@ pub struct NutritionOrderOralDietTexture {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20214,7 +20214,7 @@ pub struct NutritionOrderOralDiet {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20245,7 +20245,7 @@ pub struct NutritionOrderSupplement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -20265,7 +20265,7 @@ impl Default for NutritionOrderEnteralFormulaAdministrationRateTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20290,7 +20290,7 @@ pub struct NutritionOrderEnteralFormulaAdministration {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20329,7 +20329,7 @@ pub struct NutritionOrderEnteralFormula {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20400,7 +20400,7 @@ pub struct NutritionOrder {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -20420,7 +20420,7 @@ impl Default for ObservationEffectiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -20447,7 +20447,7 @@ impl Default for ObservationValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20479,7 +20479,7 @@ pub struct ObservationReferenceRange {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -20506,7 +20506,7 @@ impl Default for ObservationComponentValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20535,7 +20535,7 @@ pub struct ObservationComponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20618,7 +20618,7 @@ pub struct Observation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20646,7 +20646,7 @@ pub struct ObservationDefinitionQuantitativeDetails {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20683,7 +20683,7 @@ pub struct ObservationDefinitionQualifiedInterval {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20743,7 +20743,7 @@ pub struct ObservationDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20767,7 +20767,7 @@ pub struct OperationDefinitionParameterBinding {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20791,7 +20791,7 @@ pub struct OperationDefinitionParameterReferencedFrom {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20841,7 +20841,7 @@ pub struct OperationDefinitionParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20865,7 +20865,7 @@ pub struct OperationDefinitionOverload {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -20969,7 +20969,7 @@ pub struct OperationDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21004,7 +21004,7 @@ pub struct OperationOutcomeIssue {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21036,7 +21036,7 @@ pub struct OperationOutcome {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21062,7 +21062,7 @@ pub struct OrganizationContact {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21117,7 +21117,7 @@ pub struct Organization {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21173,7 +21173,7 @@ pub struct OrganizationAffiliation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21239,7 +21239,7 @@ impl Default for ParametersParameterValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21267,7 +21267,7 @@ pub struct ParametersParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21291,7 +21291,7 @@ pub struct Parameters {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21309,7 +21309,7 @@ impl Default for PatientDeceasedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21327,7 +21327,7 @@ impl Default for PatientMultipleBirthTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21360,7 +21360,7 @@ pub struct PatientContact {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21383,7 +21383,7 @@ pub struct PatientCommunication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21407,7 +21407,7 @@ pub struct PatientLink {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21475,7 +21475,7 @@ pub struct Patient {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21533,7 +21533,7 @@ pub struct PaymentNotice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21574,7 +21574,7 @@ pub struct PaymentReconciliationDetail {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21599,7 +21599,7 @@ pub struct PaymentReconciliationProcessNote {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21665,7 +21665,7 @@ pub struct PaymentReconciliation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21688,7 +21688,7 @@ pub struct PersonLink {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21742,7 +21742,7 @@ pub struct Person {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21760,7 +21760,7 @@ impl Default for PlanDefinitionSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21779,7 +21779,7 @@ impl Default for PlanDefinitionGoalTargetDetailTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21804,7 +21804,7 @@ pub struct PlanDefinitionGoalTarget {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21836,7 +21836,7 @@ pub struct PlanDefinitionGoal {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21854,7 +21854,7 @@ impl Default for PlanDefinitionActionSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21877,7 +21877,7 @@ pub struct PlanDefinitionActionCondition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21895,7 +21895,7 @@ impl Default for PlanDefinitionActionRelatedActionOffsetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21922,7 +21922,7 @@ pub struct PlanDefinitionActionRelatedAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21944,7 +21944,7 @@ impl Default for PlanDefinitionActionTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -21968,7 +21968,7 @@ pub struct PlanDefinitionActionParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -21986,7 +21986,7 @@ impl Default for PlanDefinitionActionDefinitionTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22009,7 +22009,7 @@ pub struct PlanDefinitionActionDynamicValue {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22097,7 +22097,7 @@ pub struct PlanDefinitionAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22208,7 +22208,7 @@ pub struct PlanDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22235,7 +22235,7 @@ pub struct PractitionerQualification {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22289,7 +22289,7 @@ pub struct Practitioner {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22319,7 +22319,7 @@ pub struct PractitionerRoleAvailableTime {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22342,7 +22342,7 @@ pub struct PractitionerRoleNotAvailable {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22403,7 +22403,7 @@ pub struct PractitionerRole {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -22424,7 +22424,7 @@ impl Default for ProcedurePerformedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22448,7 +22448,7 @@ pub struct ProcedurePerformer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22470,7 +22470,7 @@ pub struct ProcedureFocalDevice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22561,7 +22561,7 @@ pub struct Procedure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -22579,7 +22579,7 @@ impl Default for ProvenanceOccurredTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22606,7 +22606,7 @@ pub struct ProvenanceAgent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22631,7 +22631,7 @@ pub struct ProvenanceEntity {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22684,7 +22684,7 @@ pub struct Provenance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -22710,7 +22710,7 @@ impl Default for QuestionnaireItemEnableWhenAnswerTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22737,7 +22737,7 @@ pub struct QuestionnaireItemEnableWhen {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -22759,7 +22759,7 @@ impl Default for QuestionnaireItemAnswerOptionValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22783,7 +22783,7 @@ pub struct QuestionnaireItemAnswerOption {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -22811,7 +22811,7 @@ impl Default for QuestionnaireItemInitialValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22832,7 +22832,7 @@ pub struct QuestionnaireItemInitial {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22894,7 +22894,7 @@ pub struct QuestionnaireItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -22984,7 +22984,7 @@ pub struct Questionnaire {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23012,7 +23012,7 @@ impl Default for QuestionnaireResponseItemAnswerValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23035,7 +23035,7 @@ pub struct QuestionnaireResponseItemAnswer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23066,7 +23066,7 @@ pub struct QuestionnaireResponseItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23122,7 +23122,7 @@ pub struct QuestionnaireResponse {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23145,7 +23145,7 @@ pub struct RelatedPersonCommunication {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23203,7 +23203,7 @@ pub struct RelatedPerson {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23226,7 +23226,7 @@ pub struct RequestGroupActionCondition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23244,7 +23244,7 @@ impl Default for RequestGroupActionRelatedActionOffsetTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23271,7 +23271,7 @@ pub struct RequestGroupActionRelatedAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23293,7 +23293,7 @@ impl Default for RequestGroupActionTimingTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23361,7 +23361,7 @@ pub struct RequestGroupAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23404,7 +23404,7 @@ pub struct RequestGroup {
     #[doc = "A shared identifier common to all requests that were authorized more or less simultaneously by a single author, representing the identifier of the requisition, prescription or similar form."]
     pub groupIdentifier: Option<Box<Identifier>>,
     #[primitive]
-    #[doc = "The current state of the request. For request groups, the status oxidized_reflects the status of all the requests in the group."]
+    #[doc = "The current state of the request. For request groups, the status reflects the status of all the requests in the group."]
     pub status: Box<FHIRCode>,
     #[primitive]
     #[doc = "Indicates the level of authority/intentionality associated with the request and where the request fits into the workflow chain."]
@@ -23434,7 +23434,7 @@ pub struct RequestGroup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23452,7 +23452,7 @@ impl Default for ResearchDefinitionSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23570,7 +23570,7 @@ pub struct ResearchDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23588,7 +23588,7 @@ impl Default for ResearchElementDefinitionSubjectTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23610,7 +23610,7 @@ impl Default for ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23632,7 +23632,7 @@ impl Default for ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -23654,7 +23654,7 @@ impl Default for ResearchElementDefinitionCharacteristicParticipantEffectiveType
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23705,7 +23705,7 @@ pub struct ResearchElementDefinitionCharacteristic {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23824,7 +23824,7 @@ pub struct ResearchElementDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23851,7 +23851,7 @@ pub struct ResearchStudyArm {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23875,7 +23875,7 @@ pub struct ResearchStudyObjective {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -23957,7 +23957,7 @@ pub struct ResearchStudy {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24007,7 +24007,7 @@ pub struct ResearchSubject {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24025,7 +24025,7 @@ impl Default for RiskAssessmentOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24043,7 +24043,7 @@ impl Default for RiskAssessmentPredictionProbabilityTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24061,7 +24061,7 @@ impl Default for RiskAssessmentPredictionWhenTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24095,7 +24095,7 @@ pub struct RiskAssessmentPrediction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24163,7 +24163,7 @@ pub struct RiskAssessment {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24190,7 +24190,7 @@ pub struct RiskEvidenceSynthesisSampleSize {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24220,7 +24220,7 @@ pub struct RiskEvidenceSynthesisRiskEstimatePrecisionEstimate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24257,7 +24257,7 @@ pub struct RiskEvidenceSynthesisRiskEstimate {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24282,7 +24282,7 @@ pub struct RiskEvidenceSynthesisCertaintyCertaintySubcomponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24306,7 +24306,7 @@ pub struct RiskEvidenceSynthesisCertainty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24410,7 +24410,7 @@ pub struct RiskEvidenceSynthesis {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24459,7 +24459,7 @@ pub struct Schedule {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24483,7 +24483,7 @@ pub struct SearchParameterComponent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24588,7 +24588,7 @@ pub struct SearchParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24607,7 +24607,7 @@ impl Default for ServiceRequestQuantityTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24626,7 +24626,7 @@ impl Default for ServiceRequestOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24644,7 +24644,7 @@ impl Default for ServiceRequestAsNeededTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24752,7 +24752,7 @@ pub struct ServiceRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24810,7 +24810,7 @@ pub struct Slot {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24828,7 +24828,7 @@ impl Default for SpecimenCollectionCollectedTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24846,7 +24846,7 @@ impl Default for SpecimenCollectionFastingStatusTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24880,7 +24880,7 @@ pub struct SpecimenCollection {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24898,7 +24898,7 @@ impl Default for SpecimenProcessingTimeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24926,7 +24926,7 @@ pub struct SpecimenProcessing {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -24944,7 +24944,7 @@ impl Default for SpecimenContainerAdditiveTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -24978,7 +24978,7 @@ pub struct SpecimenContainer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25038,7 +25038,7 @@ pub struct Specimen {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -25058,7 +25058,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -25078,7 +25078,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25099,7 +25099,7 @@ pub struct SpecimenDefinitionTypeTestedContainerAdditive {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25137,7 +25137,7 @@ pub struct SpecimenDefinitionTypeTestedContainer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25164,7 +25164,7 @@ pub struct SpecimenDefinitionTypeTestedHandling {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25202,7 +25202,7 @@ pub struct SpecimenDefinitionTypeTested {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25246,7 +25246,7 @@ pub struct SpecimenDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25276,7 +25276,7 @@ pub struct StructureDefinitionMapping {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25301,7 +25301,7 @@ pub struct StructureDefinitionContext {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25321,7 +25321,7 @@ pub struct StructureDefinitionSnapshot {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25341,7 +25341,7 @@ pub struct StructureDefinitionDifferential {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25446,7 +25446,7 @@ pub struct StructureDefinition {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25476,7 +25476,7 @@ pub struct StructureMapStructure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25507,7 +25507,7 @@ pub struct StructureMapGroupInput {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -25575,7 +25575,7 @@ impl Default for StructureMapGroupRuleSourceDefaultValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25627,7 +25627,7 @@ pub struct StructureMapGroupRuleSource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -25648,7 +25648,7 @@ impl Default for StructureMapGroupRuleTargetParameterValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25669,7 +25669,7 @@ pub struct StructureMapGroupRuleTargetParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25710,7 +25710,7 @@ pub struct StructureMapGroupRuleTarget {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25734,7 +25734,7 @@ pub struct StructureMapGroupRuleDependent {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25766,7 +25766,7 @@ pub struct StructureMapGroupRule {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25800,7 +25800,7 @@ pub struct StructureMapGroup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25879,7 +25879,7 @@ pub struct StructureMap {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25910,7 +25910,7 @@ pub struct SubscriptionChannel {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25959,7 +25959,7 @@ pub struct Subscription {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -25985,7 +25985,7 @@ pub struct SubstanceInstance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -26003,7 +26003,7 @@ impl Default for SubstanceIngredientSubstanceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26026,7 +26026,7 @@ pub struct SubstanceIngredient {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26073,7 +26073,7 @@ pub struct Substance {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26103,7 +26103,7 @@ pub struct SubstanceNucleicAcidSubunitLinkage {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26130,7 +26130,7 @@ pub struct SubstanceNucleicAcidSubunitSugar {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26167,7 +26167,7 @@ pub struct SubstanceNucleicAcidSubunit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26209,7 +26209,7 @@ pub struct SubstanceNucleicAcid {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26237,7 +26237,7 @@ pub struct SubstancePolymerMonomerSetStartingMaterial {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26259,7 +26259,7 @@ pub struct SubstancePolymerMonomerSet {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26281,7 +26281,7 @@ pub struct SubstancePolymerRepeatRepeatUnitDegreeOfPolymerisation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26307,7 +26307,7 @@ pub struct SubstancePolymerRepeatRepeatUnitStructuralRepresentation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26337,7 +26337,7 @@ pub struct SubstancePolymerRepeatRepeatUnit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26365,7 +26365,7 @@ pub struct SubstancePolymerRepeat {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26408,7 +26408,7 @@ pub struct SubstancePolymer {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26447,7 +26447,7 @@ pub struct SubstanceProteinSubunit {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26487,7 +26487,7 @@ pub struct SubstanceProtein {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26511,7 +26511,7 @@ pub struct SubstanceReferenceInformationGene {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26536,7 +26536,7 @@ pub struct SubstanceReferenceInformationGeneElement {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26562,7 +26562,7 @@ pub struct SubstanceReferenceInformationClassification {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -26581,7 +26581,7 @@ impl Default for SubstanceReferenceInformationTargetAmountTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26617,7 +26617,7 @@ pub struct SubstanceReferenceInformationTarget {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26658,7 +26658,7 @@ pub struct SubstanceReferenceInformation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26681,7 +26681,7 @@ pub struct SubstanceSourceMaterialFractionDescription {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26704,7 +26704,7 @@ pub struct SubstanceSourceMaterialOrganismAuthor {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26736,7 +26736,7 @@ pub struct SubstanceSourceMaterialOrganismHybrid {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26762,7 +26762,7 @@ pub struct SubstanceSourceMaterialOrganismOrganismGeneral {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26797,7 +26797,7 @@ pub struct SubstanceSourceMaterialOrganism {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26819,7 +26819,7 @@ pub struct SubstanceSourceMaterialPartDescription {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26878,7 +26878,7 @@ pub struct SubstanceSourceMaterial {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -26896,7 +26896,7 @@ impl Default for SubstanceSpecificationMoietyAmountTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -26932,7 +26932,7 @@ pub struct SubstanceSpecificationMoiety {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -26952,7 +26952,7 @@ impl Default for SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -26970,7 +26970,7 @@ impl Default for SubstanceSpecificationPropertyAmountTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27001,7 +27001,7 @@ pub struct SubstanceSpecificationProperty {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27026,7 +27026,7 @@ pub struct SubstanceSpecificationStructureIsotopeMolecularWeight {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27055,7 +27055,7 @@ pub struct SubstanceSpecificationStructureIsotope {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27081,7 +27081,7 @@ pub struct SubstanceSpecificationStructureRepresentation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27117,7 +27117,7 @@ pub struct SubstanceSpecificationStructure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27147,7 +27147,7 @@ pub struct SubstanceSpecificationCode {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27172,7 +27172,7 @@ pub struct SubstanceSpecificationNameOfficial {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27215,7 +27215,7 @@ pub struct SubstanceSpecificationName {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27235,7 +27235,7 @@ impl Default for SubstanceSpecificationRelationshipSubstanceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27255,7 +27255,7 @@ impl Default for SubstanceSpecificationRelationshipAmountTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27290,7 +27290,7 @@ pub struct SubstanceSpecificationRelationship {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27362,7 +27362,7 @@ pub struct SubstanceSpecification {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27380,7 +27380,7 @@ impl Default for SupplyDeliverySuppliedItemItemTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27403,7 +27403,7 @@ pub struct SupplyDeliverySuppliedItem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27422,7 +27422,7 @@ impl Default for SupplyDeliveryOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27478,7 +27478,7 @@ pub struct SupplyDelivery {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27496,7 +27496,7 @@ impl Default for SupplyRequestItemTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27516,7 +27516,7 @@ impl Default for SupplyRequestParameterValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27539,7 +27539,7 @@ pub struct SupplyRequestParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27558,7 +27558,7 @@ impl Default for SupplyRequestOccurrenceTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27624,7 +27624,7 @@ pub struct SupplyRequest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27649,7 +27649,7 @@ pub struct TaskRestriction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27715,7 +27715,7 @@ impl Default for TaskInputValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27739,7 +27739,7 @@ pub struct TaskInput {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -27805,7 +27805,7 @@ impl Default for TaskOutputValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27829,7 +27829,7 @@ pub struct TaskOutput {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27931,7 +27931,7 @@ pub struct Task {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27955,7 +27955,7 @@ pub struct TerminologyCapabilitiesSoftware {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -27979,7 +27979,7 @@ pub struct TerminologyCapabilitiesImplementation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28003,7 +28003,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersionFilter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28038,7 +28038,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersion {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28064,7 +28064,7 @@ pub struct TerminologyCapabilitiesCodeSystem {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28088,7 +28088,7 @@ pub struct TerminologyCapabilitiesExpansionParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28120,7 +28120,7 @@ pub struct TerminologyCapabilitiesExpansion {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28141,7 +28141,7 @@ pub struct TerminologyCapabilitiesValidateCode {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28162,7 +28162,7 @@ pub struct TerminologyCapabilitiesTranslation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28183,7 +28183,7 @@ pub struct TerminologyCapabilitiesClosure {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28275,7 +28275,7 @@ pub struct TerminologyCapabilities {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28303,7 +28303,7 @@ pub struct TestReportParticipant {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28330,7 +28330,7 @@ pub struct TestReportSetupActionOperation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28357,7 +28357,7 @@ pub struct TestReportSetupActionAssert {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28379,7 +28379,7 @@ pub struct TestReportSetupAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28399,7 +28399,7 @@ pub struct TestReportSetup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28421,7 +28421,7 @@ pub struct TestReportTestAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28447,7 +28447,7 @@ pub struct TestReportTest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28467,7 +28467,7 @@ pub struct TestReportTeardownAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28487,7 +28487,7 @@ pub struct TestReportTeardown {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28548,7 +28548,7 @@ pub struct TestReport {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28571,7 +28571,7 @@ pub struct TestScriptOrigin {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28594,7 +28594,7 @@ pub struct TestScriptDestination {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28618,7 +28618,7 @@ pub struct TestScriptMetadataLink {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28657,7 +28657,7 @@ pub struct TestScriptMetadataCapability {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28679,7 +28679,7 @@ pub struct TestScriptMetadata {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28705,7 +28705,7 @@ pub struct TestScriptFixture {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28747,7 +28747,7 @@ pub struct TestScriptVariable {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28771,7 +28771,7 @@ pub struct TestScriptSetupActionOperationRequestHeader {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28839,7 +28839,7 @@ pub struct TestScriptSetupActionOperation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28923,7 +28923,7 @@ pub struct TestScriptSetupActionAssert {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28945,7 +28945,7 @@ pub struct TestScriptSetupAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28965,7 +28965,7 @@ pub struct TestScriptSetup {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -28987,7 +28987,7 @@ pub struct TestScriptTestAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29013,7 +29013,7 @@ pub struct TestScriptTest {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29033,7 +29033,7 @@ pub struct TestScriptTeardownAction {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29053,7 +29053,7 @@ pub struct TestScriptTeardown {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29143,7 +29143,7 @@ pub struct TestScript {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29170,7 +29170,7 @@ pub struct ValueSetComposeIncludeConceptDesignation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29196,7 +29196,7 @@ pub struct ValueSetComposeIncludeConcept {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29223,7 +29223,7 @@ pub struct ValueSetComposeIncludeFilter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29254,7 +29254,7 @@ pub struct ValueSetComposeInclude {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29282,7 +29282,7 @@ pub struct ValueSetCompose {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
@@ -29305,7 +29305,7 @@ impl Default for ValueSetExpansionParameterValueTypeChoice {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29329,7 +29329,7 @@ pub struct ValueSetExpansionParameter {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29370,7 +29370,7 @@ pub struct ValueSetExpansionContains {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29405,7 +29405,7 @@ pub struct ValueSetExpansion {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29484,7 +29484,7 @@ pub struct ValueSet {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29518,7 +29518,7 @@ pub struct VerificationResultPrimarySource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29555,7 +29555,7 @@ pub struct VerificationResultAttestation {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29580,7 +29580,7 @@ pub struct VerificationResultValidator {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29643,7 +29643,7 @@ pub struct VerificationResult {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29667,7 +29667,7 @@ pub struct VisionPrescriptionLensSpecificationPrism {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29723,7 +29723,7 @@ pub struct VisionPrescriptionLensSpecification {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29773,7 +29773,7 @@ pub struct VisionPrescription {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     Default,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
@@ -29836,7 +29836,7 @@ pub struct MetadataResource {
 }
 #[derive(
     Clone,
-    oxidized_reflect,
+    Reflect,
     Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
