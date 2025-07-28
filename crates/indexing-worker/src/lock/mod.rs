@@ -31,7 +31,7 @@ impl From<&str> for LockId {
     }
 }
 
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Debug)]
 pub struct Lock {
     pub tenant: String,
     pub kind: LockKind,
