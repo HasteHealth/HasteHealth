@@ -1,0 +1,1 @@
+ALTER TABLE resources ADD CONSTRAINT fk_tenant FOREIGN KEY (tenant) REFERENCES tenants (id);
