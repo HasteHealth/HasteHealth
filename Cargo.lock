@@ -1878,6 +1878,7 @@ dependencies = [
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "rayon",
+ "serde",
  "sqlx",
  "sqlx-postgres",
  "tracing",

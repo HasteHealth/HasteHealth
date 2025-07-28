@@ -2,6 +2,8 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 
 pub mod postgres;
 
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
+#[sqlx(type_name = "lock_type", rename_all = "lowercase")]
 pub enum LockType {
     IndexingPosition,
 }
@@ -15,6 +17,11 @@ impl LockId {
 impl AsRef<str> for LockId {
     fn as_ref(&self) -> &str {
         &self.0
+    }
+}
+impl From<String> for LockId {
+    fn from(id: String) -> Self {
+        LockId::new(id)
     }
 }
 
