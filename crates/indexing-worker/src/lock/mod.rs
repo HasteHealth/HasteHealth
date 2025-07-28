@@ -3,14 +3,14 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 pub mod postgres;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
-#[sqlx(type_name = "lock_type", rename_all = "lowercase")]
-pub enum LockType {
-    IndexingPosition,
+#[sqlx(type_name = "lock_kind", rename_all = "lowercase")]
+pub enum LockKind {
+    System,
 }
-impl AsRef<str> for LockType {
+impl AsRef<str> for LockKind {
     fn as_ref(&self) -> &str {
         match self {
-            LockType::IndexingPosition => "indexing_position",
+            LockKind::System => "system",
         }
     }
 }
@@ -31,27 +31,32 @@ impl From<&str> for LockId {
     }
 }
 
+#[derive(sqlx::FromRow)]
 pub struct Lock {
-    lock_id: LockId,
-    lock_type: LockType,
-    value: String,
+    pub tenant: String,
+    pub kind: LockKind,
+    pub id: String,
+    pub position: i64,
 }
 
 pub trait LockProvider {
     /// Retrieves available locks skipping over locked rows.
     /// Sets available locks to be locked until transaction is committed.
-    /// * `lock_type` - Lock type to select
+    /// * `kind` - Lock kind to select
     /// * `lock_ids` - Ids of locks to select
-    async fn get_available(
+    fn get_available(
         &mut self,
-        lock_type: LockType,
+        kind: LockKind,
         lock_ids: Vec<LockId>,
-    ) -> Result<Vec<Lock>, OperationOutcomeError>;
-    async fn update(
+    ) -> impl std::future::Future<Output = Result<Vec<Lock>, OperationOutcomeError>> + Send;
+    fn update(
         &mut self,
-        lock_type: LockType,
+        kind: LockKind,
         lock_id: LockId,
         value: Lock,
-    ) -> Result<(), OperationOutcomeError>;
-    async fn create(&mut self, lock: Lock) -> Result<Lock, OperationOutcomeError>;
+    ) -> impl std::future::Future<Output = Result<(), OperationOutcomeError>> + Send;
+    fn create(
+        &mut self,
+        lock: Lock,
+    ) -> impl std::future::Future<Output = Result<Lock, OperationOutcomeError>> + Send;
 }

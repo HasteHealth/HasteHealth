@@ -1,5 +1,9 @@
+CREATE TYPE lock_kind AS ENUM ('system');
+
 CREATE TABLE
-    indexing_position (
-        loc sequence bigint NOT NULL,
-        tenant text NOT NULL
+    locks (
+        tenant text,
+        kind lock_kind NOT NULL,
+        id text NOT NULL,
+        position bigint NOT NULL
     );

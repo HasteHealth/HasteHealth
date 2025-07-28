@@ -1,4 +1,4 @@
-use crate::lock::{LockProvider, LockType, postgres::PostgresLockProvider};
+use crate::lock::{LockKind, LockProvider, postgres::PostgresLockProvider};
 use oxidized_config::get_config;
 use sqlx::Connection;
 
@@ -12,11 +12,9 @@ pub async fn main() {
         .await
         .expect("Failed to connect to the database");
 
-    let provider = PostgresLockProvider::new(pg_connection);
+    let mut provider = PostgresLockProvider::new(pg_connection);
     provider
-        .get_available(
-            LockType::IndexingPosition,
-            vec!["lock1".into(), "lock2".into()],
-        )
+        .get_available(LockKind::System, vec!["lock1".into(), "lock2".into()])
+        .await
         .expect("Failed to get available locks");
 }
