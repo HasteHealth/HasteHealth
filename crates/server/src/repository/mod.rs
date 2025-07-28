@@ -4,7 +4,9 @@ use crate::SupportedFHIRVersions;
 use fhir_client::request::FHIRRequest;
 use fhir_model::r4::types::Resource;
 use fhir_operation_error::OperationOutcomeError;
-use serde::Deserialize;
+use serde::{Deserialize, de::Error};
+use sqlx::{Encode, Postgres, encode::IsNull, error::BoxDynError};
+use sqlx_postgres::PgArgumentBuffer;
 pub mod postgres;
 pub mod utilities;
 
@@ -22,6 +24,13 @@ impl TenantId {
         TenantId(id)
     }
 }
+
+impl AsRef<str> for TenantId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
 impl<'de> Deserialize<'de> for TenantId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -41,6 +50,11 @@ pub struct ProjectId(String);
 impl ProjectId {
     pub fn new(id: String) -> Self {
         ProjectId(id)
+    }
+}
+impl AsRef<str> for ProjectId {
+    fn as_ref(&self) -> &str {
+        &self.0
     }
 }
 impl<'de> Deserialize<'de> for ProjectId {
@@ -63,11 +77,21 @@ impl VersionId {
         VersionId(id)
     }
 }
+impl AsRef<str> for VersionId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
 
 pub struct ResourceId(String);
 impl ResourceId {
     pub fn new(id: String) -> Self {
         ResourceId(id)
+    }
+}
+impl AsRef<str> for ResourceId {
+    fn as_ref(&self) -> &str {
+        &self.0
     }
 }
 
