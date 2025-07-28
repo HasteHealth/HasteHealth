@@ -27,7 +27,7 @@ impl LockProvider for PostgresLockProvider {
         let mut query_builder: QueryBuilder<Postgres> =
             QueryBuilder::new("SELECT * FROM locks WHERE kind = ");
 
-        query_builder.push_bind(kind.as_ref());
+        query_builder.push_bind(kind);
         query_builder.push(" AND id IN (");
 
         let mut separated = query_builder.separated(", ");
