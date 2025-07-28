@@ -663,20 +663,20 @@ mod tests {
         FHIRString, HumanName, Identifier, Patient, Resource, SearchParameter,
     };
     use oxidized_fhir_serialization_json;
-    use oxidized_oxidized_reflect_derive::oxidized_reflect;
+    use oxidized_reflect_derive::Reflect;
     use test::Bencher;
 
-    #[derive(oxidized_reflect, Debug)]
+    #[derive(Reflect, Debug)]
     struct C {
         c: String,
     }
 
-    #[derive(oxidized_reflect, Debug)]
+    #[derive(Reflect, Debug)]
     struct B {
         b: Vec<Box<C>>,
     }
 
-    #[derive(oxidized_reflect, Debug)]
+    #[derive(Reflect, Debug)]
     struct A {
         a: Vec<Box<B>>,
     }
