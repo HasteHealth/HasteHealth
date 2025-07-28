@@ -6,12 +6,8 @@ pub struct Context<CTX, Request, Response> {
     pub response: Option<Response>,
 }
 
-pub type Next<State, CTX, Request, Response, Error> = Box<
-    dyn Fn(
-            State,
-            Context<CTX, Request, Response>,
-        )
-            -> Pin<Box<dyn Future<Output = Result<Context<CTX, Request, Response>, Error>> + Send>>
+pub type Next<State, Context, Error> = Box<
+    dyn Fn(State, Context) -> Pin<Box<dyn Future<Output = Result<Context, Error>> + Send>>
         + Send
         + Sync,
 >;
@@ -20,7 +16,7 @@ pub type MiddlewareChain<State, CTX, Request, Response, Error> = Box<
     dyn Fn(
             State,
             Context<CTX, Request, Response>,
-            Option<Arc<Next<State, CTX, Request, Response, Error>>>,
+            Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
         )
             -> Pin<Box<dyn Future<Output = Result<Context<CTX, Request, Response>, Error>> + Send>>
         + Send
@@ -30,7 +26,7 @@ pub type MiddlewareChain<State, CTX, Request, Response, Error> = Box<
 pub struct Middleware<State, CTX, Request, Response, Error> {
     _state: std::marker::PhantomData<State>,
     _phantom: std::marker::PhantomData<CTX>,
-    _execute: Arc<Next<State, CTX, Request, Response, Error>>,
+    _execute: Arc<Next<State, Context<CTX, Request, Response>, Error>>,
 }
 
 impl<
@@ -43,11 +39,11 @@ impl<
 {
     pub fn new(mut middleware: Vec<MiddlewareChain<State, CTX, Request, Response, Error>>) -> Self {
         middleware.reverse();
-        let next: Option<Arc<Next<State, CTX, Request, Response, Error>>> = middleware
+        let next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>> = middleware
             .into_iter()
             .fold(
             None,
-            |prev_next: Option<Arc<Next<State, CTX, Request, Response, Error>>>,
+            |prev_next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
              middleware: MiddlewareChain<State, CTX, Request, Response, Error>| {
                 Some(Arc::new(Box::new(move |state, ctx| {
                     middleware(state, ctx, prev_next.clone())
@@ -86,7 +82,7 @@ mod test {
     fn middleware_1(
         _state: (),
         x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), (), usize, usize, String>>>,
+        _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
     ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
         Box::pin(async move {
             let mut x = if let Some(next) = _next {
@@ -104,7 +100,7 @@ mod test {
     fn middleware_2(
         _state: (),
         x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), (), usize, usize, String>>>,
+        _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
     ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
         Box::pin(async move {
             let mut x = if let Some(next) = _next {
@@ -123,7 +119,7 @@ mod test {
     fn middleware_3(
         _state: (),
         x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), (), usize, usize, String>>>,
+        _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
     ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
         Box::pin(async move {
             let mut x = if let Some(next) = _next {

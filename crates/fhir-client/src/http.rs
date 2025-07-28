@@ -112,7 +112,9 @@ async fn http_response_to_fhir_response(
 fn http_middleware<CTX: Send + Sync + 'static>(
     state: Arc<FHIRHttpState>,
     context: Context<CTX, FHIRRequest, FHIRResponse>,
-    _next: Option<Arc<Next<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>>>,
+    _next: Option<
+        Arc<Next<Arc<FHIRHttpState>, Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>>,
+    >,
 ) -> Pin<
     Box<dyn Future<Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>> + Send>,
 > {

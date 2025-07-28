@@ -31,22 +31,18 @@ pub enum StorageError {
     NoResponse,
 }
 
+type ServerMiddlewareState<Repository> = Arc<Repository>;
+type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
+type ServerMiddlewareNext<Repo> =
+    Option<Arc<Next<Arc<Repo>, ServerMiddlewareContext, OperationOutcomeError>>>;
+type ServerMiddlewareOutput =
+    Pin<Box<dyn Future<Output = Result<ServerMiddlewareContext, OperationOutcomeError>> + Send>>;
+
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
-    state: Arc<Repository>,
-    mut context: Context<ServerCTX, FHIRRequest, FHIRResponse>,
-    next: Option<
-        Arc<Next<Arc<Repository>, ServerCTX, FHIRRequest, FHIRResponse, OperationOutcomeError>>,
-    >,
-) -> Pin<
-    Box<
-        dyn Future<
-                Output = Result<
-                    Context<ServerCTX, FHIRRequest, FHIRResponse>,
-                    OperationOutcomeError,
-                >,
-            > + Send,
-    >,
-> {
+    state: ServerMiddlewareState<Repository>,
+    mut context: ServerMiddlewareContext,
+    next: ServerMiddlewareNext<Repository>,
+) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
             FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
