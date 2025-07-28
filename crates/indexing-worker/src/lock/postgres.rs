@@ -1,13 +1,17 @@
 use crate::lock::{Lock, LockId, LockKind, LockProvider};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Execute, Postgres, QueryBuilder};
+use sqlx::{Postgres, QueryBuilder, Transaction};
 
-pub struct PostgresLockProvider {
-    connection: sqlx::PgConnection,
+pub struct PostgresLockProvider<'a, 'b> {
+    connection: &'a mut Transaction<'b, Postgres>,
 }
-impl PostgresLockProvider {
-    pub fn new(connection: sqlx::PgConnection) -> Self {
+impl<'a, 'b> PostgresLockProvider<'a, 'b> {
+    pub fn new(connection: &'a mut Transaction<'b, Postgres>) -> Self {
         PostgresLockProvider { connection }
+    }
+
+    pub fn set_connection(&mut self, connection: &'a mut Transaction<'b, Postgres>) {
+        self.connection = connection;
     }
 }
 
@@ -17,7 +21,7 @@ pub enum LockError {
     SQLError(#[from] sqlx::Error),
 }
 
-impl LockProvider for PostgresLockProvider {
+impl<'a, 'b> LockProvider for PostgresLockProvider<'a, 'b> {
     async fn get_available(
         &mut self,
         kind: LockKind,
@@ -40,7 +44,7 @@ impl LockProvider for PostgresLockProvider {
         let query = query_builder.build_query_as();
         // println!("Executing query: '{:?}'", query.sql());
         let res = query
-            .fetch_all(&mut self.connection)
+            .fetch_all(&mut **self.connection)
             .await
             .map_err(LockError::from)?;
 
