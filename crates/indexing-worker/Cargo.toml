@@ -1,0 +1,16 @@
+[package]
+name = "indexing-worker"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fhirpath = { path = "../fhirpath" }
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "tls-native-tls",
+    "postgres",
+    "time",
+] }
+sqlx-postgres = "0.8.6"
+fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+fhir-serialization-json = { path = "../fhir-serialization-json" }

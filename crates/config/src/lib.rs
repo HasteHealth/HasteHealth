@@ -1,4 +1,4 @@
-use crate::config::environment::EnvironmentConfig;
+use crate::environment::EnvironmentConfig;
 use fhir_operation_error::OperationOutcomeError;
 
 mod environment;

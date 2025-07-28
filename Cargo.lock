@@ -1290,6 +1290,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "indexing-worker"
+version = "0.1.0"
+dependencies = [
+ "fhir-model",
+ "fhir-serialization-json",
+ "fhirpath",
+ "sqlx",
+ "sqlx-postgres",
+]
+
+[[package]]
 name = "indexmap"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1841,6 +1852,15 @@ name = "overload"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
+
+[[package]]
+name = "oxidized-config"
+version = "0.1.0"
+dependencies = [
+ "dotenvy",
+ "fhir-model",
+ "fhir-operation-error",
+]
 
 [[package]]
 name = "oxidized-health"
@@ -2492,6 +2512,7 @@ dependencies = [
  "jsonwebtoken",
  "maud",
  "nanoid",
+ "oxidized-config",
  "rand 0.9.1",
  "reflect",
  "serde",
