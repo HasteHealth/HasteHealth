@@ -2,8 +2,8 @@ use std::fmt::{Debug, Display};
 
 use crate::SupportedFHIRVersions;
 use fhir_client::request::FHIRRequest;
-use fhir_model::r4::types::Resource;
-use fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_model::r4::types::Resource;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, de::Error};
 use sqlx::{Encode, Postgres, encode::IsNull, error::BoxDynError};
 use sqlx_postgres::PgArgumentBuffer;

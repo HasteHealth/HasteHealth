@@ -10,13 +10,13 @@ impl IntoResponse for FHIRResponse {
             FHIRResponse::Create(response) => (
                 StatusCode::CREATED,
                 // Unwrap should be safe here.
-                fhir_serialization_json::to_string(&response.resource).unwrap(),
+                oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Read(response) => (
                 StatusCode::OK,
                 // Unwrap should be safe here.
-                fhir_serialization_json::to_string(&response.resource).unwrap(),
+                oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             _ => panic!("Unsupported FHIRResponse type"),

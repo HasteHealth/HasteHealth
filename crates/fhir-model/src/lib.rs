@@ -7,9 +7,9 @@ mod tests {
 
     use super::*;
     use crate::r4::types::{Practitioner, Resource};
-    use fhir_serialization_json::{FHIRJSONDeserializer, errors::DeserializeError};
+    use oxidized_fhir_serialization_json::{FHIRJSONDeserializer, errors::DeserializeError};
+    use oxidized_reflect::MetaValue;
     use r4::types::{Address, Patient};
-    use reflect::MetaValue;
     use serde_json;
     use test::Bencher;
 
@@ -21,8 +21,8 @@ mod tests {
 
         assert_eq!(
             parsed_str_serde,
-            fhir_serialization_json::to_string(
-                &fhir_serialization_json::from_str::<String>(k).unwrap()
+            oxidized_fhir_serialization_json::to_string(
+                &oxidized_fhir_serialization_json::from_str::<String>(k).unwrap()
             )
             .unwrap()
         );
@@ -30,7 +30,7 @@ mod tests {
 
     #[test]
     fn enum_resource_type_variant() {
-        let resource = fhir_serialization_json::from_str::<Resource>(
+        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(
             r#"{
             "resourceType": "Patient",
             "address": [
@@ -51,7 +51,7 @@ mod tests {
 
         assert!(matches!(resource, Ok(Resource::Patient(Patient { .. }))));
 
-        let resource = fhir_serialization_json::from_str::<Resource>(
+        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(
             r#"{
   "resourceType": "Practitioner",
   "id": "example",
@@ -124,7 +124,7 @@ mod tests {
 
         assert_eq!(
             "{\"resourceType\":\"Practitioner\",\"id\":\"example\",\"text\":{\"status\":\"generated\",\"div\":\"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">\\n      <p>Dr Adam Careful is a Referring Practitioner for Acme Hospital from 1-Jan 2012 to 31-Mar\\n        2012</p>\\n    </div>\"},\"identifier\":[{\"system\":\"http://www.acme.org/practitioners\",\"value\":\"23\"}],\"active\":true,\"name\":[{\"family\":\"Careful\",\"given\":[\"Adam\"],\"prefix\":[\"Dr\"]}],\"address\":[{\"use\":\"home\",\"line\":[\"534 Erewhon St\"],\"city\":\"PleasantVille\",\"state\":\"Vic\",\"postalCode\":\"3999\"}],\"qualification\":[{\"identifier\":[{\"system\":\"http://example.org/UniversityIdentifier\",\"value\":\"12345\"}],\"code\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0360/2.7\",\"code\":\"BS\",\"display\":\"Bachelor of Science\"}],\"text\":\"Bachelor of Science\"},\"period\":{\"start\":\"1995\"},\"issuer\":{\"display\":\"Example University\"}}]}",
-            fhir_serialization_json::to_string(resource.as_ref().unwrap()).unwrap()
+            oxidized_fhir_serialization_json::to_string(resource.as_ref().unwrap()).unwrap()
         );
     }
 
@@ -369,11 +369,14 @@ mod tests {
 
         assert_eq!(
             k,
-            fhir_serialization_json::to_string(patient.as_ref().unwrap()).unwrap(),
+            oxidized_fhir_serialization_json::to_string(patient.as_ref().unwrap()).unwrap(),
         );
 
         let patient2 = Patient::from_json_str(k).unwrap();
-        assert_eq!(fhir_serialization_json::to_string(&patient2).unwrap(), k);
+        assert_eq!(
+            oxidized_fhir_serialization_json::to_string(&patient2).unwrap(),
+            k
+        );
     }
 
     #[bench]

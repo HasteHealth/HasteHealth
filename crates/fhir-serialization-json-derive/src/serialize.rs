@@ -15,12 +15,12 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Struct(_data) => {
             let expanded = quote! {
-                impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #name {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         self.value.serialize_value(writer)
                     }
 
-                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         let mut tmp_buffer = std::io::BufWriter::new(Vec::new());
                         let has_extension = self.extension.is_some();
                         let has_id = self.id.is_some();
@@ -49,7 +49,7 @@ pub fn primitve_serialization(input: DeriveInput) -> TokenStream {
                         }
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         let mut value_buffer = std::io::BufWriter::new(Vec::new());
                         let mut extension_buffer = std::io::BufWriter::new(Vec::new());
 
@@ -130,20 +130,20 @@ pub fn typechoice_serialization(input: DeriveInput) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #name {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
                         }
                     }
 
-                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_extension),*
                         }
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         let field = match self {
                             #(#variants_field_name),*
                         };
@@ -206,8 +206,8 @@ pub fn complex_serialization(
             };
 
             let expanded = quote! {
-                impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #name {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         let mut tmp_buffer = std::io::BufWriter::new(Vec::new());
                         let mut total = 0;
 
@@ -230,11 +230,11 @@ pub fn complex_serialization(
                         Ok(true)
                     }
 
-                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         Ok(false)
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         let mut tmp_buffer = std::io::BufWriter::new(Vec::new());
                         let should_serialize = self.serialize_value(&mut tmp_buffer)?;
                         if !should_serialize {
@@ -298,20 +298,20 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl fhir_serialization_json::FHIRJSONSerializer for #name {
-                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #name {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
                         }
                     }
 
-                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_extension),*
                         }
                     }
 
-                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, fhir_serialization_json::SerializeError> {
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_fields),*
                         }

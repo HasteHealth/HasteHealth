@@ -1,6 +1,6 @@
-use fhir_model::r4::types::{FHIRId, Meta, Resource};
-use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use reflect::MetaValue;
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_model::r4::types::{FHIRId, Meta, Resource};
+use oxidized_reflect::MetaValue;
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
 // Can't use _ for compliance.

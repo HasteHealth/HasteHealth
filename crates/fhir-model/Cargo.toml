@@ -1,5 +1,5 @@
 [package]
-name = "fhir-model"
+name = "oxidized-fhir-model"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,11 +7,11 @@ edition = "2024"
 sqlx = ["dep:sqlx"]
 
 [dependencies]
-reflect = { path = "../reflect", features = ["derive"] }
-serde = { version = "1.0.219", features = ["derive"] }
-fhir-serialization-json = { path = "../fhir-serialization-json", features = [
+oxidized-reflect = { path = "../reflect", features = ["derive"] }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json", features = [
     "derive",
 ] }
+serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 thiserror = "2.0.12"
 sqlx = { version = "0.8.6", optional = true }

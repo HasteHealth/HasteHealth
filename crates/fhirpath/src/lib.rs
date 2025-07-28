@@ -10,11 +10,11 @@ use dashmap::DashMap;
 pub use error::FHIRPathError;
 use std::{cell::RefCell, collections::HashSet, marker::PhantomData, rc::Rc, sync::Arc};
 // use owning_ref::BoxRef;
-use fhir_model::r4::types::{
+use once_cell::sync::Lazy;
+use oxidized_fhir_model::r4::types::{
     FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt,
 };
-use once_cell::sync::Lazy;
-use reflect::MetaValue;
+use oxidized_reflect::MetaValue;
 
 /// Number types to use in FHIR evaluation
 static NUMBER_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
@@ -213,14 +213,14 @@ fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
         "FHIRBase64Binary" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRBase64Binary>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRBase64Binary>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRCanonical" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRCanonical>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRCanonical>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
@@ -228,42 +228,42 @@ fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
         "FHIRCode" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRCode>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRCode>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRString" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRString>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRString>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIROid" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIROid>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIROid>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRUri" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRUri>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRUri>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRUrl" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRUrl>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRUrl>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRUuid" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRUuid>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRUuid>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
@@ -271,7 +271,7 @@ fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
         "FHIRXhtml" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<fhir_model::r4::types::FHIRXhtml>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRXhtml>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(&fp_string.value)
         }
@@ -659,32 +659,34 @@ mod tests {
     extern crate test;
     use super::*;
 
-    use fhir_model::r4::types::{
+    use oxidized_fhir_model::r4::types::{
         FHIRString, HumanName, Identifier, Patient, Resource, SearchParameter,
     };
-    use fhir_serialization_json;
-    use reflect_derive::Reflect;
+    use oxidized_fhir_serialization_json;
+    use oxidized_oxidized_reflect_derive::oxidized_reflect;
     use test::Bencher;
 
-    #[derive(Reflect, Debug)]
+    #[derive(oxidized_reflect, Debug)]
     struct C {
         c: String,
     }
 
-    #[derive(Reflect, Debug)]
+    #[derive(oxidized_reflect, Debug)]
     struct B {
         b: Vec<Box<C>>,
     }
 
-    #[derive(Reflect, Debug)]
+    #[derive(oxidized_reflect, Debug)]
     struct A {
         a: Vec<Box<B>>,
     }
 
     fn load_search_parameters() -> Vec<SearchParameter> {
         let json = include_str!("../../artifacts/r4/hl7/search-parameters.json");
-        let bundle =
-            fhir_serialization_json::from_str::<fhir_model::r4::types::Bundle>(json).unwrap();
+        let bundle = oxidized_fhir_serialization_json::from_str::<
+            oxidized_fhir_model::r4::types::Bundle,
+        >(json)
+        .unwrap();
 
         let search_parameters: Vec<SearchParameter> = bundle
             .entry
@@ -709,17 +711,19 @@ mod tests {
         let engine = FPEngine::new();
         let mut patient = Patient::default();
         let mut identifier = Identifier::default();
-        let mut extension = fhir_model::r4::types::Extension {
+        let mut extension = oxidized_fhir_model::r4::types::Extension {
             id: None,
             url: "test-extension".to_string(),
             extension: None,
-            value: Some(fhir_model::r4::types::ExtensionValueTypeChoice::String(
-                Box::new(FHIRString {
-                    id: None,
-                    extension: None,
-                    value: Some("example value".to_string()),
-                }),
-            )),
+            value: Some(
+                oxidized_fhir_model::r4::types::ExtensionValueTypeChoice::String(Box::new(
+                    FHIRString {
+                        id: None,
+                        extension: None,
+                        value: Some("example value".to_string()),
+                    },
+                )),
+            ),
         };
         identifier.value = Some(Box::new(FHIRString {
             id: None,
@@ -776,7 +780,7 @@ mod tests {
             extension: None,
             value: Some("mrn-12345".to_string()),
         }));
-        mrn_identifier.system = Some(Box::new(fhir_model::r4::types::FHIRUri {
+        mrn_identifier.system = Some(Box::new(oxidized_fhir_model::r4::types::FHIRUri {
             id: None,
             extension: None,
             value: Some("mrn".to_string()),
@@ -788,13 +792,13 @@ mod tests {
             extension: None,
             value: Some("ssn-12345".to_string()),
         }));
-        ssn_identifier.system = Some(Box::new(fhir_model::r4::types::FHIRUri {
+        ssn_identifier.system = Some(Box::new(oxidized_fhir_model::r4::types::FHIRUri {
             id: None,
             extension: None,
             value: Some("ssn".to_string()),
         }));
 
-        mrn_identifier.system = Some(Box::new(fhir_model::r4::types::FHIRUri {
+        mrn_identifier.system = Some(Box::new(oxidized_fhir_model::r4::types::FHIRUri {
             id: None,
             extension: None,
             value: Some("mrn".to_string()),

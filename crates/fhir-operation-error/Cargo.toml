@@ -1,15 +1,15 @@
 [package]
-name = "fhir-operation-error"
+name = "oxidized-fhir-operation-error"
 version = "0.1.0"
 edition = "2024"
 
 [features]
-derive = []
-axum = ["dep:axum", "dep:fhir-serialization-json"]
+derive = ["dep:oxidized-fhir-operation-error-derive"]
+axum = ["dep:axum", "dep:oxidized-fhir-serialization-json"]
 
 [dependencies]
-fhir-serialization-json = { path = "../fhir-serialization-json", optional = true }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json", optional = true }
+oxidized-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", optional = true }
+oxidized-fhir-model = { path = "../fhir-model" }
 axum = { version = "0.8.4", optional = true }
 anyhow = "1.0.98"
-fhir-operation-error-derive = { path = "../fhir-operation-error-derive" }
-fhir-model = { path = "../fhir-model" }

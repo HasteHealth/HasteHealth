@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-// use fhir_model::r4::types::OperationOutcomeIssue;
+// use oxidized_fhir_model::r4::types::OperationOutcomeIssue;
 use quote::{format_ident, quote};
 use syn::{
     parse_macro_input, punctuated::Punctuated, Attribute, Data, DeriveInput, Expr, Ident, Lit, Meta, MetaList, Token, Type, Variant
@@ -181,7 +181,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
     let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
     let invariant_operation_outcome_issues = issues.iter().map(|simple_issue: &SimpleIssue| {
         let severity_string: String = simple_issue.severity.clone().into();
-        let severity = quote! { Box::new(fhir_model::r4::types::FHIRCode{
+        let severity = quote! { Box::new(oxidized_fhir_model::r4::types::FHIRCode{
                 id: None,
                 extension: None,
                 value: Some(#severity_string.to_string()),
@@ -190,7 +190,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
 
         let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
             quote! {
-                Some(Box::new(fhir_model::r4::types::FHIRString{
+                Some(Box::new(oxidized_fhir_model::r4::types::FHIRString{
                     id: None,
                     extension: None,
                     value: Some(format!(#diagnostic)),
@@ -204,7 +204,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
 
         let code_string = &simple_issue.code;
         let code = quote! {
-            Box::new(fhir_model::r4::types::FHIRCode{
+            Box::new(oxidized_fhir_model::r4::types::FHIRCode{
                 id: None,
                 extension: None,
                 value: Some(#code_string.to_string()),
@@ -212,7 +212,7 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
         };
 
         quote! {
-            fhir_model::r4::types::OperationOutcomeIssue {
+            oxidized_fhir_model::r4::types::OperationOutcomeIssue {
                 id: None,
                 extension: None,
                 modifierExtension: None,
@@ -320,10 +320,10 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                 quote! {
                     #ident #arg_instantiation => {
                         
-                        let mut operation_outcome = fhir_model::r4::types::OperationOutcome::default();
+                        let mut operation_outcome = oxidized_fhir_model::r4::types::OperationOutcome::default();
                         operation_outcome.issue = #op_issues;
                         
-                        fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
+                        oxidized_fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
                     }
                 }
             }).collect();
@@ -343,7 +343,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
 
 
             let expanded = quote! {
-                impl From<#name> for fhir_operation_error::OperationOutcomeError {
+                impl From<#name> for oxidized_fhir_operation_error::OperationOutcomeError {
                     fn from(value: #name) -> Self {
                         match value {
                             #(#name::#variants),*

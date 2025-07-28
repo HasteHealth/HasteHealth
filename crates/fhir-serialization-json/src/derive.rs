@@ -1,1 +1,1 @@
-pub use fhir_serialization_json_derive::*;
+pub use oxidized_fhir_serialization_json_derive::*;

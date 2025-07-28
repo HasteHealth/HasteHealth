@@ -50,7 +50,7 @@ fn get_struct_key_value(element: &Value, field_value_type_name: TokenStream) -> 
         format_ident!("{}", field_name)
     };
 
-    let reflect_attribute = if RUST_KEYWORDS.contains(&field_name.as_str()) {
+    let oxidized_reflect_attribute = if RUST_KEYWORDS.contains(&field_name.as_str()) {
         quote! {
             #[rename_field = #field_name]
         }
@@ -84,7 +84,7 @@ fn get_struct_key_value(element: &Value, field_value_type_name: TokenStream) -> 
 
     quote! {
         #type_choice_variants
-        #reflect_attribute
+        #oxidized_reflect_attribute
         #primitive_attribute
         #[doc = #description]
         pub #field_name_ident: #field_value
@@ -155,9 +155,9 @@ fn create_type_choice(sd: &Value, element: &Value) -> TokenStream {
         }
     };
 
-    // fhir_serialization_json::derive::FHIRJSONDeserialize
+    // oxidized_fhir_serialization_json::derive::FHIRJSONDeserialize
     quote! {
-        #[derive(Clone, Reflect, Debug, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+        #[derive(Clone, oxidized_reflect, Debug, oxidized_fhir_serialization_json::derive::FHIRJSONSerialize, oxidized_fhir_serialization_json::derive::FHIRJSONDeserialize)]
         #[fhir_serialize_type = "typechoice"]
         #[type_choice_field_name = #field_name]
         pub enum #type_name {
@@ -199,17 +199,17 @@ fn process_complex(
 
     let derive = if conditionals::is_root(sd, element) && conditionals::is_primitive_sd(sd) {
         quote! {
-           #[derive(Clone, Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+           #[derive(Clone, oxidized_reflect, Debug, Default, oxidized_fhir_serialization_json::derive::FHIRJSONSerialize, oxidized_fhir_serialization_json::derive::FHIRJSONDeserialize)]
            #[fhir_serialize_type = "primitive"]
         }
     } else if conditionals::is_root(sd, element) && conditionals::is_resource_sd(sd) {
         quote! {
-            #[derive(Clone, Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+            #[derive(Clone, oxidized_reflect, Debug, Default, oxidized_fhir_serialization_json::derive::FHIRJSONSerialize, oxidized_fhir_serialization_json::derive::FHIRJSONDeserialize)]
             #[fhir_serialize_type = "resource"]
         }
     } else {
         quote! {
-            #[derive(Clone, Reflect, Debug, Default, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+            #[derive(Clone, oxidized_reflect, Debug, Default, oxidized_fhir_serialization_json::derive::FHIRJSONSerialize, oxidized_fhir_serialization_json::derive::FHIRJSONDeserialize)]
             #[fhir_serialize_type = "complex"]
         }
     };
@@ -321,9 +321,9 @@ pub fn generate_fhir_types_from_files(
 ) -> Result<String, String> {
     let mut generated_code = quote! {
         #![allow(non_snake_case)]
-        use reflect::{MetaValue, derive::Reflect};
-        use fhir_serialization_json;
-        use fhir_serialization_json::FHIRJSONDeserializer;
+        use oxidized_reflect::{MetaValue, derive::oxidized_reflect};
+        use oxidized_fhir_serialization_json;
+        use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
         use thiserror::Error;
         use std::io::Write;
     };
@@ -352,7 +352,7 @@ pub fn generate_fhir_types_from_files(
         });
 
     let resource_enum = quote! {
-        #[derive(Clone, Reflect, Debug, fhir_serialization_json::derive::FHIRJSONSerialize, fhir_serialization_json::derive::FHIRJSONDeserialize)]
+        #[derive(Clone, oxidized_reflect, Debug, oxidized_fhir_serialization_json::derive::FHIRJSONSerialize, oxidized_fhir_serialization_json::derive::FHIRJSONDeserialize)]
         #[fhir_serialize_type = "enum-variant"]
         #[determine_by = "resourceType"]
         pub enum Resource {

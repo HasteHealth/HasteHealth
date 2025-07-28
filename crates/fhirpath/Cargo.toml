@@ -1,18 +1,18 @@
 [package]
-name = "fhirpath"
+name = "oxidized-fhirpath"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+oxidized-reflect = { path = "../reflect" }
+oxidized-fhir-model = { path = "../fhir-model" }
 peg = "0.8.5"
-reflect = { path = "../reflect" }
-fhir-model = { path = "../fhir-model" }
 jiff = "0.2.15"
 thiserror = "2.0.12"
 once_cell = "1.21.3"
 dashmap = "6.1.0"
 
 [dev-dependencies]
-fhir-serialization-json = { path = "../fhir-serialization-json" }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
+oxidized-reflect-derive = { path = "../reflect-derive" }
 insta = { version = "1.43.1" }
-reflect-derive = { path = "../reflect-derive" }

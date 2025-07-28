@@ -1,5 +1,5 @@
 [package]
-name = "fhir-serialization-json-derive"
+name = "oxidized-fhir-serialization-json-derive"
 version = "0.1.0"
 edition = "2024"
 

@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-fhir-model = { path = "../fhir-model" }
-fhir-operation-error = { path = "../fhir-operation-error", features = [
+oxidized-fhir-model = { path = "../fhir-model" }
+oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
 dotenvy = "0.15.7"

@@ -1,5 +1,5 @@
 use crate::environment::EnvironmentConfig;
-use fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 
 mod environment;
 
