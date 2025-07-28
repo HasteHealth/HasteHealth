@@ -42,16 +42,16 @@ pub trait LockProvider {
     /// Sets available locks to be locked until transaction is committed.
     /// * `lock_type` - Lock type to select
     /// * `lock_ids` - Ids of locks to select
-    fn get_available(
-        &self,
+    async fn get_available(
+        &mut self,
         lock_type: LockType,
         lock_ids: Vec<LockId>,
     ) -> Result<Vec<Lock>, OperationOutcomeError>;
-    fn update(
-        &self,
+    async fn update(
+        &mut self,
         lock_type: LockType,
         lock_id: LockId,
         value: Lock,
     ) -> Result<(), OperationOutcomeError>;
-    fn create(&self, lock: Lock) -> Result<Lock, OperationOutcomeError>;
+    async fn create(&mut self, lock: Lock) -> Result<Lock, OperationOutcomeError>;
 }

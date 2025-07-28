@@ -1,5 +1,5 @@
 use crate::lock::{Lock, LockId, LockProvider, LockType};
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::{Execute, Postgres, QueryBuilder};
 
 pub struct PostgresLockProvider {
@@ -11,9 +11,15 @@ impl PostgresLockProvider {
     }
 }
 
+#[derive(OperationOutcomeError, Debug)]
+pub enum LockError {
+    #[fatal(code = "exception", diagnostic = "SQL error occurred")]
+    SQLError(#[from] sqlx::Error),
+}
+
 impl LockProvider for PostgresLockProvider {
-    fn get_available(
-        &self,
+    async fn get_available(
+        &mut self,
         lock_type: LockType,
         lock_ids: Vec<LockId>,
     ) -> Result<Vec<Lock>, OperationOutcomeError> {
@@ -33,11 +39,15 @@ impl LockProvider for PostgresLockProvider {
 
         let query = query_builder.build();
         println!("Executing query: '{:?}'", query.sql());
+        let res = query
+            .execute(&mut self.connection)
+            .await
+            .map_err(LockError::from)?;
         Ok(vec![])
     }
 
-    fn update(
-        &self,
+    async fn update(
+        &mut self,
         lock_type: LockType,
         lock_id: LockId,
         value: Lock,
@@ -46,7 +56,7 @@ impl LockProvider for PostgresLockProvider {
         unimplemented!()
     }
 
-    fn create(&self, lock: Lock) -> Result<Lock, OperationOutcomeError> {
+    async fn create(&mut self, lock: Lock) -> Result<Lock, OperationOutcomeError> {
         // Implementation for creating a new lock in PostgreSQL
         unimplemented!()
     }
