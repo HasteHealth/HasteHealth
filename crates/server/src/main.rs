@@ -1,6 +1,5 @@
 #![allow(unused)]
 use crate::{
-    config::get_config,
     fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRRepository, ProjectId, TenantId},
@@ -16,6 +15,7 @@ use axum::{
 use fhir_client::FHIRClient;
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use fhirpath::FPEngine;
+use oxidized_config::{Config, get_config};
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};
 use tower_http::services::ServeDir;
@@ -23,7 +23,6 @@ use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 use tracing::info;
 
-mod config;
 mod fhir_http;
 mod oidc;
 mod pg;
@@ -56,7 +55,7 @@ pub enum CustomOpError {
 
 struct AppState<Repo: FHIRRepository + Send + Sync> {
     fhir_client: FHIRServerClient<Repo>,
-    config: Box<dyn config::Config>,
+    config: Box<dyn Config>,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]

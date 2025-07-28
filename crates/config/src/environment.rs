@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::Config;
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 pub struct EnvironmentConfig();

@@ -5,6 +5,7 @@ edition = "2024"
 
 
 [dependencies]
+oxidized-config = { path = "../config" }
 fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
     "axum",

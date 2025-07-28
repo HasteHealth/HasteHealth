@@ -1,4 +1,4 @@
-use crate::config::Config;
+use oxidized_config::Config;
 use sqlx::{Pool, Postgres};
 use sqlx_postgres::PgPoolOptions;
 use tokio::sync::OnceCell;
