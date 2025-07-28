@@ -60,10 +60,10 @@ impl FHIRRepository for FHIRPostgresRepository {
         Ok(result.resource.0)
     }
 
-    async fn read_by_version_id(
+    async fn read_by_version_ids(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
         version_id: Vec<VersionId>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!();
@@ -71,26 +71,33 @@ impl FHIRRepository for FHIRPostgresRepository {
 
     async fn read_latest(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
-        resource_id: ResourceId,
-    ) -> Result<Option<fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        todo!();
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_id: &ResourceId,
+    ) -> Result<fhir_model::r4::types::Resource, OperationOutcomeError> {
+        let response = sqlx::query!(
+            r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 ORDER BY sequence DESC"#,
+            tenant_id.as_ref(),
+            project_id.as_ref(),
+            resource_id.as_ref(),
+        ).fetch_one(&self.0).await.map_err(StoreError::from)?;
+
+        Ok(response.resource.0)
     }
 
     async fn history(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
-        resource_id: ResourceId,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_id: &ResourceId,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, OperationOutcomeError> {
         todo!();
     }
 
     async fn get_sequence(
         &self,
-        tenant_id: TenantId,
-        project_id: ProjectId,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
     ) -> Result<Vec<fhir_model::r4::types::Resource>, OperationOutcomeError> {

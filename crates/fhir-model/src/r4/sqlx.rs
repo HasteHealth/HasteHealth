@@ -5,6 +5,7 @@ use sqlx::{
     postgres::{PgArgumentBuffer, PgTypeInfo, PgValueRef},
 };
 
+#[derive(Debug)]
 pub struct FHIRJson<T: ?Sized>(pub T);
 
 impl<T> sqlx::Type<Postgres> for FHIRJson<T>

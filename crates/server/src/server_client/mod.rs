@@ -2,13 +2,14 @@ use std::{pin::Pin, sync::Arc};
 
 use crate::{
     SupportedFHIRVersions,
-    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, TenantId},
+    repository::{FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId},
 };
 use fhir_client::{
     FHIRClient, ParsedParameter,
     middleware::{Context, Middleware, Next},
     request::{
-        FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRRequest, FHIRResponse,
+        FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
+        FHIRResponse,
     },
 };
 use fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -47,25 +48,34 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     >,
 > {
     Box::pin(async move {
-        let response = if let FHIRRequest::Create(create_request) = &mut context.request {
-            let response = state
-                .insert(&mut InsertResourceRow {
-                    tenant: context.ctx.tenant.to_string(),
-                    project: context.ctx.project.to_string(),
-                    author_id: "fake_author_id".to_string(),
-                    fhir_version: context.ctx.fhir_version.clone(),
-                    resource: &mut create_request.resource,
-                    deleted: false,
-                    request_method: "POST".to_string(),
-                    author_type: "member".to_string(),
-                    fhir_method: FHIRMethod::Create,
-                })
-                .await?;
-            Some(FHIRResponse::Create(FHIRCreateResponse {
-                resource: response,
-            }))
-        } else {
-            None
+        let response = match &mut context.request {
+            FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
+                resource: state
+                    .insert(&mut InsertResourceRow {
+                        tenant: context.ctx.tenant.to_string(),
+                        project: context.ctx.project.to_string(),
+                        author_id: "fake_author_id".to_string(),
+                        fhir_version: context.ctx.fhir_version.clone(),
+                        resource: &mut create_request.resource,
+                        deleted: false,
+                        request_method: "POST".to_string(),
+                        author_type: "member".to_string(),
+                        fhir_method: FHIRMethod::Create,
+                    })
+                    .await?,
+            })),
+            FHIRRequest::Read(read_request) => {
+                let resource = state
+                    .read_latest(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &ResourceId::new(read_request.id.to_string()),
+                    )
+                    .await?;
+
+                Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
+            }
+            _ => None,
         };
 
         let mut next_context = context;
