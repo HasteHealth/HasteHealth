@@ -2,7 +2,7 @@
 use oxidized_fhir_model::r4::types::{
     CodeableConcept, Coding, ContactPoint, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal,
     FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid,
-    Identifier, SearchParameter,
+    Identifier, Quantity, SearchParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
@@ -14,6 +14,25 @@ struct TokenIndex {
 }
 
 #[derive(Debug)]
+enum RangeValue {
+    Number(f64),
+    Infinity,
+}
+
+#[derive(Debug)]
+struct QuantityRange {
+    low: RangeValue,
+    high: RangeValue,
+}
+
+#[derive(Debug)]
+struct ReferenceIndex {
+    id: Option<String>,
+    resource_type: Option<String>,
+    uri: Option<String>,
+}
+
+#[derive(Debug)]
 pub enum InsertableIndex {
     String(Vec<String>),
     Number(Vec<f64>),
@@ -21,7 +40,7 @@ pub enum InsertableIndex {
     Token(Vec<TokenIndex>),
     Date(Vec<String>),
     Reference(Vec<String>),
-    Quantity(Vec<String>),
+    Quantity(Vec<QuantityRange>),
     Composite(Vec<String>),
 }
 
@@ -366,6 +385,44 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
     }
 }
 
+// // Number and quantity dependent on the precision for indexing.
+// fn get_quantity_range(value: f64) -> QuantityRange {
+//   const decimalPrecision = getDecimalPrecision(value);
+//   return {
+//     start: value - 0.5 * 10 ** -decimalPrecision,
+//     end: value + 0.5 * 10 ** -decimalPrecision,
+//   };
+// }
+
+fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
+    match value.typename() {
+        "Quantity" => {
+            let fp_quantity = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Quantity>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+
+            // let low = fp_quantity.start.as_ref().map(|l| match l.value {
+            //     Some(v) => RangeValue::Number(v),
+            //     None => RangeValue::Infinity,
+            // });
+
+            // let high = fp_quantity.end.as_ref().map(|h| match h.value {
+            //     Some(v) => RangeValue::Number(v),
+            //     None => RangeValue::Infinity,
+            // });
+            panic!();
+
+            // Ok(vec![QuantityRange { low, high }])
+        }
+        _ => Err(InsertableIndexError::FailedDowncast(
+            value.typename().to_string(),
+        )),
+    }
+}
+
 pub fn to_insertable_index(
     parameter: &SearchParameter,
     result: Vec<&dyn MetaValue>,
@@ -404,28 +461,28 @@ pub fn to_insertable_index(
             Ok(InsertableIndex::Token(tokens))
         }
         Some("date") => {
-            let dates = result
-                .iter()
-                .filter_map(|v| index_date(*v).ok())
-                .flatten()
-                .collect();
-            Ok(InsertableIndex::Date(dates))
+            // let dates = result
+            //     .iter()
+            //     .filter_map(|v| index_date(*v).ok())
+            //     .flatten()
+            //     .collect();
+            Ok(InsertableIndex::Date(vec![]))
         }
         Some("reference") => {
-            let references = result
-                .iter()
-                .filter_map(|v| index_reference(*v).ok())
-                .flatten()
-                .collect();
-            Ok(InsertableIndex::Reference(references))
+            // let references = result
+            //     .iter()
+            //     .filter_map(|v| index_reference(*v).ok())
+            //     .flatten()
+            //     .collect();
+            Ok(InsertableIndex::Reference(vec![]))
         }
         Some("quantity") => {
-            let quantities = result
-                .iter()
-                .filter_map(|v| index_quantity(*v).ok())
-                .flatten()
-                .collect();
-            Ok(InsertableIndex::Quantity(quantities))
+            // let quantities = result
+            //     .iter()
+            //     .filter_map(|v| index_quantity(*v).ok())
+            //     .flatten()
+            //     .collect();
+            Ok(InsertableIndex::Quantity(vec![]))
         }
         // Not Supported yet
         Some("composite") => Ok(InsertableIndex::Composite(vec![])),

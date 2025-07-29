@@ -1,6 +1,9 @@
-use std::{sync::Arc, time::Instant};
+use std::{collections::HashMap, sync::Arc, time::Instant};
 
-use crate::lock::{LockKind, LockProvider, postgres::PostgresLockProvider};
+use crate::{
+    conversion::InsertableIndex,
+    lock::{LockKind, LockProvider, postgres::PostgresLockProvider},
+};
 use oxidized_config::get_config;
 use oxidized_fhir_model::r4::{
     sqlx::FHIRJson,
@@ -142,9 +145,10 @@ pub async fn main() {
                         let start = Instant::now();
 
                         // Iterator used to evaluate all of the search expressions for indexing.
-                        let _index_set = resources
+                        let _index_set: Vec<HashMap<String, InsertableIndex>> = resources
                             .par_iter()
-                            .flat_map(|r| {
+                            .map(|r| {
+                                let mut map = HashMap::new();
                                 for param in patient_params.iter() {
                                     let expression =
                                         param.expression.as_ref().unwrap().value.as_ref().unwrap();
@@ -158,28 +162,17 @@ pub async fn main() {
                                     )
                                     .unwrap();
 
-                                    println!("result_vec: {:?}", result_vec);
-                                }
+                                    map.insert(param.url.value.clone().unwrap(), result_vec);
 
-                                let result = fp_engine.evaluate(
-                                    "$this.identifier.where($this.value = '123')",
-                                    vec![r],
-                                );
-
-                                if let Ok(values) = result {
-                                    let ids = values
-                                        .iter()
-                                        .filter_map(|v| v.as_any().downcast_ref::<Identifier>())
-                                        .map(|id| id.clone())
-                                        .collect::<Vec<_>>();
-                                    ids
-                                } else {
-                                    vec![]
+                                    // println!("{}: {:?}", expression, result_vec);
                                 }
+                                map
                             })
                             .collect::<Vec<_>>();
 
                         tracing::info!("Evaluation took: {:?}", start.elapsed());
+
+                        // println!("{:#?}", _index_set);
                         let ret: Result<(), IndexingWorkerError> = Ok(());
                         ret
                     })
