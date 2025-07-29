@@ -1,7 +1,14 @@
+use std::{sync::Arc, time::Instant};
+
 use crate::lock::{LockKind, LockProvider, postgres::PostgresLockProvider};
 use oxidized_config::get_config;
-use oxidized_fhir_model::r4::{sqlx::FHIRJson, types::Resource};
+use oxidized_fhir_model::r4::{
+    sqlx::FHIRJson,
+    types::{Identifier, Resource},
+};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_reflect::MetaValue;
+use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 // use tokio::time::sleep;
 // use std::time::Duration;
@@ -80,6 +87,8 @@ pub async fn main() {
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 
+    let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
+
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit)
             .await
@@ -92,6 +101,7 @@ pub async fn main() {
         }
 
         for tenant in tenants_to_check {
+            let fp_engine = fp_engine.clone();
             pg_connection
                 .transaction(|t| {
                     Box::pin(async move {
@@ -110,9 +120,32 @@ pub async fn main() {
                         println!("Retrieved resources: {:?}", resources.len());
 
                         // sleep(Duration::from_millis(1000)).await;
+                        let start = Instant::now();
 
+                        let index_set = resources
+                            .par_iter()
+                            .flat_map(|r| {
+                                let context: Vec<&dyn MetaValue> = vec![r];
+                                let result = fp_engine.evaluate(
+                                    "$this.identifier.where($this.value = '123')",
+                                    context,
+                                );
+
+                                if let Ok(values) = result {
+                                    let ids = values
+                                        .iter()
+                                        .filter_map(|v| v.as_any().downcast_ref::<Identifier>())
+                                        .map(|id| id.clone())
+                                        .collect::<Vec<_>>();
+                                    ids
+                                } else {
+                                    vec![]
+                                }
+                            })
+                            .collect::<Vec<_>>();
+
+                        println!("Evaluation took: {:?}", start.elapsed());
                         let ret: Result<(), IndexingWorkerError> = Ok(());
-
                         ret
                     })
                 })

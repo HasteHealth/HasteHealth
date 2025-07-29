@@ -1,6 +1,6 @@
 use std::{any::Any, fmt::Debug};
 
-pub trait MetaValue: Any + Debug {
+pub trait MetaValue: Any + Debug + Send + Sync {
     fn fields(&self) -> Vec<&'static str>;
 
     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue>;

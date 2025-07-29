@@ -1877,6 +1877,7 @@ dependencies = [
  "oxidized-fhir-operation-error",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
+ "oxidized-reflect",
  "rayon",
  "serde",
  "sqlx",
