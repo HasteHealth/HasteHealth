@@ -123,6 +123,19 @@ fn evaluate_invocation<'b>(
     }
 }
 
+fn evaluate_term<'a>(term: &Term, context: Context<'a>) -> Result<Context<'a>, FHIRPathError> {
+    match term {
+        Term::Literal(literal) => evaluate_literal(literal, context),
+        Term::ExternalConstant(_constant) => {
+            return Err(FHIRPathError::NotImplemented(
+                "external constant".to_string(),
+            ));
+        }
+        Term::Parenthesized(expression) => evaluate_expression(expression, context),
+        Term::Invocation(invocation) => evaluate_invocation(invocation, context),
+    }
+}
+
 fn evaluate_singular<'b>(
     expression: &Vec<Term>,
     context: Context<'b>,
@@ -130,22 +143,7 @@ fn evaluate_singular<'b>(
     let mut current_context = context;
 
     for term in expression.iter() {
-        match term {
-            Term::Literal(literal) => {
-                current_context = evaluate_literal(literal, current_context)?;
-            }
-            Term::ExternalConstant(_constant) => {
-                return Err(FHIRPathError::NotImplemented(
-                    "external constant".to_string(),
-                ));
-            }
-            Term::Parenthesized(expression) => {
-                current_context = evaluate_expression(expression, current_context)?;
-            }
-            Term::Invocation(invocation) => {
-                current_context = evaluate_invocation(invocation, current_context)?
-            }
-        }
+        current_context = evaluate_term(term, current_context)?;
     }
 
     Ok(current_context)
@@ -365,6 +363,17 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
     }
 }
 
+fn filter_by_type<'a>(type_name: &str, context: Context<'a>) -> Context<'a> {
+    context.new_context_from(
+        context
+            .values
+            .iter()
+            .filter(|v| v.typename() == type_name)
+            .map(|v| *v)
+            .collect(),
+    )
+}
+
 fn evaluate_function<'b>(
     function: &FunctionInvocation,
     context: Context<'b>,
@@ -390,27 +399,11 @@ fn evaluate_function<'b>(
         }),
         "ofType" => fp_func_1(&function.arguments, context, |args, context| {
             let type_name = derive_typename(&args[0])?;
-
-            let new_context = context
-                .values
-                .iter()
-                .filter(|v| v.typename() == type_name)
-                .map(|v| *v)
-                .collect();
-
-            Ok(context.new_context_from(new_context))
+            Ok(filter_by_type(&type_name, context))
         }),
         "as" => fp_func_1(&function.arguments, context, |args, context| {
             let type_name = derive_typename(&args[0])?;
-
-            let new_context = context
-                .values
-                .iter()
-                .filter(|v| v.typename() == type_name)
-                .map(|v| *v)
-                .collect();
-
-            Ok(context.new_context_from(new_context))
+            Ok(filter_by_type(&type_name, context))
         }),
         "exists" => fp_func_n(&function.arguments, context, |args, context| {
             if args.len() > 1 {

@@ -87,7 +87,22 @@ pub async fn main() {
 
     let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
 
-    println!("{:?}", R4_SEARCH_PARAMETERS.keys());
+    let patient_params = Arc::new(
+        R4_SEARCH_PARAMETERS
+            .values()
+            .filter(|sp| {
+                let code = sp
+                    .base
+                    .iter()
+                    .filter_map(|b| b.value.as_ref().map(|v| v.as_str()))
+                    .collect::<Vec<_>>();
+                sp.expression.is_some()
+                    && (code.contains(&"Patient")
+                        || code.contains(&"Resource")
+                        || code.contains(&"DomainResource"))
+            })
+            .collect::<Vec<_>>(),
+    );
 
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit)
@@ -102,6 +117,7 @@ pub async fn main() {
 
         for tenant in tenants_to_check {
             let fp_engine = fp_engine.clone();
+            let patient_params = patient_params.clone();
             pg_connection
                 .transaction(|t| {
                     Box::pin(async move {
@@ -126,10 +142,20 @@ pub async fn main() {
                         let index_set = resources
                             .par_iter()
                             .flat_map(|r| {
-                                let context: Vec<&dyn MetaValue> = vec![r];
+                                for param in patient_params.iter() {
+                                    let expression =
+                                        param.expression.as_ref().unwrap().value.as_ref().unwrap();
+                                    let result = fp_engine.evaluate(expression, vec![r]).unwrap();
+
+                                    println!(
+                                        "{} result: {:?}",
+                                        expression,
+                                        result.iter().collect::<Vec<_>>()
+                                    );
+                                }
                                 let result = fp_engine.evaluate(
                                     "$this.identifier.where($this.value = '123')",
-                                    context,
+                                    vec![r],
                                 );
 
                                 if let Ok(values) = result {
