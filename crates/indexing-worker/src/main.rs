@@ -10,9 +10,6 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_reflect::MetaValue;
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
-// use tokio::time::sleep;
-// use std::time::Duration;
-
 mod lock;
 
 #[derive(OperationOutcomeError, Debug)]
