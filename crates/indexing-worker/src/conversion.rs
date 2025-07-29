@@ -19,6 +19,10 @@ pub enum InsertableIndex {
     Number(Vec<f64>),
     URI(Vec<String>),
     Token(Vec<TokenIndex>),
+    Date(Vec<String>),
+    Reference(Vec<String>),
+    Quantity(Vec<String>),
+    Composite(Vec<String>),
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -399,9 +403,32 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Token(tokens))
         }
-        Some("composite") | Some("reference") | Some("date") | Some("quantity") => {
-            panic!()
+        Some("date") => {
+            let dates = result
+                .iter()
+                .filter_map(|v| index_date(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Date(dates))
         }
+        Some("reference") => {
+            let references = result
+                .iter()
+                .filter_map(|v| index_reference(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Reference(references))
+        }
+        Some("quantity") => {
+            let quantities = result
+                .iter()
+                .filter_map(|v| index_quantity(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Quantity(quantities))
+        }
+        // Not Supported yet
+        Some("composite") => Ok(InsertableIndex::Composite(vec![])),
         Some(_) | None => Err(InsertableIndexError::InvalidType(
             parameter
                 .type_
