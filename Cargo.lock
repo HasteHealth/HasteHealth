@@ -1827,6 +1827,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxidized-fhir-search-parameters"
+version = "0.1.0"
+dependencies = [
+ "once_cell",
+ "oxidized-fhir-model",
+ "oxidized-fhir-serialization-json",
+]
+
+[[package]]
 name = "oxidized-fhir-serialization-json"
 version = "0.1.0"
 dependencies = [
@@ -1875,6 +1884,7 @@ dependencies = [
  "oxidized-config",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-fhir-search-parameters",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "oxidized-reflect",

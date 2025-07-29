@@ -123,29 +123,55 @@ fn evaluate_invocation<'b>(
     }
 }
 
+fn evaluate_term<'a>(term: &Term, context: Context<'a>) -> Result<Context<'a>, FHIRPathError> {
+    match term {
+        Term::Literal(literal) => evaluate_literal(literal, context),
+        Term::ExternalConstant(_constant) => {
+            return Err(FHIRPathError::NotImplemented(
+                "external constant".to_string(),
+            ));
+        }
+        Term::Parenthesized(expression) => evaluate_expression(expression, context),
+        Term::Invocation(invocation) => evaluate_invocation(invocation, context),
+    }
+}
+
+/// Need special handling as the first term could start with a type filter.
+/// for example Patient.name
+fn evaluate_first_term<'a>(
+    term: &Term,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    match term {
+        Term::Invocation(invocation) => match invocation {
+            Invocation::Identifier(identifier) => {
+                let type_filter = filter_by_type(&identifier.0, &context);
+                if !type_filter.values.is_empty() {
+                    Ok(type_filter)
+                } else {
+                    evaluate_invocation(invocation, context)
+                }
+            }
+            _ => evaluate_invocation(invocation, context),
+        },
+        _ => evaluate_term(term, context),
+    }
+}
+
 fn evaluate_singular<'b>(
     expression: &Vec<Term>,
     context: Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     let mut current_context = context;
 
-    for term in expression.iter() {
-        match term {
-            Term::Literal(literal) => {
-                current_context = evaluate_literal(literal, current_context)?;
-            }
-            Term::ExternalConstant(_constant) => {
-                return Err(FHIRPathError::NotImplemented(
-                    "external constant".to_string(),
-                ));
-            }
-            Term::Parenthesized(expression) => {
-                current_context = evaluate_expression(expression, current_context)?;
-            }
-            Term::Invocation(invocation) => {
-                current_context = evaluate_invocation(invocation, current_context)?
-            }
-        }
+    let mut term_iterator = expression.iter();
+    let first_term = term_iterator.next();
+    if let Some(first_term) = first_term {
+        current_context = evaluate_first_term(first_term, current_context)?;
+    }
+
+    for term in term_iterator {
+        current_context = evaluate_term(term, current_context)?;
     }
 
     Ok(current_context)
@@ -365,6 +391,17 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
     }
 }
 
+fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
+    context.new_context_from(
+        context
+            .values
+            .iter()
+            .filter(|v| v.typename() == type_name)
+            .map(|v| *v)
+            .collect(),
+    )
+}
+
 fn evaluate_function<'b>(
     function: &FunctionInvocation,
     context: Context<'b>,
@@ -376,13 +413,13 @@ fn evaluate_function<'b>(
             for value in context.values.iter() {
                 let result =
                     evaluate_expression(where_condition, context.new_context_from(vec![*value]))?;
-                if result.values.len() != 1 {
+
+                if result.values.len() > 1 {
                     return Err(FHIRPathError::InternalError(
                         "Where condition did not return a single value".to_string(),
                     ));
-                }
-
-                if downcast_bool(result.values[0])? == true {
+                    // Empty set effectively means no match and treat as false.
+                } else if !result.values.is_empty() && downcast_bool(result.values[0])? == true {
                     new_context.push(*value);
                 }
             }
@@ -390,27 +427,11 @@ fn evaluate_function<'b>(
         }),
         "ofType" => fp_func_1(&function.arguments, context, |args, context| {
             let type_name = derive_typename(&args[0])?;
-
-            let new_context = context
-                .values
-                .iter()
-                .filter(|v| v.typename() == type_name)
-                .map(|v| *v)
-                .collect();
-
-            Ok(context.new_context_from(new_context))
+            Ok(filter_by_type(&type_name, &context))
         }),
         "as" => fp_func_1(&function.arguments, context, |args, context| {
             let type_name = derive_typename(&args[0])?;
-
-            let new_context = context
-                .values
-                .iter()
-                .filter(|v| v.typename() == type_name)
-                .map(|v| *v)
-                .collect();
-
-            Ok(context.new_context_from(new_context))
+            Ok(filter_by_type(&type_name, &context))
         }),
         "exists" => fp_func_n(&function.arguments, context, |args, context| {
             if args.len() > 1 {

@@ -11,6 +11,7 @@ oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
+oxidized-fhir-search-parameters = { path = "../fhir-search-parameters" }
 oxidized-reflect = { path = "../reflect" }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",

@@ -24,7 +24,7 @@ members = [
     "crates/fhir-operation-error",
     "crates/fhir-operation-error-derive",
     "crates/indexing-worker",
-    "crates/config",
+    "crates/config", "crates/fhir-search-parameters",
 ]
 
 [dependencies]
