@@ -1,7 +1,8 @@
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
 use oxidized_fhir_model::r4::types::{
-    ContactPoint, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal, FHIRId, FHIRInteger,
-    FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid, SearchParameter,
+    CodeableConcept, Coding, ContactPoint, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal,
+    FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid,
+    Identifier, SearchParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
@@ -242,13 +243,48 @@ fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError>
 fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
     match value.typename() {
         "Coding" => {
-            panic!();
+            let fp_coding = value.as_any().downcast_ref::<Coding>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+
+            Ok(vec![TokenIndex {
+                system: fp_coding.system.as_ref().and_then(|s| s.value.clone()),
+                code: fp_coding.code.as_ref().and_then(|v| v.value.clone()),
+            }])
         }
         "CodeableConcept" => {
-            panic!();
+            let fp_codeable_concept = value
+                .as_any()
+                .downcast_ref::<CodeableConcept>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+
+            Ok(fp_codeable_concept
+                .coding
+                .as_ref()
+                .and_then(|coding| {
+                    Some(
+                        coding
+                            .iter()
+                            .map(|c| TokenIndex {
+                                system: c.system.as_ref().and_then(|s| s.value.clone()),
+                                code: c.code.as_ref().and_then(|v| v.value.clone()),
+                            })
+                            .collect::<Vec<_>>(),
+                    )
+                })
+                .unwrap_or_else(|| vec![]))
         }
         "Identifier" => {
-            panic!();
+            let fp_identifier = value.as_any().downcast_ref::<Identifier>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+
+            Ok(vec![TokenIndex {
+                system: fp_identifier.system.as_ref().and_then(|s| s.value.clone()),
+                code: fp_identifier.value.as_ref().and_then(|v| v.value.clone()),
+            }])
         }
         "ContactPoint" => {
             let fp_contact_point =
@@ -290,11 +326,15 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
                 code: fp_boolean.value.as_ref().map(|v| v.to_string()),
             }])
         }
-        "id" => {
-            panic!();
-        }
         "http://hl7.org/fhirpath/System.String" => {
-            panic!();
+            let string = value.as_any().downcast_ref::<String>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+
+            Ok(vec![TokenIndex {
+                system: None,
+                code: Some(string.clone()),
+            }])
         }
         "FHIRString" => {
             let fp_string = value.as_any().downcast_ref::<FHIRString>().ok_or_else(|| {
@@ -351,7 +391,15 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::URI(uris))
         }
-        Some("composite") | Some("reference") | Some("date") | Some("token") | Some("quantity") => {
+        Some("token") => {
+            let tokens = result
+                .iter()
+                .filter_map(|v| index_token(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Token(tokens))
+        }
+        Some("composite") | Some("reference") | Some("date") | Some("quantity") => {
             panic!()
         }
         Some(_) | None => Err(InsertableIndexError::InvalidType(
