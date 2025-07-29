@@ -78,6 +78,9 @@ async fn get_tenants(
 pub async fn main() {
     // Initialize the PostgreSQL connection pool
     let config = get_config("environment".into());
+    let subscriber = tracing_subscriber::FmtSubscriber::new();
+    tracing::subscriber::set_global_default(subscriber).unwrap();
+
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
         .expect("Failed to connect to the database");
@@ -131,8 +134,8 @@ pub async fn main() {
 
                         let resources = get_resource_sequence(t, "tenant", 0, Some(100)).await?;
 
-                        println!("Available locks: {:?}", locks);
-                        println!("Retrieved resources: {:?}", resources.len());
+                        tracing::info!("Available locks: {:?}", locks);
+                        tracing::info!("Retrieved resources: {:?}", resources.len());
 
                         // sleep(Duration::from_millis(1000)).await;
                         let start = Instant::now();
@@ -176,7 +179,7 @@ pub async fn main() {
                             })
                             .collect::<Vec<_>>();
 
-                        println!("Evaluation took: {:?}", start.elapsed());
+                        tracing::info!("Evaluation took: {:?}", start.elapsed());
                         let ret: Result<(), IndexingWorkerError> = Ok(());
                         ret
                     })
