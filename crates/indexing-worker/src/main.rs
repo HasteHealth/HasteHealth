@@ -10,6 +10,7 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
+mod conversion;
 mod lock;
 
 #[derive(OperationOutcomeError, Debug)]
