@@ -152,14 +152,13 @@ pub async fn main() {
                                         &format!("failed to evaluate expression {}", expression),
                                     );
 
-                                    let result_vec = result.iter().collect::<Vec<_>>();
+                                    let result_vec = conversion::to_insertable_index(
+                                        param,
+                                        result.iter().collect::<Vec<_>>(),
+                                    )
+                                    .unwrap();
 
-                                    if !result_vec.is_empty() {
-                                        // println!("Evaluating expression: {}", expression);
-                                        // println!("Result: {:?}", result_vec.len());
-                                    } else {
-                                        //println!("No results for expression: {}", expression);
-                                    }
+                                    println!("result_vec: {:?}", result_vec);
                                 }
 
                                 let result = fp_engine.evaluate(

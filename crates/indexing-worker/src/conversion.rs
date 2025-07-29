@@ -1,12 +1,23 @@
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
 use oxidized_fhir_model::r4::types::{
-    FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, SearchParameter,
+    ContactPoint, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal, FHIRId, FHIRInteger,
+    FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid, SearchParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
 
+#[derive(Debug)]
+struct TokenIndex {
+    system: Option<String>,
+    code: Option<String>,
+}
+
+#[derive(Debug)]
 pub enum InsertableIndex {
     String(Vec<String>),
+    Number(Vec<f64>),
+    URI(Vec<String>),
+    Token(Vec<TokenIndex>),
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -119,7 +130,7 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
     }
 }
 
-fn index_number(value: &dyn MetaValue) -> Result<f64, InsertableIndexError> {
+fn index_number(value: &dyn MetaValue) -> Result<Vec<f64>, InsertableIndexError> {
     match value.typename() {
         "FHIRInteger" => {
             let fp_integer = value
@@ -128,7 +139,11 @@ fn index_number(value: &dyn MetaValue) -> Result<f64, InsertableIndexError> {
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
-            index_number(fp_integer.value.as_ref().unwrap_or(&0))
+            Ok(fp_integer
+                .value
+                .as_ref()
+                .map(|v| vec![*v as f64])
+                .unwrap_or_else(|| vec![]))
         }
         "FHIRDecimal" => {
             let fp_decimal = value
@@ -137,7 +152,11 @@ fn index_number(value: &dyn MetaValue) -> Result<f64, InsertableIndexError> {
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
-            index_number(fp_decimal.value.as_ref().unwrap_or(&0.0))
+            Ok(fp_decimal
+                .value
+                .as_ref()
+                .map(|v| vec![*v as f64])
+                .unwrap_or_else(|| vec![]))
         }
         "FHIRPositiveInt" => {
             let fp_positive_int = value
@@ -147,7 +166,11 @@ fn index_number(value: &dyn MetaValue) -> Result<f64, InsertableIndexError> {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
 
-            index_number(fp_positive_int.value.as_ref().unwrap_or(&0))
+            Ok(fp_positive_int
+                .value
+                .as_ref()
+                .map(|v| vec![*v as f64])
+                .unwrap_or_else(|| vec![]))
         }
         "FHIRUnsignedInt" => {
             let fp_unsigned_int = value
@@ -157,33 +180,178 @@ fn index_number(value: &dyn MetaValue) -> Result<f64, InsertableIndexError> {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
 
-            index_number(fp_unsigned_int.value.as_ref().unwrap_or(&0))
+            Ok(fp_unsigned_int
+                .value
+                .as_ref()
+                .map(|v| vec![*v as f64])
+                .unwrap_or_else(|| vec![]))
         }
-        "http://hl7.org/fhirpath/System.Integer" => value
-            .as_any()
-            .downcast_ref::<i64>()
-            .map(|v| *v as f64)
-            .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string())),
-
-        "http://hl7.org/fhirpath/System.Decimal" => value
-            .as_any()
-            .downcast_ref::<f64>()
-            .map(|v| *v)
-            .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string())),
         type_name => Err(InsertableIndexError::FailedDowncast(type_name.to_string())),
+    }
+}
+
+fn index_uri(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
+    match value.typename() {
+        "FHIRUrl" => {
+            let fp_uri = value.as_any().downcast_ref::<FHIRUrl>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fp_uri
+                .value
+                .as_ref()
+                .map(|v| vec![v.to_string()])
+                .unwrap_or_else(|| vec![]))
+        }
+        "FHIRUuid" => {
+            let fp_uri = value.as_any().downcast_ref::<FHIRUuid>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fp_uri
+                .value
+                .as_ref()
+                .map(|v| vec![v.to_string()])
+                .unwrap_or_else(|| vec![]))
+        }
+        "FHIRCanonical" => {
+            let fp_uri = value
+                .as_any()
+                .downcast_ref::<FHIRCanonical>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            Ok(fp_uri
+                .value
+                .as_ref()
+                .map(|v| vec![v.to_string()])
+                .unwrap_or_else(|| vec![]))
+        }
+        "FHIRUri" => {
+            let fp_uri = value.as_any().downcast_ref::<FHIRUri>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fp_uri
+                .value
+                .as_ref()
+                .map(|v| vec![v.to_string()])
+                .unwrap_or_else(|| vec![]))
+        }
+        type_name => Err(InsertableIndexError::FailedDowncast(type_name.to_string())),
+    }
+}
+
+fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndexError> {
+    match value.typename() {
+        "Coding" => {
+            panic!();
+        }
+        "CodeableConcept" => {
+            panic!();
+        }
+        "Identifier" => {
+            panic!();
+        }
+        "ContactPoint" => {
+            let fp_contact_point =
+                value
+                    .as_any()
+                    .downcast_ref::<ContactPoint>()
+                    .ok_or_else(|| {
+                        InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    })?;
+
+            Ok(vec![TokenIndex {
+                system: None,
+                code: fp_contact_point
+                    .value
+                    .as_ref()
+                    .and_then(|v| v.value.clone()),
+            }])
+        }
+        "FHIRCode" => {
+            let fp_code = value.as_any().downcast_ref::<FHIRCode>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+
+            Ok(vec![TokenIndex {
+                system: None,
+                code: fp_code.value.as_ref().map(|v| v.to_string()),
+            }])
+        }
+        "FHIRBoolean" => {
+            let fp_boolean = value
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+
+            Ok(vec![TokenIndex {
+                system: Some("http://hl7.org/fhir/special-values".to_string()),
+                code: fp_boolean.value.as_ref().map(|v| v.to_string()),
+            }])
+        }
+        "id" => {
+            panic!();
+        }
+        "http://hl7.org/fhirpath/System.String" => {
+            panic!();
+        }
+        "FHIRString" => {
+            let fp_string = value.as_any().downcast_ref::<FHIRString>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+
+            Ok(vec![TokenIndex {
+                system: None,
+                code: fp_string.value.as_ref().map(|v| v.to_string()),
+            }])
+        }
+        "FHIRId" => {
+            let fp_id = value.as_any().downcast_ref::<FHIRId>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+
+            Ok(vec![TokenIndex {
+                system: None,
+                code: fp_id.value.as_ref().map(|v| v.to_string()),
+            }])
+        }
+        _ => Err(InsertableIndexError::FailedDowncast(
+            value.typename().to_string(),
+        )),
     }
 }
 
 pub fn to_insertable_index(
     parameter: &SearchParameter,
     result: Vec<&dyn MetaValue>,
-) -> Result<Vec<InsertableIndex>, OperationOutcomeError> {
+) -> Result<InsertableIndex, OperationOutcomeError> {
     match parameter.type_.value.as_ref().map(|v| v.as_str()) {
         Some("number") => {
-            panic!();
+            let numbers = result
+                .iter()
+                .filter_map(|v| index_number(*v).ok())
+                .flatten()
+                .collect::<Vec<_>>();
+            Ok(InsertableIndex::Number(numbers))
         }
-        Some("composite") | Some("uri") | Some("reference") | Some("date") | Some("token")
-        | Some("string") | Some("quantity") => {
+        Some("string") => {
+            let strings = result
+                .iter()
+                .filter_map(|v| index_string(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::String(strings))
+        }
+        Some("uri") => {
+            let uris = result
+                .iter()
+                .filter_map(|v| index_uri(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::URI(uris))
+        }
+        Some("composite") | Some("reference") | Some("date") | Some("token") | Some("quantity") => {
             panic!()
         }
         Some(_) | None => Err(InsertableIndexError::InvalidType(
