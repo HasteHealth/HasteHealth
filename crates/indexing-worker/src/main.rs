@@ -122,6 +122,7 @@ pub async fn main() {
                         // sleep(Duration::from_millis(1000)).await;
                         let start = Instant::now();
 
+                        // Iterator used to evaluate all of the search expressions for indexing.
                         let index_set = resources
                             .par_iter()
                             .flat_map(|r| {
