@@ -136,13 +136,41 @@ fn evaluate_term<'a>(term: &Term, context: Context<'a>) -> Result<Context<'a>, F
     }
 }
 
+/// Need special handling as the first term could start with a type filter.
+/// for example Patient.name
+fn evaluate_first_term<'a>(
+    term: &Term,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    match term {
+        Term::Invocation(invocation) => match invocation {
+            Invocation::Identifier(identifier) => {
+                let type_filter = filter_by_type(&identifier.0, &context);
+                if !type_filter.values.is_empty() {
+                    Ok(type_filter)
+                } else {
+                    evaluate_invocation(invocation, context)
+                }
+            }
+            _ => evaluate_invocation(invocation, context),
+        },
+        _ => evaluate_term(term, context),
+    }
+}
+
 fn evaluate_singular<'b>(
     expression: &Vec<Term>,
     context: Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     let mut current_context = context;
 
-    for term in expression.iter() {
+    let mut term_iterator = expression.iter();
+    let first_term = term_iterator.next();
+    if let Some(first_term) = first_term {
+        current_context = evaluate_first_term(first_term, current_context)?;
+    }
+
+    for term in term_iterator {
         current_context = evaluate_term(term, current_context)?;
     }
 
@@ -363,7 +391,7 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
     }
 }
 
-fn filter_by_type<'a>(type_name: &str, context: Context<'a>) -> Context<'a> {
+fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
     context.new_context_from(
         context
             .values
@@ -399,11 +427,11 @@ fn evaluate_function<'b>(
         }),
         "ofType" => fp_func_1(&function.arguments, context, |args, context| {
             let type_name = derive_typename(&args[0])?;
-            Ok(filter_by_type(&type_name, context))
+            Ok(filter_by_type(&type_name, &context))
         }),
         "as" => fp_func_1(&function.arguments, context, |args, context| {
             let type_name = derive_typename(&args[0])?;
-            Ok(filter_by_type(&type_name, context))
+            Ok(filter_by_type(&type_name, &context))
         }),
         "exists" => fp_func_n(&function.arguments, context, |args, context| {
             if args.len() > 1 {

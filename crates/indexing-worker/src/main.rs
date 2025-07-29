@@ -147,11 +147,14 @@ pub async fn main() {
                                         param.expression.as_ref().unwrap().value.as_ref().unwrap();
                                     let result = fp_engine.evaluate(expression, vec![r]).unwrap();
 
-                                    println!(
-                                        "{} result: {:?}",
-                                        expression,
-                                        result.iter().collect::<Vec<_>>()
-                                    );
+                                    let result_vec = result.iter().collect::<Vec<_>>();
+
+                                    if !result_vec.is_empty() {
+                                        println!("Evaluating expression: {}", expression);
+                                        println!("Result: {:?}", result_vec);
+                                    } else {
+                                        println!("No results for expression: {}", expression);
+                                    }
                                 }
                                 let result = fp_engine.evaluate(
                                     "$this.identifier.where($this.value = '123')",
