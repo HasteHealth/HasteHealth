@@ -145,13 +145,15 @@ pub async fn main() {
                                 for param in patient_params.iter() {
                                     let expression =
                                         param.expression.as_ref().unwrap().value.as_ref().unwrap();
-                                    let result = fp_engine.evaluate(expression, vec![r]).unwrap();
+                                    let result = fp_engine.evaluate(expression, vec![r]).expect(
+                                        &format!("failed to evaluate expression {}", expression),
+                                    );
 
                                     let result_vec = result.iter().collect::<Vec<_>>();
 
                                     if !result_vec.is_empty() {
                                         println!("Evaluating expression: {}", expression);
-                                        println!("Result: {:?}", result_vec);
+                                        println!("Result: {:?}", result_vec.len());
                                     } else {
                                         println!("No results for expression: {}", expression);
                                     }

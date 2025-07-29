@@ -413,13 +413,13 @@ fn evaluate_function<'b>(
             for value in context.values.iter() {
                 let result =
                     evaluate_expression(where_condition, context.new_context_from(vec![*value]))?;
-                if result.values.len() != 1 {
+
+                if result.values.len() > 1 {
                     return Err(FHIRPathError::InternalError(
                         "Where condition did not return a single value".to_string(),
                     ));
-                }
-
-                if downcast_bool(result.values[0])? == true {
+                    // Empty set effectively means no match and treat as false.
+                } else if !result.values.is_empty() && downcast_bool(result.values[0])? == true {
                     new_context.push(*value);
                 }
             }
