@@ -7,6 +7,7 @@ use oxidized_fhir_model::r4::{
     types::{Identifier, Resource},
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use oxidized_reflect::MetaValue;
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
@@ -85,6 +86,8 @@ pub async fn main() {
     let tenants_limit: usize = 100;
 
     let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
+
+    println!("{:?}", R4_SEARCH_PARAMETERS.keys());
 
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit)
