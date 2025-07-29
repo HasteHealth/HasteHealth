@@ -2,7 +2,7 @@ use crate::lock::{LockKind, LockProvider, postgres::PostgresLockProvider};
 use oxidized_config::get_config;
 use oxidized_fhir_model::r4::{sqlx::FHIRJson, types::Resource};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Connection, query_as};
+use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 // use tokio::time::sleep;
 // use std::time::Duration;
 
@@ -47,6 +47,29 @@ async fn get_resource_sequence(
         .into())
 }
 
+struct TenantReturn {
+    id: String,
+    created_at: OffsetDateTime,
+}
+
+async fn get_tenants(
+    client: &mut sqlx::PgConnection,
+    cursor: &OffsetDateTime,
+    count: usize,
+) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
+    let result = query_as!(
+        TenantReturn,
+        r#"SELECT id, created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
+        cursor,
+        count as i64
+    )
+    .fetch_all(client)
+    .await
+    .map_err(IndexingWorkerError::from)?;
+
+    Ok(result)
+}
+
 #[tokio::main]
 pub async fn main() {
     // Initialize the PostgreSQL connection pool
@@ -54,33 +77,47 @@ pub async fn main() {
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
         .expect("Failed to connect to the database");
+    let mut cursor = OffsetDateTime::UNIX_EPOCH;
+    let tenants_limit: usize = 100;
 
     loop {
-        pg_connection
-            .transaction(|t| {
-                Box::pin(async move {
-                    let mut provider = PostgresLockProvider::new(t);
-                    let locks = provider
-                        .get_available(LockKind::System, vec!["tenant".into()])
-                        .await?;
-
-                    if locks.is_empty() {
-                        return Ok(());
-                    }
-
-                    let resources = get_resource_sequence(t, "tenant", 0, Some(100)).await?;
-
-                    println!("Available locks: {:?}", locks);
-                    println!("Retrieved resources: {:?}", resources.len());
-
-                    // sleep(Duration::from_millis(1000)).await;
-
-                    let ret: Result<(), IndexingWorkerError> = Ok(());
-
-                    ret
-                })
-            })
+        let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit)
             .await
-            .expect("Transaction failed");
+            .expect("Failed to get tenants.");
+
+        if tenants_to_check.is_empty() || tenants_to_check.len() < tenants_limit {
+            cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
+        } else {
+            cursor = tenants_to_check[0].created_at;
+        }
+
+        for tenant in tenants_to_check {
+            pg_connection
+                .transaction(|t| {
+                    Box::pin(async move {
+                        let mut provider = PostgresLockProvider::new(t);
+                        let locks = provider
+                            .get_available(LockKind::System, vec![tenant.id.as_str().into()])
+                            .await?;
+
+                        if locks.is_empty() {
+                            return Ok(());
+                        }
+
+                        let resources = get_resource_sequence(t, "tenant", 0, Some(100)).await?;
+
+                        println!("Available locks: {:?}", locks);
+                        println!("Retrieved resources: {:?}", resources.len());
+
+                        // sleep(Duration::from_millis(1000)).await;
+
+                        let ret: Result<(), IndexingWorkerError> = Ok(());
+
+                        ret
+                    })
+                })
+                .await
+                .expect("Transaction failed");
+        }
     }
 }
