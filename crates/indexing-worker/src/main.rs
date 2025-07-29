@@ -8,7 +8,6 @@ use oxidized_fhir_model::r4::{
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
-use oxidized_reflect::MetaValue;
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 mod lock;
@@ -139,7 +138,7 @@ pub async fn main() {
                         let start = Instant::now();
 
                         // Iterator used to evaluate all of the search expressions for indexing.
-                        let index_set = resources
+                        let _index_set = resources
                             .par_iter()
                             .flat_map(|r| {
                                 for param in patient_params.iter() {
@@ -152,12 +151,13 @@ pub async fn main() {
                                     let result_vec = result.iter().collect::<Vec<_>>();
 
                                     if !result_vec.is_empty() {
-                                        println!("Evaluating expression: {}", expression);
-                                        println!("Result: {:?}", result_vec.len());
+                                        // println!("Evaluating expression: {}", expression);
+                                        // println!("Result: {:?}", result_vec.len());
                                     } else {
-                                        println!("No results for expression: {}", expression);
+                                        //println!("No results for expression: {}", expression);
                                     }
                                 }
+
                                 let result = fp_engine.evaluate(
                                     "$this.identifier.where($this.value = '123')",
                                     vec![r],
