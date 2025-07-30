@@ -4,14 +4,22 @@ use crate::{
     conversion::InsertableIndex,
     lock::{LockKind, LockProvider, postgres::PostgresLockProvider},
 };
-use oxidized_config::get_config;
-use oxidized_fhir_model::r4::{
-    sqlx::FHIRJson,
-    types::{Identifier, Resource},
+use elasticsearch::{
+    BulkOperation, BulkParts, Elasticsearch,
+    auth::Credentials,
+    cert::CertificateValidation,
+    http::{
+        Url,
+        transport::{SingleNodeConnectionPool, Transport, TransportBuilder},
+    },
+    indices::IndicesCreateParts,
 };
+use oxidized_config::get_config;
+use oxidized_fhir_model::r4::{sqlx::FHIRJson, types::Resource};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use rayon::prelude::*;
+
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 mod conversion;
 mod lock;
@@ -25,8 +33,11 @@ pub enum IndexingWorkerError {
 }
 
 struct ReturnV {
+    id: String,
     resource: FHIRJson<Resource>,
 }
+
+static R4_FHIR_INDEX: &str = "r4_search_index";
 
 /// Retrieves a sequence of resources from the database.
 /// Must have sequence value greater than `cur_sequence`.
@@ -35,10 +46,10 @@ async fn get_resource_sequence(
     tenant_id: &str,
     cur_sequence: i64,
     count: Option<u64>,
-) -> Result<Vec<Resource>, OperationOutcomeError> {
+) -> Result<Vec<ReturnV>, OperationOutcomeError> {
     let result = query_as!(
         ReturnV,
-        r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 LIMIT $3"#,
+        r#"SELECT id, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 LIMIT $3"#,
         tenant_id,
         cur_sequence,
         count.unwrap_or(100) as i64
@@ -47,12 +58,7 @@ async fn get_resource_sequence(
     .await
     .map_err(IndexingWorkerError::from)?;
 
-    Ok(result
-        .into_iter()
-        .map(|r| r.resource.0)
-        .into_iter()
-        .collect::<Vec<_>>()
-        .into())
+    Ok(result)
 }
 
 struct TenantReturn {
@@ -84,6 +90,26 @@ pub async fn main() {
     let config = get_config("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
+
+    let url = Url::parse("https://localhost:9200").unwrap();
+    let conn_pool = SingleNodeConnectionPool::new(url);
+    let transport = TransportBuilder::new(conn_pool)
+        .cert_validation(CertificateValidation::None)
+        .auth(Credentials::Basic(
+            "elastic".to_string(),
+            "nGN1wSIQ-8phdE*JiLOp".to_string(),
+        ))
+        .build()
+        .unwrap();
+    let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
+
+    let indices_client = elasticsearch_client
+        .indices()
+        .create(IndicesCreateParts::Index(R4_FHIR_INDEX))
+        .send()
+        .await;
+
+    tracing::info!("Indices create response: {:?}", indices_client);
 
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
@@ -124,6 +150,7 @@ pub async fn main() {
         for tenant in tenants_to_check {
             let fp_engine = fp_engine.clone();
             let patient_params = patient_params.clone();
+            let elasticsearch_client = elasticsearch_client.clone();
             pg_connection
                 .transaction(|t| {
                     Box::pin(async move {
@@ -145,30 +172,62 @@ pub async fn main() {
                         let start = Instant::now();
 
                         // Iterator used to evaluate all of the search expressions for indexing.
-                        let _index_set: Vec<HashMap<String, InsertableIndex>> = resources
-                            .par_iter()
-                            .map(|r| {
-                                let mut map = HashMap::new();
-                                for param in patient_params.iter() {
-                                    let expression =
-                                        param.expression.as_ref().unwrap().value.as_ref().unwrap();
-                                    let result = fp_engine.evaluate(expression, vec![r]).expect(
-                                        &format!("failed to evaluate expression {}", expression),
-                                    );
+                        let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> =
+                            resources
+                                .par_iter()
+                                .map(|r| {
+                                    let mut map = HashMap::new();
+                                    for param in patient_params.iter() {
+                                        let expression = param
+                                            .expression
+                                            .as_ref()
+                                            .unwrap()
+                                            .value
+                                            .as_ref()
+                                            .unwrap();
+                                        let result = fp_engine
+                                            .evaluate(expression, vec![&r.resource.0])
+                                            .expect(&format!(
+                                                "failed to evaluate expression {}",
+                                                expression
+                                            ));
 
-                                    let result_vec = conversion::to_insertable_index(
-                                        param,
-                                        result.iter().collect::<Vec<_>>(),
-                                    )
-                                    .unwrap();
+                                        let result_vec = conversion::to_insertable_index(
+                                            param,
+                                            result.iter().collect::<Vec<_>>(),
+                                        )
+                                        .unwrap();
 
-                                    map.insert(param.url.value.clone().unwrap(), result_vec);
+                                        map.insert(param.url.value.clone().unwrap(), result_vec);
 
-                                    // println!("{}: {:?}", expression, result_vec);
-                                }
-                                map
-                            })
-                            .collect::<Vec<_>>();
+                                        // println!("{}: {:?}", expression, result_vec);
+                                    }
+                                    let k =
+                                        BulkOperation::create(map).id(&r.id).index(R4_FHIR_INDEX);
+                                    k.into()
+                                    // map
+                                })
+                                .collect::<Vec<_>>();
+
+                        // ops.push(
+                        //     BulkOperation::create(json!({
+                        //         "user": "forloop",
+                        //         "post_date": "2020-01-08T00:00:00Z",
+                        //         "message": "Indexing with the rust client, yeah!"
+                        //     }))
+                        //     .id("2")
+                        //     // .pipeline("process_tweet")
+                        //     .into(),
+                        // );
+
+                        let bulk_response = elasticsearch_client
+                            .bulk(BulkParts::Index(R4_FHIR_INDEX))
+                            .body(bulk_ops)
+                            .send()
+                            .await
+                            .unwrap();
+
+                        tracing::info!("Bulk response: {:?}", bulk_response);
 
                         tracing::info!("Evaluation took: {:?}", start.elapsed());
 
