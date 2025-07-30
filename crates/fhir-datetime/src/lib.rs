@@ -83,8 +83,26 @@ mod tests {
             parse_datetime("2023-01-01").unwrap(),
             DateTime::YearMonthDay(2023, 1, 1)
         );
-        assert!(parse_datetime("2023-01-32").is_ok());
-        assert!(parse_datetime("2023-01-01T12:00:00Z").is_ok());
+
+        assert_eq!(
+            DateTime::YearMonthDay(2023, 1, 19),
+            parse_datetime("2023-01-19").unwrap()
+        );
+
+        // Invalid day should still parse to YearMonth
+        assert_eq!(
+            DateTime::YearMonth(2023, 1),
+            parse_datetime("2023-01-42").unwrap()
+        );
+
+        assert_eq!(
+            parse_datetime("2023-01-01T12:00:00Z").unwrap(),
+            DateTime::Iso8601(
+                chrono::DateTime::parse_from_rfc3339("2023-01-01T12:00:00Z")
+                    .unwrap()
+                    .with_timezone(&chrono::Utc)
+            )
+        );
         assert!(parse_datetime("2023-01-01T12:00:00+00:00").is_ok());
         assert!(parse_datetime("2023-01-01T12:00:00+01:00").is_ok());
         assert!(parse_datetime("2023-01-01T12:00:00-01:00").is_ok());
