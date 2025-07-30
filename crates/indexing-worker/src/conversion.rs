@@ -6,33 +6,35 @@ use oxidized_fhir_model::r4::types::{
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct TokenIndex {
     system: Option<String>,
     code: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 enum RangeValue {
     Number(f64),
     Infinity,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct QuantityRange {
     low: RangeValue,
     high: RangeValue,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct ReferenceIndex {
     id: Option<String>,
     resource_type: Option<String>,
     uri: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum InsertableIndex {
     String(Vec<String>),
     Number(Vec<f64>),
