@@ -1,27 +1,28 @@
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
 use oxidized_fhir_model::r4::types::{
-    CodeableConcept, Coding, ContactPoint, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal,
-    FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid,
-    Identifier, Quantity, SearchParameter,
+    Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean, FHIRCanonical, FHIRCode,
+    FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
+    FHIRUrl, FHIRUuid, Identifier, Money, Quantity, Range, SearchParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct TokenIndex {
+pub struct TokenIndex {
     system: Option<String>,
     code: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
 enum RangeValue {
     Number(f64),
     Infinity,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct QuantityRange {
+pub struct QuantityRange {
     low: RangeValue,
     high: RangeValue,
 }
@@ -387,37 +388,79 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
     }
 }
 
-// // Number and quantity dependent on the precision for indexing.
-// fn get_quantity_range(value: f64) -> QuantityRange {
-//   const decimalPrecision = getDecimalPrecision(value);
-//   return {
-//     start: value - 0.5 * 10 ** -decimalPrecision,
-//     end: value + 0.5 * 10 ** -decimalPrecision,
-//   };
-// }
+fn get_decimal_precision(value: f64) -> u32 {
+    let value = value.to_string();
+    let decimal_characters = value.split('.').nth(1);
+    let mut digits = 0;
+    if let Some(decimal_part) = decimal_characters {
+        decimal_part.chars().for_each(|_| digits += 1);
+    }
+
+    digits
+}
+
+// Number and quantity dependent on the precision for indexing.
+fn get_quantity_range(value: f64) -> QuantityRange {
+    let decimal_precision = get_decimal_precision(value);
+    return QuantityRange {
+        low: RangeValue::Number(value - 0.5 * 10f64.powi(-(decimal_precision as i32))),
+        high: RangeValue::Number(value + 0.5 * 10f64.powi(-(decimal_precision as i32))),
+    };
+}
+
+fn fhirdecimal_to_quantity_range(value: &Option<Box<FHIRDecimal>>) -> Vec<QuantityRange> {
+    value
+        .as_ref()
+        .and_then(|v| v.value.as_ref().map(|v| vec![get_quantity_range(*v)]))
+        .unwrap_or(vec![])
+}
 
 fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
     match value.typename() {
+        "Range" => {
+            let fp_range = value.as_any().downcast_ref::<Range>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            if fp_range.low.is_some() || fp_range.high.is_some() {
+                let low = fp_range
+                    .low
+                    .as_ref()
+                    .and_then(|v| v.value.as_ref().and_then(|v| v.value));
+                let high = fp_range
+                    .high
+                    .as_ref()
+                    .and_then(|v| v.value.as_ref().and_then(|v| v.value));
+
+                return Ok(vec![QuantityRange {
+                    low: low.map_or(RangeValue::Infinity, RangeValue::Number),
+                    high: high.map_or(RangeValue::Infinity, RangeValue::Number),
+                }]);
+            }
+            return Ok(vec![]);
+        }
+        "Age" => {
+            let fp_age = value.as_any().downcast_ref::<Age>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fhirdecimal_to_quantity_range(&fp_age.value))
+        }
+        "Money" => {
+            let fp_money = value.as_any().downcast_ref::<Money>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fhirdecimal_to_quantity_range(&fp_money.value))
+        }
+        "Duration" => {
+            let fp_duration = value.as_any().downcast_ref::<Duration>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fhirdecimal_to_quantity_range(&fp_duration.value))
+        }
         "Quantity" => {
-            let fp_quantity = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Quantity>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
-
-            // let low = fp_quantity.start.as_ref().map(|l| match l.value {
-            //     Some(v) => RangeValue::Number(v),
-            //     None => RangeValue::Infinity,
-            // });
-
-            // let high = fp_quantity.end.as_ref().map(|h| match h.value {
-            //     Some(v) => RangeValue::Number(v),
-            //     None => RangeValue::Infinity,
-            // });
-            panic!();
-
-            // Ok(vec![QuantityRange { low, high }])
+            let fp_quantity = value.as_any().downcast_ref::<Quantity>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            Ok(fhirdecimal_to_quantity_range(&fp_quantity.value))
         }
         _ => Err(InsertableIndexError::FailedDowncast(
             value.typename().to_string(),
@@ -479,12 +522,12 @@ pub fn to_insertable_index(
             Ok(InsertableIndex::Reference(vec![]))
         }
         Some("quantity") => {
-            // let quantities = result
-            //     .iter()
-            //     .filter_map(|v| index_quantity(*v).ok())
-            //     .flatten()
-            //     .collect();
-            Ok(InsertableIndex::Quantity(vec![]))
+            let quantities = result
+                .iter()
+                .filter_map(|v| index_quantity(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Quantity(quantities))
         }
         // Not Supported yet
         Some("composite") => Ok(InsertableIndex::Composite(vec![])),
