@@ -1,3 +1,4 @@
+use chrono::NaiveTime;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -36,6 +37,36 @@ pub static DATETIME_REGEX: Lazy<Regex> = Lazy::new(|| {
         r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1])(?<time>T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$",
     ).unwrap()
 });
+
+pub static INSTANT_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$",
+    ).unwrap()
+});
+
+pub static TIME_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"^([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?$").unwrap()
+});
+
+pub fn parse_instant(instant_string: &str) -> Result<Instant, ParseError> {
+    if INSTANT_REGEX.is_match(instant_string) {
+        let datetime = chrono::DateTime::parse_from_rfc3339(instant_string)
+            .map_err(|_| ParseError::InvalidFormat)?;
+        Ok(Instant::Iso8601(datetime.with_timezone(&chrono::Utc)))
+    } else {
+        Err(ParseError::InvalidFormat)
+    }
+}
+
+pub fn parse_time(time_string: &str) -> Result<NaiveTime, ParseError> {
+    if TIME_REGEX.is_match(time_string) {
+        let time = NaiveTime::parse_from_str(time_string, "%H:%M:%S%.f")
+            .map_err(|_| ParseError::InvalidFormat)?;
+        Ok(time)
+    } else {
+        Err(ParseError::InvalidFormat)
+    }
+}
 
 pub fn parse_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
     if let Some(captures) = DATETIME_REGEX.captures(datetime_string) {
@@ -100,9 +131,49 @@ pub fn parse_date(date_string: &str) -> Result<Date, ParseError> {
     }
 }
 
+pub enum DateKind {
+    DateTime,
+    Date,
+    Time,
+    Instant,
+}
+
+pub enum DateResult {
+    DateTime(DateTime),
+    Date(Date),
+    Time(NaiveTime),
+    Instant(Instant),
+}
+
+pub fn parse(kind: DateKind, input: &str) -> Result<DateResult, ParseError> {
+    match kind {
+        DateKind::DateTime => Ok(DateResult::DateTime(parse_datetime(input)?)),
+        DateKind::Date => Ok(DateResult::Date(parse_date(input)?)),
+        DateKind::Time => Ok(DateResult::Time(parse_time(input)?)),
+        DateKind::Instant => Ok(DateResult::Instant(parse_instant(input)?)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_parse_time() {
+        assert!(parse_time("12:34:56").is_ok());
+        assert!(parse_time("23:59:59").is_ok());
+        assert!(parse_time("23:59:59.232").is_ok());
+        assert_eq!(
+            parse_time("23:59:59.232").unwrap(),
+            NaiveTime::from_hms_milli(23, 59, 59, 232)
+        );
+    }
+
+    #[test]
+    fn test_parse_instant() {
+        assert!(parse_instant("2015-02-07T13:28:17.239+02:00").is_ok());
+        assert!(parse_instant("2017-01-01T00:00:00Z").is_ok());
+    }
 
     #[test]
     fn test_parse_date() {
