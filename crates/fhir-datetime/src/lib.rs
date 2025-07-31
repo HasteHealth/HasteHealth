@@ -26,7 +26,7 @@ pub enum ParseError {
 
 pub static DATETIME_REGEX: Lazy<Regex> = Lazy::new(|| {
     let re = Regex::new(
-        r"(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1])(T(?<time>[01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?",
+        r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1])(T(?<time>[01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$",
     )
     .unwrap();
 
@@ -89,11 +89,8 @@ mod tests {
             parse_datetime("2023-01-19").unwrap()
         );
 
-        // Invalid day should still parse to YearMonth
-        assert_eq!(
-            DateTime::YearMonth(2023, 1),
-            parse_datetime("2023-01-42").unwrap()
-        );
+        // Invalid day won't parse.
+        assert!(parse_datetime("2023-01-42").is_err());
 
         assert_eq!(
             parse_datetime("2023-01-01T12:00:00Z").unwrap(),
