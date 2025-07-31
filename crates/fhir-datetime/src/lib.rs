@@ -9,6 +9,7 @@ pub enum DateTime {
     Iso8601(chrono::DateTime<chrono::Utc>),
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Date {
     Year(u16),
     YearMonth(u16, u8),
@@ -24,18 +25,20 @@ pub enum ParseError {
     InvalidFormat,
 }
 
-pub static DATETIME_REGEX: Lazy<Regex> = Lazy::new(|| {
-    let re = Regex::new(
-        r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1])(T(?<time>[01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$",
-    )
-    .unwrap();
-
-    re
+pub static DATE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1]))?)?$",
+    ).unwrap()
 });
 
-pub fn parse_datetime(date_string: &str) -> Result<DateTime, ParseError> {
-    if let Some(captures) = DATETIME_REGEX.captures(date_string) {
-        println!("{:?}", captures);
+pub static DATETIME_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1])(?<time>T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$",
+    ).unwrap()
+});
+
+pub fn parse_datetime(datetime_string: &str) -> Result<DateTime, ParseError> {
+    if let Some(captures) = DATETIME_REGEX.captures(datetime_string) {
         match (
             captures.name("year"),
             captures.name("month"),
@@ -44,34 +47,81 @@ pub fn parse_datetime(date_string: &str) -> Result<DateTime, ParseError> {
         ) {
             (Some(year), None, None, None) => {
                 let year = year.as_str().parse::<u16>().unwrap();
-                return Ok(DateTime::Year(year));
+                Ok(DateTime::Year(year))
             }
             (Some(year), Some(month), None, None) => {
                 let year = year.as_str().parse::<u16>().unwrap();
                 let month = month.as_str().parse::<u8>().unwrap();
-                return Ok(DateTime::YearMonth(year, month));
+                Ok(DateTime::YearMonth(year, month))
             }
             (Some(year), Some(month), Some(day), None) => {
                 let year = year.as_str().parse::<u16>().unwrap();
                 let month = month.as_str().parse::<u8>().unwrap();
                 let day = day.as_str().parse::<u8>().unwrap();
-                return Ok(DateTime::YearMonthDay(year, month, day));
+                Ok(DateTime::YearMonthDay(year, month, day))
             }
             _ => {
-                let datetime = chrono::DateTime::parse_from_rfc3339(date_string)
+                let datetime = chrono::DateTime::parse_from_rfc3339(datetime_string)
                     .map_err(|_| ParseError::InvalidFormat)?;
-                return Ok(DateTime::Iso8601(datetime.with_timezone(&chrono::Utc)));
+                Ok(DateTime::Iso8601(datetime.with_timezone(&chrono::Utc)))
             }
         }
     } else {
-        println!("No match found for date string: {}", date_string);
-        return Err(ParseError::InvalidFormat);
-    };
+        Err(ParseError::InvalidFormat)
+    }
+}
+
+pub fn parse_date(date_string: &str) -> Result<Date, ParseError> {
+    if let Some(captures) = DATE_REGEX.captures(date_string) {
+        match (
+            captures.name("year"),
+            captures.name("month"),
+            captures.name("day"),
+        ) {
+            (Some(year), None, None) => {
+                let year = year.as_str().parse::<u16>().unwrap();
+                Ok(Date::Year(year))
+            }
+            (Some(year), Some(month), None) => {
+                let year = year.as_str().parse::<u16>().unwrap();
+                let month = month.as_str().parse::<u8>().unwrap();
+                Ok(Date::YearMonth(year, month))
+            }
+            (Some(year), Some(month), Some(day)) => {
+                let year = year.as_str().parse::<u16>().unwrap();
+                let month = month.as_str().parse::<u8>().unwrap();
+                let day = day.as_str().parse::<u8>().unwrap();
+                Ok(Date::YearMonthDay(year, month, day))
+            }
+            _ => Err(ParseError::InvalidFormat),
+        }
+    } else {
+        Err(ParseError::InvalidFormat)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_parse_date() {
+        assert_eq!(parse_date("2023").unwrap(), Date::Year(2023));
+        assert_eq!(parse_date("2023-01").unwrap(), Date::YearMonth(2023, 1));
+        assert_eq!(
+            parse_date("2023-01-01").unwrap(),
+            Date::YearMonthDay(2023, 1, 1)
+        );
+
+        assert_eq!(
+            Date::YearMonthDay(2023, 1, 19),
+            parse_date("2023-01-19").unwrap()
+        );
+
+        assert!(parse_date("2023-01-33").is_err());
+        assert!(parse_date("2023-13-30").is_err());
+        assert!(parse_date("2023-01-01T12:00:00Z").is_err());
+    }
     #[test]
     fn test_parse_datetime() {
         assert_eq!(parse_datetime("2023").unwrap(), DateTime::Year(2023));
