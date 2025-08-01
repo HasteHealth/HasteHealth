@@ -33,10 +33,20 @@ pub enum IndexingWorkerError {
     ElasticsearchError(#[from] elasticsearch::Error),
 }
 
+#[derive(sqlx::Type)]
+#[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
+enum FHIRMethod {
+    Create,
+    Read,
+    Update,
+    Delete,
+}
+
 struct ReturnV {
     id: String,
     resource: FHIRJson<Resource>,
     sequence: i64,
+    fhir_method: FHIRMethod,
 }
 
 static R4_FHIR_INDEX: &str = "r4_search_index";
@@ -51,7 +61,7 @@ async fn get_resource_sequence(
 ) -> Result<Vec<ReturnV>, OperationOutcomeError> {
     let result = query_as!(
         ReturnV,
-        r#"SELECT id, sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+        r#"SELECT id, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
         tenant_id,
         cur_sequence,
         count.unwrap_or(100) as i64
