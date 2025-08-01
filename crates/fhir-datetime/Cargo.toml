@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+oxidized-reflect = { path = "../reflect" }
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 chrono = "0.4.41"
 once_cell = "1.21.3"

@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
 
+mod reflect;
 mod serialize;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -11,6 +12,19 @@ pub enum DateTime {
     Iso8601(chrono::DateTime<chrono::Utc>),
 }
 
+impl ToString for DateTime {
+    fn to_string(&self) -> String {
+        match self {
+            DateTime::Year(year) => year.to_string(),
+            DateTime::YearMonth(year, month) => format!("{:04}-{:02}", year, month),
+            DateTime::YearMonthDay(year, month, day) => {
+                format!("{:04}-{:02}-{:02}", year, month, day)
+            }
+            DateTime::Iso8601(dt) => dt.to_rfc3339(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Date {
     Year(u16),
@@ -18,12 +32,39 @@ pub enum Date {
     YearMonthDay(u16, u8, u8),
 }
 
+impl ToString for Date {
+    fn to_string(&self) -> String {
+        match self {
+            Date::Year(year) => year.to_string(),
+            Date::YearMonth(year, month) => format!("{:04}-{:02}", year, month),
+            Date::YearMonthDay(year, month, day) => {
+                format!("{:04}-{:02}-{:02}", year, month, day)
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Instant {
     Iso8601(chrono::DateTime<chrono::Utc>),
 }
 
+impl ToString for Instant {
+    fn to_string(&self) -> String {
+        match self {
+            Instant::Iso8601(dt) => dt.to_rfc3339(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Time(chrono::NaiveTime);
+
+impl ToString for Time {
+    fn to_string(&self) -> String {
+        self.0.format("%H:%M:%S%.f").to_string()
+    }
+}
 
 #[derive(Debug)]
 pub enum ParseError {

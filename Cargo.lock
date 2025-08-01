@@ -1921,6 +1921,7 @@ dependencies = [
  "chrono",
  "once_cell",
  "oxidized-fhir-serialization-json",
+ "oxidized-reflect",
  "regex",
  "serde_json",
 ]
