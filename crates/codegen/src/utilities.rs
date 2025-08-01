@@ -57,6 +57,10 @@ pub static RUST_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
         "http://hl7.org/fhirpath/System.DateTime".to_string(),
         "oxidized_fhir_datetime::DateTime".to_string(),
     );
+    m.insert(
+        "http://hl7.org/fhirpath/System.Instant".to_string(),
+        "oxidized_fhir_datetime::Instant".to_string(),
+    );
     m
 });
 
@@ -149,9 +153,23 @@ pub mod conversion {
 
             _ => {
                 if let Some(rust_primitive) = RUST_PRIMITIVES.get(fhir_type) {
-                    let k = rust_primitive.parse::<TokenStream>().unwrap();
-                    quote! {
-                        #k
+                    // Special handling for instance which should use instant type,
+                    let path = element.get("path").and_then(|p| p.as_str()).unwrap();
+                    if path == "instant.value" {
+                        let k = RUST_PRIMITIVES
+                            .get("http://hl7.org/fhirpath/System.Instant")
+                            .unwrap()
+                            .parse::<TokenStream>()
+                            .unwrap();
+
+                        quote! {
+                            #k
+                        }
+                    } else {
+                        let k = rust_primitive.parse::<TokenStream>().unwrap();
+                        quote! {
+                            #k
+                        }
                     }
                 } else if let Some(primitive) = FHIR_PRIMITIVES.get(fhir_type) {
                     let k = format_ident!("{}", primitive.clone());
