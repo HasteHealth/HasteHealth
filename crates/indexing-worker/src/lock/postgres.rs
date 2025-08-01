@@ -58,7 +58,12 @@ impl<'a, 'b> LockProvider for PostgresLockProvider<'a, 'b> {
         _value: Lock,
     ) -> Result<(), OperationOutcomeError> {
         // Implementation for updating a lock in PostgreSQL
-        unimplemented!()
+        sqlx::query!(
+            "UPDATE locks SET position = $1 WHERE kind = $2 AND id = $3",
+            _value.position,
+            _kind.as_ref(),
+            _lock_id.as_ref()
+        );
     }
 
     async fn create(&mut self, _lock: Lock) -> Result<Lock, OperationOutcomeError> {
