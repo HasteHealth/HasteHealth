@@ -1,13 +1,13 @@
-use crate::lock::{Lock, LockId, LockKind, LockProvider};
+use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::{Postgres, QueryBuilder, Transaction};
 
-pub struct PostgresLockProvider<'a, 'b> {
+pub struct PostgresIndexLockProvider<'a, 'b> {
     connection: &'a mut Transaction<'b, Postgres>,
 }
-impl<'a, 'b> PostgresLockProvider<'a, 'b> {
+impl<'a, 'b> PostgresIndexLockProvider<'a, 'b> {
     pub fn new(connection: &'a mut Transaction<'b, Postgres>) -> Self {
-        PostgresLockProvider { connection }
+        PostgresIndexLockProvider { connection }
     }
 
     pub fn set_connection(&mut self, connection: &'a mut Transaction<'b, Postgres>) {
@@ -16,27 +16,24 @@ impl<'a, 'b> PostgresLockProvider<'a, 'b> {
 }
 
 #[derive(OperationOutcomeError, Debug)]
-pub enum LockError {
+pub enum TenantLockIndexError {
     #[fatal(code = "exception", diagnostic = "SQL error occurred {arg0}")]
     SQLError(#[from] sqlx::Error),
 }
 
-impl<'a, 'b> LockProvider for PostgresLockProvider<'a, 'b> {
+impl<'a, 'b> IndexLockProvider for PostgresIndexLockProvider<'a, 'b> {
     async fn get_available(
         &mut self,
-        kind: LockKind,
-        lock_ids: Vec<LockId>,
-    ) -> Result<Vec<Lock>, OperationOutcomeError> {
+        tenants: Vec<String>,
+    ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
         // Implementation for retrieving available locks from PostgreSQL
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new("SELECT * FROM locks WHERE kind = ");
 
-        query_builder.push_bind(kind);
-        query_builder.push(" AND id IN (");
+        let mut query_builder: QueryBuilder<Postgres> =
+            QueryBuilder::new("SELECT id, index_sequence_position FROM tenants WHERE id IN ( ");
 
         let mut separated = query_builder.separated(", ");
-        for lock_id in lock_ids.iter() {
-            separated.push_bind(lock_id.as_ref());
+        for tenant_id in tenants.iter() {
+            separated.push_bind(tenant_id);
         }
 
         separated.push_unseparated(") FOR UPDATE SKIP LOCKED");
@@ -46,28 +43,26 @@ impl<'a, 'b> LockProvider for PostgresLockProvider<'a, 'b> {
         let res = query
             .fetch_all(&mut **self.connection)
             .await
-            .map_err(LockError::from)?;
+            .map_err(TenantLockIndexError::from)?;
 
         Ok(res)
     }
 
     async fn update(
         &mut self,
-        _kind: LockKind,
-        _lock_id: LockId,
-        _value: Lock,
+        tenant_id: String,
+        next_position: usize,
     ) -> Result<(), OperationOutcomeError> {
         // Implementation for updating a lock in PostgreSQL
         sqlx::query!(
-            "UPDATE locks SET position = $1 WHERE kind = $2 AND id = $3",
-            _value.position,
-            _kind.as_ref(),
-            _lock_id.as_ref()
-        );
-    }
+            "UPDATE tenants SET index_sequence_position = $1 WHERE id = $2",
+            next_position as i64,
+            tenant_id
+        )
+        .execute(&mut **self.connection)
+        .await
+        .map_err(TenantLockIndexError::from)?;
 
-    async fn create(&mut self, _lock: Lock) -> Result<Lock, OperationOutcomeError> {
-        // Implementation for creating a new lock in PostgreSQL
-        unimplemented!()
+        Ok(())
     }
 }

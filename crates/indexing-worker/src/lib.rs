@@ -1,6 +1,6 @@
 use crate::{
     conversion::InsertableIndex,
-    lock::{LockKind, LockProvider, postgres::PostgresLockProvider},
+    indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider},
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -21,7 +21,7 @@ use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
 mod conversion;
-mod lock;
+mod indexing_lock;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
@@ -48,7 +48,7 @@ async fn get_resource_sequence(
 ) -> Result<Vec<ReturnV>, OperationOutcomeError> {
     let result = query_as!(
         ReturnV,
-        r#"SELECT id, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 LIMIT $3"#,
+        r#"SELECT id, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
         tenant_id,
         cur_sequence,
         count.unwrap_or(100) as i64
@@ -152,18 +152,21 @@ pub async fn run_worker() {
             pg_connection
                 .transaction(|t| {
                     Box::pin(async move {
-                        let mut provider = PostgresLockProvider::new(t);
-                        let locks = provider
-                            .get_available(LockKind::System, vec![tenant.id.as_str().into()])
-                            .await?;
-
-                        if locks.is_empty() {
+                        let mut provider = PostgresIndexLockProvider::new(t);
+                        let tenant_locks = provider.get_available(vec![tenant.id]).await?;
+                        if tenant_locks.is_empty() {
                             return Ok(());
                         }
 
-                        let resources = get_resource_sequence(t, "tenant", 0, Some(100)).await?;
+                        let resources = get_resource_sequence(
+                            t,
+                            "tenant",
+                            tenant_locks[0].index_sequence_position,
+                            Some(100),
+                        )
+                        .await?;
 
-                        tracing::info!("Available locks: {:?}", locks);
+                        tracing::info!("Available locks: {:?}", tenant_locks);
                         tracing::info!("Retrieved resources: {:?}", resources.len());
 
                         // sleep(Duration::from_millis(1000)).await;
