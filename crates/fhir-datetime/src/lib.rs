@@ -1,6 +1,7 @@
-use chrono::NaiveTime;
 use once_cell::sync::Lazy;
 use regex::Regex;
+
+mod serialize;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DateTime {
@@ -20,6 +21,9 @@ pub enum Date {
 pub enum Instant {
     Iso8601(chrono::DateTime<chrono::Utc>),
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Time(chrono::NaiveTime);
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -58,10 +62,12 @@ pub fn parse_instant(instant_string: &str) -> Result<Instant, ParseError> {
     }
 }
 
-pub fn parse_time(time_string: &str) -> Result<NaiveTime, ParseError> {
+pub fn parse_time(time_string: &str) -> Result<Time, ParseError> {
     if TIME_REGEX.is_match(time_string) {
-        let time = NaiveTime::parse_from_str(time_string, "%H:%M:%S%.f")
-            .map_err(|_| ParseError::InvalidFormat)?;
+        let time = Time(
+            chrono::NaiveTime::parse_from_str(time_string, "%H:%M:%S%.f")
+                .map_err(|_| ParseError::InvalidFormat)?,
+        );
         Ok(time)
     } else {
         Err(ParseError::InvalidFormat)
@@ -141,7 +147,7 @@ pub enum DateKind {
 pub enum DateResult {
     DateTime(DateTime),
     Date(Date),
-    Time(NaiveTime),
+    Time(Time),
     Instant(Instant),
 }
 
@@ -165,7 +171,7 @@ mod tests {
         assert!(parse_time("23:59:59.232").is_ok());
         assert_eq!(
             parse_time("23:59:59.232").unwrap(),
-            NaiveTime::from_hms_milli(23, 59, 59, 232)
+            Time(chrono::NaiveTime::from_hms_milli(23, 59, 59, 232))
         );
     }
 
