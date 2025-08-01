@@ -13,10 +13,13 @@ use elasticsearch::{
     indices::IndicesCreateParts,
 };
 use oxidized_config::get_config;
-use oxidized_fhir_model::r4::{sqlx::FHIRJson, types::Resource};
+use oxidized_fhir_model::r4::{
+    sqlx::FHIRJson,
+    types::{Resource, SearchParameter},
+};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
-use oxidized_fhirpath::FHIRPathError;
+use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, sync::Arc, time::Instant};
@@ -99,7 +102,89 @@ async fn get_tenants(
     Ok(result)
 }
 
-pub async fn index_for_tenant() {}
+pub async fn index_for_tenant(
+    tenant_id: String,
+    fp_engine: Arc<FPEngine>,
+    pg_connection: &mut sqlx::PgConnection,
+    elasticsearch_client: Arc<Elasticsearch>,
+    patient_params: Arc<Vec<&'static SearchParameter>>,
+) -> Result<(), IndexingWorkerError> {
+    let fp_engine = fp_engine.clone();
+    let patient_params = patient_params.clone();
+    let elasticsearch_client = elasticsearch_client.clone();
+    let index_tenant_result: Result<(), IndexingWorkerError> = pg_connection
+        .transaction(|transaction| {
+            let tenant_id = tenant_id.clone();
+            Box::pin(async move {
+                let tenant_lock_provider = PostgresIndexLockProvider::new();
+                let tenant_locks = tenant_lock_provider
+                    .get_available(transaction, vec![&tenant_id])
+                    .await?;
+
+                if tenant_locks.is_empty() {
+                    return Ok(());
+                }
+
+                let resources = get_resource_sequence(
+                    transaction,
+                    "tenant",
+                    tenant_locks[0].index_sequence_position,
+                    Some(1000),
+                )
+                .await?;
+
+                tracing::info!("Available locks: {:?}", tenant_locks);
+                tracing::info!("Retrieved resources: {:?}", resources.len());
+
+                // Iterator used to evaluate all of the search expressions for indexing.
+                let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
+                    .par_iter()
+                    .map(|r| {
+                        let mut map = HashMap::new();
+                        for param in patient_params.iter() {
+                            if let Some(expression) =
+                                param.expression.as_ref().and_then(|e| e.value.as_ref())
+                                && let Some(url) = param.url.value.as_ref()
+                            {
+                                let result = fp_engine
+                                    .evaluate(expression, vec![&r.resource.0])
+                                    .map_err(IndexingWorkerError::from)?;
+
+                                let result_vec = conversion::to_insertable_index(
+                                    param,
+                                    result.iter().collect::<Vec<_>>(),
+                                )?;
+
+                                map.insert(url.clone(), result_vec);
+                            }
+                        }
+                        let k: elasticsearch::BulkCreateOperation<
+                            HashMap<String, InsertableIndex>,
+                        > = BulkOperation::create(map).id(&r.id).index(R4_FHIR_INDEX);
+                        Ok(k.into())
+                        // map
+                    })
+                    .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
+
+                elasticsearch_client
+                    .bulk(BulkParts::Index(R4_FHIR_INDEX))
+                    .body(bulk_ops)
+                    .send()
+                    .await?;
+
+                if let Some(resource) = resources.last() {
+                    tenant_lock_provider
+                        .update(transaction, &tenant_id, resource.sequence as usize)
+                        .await?;
+                }
+
+                Ok(())
+            })
+        })
+        .await;
+
+    index_tenant_result
+}
 
 pub async fn run_worker() {
     // Initialize the PostgreSQL connection pool
@@ -165,88 +250,17 @@ pub async fn run_worker() {
             }
 
             for tenant in tenants_to_check {
-                // sleep(Duration::from_millis(1000)).await;
-                let tenant_id = tenant.id.clone();
                 let start = Instant::now();
-                let fp_engine = fp_engine.clone();
-                let patient_params = patient_params.clone();
-                let elasticsearch_client = elasticsearch_client.clone();
-                let index_tenant_result: Result<(), IndexingWorkerError> = pg_connection
-                    .transaction(|transaction| {
-                        Box::pin(async move {
-                            let tenant_lock_provider = PostgresIndexLockProvider::new();
-                            let tenant_locks = tenant_lock_provider
-                                .get_available(transaction, vec![&tenant_id])
-                                .await?;
+                let result = index_for_tenant(
+                    tenant.id.clone(),
+                    fp_engine.clone(),
+                    &mut pg_connection,
+                    elasticsearch_client.clone(),
+                    patient_params.clone(),
+                )
+                .await;
 
-                            if tenant_locks.is_empty() {
-                                return Ok(());
-                            }
-
-                            let resources = get_resource_sequence(
-                                transaction,
-                                "tenant",
-                                tenant_locks[0].index_sequence_position,
-                                Some(1000),
-                            )
-                            .await?;
-
-                            tracing::info!("Available locks: {:?}", tenant_locks);
-                            tracing::info!("Retrieved resources: {:?}", resources.len());
-
-                            // Iterator used to evaluate all of the search expressions for indexing.
-                            let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> =
-                                resources
-                                    .par_iter()
-                                    .map(|r| {
-                                        let mut map = HashMap::new();
-                                        for param in patient_params.iter() {
-                                            if let Some(expression) = param
-                                                .expression
-                                                .as_ref()
-                                                .and_then(|e| e.value.as_ref())
-                                                && let Some(url) = param.url.value.as_ref()
-                                            {
-                                                let result = fp_engine
-                                                    .evaluate(expression, vec![&r.resource.0])
-                                                    .map_err(IndexingWorkerError::from)?;
-
-                                                let result_vec = conversion::to_insertable_index(
-                                                    param,
-                                                    result.iter().collect::<Vec<_>>(),
-                                                )?;
-
-                                                map.insert(url.clone(), result_vec);
-                                            }
-                                        }
-                                        let k: elasticsearch::BulkCreateOperation<
-                                            HashMap<String, InsertableIndex>,
-                                        > = BulkOperation::create(map)
-                                            .id(&r.id)
-                                            .index(R4_FHIR_INDEX);
-                                        Ok(k.into())
-                                        // map
-                                    })
-                                    .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
-
-                            elasticsearch_client
-                                .bulk(BulkParts::Index(R4_FHIR_INDEX))
-                                .body(bulk_ops)
-                                .send()
-                                .await?;
-
-                            if let Some(resource) = resources.last() {
-                                tenant_lock_provider
-                                    .update(transaction, &tenant_id, resource.sequence as usize)
-                                    .await?;
-                            }
-
-                            Ok(())
-                        })
-                    })
-                    .await;
-
-                if let Err(_error) = index_tenant_result {
+                if let Err(_error) = result {
                     tracing::error!(
                         "Failed to index tenant: '{}' cause: '{:?}'",
                         &tenant.id,
