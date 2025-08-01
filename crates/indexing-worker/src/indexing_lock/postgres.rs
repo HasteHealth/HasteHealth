@@ -2,16 +2,11 @@ use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::{Postgres, QueryBuilder, Transaction};
 
-pub struct PostgresIndexLockProvider<'a, 'b> {
-    connection: &'a mut Transaction<'b, Postgres>,
-}
-impl<'a, 'b> PostgresIndexLockProvider<'a, 'b> {
-    pub fn new(connection: &'a mut Transaction<'b, Postgres>) -> Self {
-        PostgresIndexLockProvider { connection }
-    }
+pub struct PostgresIndexLockProvider();
 
-    pub fn set_connection(&mut self, connection: &'a mut Transaction<'b, Postgres>) {
-        self.connection = connection;
+impl PostgresIndexLockProvider {
+    pub fn new() -> Self {
+        Self()
     }
 }
 
@@ -21,10 +16,11 @@ pub enum TenantLockIndexError {
     SQLError(#[from] sqlx::Error),
 }
 
-impl<'a, 'b> IndexLockProvider for PostgresIndexLockProvider<'a, 'b> {
+impl<'b> IndexLockProvider<Transaction<'b, Postgres>> for PostgresIndexLockProvider {
     async fn get_available(
-        &mut self,
-        tenants: Vec<String>,
+        &self,
+        conn: &mut Transaction<'b, Postgres>,
+        tenants: Vec<&str>,
     ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
         // Implementation for retrieving available locks from PostgreSQL
 
@@ -41,7 +37,7 @@ impl<'a, 'b> IndexLockProvider for PostgresIndexLockProvider<'a, 'b> {
         let query = query_builder.build_query_as();
         // println!("Executing query: '{:?}'", query.sql());
         let res = query
-            .fetch_all(&mut **self.connection)
+            .fetch_all(&mut **conn)
             .await
             .map_err(TenantLockIndexError::from)?;
 
@@ -49,8 +45,9 @@ impl<'a, 'b> IndexLockProvider for PostgresIndexLockProvider<'a, 'b> {
     }
 
     async fn update(
-        &mut self,
-        tenant_id: String,
+        &self,
+        conn: &mut Transaction<'b, Postgres>,
+        tenant_id: &str,
         next_position: usize,
     ) -> Result<(), OperationOutcomeError> {
         // Implementation for updating a lock in PostgreSQL
@@ -59,7 +56,7 @@ impl<'a, 'b> IndexLockProvider for PostgresIndexLockProvider<'a, 'b> {
             next_position as i64,
             tenant_id
         )
-        .execute(&mut **self.connection)
+        .execute(&mut **conn)
         .await
         .map_err(TenantLockIndexError::from)?;
 

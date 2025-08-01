@@ -8,18 +8,20 @@ pub struct TenantLockIndex {
     pub index_sequence_position: i64,
 }
 
-pub trait IndexLockProvider {
+pub trait IndexLockProvider<Connection> {
     /// Retrieves available locks skipping over locked rows.
     /// Sets available locks to be locked until transaction is committed.
     /// * `kind` - Lock kind to select
     /// * `lock_ids` - Ids of locks to select
     fn get_available(
-        &mut self,
-        tenant_ids: Vec<String>,
+        &self,
+        conn: &mut Connection,
+        tenant_ids: Vec<&str>,
     ) -> impl std::future::Future<Output = Result<Vec<TenantLockIndex>, OperationOutcomeError>> + Send;
     fn update(
-        &mut self,
-        tenant_id: String,
+        &self,
+        conn: &mut Connection,
+        tenant_id: &str,
         next_position: usize,
     ) -> impl std::future::Future<Output = Result<(), OperationOutcomeError>> + Send;
 }
