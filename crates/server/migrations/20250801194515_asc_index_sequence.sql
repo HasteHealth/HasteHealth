@@ -1,0 +1,1 @@
+CREATE INDEX sequence_asc_index ON resources (tenant, sequence ASC);
