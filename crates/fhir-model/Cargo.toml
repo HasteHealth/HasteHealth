@@ -7,6 +7,7 @@ edition = "2024"
 sqlx = ["dep:sqlx"]
 
 [dependencies]
+oxidized-fhir-datetime = { path = "../fhir-datetime" }
 oxidized-reflect = { path = "../reflect", features = ["derive"] }
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json", features = [
     "derive",

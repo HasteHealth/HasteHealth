@@ -47,17 +47,19 @@ pub static RUST_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
     );
     m.insert(
         "http://hl7.org/fhirpath/System.Time".to_string(),
-        "String".to_string(),
+        "oxidized_fhir_datetime::Time".to_string(),
     );
-
     m.insert(
         "http://hl7.org/fhirpath/System.Date".to_string(),
-        "String".to_string(),
+        "oxidized_fhir_datetime::Date".to_string(),
     );
-
     m.insert(
         "http://hl7.org/fhirpath/System.DateTime".to_string(),
-        "String".to_string(),
+        "oxidized_fhir_datetime::DateTime".to_string(),
+    );
+    m.insert(
+        "http://hl7.org/fhirpath/System.Instant".to_string(),
+        "oxidized_fhir_datetime::Instant".to_string(),
     );
     m
 });
@@ -80,18 +82,20 @@ pub static FHIR_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
     m.insert("base64Binary".to_string(), "FHIRBase64Binary".to_string());
     m.insert("canonical".to_string(), "FHIRString".to_string());
     m.insert("code".to_string(), "FHIRCode".to_string());
-    m.insert("date".to_string(), "FHIRDate".to_string());
-    m.insert("dateTime".to_string(), "FHIRDateTime".to_string());
     m.insert("id".to_string(), "FHIRId".to_string());
-    m.insert("instant".to_string(), "FHIRInstant".to_string());
     m.insert("markdown".to_string(), "FHIRMarkdown".to_string());
     m.insert("oid".to_string(), "FHIROid".to_string());
     m.insert("string".to_string(), "FHIRString".to_string());
-    m.insert("time".to_string(), "FHIRTime".to_string());
     m.insert("uri".to_string(), "FHIRUri".to_string());
     m.insert("url".to_string(), "FHIRUrl".to_string());
     m.insert("uuid".to_string(), "FHIRUuid".to_string());
     m.insert("xhtml".to_string(), "FHIRXhtml".to_string());
+
+    // Date and Time types
+    m.insert("instant".to_string(), "FHIRInstant".to_string());
+    m.insert("date".to_string(), "FHIRDate".to_string());
+    m.insert("dateTime".to_string(), "FHIRDateTime".to_string());
+    m.insert("time".to_string(), "FHIRTime".to_string());
 
     m
 });
@@ -149,9 +153,23 @@ pub mod conversion {
 
             _ => {
                 if let Some(rust_primitive) = RUST_PRIMITIVES.get(fhir_type) {
-                    let k = format_ident!("{}", rust_primitive.clone());
-                    quote! {
-                        #k
+                    // Special handling for instance which should use instant type,
+                    let path = element.get("path").and_then(|p| p.as_str()).unwrap();
+                    if path == "instant.value" {
+                        let k = RUST_PRIMITIVES
+                            .get("http://hl7.org/fhirpath/System.Instant")
+                            .unwrap()
+                            .parse::<TokenStream>()
+                            .unwrap();
+
+                        quote! {
+                            #k
+                        }
+                    } else {
+                        let k = rust_primitive.parse::<TokenStream>().unwrap();
+                        quote! {
+                            #k
+                        }
                     }
                 } else if let Some(primitive) = FHIR_PRIMITIVES.get(fhir_type) {
                     let k = format_ident!("{}", primitive.clone());

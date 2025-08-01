@@ -42,6 +42,7 @@ static DATE_TIME_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     m.insert("FHIRInstant");
     m.insert("FHIRTime");
     m.insert("http://hl7.org/fhirpath/System.DateTime");
+    m.insert("http://hl7.org/fhirpath/System.Instant");
     m.insert("http://hl7.org/fhirpath/System.Date");
     m.insert("http://hl7.org/fhirpath/System.Time");
     m
