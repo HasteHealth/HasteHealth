@@ -1,3 +1,4 @@
+#![allow(unused)]
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 pub mod postgres;
