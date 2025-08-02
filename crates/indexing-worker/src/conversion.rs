@@ -1,12 +1,16 @@
+use chrono::TimeZone;
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
-use oxidized_fhir_model::r4::types::{
-    Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean, FHIRCanonical, FHIRCode,
-    FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
-    FHIRUrl, FHIRUuid, Identifier, Money, Quantity, Range, SearchParameter,
+use oxidized_fhir_model::r4::{
+    datetime::{Date, DateTime, Instant},
+    types::{
+        Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean, FHIRCanonical, FHIRCode,
+        FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
+        FHIRUrl, FHIRUuid, Identifier, Money, Quantity, Range, SearchParameter,
+    },
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenIndex {
@@ -28,6 +32,13 @@ pub struct QuantityRange {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct DateRange {
+    /// Milliseconds since epoch.
+    start: i64,
+    end: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct ReferenceIndex {
     id: Option<String>,
     resource_type: Option<String>,
@@ -41,7 +52,7 @@ pub enum InsertableIndex {
     Number(Vec<f64>),
     URI(Vec<String>),
     Token(Vec<TokenIndex>),
-    Date(Vec<String>),
+    Date(Vec<DateRange>),
     Reference(Vec<String>),
     Quantity(Vec<QuantityRange>),
     Composite(Vec<String>),
@@ -468,7 +479,7 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
     }
 }
 
-pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
+pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
     match value.typename() {
         "FHIRDate" => {
             let fp_date = value
@@ -486,13 +497,64 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexE
             let fp_datetime = value
                 .as_any()
                 .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDateTime>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
-            Ok(fp_datetime
-                .value
-                .as_ref()
-                .map_or(vec![], |v| vec![v.to_string()]))
+                .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
+                .value;
+
+            match &fp_datetime {
+                Some(DateTime::Year(year)) => {
+                    let start_date = chrono::NaiveDate::from_ymd_opt(*year as i32, 1, 1)
+                        .and_then(|d| d.and_hms_opt(0, 0, 0))
+                        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+                    let end_date = chrono::NaiveDate::from_ymd_opt(*year as i32 + 1, 1, 1)
+                        .and_then(|d| d.pred_opt())
+                        .and_then(|d| d.and_hms_opt(0, 0, 0))
+                        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+                    Ok(vec![DateRange {
+                        start: chrono::DateTime::from_naive_utc_and_offset(start_date, chrono::Utc)
+                            .timestamp_millis(),
+                        end: chrono::DateTime::from_naive_utc_and_offset(end_date, chrono::Utc)
+                            .timestamp_millis(),
+                    }])
+                }
+                Some(DateTime::YearMonth(year, month)) => {
+                    let start_date =
+                        chrono::NaiveDate::from_ymd_opt(*year as i32, *month as u32, 1)
+                            .and_then(|d| d.and_hms_opt(0, 0, 0))
+                            .ok_or_else(|| {
+                                InsertableIndexError::FailedDowncast("Date".to_string())
+                            })?;
+
+                    let end_date = if *month < 12 {
+                        chrono::NaiveDate::from_ymd_opt(*year as i32, (*month + 1).into(), 1)
+                            .and_then(|d| d.pred_opt())
+                            .and_then(|d| d.and_hms_opt(0, 0, 0))
+                    } else {
+                        chrono::NaiveDate::from_ymd_opt(*year as i32 + 1, *month as u32, 1)
+                            .and_then(|d| d.pred_opt())
+                            .and_then(|d| d.and_hms_opt(0, 0, 0))
+                    }
+                    .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+                    Ok(vec![DateRange {
+                        start: chrono::DateTime::from_naive_utc_and_offset(start_date, chrono::Utc)
+                            .timestamp_millis(),
+                        end: chrono::DateTime::from_naive_utc_and_offset(end_date, chrono::Utc)
+                            .timestamp_millis(),
+                    }])
+                }
+                Some(DateTime::YearMonthDay(year, month, day)) => {}
+                Some(DateTime::Iso8601(date_time)) => {
+                    return Ok(vec![DateRange {
+                        start: date_time.timestamp_millis(),
+                        end: date_time.timestamp_millis(),
+                    }]);
+                }
+                None => {
+                    return Ok(vec![]);
+                }
+            }
         }
         "FHIRInstant" => {
             let fp_instant = value
@@ -501,10 +563,19 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexE
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
-            Ok(fp_instant
-                .value
-                .as_ref()
-                .map_or(vec![], |v| vec![v.to_string()]))
+
+            match &fp_instant.value {
+                Some(Instant::Iso8601(instant)) => {
+                    let timestamp = instant.timestamp_millis();
+                    return Ok(vec![DateRange {
+                        start: timestamp,
+                        end: timestamp,
+                    }]);
+                }
+                None => {
+                    return Ok(vec![]);
+                }
+            }
         }
         "Period" => {
             let fp_period = value
@@ -513,14 +584,8 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexE
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
-            let mut date_index = vec![];
-            if let Some(start) = &fp_period.start {
-                date_index.push(start.to_string());
-            }
-            if let Some(end) = &fp_period.end {
-                date_index.push(end.to_string());
-            }
-            Ok(date_index)
+
+            todo!();
         }
         _ => Err(InsertableIndexError::FailedDowncast(
             value.typename().to_string(),

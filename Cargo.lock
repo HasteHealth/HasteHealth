@@ -2005,6 +2005,7 @@ dependencies = [
 name = "oxidized-indexing-worker"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "elasticsearch",
  "oxidized-config",
  "oxidized-fhir-model",
