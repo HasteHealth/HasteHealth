@@ -529,7 +529,7 @@ fn year_month_day_to_daterange(
         .and_then(|d| d.and_hms_opt(0, 0, 0))
         .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
-    let end_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, (day + 1) as u32)
+    let end_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32)
         .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
         .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
@@ -733,7 +733,7 @@ pub fn to_insertable_index(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, FHIRInstant};
+    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, FHIRInstant, Period};
 
     #[test]
     fn test_year_month_to_daterange() {
@@ -750,6 +750,27 @@ mod tests {
         assert_eq!(
             date_range.end,
             chrono::DateTime::parse_from_rfc3339("2023-05-31T23:59:59.999Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+    }
+
+    #[test]
+    fn test_year_month_day_to_daterange() {
+        let year = 2023;
+        let month: u8 = 5;
+        let day = 15;
+        let date_range = year_month_day_to_daterange(year, month, day).unwrap();
+
+        assert_eq!(
+            date_range.start,
+            chrono::DateTime::parse_from_rfc3339("2023-05-15T00:00:00Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+        assert_eq!(
+            date_range.end,
+            chrono::DateTime::parse_from_rfc3339("2023-05-15T23:59:59.999Z")
                 .unwrap()
                 .timestamp_millis()
         );
@@ -791,6 +812,75 @@ mod tests {
         assert_eq!(
             result[0].end,
             chrono::DateTime::parse_from_rfc3339("2023-12-31T23:59:59.999Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+    }
+
+    #[test]
+    fn date_range_instant() {
+        let fhir_date = FHIRDateTime {
+            id: None,
+            extension: None,
+            value: Some(DateTime::Iso8601(
+                chrono::DateTime::parse_from_rfc3339("2023-05-14T11:25:25.234-05:00")
+                    .unwrap()
+                    .with_timezone(&chrono::Utc),
+            )),
+        };
+
+        let range = index_date(&fhir_date).unwrap();
+        let date_range = range.get(0).unwrap();
+
+        assert_eq!(
+            date_range.start,
+            chrono::DateTime::parse_from_rfc3339("2023-05-14T11:25:25.234-05:00")
+                .unwrap()
+                .with_timezone(&chrono::Utc)
+                .timestamp_millis()
+        );
+        assert_eq!(
+            date_range.end,
+            chrono::DateTime::parse_from_rfc3339("2023-05-14T11:25:25.234-05:00")
+                .unwrap()
+                .with_timezone(&chrono::Utc)
+                .timestamp_millis()
+        );
+    }
+
+    #[test]
+    fn date_range_period() {
+        let start = FHIRDateTime {
+            id: None,
+            extension: None,
+            value: Some(DateTime::Year(2023)),
+        };
+
+        let end = FHIRDateTime {
+            id: None,
+            extension: None,
+            value: Some(DateTime::YearMonthDay(2023, 5, 15)),
+        };
+
+        let period = Period {
+            id: None,
+            extension: None,
+            start: Some(Box::new(start)),
+            end: Some(Box::new(end)),
+        };
+
+        let range = index_date(&period).unwrap();
+        let date_range = range.get(0).unwrap();
+
+        assert_eq!(
+            date_range.start,
+            chrono::DateTime::parse_from_rfc3339("2023-01-01T00:00:00Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+        assert_eq!(
+            date_range.end,
+            chrono::DateTime::parse_from_rfc3339("2023-05-15T23:59:59.999Z")
                 .unwrap()
                 .timestamp_millis()
         );
