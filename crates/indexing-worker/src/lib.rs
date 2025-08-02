@@ -114,7 +114,7 @@ async fn get_tenants(
     Ok(result)
 }
 
-pub fn resource_to_elastic_index(
+fn resource_to_elastic_index(
     fp_engine: Arc<FPEngine>,
     parameters: Arc<Vec<&'static SearchParameter>>,
     resource: &Resource,
@@ -137,7 +137,7 @@ pub fn resource_to_elastic_index(
     Ok(map)
 }
 
-pub async fn index_for_tenant(
+async fn index_for_tenant(
     tenant_id: String,
     fp_engine: Arc<FPEngine>,
     pg_connection: &mut sqlx::PgConnection,
