@@ -506,7 +506,7 @@ fn year_month_to_daterange(year: u16, month: u8) -> Result<DateRange, Insertable
             .and_then(|d| d.pred_opt())
             .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
     } else {
-        chrono::NaiveDate::from_ymd_opt(year as i32 + 1, month as u32, 1)
+        chrono::NaiveDate::from_ymd_opt(year as i32 + 1, 1, 1)
             .and_then(|d| d.pred_opt())
             .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
     }
@@ -935,5 +935,43 @@ mod tests {
                 .timestamp_millis()
         );
         assert_eq!(date_range.end, i64::MAX);
+    }
+
+    #[test]
+    fn test_date_range_end() {
+        let year = 2023;
+        let month: u8 = 12;
+        let day = 31;
+        let date_range = year_month_day_to_daterange(year, month, day).unwrap();
+
+        assert_eq!(
+            date_range.start,
+            chrono::DateTime::parse_from_rfc3339("2023-12-31T00:00:00Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+
+        assert_eq!(
+            date_range.end,
+            chrono::DateTime::parse_from_rfc3339("2023-12-31T23:59:59.999Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+
+        let date_range = year_month_to_daterange(year, month).unwrap();
+
+        assert_eq!(
+            date_range.start,
+            chrono::DateTime::parse_from_rfc3339("2023-12-01T00:00:00Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+
+        assert_eq!(
+            date_range.end,
+            chrono::DateTime::parse_from_rfc3339("2023-12-31T23:59:59.999Z")
+                .unwrap()
+                .timestamp_millis()
+        );
     }
 }
