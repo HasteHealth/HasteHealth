@@ -479,16 +479,89 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
     }
 }
 
-pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
+fn year_to_daterange(year: u16) -> Result<DateRange, InsertableIndexError> {
+    let start_date = chrono::NaiveDate::from_ymd_opt(year as i32, 1, 1)
+        .and_then(|d| d.and_hms_opt(0, 0, 0))
+        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+    let end_date = chrono::NaiveDate::from_ymd_opt(year as i32 + 1, 1, 1)
+        .and_then(|d| d.pred_opt())
+        .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
+        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+    Ok(DateRange {
+        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(start_date, chrono::Utc)
+            .timestamp_millis(),
+        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(end_date, chrono::Utc)
+            .timestamp_millis(),
+    })
+}
+
+fn year_month_to_dateranage(year: u16, month: u8) -> Result<DateRange, InsertableIndexError> {
+    let start_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, 1)
+        .and_then(|d| d.and_hms_opt(0, 0, 0))
+        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+    let end_date = if month < 12 {
+        chrono::NaiveDate::from_ymd_opt(year as i32, (month + 1).into(), 1)
+            .and_then(|d| d.pred_opt())
+            .and_then(|d| d.and_hms_opt(0, 0, 0))
+    } else {
+        chrono::NaiveDate::from_ymd_opt(year as i32 + 1, month as u32, 1)
+            .and_then(|d| d.pred_opt())
+            .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
+    }
+    .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+    Ok(DateRange {
+        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(start_date, chrono::Utc)
+            .timestamp_millis(),
+        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(end_date, chrono::Utc)
+            .timestamp_millis(),
+    })
+}
+
+fn year_month_day_to_daterange(
+    year: u16,
+    month: u8,
+    day: u8,
+) -> Result<DateRange, InsertableIndexError> {
+    let start_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32)
+        .and_then(|d| d.and_hms_opt(0, 0, 0))
+        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+    let end_date = chrono::NaiveDate::from_ymd_opt(year as i32, month as u32, (day + 1) as u32)
+        .and_then(|d| d.and_hms_milli_opt(23, 59, 59, 999))
+        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+    Ok(DateRange {
+        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(start_date, chrono::Utc)
+            .timestamp_millis(),
+        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(end_date, chrono::Utc)
+            .timestamp_millis(),
+    })
+}
+
+fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
     match value.typename() {
         "FHIRDate" => {
             let fp_date = value
                 .as_any()
                 .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDate>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
-            panic!();
+                .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
+                .value
+                .as_ref();
+
+            match &fp_date {
+                Some(Date::Year(year)) => Ok(vec![year_to_daterange(*year)?]),
+                Some(Date::YearMonth(year, month)) => {
+                    Ok(vec![year_month_to_dateranage(*year, *month)?])
+                }
+                Some(Date::YearMonthDay(year, month, day)) => {
+                    Ok(vec![year_month_day_to_daterange(*year, *month, *day)?])
+                }
+                None => Ok(vec![]),
+            }
         }
         "FHIRDateTime" => {
             let fp_datetime = value
@@ -499,89 +572,12 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableInd
                 .as_ref();
 
             match &fp_datetime {
-                Some(DateTime::Year(year)) => {
-                    let start_date = chrono::NaiveDate::from_ymd_opt(*year as i32, 1, 1)
-                        .and_then(|d| d.and_hms_opt(0, 0, 0))
-                        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
-
-                    let end_date = chrono::NaiveDate::from_ymd_opt(*year as i32 + 1, 1, 1)
-                        .and_then(|d| d.pred_opt())
-                        .and_then(|d| d.and_hms_opt(0, 0, 0))
-                        .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
-
-                    Ok(vec![DateRange {
-                        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                            start_date,
-                            chrono::Utc,
-                        )
-                        .timestamp_millis(),
-                        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                            end_date,
-                            chrono::Utc,
-                        )
-                        .timestamp_millis(),
-                    }])
-                }
+                Some(DateTime::Year(year)) => Ok(vec![year_to_daterange(*year)?]),
                 Some(DateTime::YearMonth(year, month)) => {
-                    let start_date =
-                        chrono::NaiveDate::from_ymd_opt(*year as i32, *month as u32, 1)
-                            .and_then(|d| d.and_hms_opt(0, 0, 0))
-                            .ok_or_else(|| {
-                                InsertableIndexError::FailedDowncast("Date".to_string())
-                            })?;
-
-                    let end_date = if *month < 12 {
-                        chrono::NaiveDate::from_ymd_opt(*year as i32, (*month + 1).into(), 1)
-                            .and_then(|d| d.pred_opt())
-                            .and_then(|d| d.and_hms_opt(0, 0, 0))
-                    } else {
-                        chrono::NaiveDate::from_ymd_opt(*year as i32 + 1, *month as u32, 1)
-                            .and_then(|d| d.pred_opt())
-                            .and_then(|d| d.and_hms_opt(0, 0, 0))
-                    }
-                    .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
-
-                    Ok(vec![DateRange {
-                        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                            start_date,
-                            chrono::Utc,
-                        )
-                        .timestamp_millis(),
-                        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                            end_date,
-                            chrono::Utc,
-                        )
-                        .timestamp_millis(),
-                    }])
+                    Ok(vec![year_month_to_dateranage(*year, *month)?])
                 }
                 Some(DateTime::YearMonthDay(year, month, day)) => {
-                    let start_date =
-                        chrono::NaiveDate::from_ymd_opt(*year as i32, *month as u32, *day as u32)
-                            .and_then(|d| d.and_hms_opt(0, 0, 0))
-                            .ok_or_else(|| {
-                                InsertableIndexError::FailedDowncast("Date".to_string())
-                            })?;
-
-                    let end_date = chrono::NaiveDate::from_ymd_opt(
-                        *year as i32,
-                        *month as u32,
-                        (*day + 1) as u32,
-                    )
-                    .and_then(|d| d.and_hms_milli_opt(24, 59, 59, 999))
-                    .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
-
-                    Ok(vec![DateRange {
-                        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                            start_date,
-                            chrono::Utc,
-                        )
-                        .timestamp_millis(),
-                        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                            end_date,
-                            chrono::Utc,
-                        )
-                        .timestamp_millis(),
-                    }])
+                    Ok(vec![year_month_day_to_daterange(*year, *month, *day)?])
                 }
                 Some(DateTime::Iso8601(date_time)) => {
                     return Ok(vec![DateRange {
@@ -622,6 +618,18 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableInd
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
+            let fp_start = if let Some(date) = fp_period.start.as_ref() {
+                let date = date.as_ref();
+                let date_range = index_date(date)?;
+                date_range
+                    .get(0)
+                    .ok_or_else(|| {
+                        InsertableIndexError::FailedDowncast(value.typename().to_string())
+                    })?
+                    .start
+            } else {
+                0
+            };
 
             todo!();
         }
