@@ -468,6 +468,62 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
     }
 }
 
+pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
+    match value.typename() {
+        "Date" => {
+            let fp_date = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Date>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            Ok(fp_date
+                .value
+                .as_ref()
+                .map_or(vec![], |v| vec![v.to_string()]))
+        }
+        "DateTime" => {
+            let fp_datetime = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::DateTime>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            Ok(fp_datetime
+                .value
+                .as_ref()
+                .map_or(vec![], |v| vec![v.to_string()]))
+        }
+        "Time" => {
+            let fp_time = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Time>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            Ok(fp_time
+                .value
+                .as_ref()
+                .map_or(vec![], |v| vec![v.to_string()]))
+        }
+        "Instant" => {
+            let fp_instant = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Instant>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            Ok(fp_instant
+                .value
+                .as_ref()
+                .map_or(vec![], |v| vec![v.to_string()]))
+        }
+        _ => Err(InsertableIndexError::FailedDowncast(
+            value.typename().to_string(),
+        )),
+    }
+}
+
 pub fn to_insertable_index(
     parameter: &SearchParameter,
     result: Vec<&dyn MetaValue>,
@@ -506,12 +562,12 @@ pub fn to_insertable_index(
             Ok(InsertableIndex::Token(tokens))
         }
         Some("date") => {
-            // let dates = result
-            //     .iter()
-            //     .filter_map(|v| index_date(*v).ok())
-            //     .flatten()
-            //     .collect();
-            Ok(InsertableIndex::Date(vec![]))
+            let dates = result
+                .iter()
+                .filter_map(|v| index_date(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Date(dates))
         }
         Some("reference") => {
             // let references = result
