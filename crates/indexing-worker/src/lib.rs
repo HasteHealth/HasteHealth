@@ -239,10 +239,7 @@ pub async fn run_worker() {
 
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit).await;
-        if let Err(error) = tenants_to_check {
-            tracing::error!("Failed to retrieve tenants: {:?}", error);
-            break;
-        } else if let Ok(tenants_to_check) = tenants_to_check {
+        if let Ok(tenants_to_check) = tenants_to_check {
             if tenants_to_check.is_empty() || tenants_to_check.len() < tenants_limit {
                 cursor = OffsetDateTime::UNIX_EPOCH; // Reset cursor if no tenants found
             } else {
@@ -274,6 +271,8 @@ pub async fn run_worker() {
                     );
                 }
             }
+        } else if let Err(error) = tenants_to_check {
+            tracing::error!("Failed to retrieve tenants: {:?}", error);
         }
     }
 }
