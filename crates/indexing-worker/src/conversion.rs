@@ -885,4 +885,55 @@ mod tests {
                 .timestamp_millis()
         );
     }
+
+    #[test]
+    fn date_range_missing() {
+        let start = FHIRDateTime {
+            id: None,
+            extension: None,
+            value: Some(DateTime::Year(2023)),
+        };
+
+        let end = FHIRDateTime {
+            id: None,
+            extension: None,
+            value: Some(DateTime::YearMonthDay(2023, 5, 15)),
+        };
+
+        let period = Period {
+            id: None,
+            extension: None,
+            start: None,
+            end: Some(Box::new(end)),
+        };
+
+        let range = index_date(&period).unwrap();
+        let date_range = range.get(0).unwrap();
+
+        assert_eq!(date_range.start, 0);
+        assert_eq!(
+            date_range.end,
+            chrono::DateTime::parse_from_rfc3339("2023-05-15T23:59:59.999Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+
+        let period = Period {
+            id: None,
+            extension: None,
+            start: Some(Box::new(start)),
+            end: None,
+        };
+
+        let range = index_date(&period).unwrap();
+        let date_range = range.get(0).unwrap();
+
+        assert_eq!(
+            date_range.start,
+            chrono::DateTime::parse_from_rfc3339("2023-01-01T00:00:00Z")
+                .unwrap()
+                .timestamp_millis()
+        );
+        assert_eq!(date_range.end, i64::MAX);
+    }
 }
