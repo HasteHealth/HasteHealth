@@ -126,7 +126,7 @@ pub struct FHIRDate {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
-    pub value: Option<oxidized_fhir_datetime::Date>,
+    pub value: Option<crate::r4::datetime::Date>,
 }
 #[derive(
     Clone,
@@ -144,7 +144,7 @@ pub struct FHIRDateTime {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
-    pub value: Option<oxidized_fhir_datetime::DateTime>,
+    pub value: Option<crate::r4::datetime::DateTime>,
 }
 #[derive(
     Clone,
@@ -198,7 +198,7 @@ pub struct FHIRInstant {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
-    pub value: Option<oxidized_fhir_datetime::Instant>,
+    pub value: Option<crate::r4::datetime::Instant>,
 }
 #[derive(
     Clone,
@@ -306,7 +306,7 @@ pub struct FHIRTime {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
-    pub value: Option<oxidized_fhir_datetime::Time>,
+    pub value: Option<crate::r4::datetime::Time>,
 }
 #[derive(
     Clone,
