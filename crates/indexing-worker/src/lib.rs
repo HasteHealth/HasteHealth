@@ -22,30 +22,42 @@ use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{collections::HashMap, fmt::Display, sync::Arc, time::Instant};
 
 mod conversion;
 mod indexing_lock;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
-    #[fatal(code = "exception", diagnostic = "Database error: {arg0}")]
+    #[fatal(code = "exception", diagnostic = "Database error: '{arg0}'")]
     DatabaseConnectionError(#[from] sqlx::Error),
-    #[fatal(code = "exception", diagnostic = "Lock error: {arg0}")]
+    #[fatal(code = "exception", diagnostic = "Lock error: '{arg0}'")]
     OperationError(#[from] OperationOutcomeError),
-    #[fatal(code = "exception", diagnostic = "Elasticsearch error: {arg0}")]
+    #[fatal(code = "exception", diagnostic = "Elasticsearch error: '{arg0}'")]
     ElasticsearchError(#[from] elasticsearch::Error),
-    #[fatal(code = "exception", diagnostic = "FHIRPath error: {arg0}")]
+    #[fatal(code = "exception", diagnostic = "FHIRPath error: '{arg0}'")]
     FHIRPathError(#[from] FHIRPathError),
+    #[fatal(code = "exception", diagnostic = "Unsupported FHIR method: '{arg0}'")]
+    UnsupportedFHIRMethod(FHIRMethod),
 }
 
-#[derive(sqlx::Type)]
+#[derive(sqlx::Type, Debug, Clone)]
 #[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
-enum FHIRMethod {
+pub enum FHIRMethod {
     Create,
     Read,
     Update,
     Delete,
+}
+impl Display for FHIRMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FHIRMethod::Create => write!(f, "create"),
+            FHIRMethod::Read => write!(f, "read"),
+            FHIRMethod::Update => write!(f, "update"),
+            FHIRMethod::Delete => write!(f, "delete"),
+        }
+    }
 }
 
 struct ReturnV {
@@ -102,6 +114,29 @@ async fn get_tenants(
     Ok(result)
 }
 
+pub fn resource_to_elastic_index(
+    fp_engine: Arc<FPEngine>,
+    parameters: Arc<Vec<&'static SearchParameter>>,
+    resource: &Resource,
+) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
+    let mut map = HashMap::new();
+    for param in parameters.iter() {
+        if let Some(expression) = param.expression.as_ref().and_then(|e| e.value.as_ref())
+            && let Some(url) = param.url.value.as_ref()
+        {
+            let result = fp_engine
+                .evaluate(expression, vec![resource])
+                .map_err(IndexingWorkerError::from)?;
+
+            let result_vec =
+                conversion::to_insertable_index(param, result.iter().collect::<Vec<_>>())?;
+
+            map.insert(url.clone(), result_vec);
+        }
+    }
+    Ok(map)
+}
+
 pub async fn index_for_tenant(
     tenant_id: String,
     fp_engine: Arc<FPEngine>,
@@ -139,30 +174,28 @@ pub async fn index_for_tenant(
                 // Iterator used to evaluate all of the search expressions for indexing.
                 let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
                     .par_iter()
-                    .map(|r| {
-                        let mut map = HashMap::new();
-                        for param in patient_params.iter() {
-                            if let Some(expression) =
-                                param.expression.as_ref().and_then(|e| e.value.as_ref())
-                                && let Some(url) = param.url.value.as_ref()
-                            {
-                                let result = fp_engine
-                                    .evaluate(expression, vec![&r.resource.0])
-                                    .map_err(IndexingWorkerError::from)?;
-
-                                let result_vec = conversion::to_insertable_index(
-                                    param,
-                                    result.iter().collect::<Vec<_>>(),
-                                )?;
-
-                                map.insert(url.clone(), result_vec);
-                            }
+                    .filter(|r| match r.fhir_method {
+                        FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete => true,
+                        _ => false,
+                    })
+                    .map(|r| match &r.fhir_method {
+                        FHIRMethod::Create | FHIRMethod::Update => {
+                            let elastic_index = resource_to_elastic_index(
+                                fp_engine.clone(),
+                                patient_params.clone(),
+                                &r.resource.0,
+                            )?;
+                            Ok(BulkOperation::index(elastic_index)
+                                .id(&r.id)
+                                .index(R4_FHIR_INDEX)
+                                .into())
                         }
-                        let k: elasticsearch::BulkCreateOperation<
-                            HashMap<String, InsertableIndex>,
-                        > = BulkOperation::create(map).id(&r.id).index(R4_FHIR_INDEX);
-                        Ok(k.into())
-                        // map
+                        FHIRMethod::Delete => {
+                            Ok(BulkOperation::delete(&r.id).index(R4_FHIR_INDEX).into())
+                        }
+                        method => {
+                            Err(IndexingWorkerError::UnsupportedFHIRMethod(method.clone()).into())
+                        }
                     })
                     .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
 
