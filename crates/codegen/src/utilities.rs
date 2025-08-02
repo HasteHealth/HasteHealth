@@ -47,19 +47,19 @@ pub static RUST_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
     );
     m.insert(
         "http://hl7.org/fhirpath/System.Time".to_string(),
-        "oxidized_fhir_datetime::Time".to_string(),
+        "crate::r4::datetime::Time".to_string(),
     );
     m.insert(
         "http://hl7.org/fhirpath/System.Date".to_string(),
-        "oxidized_fhir_datetime::Date".to_string(),
+        "crate::r4::datetime::Date".to_string(),
     );
     m.insert(
         "http://hl7.org/fhirpath/System.DateTime".to_string(),
-        "oxidized_fhir_datetime::DateTime".to_string(),
+        "crate::r4::datetime::DateTime".to_string(),
     );
     m.insert(
         "http://hl7.org/fhirpath/System.Instant".to_string(),
-        "oxidized_fhir_datetime::Instant".to_string(),
+        "crate::r4::datetime::Instant".to_string(),
     );
     m
 });

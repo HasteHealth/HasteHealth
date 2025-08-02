@@ -1915,7 +1915,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "oxidized-fhir-datetime"
+name = "oxidized-fhir-model"
 version = "0.1.0"
 dependencies = [
  "chrono",
@@ -1923,16 +1923,6 @@ dependencies = [
  "oxidized-fhir-serialization-json",
  "oxidized-reflect",
  "regex",
- "serde_json",
-]
-
-[[package]]
-name = "oxidized-fhir-model"
-version = "0.1.0"
-dependencies = [
- "oxidized-fhir-datetime",
- "oxidized-fhir-serialization-json",
- "oxidized-reflect",
  "serde",
  "serde_json",
  "sqlx",

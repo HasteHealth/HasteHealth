@@ -1,4 +1,6 @@
-use crate::{Date, DateTime, Instant, Time, parse_date, parse_datetime, parse_instant, parse_time};
+use crate::r4::datetime::{
+    Date, DateTime, Instant, Time, parse_date, parse_datetime, parse_instant, parse_time,
+};
 use oxidized_fhir_serialization_json::errors::DeserializeError;
 use oxidized_fhir_serialization_json::{Context, SerializeError};
 use oxidized_fhir_serialization_json::{FHIRJSONDeserializer, FHIRJSONSerializer};

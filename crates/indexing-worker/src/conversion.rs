@@ -470,10 +470,10 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
 
 pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
     match value.typename() {
-        "Date" => {
+        "FHIRDate" => {
             let fp_date = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Date>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDate>()
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
@@ -482,10 +482,10 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexE
                 .as_ref()
                 .map_or(vec![], |v| vec![v.to_string()]))
         }
-        "DateTime" => {
+        "FHIRDateTime" => {
             let fp_datetime = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::DateTime>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDateTime>()
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
@@ -494,22 +494,10 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexE
                 .as_ref()
                 .map_or(vec![], |v| vec![v.to_string()]))
         }
-        "Time" => {
-            let fp_time = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Time>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
-            Ok(fp_time
-                .value
-                .as_ref()
-                .map_or(vec![], |v| vec![v.to_string()]))
-        }
-        "Instant" => {
+        "FHIRInstant" => {
             let fp_instant = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Instant>()
+                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRInstant>()
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
@@ -517,6 +505,22 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexE
                 .value
                 .as_ref()
                 .map_or(vec![], |v| vec![v.to_string()]))
+        }
+        "Period" => {
+            let fp_period = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Period>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            let mut date_index = vec![];
+            if let Some(start) = &fp_period.start {
+                date_index.push(start.to_string());
+            }
+            if let Some(end) = &fp_period.end {
+                date_index.push(end.to_string());
+            }
+            Ok(date_index)
         }
         _ => Err(InsertableIndexError::FailedDowncast(
             value.typename().to_string(),
