@@ -4,7 +4,8 @@ use oxidized_fhir_model::r4::{
     types::{
         Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean, FHIRCanonical, FHIRCode,
         FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
-        FHIRUrl, FHIRUuid, Identifier, Money, Quantity, Range, SearchParameter,
+        FHIRUrl, FHIRUuid, Identifier, Money, Quantity, Range, ResourceType, ResourceTypeError,
+        SearchParameter,
     },
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -38,7 +39,7 @@ pub struct DateRange {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct ReferenceIndex {
+pub struct ReferenceIndex {
     id: Option<String>,
     resource_type: Option<String>,
     uri: Option<String>,
@@ -52,7 +53,7 @@ pub enum InsertableIndex {
     URI(Vec<String>),
     Token(Vec<TokenIndex>),
     Date(Vec<DateRange>),
-    Reference(Vec<String>),
+    Reference(Vec<ReferenceIndex>),
     Quantity(Vec<QuantityRange>),
     Composite(Vec<String>),
 }
@@ -69,6 +70,11 @@ enum InsertableIndexError {
         diagnostic = "Failed to downcast value to number: {arg0}"
     )]
     FailedDowncast(String),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Reference contains invalid resource type."
+    )]
+    ResourceTypeError(#[from] ResourceTypeError),
 }
 
 // "http://hl7.org/fhirpath/System.String" => value
@@ -672,8 +678,68 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
     }
 }
 
-fn index_reference(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
-    todo!();
+fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, InsertableIndexError> {
+    match value.typename() {
+        "Reference" => {
+            let fp_reference = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Reference>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+
+            if let Some(reference) = &fp_reference
+                .reference
+                .as_ref()
+                .and_then(|r| r.value.as_ref())
+            {
+                let parts: Vec<&str> = reference.split('/').collect();
+                if parts.len() == 2 {
+                    let resource_type = ResourceType::new(parts[0].to_string())?;
+                    let id = parts[1].to_string();
+                    return Ok(vec![ReferenceIndex {
+                        resource_type: Some(resource_type.as_str().to_string()),
+                        id: Some(id),
+                        uri: None,
+                    }]);
+                }
+            }
+
+            Ok(vec![])
+        }
+        "FHIRCanonical" => {
+            let fp_canonical = value
+                .as_any()
+                .downcast_ref::<FHIRCanonical>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+            if let Some(canonical) = &fp_canonical.value {
+                return Ok(vec![ReferenceIndex {
+                    id: None,
+                    resource_type: None,
+                    uri: Some(canonical.to_string()),
+                }]);
+            }
+            Ok(vec![])
+        }
+        "FHIRUri" => {
+            let fp_uri = value.as_any().downcast_ref::<FHIRUri>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
+            if let Some(uri) = &fp_uri.value {
+                return Ok(vec![ReferenceIndex {
+                    id: None,
+                    resource_type: None,
+                    uri: Some(uri.to_string()),
+                }]);
+            }
+            Ok(vec![])
+        }
+        _ => Err(InsertableIndexError::FailedDowncast(
+            value.typename().to_string(),
+        )),
+    }
 }
 
 pub fn to_insertable_index(
@@ -722,12 +788,12 @@ pub fn to_insertable_index(
             Ok(InsertableIndex::Date(dates))
         }
         Some("reference") => {
-            // let references = result
-            //     .iter()
-            //     .filter_map(|v: &&dyn MetaValue| index_reference(*v).ok())
-            //     .flatten()
-            //     .collect();
-            Ok(InsertableIndex::Reference(vec![]))
+            let references = result
+                .iter()
+                .filter_map(|v: &&dyn MetaValue| index_reference(*v).ok())
+                .flatten()
+                .collect();
+            Ok(InsertableIndex::Reference(references))
         }
         Some("quantity") => {
             let quantities = result
@@ -755,7 +821,7 @@ pub fn to_insertable_index(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, FHIRInstant, Period, Timing};
+    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, Period, Reference, Timing};
 
     #[test]
     fn test_year_month_to_daterange() {
@@ -1038,6 +1104,82 @@ mod tests {
                     .unwrap()
                     .timestamp_millis(),
             }
+        );
+    }
+
+    #[test]
+    fn test_indexing_reference() {
+        let reference = Reference {
+            type_: None,
+            identifier_: None,
+            display: None,
+            id: None,
+            extension: None,
+            reference: Some(Box::new(FHIRString {
+                id: None,
+                extension: None,
+                value: Some("Patient/123".to_string()),
+            })),
+        };
+
+        let result = index_reference(&reference).unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].resource_type, Some("Patient".to_string()));
+        assert_eq!(result[0].id, Some("123".to_string()));
+        assert!(result[0].uri.is_none());
+    }
+
+    #[test]
+    fn test_indexing_invalid_reference() {
+        let reference = Reference {
+            type_: None,
+            identifier_: None,
+            display: None,
+            id: None,
+            extension: None,
+            reference: Some(Box::new(FHIRString {
+                id: None,
+                extension: None,
+                value: Some("BadType/123".to_string()),
+            })),
+        };
+
+        let result = index_reference(&reference);
+
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_canonical_index() {
+        let canonical = FHIRCanonical {
+            id: None,
+            extension: None,
+            value: Some("http://example.com/CanonicalResource".to_string()),
+        };
+        let result = index_reference(&canonical).unwrap();
+        assert_eq!(result.len(), 1);
+        assert!(result[0].id.is_none());
+        assert!(result[0].resource_type.is_none());
+        assert_eq!(
+            result[0].uri,
+            Some("http://example.com/CanonicalResource".to_string())
+        );
+    }
+
+    #[test]
+    fn test_uri_indexing() {
+        let uri = FHIRUri {
+            id: None,
+            extension: None,
+            value: Some("http://example.com/URIResource".to_string()),
+        };
+        let result = index_reference(&uri).unwrap();
+        assert_eq!(result.len(), 1);
+        assert!(result[0].id.is_none());
+        assert!(result[0].resource_type.is_none());
+        assert_eq!(
+            result[0].uri,
+            Some("http://example.com/URIResource".to_string())
         );
     }
 }

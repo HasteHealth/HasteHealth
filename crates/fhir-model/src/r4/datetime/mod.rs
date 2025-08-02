@@ -212,7 +212,7 @@ mod tests {
         assert!(parse_time("23:59:59.232").is_ok());
         assert_eq!(
             parse_time("23:59:59.232").unwrap(),
-            Time(chrono::NaiveTime::from_hms_milli(23, 59, 59, 232))
+            Time(chrono::NaiveTime::from_hms_milli_opt(23, 59, 59, 232).unwrap())
         );
     }
 
