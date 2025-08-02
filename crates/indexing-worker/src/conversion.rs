@@ -30,7 +30,7 @@ pub struct QuantityRange {
     high: RangeValue,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct DateRange {
     /// Milliseconds since epoch.
     start: i64,
@@ -543,6 +543,24 @@ fn year_month_day_to_daterange(
 
 fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
     match value.typename() {
+        "Timing" => {
+            let fp_timing = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Timing>()
+                .ok_or_else(|| {
+                    InsertableIndexError::FailedDowncast(value.typename().to_string())
+                })?;
+
+            if let Some(events) = fp_timing.event.as_ref() {
+                let date_ranges = events
+                    .iter()
+                    .map(|event| index_date(event.as_ref()))
+                    .collect::<Result<Vec<_>, _>>()?;
+                Ok(date_ranges.into_iter().flatten().collect())
+            } else {
+                Ok(vec![])
+            }
+        }
         "FHIRDate" => {
             let fp_date = value
                 .as_any()
@@ -654,6 +672,10 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
     }
 }
 
+fn index_reference(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
+    todo!();
+}
+
 pub fn to_insertable_index(
     parameter: &SearchParameter,
     result: Vec<&dyn MetaValue>,
@@ -702,7 +724,7 @@ pub fn to_insertable_index(
         Some("reference") => {
             // let references = result
             //     .iter()
-            //     .filter_map(|v| index_reference(*v).ok())
+            //     .filter_map(|v: &&dyn MetaValue| index_reference(*v).ok())
             //     .flatten()
             //     .collect();
             Ok(InsertableIndex::Reference(vec![]))
@@ -733,7 +755,7 @@ pub fn to_insertable_index(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, FHIRInstant, Period};
+    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, FHIRInstant, Period, Timing};
 
     #[test]
     fn test_year_month_to_daterange() {
@@ -972,6 +994,50 @@ mod tests {
             chrono::DateTime::parse_from_rfc3339("2023-12-31T23:59:59.999Z")
                 .unwrap()
                 .timestamp_millis()
+        );
+    }
+
+    #[test]
+    fn test_timing() {
+        let mut timing = Timing::default();
+        timing.event = Some(vec![
+            Box::new(FHIRDateTime {
+                id: None,
+                extension: None,
+                value: Some(DateTime::YearMonthDay(2023, 12, 31)),
+            }),
+            Box::new(FHIRDateTime {
+                id: None,
+                extension: None,
+                value: Some(DateTime::YearMonthDay(2024, 1, 1)),
+            }),
+        ]);
+
+        let date_ranges = index_date(&timing).unwrap();
+        assert_eq!(date_ranges.len(), 2);
+
+        assert_eq!(
+            date_ranges[0],
+            DateRange {
+                start: chrono::DateTime::parse_from_rfc3339("2023-12-31T00:00:00Z")
+                    .unwrap()
+                    .timestamp_millis(),
+                end: chrono::DateTime::parse_from_rfc3339("2023-12-31T23:59:59.999Z")
+                    .unwrap()
+                    .timestamp_millis(),
+            }
+        );
+
+        assert_eq!(
+            date_ranges[1],
+            DateRange {
+                start: chrono::DateTime::parse_from_rfc3339("2024-01-01T00:00:00Z")
+                    .unwrap()
+                    .timestamp_millis(),
+                end: chrono::DateTime::parse_from_rfc3339("2024-01-01T23:59:59.999Z")
+                    .unwrap()
+                    .timestamp_millis(),
+            }
         );
     }
 }
