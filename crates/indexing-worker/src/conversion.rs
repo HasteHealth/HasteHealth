@@ -488,17 +488,15 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableInd
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
-            Ok(fp_date
-                .value
-                .as_ref()
-                .map_or(vec![], |v| vec![v.to_string()]))
+            panic!();
         }
         "FHIRDateTime" => {
             let fp_datetime = value
                 .as_any()
                 .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDateTime>()
                 .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
-                .value;
+                .value
+                .as_ref();
 
             match &fp_datetime {
                 Some(DateTime::Year(year)) => {
@@ -512,10 +510,16 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableInd
                         .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
                     Ok(vec![DateRange {
-                        start: chrono::DateTime::from_naive_utc_and_offset(start_date, chrono::Utc)
-                            .timestamp_millis(),
-                        end: chrono::DateTime::from_naive_utc_and_offset(end_date, chrono::Utc)
-                            .timestamp_millis(),
+                        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
+                            start_date,
+                            chrono::Utc,
+                        )
+                        .timestamp_millis(),
+                        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
+                            end_date,
+                            chrono::Utc,
+                        )
+                        .timestamp_millis(),
                     }])
                 }
                 Some(DateTime::YearMonth(year, month)) => {
@@ -538,13 +542,47 @@ pub fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableInd
                     .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
 
                     Ok(vec![DateRange {
-                        start: chrono::DateTime::from_naive_utc_and_offset(start_date, chrono::Utc)
-                            .timestamp_millis(),
-                        end: chrono::DateTime::from_naive_utc_and_offset(end_date, chrono::Utc)
-                            .timestamp_millis(),
+                        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
+                            start_date,
+                            chrono::Utc,
+                        )
+                        .timestamp_millis(),
+                        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
+                            end_date,
+                            chrono::Utc,
+                        )
+                        .timestamp_millis(),
                     }])
                 }
-                Some(DateTime::YearMonthDay(year, month, day)) => {}
+                Some(DateTime::YearMonthDay(year, month, day)) => {
+                    let start_date =
+                        chrono::NaiveDate::from_ymd_opt(*year as i32, *month as u32, *day as u32)
+                            .and_then(|d| d.and_hms_opt(0, 0, 0))
+                            .ok_or_else(|| {
+                                InsertableIndexError::FailedDowncast("Date".to_string())
+                            })?;
+
+                    let end_date = chrono::NaiveDate::from_ymd_opt(
+                        *year as i32,
+                        *month as u32,
+                        (*day + 1) as u32,
+                    )
+                    .and_then(|d| d.and_hms_milli_opt(24, 59, 59, 999))
+                    .ok_or_else(|| InsertableIndexError::FailedDowncast("Date".to_string()))?;
+
+                    Ok(vec![DateRange {
+                        start: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
+                            start_date,
+                            chrono::Utc,
+                        )
+                        .timestamp_millis(),
+                        end: chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
+                            end_date,
+                            chrono::Utc,
+                        )
+                        .timestamp_millis(),
+                    }])
+                }
                 Some(DateTime::Iso8601(date_time)) => {
                     return Ok(vec![DateRange {
                         start: date_time.timestamp_millis(),
