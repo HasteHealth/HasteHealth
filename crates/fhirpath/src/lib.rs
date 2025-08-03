@@ -193,11 +193,6 @@ fn operation_1<'b>(
     }
 
     if left.values.len() != 1 || right.values.len() != 1 {
-        println!(
-            "Left: {:?}, Right: {:?}",
-            left.values.len(),
-            right.values.len()
-        );
         return Err(FHIRPathError::OperationError(
             OperationError::InvalidCardinality,
         ));
@@ -392,15 +387,42 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
     }
 }
 
+fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
+    match type_to_check {
+        "Resource" | "DomainResource" => ResourceType::try_from(type_name).is_ok(),
+        _ => type_name == type_to_check,
+    }
+}
+
+fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
+    match value.typename() {
+        // Special handling for reference which is to check the reference type.
+        "Reference" => {
+            if let Some(reference) = value
+                .as_any()
+                .downcast_ref::<oxidized_fhir_model::r4::types::Reference>()
+            {
+                if let Some(resource_type) = reference
+                    .reference
+                    .as_ref()
+                    .and_then(|r| r.value.as_ref())
+                    .and_then(|r| r.split("/").next())
+                {
+                    return check_type_name(resource_type, type_to_check);
+                }
+            }
+            false
+        }
+        _ => check_type_name(value.typename(), type_to_check),
+    }
+}
+
 fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
     context.new_context_from(
         context
             .values
             .iter()
-            .filter(|v| match type_name {
-                "Resource" | "DomainResource" => ResourceType::try_from(v.typename()).is_ok(),
-                _ => v.typename() == type_name,
-            })
+            .filter(|v| check_type(**v, type_name))
             .map(|v| *v)
             .collect(),
     )
@@ -411,6 +433,8 @@ fn evaluate_function<'b>(
     context: Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match function.name.0.as_str() {
+        // Faking resolve to just return current context.
+        "resolve" => Ok(context),
         "where" => fp_func_1(&function.arguments, context, |args, context| {
             let where_condition = &args[0];
             let mut new_context = vec![];
@@ -567,8 +591,38 @@ fn evaluate_operation<'b>(
             "DivisionTruncated".to_string(),
         )),
         Operation::Modulo(_, _) => Err(FHIRPathError::NotImplemented("Modulo".to_string())),
-        Operation::Is(_, _) => Err(FHIRPathError::NotImplemented("Is".to_string())),
-        Operation::As(_, _) => Err(FHIRPathError::NotImplemented("As".to_string())),
+        Operation::Is(expression, type_name) => {
+            let left = evaluate_expression(expression, context)?;
+            if left.values.len() > 1 {
+                Err(FHIRPathError::OperationError(
+                    OperationError::InvalidCardinality,
+                ))
+            } else {
+                if let Some(type_name) = type_name.0.get(0).as_ref().map(|k| &k.0) {
+                    let next_context = filter_by_type(&type_name, &left);
+                    Ok(left.new_context_from(vec![
+                        left.allocate(Box::new(!next_context.values.is_empty())),
+                    ]))
+                } else {
+                    Ok(left.new_context_from(vec![]))
+                }
+            }
+        }
+        Operation::As(expression, type_name) => {
+            let left = evaluate_expression(expression, context)?;
+            if left.values.len() > 1 {
+                Err(FHIRPathError::OperationError(
+                    OperationError::InvalidCardinality,
+                ))
+            } else {
+                if let Some(type_name) = type_name.0.get(0).as_ref().map(|k| &k.0) {
+                    Ok(filter_by_type(&type_name, &left))
+                } else {
+                    Ok(left.new_context_from(vec![]))
+                }
+            }
+        }
+
         Operation::LessThan(_, _) => Err(FHIRPathError::NotImplemented("LessThan".to_string())),
         Operation::GreaterThan(_, _) => {
             Err(FHIRPathError::NotImplemented("GreaterThan".to_string()))
@@ -720,7 +774,7 @@ mod tests {
     use super::*;
 
     use oxidized_fhir_model::r4::types::{
-        FHIRString, HumanName, Identifier, Patient, Resource, SearchParameter,
+        FHIRString, HumanName, Identifier, Patient, Reference, Resource, SearchParameter,
     };
     use oxidized_fhir_serialization_json;
     use oxidized_reflect_derive::Reflect;
@@ -1068,6 +1122,131 @@ mod tests {
 
             assert_eq!(s, 51.0);
         }
+    }
+
+    #[test]
+    fn domain_resource_filter() {
+        let engine = FPEngine::new();
+
+        let patient = oxidized_fhir_serialization_json::from_str::<Resource>(
+            r#"{"id": "patient-id", "resourceType": "Patient"}"#,
+        )
+        .unwrap();
+        let result = engine.evaluate("Resource.id", vec![&patient]).unwrap();
+        let ids: Vec<&String> = result
+            .iter()
+            .map(|r| r.as_any().downcast_ref::<String>().unwrap())
+            .collect();
+
+        assert_eq!(ids.len(), 1);
+        assert_eq!(ids[0], "patient-id");
+
+        let result2 = engine
+            .evaluate("DomainResource.id", vec![&patient])
+            .unwrap();
+        let ids2: Vec<&String> = result2
+            .iter()
+            .map(|r| r.as_any().downcast_ref::<String>().unwrap())
+            .collect();
+        assert_eq!(ids2.len(), 1);
+        assert_eq!(ids2[0], "patient-id");
+    }
+
+    #[test]
+    fn resolve_test() {
+        let engine = FPEngine::new();
+        let observation = oxidized_fhir_serialization_json::from_str::<Resource>(r#"
+             {
+                "resourceType": "Observation",
+                "id": "f001",
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 6323 (OFFICIAL)</p><p><b>status</b>: final</p><p><b>code</b>: Glucose [Moles/volume] in Blood <span>(Details : {LOINC code '15074-8' = 'Glucose [Moles/volume] in Blood', given as 'Glucose [Moles/volume] in Blood'})</span></p><p><b>subject</b>: <a>P. van de Heuvel</a></p><p><b>effective</b>: 02/04/2013 9:30:10 AM --&gt; (ongoing)</p><p><b>issued</b>: 03/04/2013 3:30:10 PM</p><p><b>performer</b>: <a>A. Langeveld</a></p><p><b>value</b>: 6.3 mmol/l<span> (Details: UCUM code mmol/L = 'mmol/L')</span></p><p><b>interpretation</b>: High <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation code 'H' = 'High', given as 'High'})</span></p><h3>ReferenceRanges</h3><table><tr><td>-</td><td><b>Low</b></td><td><b>High</b></td></tr><tr><td>*</td><td>3.1 mmol/l<span> (Details: UCUM code mmol/L = 'mmol/L')</span></td><td>6.2 mmol/l<span> (Details: UCUM code mmol/L = 'mmol/L')</span></td></tr></table></div>"
+                },
+                "identifier": [
+                    {
+                    "use": "official",
+                    "system": "http://www.bmc.nl/zorgportal/identifiers/observations",
+                    "value": "6323"
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                    {
+                        "system": "http://loinc.org",
+                        "code": "15074-8",
+                        "display": "Glucose [Moles/volume] in Blood"
+                    }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/f001",
+                    "display": "P. van de Heuvel"
+                },
+                "effectivePeriod": {
+                    "start": "2013-04-02T09:30:10+01:00"
+                },
+                "issued": "2013-04-03T15:30:10+01:00",
+                "performer": [
+                    {
+                    "reference": "Practitioner/f005",
+                    "display": "A. Langeveld"
+                    }
+                ],
+                "valueQuantity": {
+                    "value": 6.3,
+                    "unit": "mmol/l",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mmol/L"
+                },
+                "interpretation": [
+                    {
+                    "coding": [
+                        {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                        "code": "H",
+                        "display": "High"
+                        }
+                    ]
+                    }
+                ],
+                "referenceRange": [
+                    {
+                    "low": {
+                        "value": 3.1,
+                        "unit": "mmol/l",
+                        "system": "http://unitsofmeasure.org",
+                        "code": "mmol/L"
+                    },
+                    "high": {
+                        "value": 6.2,
+                        "unit": "mmol/l",
+                        "system": "http://unitsofmeasure.org",
+                        "code": "mmol/L"
+                    }
+                    }
+                ]
+                }
+            "#).unwrap();
+
+        let result = engine
+            .evaluate(
+                "Observation.subject.where(resolve() is Patient)",
+                vec![&observation],
+            )
+            .unwrap();
+
+        let references: Vec<&Reference> = result
+            .iter()
+            .map(|r| r.as_any().downcast_ref::<Reference>().unwrap())
+            .collect();
+
+        assert_eq!(references.len(), 1);
+        assert_eq!(
+            references[0].reference.as_ref().unwrap().value,
+            Some("Patient/f001".to_string())
+        );
     }
 
     #[bench]

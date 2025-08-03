@@ -46,6 +46,11 @@ pub enum IndexingWorkerError {
         diagnostic = "Missing search parameters for resource: '{arg0}'"
     )]
     MissingSearchParameters(String),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Fatal error occurred during indexing"
+    )]
+    Fatal,
 }
 
 #[derive(sqlx::Type, Debug, Clone)]
@@ -193,6 +198,7 @@ async fn index_for_tenant(
                                     &params,
                                     &r.resource.0,
                                 )?;
+
                                 Ok(BulkOperation::index(elastic_index)
                                     .id(&r.id)
                                     .index(R4_FHIR_INDEX)
@@ -210,17 +216,26 @@ async fn index_for_tenant(
                     })
                     .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
 
-                elasticsearch_client
-                    .bulk(BulkParts::Index(R4_FHIR_INDEX))
-                    .body(bulk_ops)
-                    .send()
-                    .await?;
+                    if !bulk_ops.is_empty() {
 
-                if let Some(resource) = resources.last() {
-                    tenant_lock_provider
-                        .update(transaction, &tenant_id, resource.sequence as usize)
-                        .await?;
-                }
+                        let res = elasticsearch_client
+                            .bulk(BulkParts::Index(R4_FHIR_INDEX))
+                            .body(bulk_ops)
+                            .send()
+                            .await?;
+
+                        if !res.status_code().is_success() {
+                            tracing::error!("Failed to index resources for tenant: '{}'. Response: '{:?}', body: '{}'", tenant_id, res.status_code(), res.text().await.unwrap());
+                            return Err(IndexingWorkerError::Fatal);
+                        }
+
+
+                        if let Some(resource) = resources.last() {
+                            tenant_lock_provider
+                                .update(transaction, &tenant_id, resource.sequence as usize)
+                                .await?;
+                        }
+                    } 
 
                 Ok(())
             })
