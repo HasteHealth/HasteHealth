@@ -4,7 +4,7 @@ use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::types::{Bundle, Resource, SearchParameter};
 
 static SEARCH_PARAMETERS_STR: &str =
-    include_str!("../../artifacts/r4/hl7/search-parameters.min.json");
+    include_str!("../../artifacts/artifacts/r4/hl7/search-parameters.min.json");
 
 pub static R4_SEARCH_PARAMETERS: Lazy<HashMap<String, SearchParameter>> = Lazy::new(|| {
     let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(SEARCH_PARAMETERS_STR)
