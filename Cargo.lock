@@ -1869,6 +1869,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
+name = "oxidized-artifacts"
+version = "0.1.0"
+dependencies = [
+ "once_cell",
+ "oxidized-fhir-model",
+ "oxidized-fhir-serialization-json",
+]
+
+[[package]]
 name = "oxidized-cli"
 version = "0.1.0"
 dependencies = [
@@ -1951,15 +1960,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "oxidized-fhir-search-parameters"
-version = "0.1.0"
-dependencies = [
- "once_cell",
- "oxidized-fhir-model",
- "oxidized-fhir-serialization-json",
-]
-
-[[package]]
 name = "oxidized-fhir-serialization-json"
 version = "0.1.0"
 dependencies = [
@@ -2007,10 +2007,10 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "elasticsearch",
+ "oxidized-artifacts",
  "oxidized-config",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-search-parameters",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "oxidized-reflect",

@@ -11,7 +11,7 @@ use elasticsearch::{
         Url,
         transport::{SingleNodeConnectionPool, TransportBuilder},
     },
-    indices::{IndicesCreateParts, IndicesPutMappingParts},
+    indices::IndicesCreateParts,
 };
 use oxidized_config::get_config;
 use oxidized_fhir_model::r4::{
@@ -19,7 +19,6 @@ use oxidized_fhir_model::r4::{
     types::{Resource, SearchParameter},
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
 use serde_json::json;
@@ -42,6 +41,11 @@ pub enum IndexingWorkerError {
     FHIRPathError(#[from] FHIRPathError),
     #[fatal(code = "exception", diagnostic = "Unsupported FHIR method: '{arg0}'")]
     UnsupportedFHIRMethod(FHIRMethod),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Missing search parameters for resource: '{arg0}'"
+    )]
+    MissingSearchParameters(String),
 }
 
 #[derive(sqlx::Type, Debug, Clone)]
@@ -63,8 +67,9 @@ impl Display for FHIRMethod {
     }
 }
 
-struct ReturnV {
+struct ResourcePollingValue {
     id: String,
+    resource_type: String,
     resource: FHIRJson<Resource>,
     sequence: i64,
     fhir_method: FHIRMethod,
@@ -79,10 +84,10 @@ async fn get_resource_sequence(
     tenant_id: &str,
     cur_sequence: i64,
     count: Option<u64>,
-) -> Result<Vec<ReturnV>, OperationOutcomeError> {
+) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
     let result = query_as!(
-        ReturnV,
-        r#"SELECT id, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+        ResourcePollingValue,
+        r#"SELECT  id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
         tenant_id,
         cur_sequence,
         count.unwrap_or(100) as i64
@@ -119,7 +124,7 @@ async fn get_tenants(
 
 fn resource_to_elastic_index(
     fp_engine: Arc<FPEngine>,
-    parameters: Arc<Vec<&'static SearchParameter>>,
+    parameters: &Vec<Arc<SearchParameter>>,
     resource: &Resource,
 ) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
     let mut map = HashMap::new();
@@ -146,10 +151,8 @@ async fn index_for_tenant(
     fp_engine: Arc<FPEngine>,
     pg_connection: &mut sqlx::PgConnection,
     elasticsearch_client: Arc<Elasticsearch>,
-    patient_params: Arc<Vec<&'static SearchParameter>>,
 ) -> Result<(), IndexingWorkerError> {
     let fp_engine = fp_engine.clone();
-    let patient_params = patient_params.clone();
     let elasticsearch_client = elasticsearch_client.clone();
     let index_tenant_result: Result<(), IndexingWorkerError> = pg_connection
         .transaction(|transaction| {
@@ -184,15 +187,19 @@ async fn index_for_tenant(
                     })
                     .map(|r| match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
-                            let elastic_index = resource_to_elastic_index(
-                                fp_engine.clone(),
-                                patient_params.clone(),
-                                &r.resource.0,
-                            )?;
-                            Ok(BulkOperation::index(elastic_index)
-                                .id(&r.id)
-                                .index(R4_FHIR_INDEX)
-                                .into())
+                            if let Some(params)  = oxidized_artifacts::search_parameters::get_search_parameters_for_resource(&r.resource_type) {
+                                let elastic_index = resource_to_elastic_index(
+                                    fp_engine.clone(),
+                                    &params,
+                                    &r.resource.0,
+                                )?;
+                                Ok(BulkOperation::index(elastic_index)
+                                    .id(&r.id)
+                                    .index(R4_FHIR_INDEX)
+                                    .into())
+                            } else {
+                                Err(IndexingWorkerError::MissingSearchParameters(r.id.clone()).into())
+                            }
                         }
                         FHIRMethod::Delete => {
                             Ok(BulkOperation::delete(&r.id).index(R4_FHIR_INDEX).into())
@@ -242,7 +249,7 @@ pub async fn run_worker() {
     let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
 
     let mapping_body = create_elasticsearch_searchparameter_mappings(
-        &R4_SEARCH_PARAMETERS.values().collect::<Vec<_>>(),
+        &oxidized_artifacts::search_parameters::get_all_search_parameters(),
     )
     .await
     .unwrap();
@@ -293,23 +300,6 @@ pub async fn run_worker() {
 
     let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
 
-    let patient_params = Arc::new(
-        R4_SEARCH_PARAMETERS
-            .values()
-            .filter(|sp| {
-                let code = sp
-                    .base
-                    .iter()
-                    .filter_map(|b| b.value.as_ref().map(|v| v.as_str()))
-                    .collect::<Vec<_>>();
-                sp.expression.is_some()
-                    && (code.contains(&"Patient")
-                        || code.contains(&"Resource")
-                        || code.contains(&"DomainResource"))
-            })
-            .collect::<Vec<_>>(),
-    );
-
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit).await;
         if let Ok(tenants_to_check) = tenants_to_check {
@@ -326,7 +316,6 @@ pub async fn run_worker() {
                     fp_engine.clone(),
                     &mut pg_connection,
                     elasticsearch_client.clone(),
-                    patient_params.clone(),
                 )
                 .await;
 

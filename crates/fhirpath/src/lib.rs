@@ -562,7 +562,42 @@ fn evaluate_operation<'b>(
             union.extend(right.values.iter());
             Ok(left.new_context_from(union))
         }),
-        _ => Err(FHIRPathError::NotImplemented("operation".to_string())),
+        Operation::Polarity(_, _) => Err(FHIRPathError::NotImplemented("Polarity".to_string())),
+        Operation::DivisionTruncated(_, _) => Err(FHIRPathError::NotImplemented(
+            "DivisionTruncated".to_string(),
+        )),
+        Operation::Modulo(_, _) => Err(FHIRPathError::NotImplemented("Modulo".to_string())),
+        Operation::Is(_, _) => Err(FHIRPathError::NotImplemented("Is".to_string())),
+        Operation::As(_, _) => Err(FHIRPathError::NotImplemented("As".to_string())),
+        Operation::LessThan(_, _) => Err(FHIRPathError::NotImplemented("LessThan".to_string())),
+        Operation::GreaterThan(_, _) => {
+            Err(FHIRPathError::NotImplemented("GreaterThan".to_string()))
+        }
+        Operation::LessThanEqual(_, _) => {
+            Err(FHIRPathError::NotImplemented("LessThanEqual".to_string()))
+        }
+        Operation::GreaterThanEqual(_, _) => Err(FHIRPathError::NotImplemented(
+            "GreaterThanEqual".to_string(),
+        )),
+        Operation::LessThan(left, right) => {
+            Err(FHIRPathError::NotImplemented("LessThan".to_string()))
+        }
+        Operation::GreaterThan(left, right) => {
+            Err(FHIRPathError::NotImplemented("GreaterThan".to_string()))
+        }
+        Operation::Equivalent(_, _) => Err(FHIRPathError::NotImplemented("Equivalent".to_string())),
+
+        Operation::NotEquivalent(_, _) => {
+            Err(FHIRPathError::NotImplemented("NotEquivalent".to_string()))
+        }
+        Operation::In(left, right) => Err(FHIRPathError::NotImplemented("In".to_string())),
+        Operation::Contains(left, right) => {
+            Err(FHIRPathError::NotImplemented("Contains".to_string()))
+        }
+        Operation::XOr(left, right) => Err(FHIRPathError::NotImplemented("XOr".to_string())),
+        Operation::Implies(left, right) => {
+            Err(FHIRPathError::NotImplemented("Implies".to_string()))
+        }
     }
 }
 
