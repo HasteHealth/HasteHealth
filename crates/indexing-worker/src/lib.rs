@@ -10,7 +10,7 @@ use elasticsearch::{
         Url,
         transport::{SingleNodeConnectionPool, TransportBuilder},
     },
-    indices::IndicesCreateParts,
+    indices::{IndicesCreateParts, IndicesPutMappingParts},
 };
 use oxidized_config::get_config;
 use oxidized_fhir_model::r4::{
@@ -21,11 +21,13 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
+use serde_json::json;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, fmt::Display, sync::Arc, time::Instant};
 
 mod conversion;
 mod indexing_lock;
+pub mod mappings;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
