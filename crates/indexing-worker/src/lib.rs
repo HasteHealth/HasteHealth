@@ -1,6 +1,7 @@
 use crate::{
     conversion::InsertableIndex,
     indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider},
+    mappings::create_elasticsearch_searchparameter_mappings,
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -239,13 +240,49 @@ pub async fn run_worker() {
         .unwrap();
     let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
 
-    let indices_client = elasticsearch_client
+    let mapping_body = create_elasticsearch_searchparameter_mappings(
+        &R4_SEARCH_PARAMETERS.values().collect::<Vec<_>>(),
+    )
+    .await
+    .unwrap();
+
+    let res = elasticsearch_client
         .indices()
         .create(IndicesCreateParts::Index(R4_FHIR_INDEX))
+        .body(json!({
+               "settings": {
+                   "index": {
+                        "mapping": {
+                            "nested_fields": {
+                                "limit": 2000
+                            },
+                            "total_fields": {
+                                "limit": 5000
+                            }
+                        }
+                   }
+               },
+               "mappings": mapping_body
+        }))
         .send()
-        .await;
+        .await
+        .unwrap();
 
-    tracing::info!("Indices create response: {:?}", indices_client);
+    // let res = elasticsearch_client
+    //     .indices()
+    //     .put_mapping(IndicesPutMappingParts::Index(&[R4_FHIR_INDEX]))
+    //     .body(mapping_body)
+    //     .send()
+    //     .await
+    //     .unwrap();
+
+    // if res.status_code().is_success() {
+    //     tracing::info!("Elasticsearch mapping created successfully.");
+    // } else {
+    //     tracing::error!("Failed to create Elasticsearch mapping: {:?}", res);
+    //     tracing::error!("Response: {:?}", res.text().await.unwrap());
+    //     panic!();
+    // }
 
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
@@ -270,6 +307,14 @@ pub async fn run_worker() {
                         || code.contains(&"DomainResource"))
             })
             .collect::<Vec<_>>(),
+    );
+
+    println!(
+        "Patient search parameters: {:?}",
+        patient_params
+            .iter()
+            .map(|p| p.id.clone())
+            .collect::<Vec<_>>()
     );
 
     loop {

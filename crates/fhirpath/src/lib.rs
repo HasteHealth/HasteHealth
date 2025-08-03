@@ -12,7 +12,7 @@ use std::{cell::RefCell, collections::HashSet, marker::PhantomData, rc::Rc, sync
 // use owning_ref::BoxRef;
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::types::{
-    FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt,
+    FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt, ResourceType,
 };
 use oxidized_reflect::MetaValue;
 
@@ -397,7 +397,10 @@ fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
         context
             .values
             .iter()
-            .filter(|v| v.typename() == type_name)
+            .filter(|v| match type_name {
+                "Resource" | "DomainResource" => ResourceType::try_from(v.typename()).is_ok(),
+                _ => v.typename() == type_name,
+            })
             .map(|v| *v)
             .collect(),
     )
