@@ -57,7 +57,7 @@ pub enum Polarity {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct QualifiedIdentifier(Vec<Identifier>);
+pub struct QualifiedIdentifier(pub Vec<Identifier>);
 
 #[derive(PartialEq, Debug)]
 pub enum Operation {
