@@ -180,8 +180,8 @@ async fn index_for_tenant(
                 )
                 .await?;
 
-                // tracing::info!("Available locks: {:?}", tenant_locks);
-                // tracing::info!("Retrieved resources: {:?}", resources.len());
+                tracing::info!("Available locks: {:?}", tenant_locks);
+                tracing::info!("Retrieved resources: {:?}", resources.len());
 
                 // Iterator used to evaluate all of the search expressions for indexing.
                 let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
@@ -198,8 +198,6 @@ async fn index_for_tenant(
                                     &params,
                                     &r.resource.0,
                                 )?;
-
-                                println!("Elastic Index: {:?}", elastic_index);
 
                                 Ok(BulkOperation::index(elastic_index)
                                     .id(&r.id)
@@ -342,14 +340,13 @@ pub async fn run_worker() {
                         &tenant.id,
                         _error
                     );
+                } else {
+                    tracing::info!(
+                        "Successfully indexed tenant: {} in {:?}",
+                        &tenant.id,
+                        start.elapsed()
+                    );
                 }
-                // } else {
-                //     tracing::info!(
-                //         "Successfully indexed tenant: {} in {:?}",
-                //         &tenant.id,
-                //         start.elapsed()
-                //     );
-                // }
             }
         } else if let Err(error) = tenants_to_check {
             tracing::error!("Failed to retrieve tenants: {:?}", error);
