@@ -68,7 +68,7 @@ pub enum Operation {
     // Multiplicative Operations
     Multiplication(Expression, Expression),
     Division(Expression, Expression),
-    DivisionTrucated(Expression, Expression),
+    DivisionTruncated(Expression, Expression),
     Modulo(Expression, Expression),
     // Type Operations
     Is(Expression, QualifiedIdentifier),
@@ -319,7 +319,7 @@ parser! {
                 match op {
                     "*" => Expression::Operation(Box::new(Operation::Multiplication(x, y))),
                     "/" => Expression::Operation(Box::new(Operation::Division(x, y))),
-                    "div" => Expression::Operation(Box::new(Operation::DivisionTrucated(x, y))),
+                    "div" => Expression::Operation(Box::new(Operation::DivisionTruncated(x, y))),
                     "mod" => Expression::Operation(Box::new(Operation::Modulo(x, y))),
                     _ => unreachable!(),
                 }
