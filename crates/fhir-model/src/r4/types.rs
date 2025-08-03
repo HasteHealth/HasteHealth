@@ -30161,3 +30161,15 @@ impl ResourceType {
         ResourceType(s)
     }
 }
+impl TryFrom<String> for ResourceType {
+    type Error = ResourceTypeError;
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        ResourceType::new(s)
+    }
+}
+impl TryFrom<&str> for ResourceType {
+    type Error = ResourceTypeError;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        ResourceType::new(s.to_string())
+    }
+}

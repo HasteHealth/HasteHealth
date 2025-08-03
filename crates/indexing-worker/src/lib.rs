@@ -1,6 +1,7 @@
 use crate::{
     conversion::InsertableIndex,
     indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider},
+    mappings::create_elasticsearch_searchparameter_mappings,
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -10,7 +11,7 @@ use elasticsearch::{
         Url,
         transport::{SingleNodeConnectionPool, TransportBuilder},
     },
-    indices::IndicesCreateParts,
+    indices::{IndicesCreateParts, IndicesPutMappingParts},
 };
 use oxidized_config::get_config;
 use oxidized_fhir_model::r4::{
@@ -21,11 +22,13 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search_parameters::R4_SEARCH_PARAMETERS;
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
+use serde_json::json;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, fmt::Display, sync::Arc, time::Instant};
 
 mod conversion;
 mod indexing_lock;
+pub mod mappings;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
@@ -134,6 +137,7 @@ fn resource_to_elastic_index(
             map.insert(url.clone(), result_vec);
         }
     }
+
     Ok(map)
 }
 
@@ -237,13 +241,49 @@ pub async fn run_worker() {
         .unwrap();
     let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
 
-    let indices_client = elasticsearch_client
+    let mapping_body = create_elasticsearch_searchparameter_mappings(
+        &R4_SEARCH_PARAMETERS.values().collect::<Vec<_>>(),
+    )
+    .await
+    .unwrap();
+
+    let res = elasticsearch_client
         .indices()
         .create(IndicesCreateParts::Index(R4_FHIR_INDEX))
+        .body(json!({
+               "settings": {
+                   "index": {
+                        "mapping": {
+                            "nested_fields": {
+                                "limit": 2000
+                            },
+                            "total_fields": {
+                                "limit": 5000
+                            }
+                        }
+                   }
+               },
+               "mappings": mapping_body
+        }))
         .send()
-        .await;
+        .await
+        .unwrap();
 
-    tracing::info!("Indices create response: {:?}", indices_client);
+    // let res = elasticsearch_client
+    //     .indices()
+    //     .put_mapping(IndicesPutMappingParts::Index(&[R4_FHIR_INDEX]))
+    //     .body(mapping_body)
+    //     .send()
+    //     .await
+    //     .unwrap();
+
+    // if res.status_code().is_success() {
+    //     tracing::info!("Elasticsearch mapping created successfully.");
+    // } else {
+    //     tracing::error!("Failed to create Elasticsearch mapping: {:?}", res);
+    //     tracing::error!("Response: {:?}", res.text().await.unwrap());
+    //     panic!();
+    // }
 
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
