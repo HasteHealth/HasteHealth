@@ -137,6 +137,7 @@ fn resource_to_elastic_index(
             map.insert(url.clone(), result_vec);
         }
     }
+
     Ok(map)
 }
 
@@ -307,14 +308,6 @@ pub async fn run_worker() {
                         || code.contains(&"DomainResource"))
             })
             .collect::<Vec<_>>(),
-    );
-
-    println!(
-        "Patient search parameters: {:?}",
-        patient_params
-            .iter()
-            .map(|p| p.id.clone())
-            .collect::<Vec<_>>()
     );
 
     loop {
