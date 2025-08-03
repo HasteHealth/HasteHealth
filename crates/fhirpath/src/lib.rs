@@ -388,8 +388,8 @@ fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError>
 }
 
 fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
-    match type_name {
-        "Resource" | "DomainResource" => ResourceType::try_from(type_to_check).is_ok(),
+    match type_to_check {
+        "Resource" | "DomainResource" => ResourceType::try_from(type_name).is_ok(),
         _ => type_name == type_to_check,
     }
 }
@@ -1122,6 +1122,34 @@ mod tests {
 
             assert_eq!(s, 51.0);
         }
+    }
+
+    #[test]
+    fn domain_resource_filter() {
+        let engine = FPEngine::new();
+
+        let patient = oxidized_fhir_serialization_json::from_str::<Resource>(
+            r#"{"id": "patient-id", "resourceType": "Patient"}"#,
+        )
+        .unwrap();
+        let result = engine.evaluate("Resource.id", vec![&patient]).unwrap();
+        let ids: Vec<&String> = result
+            .iter()
+            .map(|r| r.as_any().downcast_ref::<String>().unwrap())
+            .collect();
+
+        assert_eq!(ids.len(), 1);
+        assert_eq!(ids[0], "patient-id");
+
+        let result2 = engine
+            .evaluate("DomainResource.id", vec![&patient])
+            .unwrap();
+        let ids2: Vec<&String> = result2
+            .iter()
+            .map(|r| r.as_any().downcast_ref::<String>().unwrap())
+            .collect();
+        assert_eq!(ids2.len(), 1);
+        assert_eq!(ids2[0], "patient-id");
     }
 
     #[test]

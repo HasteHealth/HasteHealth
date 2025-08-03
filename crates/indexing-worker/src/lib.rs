@@ -46,6 +46,11 @@ pub enum IndexingWorkerError {
         diagnostic = "Missing search parameters for resource: '{arg0}'"
     )]
     MissingSearchParameters(String),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Fatal error occurred during indexing"
+    )]
+    Fatal,
 }
 
 #[derive(sqlx::Type, Debug, Clone)]
@@ -175,8 +180,8 @@ async fn index_for_tenant(
                 )
                 .await?;
 
-                tracing::info!("Available locks: {:?}", tenant_locks);
-                tracing::info!("Retrieved resources: {:?}", resources.len());
+                // tracing::info!("Available locks: {:?}", tenant_locks);
+                // tracing::info!("Retrieved resources: {:?}", resources.len());
 
                 // Iterator used to evaluate all of the search expressions for indexing.
                 let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
@@ -193,6 +198,9 @@ async fn index_for_tenant(
                                     &params,
                                     &r.resource.0,
                                 )?;
+
+                                println!("Elastic Index: {:?}", elastic_index);
+
                                 Ok(BulkOperation::index(elastic_index)
                                     .id(&r.id)
                                     .index(R4_FHIR_INDEX)
@@ -210,17 +218,26 @@ async fn index_for_tenant(
                     })
                     .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
 
-                elasticsearch_client
-                    .bulk(BulkParts::Index(R4_FHIR_INDEX))
-                    .body(bulk_ops)
-                    .send()
-                    .await?;
+                    if !bulk_ops.is_empty() {
 
-                if let Some(resource) = resources.last() {
-                    tenant_lock_provider
-                        .update(transaction, &tenant_id, resource.sequence as usize)
-                        .await?;
-                }
+                        let res = elasticsearch_client
+                            .bulk(BulkParts::Index(R4_FHIR_INDEX))
+                            .body(bulk_ops)
+                            .send()
+                            .await?;
+
+                        if !res.status_code().is_success() {
+                            tracing::error!("Failed to index resources for tenant: '{}'. Response: '{:?}', body: '{}'", tenant_id, res.status_code(), res.text().await.unwrap());
+                            return Err(IndexingWorkerError::Fatal);
+                        }
+
+
+                        if let Some(resource) = resources.last() {
+                            tenant_lock_provider
+                                .update(transaction, &tenant_id, resource.sequence as usize)
+                                .await?;
+                        }
+                    } 
 
                 Ok(())
             })
@@ -325,13 +342,14 @@ pub async fn run_worker() {
                         &tenant.id,
                         _error
                     );
-                } else {
-                    tracing::info!(
-                        "Successfully indexed tenant: {} in {:?}",
-                        &tenant.id,
-                        start.elapsed()
-                    );
                 }
+                // } else {
+                //     tracing::info!(
+                //         "Successfully indexed tenant: {} in {:?}",
+                //         &tenant.id,
+                //         start.elapsed()
+                //     );
+                // }
             }
         } else if let Err(error) = tenants_to_check {
             tracing::error!("Failed to retrieve tenants: {:?}", error);
