@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
+use oxidized_fhir_model::r4::types::{Resource, ResourceType, ResourceTypeError, SearchParameter};
 
 static SEARCH_PARAMETERS_STR: &str = include_str!("../artifacts/r4/hl7/search-parameters.min.json");
 
@@ -96,8 +96,8 @@ pub fn get_all_search_parameters() -> Vec<Arc<SearchParameter>> {
 
 pub fn get_search_parameters_for_resource(
     resource_type: &str,
-) -> Option<Vec<Arc<SearchParameter>>> {
-    let resource_type = ResourceType::try_from(resource_type).ok()?;
+) -> Result<Vec<Arc<SearchParameter>>, ResourceTypeError> {
+    let resource_type = ResourceType::try_from(resource_type)?;
     let resource_params = R4_SEARCH_PARAMETERS
         .by_resource_type
         .get("Resource")
@@ -106,18 +106,16 @@ pub fn get_search_parameters_for_resource(
         .by_resource_type
         .get("DomainResource")
         .unwrap();
+    let mut return_vec = Vec::new();
+    return_vec.extend(resource_params.iter().cloned());
+    return_vec.extend(domain_params.iter().cloned());
 
     if let Some(params) = R4_SEARCH_PARAMETERS
         .by_resource_type
         .get(resource_type.as_str())
     {
-        let mut return_vec = Vec::new();
-        return_vec.extend(resource_params.iter().cloned());
-        return_vec.extend(domain_params.iter().cloned());
         return_vec.extend(params.iter().cloned());
-
-        Some(return_vec)
-    } else {
-        None
     }
+
+    Ok(return_vec)
 }
