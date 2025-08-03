@@ -102,6 +102,21 @@ pub async fn create_elasticsearch_searchparameter_mappings(
         }
     }
 
+    property_mapping.insert(
+        "resource_type".to_string(),
+        json!({
+            "type": "keyword",
+        }),
+    );
+
+    property_mapping.insert(
+        "version_id".to_string(),
+        json!({
+            "indexing": false,
+            "type": "keyword",
+        }),
+    );
+
     Ok(json!({
         "properties" : property_mapping
     }))

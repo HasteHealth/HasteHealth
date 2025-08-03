@@ -75,6 +75,7 @@ impl Display for FHIRMethod {
 struct ResourcePollingValue {
     id: String,
     resource_type: String,
+    version_id: String,
     resource: FHIRJson<Resource>,
     sequence: i64,
     fhir_method: FHIRMethod,
@@ -92,7 +93,7 @@ async fn get_resource_sequence(
 ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
     let result = query_as!(
         ResourcePollingValue,
-        r#"SELECT  id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+        r#"SELECT  id, version_id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
         tenant_id,
         cur_sequence,
         count.unwrap_or(100) as i64
@@ -193,11 +194,14 @@ async fn index_for_tenant(
                     .map(|r| match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
                             if let Some(params)  = oxidized_artifacts::search_parameters::get_search_parameters_for_resource(&r.resource_type) {
-                                let elastic_index = resource_to_elastic_index(
+                                let mut elastic_index = resource_to_elastic_index(
                                     fp_engine.clone(),
                                     &params,
                                     &r.resource.0,
                                 )?;
+
+                                elastic_index.insert("resource_type".to_string(), InsertableIndex::String(vec![r.resource_type.clone()]));
+                                elastic_index.insert("version_id".to_string(), InsertableIndex::String(vec![r.version_id.clone()]));
 
                                 Ok(BulkOperation::index(elastic_index)
                                     .id(&r.id)
