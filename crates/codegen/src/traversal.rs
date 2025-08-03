@@ -89,7 +89,8 @@ mod tests {
     #[test]
     fn test_traversal() {
         let data = serde_json::from_str::<Value>(
-            &std::fs::read_to_string("../artifacts/r4/hl7/profiles-resources.json").unwrap(),
+            &std::fs::read_to_string("../artifacts/artifacts/r4/hl7/profiles-resources.json")
+                .unwrap(),
         )
         .unwrap();
 
