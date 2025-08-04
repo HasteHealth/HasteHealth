@@ -11,8 +11,9 @@ use oxidized_fhir_client::{
     FHIRClient, ParsedParameter,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
-        FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
-        FHIRResponse, FHIRUpdateResponse, FHIRVersionReadRequest, FHIRVersionReadResponse,
+        FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRUpdateResponse, FHIRVersionReadRequest,
+        FHIRVersionReadResponse,
     },
 };
 use oxidized_fhir_model::r4::types::Resource;
@@ -139,6 +140,20 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                 } else {
                     None
                 }
+            }
+            FHIRRequest::HistoryInstance(history_instance_request) => {
+                let history_resources = state
+                    .history(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &history_instance_request.resource_type,
+                        &ResourceId::new(history_instance_request.id.to_string()),
+                    )
+                    .await?;
+
+                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
+                    resources: history_resources,
+                }))
             }
             FHIRRequest::UpdateInstance(update_request) => {
                 let resource = state
