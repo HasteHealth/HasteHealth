@@ -257,13 +257,13 @@ pub async fn run_worker() {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
-    let url = Url::parse("https://localhost:9200").unwrap();
+    let url = Url::parse(&config.get("ELASTICSEARCH_URL").expect("ELASTICSEARCH_URL variable not set")).unwrap();
     let conn_pool = SingleNodeConnectionPool::new(url);
     let transport = TransportBuilder::new(conn_pool)
         .cert_validation(CertificateValidation::None)
         .auth(Credentials::Basic(
-            "elastic".to_string(),
-            "nGN1wSIQ-8phdE*JiLOp".to_string(),
+            config.get("ELASTICSEARCH_USERNAME").expect("ELASTICSEARCH_USERNAME variable not set"),
+            config.get("ELASTICSEARCH_PASSWORD").expect("ELASTICSEARCH_PASSWORD variable not set")
         ))
         .build()
         .unwrap();
