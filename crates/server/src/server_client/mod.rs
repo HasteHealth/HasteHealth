@@ -69,6 +69,17 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
 
                 Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
             }
+            FHIRRequest::Update(update_request) => {
+                let resource = state
+                    .update(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &ResourceId::new(read_request.id.to_string()),
+                    )
+                    .await?;
+
+                Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
+            }
             _ => None,
         };
 
