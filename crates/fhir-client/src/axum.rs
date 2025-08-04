@@ -62,6 +62,24 @@ impl IntoResponse for FHIRResponse {
                 )
                     .into_response()
             }
+            FHIRResponse::HistoryType(response) => {
+                let bundle = to_history_bundle(response.resources);
+                (
+                    StatusCode::OK,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                )
+                    .into_response()
+            }
+            FHIRResponse::HistorySystem(response) => {
+                let bundle = to_history_bundle(response.resources);
+                (
+                    StatusCode::OK,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                )
+                    .into_response()
+            }
             _ => panic!("Unsupported FHIRResponse type"),
         }
     }

@@ -109,7 +109,7 @@ impl FHIRRepository for FHIRPostgresRepository {
         match history_request {
             HistoryRequest::Instance(history_instance_request) => {
                 let response = sqlx::query_as!(ReturnV,
-                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC"#,
+                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
                         history_instance_request.id.as_ref() as &str,
@@ -120,7 +120,7 @@ impl FHIRRepository for FHIRPostgresRepository {
             }
             HistoryRequest::Type(history_type_request) => {
                 let response = sqlx::query_as!(ReturnV,
-                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC"#,
+                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,                
                         history_type_request.resource_type.as_str() as &str
@@ -130,7 +130,7 @@ impl FHIRRepository for FHIRPostgresRepository {
             }
             HistoryRequest::System(request) => {
                 let response = sqlx::query_as!(ReturnV,
-                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC"#,
+                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,                
                     ).fetch_all(&self.0).await.map_err(StoreError::from)?;
