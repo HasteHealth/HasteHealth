@@ -64,7 +64,7 @@ history-system	    /_history	                          GET	N/A	N/A	N/A	N/A
                                                         POST	application/x-www-form-urlencoded	form data	N/A	N/A
 */
 fn parse_request_1_non_empty<'a>(
-    fhir_version: SupportedFHIRVersions,
+    _fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
@@ -152,8 +152,8 @@ search-system	      ?	                                  GET	N/A	N/A	N/A	N/A
 delete-conditional  ?                                   DELETE N/A N/A N/A O: If-Match
 */
 fn parse_request_1_empty<'a>(
-    fhir_version: SupportedFHIRVersions,
-    url_chunks: Vec<&'a str>,
+    _fhir_version: SupportedFHIRVersions,
+    _url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
     match req.method {
@@ -217,7 +217,7 @@ delete	            /[type]/[id]	                    DELETE	N/A	N/A	N/A	N/A
 history-type	    /[type]/_history	                GET	N/A	N/A	N/A	N/A
 */
 fn parse_request_2<'a>(
-    fhir_version: SupportedFHIRVersions,
+    _fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
@@ -303,7 +303,7 @@ fn parse_request_2<'a>(
 history-instance	  /[type]/[id]/_history	              GET	N/A	N/A	N/A	N/A
 */
 fn parse_request_3<'a>(
-    fhir_version: SupportedFHIRVersions,
+    _fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
@@ -359,7 +359,7 @@ fn parse_request_3<'a>(
 vread            	  /[type]/[id]/_history/[vid]	        GET‡	N/A	N/A	N/A	N/A
 */
 fn parse_request_4<'a>(
-    fhir_version: SupportedFHIRVersions,
+    _fhir_version: SupportedFHIRVersions,
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {

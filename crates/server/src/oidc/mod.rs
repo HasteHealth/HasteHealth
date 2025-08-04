@@ -40,10 +40,18 @@ async fn well_known(_: WellKnown) -> Result<Json<OIDCResponse>, String> {
 
     Ok(Json(oidc_response))
 }
+
 async fn token_get(TokenGetRoute { id }: TokenGetRoute) -> String {
     id
 }
 
+async fn token_post(TokenPostRoute { id }: TokenPostRoute) -> String {
+    id
+}
+
 pub fn create_router<T: Send + Sync + 'static>() -> Router<Arc<T>> {
-    Router::new().typed_get(token_get).typed_get(well_known)
+    Router::new()
+        .typed_get(token_get)
+        .typed_post(token_post)
+        .typed_get(well_known)
 }

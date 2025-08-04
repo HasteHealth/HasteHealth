@@ -748,6 +748,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 
 [[package]]
+name = "fhir-search"
+version = "0.1.0"
+dependencies = [
+ "elasticsearch",
+ "oxidized-fhir-client",
+ "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
+ "oxidized-fhir-repository",
+ "oxidized-fhirpath",
+]
+
+[[package]]
 name = "flate2"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1960,6 +1972,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxidized-fhir-repository"
+version = "0.1.0"
+dependencies = [
+ "nanoid",
+ "oxidized-fhir-client",
+ "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
+ "oxidized-reflect",
+ "serde",
+ "sqlx",
+ "sqlx-postgres",
+]
+
+[[package]]
 name = "oxidized-fhir-serialization-json"
 version = "0.1.0"
 dependencies = [
@@ -2058,15 +2084,14 @@ dependencies = [
  "axum-extra",
  "chrono",
  "dotenvy",
- "elasticsearch",
  "json-patch",
  "jsonwebtoken",
  "maud",
- "nanoid",
  "oxidized-config",
  "oxidized-fhir-client",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-fhir-repository",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "oxidized-reflect",

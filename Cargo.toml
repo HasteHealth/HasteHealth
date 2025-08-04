@@ -25,7 +25,7 @@ members = [
     "crates/fhir-operation-error-derive",
     "crates/indexing-worker",
     "crates/config",
-    "crates/artifacts",
+    "crates/artifacts", "crates/fhir-search", "crates/fhir-repository",
 ]
 
 [dependencies]
