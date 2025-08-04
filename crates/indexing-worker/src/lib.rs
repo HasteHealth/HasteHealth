@@ -1,7 +1,7 @@
 use crate::{
     conversion::InsertableIndex,
-    indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider},
-    mappings::create_elasticsearch_searchparameter_mappings,
+    indexing_lock::{postgres::PostgresIndexLockProvider, IndexLockProvider},
+    mappings::{create_mapping},
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -11,7 +11,7 @@ use elasticsearch::{
         Url,
         transport::{SingleNodeConnectionPool, TransportBuilder},
     },
-    indices::IndicesCreateParts,
+
 };
 use oxidized_config::get_config;
 use oxidized_fhir_model::r4::{
@@ -21,7 +21,6 @@ use oxidized_fhir_model::r4::{
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
-use serde_json::json;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, fmt::Display, sync::Arc, time::Instant};
 
@@ -51,6 +50,8 @@ pub enum IndexingWorkerError {
         diagnostic = "Fatal error occurred during indexing"
     )]
     Fatal,
+    #[fatal(code = "exception", diagnostic = "Artifact error: Invalid resource type '{arg0}'")]
+    ResourceTypeError(#[from] oxidized_fhir_model::r4::types::ResourceTypeError),
 }
 
 #[derive(sqlx::Type, Debug, Clone)]
@@ -75,6 +76,9 @@ impl Display for FHIRMethod {
 struct ResourcePollingValue {
     id: String,
     resource_type: String,
+    version_id: String,
+    project: String,
+    tenant: String,
     resource: FHIRJson<Resource>,
     sequence: i64,
     fhir_method: FHIRMethod,
@@ -92,7 +96,7 @@ async fn get_resource_sequence(
 ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
     let result = query_as!(
         ResourcePollingValue,
-        r#"SELECT  id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+        r#"SELECT  id, tenant, project, version_id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
         tenant_id,
         cur_sequence,
         count.unwrap_or(100) as i64
@@ -192,20 +196,23 @@ async fn index_for_tenant(
                     })
                     .map(|r| match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
-                            if let Some(params)  = oxidized_artifacts::search_parameters::get_search_parameters_for_resource(&r.resource_type) {
-                                let elastic_index = resource_to_elastic_index(
-                                    fp_engine.clone(),
-                                    &params,
-                                    &r.resource.0,
-                                )?;
+                            let params  = oxidized_artifacts::search_parameters::get_search_parameters_for_resource(&r.resource_type).map_err(IndexingWorkerError::from)?;
+                            let mut elastic_index = resource_to_elastic_index(
+                                fp_engine.clone(),
+                                &params,
+                                &r.resource.0,
+                            )?;
+                            
+                            elastic_index.insert("resource_type".to_string(), InsertableIndex::String(vec![r.resource_type.clone()]));
+                            elastic_index.insert("version_id".to_string(), InsertableIndex::String(vec![r.version_id.clone()]));
+                            elastic_index.insert("project".to_string(), InsertableIndex::String(vec![r.project.clone()]));
+                            elastic_index.insert("tenant".to_string(), InsertableIndex::String(vec![r.tenant.clone()]));
 
-                                Ok(BulkOperation::index(elastic_index)
-                                    .id(&r.id)
-                                    .index(R4_FHIR_INDEX)
-                                    .into())
-                            } else {
-                                Err(IndexingWorkerError::MissingSearchParameters(r.id.clone()).into())
-                            }
+                            Ok(BulkOperation::index(elastic_index)
+                                .id(&r.id)
+                                .index(R4_FHIR_INDEX)
+                                .into())
+      
                         }
                         FHIRMethod::Delete => {
                             Ok(BulkOperation::delete(&r.id).index(R4_FHIR_INDEX).into())
@@ -263,33 +270,10 @@ pub async fn run_worker() {
         .unwrap();
     let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
 
-    let mapping_body = create_elasticsearch_searchparameter_mappings(
-        &oxidized_artifacts::search_parameters::get_all_search_parameters(),
-    )
-    .await
-    .unwrap();
-
-    let res = elasticsearch_client
-        .indices()
-        .create(IndicesCreateParts::Index(R4_FHIR_INDEX))
-        .body(json!({
-               "settings": {
-                   "index": {
-                        "mapping": {
-                            "nested_fields": {
-                                "limit": 2000
-                            },
-                            "total_fields": {
-                                "limit": 5000
-                            }
-                        }
-                   }
-               },
-               "mappings": mapping_body
-        }))
-        .send()
+    create_mapping(&elasticsearch_client)
         .await
-        .unwrap();
+        .expect("Failed to create Elasticsearch mapping");
+
 
     // let res = elasticsearch_client
     //     .indices()
@@ -299,13 +283,7 @@ pub async fn run_worker() {
     //     .await
     //     .unwrap();
 
-    // if res.status_code().is_success() {
-    //     tracing::info!("Elasticsearch mapping created successfully.");
-    // } else {
-    //     tracing::error!("Failed to create Elasticsearch mapping: {:?}", res);
-    //     tracing::error!("Response: {:?}", res.text().await.unwrap());
-    //     panic!();
-    // }
+
 
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
