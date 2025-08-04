@@ -2,6 +2,7 @@ use oxidized_fhir_client::request::FHIRRequest;
 use oxidized_fhir_client::request::{
     FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
 };
+use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
@@ -155,6 +156,17 @@ pub struct InsertResourceRow<'a> {
     // sequence: i64,
 }
 
+pub struct ResourcePollingValue {
+    id: String,
+    resource_type: String,
+    version_id: String,
+    project: String,
+    tenant: String,
+    resource: FHIRJson<Resource>,
+    sequence: i64,
+    fhir_method: FHIRMethod,
+}
+
 pub enum HistoryRequest<'a> {
     System(&'a FHIRHistorySystemRequest),
     Type(&'a FHIRHistoryTypeRequest),
@@ -208,5 +220,5 @@ pub trait FHIRRepository {
         project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
 }

@@ -2,27 +2,17 @@ use crate::{
     conversion::InsertableIndex,
     indexing_lock::{postgres::PostgresIndexLockProvider, IndexLockProvider},
 };
-use elasticsearch::{
-    BulkOperation, BulkParts, Elasticsearch,
-    auth::Credentials,
-    cert::CertificateValidation,
-    http::{
-        Url,
-        transport::{SingleNodeConnectionPool, TransportBuilder},
-    },
-
-};
+use elasticsearch::{BulkOperation, BulkParts, Elasticsearch};
 use oxidized_config::get_config;
-use oxidized_fhir_model::r4::{
-    sqlx::FHIRJson,
-    types::{Resource, SearchParameter},
-};
-use oxidized_fhir_search::elastic_search::migration::create_mapping;
+use oxidized_fhir_model::r4::{types::{Resource, SearchParameter}};
+use oxidized_fhir_repository::{FHIRRepository, SupportedFHIRVersions};
+use oxidized_fhir_search::{elastic_search::{ElasticSearchEngine}, SearchEngine};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
 use sqlx::{Connection, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, fmt::Display, sync::Arc, time::Instant};
+
 
 mod conversion;
 mod indexing_lock;
@@ -72,40 +62,7 @@ impl Display for FHIRMethod {
     }
 }
 
-struct ResourcePollingValue {
-    id: String,
-    resource_type: String,
-    version_id: String,
-    project: String,
-    tenant: String,
-    resource: FHIRJson<Resource>,
-    sequence: i64,
-    fhir_method: FHIRMethod,
-}
-
 static R4_FHIR_INDEX: &str = "r4_search_index";
-
-/// Retrieves a sequence of resources from the database.
-/// Must have sequence value greater than `cur_sequence`.
-async fn get_resource_sequence(
-    client: &mut sqlx::PgConnection,
-    tenant_id: &str,
-    cur_sequence: i64,
-    count: Option<u64>,
-) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
-    let result = query_as!(
-        ResourcePollingValue,
-        r#"SELECT  id, tenant, project, version_id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
-        tenant_id,
-        cur_sequence,
-        count.unwrap_or(100) as i64
-    )
-    .fetch_all(client)
-    .await
-    .map_err(IndexingWorkerError::from)?;
-
-    Ok(result)
-}
 
 struct TenantReturn {
     id: String,
@@ -154,11 +111,11 @@ fn resource_to_elastic_index(
     Ok(map)
 }
 
-async fn index_for_tenant(
+async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository>(
     tenant_id: String,
     fp_engine: Arc<FPEngine>,
-    pg_connection: &mut sqlx::PgConnection,
-    elasticsearch_client: Arc<Elasticsearch>,
+    repo: Arc<Repository>,
+    elasticsearch_client: Arc<Search>,
 ) -> Result<(), IndexingWorkerError> {
     let fp_engine = fp_engine.clone();
     let elasticsearch_client = elasticsearch_client.clone();
@@ -222,7 +179,6 @@ async fn index_for_tenant(
                     .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
 
                     if !bulk_ops.is_empty() {
-
                         let res = elasticsearch_client
                             .bulk(BulkParts::Index(R4_FHIR_INDEX))
                             .body(bulk_ops)
@@ -254,21 +210,16 @@ pub async fn run_worker() {
     let config = get_config("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
+        let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
 
-    let url = Url::parse(&config.get("ELASTICSEARCH_URL").expect("ELASTICSEARCH_URL variable not set")).unwrap();
-    let conn_pool = SingleNodeConnectionPool::new(url);
-    let transport = TransportBuilder::new(conn_pool)
-        .cert_validation(CertificateValidation::None)
-        .auth(Credentials::Basic(
-            config.get("ELASTICSEARCH_USERNAME").expect("ELASTICSEARCH_USERNAME variable not set"),
-            config.get("ELASTICSEARCH_PASSWORD").expect("ELASTICSEARCH_PASSWORD variable not set")
-        ))
-        .build()
-        .unwrap();
-    let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
-    create_mapping(&elasticsearch_client, R4_FHIR_INDEX)
-        .await
-        .expect("Failed to create Elasticsearch mapping");
+    let search_engine = Arc::new(ElasticSearchEngine::new(
+        fp_engine.clone(),
+        &config.get("ELASTICSEARCH_URL").expect("ELASTICSEARCH_URL variable not set"),
+        config.get("ELASTICSEARCH_USERNAME").expect("ELASTICSEARCH_USERNAME variable not set"),
+        config.get("ELASTICSEARCH_PASSWORD").expect("ELASTICSEARCH_PASSWORD variable not set")
+    ));
+
+    search_engine.migrate(SupportedFHIRVersions::R4, R4_FHIR_INDEX).await.expect("Failed to create mapping for R4 index");
 
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
@@ -276,7 +227,7 @@ pub async fn run_worker() {
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 
-    let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
+
 
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit).await;
@@ -293,7 +244,7 @@ pub async fn run_worker() {
                     tenant.id.clone(),
                     fp_engine.clone(),
                     &mut pg_connection,
-                    elasticsearch_client.clone(),
+                    search_engine.clone(),
                 )
                 .await;
 

@@ -8,7 +8,7 @@ use elasticsearch::{
         transport::{SingleNodeConnectionPool, TransportBuilder},
     },
 };
-use oxidized_fhir_repository::{ProjectId, TenantId};
+use oxidized_fhir_repository::{ProjectId, SupportedFHIRVersions, TenantId};
 use oxidized_fhirpath::FPEngine;
 use std::sync::Arc;
 
@@ -37,7 +37,7 @@ impl ElasticSearchEngine {
 }
 
 impl SearchEngine for ElasticSearchEngine {
-    fn search(
+    async fn search(
         &self,
         _tenant: TenantId,
         _project: ProjectId,
@@ -46,7 +46,7 @@ impl SearchEngine for ElasticSearchEngine {
         todo!()
     }
 
-    fn index(
+    async fn index(
         &self,
         _tenant: TenantId,
         _project: ProjectId,
@@ -55,7 +55,7 @@ impl SearchEngine for ElasticSearchEngine {
         todo!()
     }
 
-    fn remove_index(
+    async fn remove_index(
         &self,
         _tenant: TenantId,
         _project: ProjectId,
@@ -64,8 +64,12 @@ impl SearchEngine for ElasticSearchEngine {
         todo!()
     }
 
-    fn migrate(&self) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
-        migration::create_mapping(&self._client, R4_FHIR_INDEX).await?;
+    async fn migrate(
+        &self,
+        _fhir_version: SupportedFHIRVersions,
+        index_name: &str,
+    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
+        migration::create_mapping(&self._client, index_name).await?;
         // Here you would typically call the migration function to set up the index
         // For example:
         // migration::create_mapping(&self._client).await?;

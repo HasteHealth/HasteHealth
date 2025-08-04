@@ -1,5 +1,5 @@
 use crate::{
-         utilities, Author, FHIRMethod, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionId
+         utilities, Author, FHIRMethod, FHIRRepository, HistoryRequest, ProjectId, ResourceId, ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionId
     };
 use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
@@ -179,11 +179,22 @@ impl FHIRRepository for FHIRPostgresRepository {
 
     async fn get_sequence(
         &self,
-        _tenant_id: &TenantId,
+        tenant_id: &TenantId,
         _project_id: &ProjectId,
-        _sequence_id: u64,
-        _count: Option<u64>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        todo!()
+        cur_sequence: u64,
+        count: Option<u64>,
+    ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
+       let result = sqlx::query_as!(
+            ResourcePollingValue,
+            r#"SELECT  id, tenant, project, version_id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+            tenant_id.as_ref() as &str,
+            cur_sequence as i64,
+            count.unwrap_or(100) as i64
+        )
+        .fetch_all(&self.0)
+        .await
+        .map_err(StoreError::from)?;
+
+        Ok(result)
     }
 }
