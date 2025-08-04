@@ -13,8 +13,8 @@ use oxidized_fhirpath::FPEngine;
 use std::sync::Arc;
 
 pub struct ElasticSearchEngine {
-    fp_engine: Arc<FPEngine>,
-    client: Elasticsearch,
+    _fp_engine: Arc<FPEngine>,
+    _client: Elasticsearch,
 }
 
 impl ElasticSearchEngine {
@@ -28,8 +28,8 @@ impl ElasticSearchEngine {
             .unwrap();
         let elasticsearch_client = Elasticsearch::new(transport);
         ElasticSearchEngine {
-            fp_engine: fp_engine,
-            client: elasticsearch_client,
+            _fp_engine: fp_engine,
+            _client: elasticsearch_client,
         }
     }
 }
