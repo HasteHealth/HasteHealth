@@ -38,7 +38,7 @@ pub enum StoreError {
 impl FHIRRepository for FHIRPostgresRepository {
     async fn insert<'a>(
         &self,
-        row: &mut InsertResourceRow<'a>,
+        row: &InsertResourceRow<'a>,
     ) -> Result<Resource, OperationOutcomeError> {
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
             "INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) VALUES (",

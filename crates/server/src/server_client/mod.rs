@@ -12,7 +12,7 @@ use oxidized_fhir_client::{
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
-        FHIRResponse,
+        FHIRResponse, FHIRUpdateResponse,
     },
 };
 use oxidized_fhir_model::r4::types::Resource;
@@ -66,6 +66,28 @@ async fn create_resource<Repository: FHIRRepository + Send + Sync + 'static>(
     result
 }
 
+async fn update_resource<Repository: FHIRRepository + Send + Sync + 'static>(
+    repo: Arc<Repository>,
+    context: &ServerCTX,
+    resource: &Resource,
+) -> Result<Resource, OperationOutcomeError> {
+    let result = repo
+        .insert(&mut InsertResourceRow {
+            tenant: context.tenant.to_string(),
+            project: context.project.to_string(),
+            fhir_version: context.fhir_version.clone(),
+            resource: resource,
+            deleted: false,
+            request_method: "PUT".to_string(),
+            author_type: "Membership".to_string(),
+            author_id: "fake_author_id".to_string(),
+            fhir_method: FHIRMethod::Update,
+        })
+        .await;
+
+    result
+}
+
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     state: ServerMiddlewareState<Repository>,
     mut context: ServerMiddlewareContext,
@@ -112,7 +134,14 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                         .await?,
                     }))
                 } else {
-                    None
+                    Some(FHIRResponse::Update(FHIRUpdateResponse {
+                        resource: update_resource(
+                            state.clone(),
+                            &context.ctx,
+                            &update_request.resource,
+                        )
+                        .await?,
+                    }))
                 }
             }
             _ => None,
