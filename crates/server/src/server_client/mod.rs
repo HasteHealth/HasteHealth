@@ -146,8 +146,33 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
-                        &history_instance_request.resource_type,
-                        &ResourceId::new(history_instance_request.id.to_string()),
+                        crate::repository::HistoryRequest::Instance(&history_instance_request),
+                    )
+                    .await?;
+
+                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
+                    resources: history_resources,
+                }))
+            }
+            FHIRRequest::HistoryType(history_type_request) => {
+                let history_resources = state
+                    .history(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        crate::repository::HistoryRequest::Type(&history_type_request),
+                    )
+                    .await?;
+
+                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
+                    resources: history_resources,
+                }))
+            }
+            FHIRRequest::HistorySystem(history_system_request) => {
+                let history_resources = state
+                    .history(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        crate::repository::HistoryRequest::System(&history_system_request),
                     )
                     .await?;
 

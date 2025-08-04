@@ -9,8 +9,8 @@ use sqlx::{Execute, Executor, Postgres, QueryBuilder, Row, query_builder::Separa
 use crate::{
     SupportedFHIRVersions,
     repository::{
-        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId, VersionId,
-        utilities,
+        FHIRMethod, FHIRRepository, HistoryRequest, InsertResourceRow, ProjectId, ResourceId,
+        TenantId, VersionId, utilities,
     },
 };
 
@@ -104,18 +104,25 @@ impl FHIRRepository for FHIRPostgresRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        resource_type: &ResourceType,
-        resource_id: &ResourceId,
+        history_request: HistoryRequest<'_>,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        let response = sqlx::query!(
-            r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC"#,
-            tenant_id.as_ref(),
-            project_id.as_ref(),
-            resource_id.as_ref(),
-            resource_type.as_str()  
-        ).fetch_all(&self.0).await.map_err(StoreError::from)?;
+        match history_request {
+            HistoryRequest::Instance(history_instance_request) => {
+                let response = sqlx::query_as!(ReturnV,
+                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC"#,
+                        tenant_id.as_ref()  as &str,
+                        project_id.as_ref() as &str,
+                        history_instance_request.id.as_ref() as &str,
+                        history_instance_request.resource_type.as_str() as &str
+                    ).fetch_all(&self.0).await.map_err(StoreError::from)?;
 
-        Ok(response.into_iter().map(|r| r.resource.0).collect())
+                Ok(response.into_iter().map(|r| r.resource.0).collect())
+            }
+            HistoryRequest::Type(_) => {
+                todo!()
+            }
+            HistoryRequest::System(request) => todo!(),
+        }
     }
 
     async fn get_sequence(
