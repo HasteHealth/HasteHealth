@@ -163,6 +163,7 @@ pub trait FHIRRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
+        resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(

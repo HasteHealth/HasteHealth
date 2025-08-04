@@ -104,9 +104,18 @@ impl FHIRRepository for FHIRPostgresRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
+        resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        todo!();
+        let response = sqlx::query!(
+            r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC"#,
+            tenant_id.as_ref(),
+            project_id.as_ref(),
+            resource_id.as_ref(),
+            resource_type.as_str()  
+        ).fetch_all(&self.0).await.map_err(StoreError::from)?;
+
+        Ok(response.into_iter().map(|r| r.resource.0).collect())
     }
 
     async fn get_sequence(
