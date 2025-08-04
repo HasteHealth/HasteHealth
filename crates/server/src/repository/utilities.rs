@@ -1,10 +1,10 @@
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_model::r4::types::{FHIRId, Meta, Resource};
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
 // Can't use _ for compliance.
-fn generate_id() -> String {
+pub fn generate_id() -> String {
     nanoid::nanoid!(
         26,
         &[
@@ -25,7 +25,10 @@ pub enum DataTransformError {
     NotFound(String),
 }
 
-pub fn set_resource_id(resource: &mut Resource) -> Result<(), OperationOutcomeError> {
+pub fn set_resource_id(
+    resource: &mut Resource,
+    _id: Option<String>,
+) -> Result<(), OperationOutcomeError> {
     let id: &mut dyn std::any::Any =
         resource
             .get_field_mut("id")
@@ -37,7 +40,7 @@ pub fn set_resource_id(resource: &mut Resource) -> Result<(), OperationOutcomeEr
             .ok_or(DataTransformError::InvalidData(
                 "Invalid 'id' field".to_string(),
             ))?;
-    *id = Some(generate_id());
+    *id = Some(_id.unwrap_or_else(|| generate_id()));
     Ok(())
 }
 
