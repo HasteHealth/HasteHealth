@@ -27,6 +27,7 @@ mod fhir_http;
 mod oidc;
 mod pg;
 mod repository;
+mod search;
 mod server_client;
 
 #[derive(OperationOutcomeError, Debug)]

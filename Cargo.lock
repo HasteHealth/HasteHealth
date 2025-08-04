@@ -2058,6 +2058,7 @@ dependencies = [
  "axum-extra",
  "chrono",
  "dotenvy",
+ "elasticsearch",
  "json-patch",
  "jsonwebtoken",
  "maud",
