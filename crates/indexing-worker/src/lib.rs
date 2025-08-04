@@ -1,7 +1,6 @@
 use crate::{
     conversion::InsertableIndex,
     indexing_lock::{postgres::PostgresIndexLockProvider, IndexLockProvider},
-    mappings::{create_mapping},
 };
 use elasticsearch::{
     BulkOperation, BulkParts, Elasticsearch,
@@ -18,6 +17,7 @@ use oxidized_fhir_model::r4::{
     sqlx::FHIRJson,
     types::{Resource, SearchParameter},
 };
+use oxidized_fhir_search::elastic_search::migration::create_mapping;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use rayon::prelude::*;
@@ -26,7 +26,6 @@ use std::{collections::HashMap, fmt::Display, sync::Arc, time::Instant};
 
 mod conversion;
 mod indexing_lock;
-pub mod mappings;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum IndexingWorkerError {
@@ -267,8 +266,7 @@ pub async fn run_worker() {
         .build()
         .unwrap();
     let elasticsearch_client = Arc::new(Elasticsearch::new(transport));
-
-    create_mapping(&elasticsearch_client)
+    create_mapping(&elasticsearch_client, R4_FHIR_INDEX)
         .await
         .expect("Failed to create Elasticsearch mapping");
 

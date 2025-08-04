@@ -36,4 +36,6 @@ pub trait SearchEngine {
         project: ProjectId,
         remove_indices: Vec<RemoveIndex>,
     ) -> Result<(), OperationOutcomeError>;
+
+    fn migrate(&self) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError>;
 }

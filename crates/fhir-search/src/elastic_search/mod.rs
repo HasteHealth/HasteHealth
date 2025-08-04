@@ -12,6 +12,8 @@ use oxidized_fhir_repository::{ProjectId, TenantId};
 use oxidized_fhirpath::FPEngine;
 use std::sync::Arc;
 
+pub mod migration;
+
 pub struct ElasticSearchEngine {
     _fp_engine: Arc<FPEngine>,
     _client: Elasticsearch,
@@ -60,5 +62,13 @@ impl SearchEngine for ElasticSearchEngine {
         _remove_indices: Vec<super::RemoveIndex>,
     ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
         todo!()
+    }
+
+    fn migrate(&self) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
+        migration::create_mapping(&self._client, R4_FHIR_INDEX).await?;
+        // Here you would typically call the migration function to set up the index
+        // For example:
+        // migration::create_mapping(&self._client).await?;
+        Ok(())
     }
 }
