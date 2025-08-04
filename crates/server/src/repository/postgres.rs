@@ -4,7 +4,7 @@ use oxidized_fhir_model::r4::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use sqlx::{Executor, Row};
+use sqlx::{Executor, Postgres, QueryBuilder, Row};
 
 use crate::{
     SupportedFHIRVersions,
@@ -21,13 +21,17 @@ impl FHIRPostgresRepository {
     }
 }
 
+#[derive(sqlx::FromRow, Debug)]
 struct ReturnV {
     resource: FHIRJson<Resource>,
 }
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StoreError {
-    #[error(code = "invalid", diagnostic = "Could not insert resource.")]
+    #[error(
+        code = "invalid",
+        diagnostic = "An error occured while retrieving a resource."
+    )]
     FailedInsert(#[from] sqlx::Error),
 }
 
@@ -36,26 +40,25 @@ impl FHIRRepository for FHIRPostgresRepository {
         &self,
         row: &mut InsertResourceRow<'a>,
     ) -> Result<Resource, OperationOutcomeError> {
-        utilities::set_resource_id(&mut row.resource)?;
-        utilities::set_version_id(&mut row.resource)?;
+        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+            "INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) VALUES (",
+        );
+        query_builder
+            .push_bind(&row.tenant)
+            .push_bind(&row.project)
+            .push_bind(&row.author_id)
+            .push_bind(&row.fhir_version)
+            .push_bind(FHIRJsonRef(row.resource))
+            .push_bind(row.deleted)
+            .push_bind(&row.request_method)
+            .push_bind(&row.author_type)
+            .push_bind(&row.fhir_method as &FHIRMethod);
 
-        let result = sqlx::query_as!(
-                ReturnV,
-                r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-                RETURNING resource as "resource: FHIRJson<Resource>""#,
-                row.tenant,
-                row.project,
-                row.author_id,
-                // Useless cast so that macro has access to the type information.
-                // Otherwise it will not compile on type check.
-                &row.fhir_version as &SupportedFHIRVersions,
-                &FHIRJsonRef(row.resource) as &FHIRJsonRef<'_ , Resource>,
-                row.deleted,
-                row.request_method,
-                row.author_type,
-                &row.fhir_method as &FHIRMethod,
-            ).fetch_one(&self.0).await.map_err(StoreError::from)?;
+        query_builder.push(r#") RETURNING resource as "resource: FHIRJson<Resource>""#);
+
+        let query = query_builder.build_query_as();
+
+        let result: ReturnV = query.fetch_one(&self.0).await.map_err(StoreError::from)?;
 
         Ok(result.resource.0)
     }
@@ -74,15 +77,15 @@ impl FHIRRepository for FHIRPostgresRepository {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         resource_id: &ResourceId,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+    ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
         let response = sqlx::query!(
             r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 ORDER BY sequence DESC"#,
             tenant_id.as_ref(),
             project_id.as_ref(),
             resource_id.as_ref(),
-        ).fetch_one(&self.0).await.map_err(StoreError::from)?;
+        ).fetch_optional(&self.0).await.map_err(StoreError::from)?;
 
-        Ok(response.resource.0)
+        Ok(response.map(|r| r.resource.0))
     }
 
     async fn history(

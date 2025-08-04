@@ -155,7 +155,9 @@ pub trait FHIRRepository {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         resource_id: &ResourceId,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+    ) -> impl Future<
+        Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
+    > + Send;
     fn history(
         &self,
         tenant_id: &TenantId,
