@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) \n                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) \n                RETURNING resource as \"resource: FHIRJson<Resource>\"",
+  "query": "INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) \n               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) \n                RETURNING resource as \"resource: FHIRJson<Resource>\"",
   "describe": {
     "columns": [
       {
@@ -49,5 +49,5 @@
       false
     ]
   },
-  "hash": "b9fbadee341b74286438a40cb25faa5f863616bbb80e38d392f22ea37622cced"
+  "hash": "0ebb52cb0f476240e766afc435ea509142aa6a2a018fc82ef512b7070fbd2496"
 }
