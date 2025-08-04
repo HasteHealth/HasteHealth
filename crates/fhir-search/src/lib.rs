@@ -1,9 +1,9 @@
-use crate::repository::{ProjectId, TenantId, VersionId};
 use oxidized_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeRequest};
-use oxidized_fhir_model::r4::types::{Resource, ResourceType};
+use oxidized_fhir_model::r4::types::Resource;
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_repository::{ProjectId, TenantId};
 
-mod elastic_search;
+pub mod elastic_search;
 
 pub enum SearchRequest {
     TypeSearch(FHIRSearchTypeRequest),
@@ -11,8 +11,8 @@ pub enum SearchRequest {
 }
 
 pub struct RemoveIndex {
-    resource_type: ResourceType,
-    id: String,
+    // resource_type: ResourceType,
+    // id: String,
 }
 
 pub trait SearchEngine {

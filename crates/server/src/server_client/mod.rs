@@ -1,20 +1,17 @@
-use std::{any::Any, pin::Pin, sync::Arc};
-
 use oxidized_fhir_client::{
     FHIRClient, ParsedParameter,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
-        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRUpdateResponse, FHIRVersionReadRequest,
-        FHIRVersionReadResponse,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
 };
-use oxidized_fhir_model::r4::types::Resource;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
     Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
     VersionId,
 };
+use std::sync::Arc;
 
 pub struct ServerCTX {
     pub tenant: TenantId,
@@ -46,7 +43,7 @@ type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, Operatio
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     state: ServerMiddlewareState<Repository>,
     mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repository>>>,
+    _next: Option<Arc<ServerMiddlewareNext<Repository>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
@@ -84,11 +81,9 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .await?;
 
                 if vread_resources.get(0).is_some() {
-                    Some(
-                        (FHIRResponse::VersionRead(FHIRVersionReadResponse {
-                            resource: vread_resources.swap_remove(0),
-                        })),
-                    )
+                    Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
+                        resource: vread_resources.swap_remove(0),
+                    }))
                 } else {
                     None
                 }

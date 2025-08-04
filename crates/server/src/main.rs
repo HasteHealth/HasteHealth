@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::{
     fhir_http::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
@@ -7,7 +6,7 @@ use crate::{
 use axum::{
     Extension, Router,
     extract::{Path, State},
-    http::{Method, StatusCode},
+    http::Method,
     response::{IntoResponse, Response},
     routing::any,
 };
@@ -56,7 +55,7 @@ pub enum CustomOpError {
 
 struct AppState<Repo: FHIRRepository + Send + Sync> {
     fhir_client: FHIRServerClient<Repo>,
-    config: Box<dyn Config>,
+    _config: Box<dyn Config>,
 }
 
 #[derive(Deserialize)]
@@ -106,7 +105,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
     session_store.migrate().await.map_err(ConfigError::from)?;
 
     let shared_state = Arc::new(AppState {
-        config,
+        _config: config,
         fhir_client: FHIRServerClient::new(
             oxidized_fhir_repository::postgres::FHIRPostgresRepository::new(pool.clone()),
         ),

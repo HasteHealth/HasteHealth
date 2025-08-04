@@ -11,3 +11,4 @@ oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
+oxidized-fhir-repository = { path = "../fhir-repository" }

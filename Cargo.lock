@@ -755,6 +755,7 @@ dependencies = [
  "oxidized-fhir-client",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-fhir-repository",
  "oxidized-fhirpath",
 ]
 
