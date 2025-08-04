@@ -4,7 +4,7 @@ use oxidized_fhir_model::r4::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use sqlx::{Executor, Postgres, QueryBuilder, Row, query_builder::Separated};
+use sqlx::{Execute, Executor, Postgres, QueryBuilder, Row, query_builder::Separated};
 
 use crate::{
     SupportedFHIRVersions,
@@ -62,26 +62,23 @@ impl FHIRRepository for FHIRPostgresRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: Vec<VersionId>,
+        version_ids: Vec<VersionId<'_>>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND version_id in ("#,
-        );
+        let mut query_builder: QueryBuilder<Postgres> =
+            QueryBuilder::new(r#"SELECT resource FROM resources WHERE tenant = "#);
         query_builder.push_bind(tenant_id.as_ref());
+        query_builder.push(" AND project =");
         query_builder.push_bind(project_id.as_ref());
+        query_builder.push(" AND version_id in (");
 
         let mut separated = query_builder.separated(", ");
         for version_id in version_ids.iter() {
             separated.push_bind(version_id.as_ref());
         }
-
         separated.push_unseparated(")");
 
         let query = query_builder.build_query_as();
-        // println!("Executing query: '{:?}'", query.sql());
-
         let response: Vec<ReturnV> = query.fetch_all(&self.0).await.map_err(StoreError::from)?;
-
         Ok(response.into_iter().map(|r| r.resource.0).collect())
     }
 

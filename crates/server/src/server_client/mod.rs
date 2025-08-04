@@ -3,7 +3,7 @@ use std::{any::Any, pin::Pin, sync::Arc};
 use crate::{
     SupportedFHIRVersions,
     repository::{
-        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId,
+        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId, VersionId,
         utilities::{set_resource_id, set_version_id},
     },
 };
@@ -12,7 +12,7 @@ use oxidized_fhir_client::{
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest,
-        FHIRResponse, FHIRUpdateResponse,
+        FHIRResponse, FHIRUpdateResponse, FHIRVersionReadRequest, FHIRVersionReadResponse,
     },
 };
 use oxidized_fhir_model::r4::types::Resource;
@@ -120,6 +120,25 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .ok_or_else(|| StorageError::NotFound)?;
 
                 Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
+            }
+            FHIRRequest::VersionRead(vread_request) => {
+                let mut vread_resources = state
+                    .read_by_version_ids(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        vec![VersionId::new(&vread_request.version_id)],
+                    )
+                    .await?;
+
+                if vread_resources.get(0).is_some() {
+                    Some(
+                        (FHIRResponse::VersionRead(FHIRVersionReadResponse {
+                            resource: vread_resources.swap_remove(0),
+                        })),
+                    )
+                } else {
+                    None
+                }
             }
             FHIRRequest::UpdateInstance(update_request) => {
                 let resource = state
