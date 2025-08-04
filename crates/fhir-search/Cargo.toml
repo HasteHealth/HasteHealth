@@ -1,0 +1,13 @@
+[package]
+name = "fhir-search"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+oxidized-fhirpath = { path = "../fhirpath" }
+elasticsearch = "9.0.0-alpha.1"
+oxidized-fhir-client = { path = "../fhir-client" }
+oxidized-fhir-model = { path = "../fhir-model" }
+oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+    "derive",
+] }

@@ -2,7 +2,6 @@
 use crate::{
     fhir_http::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
-    repository::{FHIRRepository, ProjectId, TenantId},
     server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
@@ -15,6 +14,9 @@ use axum::{
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_repository::{
+    Author, FHIRRepository, ProjectId, SupportedFHIRVersions, TenantId,
+};
 use oxidized_fhirpath::FPEngine;
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};
@@ -26,8 +28,6 @@ use tracing::info;
 mod fhir_http;
 mod oidc;
 mod pg;
-mod repository;
-mod search;
 mod server_client;
 
 #[derive(OperationOutcomeError, Debug)]
@@ -59,23 +59,6 @@ struct AppState<Repo: FHIRRepository + Send + Sync> {
     config: Box<dyn Config>,
 }
 
-#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
-#[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
-pub enum SupportedFHIRVersions {
-    R4,
-    R4B,
-    R5,
-}
-impl std::fmt::Display for SupportedFHIRVersions {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SupportedFHIRVersions::R4 => write!(f, "R4"),
-            SupportedFHIRVersions::R4B => write!(f, "R4B"),
-            SupportedFHIRVersions::R5 => write!(f, "R5"),
-        }
-    }
-}
-
 #[derive(Deserialize)]
 struct FHIRHandlerPath {
     tenant: TenantId,
@@ -84,7 +67,7 @@ struct FHIRHandlerPath {
     fhir_location: String,
 }
 
-async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
+async fn fhir_handler<Repo: FHIRRepository + Send + Sync + 'static>(
     method: Method,
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<Repo>>>,
@@ -100,6 +83,10 @@ async fn fhir_handler<Repo: repository::FHIRRepository + Send + Sync + 'static>(
         tenant: path.tenant,
         project: path.project,
         fhir_version: path.fhir_version,
+        author: Author {
+            id: "anonymous".to_string(),
+            kind: "Membership".to_string(),
+        },
     };
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;
@@ -120,9 +107,9 @@ async fn main() -> Result<(), OperationOutcomeError> {
 
     let shared_state = Arc::new(AppState {
         config,
-        fhir_client: FHIRServerClient::new(repository::postgres::FHIRPostgresRepository::new(
-            pool.clone(),
-        )),
+        fhir_client: FHIRServerClient::new(
+            oxidized_fhir_repository::postgres::FHIRPostgresRepository::new(pool.clone()),
+        ),
     });
 
     let app = Router::new()

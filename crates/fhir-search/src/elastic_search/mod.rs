@@ -1,5 +1,4 @@
-use std::sync::Arc;
-
+use crate::SearchEngine;
 use elasticsearch::{
     Elasticsearch,
     auth::Credentials,
@@ -10,8 +9,7 @@ use elasticsearch::{
     },
 };
 use oxidized_fhirpath::FPEngine;
-
-use crate::search::SearchEngine;
+use std::sync::Arc;
 
 struct ElasticSearchEngine {
     fp_engine: Arc<FPEngine>,

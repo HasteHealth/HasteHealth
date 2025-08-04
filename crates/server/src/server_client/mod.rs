@@ -1,12 +1,5 @@
 use std::{any::Any, pin::Pin, sync::Arc};
 
-use crate::{
-    SupportedFHIRVersions,
-    repository::{
-        FHIRMethod, FHIRRepository, InsertResourceRow, ProjectId, ResourceId, TenantId, VersionId,
-        utilities::{set_resource_id, set_version_id},
-    },
-};
 use oxidized_fhir_client::{
     FHIRClient, ParsedParameter,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
@@ -18,11 +11,16 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::types::Resource;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_repository::{
+    Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
+    VersionId,
+};
 
 pub struct ServerCTX {
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
+    pub author: Author,
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -45,55 +43,6 @@ type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
 type ServerMiddlewareNext<Repo> = Next<Arc<Repo>, ServerMiddlewareContext, OperationOutcomeError>;
 type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
 
-async fn create_resource<Repository: FHIRRepository + Send + Sync + 'static>(
-    repo: Arc<Repository>,
-    context: &ServerCTX,
-    resource: &mut Resource,
-) -> Result<Resource, OperationOutcomeError> {
-    set_resource_id(resource, None)?;
-    set_version_id(resource)?;
-    let result = repo
-        .insert(&mut InsertResourceRow {
-            tenant: context.tenant.to_string(),
-            project: context.project.to_string(),
-            fhir_version: context.fhir_version.clone(),
-            resource: resource,
-            deleted: false,
-            request_method: "POST".to_string(),
-            author_type: "Membership".to_string(),
-            author_id: "fake_author_id".to_string(),
-            fhir_method: FHIRMethod::Create,
-        })
-        .await;
-
-    result
-}
-
-async fn update_resource<Repository: FHIRRepository + Send + Sync + 'static>(
-    repo: Arc<Repository>,
-    id: &str,
-    context: &ServerCTX,
-    resource: &mut Resource,
-) -> Result<Resource, OperationOutcomeError> {
-    set_resource_id(resource, Some(id.to_string()))?;
-    set_version_id(resource)?;
-    let result = repo
-        .insert(&mut InsertResourceRow {
-            tenant: context.tenant.to_string(),
-            project: context.project.to_string(),
-            fhir_version: context.fhir_version.clone(),
-            resource: resource,
-            deleted: false,
-            request_method: "PUT".to_string(),
-            author_type: "Membership".to_string(),
-            author_id: "fake_author_id".to_string(),
-            fhir_method: FHIRMethod::Update,
-        })
-        .await;
-
-    result
-}
-
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     state: ServerMiddlewareState<Repository>,
     mut context: ServerMiddlewareContext,
@@ -102,12 +51,15 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     Box::pin(async move {
         let response = match &mut context.request {
             FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
-                resource: create_resource(
-                    state.clone(),
-                    &context.ctx,
-                    &mut create_request.resource,
-                )
-                .await?,
+                resource: state
+                    .create(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &context.ctx.author,
+                        &context.ctx.fhir_version,
+                        &mut create_request.resource,
+                    )
+                    .await?,
             })),
             FHIRRequest::Read(read_request) => {
                 let resource = state
@@ -146,7 +98,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
-                        crate::repository::HistoryRequest::Instance(&history_instance_request),
+                        HistoryRequest::Instance(&history_instance_request),
                     )
                     .await?;
 
@@ -159,7 +111,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
-                        crate::repository::HistoryRequest::Type(&history_type_request),
+                        HistoryRequest::Type(&history_type_request),
                     )
                     .await?;
 
@@ -172,7 +124,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
-                        crate::repository::HistoryRequest::System(&history_system_request),
+                        HistoryRequest::System(&history_system_request),
                     )
                     .await?;
 
@@ -198,22 +150,28 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     }
 
                     Some(FHIRResponse::Update(FHIRUpdateResponse {
-                        resource: update_resource(
-                            state.clone(),
-                            &update_request.id,
-                            &context.ctx,
-                            &mut update_request.resource,
-                        )
-                        .await?,
+                        resource: state
+                            .update(
+                                &context.ctx.tenant,
+                                &context.ctx.project,
+                                &context.ctx.author,
+                                &context.ctx.fhir_version,
+                                &mut update_request.resource,
+                                &update_request.id,
+                            )
+                            .await?,
                     }))
                 } else {
                     Some(FHIRResponse::Create(FHIRCreateResponse {
-                        resource: create_resource(
-                            state.clone(),
-                            &context.ctx,
-                            &mut update_request.resource,
-                        )
-                        .await?,
+                        resource: state
+                            .create(
+                                &context.ctx.tenant,
+                                &context.ctx.project,
+                                &context.ctx.author,
+                                &context.ctx.fhir_version,
+                                &mut update_request.resource,
+                            )
+                            .await?,
                     }))
                 }
             }

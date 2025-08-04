@@ -1,21 +1,35 @@
-use crate::SupportedFHIRVersions;
 use oxidized_fhir_client::request::FHIRRequest;
 use oxidized_fhir_client::request::{
     FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
 };
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use serde::{Deserialize, de::Error};
-use sqlx::{Encode, Postgres, encode::IsNull, error::BoxDynError};
-use sqlx_postgres::PgArgumentBuffer;
+use serde::Deserialize;
 use std::fmt::{Debug, Display};
+
 pub mod postgres;
 pub mod utilities;
 
-pub struct UserId(String);
-impl UserId {
-    pub fn new(id: String) -> Self {
-        UserId(id)
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
+#[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+pub enum SupportedFHIRVersions {
+    R4,
+    R4B,
+    R5,
+}
+
+pub struct Author {
+    pub id: String,
+    pub kind: String,
+}
+
+impl std::fmt::Display for SupportedFHIRVersions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SupportedFHIRVersions::R4 => write!(f, "R4"),
+            SupportedFHIRVersions::R4B => write!(f, "R4B"),
+            SupportedFHIRVersions::R5 => write!(f, "R5"),
+        }
     }
 }
 
@@ -148,10 +162,25 @@ pub enum HistoryRequest<'a> {
 }
 
 pub trait FHIRRepository {
-    fn insert(
+    fn create(
         &self,
-        insertion: &InsertResourceRow,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
+    fn update(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+        id: &str,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
     fn read_by_version_ids(
         &self,
         tenant_id: &TenantId,
