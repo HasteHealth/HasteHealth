@@ -118,10 +118,25 @@ impl FHIRRepository for FHIRPostgresRepository {
 
                 Ok(response.into_iter().map(|r| r.resource.0).collect())
             }
-            HistoryRequest::Type(_) => {
-                todo!()
+            HistoryRequest::Type(history_type_request) => {
+                let response = sqlx::query_as!(ReturnV,
+                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC"#,
+                        tenant_id.as_ref()  as &str,
+                        project_id.as_ref() as &str,                
+                        history_type_request.resource_type.as_str() as &str
+                    ).fetch_all(&self.0).await.map_err(StoreError::from)?;
+
+                Ok(response.into_iter().map(|r| r.resource.0).collect())
             }
-            HistoryRequest::System(request) => todo!(),
+            HistoryRequest::System(request) => {
+                let response = sqlx::query_as!(ReturnV,
+                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC"#,
+                        tenant_id.as_ref()  as &str,
+                        project_id.as_ref() as &str,                
+                    ).fetch_all(&self.0).await.map_err(StoreError::from)?;
+
+                Ok(response.into_iter().map(|r| r.resource.0).collect())
+            },
         }
     }
 

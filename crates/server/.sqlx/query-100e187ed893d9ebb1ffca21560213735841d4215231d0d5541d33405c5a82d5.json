@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT resource as \"resource: FHIRJson<Resource>\" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "resource: FHIRJson<Resource>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "100e187ed893d9ebb1ffca21560213735841d4215231d0d5541d33405c5a82d5"
+}
