@@ -1,4 +1,4 @@
-use std::{pin::Pin, sync::Arc};
+use std::{any::Any, pin::Pin, sync::Arc};
 
 use crate::{
     SupportedFHIRVersions,
@@ -35,6 +35,8 @@ pub enum StorageError {
     NoResponse,
     #[error(code = "not-found", diagnostic = "Resource not found.")]
     NotFound,
+    #[error(code = "invalid", diagnostic = "Invalid resource type.")]
+    InvalidType,
 }
 
 type ServerMiddlewareState<Repository> = Arc<Repository>;
@@ -47,7 +49,7 @@ async fn create_resource<Repository: FHIRRepository + Send + Sync + 'static>(
     context: &ServerCTX,
     resource: &mut Resource,
 ) -> Result<Resource, OperationOutcomeError> {
-    set_resource_id(resource)?;
+    set_resource_id(resource, None)?;
     set_version_id(resource)?;
     let result = repo
         .insert(&mut InsertResourceRow {
@@ -68,9 +70,12 @@ async fn create_resource<Repository: FHIRRepository + Send + Sync + 'static>(
 
 async fn update_resource<Repository: FHIRRepository + Send + Sync + 'static>(
     repo: Arc<Repository>,
+    id: &str,
     context: &ServerCTX,
-    resource: &Resource,
+    resource: &mut Resource,
 ) -> Result<Resource, OperationOutcomeError> {
+    set_resource_id(resource, Some(id.to_string()))?;
+    set_version_id(resource)?;
     let result = repo
         .insert(&mut InsertResourceRow {
             tenant: context.tenant.to_string(),
@@ -108,6 +113,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .read_latest(
                         &context.ctx.tenant,
                         &context.ctx.project,
+                        &read_request.resource_type,
                         &ResourceId::new(read_request.id.to_string()),
                     )
                     .await?
@@ -120,25 +126,33 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     .read_latest(
                         &context.ctx.tenant,
                         &context.ctx.project,
+                        &update_request.resource_type,
                         &ResourceId::new(update_request.id.to_string()),
                     )
                     .await?;
 
                 if let Some(resource) = resource {
-                    Some(FHIRResponse::Create(FHIRCreateResponse {
-                        resource: create_resource(
+                    if std::mem::discriminant(&resource)
+                        != std::mem::discriminant(&update_request.resource)
+                    {
+                        return Err(StorageError::InvalidType.into());
+                    }
+
+                    Some(FHIRResponse::Update(FHIRUpdateResponse {
+                        resource: update_resource(
                             state.clone(),
+                            &update_request.id,
                             &context.ctx,
                             &mut update_request.resource,
                         )
                         .await?,
                     }))
                 } else {
-                    Some(FHIRResponse::Update(FHIRUpdateResponse {
-                        resource: update_resource(
+                    Some(FHIRResponse::Create(FHIRCreateResponse {
+                        resource: create_resource(
                             state.clone(),
                             &context.ctx,
-                            &update_request.resource,
+                            &mut update_request.resource,
                         )
                         .await?,
                     }))

@@ -2,7 +2,7 @@ use std::fmt::{Debug, Display};
 
 use crate::SupportedFHIRVersions;
 use oxidized_fhir_client::request::FHIRRequest;
-use oxidized_fhir_model::r4::types::Resource;
+use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, de::Error};
 use sqlx::{Encode, Postgres, encode::IsNull, error::BoxDynError};
@@ -154,6 +154,7 @@ pub trait FHIRRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
+        resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> impl Future<
         Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
