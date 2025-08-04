@@ -71,14 +71,14 @@ impl Display for ProjectId {
         write!(f, "{}", self.0)
     }
 }
-pub struct VersionId(String);
-impl VersionId {
-    pub fn new(id: String) -> Self {
+pub struct VersionId<'a>(&'a str);
+impl<'a> VersionId<'a> {
+    pub fn new(id: &'a str) -> Self {
         VersionId(id)
     }
 }
-impl AsRef<str> for VersionId {
-    fn as_ref(&self) -> &str {
+impl<'a> AsRef<str> for VersionId<'a> {
+    fn as_ref(&self) -> &'a str {
         &self.0
     }
 }
