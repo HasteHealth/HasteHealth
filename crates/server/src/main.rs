@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::{
-    fhir_http::request::{HTTPRequest, http_request_to_fhir_request},
+    fhir_http::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     repository::{FHIRRepository, ProjectId, TenantId},
     server_client::{FHIRServerClient, ServerCTX},
