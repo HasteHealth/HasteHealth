@@ -15,6 +15,7 @@ use oxidized_fhir_client::{
         FHIRResponse,
     },
 };
+use oxidized_fhir_model::r4::types::Resource;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 pub struct ServerCTX {
@@ -32,12 +33,38 @@ pub enum StorageError {
     NotSupported,
     #[error(code = "exception", diagnostic = "No response.")]
     NoResponse,
+    #[error(code = "not-found", diagnostic = "Resource not found.")]
+    NotFound,
 }
 
 type ServerMiddlewareState<Repository> = Arc<Repository>;
 type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
 type ServerMiddlewareNext<Repo> = Next<Arc<Repo>, ServerMiddlewareContext, OperationOutcomeError>;
 type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
+
+async fn create_resource<Repository: FHIRRepository + Send + Sync + 'static>(
+    repo: Arc<Repository>,
+    context: &ServerCTX,
+    resource: &mut Resource,
+) -> Result<Resource, OperationOutcomeError> {
+    set_resource_id(resource)?;
+    set_version_id(resource)?;
+    let result = repo
+        .insert(&mut InsertResourceRow {
+            tenant: context.tenant.to_string(),
+            project: context.project.to_string(),
+            fhir_version: context.fhir_version.clone(),
+            resource: resource,
+            deleted: false,
+            request_method: "POST".to_string(),
+            author_type: "Membership".to_string(),
+            author_id: "fake_author_id".to_string(),
+            fhir_method: FHIRMethod::Create,
+        })
+        .await;
+
+    result
+}
 
 fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     state: ServerMiddlewareState<Repository>,
@@ -46,26 +73,14 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
-            FHIRRequest::Create(create_request) => {
-                set_resource_id(&mut create_request.resource)?;
-                set_version_id(&mut create_request.resource)?;
-
-                Some(FHIRResponse::Create(FHIRCreateResponse {
-                    resource: state
-                        .insert(&mut InsertResourceRow {
-                            tenant: context.ctx.tenant.to_string(),
-                            project: context.ctx.project.to_string(),
-                            author_id: "fake_author_id".to_string(),
-                            fhir_version: context.ctx.fhir_version.clone(),
-                            resource: &mut create_request.resource,
-                            deleted: false,
-                            request_method: "POST".to_string(),
-                            author_type: "member".to_string(),
-                            fhir_method: FHIRMethod::Create,
-                        })
-                        .await?,
-                }))
-            }
+            FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
+                resource: create_resource(
+                    state.clone(),
+                    &context.ctx,
+                    &mut create_request.resource,
+                )
+                .await?,
+            })),
             FHIRRequest::Read(read_request) => {
                 let resource = state
                     .read_latest(
@@ -73,7 +88,8 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                         &context.ctx.project,
                         &ResourceId::new(read_request.id.to_string()),
                     )
-                    .await?;
+                    .await?
+                    .ok_or_else(|| StorageError::NotFound)?;
 
                 Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
             }
@@ -86,7 +102,18 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                     )
                     .await?;
 
-                Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
+                if let Some(resource) = resource {
+                    Some(FHIRResponse::Create(FHIRCreateResponse {
+                        resource: create_resource(
+                            state.clone(),
+                            &context.ctx,
+                            &mut update_request.resource,
+                        )
+                        .await?,
+                    }))
+                } else {
+                    None
+                }
             }
             _ => None,
         };
