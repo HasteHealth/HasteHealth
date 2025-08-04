@@ -252,7 +252,6 @@ async fn index_for_tenant(
 }
 
 pub async fn run_worker() {
-    // Initialize the PostgreSQL connection pool
     let config = get_config("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
@@ -272,17 +271,6 @@ pub async fn run_worker() {
     create_mapping(&elasticsearch_client)
         .await
         .expect("Failed to create Elasticsearch mapping");
-
-
-    // let res = elasticsearch_client
-    //     .indices()
-    //     .put_mapping(IndicesPutMappingParts::Index(&[R4_FHIR_INDEX]))
-    //     .body(mapping_body)
-    //     .send()
-    //     .await
-    //     .unwrap();
-
-
 
     let mut pg_connection = sqlx::PgConnection::connect(&config.get("DATABASE_URL").unwrap())
         .await
