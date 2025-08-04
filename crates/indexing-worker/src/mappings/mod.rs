@@ -6,7 +6,7 @@ use std::{collections::HashMap, sync::Arc};
 use crate::R4_FHIR_INDEX;
 
 // Note use of nested because must preserve groupings of fields.
-pub fn date_index_mapping() -> serde_json::Value {
+fn date_index_mapping() -> serde_json::Value {
     json!({
         "type": "nested",
         "properties": {
@@ -16,13 +16,13 @@ pub fn date_index_mapping() -> serde_json::Value {
     })
 }
 
-pub fn string_index_mapping() -> serde_json::Value {
+fn string_index_mapping() -> serde_json::Value {
     json!({
         "type": "text"
     })
 }
 
-pub fn token_index_mapping() -> serde_json::Value {
+fn token_index_mapping() -> serde_json::Value {
     json!({
         "type": "nested",
         "properties": {
@@ -33,19 +33,19 @@ pub fn token_index_mapping() -> serde_json::Value {
     })
 }
 
-pub fn number_index_mapping() -> serde_json::Value {
+fn number_index_mapping() -> serde_json::Value {
     json!({
         "type": "long"
     })
 }
 
-pub fn uri_index_mapping() -> serde_json::Value {
+fn uri_index_mapping() -> serde_json::Value {
     json!({
         "type": "keyword"
     })
 }
 
-pub fn quantity_index_mapping() -> serde_json::Value {
+fn quantity_index_mapping() -> serde_json::Value {
     json!({
 
         "type": "nested",
@@ -57,7 +57,7 @@ pub fn quantity_index_mapping() -> serde_json::Value {
     })
 }
 
-pub fn reference_index_mapping() -> serde_json::Value {
+fn reference_index_mapping() -> serde_json::Value {
     json!({
         "type": "nested",
         "properties": {
