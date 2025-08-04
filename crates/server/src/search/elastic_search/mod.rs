@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use elasticsearch::{
     Elasticsearch,
     auth::Credentials,
@@ -7,13 +9,17 @@ use elasticsearch::{
         transport::{SingleNodeConnectionPool, TransportBuilder},
     },
 };
+use oxidized_fhirpath::FPEngine;
 
 use crate::search::SearchEngine;
 
-struct ElasticSearchEngine(Elasticsearch);
+struct ElasticSearchEngine {
+    fp_engine: Arc<FPEngine>,
+    client: Elasticsearch,
+}
 
 impl ElasticSearchEngine {
-    pub fn new(url: &str, username: String, password: String) -> Self {
+    pub fn new(fp_engine: Arc<FPEngine>, url: &str, username: String, password: String) -> Self {
         let url = Url::parse(url).unwrap();
         let conn_pool = SingleNodeConnectionPool::new(url);
         let transport = TransportBuilder::new(conn_pool)
@@ -22,12 +28,16 @@ impl ElasticSearchEngine {
             .build()
             .unwrap();
         let elasticsearch_client = Elasticsearch::new(transport);
-        ElasticSearchEngine(elasticsearch_client)
+        ElasticSearchEngine {
+            fp_engine: fp_engine,
+            client: elasticsearch_client,
+        }
     }
 }
 
 impl SearchEngine for ElasticSearchEngine {
     fn search(
+        &self,
         tenant: crate::repository::TenantId,
         project: crate::repository::ProjectId,
         search_request: super::SearchRequest,
@@ -36,6 +46,7 @@ impl SearchEngine for ElasticSearchEngine {
     }
 
     fn index(
+        &self,
         tenant: crate::repository::TenantId,
         project: crate::repository::ProjectId,
         resource: Vec<oxidized_fhir_model::r4::types::Resource>,
@@ -44,6 +55,7 @@ impl SearchEngine for ElasticSearchEngine {
     }
 
     fn remove_index(
+        &self,
         tenant: crate::repository::TenantId,
         project: crate::repository::ProjectId,
         remove_indices: Vec<super::RemoveIndex>,

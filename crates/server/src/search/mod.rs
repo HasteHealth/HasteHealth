@@ -17,18 +17,21 @@ pub struct RemoveIndex {
 
 pub trait SearchEngine {
     fn search(
+        &self,
         tenant: TenantId,
         project: ProjectId,
         search_request: SearchRequest,
     ) -> Result<Vec<String>, OperationOutcomeError>;
 
     fn index(
+        &self,
         tenant: TenantId,
         project: ProjectId,
         resource: Vec<Resource>,
     ) -> Result<(), OperationOutcomeError>;
 
     fn remove_index(
+        &self,
         tenant: TenantId,
         project: ProjectId,
         remove_indices: Vec<RemoveIndex>,

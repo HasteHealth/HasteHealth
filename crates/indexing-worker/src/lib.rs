@@ -165,7 +165,6 @@ async fn index_for_tenant(
     let elasticsearch_client = elasticsearch_client.clone();
     let index_tenant_result: Result<(), IndexingWorkerError> = pg_connection
         .transaction(|transaction| {
-            let tenant_id = tenant_id.clone();
             Box::pin(async move {
                 let tenant_lock_provider = PostgresIndexLockProvider::new();
                 let tenant_locks = tenant_lock_provider
@@ -178,7 +177,7 @@ async fn index_for_tenant(
 
                 let resources = get_resource_sequence(
                     transaction,
-                    "tenant",
+                    &tenant_id,
                     tenant_locks[0].index_sequence_position,
                     Some(1000),
                 )
