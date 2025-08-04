@@ -1,12 +1,14 @@
-use std::fmt::{Debug, Display};
-
 use crate::SupportedFHIRVersions;
 use oxidized_fhir_client::request::FHIRRequest;
+use oxidized_fhir_client::request::{
+    FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
+};
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, de::Error};
 use sqlx::{Encode, Postgres, encode::IsNull, error::BoxDynError};
 use sqlx_postgres::PgArgumentBuffer;
+use std::fmt::{Debug, Display};
 pub mod postgres;
 pub mod utilities;
 
@@ -139,6 +141,12 @@ pub struct InsertResourceRow<'a> {
     // sequence: i64,
 }
 
+pub enum HistoryRequest<'a> {
+    System(&'a FHIRHistorySystemRequest),
+    Type(&'a FHIRHistoryTypeRequest),
+    Instance(&'a FHIRHistoryInstanceRequest),
+}
+
 pub trait FHIRRepository {
     fn insert(
         &self,
@@ -163,8 +171,7 @@ pub trait FHIRRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        resource_type: &ResourceType,
-        resource_id: &ResourceId,
+        request: HistoryRequest,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,
