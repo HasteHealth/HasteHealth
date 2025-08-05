@@ -1,13 +1,12 @@
-use std::{error::Error, marker::PhantomData, pin::Pin, sync::Arc};
-
 use crate::{
     Author, FHIRMethod, FHIRRepository, FHIRTransaction, HistoryRequest, ProjectId, ResourceId,
     ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionId, utilities,
 };
-use oxidized_fhir_client::request::Operation;
+use std::{marker::PhantomData, pin::Pin};
+
 use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
-    types::{Patient, Resource, ResourceType},
+    types::{Resource, ResourceType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
@@ -293,8 +292,6 @@ async fn testerino() {
             Ok(k)
         })
     });
-
-    repo.transaction(transaction_handler::<_, SQLImplementation>);
 }
 
 impl FHIRRepository for FHIRPostgresRepositoryPool {
