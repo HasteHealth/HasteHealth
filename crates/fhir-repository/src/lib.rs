@@ -112,7 +112,7 @@ impl AsRef<str> for ResourceId {
     }
 }
 
-#[derive(sqlx::Type)]
+#[derive(sqlx::Type, Debug, Clone)]
 #[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
 pub enum FHIRMethod {
     Create,
@@ -157,14 +157,14 @@ pub struct InsertResourceRow<'a> {
 }
 
 pub struct ResourcePollingValue {
-    id: String,
-    resource_type: String,
-    version_id: String,
-    project: String,
-    tenant: String,
-    resource: FHIRJson<Resource>,
-    sequence: i64,
-    fhir_method: FHIRMethod,
+    pub id: String,
+    pub resource_type: String,
+    pub version_id: String,
+    pub project: String,
+    pub tenant: String,
+    pub resource: FHIRJson<Resource>,
+    pub sequence: i64,
+    pub fhir_method: FHIRMethod,
 }
 
 pub enum HistoryRequest<'a> {
@@ -174,6 +174,8 @@ pub enum HistoryRequest<'a> {
 }
 
 pub trait FHIRRepository {
+    type Transaction;
+
     fn create(
         &self,
         tenant: &TenantId,
@@ -217,10 +219,11 @@ pub trait FHIRRepository {
     fn get_sequence(
         &self,
         tenant_id: &TenantId,
-        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
+
+    fn transaction<'a>(&'a self) -> impl Future<Output = Option<Self::Transaction>> + Send;
 }
 
 pub trait FHIRTransaction<Connection> {
@@ -267,7 +270,6 @@ pub trait FHIRTransaction<Connection> {
     fn get_sequence(
         k: Connection,
         tenant_id: &TenantId,
-        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
