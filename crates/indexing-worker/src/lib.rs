@@ -112,6 +112,7 @@ fn resource_to_elastic_index(
 }
 
 async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository>(
+    pg_connection: &mut sqlx::PgConnection,
     tenant_id: String,
     fp_engine: Arc<FPEngine>,
     repo: Arc<Repository>,

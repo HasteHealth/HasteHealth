@@ -6,7 +6,6 @@ use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
-use sqlx::Acquire;
 use std::fmt::{Debug, Display};
 
 pub mod postgres;

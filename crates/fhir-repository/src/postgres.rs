@@ -1,17 +1,18 @@
-use std::{marker::PhantomData, pin::Pin, sync::Arc};
+use std::{error::Error, marker::PhantomData, pin::Pin, sync::Arc};
 
 use crate::{
     Author, FHIRMethod, FHIRRepository, FHIRTransaction, HistoryRequest, ProjectId, ResourceId,
     ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionId, utilities,
 };
+use oxidized_fhir_client::request::Operation;
 use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
     types::{Patient, Resource, ResourceType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use sqlx::Transaction;
 use sqlx::{Acquire, Postgres, QueryBuilder};
-use sqlx::{Connection, Transaction};
 
 #[derive(sqlx::FromRow, Debug)]
 struct ReturnV {
@@ -206,33 +207,94 @@ where
     }
 }
 
-// async fn test(conn: &mut sqlx::PgConnection) -> Result<(), OperationOutcomeError> {
-//     let k: Result<(), sqlx::Error> = conn
-//         .transaction(|transaction| {
-//             Box::pin(async move {
-//                 let k = get_sequence(
-//                     transaction,
-//                     &TenantId::new("tenant".to_string()),
-//                     &ProjectId::new("project".to_string()),
-//                     0,
-//                     Some(10),
-//                 )
-//                 .await;
-
-//                 Ok(())
-//             })
-//         })
-//         .await;
-
-//     Ok(())
-// }
-
 pub struct FHIRPostgresRepositoryPool(sqlx::Pool<Postgres>);
 
 impl FHIRPostgresRepositoryPool {
     pub fn new(pool: sqlx::Pool<Postgres>) -> Self {
         FHIRPostgresRepositoryPool(pool)
     }
+}
+
+impl FHIRPostgresRepositoryPool {
+    pub fn transaction<'a, F, R>(
+        &'a self,
+        callback: F,
+    ) -> Pin<Box<dyn Future<Output = Result<R, OperationOutcomeError>> + Send + 'a>>
+    where
+        for<'c> F: FnOnce(
+                &'c mut Transaction<'_, Postgres>,
+            )
+                -> Pin<Box<dyn Future<Output = Result<R, OperationOutcomeError>> + Send + 'c>>
+            + 'a
+            + Send
+            + Sync,
+        Self: Sized,
+        R: Send,
+    {
+        Box::pin(async move {
+            let mut transaction = self.0.begin().await.map_err(StoreError::from)?;
+            let ret = callback(&mut transaction).await;
+
+            match ret {
+                Ok(ret) => {
+                    transaction.commit().await.map_err(StoreError::from)?;
+
+                    Ok(ret)
+                }
+                Err(err) => {
+                    transaction.rollback().await.map_err(StoreError::from)?;
+
+                    Err(err)
+                }
+            }
+        })
+    }
+}
+
+fn transaction_handler<
+    'a,
+    Connection: Acquire<'a> + Send + 'static,
+    T: FHIRTransaction<Connection>,
+>(
+    connection: Connection,
+) -> Pin<Box<dyn Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send>>
+{
+    Box::pin(async {
+        let k = T::get_sequence(
+            connection,
+            &TenantId("tenant".to_string()),
+            &ProjectId("project".to_string()),
+            0,
+            Some(10),
+        )
+        .await?;
+
+        Ok(k)
+    })
+}
+
+async fn testerino() {
+    let pool = sqlx::Pool::<Postgres>::connect("postgres://user:password@localhost/db")
+        .await
+        .unwrap();
+    let mut repo = FHIRPostgresRepositoryPool::new(pool);
+
+    repo.transaction(|t| {
+        Box::pin(async {
+            let k = SQLImplementation::get_sequence(
+                t,
+                &TenantId("tenant".to_string()),
+                &ProjectId("project".to_string()),
+                0,
+                Some(10),
+            )
+            .await?;
+
+            Ok(k)
+        })
+    });
+
+    repo.transaction(transaction_handler::<_, SQLImplementation>);
 }
 
 impl FHIRRepository for FHIRPostgresRepositoryPool {
@@ -244,7 +306,9 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = create(&self.0, tenant, project, author, fhir_version, resource).await?;
+        let res =
+            SQLImplementation::create(&self.0, tenant, project, author, fhir_version, resource)
+                .await?;
         Ok(res)
     }
 
@@ -257,8 +321,9 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         resource: &mut Resource,
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res = update(&self.0, tenant, project, author, fhir_version, resource, id).await?;
-
+        let res =
+            SQLImplementation::update(&self.0, tenant, project, author, fhir_version, resource, id)
+                .await?;
         Ok(res)
     }
 
@@ -268,7 +333,9 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         project_id: &ProjectId,
         version_ids: Vec<VersionId<'_>>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        let res = read_by_version_ids(&self.0, tenant_id, project_id, version_ids).await?;
+        let res =
+            SQLImplementation::read_by_version_ids(&self.0, tenant_id, project_id, version_ids)
+                .await?;
 
         Ok(res)
     }
@@ -280,7 +347,14 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        let res = read_latest(&self.0, tenant_id, project_id, resource_type, resource_id).await?;
+        let res = SQLImplementation::read_latest(
+            &self.0,
+            tenant_id,
+            project_id,
+            resource_type,
+            resource_id,
+        )
+        .await?;
 
         Ok(res)
     }
@@ -291,9 +365,7 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         project_id: &ProjectId,
         request: HistoryRequest<'_>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        let res = history(&self.0, tenant_id, project_id, request)
-            .await
-            .map_err(StoreError::from)?;
+        let res = SQLImplementation::history(&self.0, tenant_id, project_id, request).await?;
 
         Ok(res)
     }
@@ -305,49 +377,11 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         sequence_id: u64,
         count: Option<u64>,
     ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
-        let result = get_sequence(&self.0, tenant_id, project_id, sequence_id, count)
-            .await
-            .map_err(StoreError::from)?;
+        let result =
+            SQLImplementation::get_sequence(&self.0, tenant_id, project_id, sequence_id, count)
+                .await?;
         Ok(result)
     }
-}
-
-async fn tester(transaction: &mut Transaction<'_, Postgres>) -> Result<(), OperationOutcomeError> {
-    let mut patient = Resource::Patient(Patient::default());
-    SQLImplementation::create(
-        transaction,
-        &TenantId::new("tenant".to_string()),
-        &ProjectId::new("project".to_string()),
-        &Author {
-            id: "author_id".to_string(),
-            kind: "author_kind".to_string(),
-        },
-        &SupportedFHIRVersions::R4,
-        &mut patient,
-    )
-    .await
-    .unwrap();
-    Ok(())
-}
-
-async fn my_test<Connection, T: FHIRTransaction<Connection>>(
-    connection: Connection,
-    imple: T,
-) -> Result<(), OperationOutcomeError> {
-    let mut patient = Resource::Patient(Patient::default());
-    T::create(
-        connection,
-        &TenantId::new("tenant".to_string()),
-        &ProjectId::new("project".to_string()),
-        &Author {
-            id: "author_id".to_string(),
-            kind: "author_kind".to_string(),
-        },
-        &SupportedFHIRVersions::R4,
-        &mut patient,
-    )
-    .await?;
-    Ok(())
 }
 
 pub struct SQLImplementation<'a> {
