@@ -6,6 +6,7 @@ use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
+use sqlx::Acquire;
 use std::fmt::{Debug, Display};
 
 pub mod postgres;
@@ -216,6 +217,56 @@ pub trait FHIRRepository {
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        sequence_id: u64,
+        count: Option<u64>,
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
+}
+
+pub trait FHIRTransaction<Connection> {
+    fn create(
+        k: Connection,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
+    fn update(
+        k: Connection,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+        id: &str,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
+    fn read_by_version_ids(
+        k: Connection,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        version_id: Vec<VersionId>,
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    fn read_latest(
+        k: Connection,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_type: &ResourceType,
+        resource_id: &ResourceId,
+    ) -> impl Future<
+        Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
+    > + Send;
+    fn history(
+        k: Connection,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        request: HistoryRequest,
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    fn get_sequence(
+        k: Connection,
         tenant_id: &TenantId,
         project_id: &ProjectId,
         sequence_id: u64,

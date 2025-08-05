@@ -227,8 +227,6 @@ pub async fn run_worker() {
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 
-
-
     loop {
         let tenants_to_check = get_tenants(&mut pg_connection, &cursor, tenants_limit).await;
         if let Ok(tenants_to_check) = tenants_to_check {
