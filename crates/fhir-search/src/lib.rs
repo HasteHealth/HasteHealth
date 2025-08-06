@@ -2,7 +2,7 @@ use oxidized_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeReque
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_repository::{
-    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionId,
+    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
 };
 
 pub mod elastic_search;

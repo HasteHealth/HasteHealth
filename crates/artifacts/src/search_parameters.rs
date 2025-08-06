@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::types::{Resource, ResourceType, ResourceTypeError, SearchParameter};
+use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
 
 static SEARCH_PARAMETERS_STR: &str = include_str!("../artifacts/r4/hl7/search-parameters.min.json");
 

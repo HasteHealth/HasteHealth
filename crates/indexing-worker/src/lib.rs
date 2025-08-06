@@ -10,7 +10,6 @@ use oxidized_fhirpath::FHIRPathError;
 use sqlx::{Pool, Postgres, Transaction, query_as, types::time::OffsetDateTime};
 use std::{sync::Arc, time::Instant};
 
-mod conversion;
 mod indexing_lock;
 
 #[derive(OperationOutcomeError, Debug)]
