@@ -8,7 +8,7 @@ use elasticsearch::{
     cert::CertificateValidation,
     http::{
         Url,
-        transport::{SingleNodeConnectionPool, TransportBuilder},
+        transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
 };
 use oxidized_fhir_model::r4::types::{Resource, SearchParameter};
@@ -44,25 +44,42 @@ pub enum SearchError {
     ElasticsearchError(#[from] elasticsearch::Error),
 }
 
+#[derive(OperationOutcomeError, Debug)]
+pub enum SearchConfigError {
+    #[fatal(code = "exception", diagnostic = "Failed to parse URL: '{arg0}'.")]
+    UrlParseError(String),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Elasticsearch client creation failed."
+    )]
+    ElasticSearchConfigError(#[from] BuildError),
+}
+
 pub struct ElasticSearchEngine {
     fp_engine: Arc<FPEngine>,
     client: Elasticsearch,
 }
 
 impl ElasticSearchEngine {
-    pub fn new(fp_engine: Arc<FPEngine>, url: &str, username: String, password: String) -> Self {
-        let url = Url::parse(url).unwrap();
+    pub fn new(
+        fp_engine: Arc<FPEngine>,
+        url: &str,
+        username: String,
+        password: String,
+    ) -> Result<Self, SearchConfigError> {
+        let url =
+            Url::parse(url).map_err(|_e| SearchConfigError::UrlParseError(url.to_string()))?;
         let conn_pool = SingleNodeConnectionPool::new(url);
         let transport = TransportBuilder::new(conn_pool)
             .cert_validation(CertificateValidation::None)
             .auth(Credentials::Basic(username, password))
-            .build()
-            .unwrap();
+            .build()?;
+
         let elasticsearch_client = Elasticsearch::new(transport);
-        ElasticSearchEngine {
+        Ok(ElasticSearchEngine {
             fp_engine,
             client: elasticsearch_client,
-        }
+        })
     }
 }
 
@@ -112,7 +129,7 @@ impl SearchEngine for ElasticSearchEngine {
 
     async fn index<'a>(
         &self,
-        fhir_version: &SupportedFHIRVersions,
+        _fhir_version: &SupportedFHIRVersions,
         tenant_id: TenantId,
         _project: ProjectId,
         resources: Vec<IndexResource<'a>>,
@@ -132,7 +149,7 @@ impl SearchEngine for ElasticSearchEngine {
                         );
 
                     let mut elastic_index =
-                        resource_to_elastic_index(self.fp_engine.clone(), &params, &r.resource.0)?;
+                        resource_to_elastic_index(self.fp_engine.clone(), &params, &r.resource)?;
 
                     elastic_index.insert(
                         "resource_type".to_string(),
@@ -167,16 +184,18 @@ impl SearchEngine for ElasticSearchEngine {
                 .bulk(BulkParts::Index(R4_FHIR_INDEX))
                 .body(bulk_ops)
                 .send()
-                .await?;
+                .await
+                .map_err(SearchError::from)?;
 
             if !res.status_code().is_success() {
+                let status_code = res.status_code().as_u16();
                 tracing::error!(
                     "Failed to index resources for tenant: '{}'. Response: '{:?}', body: '{}'",
                     tenant_id,
-                    res.status_code(),
+                    status_code,
                     res.text().await.unwrap()
                 );
-                return Err(SearchError::Fatal(res.status_code().as_u16()).into());
+                return Err(SearchError::Fatal(status_code).into());
             }
         }
 

@@ -17,12 +17,14 @@ pub struct RemoveIndex {
 }
 
 pub struct IndexResource<'a> {
+    id: String,
+    version_id: VersionId<'a>,
     tenant: TenantId,
     project: ProjectId,
     fhir_method: FHIRMethod,
-    version_id: VersionId<'a>,
+
     resource_type: ResourceType,
-    resource: Resource,
+    resource: &'a Resource,
 }
 
 pub trait SearchEngine {
