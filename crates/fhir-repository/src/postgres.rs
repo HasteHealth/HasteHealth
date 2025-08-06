@@ -2,8 +2,6 @@ use crate::{
     Author, FHIRMethod, FHIRRepository, FHIRTransaction, HistoryRequest, ProjectId, ResourceId,
     ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionId, utilities,
 };
-use std::marker::PhantomData;
-
 use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
     types::{Resource, ResourceType},
@@ -11,6 +9,7 @@ use oxidized_fhir_model::r4::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder, Transaction};
+use std::marker::PhantomData;
 
 #[derive(sqlx::FromRow, Debug)]
 struct ReturnV {
