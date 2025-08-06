@@ -16,6 +16,7 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_repository::{
     Author, FHIRRepository, ProjectId, SupportedFHIRVersions, TenantId,
 };
+use oxidized_fhir_search::SearchEngine;
 use oxidized_fhirpath::FPEngine;
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};
@@ -53,8 +54,11 @@ pub enum CustomOpError {
     InternalServerError,
 }
 
-struct AppState<Repo: FHIRRepository + Send + Sync> {
-    fhir_client: FHIRServerClient<Repo>,
+struct AppState<
+    Repo: FHIRRepository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+> {
+    fhir_client: FHIRServerClient<Repo, Search>,
     _config: Box<dyn Config>,
 }
 
@@ -66,10 +70,13 @@ struct FHIRHandlerPath {
     fhir_location: String,
 }
 
-async fn fhir_handler<Repo: FHIRRepository + Send + Sync + 'static>(
+async fn fhir_handler<
+    Repo: FHIRRepository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
     method: Method,
     Path(path): Path<FHIRHandlerPath>,
-    State(state): State<Arc<AppState<Repo>>>,
+    State(state): State<Arc<AppState<Repo, Search>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
@@ -104,10 +111,25 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let session_store = PostgresStore::new(pool.clone());
     session_store.migrate().await.map_err(ConfigError::from)?;
 
+    let search_engine = oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
+        Arc::new(FPEngine::new()),
+        &config
+            .get("ELASTICSEARCH_URL")
+            .expect("ELASTICSEARCH_URL variable not set"),
+        config
+            .get("ELASTICSEARCH_USERNAME")
+            .expect("ELASTICSEARCH_USERNAME variable not set"),
+        config
+            .get("ELASTICSEARCH_PASSWORD")
+            .expect("ELASTICSEARCH_PASSWORD variable not set"),
+    )
+    .expect("Failed to create Elasticsearch client");
+
     let shared_state = Arc::new(AppState {
         _config: config,
         fhir_client: FHIRServerClient::new(
             oxidized_fhir_repository::postgres::FHIRPostgresRepositoryPool::new(pool.clone()),
+            search_engine,
         ),
     });
 
