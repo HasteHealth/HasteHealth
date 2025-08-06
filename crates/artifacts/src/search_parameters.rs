@@ -125,3 +125,26 @@ pub fn get_search_parameters_for_resource(
 
     return_vec
 }
+
+pub fn get_search_parameter_for_name(
+    resource_type: &ResourceType,
+    name: &str,
+) -> Option<Arc<SearchParameter>> {
+    R4_SEARCH_PARAMETERS
+        .by_resource_type
+        .get(resource_type.as_str())
+        .and_then(|params| params.get(name))
+        .or_else(|| {
+            R4_SEARCH_PARAMETERS
+                .by_resource_type
+                .get("Resource")
+                .and_then(|params| params.get(name))
+        })
+        .or_else(|| {
+            R4_SEARCH_PARAMETERS
+                .by_resource_type
+                .get("DomainResource")
+                .and_then(|params| params.get(name))
+        })
+        .cloned()
+}
