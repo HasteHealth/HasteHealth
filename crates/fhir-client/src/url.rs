@@ -1,3 +1,17 @@
+pub struct Parameter {
+    pub name: String,
+    pub value: Vec<String>,
+    pub modifier: Option<String>,
+    pub chains: Option<Vec<String>>,
+}
+
+/// Represnet both resource parameters IE Patient.name and
+/// result parameters IE _count
+pub enum ParsedParameter {
+    Result(Parameter),
+    Resource(Parameter),
+}
+
 // use http::Uri;
 // // import { FHIR_VERSION, Resource } from "@iguhealth/fhir-types/versions";
 // // import { OperationError, outcomeError } from "@iguhealth/operation-outcomes";
