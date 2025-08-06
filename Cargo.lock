@@ -2038,19 +2038,13 @@ dependencies = [
 name = "oxidized-indexing-worker"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "elasticsearch",
- "oxidized-artifacts",
  "oxidized-config",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
  "oxidized-fhir-repository",
  "oxidized-fhir-search",
- "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
- "oxidized-reflect",
- "serde",
- "serde_json",
  "sqlx",
  "sqlx-postgres",
  "tokio",
