@@ -12,7 +12,6 @@ use oxidized_fhir_repository::{
 };
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
-use rayon::prelude::*;
 use sqlx::{Pool, Postgres, Transaction, query_as, types::time::OffsetDateTime};
 use std::{collections::HashMap, pin::Pin, sync::Arc, time::Instant};
 
@@ -73,31 +72,8 @@ async fn get_tenants(
     Ok(result)
 }
 
-fn resource_to_elastic_index(
-    fp_engine: Arc<FPEngine>,
-    parameters: &Vec<Arc<SearchParameter>>,
-    resource: &Resource,
-) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
-    let mut map = HashMap::new();
-    for param in parameters.iter() {
-        if let Some(expression) = param.expression.as_ref().and_then(|e| e.value.as_ref())
-            && let Some(url) = param.url.value.as_ref()
-        {
-            let result = fp_engine
-                .evaluate(expression, vec![resource])
-                .map_err(IndexingWorkerError::from)?;
-
-            let result_vec =
-                conversion::to_insertable_index(param, result.iter().collect::<Vec<_>>())?;
-
-            map.insert(url.clone(), result_vec);
-        }
-    }
-
-    Ok(map)
-}
-
 fn index_tenant_next_sequence(
+    search_client: Arc<dyn SearchEngine>,
     tx: &mut Transaction<'_, Postgres>,
     fp_engine: Arc<FPEngine>,
     tenant_id: &TenantId,
@@ -120,70 +96,21 @@ fn index_tenant_next_sequence(
         )
         .await?;
 
-        tracing::info!("Available locks: {:?}", tenant_locks);
-        tracing::info!("Retrieved resources: {:?}", resources.len());
+        tracing::info!(
+            "Tenant '{}' Indexing '{}' resources",
+            tenant_id,
+            resources.len()
+        );
 
-        // Iterator used to evaluate all of the search expressions for indexing.
-        let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
-            .par_iter()
-            .filter(|r| match r.fhir_method {
-                FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete => true,
-                _ => false,
-            })
-            .map(|r| match &r.fhir_method {
-                FHIRMethod::Create | FHIRMethod::Update => {
-                    let params =
-                        oxidized_artifacts::search_parameters::get_search_parameters_for_resource(
-                            &r.resource_type,
-                        )
-                        .map_err(IndexingWorkerError::from)?;
-                    let mut elastic_index =
-                        resource_to_elastic_index(fp_engine.clone(), &params, &r.resource.0)?;
-
-                    elastic_index.insert(
-                        "resource_type".to_string(),
-                        InsertableIndex::String(vec![r.resource_type.clone()]),
-                    );
-                    elastic_index.insert(
-                        "version_id".to_string(),
-                        InsertableIndex::String(vec![r.version_id.clone()]),
-                    );
-                    elastic_index.insert(
-                        "project".to_string(),
-                        InsertableIndex::String(vec![r.project.clone()]),
-                    );
-                    elastic_index.insert(
-                        "tenant".to_string(),
-                        InsertableIndex::String(vec![r.tenant.clone()]),
-                    );
-
-                    Ok(BulkOperation::index(elastic_index)
-                        .id(&r.id)
-                        .index(R4_FHIR_INDEX)
-                        .into())
-                }
-                FHIRMethod::Delete => Ok(BulkOperation::delete(&r.id).index(R4_FHIR_INDEX).into()),
-                method => Err(IndexingWorkerError::UnsupportedFHIRMethod(method.clone()).into()),
-            })
-            .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
-
-        if !bulk_ops.is_empty() {
-            let res = elasticsearch_client
-                .bulk(BulkParts::Index(R4_FHIR_INDEX))
-                .body(bulk_ops)
-                .send()
+        // Perform indexing if there are resources to index.
+        if !resources.is_empty() {
+            search_client
+                .index(
+                    tenant_id.clone(),
+                    resources[0].project.clone(),
+                    resources.iter().map(|r| r.resource.clone()).collect(),
+                )
                 .await?;
-
-            if !res.status_code().is_success() {
-                tracing::error!(
-                    "Failed to index resources for tenant: '{}'. Response: '{:?}', body: '{}'",
-                    tenant_id,
-                    res.status_code(),
-                    res.text().await.unwrap()
-                );
-                return Err(IndexingWorkerError::Fatal);
-            }
-
             if let Some(resource) = resources.last() {
                 tenant_lock_provider
                     .update(tx, tenant_id.as_ref(), resource.sequence as usize)
@@ -200,15 +127,15 @@ async fn index_for_tenant<
     Repository: FHIRRepository<Transaction = Transaction<'static, Postgres>>,
 >(
     repo: Arc<Repository>,
-    elasticsearch_client: Arc<Search>,
+    search_client: Arc<Search>,
     fp_engine: Arc<FPEngine>,
-    tenant_id: String,
+    tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let fp_engine = fp_engine.clone();
-    let elasticsearch_client = elasticsearch_client.clone();
+    let search_client = search_client.clone();
 
     let mut tx = repo.transaction().await.unwrap();
-    let res = index_tenant_next_sequence(&mut tx, fp_engine, &TenantId::new(tenant_id)).await;
+    let res = index_tenant_next_sequence(search_client, &mut tx, fp_engine, &tenant_id).await;
 
     match res {
         Ok(res) => {

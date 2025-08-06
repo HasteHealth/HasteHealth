@@ -1,9 +1,10 @@
 use oxidized_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeRequest};
-use oxidized_fhir_model::r4::types::Resource;
+use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_repository::{ProjectId, SupportedFHIRVersions, TenantId};
+use oxidized_fhir_repository::{FHIRMethod, ProjectId, SupportedFHIRVersions, TenantId, VersionId};
 
 pub mod elastic_search;
+mod indexing_conversion;
 
 pub enum SearchRequest {
     TypeSearch(FHIRSearchTypeRequest),
@@ -15,9 +16,19 @@ pub struct RemoveIndex {
     // id: String,
 }
 
+pub struct IndexResource<'a> {
+    tenant: TenantId,
+    project: ProjectId,
+    fhir_method: FHIRMethod,
+    version_id: VersionId<'a>,
+    resource_type: ResourceType,
+    resource: Resource,
+}
+
 pub trait SearchEngine {
     fn search(
         &self,
+        fhir_version: &SupportedFHIRVersions,
         tenant: TenantId,
         project: ProjectId,
         search_request: SearchRequest,
@@ -25,21 +36,14 @@ pub trait SearchEngine {
 
     fn index(
         &self,
+        fhir_version: &SupportedFHIRVersions,
         tenant: TenantId,
         project: ProjectId,
-        resource: Vec<Resource>,
-    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
-
-    fn remove_index(
-        &self,
-        tenant: TenantId,
-        project: ProjectId,
-        remove_indices: Vec<RemoveIndex>,
+        resource: Vec<IndexResource>,
     ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
 
     fn migrate(
         &self,
-        fhir_version: SupportedFHIRVersions,
-        index: &str,
+        fhir_version: &SupportedFHIRVersions,
     ) -> impl Future<Output = Result<(), oxidized_fhir_operation_error::OperationOutcomeError>> + Send;
 }

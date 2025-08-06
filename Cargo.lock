@@ -1977,6 +1977,7 @@ dependencies = [
 name = "oxidized-fhir-search"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "elasticsearch",
  "oxidized-artifacts",
  "oxidized-fhir-client",
@@ -1984,6 +1985,8 @@ dependencies = [
  "oxidized-fhir-operation-error",
  "oxidized-fhir-repository",
  "oxidized-fhirpath",
+ "oxidized-reflect",
+ "rayon",
  "serde",
  "serde_json",
  "tracing",

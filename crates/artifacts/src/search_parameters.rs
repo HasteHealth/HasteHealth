@@ -95,9 +95,8 @@ pub fn get_all_search_parameters() -> Vec<Arc<SearchParameter>> {
 }
 
 pub fn get_search_parameters_for_resource(
-    resource_type: &str,
-) -> Result<Vec<Arc<SearchParameter>>, ResourceTypeError> {
-    let resource_type = ResourceType::try_from(resource_type)?;
+    resource_type: &ResourceType,
+) -> Vec<Arc<SearchParameter>> {
     let resource_params = R4_SEARCH_PARAMETERS
         .by_resource_type
         .get("Resource")
@@ -117,5 +116,5 @@ pub fn get_search_parameters_for_resource(
         return_vec.extend(params.iter().cloned());
     }
 
-    Ok(return_vec)
+    return_vec
 }
