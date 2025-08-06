@@ -24,7 +24,7 @@ impl Default for SearchParametersIndex {
     }
 }
 
-fn search_parameters_logic(
+fn index_parameter(
     index: &mut SearchParametersIndex,
     resource: Resource,
 ) -> Result<(), ArtifactError> {
@@ -82,7 +82,7 @@ static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
     let mut index = SearchParametersIndex::default();
     let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(SEARCH_PARAMETERS_STR)
         .expect("Failed to parse search parameters JSON");
-    search_parameters_logic(&mut index, bundle).expect("Failed to extract search parameters");
+    index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
     index
 });
 
