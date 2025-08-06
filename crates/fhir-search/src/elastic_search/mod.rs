@@ -175,7 +175,7 @@ impl SearchEngine for ElasticSearchEngine {
                 FHIRMethod::Delete => Ok(BulkOperation::delete(r.id.as_ref())
                     .index(R4_FHIR_INDEX)
                     .into()),
-                method => Err(SearchError::UnsupportedFHIRMethod(method.clone()).into()),
+                method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()).into()),
             })
             .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
 

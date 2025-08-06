@@ -19,18 +19,18 @@ pub struct RemoveIndex {
 }
 
 pub struct IndexResource<'a> {
-    pub id: ResourceId,
-    pub version_id: String,
+    pub id: &'a ResourceId,
+    pub version_id: &'a String,
 
-    pub project: ProjectId,
+    pub project: &'a ProjectId,
 
-    pub fhir_method: FHIRMethod,
+    pub fhir_method: &'a FHIRMethod,
 
-    pub resource_type: ResourceType,
+    pub resource_type: &'a ResourceType,
     pub resource: &'a Resource,
 }
 
-pub trait SearchEngine {
+pub trait SearchEngine: Send + Sync {
     fn search(
         &self,
         fhir_version: &SupportedFHIRVersions,

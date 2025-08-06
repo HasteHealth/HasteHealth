@@ -6,9 +6,9 @@ use oxidized_fhir_repository::{
     postgres::{FHIRPostgresRepositoryPool, SQLImplementation},
 };
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
-use oxidized_fhirpath::{FHIRPathError, FPEngine};
+use oxidized_fhirpath::FHIRPathError;
 use sqlx::{Pool, Postgres, Transaction, query_as, types::time::OffsetDateTime};
-use std::{pin::Pin, sync::Arc, time::Instant};
+use std::{sync::Arc, time::Instant};
 
 mod conversion;
 mod indexing_lock;
@@ -40,8 +40,6 @@ pub enum IndexingWorkerError {
     ResourceTypeError(#[from] oxidized_fhir_model::r4::types::ResourceTypeError),
 }
 
-static R4_FHIR_INDEX: &str = "r4_search_index";
-
 struct TenantReturn {
     id: TenantId,
     created_at: OffsetDateTime,
@@ -65,64 +63,62 @@ async fn get_tenants(
     Ok(result)
 }
 
-fn index_tenant_next_sequence<Engine: SearchEngine>(
+async fn index_tenant_next_sequence<'a, Engine: SearchEngine + 'a>(
     search_client: Arc<Engine>,
-    tx: &mut Transaction<'_, Postgres>,
-    fp_engine: Arc<FPEngine>,
-    tenant_id: &TenantId,
-) -> Pin<Box<dyn Future<Output = Result<(), IndexingWorkerError>> + Send>> {
-    Box::pin(async move {
-        let tenant_lock_provider = PostgresIndexLockProvider::new();
-        let tenant_locks = tenant_lock_provider
-            .get_available(tx, vec![tenant_id.as_ref()])
-            .await?;
-
-        if tenant_locks.is_empty() {
-            return Ok(());
-        }
-
-        let resources = SQLImplementation::get_sequence(
-            tx,
-            tenant_id,
-            tenant_locks[0].index_sequence_position as u64,
-            Some(1000),
-        )
+    tx: &'a mut Transaction<'_, Postgres>,
+    tenant_id: &'a TenantId,
+) -> Result<(), IndexingWorkerError> {
+    let tenant_lock_provider = PostgresIndexLockProvider::new();
+    let tenant_locks = tenant_lock_provider
+        .get_available(tx, vec![tenant_id.as_ref()])
         .await?;
 
-        tracing::info!(
-            "Tenant '{}' Indexing '{}' resources",
-            tenant_id,
-            resources.len()
-        );
+    if tenant_locks.is_empty() {
+        return Ok(());
+    }
 
-        // Perform indexing if there are resources to index.
-        if !resources.is_empty() {
-            search_client
-                .index(
-                    &SupportedFHIRVersions::R4,
-                    &tenant_id,
-                    resources
-                        .iter()
-                        .map(|r| IndexResource {
-                            id: r.id,
-                            version_id: r.version_id,
-                            project: r.project,
-                            fhir_method: r.fhir_method,
-                            resource_type: r.resource_type,
-                            resource: &r.resource.0,
-                        })
-                        .collect(),
-                )
+    let resources = SQLImplementation::get_sequence(
+        &mut *tx,
+        tenant_id,
+        tenant_locks[0].index_sequence_position as u64,
+        Some(1000),
+    )
+    .await?;
+
+    tracing::info!(
+        "Tenant '{}' Indexing '{}' resources",
+        tenant_id,
+        resources.len()
+    );
+
+    // Perform indexing if there are resources to index.
+    if !resources.is_empty() {
+        search_client
+            .clone()
+            .index(
+                &SupportedFHIRVersions::R4,
+                &tenant_id,
+                resources
+                    .iter()
+                    .map(|r| IndexResource {
+                        id: &r.id,
+                        version_id: &r.version_id,
+                        project: &r.project,
+                        fhir_method: &r.fhir_method,
+                        resource_type: &r.resource_type,
+                        resource: &r.resource.0,
+                    })
+                    .collect(),
+            )
+            .await?;
+        if let Some(resource) = resources.last() {
+            tenant_lock_provider
+                .update(tx, tenant_id.as_ref(), resource.sequence as usize)
                 .await?;
-            if let Some(resource) = resources.last() {
-                tenant_lock_provider
-                    .update(tx, tenant_id.as_ref(), resource.sequence as usize)
-                    .await?;
-            }
         }
+    }
 
-        Ok(())
-    })
+    Ok(())
 }
 
 async fn index_for_tenant<
@@ -131,14 +127,12 @@ async fn index_for_tenant<
 >(
     repo: Arc<Repository>,
     search_client: Arc<Search>,
-    fp_engine: Arc<FPEngine>,
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
-    let fp_engine = fp_engine.clone();
     let search_client = search_client.clone();
 
     let mut tx = repo.transaction().await.unwrap();
-    let res = index_tenant_next_sequence(search_client, &mut tx, fp_engine, &tenant_id).await;
+    let res = index_tenant_next_sequence(search_client, &mut tx, &tenant_id).await;
 
     match res {
         Ok(res) => {
@@ -158,26 +152,28 @@ pub async fn run_worker() {
     tracing::subscriber::set_global_default(subscriber).unwrap();
     let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
 
-    let search_engine = Arc::new(ElasticSearchEngine::new(
-        fp_engine.clone(),
-        &config
-            .get("ELASTICSEARCH_URL")
-            .expect("ELASTICSEARCH_URL variable not set"),
-        config
-            .get("ELASTICSEARCH_USERNAME")
-            .expect("ELASTICSEARCH_USERNAME variable not set"),
-        config
-            .get("ELASTICSEARCH_PASSWORD")
-            .expect("ELASTICSEARCH_PASSWORD variable not set"),
-    ))
-    .expect("Failed to create Elasticsearch client");
+    let search_engine = Arc::new(
+        ElasticSearchEngine::new(
+            fp_engine.clone(),
+            &config
+                .get("ELASTICSEARCH_URL")
+                .expect("ELASTICSEARCH_URL variable not set"),
+            config
+                .get("ELASTICSEARCH_USERNAME")
+                .expect("ELASTICSEARCH_USERNAME variable not set"),
+            config
+                .get("ELASTICSEARCH_PASSWORD")
+                .expect("ELASTICSEARCH_PASSWORD variable not set"),
+        )
+        .expect("Failed to create Elasticsearch client"),
+    );
 
     search_engine
         .migrate(&SupportedFHIRVersions::R4)
         .await
         .expect("Failed to create mapping for R4 index");
 
-    let mut pg_pool = sqlx::PgPool::connect(&config.get("DATABASE_URL").unwrap())
+    let pg_pool = sqlx::PgPool::connect(&config.get("DATABASE_URL").unwrap())
         .await
         .expect("Failed to connect to the database");
     let repo = Arc::new(FHIRPostgresRepositoryPool::new(pg_pool.clone()));
@@ -195,13 +191,8 @@ pub async fn run_worker() {
 
             for tenant in tenants_to_check {
                 let start = Instant::now();
-                let result = index_for_tenant(
-                    repo.clone(),
-                    search_engine.clone(),
-                    fp_engine.clone(),
-                    tenant.id.clone(),
-                )
-                .await;
+                let result =
+                    index_for_tenant(repo.clone(), search_engine.clone(), &tenant.id).await;
 
                 if let Err(_error) = result {
                     tracing::error!(
