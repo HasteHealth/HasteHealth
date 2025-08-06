@@ -11,6 +11,7 @@ use oxidized_fhir_repository::{
     Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
     VersionId,
 };
+use oxidized_fhir_search::SearchEngine;
 use std::sync::Arc;
 
 pub struct ServerCTX {
@@ -18,6 +19,11 @@ pub struct ServerCTX {
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
     pub author: Author,
+}
+
+struct ClientState<Repository: FHIRRepository + Send + Sync, Search: SearchEngine + Send + Sync> {
+    repo: Repository,
+    _search: Search,
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -35,20 +41,25 @@ pub enum StorageError {
     InvalidType,
 }
 
-type ServerMiddlewareState<Repository> = Arc<Repository>;
+type ServerMiddlewareState<Repository, Search> = Arc<ClientState<Repository, Search>>;
 type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
-type ServerMiddlewareNext<Repo> = Next<Arc<Repo>, ServerMiddlewareContext, OperationOutcomeError>;
+type ServerMiddlewareNext<Repo, Search> =
+    Next<Arc<ClientState<Repo, Search>>, ServerMiddlewareContext, OperationOutcomeError>;
 type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
 
-fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
-    state: ServerMiddlewareState<Repository>,
+fn storage_middleware<
+    Repository: FHIRRepository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    state: ServerMiddlewareState<Repository, Search>,
     mut context: ServerMiddlewareContext,
-    _next: Option<Arc<ServerMiddlewareNext<Repository>>>,
+    _next: Option<Arc<ServerMiddlewareNext<Repository, Search>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
             FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
                 resource: state
+                    .repo
                     .create(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -60,6 +71,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
             })),
             FHIRRequest::Read(read_request) => {
                 let resource = state
+                    .repo
                     .read_latest(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -73,6 +85,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
             }
             FHIRRequest::VersionRead(vread_request) => {
                 let mut vread_resources = state
+                    .repo
                     .read_by_version_ids(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -90,6 +103,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
             }
             FHIRRequest::HistoryInstance(history_instance_request) => {
                 let history_resources = state
+                    .repo
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -103,6 +117,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
             }
             FHIRRequest::HistoryType(history_type_request) => {
                 let history_resources = state
+                    .repo
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -116,6 +131,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
             }
             FHIRRequest::HistorySystem(history_system_request) => {
                 let history_resources = state
+                    .repo
                     .history(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -129,6 +145,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
             }
             FHIRRequest::UpdateInstance(update_request) => {
                 let resource = state
+                    .repo
                     .read_latest(
                         &context.ctx.tenant,
                         &context.ctx.project,
@@ -146,6 +163,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
 
                     Some(FHIRResponse::Update(FHIRUpdateResponse {
                         resource: state
+                            .repo
                             .update(
                                 &context.ctx.tenant,
                                 &context.ctx.project,
@@ -159,6 +177,7 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
                 } else {
                     Some(FHIRResponse::Create(FHIRCreateResponse {
                         resource: state
+                            .repo
                             .create(
                                 &context.ctx.tenant,
                                 &context.ctx.project,
@@ -179,24 +198,41 @@ fn storage_middleware<Repository: FHIRRepository + Send + Sync + 'static>(
     })
 }
 
-pub struct FHIRServerClient<Repository: FHIRRepository + Send + Sync> {
-    state: Arc<Repository>,
-    middleware:
-        Middleware<Arc<Repository>, ServerCTX, FHIRRequest, FHIRResponse, OperationOutcomeError>,
+pub struct FHIRServerClient<
+    Repository: FHIRRepository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+> {
+    state: Arc<ClientState<Repository, Search>>,
+    middleware: Middleware<
+        Arc<ClientState<Repository, Search>>,
+        ServerCTX,
+        FHIRRequest,
+        FHIRResponse,
+        OperationOutcomeError,
+    >,
 }
 
-impl<Repository: FHIRRepository + Send + Sync + 'static> FHIRServerClient<Repository> {
-    pub fn new(repository: Repository) -> Self {
+impl<
+    Repository: FHIRRepository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+> FHIRServerClient<Repository, Search>
+{
+    pub fn new(repo: Repository, search: Search) -> Self {
         let middleware = Middleware::new(vec![Box::new(storage_middleware)]);
         FHIRServerClient {
-            state: Arc::new(repository),
+            state: Arc::new(ClientState {
+                repo,
+                _search: search,
+            }),
             middleware,
         }
     }
 }
 
-impl<Repository: FHIRRepository + Send + Sync + 'static>
-    FHIRClient<ServerCTX, OperationOutcomeError> for FHIRServerClient<Repository>
+impl<
+    Repository: FHIRRepository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+> FHIRClient<ServerCTX, OperationOutcomeError> for FHIRServerClient<Repository, Search>
 {
     async fn request(
         &self,
