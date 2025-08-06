@@ -12,7 +12,7 @@ pub enum ArtifactError {
 
 pub struct SearchParametersIndex {
     by_url: HashMap<String, Arc<SearchParameter>>,
-    by_resource_type: HashMap<String, Vec<Arc<SearchParameter>>>,
+    by_resource_type: HashMap<String, HashMap<String, Arc<SearchParameter>>>,
 }
 
 impl Default for SearchParametersIndex {
@@ -39,6 +39,7 @@ fn index_parameter(
                     Resource::SearchParameter(search_param) => Some(Arc::new(search_param)),
                     _ => None,
                 });
+
             for param in params {
                 index
                     .by_url
@@ -49,7 +50,10 @@ fn index_parameter(
                             .by_resource_type
                             .entry(resource_type.to_string())
                             .or_default()
-                            .push(param.clone());
+                            .insert(
+                                param.name.value.as_ref().unwrap().to_string(),
+                                param.clone(),
+                            );
                     }
                 }
             }
@@ -67,7 +71,10 @@ fn index_parameter(
                         .by_resource_type
                         .entry(resource_type.to_string())
                         .or_default()
-                        .push(param.clone());
+                        .insert(
+                            param.name.value.as_ref().unwrap().to_string(),
+                            param.clone(),
+                        );
                 }
             }
             Ok(())
@@ -106,14 +113,14 @@ pub fn get_search_parameters_for_resource(
         .get("DomainResource")
         .unwrap();
     let mut return_vec = Vec::new();
-    return_vec.extend(resource_params.iter().cloned());
-    return_vec.extend(domain_params.iter().cloned());
+    return_vec.extend(resource_params.values().cloned());
+    return_vec.extend(domain_params.values().cloned());
 
     if let Some(params) = R4_SEARCH_PARAMETERS
         .by_resource_type
         .get(resource_type.as_str())
     {
-        return_vec.extend(params.iter().cloned());
+        return_vec.extend(params.values().cloned());
     }
 
     return_vec
