@@ -2101,6 +2101,7 @@ dependencies = [
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
  "oxidized-fhir-repository",
+ "oxidized-fhir-search",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "oxidized-reflect",
