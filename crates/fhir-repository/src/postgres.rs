@@ -30,20 +30,6 @@ impl FHIRPostgresRepositoryPool {
     }
 }
 
-async fn testerino() -> () {
-    let pool = sqlx::Pool::<Postgres>::connect("postgres://user:password@localhost/db")
-        .await
-        .unwrap();
-
-    let repo = FHIRPostgresRepositoryPool::new(pool);
-
-    let mut t = repo.transaction().await.unwrap();
-
-    SQLImplementation::get_sequence(&mut t, &TenantId("tenant".to_string()), 0, Some(10))
-        .await
-        .unwrap();
-}
-
 impl FHIRRepository for FHIRPostgresRepositoryPool {
     type Transaction = Transaction<'static, Postgres>;
 
@@ -307,13 +293,22 @@ where
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
         let result = sqlx::query_as!(
             ResourcePollingValue,
-            r#"SELECT  id, tenant, project, version_id, resource_type, fhir_method as "fhir_method: FHIRMethod", sequence, resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+            r#"SELECT  id as "id: ResourceId", 
+                       tenant as "tenant: TenantId", 
+                       project as "project: ProjectId", 
+                       version_id, 
+                       resource_type as "resource_type: ResourceType", 
+                       fhir_method as "fhir_method: FHIRMethod", 
+                       sequence, 
+                       resource as "resource: FHIRJson<Resource>" 
+            FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
             tenant_id.as_ref() as &str,
             cur_sequence as i64,
             count.unwrap_or(100) as i64
         )
         .fetch_all(&mut *conn)
-        .await.map_err(StoreError::from)?;
+        .await
+        .map_err(StoreError::from)?;
 
         Ok(result)
     }

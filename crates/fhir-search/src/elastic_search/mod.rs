@@ -130,8 +130,7 @@ impl SearchEngine for ElasticSearchEngine {
     async fn index<'a>(
         &self,
         _fhir_version: &SupportedFHIRVersions,
-        tenant_id: TenantId,
-        _project: ProjectId,
+        tenant: &TenantId,
         resources: Vec<IndexResource<'a>>,
     ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
         // Iterator used to evaluate all of the search expressions for indexing.
@@ -157,7 +156,7 @@ impl SearchEngine for ElasticSearchEngine {
                     );
                     elastic_index.insert(
                         "version_id".to_string(),
-                        InsertableIndex::String(vec![r.version_id.as_ref().to_string()]),
+                        InsertableIndex::String(vec![r.version_id.to_string()]),
                     );
                     elastic_index.insert(
                         "project".to_string(),
@@ -165,15 +164,17 @@ impl SearchEngine for ElasticSearchEngine {
                     );
                     elastic_index.insert(
                         "tenant".to_string(),
-                        InsertableIndex::String(vec![r.tenant.as_ref().to_string()]),
+                        InsertableIndex::String(vec![tenant.as_ref().to_string()]),
                     );
 
                     Ok(BulkOperation::index(elastic_index)
-                        .id(&r.id)
+                        .id(r.id.as_ref())
                         .index(R4_FHIR_INDEX)
                         .into())
                 }
-                FHIRMethod::Delete => Ok(BulkOperation::delete(&r.id).index(R4_FHIR_INDEX).into()),
+                FHIRMethod::Delete => Ok(BulkOperation::delete(r.id.as_ref())
+                    .index(R4_FHIR_INDEX)
+                    .into()),
                 method => Err(SearchError::UnsupportedFHIRMethod(method.clone()).into()),
             })
             .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
@@ -191,7 +192,7 @@ impl SearchEngine for ElasticSearchEngine {
                 let status_code = res.status_code().as_u16();
                 tracing::error!(
                     "Failed to index resources for tenant: '{}'. Response: '{:?}', body: '{}'",
-                    tenant_id,
+                    tenant.as_ref(),
                     status_code,
                     res.text().await.unwrap()
                 );

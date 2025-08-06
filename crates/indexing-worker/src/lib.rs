@@ -1,19 +1,14 @@
-use crate::{
-    conversion::InsertableIndex,
-    indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider},
-};
-use elasticsearch::{BulkOperation, BulkParts};
+use crate::indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider};
 use oxidized_config::get_config;
-use oxidized_fhir_model::r4::types::{Resource, SearchParameter};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
-    FHIRMethod, FHIRRepository, FHIRTransaction, SupportedFHIRVersions, TenantId,
+    FHIRRepository, FHIRTransaction, SupportedFHIRVersions, TenantId,
     postgres::{FHIRPostgresRepositoryPool, SQLImplementation},
 };
-use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
+use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::{FHIRPathError, FPEngine};
 use sqlx::{Pool, Postgres, Transaction, query_as, types::time::OffsetDateTime};
-use std::{collections::HashMap, pin::Pin, sync::Arc, time::Instant};
+use std::{pin::Pin, sync::Arc, time::Instant};
 
 mod conversion;
 mod indexing_lock;
@@ -28,8 +23,6 @@ pub enum IndexingWorkerError {
     ElasticsearchError(#[from] elasticsearch::Error),
     #[fatal(code = "exception", diagnostic = "FHIRPath error: '{arg0}'")]
     FHIRPathError(#[from] FHIRPathError),
-    #[fatal(code = "exception", diagnostic = "Unsupported FHIR method: '{arg0}'")]
-    UnsupportedFHIRMethod(FHIRMethod),
     #[fatal(
         code = "exception",
         diagnostic = "Missing search parameters for resource: '{arg0}'"
@@ -50,7 +43,7 @@ pub enum IndexingWorkerError {
 static R4_FHIR_INDEX: &str = "r4_search_index";
 
 struct TenantReturn {
-    id: String,
+    id: TenantId,
     created_at: OffsetDateTime,
 }
 
@@ -61,7 +54,7 @@ async fn get_tenants(
 ) -> Result<Vec<TenantReturn>, OperationOutcomeError> {
     let result = query_as!(
         TenantReturn,
-        r#"SELECT id, created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
+        r#"SELECT id as "id: TenantId", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2"#,
         cursor,
         count as i64
     )
@@ -72,8 +65,8 @@ async fn get_tenants(
     Ok(result)
 }
 
-fn index_tenant_next_sequence(
-    search_client: Arc<dyn SearchEngine>,
+fn index_tenant_next_sequence<Engine: SearchEngine>(
+    search_client: Arc<Engine>,
     tx: &mut Transaction<'_, Postgres>,
     fp_engine: Arc<FPEngine>,
     tenant_id: &TenantId,
@@ -106,9 +99,19 @@ fn index_tenant_next_sequence(
         if !resources.is_empty() {
             search_client
                 .index(
-                    tenant_id.clone(),
-                    resources[0].project.clone(),
-                    resources.iter().map(|r| r.resource.clone()).collect(),
+                    &SupportedFHIRVersions::R4,
+                    &tenant_id,
+                    resources
+                        .iter()
+                        .map(|r| IndexResource {
+                            id: r.id,
+                            version_id: r.version_id,
+                            project: r.project,
+                            fhir_method: r.fhir_method,
+                            resource_type: r.resource_type,
+                            resource: &r.resource.0,
+                        })
+                        .collect(),
                 )
                 .await?;
             if let Some(resource) = resources.last() {
@@ -166,10 +169,11 @@ pub async fn run_worker() {
         config
             .get("ELASTICSEARCH_PASSWORD")
             .expect("ELASTICSEARCH_PASSWORD variable not set"),
-    ));
+    ))
+    .expect("Failed to create Elasticsearch client");
 
     search_engine
-        .migrate(SupportedFHIRVersions::R4, R4_FHIR_INDEX)
+        .migrate(&SupportedFHIRVersions::R4)
         .await
         .expect("Failed to create mapping for R4 index");
 

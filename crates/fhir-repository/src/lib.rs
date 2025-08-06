@@ -9,6 +9,7 @@ use serde::Deserialize;
 use std::fmt::{Debug, Display};
 
 pub mod postgres;
+mod sqlx_bindings;
 pub mod utilities;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
@@ -100,6 +101,7 @@ impl<'a> AsRef<str> for VersionId<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct ResourceId(String);
 impl ResourceId {
     pub fn new(id: String) -> Self {
@@ -140,28 +142,27 @@ impl TryFrom<&FHIRRequest> for FHIRMethod {
 
 #[derive(sqlx::FromRow)]
 pub struct InsertResourceRow<'a> {
-    pub tenant: String,
-    pub project: String,
-    // resource_type: String,
+    pub tenant: TenantId,
+    pub project: ProjectId,
+
     pub author_id: String,
     pub resource: &'a Resource,
     pub deleted: bool,
-    // created_at: chrono::DateTime<Utc>,
+
     pub request_method: String,
 
     pub fhir_version: SupportedFHIRVersions,
     pub author_type: String,
-    // version_id: String,
+
     pub fhir_method: FHIRMethod,
-    // sequence: i64,
 }
 
 pub struct ResourcePollingValue {
-    pub id: String,
-    pub resource_type: String,
+    pub id: ResourceId,
+    pub resource_type: ResourceType,
     pub version_id: String,
-    pub project: String,
-    pub tenant: String,
+    pub project: ProjectId,
+    pub tenant: TenantId,
     pub resource: FHIRJson<Resource>,
     pub sequence: i64,
     pub fhir_method: FHIRMethod,
