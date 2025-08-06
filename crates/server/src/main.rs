@@ -107,7 +107,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let shared_state = Arc::new(AppState {
         _config: config,
         fhir_client: FHIRServerClient::new(
-            oxidized_fhir_repository::postgres::FHIRPostgresRepository::new(pool.clone()),
+            oxidized_fhir_repository::postgres::FHIRPostgresRepositoryPool::new(pool.clone()),
         ),
     });
 

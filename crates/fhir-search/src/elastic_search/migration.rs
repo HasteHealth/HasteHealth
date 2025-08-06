@@ -3,10 +3,8 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
 
-use crate::R4_FHIR_INDEX;
-
 // Note use of nested because must preserve groupings of fields.
-pub fn date_index_mapping() -> serde_json::Value {
+fn date_index_mapping() -> serde_json::Value {
     json!({
         "type": "nested",
         "properties": {
@@ -16,13 +14,13 @@ pub fn date_index_mapping() -> serde_json::Value {
     })
 }
 
-pub fn string_index_mapping() -> serde_json::Value {
+fn string_index_mapping() -> serde_json::Value {
     json!({
         "type": "text"
     })
 }
 
-pub fn token_index_mapping() -> serde_json::Value {
+fn token_index_mapping() -> serde_json::Value {
     json!({
         "type": "nested",
         "properties": {
@@ -33,19 +31,19 @@ pub fn token_index_mapping() -> serde_json::Value {
     })
 }
 
-pub fn number_index_mapping() -> serde_json::Value {
+fn number_index_mapping() -> serde_json::Value {
     json!({
         "type": "long"
     })
 }
 
-pub fn uri_index_mapping() -> serde_json::Value {
+fn uri_index_mapping() -> serde_json::Value {
     json!({
         "type": "keyword"
     })
 }
 
-pub fn quantity_index_mapping() -> serde_json::Value {
+fn quantity_index_mapping() -> serde_json::Value {
     json!({
 
         "type": "nested",
@@ -57,7 +55,7 @@ pub fn quantity_index_mapping() -> serde_json::Value {
     })
 }
 
-pub fn reference_index_mapping() -> serde_json::Value {
+fn reference_index_mapping() -> serde_json::Value {
     json!({
         "type": "nested",
         "properties": {
@@ -139,11 +137,14 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     }))
 }
 
-pub async fn create_mapping(elastic_search: &Elasticsearch) -> Result<(), OperationOutcomeError> {
+pub async fn create_mapping(
+    elastic_search: &Elasticsearch,
+    index: &str,
+) -> Result<(), OperationOutcomeError> {
     let exists_res = elastic_search
         .indices()
         .exists(elasticsearch::indices::IndicesExistsParts::Index(&vec![
-            R4_FHIR_INDEX,
+            index,
         ]))
         .send()
         .await
@@ -157,7 +158,7 @@ pub async fn create_mapping(elastic_search: &Elasticsearch) -> Result<(), Operat
         .unwrap();
         let res = elastic_search
             .indices()
-            .create(IndicesCreateParts::Index(R4_FHIR_INDEX))
+            .create(IndicesCreateParts::Index(index))
             .body(json!({
                    "settings": {
                        "index": {

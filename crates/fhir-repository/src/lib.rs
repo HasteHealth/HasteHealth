@@ -2,12 +2,14 @@ use oxidized_fhir_client::request::FHIRRequest;
 use oxidized_fhir_client::request::{
     FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
 };
+use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
 use std::fmt::{Debug, Display};
 
 pub mod postgres;
+mod sqlx_bindings;
 pub mod utilities;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
@@ -99,6 +101,7 @@ impl<'a> AsRef<str> for VersionId<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct ResourceId(String);
 impl ResourceId {
     pub fn new(id: String) -> Self {
@@ -111,7 +114,7 @@ impl AsRef<str> for ResourceId {
     }
 }
 
-#[derive(sqlx::Type)]
+#[derive(sqlx::Type, Debug, Clone)]
 #[sqlx(type_name = "fhir_method", rename_all = "lowercase")]
 pub enum FHIRMethod {
     Create,
@@ -139,20 +142,30 @@ impl TryFrom<&FHIRRequest> for FHIRMethod {
 
 #[derive(sqlx::FromRow)]
 pub struct InsertResourceRow<'a> {
-    pub tenant: String,
-    pub project: String,
-    // resource_type: String,
+    pub tenant: TenantId,
+    pub project: ProjectId,
+
     pub author_id: String,
     pub resource: &'a Resource,
     pub deleted: bool,
-    // created_at: chrono::DateTime<Utc>,
+
     pub request_method: String,
 
     pub fhir_version: SupportedFHIRVersions,
     pub author_type: String,
-    // version_id: String,
+
     pub fhir_method: FHIRMethod,
-    // sequence: i64,
+}
+
+pub struct ResourcePollingValue {
+    pub id: ResourceId,
+    pub resource_type: ResourceType,
+    pub version_id: String,
+    pub project: ProjectId,
+    pub tenant: TenantId,
+    pub resource: FHIRJson<Resource>,
+    pub sequence: i64,
+    pub fhir_method: FHIRMethod,
 }
 
 pub enum HistoryRequest<'a> {
@@ -162,6 +175,8 @@ pub enum HistoryRequest<'a> {
 }
 
 pub trait FHIRRepository {
+    type Transaction;
+
     fn create(
         &self,
         tenant: &TenantId,
@@ -205,8 +220,58 @@ pub trait FHIRRepository {
     fn get_sequence(
         &self,
         tenant_id: &TenantId,
-        project_id: &ProjectId,
         sequence_id: u64,
         count: Option<u64>,
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
+
+    fn transaction<'a>(&'a self) -> impl Future<Output = Option<Self::Transaction>> + Send;
+}
+
+pub trait FHIRTransaction<Connection> {
+    fn create(
+        k: Connection,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
+    fn update(
+        k: Connection,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+        id: &str,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
+    fn read_by_version_ids(
+        k: Connection,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        version_id: Vec<VersionId>,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    fn read_latest(
+        k: Connection,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        resource_type: &ResourceType,
+        resource_id: &ResourceId,
+    ) -> impl Future<
+        Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
+    > + Send;
+    fn history(
+        k: Connection,
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
+        request: HistoryRequest,
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    fn get_sequence(
+        k: Connection,
+        tenant_id: &TenantId,
+        sequence_id: u64,
+        count: Option<u64>,
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
 }

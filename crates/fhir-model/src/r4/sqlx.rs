@@ -1,9 +1,11 @@
+use crate::r4::types::ResourceType;
 use sqlx::{
-    Decode, Encode, Postgres,
+    Database, Decode, Encode, Postgres,
     encode::IsNull,
     error::BoxDynError,
     postgres::{PgArgumentBuffer, PgTypeInfo, PgValueRef},
 };
+use std::io::Write;
 
 #[derive(Debug)]
 pub struct FHIRJson<T: ?Sized>(pub T);
@@ -73,5 +75,27 @@ where
         oxidized_fhir_serialization_json::to_writer(&mut **buf, &*self.0)?;
 
         Ok(IsNull::No)
+    }
+}
+
+impl<'r, DB: Database> Decode<'r, DB> for ResourceType
+where
+    &'r str: Decode<'r, DB>,
+{
+    fn decode(
+        value: <DB as Database>::ValueRef<'r>,
+    ) -> Result<ResourceType, Box<dyn std::error::Error + 'static + Send + Sync>> {
+        let value = <&str as Decode<DB>>::decode(value)?;
+        Ok(unsafe { ResourceType::unchecked(value.to_string()) })
+    }
+}
+
+impl<'r> Encode<'r, Postgres> for ResourceType {
+    fn encode_by_ref(
+        &self,
+        buf: &mut PgArgumentBuffer,
+    ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
+        buf.write(self.as_str().as_bytes())?;
+        Ok(sqlx::encode::IsNull::No)
     }
 }

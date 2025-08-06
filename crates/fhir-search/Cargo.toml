@@ -1,5 +1,5 @@
 [package]
-name = "fhir-search"
+name = "oxidized-fhir-search"
 version = "0.1.0"
 edition = "2024"
 
@@ -12,3 +12,10 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
 oxidized-fhir-repository = { path = "../fhir-repository" }
+oxidized-artifacts = { path = "../artifacts" }
+oxidized-reflect = { path = "../reflect" }
+chrono = "0.4.41"
+serde = "1.0.219"
+serde_json = "1.0.140"
+tracing = "0.1.41"
+rayon = "1.10.0"
