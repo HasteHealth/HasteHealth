@@ -155,6 +155,7 @@ pub fn build_elastic_search_query(
                         "must": clauses
                     }
                 },
+                "size": 100,
                 "fields": ["version_id", "id"],
                 "_source": false,
             });

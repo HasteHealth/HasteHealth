@@ -67,6 +67,9 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         project_id: &ProjectId,
         version_ids: Vec<VersionIdRef<'_>>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
+        if version_ids.is_empty() {
+            return Ok(vec![]);
+        }
         let res =
             SQLImplementation::read_by_version_ids(&self.0, tenant_id, project_id, version_ids)
                 .await?;
