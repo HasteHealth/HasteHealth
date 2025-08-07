@@ -8,6 +8,7 @@ use oxidized_fhir_client::request::{
     FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
     FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
+use oxidized_fhir_client::url::parse_url;
 use oxidized_fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;

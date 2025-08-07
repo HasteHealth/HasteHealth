@@ -138,56 +138,21 @@ fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
         .collect()
 }
 
-// // /**
-// //  * Given a query string create complex FHIR Query object.
-// //  * @param queryParams Raw query parameters pulled off url
-// //  * @returns Record of parsed parameters with name modifier and value.
-// //  */
-// // export function parseQuery(
-// //   queryParams: string | undefined,
-// // ): ParsedParameter<string>[] {
-// //   const parameters = !queryParams
-// //     ? []
-// //     : queryParams
-// //         .split("&")
-// //         .map((param) => param.split("="))
-// //         .reduce(
-// //           (
-// //             parameters,
-// //             [key, value],
-// //           ): Record<string, ParsedParameter<string>> => {
-// //             const chains = key.split(".");
+pub fn parse_url(url: &str) -> Result<Vec<ParsedParameter>, ParseError> {
+    let mut chunks = url.split('?');
 
-// //             const [name, modifier] = chains[0].split(":");
+    // Ignore as this is the path.
+    chunks.next();
+    let query_params = chunks.next();
 
-// //             const searchParam: ParsedParameter<string> = {
-// //               name,
-// //               modifier,
-// //               value: value.split(",").map((v) => decodeURIComponent(v)),
-// //             };
+    // If there is multiple '?' in the URL, we consider it invalid.
+    if chunks.next().is_some() {
+        return Err(ParseError::InvalidParameter(url.to_string()));
+    }
 
-// //             if (chains.length > 1) searchParam.chains = chains.slice(1);
-// //             if (modifier) searchParam.modifier = modifier;
-
-// //             return { ...parameters, [searchParam.name]: searchParam };
-// //           },
-// //           {},
-// //         );
-
-// //   return Object.values(parameters);
-// // }
-
-// // /**
-// //  * Given a url string parsequery parameters.
-// //  * @param url Any url to parse out query parameters.
-// //  * @returns Record of parsed parameters with name modifier and value.
-// //  */
-// // export default function parseUrl(
-// //   url: string,
-// // ): ParsedParameter<string | number>[] {
-// //   const chunks = url.split("?");
-// //   if (chunks.length > 2)
-// //     throw new OperationError(outcomeError("invalid", "Invalid query string"));
-// //   const [_, queryParams] = chunks;
-// //   return parseQuery(queryParams);
-// // }
+    if let Some(query_params) = query_params {
+        parse_query(query_params)
+    } else {
+        Ok(vec![])
+    }
+}
