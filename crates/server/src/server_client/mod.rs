@@ -1,10 +1,11 @@
 use oxidized_fhir_client::{
-    FHIRClient, ParsedParameter,
+    FHIRClient,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
         FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
+    url::ParsedParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
@@ -33,7 +34,10 @@ pub enum StorageError {
         diagnostic = "Storage not supported for fhir method."
     )]
     NotSupported,
-    #[error(code = "exception", diagnostic = "No response.")]
+    #[error(
+        code = "exception",
+        diagnostic = "No response was returned from the request."
+    )]
     NoResponse,
     #[error(code = "not-found", diagnostic = "Resource not found.")]
     NotFound,

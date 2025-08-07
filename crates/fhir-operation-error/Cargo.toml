@@ -13,3 +13,4 @@ oxidized-fhir-operation-error-derive = { path = "../fhir-operation-error-derive"
 oxidized-fhir-model = { path = "../fhir-model" }
 axum = { version = "0.8.4", optional = true }
 anyhow = "1.0.98"
+tracing = "0.1.41"

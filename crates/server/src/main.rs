@@ -5,7 +5,7 @@ use crate::{
 };
 use axum::{
     Extension, Router,
-    extract::{Path, State},
+    extract::{OriginalUri, Path, State},
     http::Method,
     response::{IntoResponse, Response},
     routing::any,
@@ -75,6 +75,7 @@ async fn fhir_handler<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
+    OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search>>>,
     body: String,
@@ -82,7 +83,12 @@ async fn fhir_handler<
     let start = Instant::now();
     info!("[{}] '{}'", method, path.fhir_location);
 
-    let http_req = HTTPRequest::new(method, path.fhir_location, body);
+    let http_req = HTTPRequest::new(
+        method,
+        path.fhir_location,
+        body,
+        uri.query().unwrap_or_default().to_string(),
+    );
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
 
     let ctx = ServerCTX {

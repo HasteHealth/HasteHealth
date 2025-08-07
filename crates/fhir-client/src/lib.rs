@@ -1,7 +1,10 @@
-use oxidized_fhir_model::r4::types::{CapabilityStatement, Parameters, Resource, ResourceType};
 use json_patch::Patch;
+use oxidized_fhir_model::r4::types::{CapabilityStatement, Parameters, Resource, ResourceType};
 
-use crate::request::{FHIRRequest, FHIRResponse};
+use crate::{
+    request::{FHIRRequest, FHIRResponse},
+    url::ParsedParameter,
+};
 
 #[cfg(feature = "axum")]
 pub mod axum;
@@ -10,7 +13,6 @@ pub mod http;
 pub mod middleware;
 pub mod request;
 pub mod url;
-pub struct ParsedParameter {}
 
 pub trait FHIRClient<CTX, Error>: Send + Sync {
     fn request(

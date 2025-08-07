@@ -12,7 +12,7 @@ pub enum ArtifactError {
 
 pub struct SearchParametersIndex {
     by_url: HashMap<String, Arc<SearchParameter>>,
-    by_resource_type: HashMap<String, Vec<Arc<SearchParameter>>>,
+    by_resource_type: HashMap<String, HashMap<String, Arc<SearchParameter>>>,
 }
 
 impl Default for SearchParametersIndex {
@@ -24,7 +24,7 @@ impl Default for SearchParametersIndex {
     }
 }
 
-fn search_parameters_logic(
+fn index_parameter(
     index: &mut SearchParametersIndex,
     resource: Resource,
 ) -> Result<(), ArtifactError> {
@@ -39,6 +39,7 @@ fn search_parameters_logic(
                     Resource::SearchParameter(search_param) => Some(Arc::new(search_param)),
                     _ => None,
                 });
+
             for param in params {
                 index
                     .by_url
@@ -49,7 +50,10 @@ fn search_parameters_logic(
                             .by_resource_type
                             .entry(resource_type.to_string())
                             .or_default()
-                            .push(param.clone());
+                            .insert(
+                                param.name.value.as_ref().unwrap().to_string(),
+                                param.clone(),
+                            );
                     }
                 }
             }
@@ -67,7 +71,10 @@ fn search_parameters_logic(
                         .by_resource_type
                         .entry(resource_type.to_string())
                         .or_default()
-                        .push(param.clone());
+                        .insert(
+                            param.name.value.as_ref().unwrap().to_string(),
+                            param.clone(),
+                        );
                 }
             }
             Ok(())
@@ -82,7 +89,7 @@ static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
     let mut index = SearchParametersIndex::default();
     let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(SEARCH_PARAMETERS_STR)
         .expect("Failed to parse search parameters JSON");
-    search_parameters_logic(&mut index, bundle).expect("Failed to extract search parameters");
+    index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
     index
 });
 
@@ -106,15 +113,38 @@ pub fn get_search_parameters_for_resource(
         .get("DomainResource")
         .unwrap();
     let mut return_vec = Vec::new();
-    return_vec.extend(resource_params.iter().cloned());
-    return_vec.extend(domain_params.iter().cloned());
+    return_vec.extend(resource_params.values().cloned());
+    return_vec.extend(domain_params.values().cloned());
 
     if let Some(params) = R4_SEARCH_PARAMETERS
         .by_resource_type
         .get(resource_type.as_str())
     {
-        return_vec.extend(params.iter().cloned());
+        return_vec.extend(params.values().cloned());
     }
 
     return_vec
+}
+
+pub fn get_search_parameter_for_name(
+    resource_type: &ResourceType,
+    name: &str,
+) -> Option<Arc<SearchParameter>> {
+    R4_SEARCH_PARAMETERS
+        .by_resource_type
+        .get(resource_type.as_str())
+        .and_then(|params| params.get(name))
+        .or_else(|| {
+            R4_SEARCH_PARAMETERS
+                .by_resource_type
+                .get("Resource")
+                .and_then(|params| params.get(name))
+        })
+        .or_else(|| {
+            R4_SEARCH_PARAMETERS
+                .by_resource_type
+                .get("DomainResource")
+                .and_then(|params| params.get(name))
+        })
+        .cloned()
 }
