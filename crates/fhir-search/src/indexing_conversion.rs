@@ -34,8 +34,8 @@ pub struct QuantityRange {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct DateRange {
     /// Milliseconds since epoch.
-    start: i64,
-    end: i64,
+    pub start: i64,
+    pub end: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -59,7 +59,7 @@ pub enum InsertableIndex {
 }
 
 #[derive(OperationOutcomeError, Debug)]
-enum InsertableIndexError {
+pub enum InsertableIndexError {
     #[fatal(
         code = "exception",
         diagnostic = "Invalid type for insertable index: {arg0}"
@@ -547,6 +547,22 @@ fn year_month_day_to_daterange(
     })
 }
 
+pub fn date_time_range(value: &DateTime) -> Result<DateRange, InsertableIndexError> {
+    match value {
+        DateTime::Year(year) => Ok(year_to_daterange(*year)?),
+        DateTime::YearMonth(year, month) => Ok(year_month_to_daterange(*year, *month)?),
+        DateTime::YearMonthDay(year, month, day) => {
+            Ok(year_month_day_to_daterange(*year, *month, *day)?)
+        }
+        DateTime::Iso8601(date_time) => {
+            return Ok(DateRange {
+                start: date_time.timestamp_millis(),
+                end: date_time.timestamp_millis(),
+            });
+        }
+    }
+}
+
 fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
     match value.typename() {
         "Timing" => {
@@ -595,19 +611,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
                 .as_ref();
 
             match &fp_datetime {
-                Some(DateTime::Year(year)) => Ok(vec![year_to_daterange(*year)?]),
-                Some(DateTime::YearMonth(year, month)) => {
-                    Ok(vec![year_month_to_daterange(*year, *month)?])
-                }
-                Some(DateTime::YearMonthDay(year, month, day)) => {
-                    Ok(vec![year_month_day_to_daterange(*year, *month, *day)?])
-                }
-                Some(DateTime::Iso8601(date_time)) => {
-                    return Ok(vec![DateRange {
-                        start: date_time.timestamp_millis(),
-                        end: date_time.timestamp_millis(),
-                    }]);
-                }
+                Some(date_time) => date_time_range(date_time).map(|date_range| vec![date_range]),
                 None => {
                     return Ok(vec![]);
                 }

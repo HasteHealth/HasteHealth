@@ -1,10 +1,12 @@
 use oxidized_fhir_client::url::{Parameter, ParsedParameter};
-use oxidized_fhir_model::r4::types::{ResourceType, SearchParameter};
+use oxidized_fhir_model::r4::{
+    datetime::parse_datetime,
+    types::{ResourceType, SearchParameter},
+};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use oxidized_fhir_repository::VersionIdRef;
 use serde_json::json;
 
-use crate::SearchRequest;
+use crate::{indexing_conversion::date_time_range, SearchRequest};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum QueryBuildError {
@@ -20,6 +22,8 @@ pub enum QueryBuildError {
     UnsupportedParameter(String),
     #[error(code = "invalid", diagnostic = "Invalid parameter value: '{arg0}'")]
     InvalidParameterValue(String),
+    #[error(code = "invalid", diagnostic = "Invalid date format: '{arg0}'")]
+    InvalidDateFormat(String),
 }
 
 fn parameter_to_elasticsearch_clauses(
@@ -27,27 +31,100 @@ fn parameter_to_elasticsearch_clauses(
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
     match search_param.type_.value.as_ref().map(|s| s.as_str()) {
+        Some("date") => {
+            let params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    let date_time = parse_datetime(value).map_err(|_e| 
+                        QueryBuildError::InvalidDateFormat(value.to_string()))?;
+                    let date_range = date_time_range(&date_time).map_err(|_e| 
+                        QueryBuildError::InvalidDateFormat(value.to_string()))?;
+
+                    Ok(json!({
+                        "nested": {
+                            "path": search_param.url.value.as_ref().unwrap(),
+                            "query": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "range": {
+                                                search_param.url.value.as_ref().unwrap().to_string() + ".start": {
+                                                    "gte": date_range.start
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "range": {
+                                                search_param.url.value.as_ref().unwrap().to_string() + ".end": {
+                                                    "lte": date_range.end
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }))
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": params
+                }
+            }))
+        }
         Some("token") => {
             let params = parsed_parameter
                 .value
                 .iter()
                 .map(|value| {
                     let pieces = value.split('|').collect::<Vec<&str>>();
-
-                    let k = json!({
-                        "nested": {
-                            "path": search_param.url.value.as_ref().unwrap(),
-                            "query": {
-                                "match": {
-                                    search_param.url.value.as_ref().unwrap().to_string() + ".code": {
-                                      "query": pieces.get(0)
+                    match pieces.len() {
+                        1 => {
+                            Ok(json!({
+                                "nested": {
+                                    "path": search_param.url.value.as_ref().unwrap(),
+                                    "query": {
+                                        "match": {
+                                            search_param.url.value.as_ref().unwrap().to_string() + ".code": {
+                                            "query": pieces.get(0)
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                            }))
                         }
-                    });
-
-                    Ok(k)
+                        2 => {
+                            Ok(json!({
+                                "nested": {
+                                    "path": search_param.url.value.as_ref().unwrap(),
+                                    "query": {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".code": {
+                                                            "query": pieces.get(1)
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".system": {
+                                                            "query": pieces.get(0)
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }))
+                        }
+                        _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                    }
                 })
                 .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
 
