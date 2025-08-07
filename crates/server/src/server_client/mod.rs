@@ -10,7 +10,7 @@ use oxidized_fhir_client::{
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
     Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
-    VersionId,
+    VersionIdRef,
 };
 use oxidized_fhir_search::SearchEngine;
 use std::sync::Arc;
@@ -93,7 +93,7 @@ fn storage_middleware<
                     .read_by_version_ids(
                         &context.ctx.tenant,
                         &context.ctx.project,
-                        vec![VersionId::new(&vread_request.version_id)],
+                        vec![VersionIdRef::new(&vread_request.version_id)],
                     )
                     .await?;
 

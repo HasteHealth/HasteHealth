@@ -18,7 +18,8 @@ use oxidized_fhirpath::FPEngine;
 use rayon::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
-pub mod migration;
+mod migration;
+mod search;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum SearchError {

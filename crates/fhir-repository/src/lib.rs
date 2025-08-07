@@ -89,13 +89,13 @@ impl Display for ProjectId {
         write!(f, "{}", self.0)
     }
 }
-pub struct VersionId<'a>(&'a str);
-impl<'a> VersionId<'a> {
+pub struct VersionIdRef<'a>(&'a str);
+impl<'a> VersionIdRef<'a> {
     pub fn new(id: &'a str) -> Self {
-        VersionId(id)
+        VersionIdRef(id)
     }
 }
-impl<'a> AsRef<str> for VersionId<'a> {
+impl<'a> AsRef<str> for VersionIdRef<'a> {
     fn as_ref(&self) -> &'a str {
         &self.0
     }
@@ -200,7 +200,7 @@ pub trait FHIRRepository {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_id: Vec<VersionId>,
+        version_id: Vec<VersionIdRef>,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
@@ -251,7 +251,7 @@ pub trait FHIRTransaction<Connection> {
         k: Connection,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_id: Vec<VersionId>,
+        version_id: Vec<VersionIdRef>,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         k: Connection,
