@@ -124,7 +124,14 @@ impl SearchEngine for ElasticSearchEngine {
         _project: ProjectId,
         _search_request: super::SearchRequest,
     ) -> Result<Vec<String>, oxidized_fhir_operation_error::OperationOutcomeError> {
-        todo!()
+        match _search_request {
+            super::SearchRequest::TypeSearch(_) => {
+                todo!();
+            }
+            super::SearchRequest::SystemSearch(_) => {
+                todo!();
+            }
+        }
     }
 
     async fn index<'a>(
