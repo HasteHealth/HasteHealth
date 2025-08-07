@@ -34,7 +34,10 @@ pub enum StorageError {
         diagnostic = "Storage not supported for fhir method."
     )]
     NotSupported,
-    #[error(code = "exception", diagnostic = "No response.")]
+    #[error(
+        code = "exception",
+        diagnostic = "No response was returned from the request."
+    )]
     NoResponse,
     #[error(code = "not-found", diagnostic = "Resource not found.")]
     NotFound,

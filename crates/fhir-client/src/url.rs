@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+#[derive(Debug)]
 pub struct Parameter {
     pub name: String,
     pub value: Vec<String>,
@@ -9,6 +10,7 @@ pub struct Parameter {
 
 /// Represnet both resource parameters IE Patient.name and
 /// result parameters IE _count
+#[derive(Debug)]
 pub enum ParsedParameter {
     Result(Parameter),
     Resource(Parameter),
@@ -91,7 +93,7 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_containedType",
 ];
 
-fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
+pub fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
     query_params
         .split('&')
         .map(|param| {
@@ -134,23 +136,4 @@ fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
             }
         })
         .collect()
-}
-
-pub fn parse_url(url: &str) -> Result<Vec<ParsedParameter>, ParseError> {
-    let mut chunks = url.split('?');
-
-    // Ignore as this is the path.
-    chunks.next();
-    let query_params = chunks.next();
-
-    // If there is multiple '?' in the URL, we consider it invalid.
-    if chunks.next().is_some() {
-        return Err(ParseError::InvalidParameter(url.to_string()));
-    }
-
-    if let Some(query_params) = query_params {
-        parse_query(query_params)
-    } else {
-        Ok(vec![])
-    }
 }

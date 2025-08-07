@@ -6,7 +6,7 @@ use crate::OperationOutcomeError;
 
 impl IntoResponse for OperationOutcomeError {
     fn into_response(self) -> axum::response::Response {
-        println!("OperationOutcome: {:?}", &self.source());
+        tracing::error!("OperationOutcomeError source: {:?}", &self.source());
         let outcome = self.outcome;
         let response = oxidized_fhir_serialization_json::to_string(&outcome)
             .expect("Failed to serialize OperationOutcome");
