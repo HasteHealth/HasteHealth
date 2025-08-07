@@ -1,7 +1,6 @@
 use oxidized_fhir_client::url::{Parameter, ParsedParameter};
 use oxidized_fhir_model::r4::types::{ResourceType, SearchParameter};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use oxidized_fhir_repository::VersionIdRef;
 use serde_json::json;
 
 use crate::SearchRequest;
@@ -33,21 +32,50 @@ fn parameter_to_elasticsearch_clauses(
                 .iter()
                 .map(|value| {
                     let pieces = value.split('|').collect::<Vec<&str>>();
-
-                    let k = json!({
-                        "nested": {
-                            "path": search_param.url.value.as_ref().unwrap(),
-                            "query": {
-                                "match": {
-                                    search_param.url.value.as_ref().unwrap().to_string() + ".code": {
-                                      "query": pieces.get(0)
+                    match pieces.len() {
+                        1 => {
+                            Ok(json!({
+                                "nested": {
+                                    "path": search_param.url.value.as_ref().unwrap(),
+                                    "query": {
+                                        "match": {
+                                            search_param.url.value.as_ref().unwrap().to_string() + ".code": {
+                                            "query": pieces.get(0)
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                            }))
                         }
-                    });
-
-                    Ok(k)
+                        2 => {
+                            Ok(json!({
+                                "nested": {
+                                    "path": search_param.url.value.as_ref().unwrap(),
+                                    "query": {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".code": {
+                                                            "query": pieces.get(1)
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".system": {
+                                                            "query": pieces.get(0)
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }))
+                        }
+                        _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                    }
                 })
                 .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
 

@@ -1,6 +1,5 @@
 use crate::{
     IndexResource, SearchEngine,
-    elastic_search::search::QueryBuildError,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
