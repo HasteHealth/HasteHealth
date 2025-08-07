@@ -8,9 +8,9 @@ use oxidized_fhir_repository::{
 pub mod elastic_search;
 mod indexing_conversion;
 
-pub enum SearchRequest {
-    TypeSearch(FHIRSearchTypeRequest),
-    SystemSearch(FHIRSearchSystemRequest),
+pub enum SearchRequest<'a> {
+    TypeSearch(&'a FHIRSearchTypeRequest),
+    SystemSearch(&'a FHIRSearchSystemRequest),
 }
 
 pub struct RemoveIndex {
@@ -34,8 +34,8 @@ pub trait SearchEngine: Send + Sync {
     fn search(
         &self,
         fhir_version: &SupportedFHIRVersions,
-        tenant: TenantId,
-        project: ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         search_request: SearchRequest,
     ) -> impl Future<Output = Result<Vec<String>, OperationOutcomeError>> + Send;
 

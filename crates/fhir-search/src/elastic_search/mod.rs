@@ -130,13 +130,39 @@ pub fn get_index_name(
     }
 }
 
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchHitResult {
+    _index: String,
+    _id: String,
+    _score: f64,
+    fields: HashMap<String, Vec<String>>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchHitTotalMeta {
+    value: i64,
+    relation: String,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchHit {
+    total: ElasticSearchHitTotalMeta,
+    hits: Vec<ElasticSearchHitResult>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchResponse {
+    took: i64,
+    hits: ElasticSearchHit,
+}
+
 impl SearchEngine for ElasticSearchEngine {
-    async fn search(
+    async fn search<'a>(
         &self,
         fhir_version: &SupportedFHIRVersions,
-        _tenant: TenantId,
-        _project: ProjectId,
-        _search_request: super::SearchRequest,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+        _search_request: super::SearchRequest<'a>,
     ) -> Result<Vec<String>, oxidized_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(&_search_request)?;
         match _search_request {
@@ -156,9 +182,19 @@ impl SearchEngine for ElasticSearchEngine {
                     .into());
                 }
 
-                let results = search_response.json().await?;
+                let results = search_response
+                    .json::<ElasticSearchResponse>()
+                    .await
+                    .map_err(SearchError::from)?;
 
-                todo!();
+                let version_ids = results
+                    .hits
+                    .hits
+                    .into_iter()
+                    .filter_map(|hit| hit.fields.get("version_id").cloned())
+                    .flatten();
+
+                Ok(version_ids.collect())
             }
             super::SearchRequest::SystemSearch(_) => {
                 todo!();

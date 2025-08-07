@@ -3,7 +3,8 @@ use oxidized_fhir_client::{
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
-        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeResponse, FHIRUpdateResponse,
+        FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
@@ -12,7 +13,7 @@ use oxidized_fhir_repository::{
     Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
     VersionIdRef,
 };
-use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use std::sync::Arc;
 
 pub struct ServerCTX {
@@ -24,7 +25,7 @@ pub struct ServerCTX {
 
 struct ClientState<Repository: FHIRRepository + Send + Sync, Search: SearchEngine + Send + Sync> {
     repo: Repository,
-    _search: Search,
+    search: Search,
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -193,6 +194,30 @@ fn storage_middleware<
                     }))
                 }
             }
+            FHIRRequest::SearchType(search_type_request) => {
+                let version_ids = state
+                    .search
+                    .search(
+                        &context.ctx.fhir_version,
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        SearchRequest::TypeSearch(search_type_request),
+                    )
+                    .await?;
+
+                let resources = state
+                    .repo
+                    .read_by_version_ids(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        version_ids.iter().map(|v| VersionIdRef::new(v)).collect(),
+                    )
+                    .await?;
+
+                Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
+                    resources,
+                }))
+            }
             _ => None,
         };
 
@@ -224,10 +249,7 @@ impl<
     pub fn new(repo: Repository, search: Search) -> Self {
         let middleware = Middleware::new(vec![Box::new(storage_middleware)]);
         FHIRServerClient {
-            state: Arc::new(ClientState {
-                repo,
-                _search: search,
-            }),
+            state: Arc::new(ClientState { repo, search }),
             middleware,
         }
     }
