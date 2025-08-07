@@ -1,4 +1,4 @@
-use crate::{ProjectId, ResourceId, TenantId, VersionId};
+use crate::{ProjectId, ResourceId, TenantId, VersionIdRef};
 use sqlx::{Database, Decode, Encode, Postgres};
 use sqlx_postgres::PgArgumentBuffer;
 use std::{error::Error, io::Write};
@@ -68,7 +68,7 @@ impl<'r> Encode<'r, Postgres> for ResourceId {
     }
 }
 
-impl<'r> Encode<'r, Postgres> for VersionId<'r> {
+impl<'r> Encode<'r, Postgres> for VersionIdRef<'r> {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,

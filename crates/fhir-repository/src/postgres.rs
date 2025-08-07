@@ -1,6 +1,6 @@
 use crate::{
     Author, FHIRMethod, FHIRRepository, FHIRTransaction, HistoryRequest, ProjectId, ResourceId,
-    ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionId, utilities,
+    ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionIdRef, utilities,
 };
 use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
@@ -65,8 +65,11 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: Vec<VersionId<'_>>,
+        version_ids: Vec<VersionIdRef<'_>>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
+        if version_ids.is_empty() {
+            return Ok(vec![]);
+        }
         let res =
             SQLImplementation::read_by_version_ids(&self.0, tenant_id, project_id, version_ids)
                 .await?;
@@ -199,7 +202,7 @@ where
         connection: Connection,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: Vec<VersionId<'_>>,
+        version_ids: Vec<VersionIdRef<'_>>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> =

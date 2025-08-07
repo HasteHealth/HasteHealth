@@ -1,9 +1,10 @@
 use crate::{
     IndexResource, SearchEngine,
+    elastic_search::search::QueryBuildError,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
-    BulkOperation, BulkParts, Elasticsearch,
+    BulkOperation, BulkParts, Elasticsearch, SearchParts,
     auth::Credentials,
     cert::CertificateValidation,
     http::{
@@ -18,7 +19,8 @@ use oxidized_fhirpath::FPEngine;
 use rayon::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
-pub mod migration;
+mod migration;
+mod search;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum SearchError {
@@ -42,6 +44,11 @@ pub enum SearchError {
         diagnostic = "Elasticsearch server failed to index."
     )]
     ElasticsearchError(#[from] elasticsearch::Error),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Elasticsearch server responded with an error: '{arg0}'"
+    )]
+    ElasticSearchResponseError(u16),
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -53,6 +60,11 @@ pub enum SearchConfigError {
         diagnostic = "Elasticsearch client creation failed."
     )]
     ElasticSearchConfigError(#[from] BuildError),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Unsupported FHIR version for index: '{arg0}'"
+    )]
+    UnsupportedIndex(SupportedFHIRVersions),
 }
 
 pub struct ElasticSearchEngine {
@@ -109,22 +121,86 @@ fn resource_to_elastic_index(
 
 static R4_FHIR_INDEX: &str = "r4_search_index";
 
-pub fn get_index_name(fhir_version: SupportedFHIRVersions) -> &'static str {
+pub fn get_index_name(
+    fhir_version: &SupportedFHIRVersions,
+) -> Result<&'static str, SearchConfigError> {
     match fhir_version {
-        SupportedFHIRVersions::R4 => R4_FHIR_INDEX,
-        _ => panic!("Unsupported FHIR version for index name"),
+        SupportedFHIRVersions::R4 => Ok(R4_FHIR_INDEX),
+        _ => Err(SearchConfigError::UnsupportedIndex(fhir_version.clone())),
     }
 }
 
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchHitResult {
+    _index: String,
+    _id: String,
+    _score: f64,
+    fields: HashMap<String, Vec<String>>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchHitTotalMeta {
+    value: i64,
+    relation: String,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchHit {
+    total: ElasticSearchHitTotalMeta,
+    hits: Vec<ElasticSearchHitResult>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ElasticSearchResponse {
+    took: i64,
+    hits: ElasticSearchHit,
+}
+
 impl SearchEngine for ElasticSearchEngine {
-    async fn search(
+    async fn search<'a>(
         &self,
-        _fhir_version: &SupportedFHIRVersions,
-        _tenant: TenantId,
-        _project: ProjectId,
-        _search_request: super::SearchRequest,
+        fhir_version: &SupportedFHIRVersions,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+        _search_request: super::SearchRequest<'a>,
     ) -> Result<Vec<String>, oxidized_fhir_operation_error::OperationOutcomeError> {
-        todo!()
+        let query = search::build_elastic_search_query(&_search_request)?;
+        match _search_request {
+            super::SearchRequest::TypeSearch(_) => {
+                println!("{}", serde_json::to_string(&query).unwrap());
+                let search_response = self
+                    .client
+                    .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
+                    .body(query)
+                    .send()
+                    .await
+                    .map_err(SearchError::from)?;
+
+                if !search_response.status_code().is_success() {
+                    return Err(SearchError::ElasticSearchResponseError(
+                        search_response.status_code().as_u16(),
+                    )
+                    .into());
+                }
+
+                let results = search_response
+                    .json::<ElasticSearchResponse>()
+                    .await
+                    .map_err(SearchError::from)?;
+
+                let version_ids = results
+                    .hits
+                    .hits
+                    .into_iter()
+                    .filter_map(|hit| hit.fields.get("version_id").cloned())
+                    .flatten();
+
+                Ok(version_ids.collect())
+            }
+            super::SearchRequest::SystemSearch(_) => {
+                todo!();
+            }
+        }
     }
 
     async fn index<'a>(
@@ -169,11 +245,11 @@ impl SearchEngine for ElasticSearchEngine {
 
                     Ok(BulkOperation::index(elastic_index)
                         .id(r.id.as_ref())
-                        .index(R4_FHIR_INDEX)
+                        .index(get_index_name(_fhir_version)?)
                         .into())
                 }
                 FHIRMethod::Delete => Ok(BulkOperation::delete(r.id.as_ref())
-                    .index(R4_FHIR_INDEX)
+                    .index(get_index_name(_fhir_version)?)
                     .into()),
                 method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()).into()),
             })
@@ -182,7 +258,7 @@ impl SearchEngine for ElasticSearchEngine {
         if !bulk_ops.is_empty() {
             let res = self
                 .client
-                .bulk(BulkParts::Index(R4_FHIR_INDEX))
+                .bulk(BulkParts::Index(get_index_name(_fhir_version)?))
                 .body(bulk_ops)
                 .send()
                 .await
@@ -207,7 +283,7 @@ impl SearchEngine for ElasticSearchEngine {
         &self,
         _fhir_version: &SupportedFHIRVersions,
     ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
-        migration::create_mapping(&self.client, R4_FHIR_INDEX).await?;
+        migration::create_mapping(&self.client, get_index_name(_fhir_version)?).await?;
         Ok(())
     }
 }

@@ -1,0 +1,78 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT  id as \"id: ResourceId\", \n                       tenant as \"tenant: TenantId\", \n                       project as \"project: ProjectId\", \n                       version_id, \n                       resource_type as \"resource_type: ResourceType\", \n                       fhir_method as \"fhir_method: FHIRMethod\", \n                       sequence, \n                       resource as \"resource: FHIRJson<Resource>\" \n            FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id: ResourceId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "project: ProjectId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "version_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "resource_type: ResourceType",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "fhir_method: FHIRMethod",
+        "type_info": {
+          "Custom": {
+            "name": "fhir_method",
+            "kind": {
+              "Enum": [
+                "update",
+                "patch",
+                "delete",
+                "create"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "sequence",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "resource: FHIRJson<Resource>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "09b543cd7c2af9a3e25dbd8a0cd25296bd27a6f40001378e74ae4acfd1baf246"
+}

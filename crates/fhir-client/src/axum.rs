@@ -5,12 +5,12 @@ use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode, Resource};
 
 use crate::request::FHIRResponse;
 
-fn to_history_bundle(resources: Vec<Resource>) -> Bundle {
+fn to_bundle(bundle_type: String, resources: Vec<Resource>) -> Bundle {
     Bundle {
         id: None,
         meta: None,
         type_: Box::new(FHIRCode {
-            value: Some("history".to_string()),
+            value: Some(bundle_type),
             ..Default::default()
         }),
         entry: Some(
@@ -54,7 +54,7 @@ impl IntoResponse for FHIRResponse {
             )
                 .into_response(),
             FHIRResponse::HistoryInstance(response) => {
-                let bundle = to_history_bundle(response.resources);
+                let bundle = to_bundle("history".to_string(), response.resources);
                 (
                     StatusCode::OK,
                     // Unwrap should be safe here.
@@ -63,7 +63,7 @@ impl IntoResponse for FHIRResponse {
                     .into_response()
             }
             FHIRResponse::HistoryType(response) => {
-                let bundle = to_history_bundle(response.resources);
+                let bundle = to_bundle("history".to_string(), response.resources);
                 (
                     StatusCode::OK,
                     // Unwrap should be safe here.
@@ -72,7 +72,16 @@ impl IntoResponse for FHIRResponse {
                     .into_response()
             }
             FHIRResponse::HistorySystem(response) => {
-                let bundle = to_history_bundle(response.resources);
+                let bundle = to_bundle("history".to_string(), response.resources);
+                (
+                    StatusCode::OK,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                )
+                    .into_response()
+            }
+            FHIRResponse::SearchType(response) => {
+                let bundle = to_bundle("searchset".to_string(), response.resources);
                 (
                     StatusCode::OK,
                     // Unwrap should be safe here.

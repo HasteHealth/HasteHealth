@@ -1,21 +1,21 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT  id, tenant, project, version_id, resource_type, fhir_method as \"fhir_method: FHIRMethod\", sequence, resource as \"resource: FHIRJson<Resource>\" FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 ",
+  "query": "SELECT  id as \"id: ResourceId\", \n                       tenant as \"tenant: TenantId\", \n                       project as \"project: ProjectId\", \n                       version_id, \n                       resource_type as \"resource_type: ResourceType\", \n                       fhir_method as \"fhir_method: FHIRMethod\", \n                       sequence, \n                       resource as \"resource: FHIRJson<Resource>\" \n            FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id: ResourceId",
         "type_info": "Text"
       },
       {
         "ordinal": 1,
-        "name": "tenant",
+        "name": "tenant: TenantId",
         "type_info": "Text"
       },
       {
         "ordinal": 2,
-        "name": "project",
+        "name": "project: ProjectId",
         "type_info": "Text"
       },
       {
@@ -25,7 +25,7 @@
       },
       {
         "ordinal": 4,
-        "name": "resource_type",
+        "name": "resource_type: ResourceType",
         "type_info": "Text"
       },
       {
@@ -74,5 +74,5 @@
       false
     ]
   },
-  "hash": "a0a71e472cca3c16645cb6d4a82cedccea7960c2aad8cd5167aede43130e7ef3"
+  "hash": "09b543cd7c2af9a3e25dbd8a0cd25296bd27a6f40001378e74ae4acfd1baf246"
 }
