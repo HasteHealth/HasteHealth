@@ -66,9 +66,15 @@ fn parameter_to_elasticsearch_clauses(
                         .parse::<f64>()
                         .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
                     let k = json!({
-                        search_param.url.value.as_ref().unwrap(): {
-                            "gte": v,
-                            "lte": v
+                        "match": {
+                            "query": {
+                                "range": {
+                                    search_param.url.value.as_ref().unwrap(): {
+                                        "gte": v,
+                                        "lte": v
+                                    }
+                                }
+                            }
                         }
                     });
 
@@ -83,7 +89,25 @@ fn parameter_to_elasticsearch_clauses(
             }))
         }
         Some("string") => {
-            todo!()
+            let string_params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    Ok(json!({
+                        "match":{
+                            search_param.url.value.as_ref().unwrap(): {
+                                "query": value
+                            }
+                        }
+                    }))
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": string_params
+                }
+            }))
         }
         _ => todo!(),
     }
