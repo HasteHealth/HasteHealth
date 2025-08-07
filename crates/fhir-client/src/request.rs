@@ -210,9 +210,11 @@ pub struct FHIRCapabilitiesResponse {
 }
 
 pub struct FHIRSearchTypeResponse {
+    pub total: Option<i64>,
     pub resources: Vec<Resource>,
 }
 pub struct FHIRSearchSystemResponse {
+    pub total: Option<i64>,
     pub resources: Vec<Resource>,
 }
 

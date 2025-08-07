@@ -275,6 +275,8 @@ fn parameter_to_elasticsearch_clauses(
     }
 }
 
+static MAX_COUNT: usize = 50;
+
 pub fn build_elastic_search_query(
     request: &SearchRequest,
 ) -> Result<serde_json::Value, QueryBuildError> {
@@ -284,6 +286,8 @@ pub fn build_elastic_search_query(
             let parameters = &type_search_request.parameters;
 
             let mut clauses: Vec<serde_json::Value> = vec![];
+            let mut size = MAX_COUNT;
+            let mut show_total = false;
 
             for parameter in parameters.iter() {
                 match parameter {
@@ -304,9 +308,38 @@ pub fn build_elastic_search_query(
                         clauses.push(clause);
                     }
                     ParsedParameter::Result(result_param) => {
-                        return Err(QueryBuildError::UnsupportedParameter(
-                            result_param.name.to_string(),
-                        ));
+                        match result_param.name.as_str() {
+                            "_count" => {
+                                size = std::cmp::min( result_param
+                                    .value
+                                    .get(0)
+                                    .and_then(|v| v.parse::<usize>().ok())
+                                    .unwrap_or(100), MAX_COUNT);
+                            }
+                            "_total" => {
+                                match result_param.value.iter().map(|s| s.as_str()).collect::<Vec<_>>().as_slice() {
+                                    ["none"] => {
+                                        show_total = false;
+                                    }
+                                    ["accurate"] => {
+                                        show_total = true;
+                                    }
+                                    ["estimate"] => {
+                                        show_total = true;
+                                    }
+                                    _ => {
+                                        return Err(QueryBuildError::InvalidParameterValue(
+                                            result_param.name.to_string(),
+                                        ));
+                                    }
+                                }
+                            }
+                            _ => {
+                                return Err(QueryBuildError::UnsupportedParameter(
+                                  result_param.name.to_string(),
+                                ));
+                            }
+                        }
                     }
                 }
             }
@@ -318,15 +351,15 @@ pub fn build_elastic_search_query(
             }));
 
             let query = json!({
+                "fields": ["version_id", "id"],
+                "size": size,
+                "track_total_hits": show_total,
+                "_source": false,
                 "query": {
                     "bool": {
                         "must": clauses
                     }
-                },
-                "size": 100,
-                "fields": ["version_id", "id"],
-                "_source": false,
-                "track_total_hits": false,
+                }
             });
 
             Ok(query)

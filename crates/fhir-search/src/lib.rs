@@ -30,6 +30,11 @@ pub struct IndexResource<'a> {
     pub resource: &'a Resource,
 }
 
+pub struct SearchReturn {
+    pub total: Option<i64>,
+    pub version_ids: Vec<String>,
+}
+
 pub trait SearchEngine: Send + Sync {
     fn search(
         &self,
@@ -37,7 +42,7 @@ pub trait SearchEngine: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
         search_request: SearchRequest,
-    ) -> impl Future<Output = Result<Vec<String>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send;
 
     fn index(
         &self,
