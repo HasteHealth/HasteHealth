@@ -1,9 +1,10 @@
 use crate::{
     IndexResource, SearchEngine,
+    elastic_search::search::QueryBuildError,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
-    BulkOperation, BulkParts, Elasticsearch,
+    BulkOperation, BulkParts, Elasticsearch, SearchParts,
     auth::Credentials,
     cert::CertificateValidation,
     http::{
@@ -43,6 +44,11 @@ pub enum SearchError {
         diagnostic = "Elasticsearch server failed to index."
     )]
     ElasticsearchError(#[from] elasticsearch::Error),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Elasticsearch server responded with an error: '{arg0}'"
+    )]
+    ElasticSearchResponseError(u16),
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -127,13 +133,31 @@ pub fn get_index_name(
 impl SearchEngine for ElasticSearchEngine {
     async fn search(
         &self,
-        _fhir_version: &SupportedFHIRVersions,
+        fhir_version: &SupportedFHIRVersions,
         _tenant: TenantId,
         _project: ProjectId,
         _search_request: super::SearchRequest,
     ) -> Result<Vec<String>, oxidized_fhir_operation_error::OperationOutcomeError> {
+        let query = search::build_elastic_search_query(&_search_request)?;
         match _search_request {
             super::SearchRequest::TypeSearch(_) => {
+                let search_response = self
+                    .client
+                    .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
+                    .body(query)
+                    .send()
+                    .await
+                    .map_err(SearchError::from)?;
+
+                if !search_response.status_code().is_success() {
+                    return Err(SearchError::ElasticSearchResponseError(
+                        search_response.status_code().as_u16(),
+                    )
+                    .into());
+                }
+
+                let results = search_response.json().await?;
+
                 todo!();
             }
             super::SearchRequest::SystemSearch(_) => {

@@ -23,10 +23,40 @@ pub enum QueryBuildError {
 }
 
 fn parameter_to_elasticsearch_clauses(
-    search_param: SearchParameter,
-    parsed_parameter: Parameter,
+    search_param: &SearchParameter,
+    parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
     match search_param.type_.value.as_ref().map(|s| s.as_str()) {
+        Some("token") => {
+            let params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    let pieces = value.split('|').collect::<Vec<&str>>();
+
+                    let k = json!({
+                        "nested": {
+                            "path": search_param.url.value.as_ref().unwrap(),
+                            "query": {
+                                "match": {
+                                    search_param.url.value.as_ref().unwrap().to_string() + ".code": {
+                                      "query": pieces.get(0)
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    Ok(k)
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": params
+                }
+            }))
+        }
         Some("number") => {
             let params = parsed_parameter
                 .value
@@ -36,8 +66,7 @@ fn parameter_to_elasticsearch_clauses(
                         .parse::<f64>()
                         .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
                     let k = json!({
-                        "range": {
-                            "field": search_param.url.value.as_ref().unwrap(),
+                        search_param.url.value.as_ref().unwrap(): {
                             "gte": v,
                             "lte": v
                         }
@@ -60,13 +89,15 @@ fn parameter_to_elasticsearch_clauses(
     }
 }
 
-fn build_elastic_search_query(
+pub fn build_elastic_search_query(
     request: &SearchRequest,
-) -> Result<Vec<VersionIdRef<'static>>, QueryBuildError> {
+) -> Result<serde_json::Value, QueryBuildError> {
     match request {
         SearchRequest::TypeSearch(type_search_request) => {
             let resource_type = &type_search_request.resource_type;
             let parameters = &type_search_request.parameters;
+
+            let mut clauses: Vec<serde_json::Value> = vec![];
 
             for parameter in parameters.iter() {
                 match parameter {
@@ -82,6 +113,9 @@ fn build_elastic_search_query(
                                     resource_param.name.to_string(),
                                 )
                             })?;
+                        let clause =
+                            parameter_to_elasticsearch_clauses(&search_param, &resource_param)?;
+                        clauses.push(clause);
                     }
                     ParsedParameter::Result(result_param) => {
                         return Err(QueryBuildError::UnsupportedParameter(
@@ -91,7 +125,17 @@ fn build_elastic_search_query(
                 }
             }
 
-            todo!();
+            let query = json!({
+                "query": {
+                    "bool": {
+                        "must": clauses
+                    }
+                },
+                "fields": ["version_id", "id"],
+                "_source": false,
+            });
+
+            Ok(query)
         }
         _ => {
             return Err(QueryBuildError::UnsupportedParameter(
