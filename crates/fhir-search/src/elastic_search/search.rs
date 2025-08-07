@@ -149,6 +149,12 @@ pub fn build_elastic_search_query(
                 }
             }
 
+            clauses.push(json!({
+                "match": {
+                    "resource_type": resource_type.as_str()
+                }
+            }));
+
             let query = json!({
                 "query": {
                     "bool": {
