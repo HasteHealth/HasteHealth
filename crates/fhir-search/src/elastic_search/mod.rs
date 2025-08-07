@@ -53,6 +53,11 @@ pub enum SearchConfigError {
         diagnostic = "Elasticsearch client creation failed."
     )]
     ElasticSearchConfigError(#[from] BuildError),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Unsupported FHIR version for index: '{arg0}'"
+    )]
+    UnsupportedIndex(SupportedFHIRVersions),
 }
 
 pub struct ElasticSearchEngine {
@@ -109,10 +114,12 @@ fn resource_to_elastic_index(
 
 static R4_FHIR_INDEX: &str = "r4_search_index";
 
-pub fn get_index_name(fhir_version: SupportedFHIRVersions) -> &'static str {
+pub fn get_index_name(
+    fhir_version: &SupportedFHIRVersions,
+) -> Result<&'static str, SearchConfigError> {
     match fhir_version {
-        SupportedFHIRVersions::R4 => R4_FHIR_INDEX,
-        _ => panic!("Unsupported FHIR version for index name"),
+        SupportedFHIRVersions::R4 => Ok(R4_FHIR_INDEX),
+        _ => Err(SearchConfigError::UnsupportedIndex(fhir_version.clone())),
     }
 }
 
@@ -176,11 +183,11 @@ impl SearchEngine for ElasticSearchEngine {
 
                     Ok(BulkOperation::index(elastic_index)
                         .id(r.id.as_ref())
-                        .index(R4_FHIR_INDEX)
+                        .index(get_index_name(_fhir_version)?)
                         .into())
                 }
                 FHIRMethod::Delete => Ok(BulkOperation::delete(r.id.as_ref())
-                    .index(R4_FHIR_INDEX)
+                    .index(get_index_name(_fhir_version)?)
                     .into()),
                 method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()).into()),
             })
@@ -189,7 +196,7 @@ impl SearchEngine for ElasticSearchEngine {
         if !bulk_ops.is_empty() {
             let res = self
                 .client
-                .bulk(BulkParts::Index(R4_FHIR_INDEX))
+                .bulk(BulkParts::Index(get_index_name(_fhir_version)?))
                 .body(bulk_ops)
                 .send()
                 .await
@@ -214,7 +221,7 @@ impl SearchEngine for ElasticSearchEngine {
         &self,
         _fhir_version: &SupportedFHIRVersions,
     ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
-        migration::create_mapping(&self.client, R4_FHIR_INDEX).await?;
+        migration::create_mapping(&self.client, get_index_name(_fhir_version)?).await?;
         Ok(())
     }
 }
