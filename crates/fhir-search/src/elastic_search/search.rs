@@ -5,5 +5,6 @@ pub enum QueryBuildError {}
 
 fn build_elastic_search(
     parameters: Vec<ParsedParameter>,
-) -> Result<Vec<VersionIdRef>, QueryBuildError> {
+) -> Result<Vec<VersionIdRef<'static>>, QueryBuildError> {
+    todo!();
 }
