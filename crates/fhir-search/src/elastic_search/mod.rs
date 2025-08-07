@@ -1,5 +1,5 @@
 use crate::{
-    IndexResource, SearchEngine,
+    IndexResource, SearchEngine, SearchReturn,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -140,7 +140,7 @@ struct ElasticSearchHitResult {
 #[derive(serde::Deserialize, Debug)]
 struct ElasticSearchHitTotalMeta {
     value: i64,
-    relation: String,
+    // relation: String,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -151,7 +151,6 @@ struct ElasticSearchHit {
 
 #[derive(serde::Deserialize, Debug)]
 struct ElasticSearchResponse {
-    took: i64,
     hits: ElasticSearchHit,
 }
 
@@ -162,7 +161,7 @@ impl SearchEngine for ElasticSearchEngine {
         _tenant: &TenantId,
         _project: &ProjectId,
         _search_request: super::SearchRequest<'a>,
-    ) -> Result<Vec<String>, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(&_search_request)?;
         // println!("Query: {}", serde_json::to_string(&query).unwrap());
         match _search_request {
@@ -194,7 +193,10 @@ impl SearchEngine for ElasticSearchEngine {
                     .filter_map(|hit| hit.fields.get("version_id").cloned())
                     .flatten();
 
-                Ok(version_ids.collect())
+                Ok(SearchReturn {
+                    total: results.hits.total.as_ref().map(|t| t.value),
+                    version_ids: version_ids.collect(),
+                })
             }
             super::SearchRequest::SystemSearch(_) => {
                 todo!();

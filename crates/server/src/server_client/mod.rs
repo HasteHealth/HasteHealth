@@ -195,7 +195,7 @@ fn storage_middleware<
                 }
             }
             FHIRRequest::SearchType(search_type_request) => {
-                let version_ids = state
+                let search_results = state
                     .search
                     .search(
                         &context.ctx.fhir_version,
@@ -210,11 +210,16 @@ fn storage_middleware<
                     .read_by_version_ids(
                         &context.ctx.tenant,
                         &context.ctx.project,
-                        version_ids.iter().map(|v| VersionIdRef::new(v)).collect(),
+                        search_results
+                            .version_ids
+                            .iter()
+                            .map(|v| VersionIdRef::new(v))
+                            .collect(),
                     )
                     .await?;
 
                 Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
+                    total: search_results.total,
                     resources,
                 }))
             }
