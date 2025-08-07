@@ -1,7 +1,8 @@
-use oxidized_fhir_client::url::ParsedParameter;
-use oxidized_fhir_model::r4::types::ResourceType;
+use oxidized_fhir_client::url::{Parameter, ParsedParameter};
+use oxidized_fhir_model::r4::types::{ResourceType, SearchParameter};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_repository::VersionIdRef;
+use serde_json::json;
 
 use crate::SearchRequest;
 
@@ -17,6 +18,38 @@ pub enum QueryBuildError {
         diagnostic = "Unsupported search request type or parameter: {arg0}"
     )]
     UnsupportedParameter(String),
+    #[error(code = "invalid", diagnostic = "Invalid parameter value: '{arg0}'")]
+    InvalidParameterValue(String),
+}
+
+fn build_query(
+    search_param: SearchParameter,
+    parsed_parameter: Parameter,
+) -> Result<Vec<serde_json::Value>, QueryBuildError> {
+    match search_param.type_.value.as_ref().map(|s| s.as_str()) {
+        Some("number") => parsed_parameter
+            .value
+            .iter()
+            .map(|value| {
+                let v = value
+                    .parse::<f64>()
+                    .map_err(|e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+                let k = json!({
+                    "range": {
+                        "field": search_param.url.value.as_ref().unwrap(),
+                        "gte": v,
+                        "lte": v
+                    }
+                });
+
+                Ok(k)
+            })
+            .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>(),
+        Some("string") => {
+            todo!()
+        }
+        _ => todo!(),
+    }
 }
 
 fn build_elastic_search_query(

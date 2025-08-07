@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2",
+  "query": "SELECT id as \"id: TenantId\", created_at FROM tenants WHERE created_at > $1 ORDER BY created_at DESC LIMIT $2",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id: TenantId",
         "type_info": "Text"
       },
       {
@@ -25,5 +25,5 @@
       false
     ]
   },
-  "hash": "008a5ea8be73bb442628f33d4ddc7085e00347b08b1edcd2c55a59b23b510fdf"
+  "hash": "033b9716c4275e0981f658690b17168716d62366475eff919e8b17c44dc7608a"
 }
