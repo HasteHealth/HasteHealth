@@ -22,7 +22,7 @@ pub enum QueryBuildError {
     InvalidParameterValue(String),
 }
 
-fn build_query(
+fn parameter_to_elasticsearch_clauses(
     search_param: SearchParameter,
     parsed_parameter: Parameter,
 ) -> Result<Vec<serde_json::Value>, QueryBuildError> {
@@ -33,7 +33,7 @@ fn build_query(
             .map(|value| {
                 let v = value
                     .parse::<f64>()
-                    .map_err(|e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+                    .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
                 let k = json!({
                     "range": {
                         "field": search_param.url.value.as_ref().unwrap(),
