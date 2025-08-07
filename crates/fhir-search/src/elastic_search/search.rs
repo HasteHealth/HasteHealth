@@ -31,6 +31,91 @@ fn parameter_to_elasticsearch_clauses(
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
     match search_param.type_.value.as_ref().map(|s| s.as_str()) {
+        Some("uri") => {
+            let uri_params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    Ok(json!({
+                        "match":{
+                            search_param.url.value.as_ref().unwrap(): {
+                                "query": value
+                            }
+                        }
+                    }))
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": uri_params
+                }
+            }))
+        }
+        Some("quantity") => {
+            Err(QueryBuildError::UnsupportedParameter(
+                "Quantity search parameters are not supported yet".to_string(),
+            ))
+        }
+        Some("reference") => {
+            let params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    let pieces = value.split('/').collect::<Vec<&str>>();
+                    match pieces.len() {
+                        1 => {
+                            Ok(json!({
+                                "nested": {
+                                    "path": search_param.url.value.as_ref().unwrap(),
+                                    "query": {
+                                        "match": {
+                                            search_param.url.value.as_ref().unwrap().to_string() + ".id": {
+                                              "query": pieces.get(0)
+                                            }
+                                        }
+                                    }
+                                }
+                            }))
+                        }
+                        2 => {
+                            Ok(json!({
+                                "nested": {
+                                    "path": search_param.url.value.as_ref().unwrap(),
+                                    "query": {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".resource_type": {
+                                                            "query": pieces.get(0)
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".id": {
+                                                            "query": pieces.get(1)
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }))
+                        }
+                        _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                    }
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": params
+                }
+            }))
+        }
         Some("date") => {
             let params = parsed_parameter
                 .value
@@ -241,6 +326,7 @@ pub fn build_elastic_search_query(
                 "size": 100,
                 "fields": ["version_id", "id"],
                 "_source": false,
+                "track_total_hits": false,
             });
 
             Ok(query)

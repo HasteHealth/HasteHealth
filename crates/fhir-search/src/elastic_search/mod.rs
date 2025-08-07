@@ -145,7 +145,7 @@ struct ElasticSearchHitTotalMeta {
 
 #[derive(serde::Deserialize, Debug)]
 struct ElasticSearchHit {
-    total: ElasticSearchHitTotalMeta,
+    total: Option<ElasticSearchHitTotalMeta>,
     hits: Vec<ElasticSearchHitResult>,
 }
 
@@ -166,7 +166,6 @@ impl SearchEngine for ElasticSearchEngine {
         let query = search::build_elastic_search_query(&_search_request)?;
         match _search_request {
             super::SearchRequest::TypeSearch(_) => {
-                println!("{}", serde_json::to_string(&query).unwrap());
                 let search_response = self
                     .client
                     .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
