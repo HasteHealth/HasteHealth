@@ -1,3 +1,4 @@
+use crate::SupportedFHIRVersions;
 use axum::http::Method;
 use json_patch::Patch;
 use oxidized_fhir_client::request::{
@@ -8,13 +9,13 @@ use oxidized_fhir_client::request::{
     FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
     FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
-use oxidized_fhir_client::url::parse_url;
-use oxidized_fhir_model::r4::types::{Bundle, Resource, ResourceType, ResourceTypeError};
+use oxidized_fhir_client::url::{ParseError, parse_url};
+use oxidized_fhir_model::r4::types::{
+    Bundle, Parameters, Resource, ResourceType, ResourceTypeError,
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_serialization_json::errors::DeserializeError;
-
-use crate::SupportedFHIRVersions;
 
 pub struct HTTPRequest {
     method: Method,
@@ -48,6 +49,11 @@ pub enum FHIRRequestParsingError {
     DeserializeError(#[from] DeserializeError),
     #[error(code = "invalid", diagnostic = "Failed to deserialize patch")]
     PatchDeserializeError(#[from] serde_json::Error),
+    #[error(
+        code = "invalid",
+        diagnostic = "Error parsing query parameters: {arg0}"
+    )]
+    InvalidQueryParameters(#[from] ParseError),
 }
 
 /*
@@ -133,7 +139,7 @@ fn parse_request_1_non_empty<'a>(
                         // Handle search request
                         Ok(FHIRRequest::SearchType(FHIRSearchTypeRequest {
                             resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                            parameters: vec![],
+                            parameters: parse_url(url_chunks.last().unwrap_or(&""))?,
                         }))
                     }
                 }
@@ -154,7 +160,7 @@ delete-conditional  ?                                   DELETE N/A N/A N/A O: If
 */
 fn parse_request_1_empty<'a>(
     _fhir_version: SupportedFHIRVersions,
-    _url_chunks: Vec<&'a str>,
+    url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
     match req.method {
@@ -181,11 +187,11 @@ fn parse_request_1_empty<'a>(
         Method::GET => {
             // Handle search system request
             Ok(FHIRRequest::SearchSystem(FHIRSearchSystemRequest {
-                parameters: vec![],
+                parameters: parse_url(url_chunks.last().unwrap_or(&""))?,
             }))
         }
         Method::DELETE => Ok(FHIRRequest::DeleteSystem(FHIRDeleteSystemRequest {
-            parameters: vec![],
+            parameters: parse_url(url_chunks.last().unwrap_or(&""))?,
         })),
         _ => Err(FHIRRequestParsingError::Unsupported(
             "Unsupported method for FHIR request".to_string(),
@@ -229,7 +235,9 @@ fn parse_request_2<'a>(
                 Ok(FHIRRequest::InvokeType(FHIRInvokeTypeRequest {
                     resource_type: ResourceType::new(url_chunks[0].to_string())?,
                     operation: Operation::new(url_chunks[1])?,
-                    parameters: oxidized_fhir_serialization_json::from_str(&req.body)?,
+                    parameters: oxidized_fhir_serialization_json::from_str::<Parameters>(
+                        &req.body,
+                    )?,
                 }))
             }
             Method::GET => {
@@ -265,7 +273,7 @@ fn parse_request_2<'a>(
                 if url_chunks[1] == "_history" {
                     Ok(FHIRRequest::HistoryType(FHIRHistoryTypeRequest {
                         resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                        parameters: vec![],
+                        parameters: parse_url(url_chunks.last().unwrap_or(&""))?,
                     }))
                 } else {
                     // Handle read request
@@ -338,7 +346,7 @@ fn parse_request_3<'a>(
                     Ok(FHIRRequest::HistoryInstance(FHIRHistoryInstanceRequest {
                         resource_type: ResourceType::new(url_chunks[0].to_string())?,
                         id: url_chunks[1].to_string(),
-                        parameters: vec![],
+                        parameters: parse_url(url_chunks.last().unwrap_or(&""))?,
                     }))
                 } else {
                     // Handle read request

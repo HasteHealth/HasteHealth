@@ -1,4 +1,4 @@
-use crate::request::Operation;
+use thiserror::Error;
 
 pub struct Parameter {
     pub name: String,
@@ -13,10 +13,6 @@ pub enum ParsedParameter {
     Result(Parameter),
     Resource(Parameter),
 }
-
-// use http::Uri;
-// // import { FHIR_VERSION, Resource } from "@iguhealth/fhir-types/versions";
-// // import { OperationError, outcomeError } from "@iguhealth/operation-outcomes";
 
 // // type SPECIAL_CHARACTER = "\\" | "|" | "$" | ",";
 // // const SPECIAL_CHARACTERS: SPECIAL_CHARACTER[] = ["\\", "|", "$", ","];
@@ -76,7 +72,9 @@ pub enum ParsedParameter {
 // //   );
 // // }
 
-enum ParseError {
+#[derive(Error, Debug)]
+pub enum ParseError {
+    #[error("Error parsing query parameters: '{0}'")]
     InvalidParameter(String),
 }
 

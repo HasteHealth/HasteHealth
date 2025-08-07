@@ -1,10 +1,11 @@
 use oxidized_fhir_client::{
-    FHIRClient, ParsedParameter,
+    FHIRClient,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
         FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
+    url::ParsedParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
