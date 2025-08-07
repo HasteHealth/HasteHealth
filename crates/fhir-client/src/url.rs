@@ -1,3 +1,5 @@
+use crate::request::Operation;
+
 pub struct Parameter {
     pub name: String,
     pub value: Vec<String>,
@@ -44,40 +46,6 @@ pub enum ParsedParameter {
 // //   return pieces.map(unescapeParameter);
 // // }
 
-// pub struct ParsedParameter {
-//     name: String,
-//     value: Vec<String>,
-//     modifier: Option<String>,
-//     chains: Option<Vec<String>>,
-// }
-
-// // impl ParsedParameter {
-// //     /// Attempts to construct a [`ParsedParameter`] from a reference to a [`Uri`].
-// //     ///
-// //     /// # Example
-// //     /// ```
-// //     /// use axum::extract::Query;
-// //     /// use http::Uri;
-// //     /// use serde::Deserialize;
-// //     ///
-// //     /// #[derive(Deserialize)]
-// //     /// struct ExampleParams {
-// //     ///     foo: String,
-// //     ///     bar: u32,
-// //     /// }
-// //     ///
-// //     /// let uri: Uri = "http://example.com/path?foo=hello&bar=42".parse().unwrap();
-// //     /// let result: Query<ExampleParams> = Query::try_from_uri(&uri).unwrap();
-// //     /// assert_eq!(result.foo, String::from("hello"));
-// //     /// assert_eq!(result.bar, 42);
-// //     /// ```
-// //     pub fn try_from_uri(value: &Uri) -> Result<Self, QueryRejection> {
-// //         let query = value.query().unwrap_or_default();
-// //         let k = query.split('&').into_iter();
-// //         Ok(Query(params))
-// //     }
-// // }
-
 // // /**
 // //  * Escapes a parameter values special characters
 // //  * Reference: https://hl7.org/fhir/R4/search.html#escaping
@@ -108,25 +76,67 @@ pub enum ParsedParameter {
 // //   );
 // // }
 
-// // export interface SearchParameterResource<Version extends FHIR_VERSION>
-// //   extends ParsedParameter<string | number> {
-// //   type: "resource";
-// //   searchParameter: Resource<Version, "SearchParameter">;
-// //   chainedParameters?: Resource<Version, "SearchParameter">[][];
-// // }
+enum ParseError {
+    InvalidParameter(String),
+}
 
-// // export interface SearchParameterResult
-// //   extends ParsedParameter<string | number> {
-// //   type: "result";
-// // }
+static RESULT_PARAMETERS: &[&str] = &[
+    "_count",
+    "_offset",
+    "_total",
+    "_sort",
+    "_include",
+    "_revinclude",
+    "_summary",
+    "_elements",
+    "_contained",
+    "_containedType",
+];
 
-// // export type MetaParameter<Version extends FHIR_VERSION> =
-// //   | SearchParameterResource<Version>
-// //   | SearchParameterResult;
+fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
+    query_params
+        .split('&')
+        .map(|param| {
+            let [param_name, value] = param.split('=').collect::<Vec<&str>>()[..] else {
+                return Err(ParseError::InvalidParameter(param.to_string()));
+            };
 
-// // export type Parameters<Version extends FHIR_VERSION> =
-// //   | ParsedParameter<string | number>[]
-// //   | MetaParameter<Version>[];
+            let chain = param_name
+                .split('.')
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>();
+
+            if chain.is_empty() {
+                return Err(ParseError::InvalidParameter(param_name.to_string()));
+            }
+
+            let name_and_modifier = chain[0].split(':').collect::<Vec<&str>>();
+
+            if name_and_modifier.len() > 2 || name_and_modifier.is_empty() {
+                return Err(ParseError::InvalidParameter(param_name.to_string()));
+            }
+
+            let name = name_and_modifier[0].to_string();
+
+            let param = Parameter {
+                name,
+                modifier: name_and_modifier.get(1).map(|s| s.to_string()),
+                value: value.split(',').map(|v| v.to_string()).collect(),
+                chains: if chain.len() > 1 {
+                    Some(chain[1..].to_vec())
+                } else {
+                    None
+                },
+            };
+
+            if RESULT_PARAMETERS.contains(&param.name.as_str()) {
+                Ok(ParsedParameter::Result(param))
+            } else {
+                Ok(ParsedParameter::Resource(param))
+            }
+        })
+        .collect()
+}
 
 // // /**
 // //  * Given a query string create complex FHIR Query object.
