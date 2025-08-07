@@ -25,26 +25,34 @@ pub enum QueryBuildError {
 fn parameter_to_elasticsearch_clauses(
     search_param: SearchParameter,
     parsed_parameter: Parameter,
-) -> Result<Vec<serde_json::Value>, QueryBuildError> {
+) -> Result<serde_json::Value, QueryBuildError> {
     match search_param.type_.value.as_ref().map(|s| s.as_str()) {
-        Some("number") => parsed_parameter
-            .value
-            .iter()
-            .map(|value| {
-                let v = value
-                    .parse::<f64>()
-                    .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
-                let k = json!({
-                    "range": {
-                        "field": search_param.url.value.as_ref().unwrap(),
-                        "gte": v,
-                        "lte": v
-                    }
-                });
+        Some("number") => {
+            let params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    let v = value
+                        .parse::<f64>()
+                        .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+                    let k = json!({
+                        "range": {
+                            "field": search_param.url.value.as_ref().unwrap(),
+                            "gte": v,
+                            "lte": v
+                        }
+                    });
 
-                Ok(k)
-            })
-            .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>(),
+                    Ok(k)
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": params
+                }
+            }))
+        }
         Some("string") => {
             todo!()
         }
