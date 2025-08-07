@@ -164,6 +164,7 @@ impl SearchEngine for ElasticSearchEngine {
         _search_request: super::SearchRequest<'a>,
     ) -> Result<Vec<String>, oxidized_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(&_search_request)?;
+        // println!("Query: {}", serde_json::to_string(&query).unwrap());
         match _search_request {
             super::SearchRequest::TypeSearch(_) => {
                 let search_response = self
