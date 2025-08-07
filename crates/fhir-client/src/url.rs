@@ -94,6 +94,9 @@ static RESULT_PARAMETERS: &[&str] = &[
 ];
 
 pub fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
+    if query_params.is_empty() {
+        return Ok(vec![]);
+    }
     query_params
         .split('&')
         .map(|param| {

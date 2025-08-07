@@ -397,7 +397,7 @@ pub fn http_request_to_fhir_request(
     fhir_version: SupportedFHIRVersions,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, OperationOutcomeError> {
-    let url_pieces = req.path.split('/').collect::<Vec<&str>>();
+    let url_pieces = req.path.split_terminator('/').collect::<Vec<&str>>();
 
     match url_pieces.len() {
         1 => parse_request_1(fhir_version, url_pieces, req),
