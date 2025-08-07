@@ -326,6 +326,7 @@ pub fn build_elastic_search_query(
                 "size": 100,
                 "fields": ["version_id", "id"],
                 "_source": false,
+                "track_total_hits": false,
             });
 
             Ok(query)
