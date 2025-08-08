@@ -26,9 +26,6 @@ enum RangeValue {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct QuantityValue {}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct QuantityRange {
     start_value: RangeValue,
     start_code: Option<String>,
