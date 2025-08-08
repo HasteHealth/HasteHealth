@@ -29838,6 +29838,322 @@ pub struct MetadataResource {
     Clone,
     Reflect,
     Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "Registered client for the OIDC provider."]
+pub struct IdentityProviderOidcClient {
+    #[primitive]
+    #[doc = "Registered clients id."]
+    pub clientId: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Registered clients secret."]
+    pub secret: Option<Box<FHIRString>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "PKCE Configuration"]
+pub struct IdentityProviderOidcPkce {
+    #[primitive]
+    #[doc = "PKCE code challenge method."]
+    pub code_challenge_method: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = "PKCE enabled."]
+    pub enabled: Option<Box<FHIRBoolean>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "OIDC connection configuration for the identity provider."]
+pub struct IdentityProviderOidc {
+    #[primitive]
+    #[doc = "OIDC authorization endpoint."]
+    pub authorization_endpoint: Box<FHIRString>,
+    #[primitive]
+    #[doc = "OIDC token endpoint."]
+    pub token_endpoint: Box<FHIRString>,
+    #[primitive]
+    #[doc = "The OIDC user info endpoint."]
+    pub userinfo_endpoint: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "If included will verify id token based on this jwks keys."]
+    pub jwks_uri: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Scopes to send to the OIDC provider."]
+    pub scopes: Option<Vec<Box<FHIRString>>>,
+    #[doc = "Registered client for the OIDC provider."]
+    pub client: IdentityProviderOidcClient,
+    #[doc = "PKCE Configuration"]
+    pub pkce: Option<IdentityProviderOidcPkce>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "resource"]
+#[doc = "External identity provider configuration."]
+pub struct IdentityProvider {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "The name of the external identity provider."]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = "The status of the identity provider."]
+    pub status: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "Method for connecting to external identity provider."]
+    pub accessType: Box<FHIRCode>,
+    #[doc = "OIDC connection configuration for the identity provider."]
+    pub oidc: Option<IdentityProviderOidc>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "resource"]
+#[doc = ""]
+pub struct Membership {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[doc = ""]
+    pub link: Option<Box<Reference>>,
+    #[primitive]
+    #[doc = ""]
+    pub email: Box<FHIRString>,
+    #[primitive]
+    #[doc = ""]
+    pub emailVerified: Option<Box<FHIRBoolean>>,
+    #[doc = ""]
+    pub name: Option<Box<HumanName>>,
+    #[primitive]
+    #[doc = ""]
+    pub role: Box<FHIRCode>,
+    #[doc = ""]
+    pub federated: Option<Box<Reference>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "The operation to retrieve the attribute."]
+pub struct AccessPolicyV2AttributeOperation {
+    #[rename_field = "type"]
+    #[primitive]
+    #[doc = "The operation to retrieve the attribute."]
+    pub type_: Box<FHIRCode>,
+    #[doc = "The operation to retrieve the attribute."]
+    pub path: Option<Box<Expression>>,
+    #[doc = "The operation to retrieve the attribute."]
+    pub params: Option<Box<Expression>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "Attributes to use for the policy evaluation."]
+pub struct AccessPolicyV2Attribute {
+    #[primitive]
+    #[doc = "The id of the attribute referenced using %attributeId in expressions."]
+    pub attributeId: Box<FHIRId>,
+    #[doc = "The operation to retrieve the attribute."]
+    pub operation: Option<AccessPolicyV2AttributeOperation>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = ""]
+pub struct AccessPolicyV2RuleTarget {
+    #[doc = ""]
+    pub expression: Box<Expression>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = ""]
+pub struct AccessPolicyV2RuleCondition {
+    #[doc = ""]
+    pub expression: Box<Expression>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "The rules that govern how the access policy is applied."]
+pub struct AccessPolicyV2Rule {
+    #[primitive]
+    #[doc = "Rule identifier"]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Rule description"]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Rule combination behavior for children elements."]
+    pub combineBehavior: Option<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = ""]
+    pub effect: Option<Box<FHIRCode>>,
+    #[doc = ""]
+    pub target: Option<AccessPolicyV2RuleTarget>,
+    #[doc = ""]
+    pub condition: Option<AccessPolicyV2RuleCondition>,
+    #[doc = "Nested rules to evaluate."]
+    pub rule: Option<Vec<AccessPolicyV2Rule>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "complex"]
+#[doc = "Who the access policy applies to."]
+pub struct AccessPolicyV2Target {
+    #[doc = "Who the access policy applies to."]
+    pub link: Box<Reference>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "resource"]
+#[doc = "A set of rules that govern how a system resource is accessed and used."]
+pub struct AccessPolicyV2 {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = "The name of the access policy."]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = "Description of the access policy."]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "The type of evaluation that is performed to determine if access is granted or denied."]
+    pub engine: Box<FHIRCode>,
+    #[doc = "Attributes to use for the policy evaluation."]
+    pub attribute: Option<Vec<AccessPolicyV2Attribute>>,
+    #[doc = "The rules that govern how the access policy is applied."]
+    pub rule: Option<Vec<AccessPolicyV2Rule>>,
+    #[doc = "Who the access policy applies to."]
+    pub target: Option<Vec<AccessPolicyV2Target>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "resource"]
+#[doc = ""]
+pub struct ClientApplication {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = ""]
+    pub name: Box<FHIRString>,
+    #[primitive]
+    #[doc = ""]
+    pub description: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "The grant type for this client application."]
+    pub grantType: Vec<Box<FHIRCode>>,
+    #[primitive]
+    #[doc = ""]
+    pub responseTypes: Box<FHIRCode>,
+    #[primitive]
+    #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
+    pub secret: Option<Box<FHIRString>>,
+    #[primitive]
+    #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
+    pub redirectUri: Option<Vec<Box<FHIRString>>>,
+    #[primitive]
+    #[doc = ""]
+    pub uri: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = ""]
+    pub logoUri: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = ""]
+    pub scope: Option<Box<FHIRString>>,
+    #[doc = ""]
+    pub contact: Option<Box<ContactPoint>>,
+    #[primitive]
+    #[doc = ""]
+    pub tosUri: Option<Box<FHIRUri>>,
+    #[primitive]
+    #[doc = ""]
+    pub policyUri: Option<Box<FHIRUri>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
 )]
@@ -29990,13 +30306,17 @@ pub enum Resource {
     ValueSet(ValueSet),
     VerificationResult(VerificationResult),
     VisionPrescription(VisionPrescription),
+    IdentityProvider(IdentityProvider),
+    Membership(Membership),
+    AccessPolicyV2(AccessPolicyV2),
+    ClientApplication(ClientApplication),
 }
 #[derive(Error, Debug)]
 pub enum ResourceTypeError {
     #[error("Invalid resource type: {0}")]
     Invalid(String),
 }
-static _RESOURCE_TYPES: [&str; 146usize] = [
+static _RESOURCE_TYPES: [&str; 150usize] = [
     "Account",
     "ActivityDefinition",
     "AdverseEvent",
@@ -30143,6 +30463,10 @@ static _RESOURCE_TYPES: [&str; 146usize] = [
     "ValueSet",
     "VerificationResult",
     "VisionPrescription",
+    "IdentityProvider",
+    "Membership",
+    "AccessPolicyV2",
+    "ClientApplication",
 ];
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ResourceType(String);
