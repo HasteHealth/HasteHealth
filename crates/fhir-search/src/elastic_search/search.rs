@@ -6,7 +6,7 @@ use oxidized_fhir_model::r4::{
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use serde_json::json;
 
-use crate::{indexing_conversion::date_time_range, SearchRequest};
+use crate::{indexing_conversion::{date_time_range, get_decimal_range}, SearchRequest};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum QueryBuildError {
@@ -80,10 +80,16 @@ fn parameter_to_elasticsearch_clauses(
                                 clauses.push(json!({
                                     "range": {
                                         search_param.url.value.as_ref().unwrap().to_string() + ".start_value": {
-                                            "gte": value
-                                        },
-                                        search_param.url.value.as_ref().unwrap().to_string() + ".end_value": {
                                             "lte": value
+                                        },
+                  
+                                    }
+                                }));
+
+                                clauses.push(json!({
+                                    "range": {
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".end_value": {
+                                            "gte": value
                                         }
                                     }
                                 }));
@@ -319,13 +325,16 @@ fn parameter_to_elasticsearch_clauses(
                     let v = value
                         .parse::<f64>()
                         .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+
+                    let range = get_decimal_range(v);
+
                     let k = json!({
                         "match": {
                             "query": {
                                 "range": {
                                     search_param.url.value.as_ref().unwrap(): {
-                                        "gte": v,
-                                        "lte": v
+                                        "gte": range.start,
+                                        "lte": range.end
                                     }
                                 }
                             }

@@ -422,13 +422,13 @@ fn get_decimal_precision(value: f64) -> u32 {
     digits
 }
 
-struct DecimalRange {
-    start: f64,
-    end: f64,
+pub struct DecimalRange {
+    pub start: f64,
+    pub end: f64,
 }
 
 // Number and quantity dependent on the precision for indexing.
-fn get_decimal_range(value: f64) -> DecimalRange {
+pub fn get_decimal_range(value: f64) -> DecimalRange {
     let decimal_precision = get_decimal_precision(value);
     return DecimalRange {
         start: value - 0.5 * 10f64.powi(-(decimal_precision as i32)),
