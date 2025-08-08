@@ -275,9 +275,9 @@ pub fn generate_fhir_types_from_file(
     file_path: &str,
     level: Option<&'static str>,
 ) -> Result<GeneratedTypes, String> {
-    let json_data = load::load_from_file(file_path)?;
+    let resource = load::load_from_file(file_path)?;
     // Extract StructureDefinitions
-    let structure_definitions = load::get_structure_definitions(&json_data, level)
+    let structure_definitions = load::get_structure_definitions(&resource, level)
         .map_err(|e| format!("Failed to get structure definitions: {}", e))?;
 
     let mut generated_code = vec![];
