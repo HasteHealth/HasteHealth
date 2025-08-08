@@ -329,14 +329,10 @@ fn parameter_to_elasticsearch_clauses(
                     let range = get_decimal_range(v);
 
                     let k = json!({
-                        "match": {
-                            "query": {
-                                "range": {
-                                    search_param.url.value.as_ref().unwrap(): {
-                                        "gte": range.start,
-                                        "lte": range.end
-                                    }
-                                }
+                        "range": {
+                            search_param.url.value.as_ref().unwrap(): {
+                                "gte": range.start,
+                                "lte": range.end
                             }
                         }
                     });
