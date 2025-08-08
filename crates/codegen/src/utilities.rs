@@ -136,12 +136,12 @@ pub static FHIR_PRIMITIVE_VALUE_TYPE: Lazy<HashMap<String, String>> = Lazy::new(
 
 pub mod conversion {
     use super::{FHIR_PRIMITIVES, RUST_PRIMITIVES};
+    use oxidized_fhir_model::r4::types::ElementDefinition;
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
-    use serde_json::Value;
 
-    pub fn fhir_type_to_rust_type(element: &Value, fhir_type: &str) -> TokenStream {
-        let path = element.get("path").and_then(|p| p.as_str());
+    pub fn fhir_type_to_rust_type(element: &ElementDefinition, fhir_type: &str) -> TokenStream {
+        let path = element.path.value.as_ref().map(|p| p.as_str());
 
         match path {
             Some("unsignedInt.value") | Some("positiveInt.value") => {
@@ -154,7 +154,7 @@ pub mod conversion {
             _ => {
                 if let Some(rust_primitive) = RUST_PRIMITIVES.get(fhir_type) {
                     // Special handling for instance which should use instant type,
-                    let path = element.get("path").and_then(|p| p.as_str()).unwrap();
+                    let path = path.unwrap();
                     if path == "instant.value" {
                         let k = RUST_PRIMITIVES
                             .get("http://hl7.org/fhirpath/System.Instant")
@@ -189,7 +189,6 @@ pub mod conversion {
 
 pub mod extract {
     use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
-    use serde_json::Value;
     pub fn field_types<'a>(element: &ElementDefinition) -> Vec<&str> {
         let codes = element
             .type_
@@ -235,11 +234,12 @@ pub mod extract {
     pub fn path(element: &ElementDefinition) -> String {
         element.path.value.clone().unwrap_or_else(|| "".to_string())
     }
-    pub fn element_description(element: &Value) -> String {
+    pub fn element_description(element: &ElementDefinition) -> String {
         element
             .definition
-            .value
-            .clone()
+            .as_ref()
+            .and_then(|d| d.value.as_ref())
+            .cloned()
             .unwrap_or_else(|| "".to_string())
     }
 
@@ -248,8 +248,8 @@ pub mod extract {
         Fixed(usize),
     }
 
-    pub fn cardinality(element: &Value) -> (usize, Max) {
-        let min = element.get("min").and_then(|m| m.as_u64()).unwrap_or(0) as usize;
+    pub fn cardinality(element: &ElementDefinition) -> (usize, Max) {
+        let min = element.min.and_then(|m| m.value).map_or(0, |m| m) as usize;
 
         let max = element.get("max").and_then(|m| m.as_str()).and_then(|s| {
             if s == "*" {
@@ -267,7 +267,6 @@ pub mod generate {
     use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
-    use serde_json::Value;
 
     use crate::utilities::{FHIR_PRIMITIVES, conditionals, conversion, extract};
 
@@ -349,7 +348,6 @@ pub mod generate {
 
 pub mod conditionals {
     use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
-    use serde_json::Value;
 
     use crate::utilities::{FHIR_PRIMITIVES, RUST_PRIMITIVES, extract};
 
@@ -388,18 +386,17 @@ pub mod conditionals {
 
 pub mod load {
     use oxidized_fhir_model::r4::types::{Resource, StructureDefinition};
-    use serde_json::Value;
 
     use crate::utilities::extract;
 
-    pub fn load_from_file(file_path: &str) -> Result<Value, String> {
+    pub fn load_from_file(file_path: &str) -> Result<Resource, String> {
         let data = std::fs::read_to_string(file_path)
             .map_err(|e| format!("Failed to read file: {}", e))?;
 
-        let json_data: Value =
-            serde_json::from_str(&data).map_err(|e| format!("Failed to parse JSON: {}", e))?;
+        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(&data)
+            .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-        Ok(json_data)
+        Ok(resource)
     }
 
     pub fn get_structure_definitions<'a>(
