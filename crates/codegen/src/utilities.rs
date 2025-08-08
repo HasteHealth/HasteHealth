@@ -391,11 +391,13 @@ pub mod conditionals {
 }
 
 pub mod load {
+    use std::path::Path;
+
     use oxidized_fhir_model::r4::types::{Resource, StructureDefinition};
 
     use crate::utilities::extract;
 
-    pub fn load_from_file(file_path: &str) -> Result<Resource, String> {
+    pub fn load_from_file(file_path: &Path) -> Result<Resource, String> {
         let data = std::fs::read_to_string(file_path)
             .map_err(|e| format!("Failed to read file: {}", e))?;
 

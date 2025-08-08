@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::{
     traversal,
     utilities::{
@@ -272,7 +274,7 @@ pub struct GeneratedTypes {
 }
 
 pub fn generate_fhir_types_from_file(
-    file_path: &str,
+    file_path: &Path,
     level: Option<&'static str>,
 ) -> Result<GeneratedTypes, String> {
     let resource = load::load_from_file(file_path)?;
@@ -372,14 +374,17 @@ pub fn generate_fhir_types_from_files(
 
     let mut resource_types: Vec<String> = vec![];
 
-    for file_path in file_paths {
-        let generated_types = generate_fhir_types_from_file(file_path, level)?;
-        let code = generated_types.types;
-        resource_types.extend(generated_types.resource_types);
+    for _dir_path in file_paths {
+        for entry in walkdir::WalkDir::new(_dir_path) {
+            let entry = entry.unwrap();
+            let generated_types = generate_fhir_types_from_file(entry.path(), level)?;
+            let code = generated_types.types;
+            resource_types.extend(generated_types.resource_types);
 
-        generated_code = quote! {
-            #generated_code
-            #(#code)*
+            generated_code = quote! {
+                #generated_code
+                #(#code)*
+            }
         }
     }
 
