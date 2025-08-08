@@ -48,8 +48,13 @@ fn quantity_index_mapping() -> serde_json::Value {
 
         "type": "nested",
         "properties": {
-            "low": { "type": "long" },
-            "high": { "type": "long" }
+            "start_value": { "type": "long" },
+            "start_system": { "type": "keyword" },
+            "start_code": { "type": "keyword" },
+
+            "end_value": { "type": "long" },
+            "end_system": { "type": "keyword" },
+            "end_code": { "type": "keyword" }
         }
 
     })

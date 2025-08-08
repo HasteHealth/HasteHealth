@@ -16,10 +16,15 @@ pub enum QueryBuildError {
     )]
     MissingParameter(ResourceType, String),
     #[error(
-        code = "invalid",
+        code = "not-supported",
         diagnostic = "Unsupported search request type or parameter: {arg0}"
     )]
     UnsupportedParameter(String),
+        #[error(
+        code = "not-supported",
+        diagnostic = "Parameter value '{arg0}' is not supported for this search type."
+    )]
+    UnsupportedParameterValue(String),
     #[error(code = "invalid", diagnostic = "Invalid parameter value: '{arg0}'")]
     InvalidParameterValue(String),
     #[error(code = "invalid", diagnostic = "Invalid date format: '{arg0}'")]
@@ -53,9 +58,48 @@ fn parameter_to_elasticsearch_clauses(
             }))
         }
         Some("quantity") => {
-            Err(QueryBuildError::UnsupportedParameter(
-                "Quantity search parameters are not supported yet".to_string(),
-            ))
+            let params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    let pieces = value.split('|').collect::<Vec<&str>>();
+                    match pieces.len() {
+                        3 => {
+                            let parameter_url = search_param.url.value.as_ref().unwrap().to_string();
+                            let mut clauses = vec![];
+                            
+                            let value = pieces.get(0).unwrap_or(&"");
+                            let system = pieces.get(1).unwrap_or(&"");
+                            let code = pieces.get(2).unwrap_or(&"");
+
+                            if !value.is_empty() {
+                                let value = value
+                                    .parse::<f64>()
+                                    .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+
+                                clauses.push(json!({
+                                    "range": {
+                                        parameter_url + ".low": {
+                                            "gte": value
+                                        }
+                                    }
+                                }));
+                            }
+                            todo!();
+                        }
+                        4 => {
+                            Err(QueryBuildError::UnsupportedParameterValue(value.to_string()))
+                        }
+                        _ => Err(QueryBuildError::InvalidParameterValue(value.to_string())),
+                    }
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": params
+                }
+            }))
         }
         Some("reference") => {
             let params = parsed_parameter
