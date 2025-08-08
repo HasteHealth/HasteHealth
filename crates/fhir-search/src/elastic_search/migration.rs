@@ -45,7 +45,6 @@ fn uri_index_mapping() -> serde_json::Value {
 
 fn quantity_index_mapping() -> serde_json::Value {
     json!({
-
         "type": "nested",
         "properties": {
             "start_value": { "type": "long" },

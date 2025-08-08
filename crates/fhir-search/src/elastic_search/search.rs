@@ -79,13 +79,61 @@ fn parameter_to_elasticsearch_clauses(
 
                                 clauses.push(json!({
                                     "range": {
-                                        parameter_url + ".low": {
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".start_value": {
                                             "gte": value
+                                        },
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".end_value": {
+                                            "lte": value
                                         }
                                     }
                                 }));
                             }
-                            todo!();
+
+                            // Not sure if should instead just have an or statement for this but than value would not make sense.
+                            if !system.is_empty() {
+                                clauses.push(json!({
+                                    "match": {
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".start_system": {
+                                            "query": system
+                                        }
+                                    }
+                                }));
+                                clauses.push(json!({
+                                    "match": {
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".end_system": {
+                                            "query": system
+                                        }
+                                    }
+                                }));
+                            }
+
+                            if !code.is_empty() {
+                                clauses.push(json!({
+                                    "match": {
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".start_code": {
+                                            "query": code
+                                        }
+                                    }
+                                }));
+                                clauses.push(json!({
+                                    "match": {
+                                        search_param.url.value.as_ref().unwrap().to_string() + ".end_code": {
+                                            "query": code
+                                        }
+                                    }
+                                }));
+                            }
+
+                            Ok(json!({
+                                "nested": {
+                                    "path": parameter_url,
+                                    "query": {
+                                        "bool": {
+                                            "must": clauses
+                                        }
+                                    }
+                                }
+                            }))
                         }
                         4 => {
                             Err(QueryBuildError::UnsupportedParameterValue(value.to_string()))
