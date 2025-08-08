@@ -1,17 +1,19 @@
 use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 use regex::Regex;
-use serde_json::{Value, from_value};
 
-fn ele_index_to_child_indices(elements: &[Value], index: usize) -> Result<Vec<usize>, String> {
+fn ele_index_to_child_indices(
+    elements: &[Box<ElementDefinition>],
+    index: usize,
+) -> Result<Vec<usize>, String> {
     let parent = elements
         .get(index)
         .ok_or_else(|| format!("Index {} out of bounds", index))?;
 
     let parent_path: String = parent
-        .get("path")
+        .path
+        .value
+        .as_ref()
         .ok_or("Element has no path")?
-        .as_str()
-        .ok_or("Path is not a string")?
         .to_string();
 
     let depth = parent_path.matches('.').count();
@@ -23,13 +25,12 @@ fn ele_index_to_child_indices(elements: &[Value], index: usize) -> Result<Vec<us
     let mut children_indices = Vec::new();
 
     while cur_index < elements.len()
-        && let path = from_value::<String>(
-            elements[cur_index]
-                .get("path")
-                .ok_or("Not Found")?
-                .to_owned(),
-        )
-        .map_err(|_| "Failed to serialize")?
+        && let path = elements[cur_index]
+            .path
+            .value
+            .as_ref()
+            .ok_or("Not Found")?
+            .to_owned()
         && path.matches('.').count() > depth
     {
         if child_regex.is_match(&path) {
@@ -49,7 +50,7 @@ fn traversal_bottom_up_sd_elements<'a, F, V>(
 where
     F: FnMut(&'a ElementDefinition, Vec<V>, usize) -> V,
 {
-    let child_indices = ele_index_to_child_indices(elements, index)?;
+    let child_indices = ele_index_to_child_indices(elements.as_slice(), index)?;
 
     let child_traversal_values: Vec<V> = child_indices
         .iter()
@@ -67,10 +68,11 @@ where
 
 pub fn traversal<'a, F, V>(sd: &'a StructureDefinition, visitor: &mut F) -> Result<V, String>
 where
-    F: FnMut(&'a StructureDefinition, Vec<V>, usize) -> V,
+    F: FnMut(&'a ElementDefinition, Vec<V>, usize) -> V,
 {
     let elements = &sd
         .snapshot
+        .as_ref()
         .ok_or("StructureDefinition has no snapshot")?
         .element;
 
@@ -80,43 +82,35 @@ where
 #[cfg(test)]
 mod tests {
 
+    use oxidized_fhir_model::r4::types::{Bundle, Resource};
+
     use super::*;
 
     #[test]
     fn test_traversal() {
-        let data = serde_json::from_str::<Value>(
+        let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(
             &std::fs::read_to_string("../artifacts/artifacts/r4/hl7/profiles-resources.json")
                 .unwrap(),
         )
         .unwrap();
 
-        let sds: Vec<&Value> = data
-            .get("entry")
-            .unwrap()
-            .as_array()
+        let sds: Vec<&StructureDefinition> = bundle
+            .entry
+            .as_ref()
             .unwrap()
             .iter()
-            .filter(|e| {
-                let resource_type = e
-                    .get("resource")
-                    .and_then(|r| r.get("resourceType"))
-                    .and_then(|rt| rt.as_str())
-                    .unwrap_or("");
-
-                resource_type == "StructureDefinition"
+            .filter_map(|e| match e.resource.as_ref().map(|r| r.as_ref()) {
+                Some(Resource::StructureDefinition(sd)) => Some(sd),
+                _ => None,
             })
-            .map(|e| e.get("resource").unwrap())
             .collect();
 
-        let mut visitor = |element: &Value, children: Vec<String>, _index: usize| -> String {
-            let path: String = element
-                .get("path")
-                .and_then(|r| from_value::<String>(r.to_owned()).ok())
-                .unwrap_or("".to_string());
-
-            let result = children.join("\n") + "\n" + &path;
-            result
-        };
+        let mut visitor =
+            |element: &ElementDefinition, children: Vec<String>, _index: usize| -> String {
+                let path: String = element.path.value.as_ref().unwrap().to_string();
+                let result = children.join("\n") + "\n" + &path;
+                result
+            };
 
         println!("StructureDefinitions: {}", sds.len());
 
