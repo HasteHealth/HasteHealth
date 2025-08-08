@@ -3,9 +3,10 @@ use std::{collections::HashMap, sync::Arc};
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
 
-static SEARCH_PARAMETERS_STRS: &[&str] = &[include_str!(
-    "../artifacts/r4/hl7/search-parameters.min.json"
-)];
+static SEARCH_PARAMETERS_PATHS: &[&str] = &[
+    "../artifacts/r4/hl7/search-parameters.min.json",
+    "../artifacts/r4/oxidized_health/search_parameter",
+];
 
 #[derive(Debug)]
 pub enum ArtifactError {
@@ -89,10 +90,21 @@ fn index_parameter(
 
 static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
     let mut index = SearchParametersIndex::default();
-    for search_str in SEARCH_PARAMETERS_STRS {
-        let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(search_str)
-            .expect("Failed to parse search parameters JSON");
-        index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
+
+    for dir_path in SEARCH_PARAMETERS_PATHS {
+        let walker = walkdir::WalkDir::new(dir_path).into_iter();
+        for entry in walker
+            .filter_map(|e| e.ok())
+            .filter(|e| e.metadata().unwrap().is_file())
+        {
+            let file_content = std::fs::read_to_string(entry.path())
+                .expect("Failed to read search parameters file");
+            let search_parameters =
+                oxidized_fhir_serialization_json::from_str::<Resource>(&file_content)
+                    .expect("Failed to parse search parameters JSON");
+            index_parameter(&mut index, search_parameters)
+                .expect("Failed to extract search parameters");
+        }
     }
     index
 });
