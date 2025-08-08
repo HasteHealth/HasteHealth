@@ -283,7 +283,15 @@ pub fn generate_fhir_types_from_file(
     let mut generated_code = vec![];
     let mut resource_types: Vec<String> = vec![];
 
-    for sd in structure_definitions {
+    for sd in structure_definitions.iter().filter(|sd| {
+        sd.derivation
+            .as_ref()
+            .and_then(|d| d.value.clone())
+            .unwrap_or_else(|| "specialization".to_string())
+            == "specialization"
+            // excludes Resource, DomainResource which are abstract + resource types.
+            && !(extract::is_abstract(sd) && sd.kind.value == Some("resource".to_string()))
+    }) {
         if conditionals::is_resource_sd(&sd) {
             resource_types.push(sd.id.as_ref().unwrap().to_string());
         }
