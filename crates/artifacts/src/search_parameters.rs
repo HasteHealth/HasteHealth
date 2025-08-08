@@ -3,7 +3,9 @@ use std::{collections::HashMap, sync::Arc};
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
 
-static SEARCH_PARAMETERS_STR: &str = include_str!("../artifacts/r4/hl7/search-parameters.min.json");
+static SEARCH_PARAMETERS_STRS: &[&str] = &[include_str!(
+    "../artifacts/r4/hl7/search-parameters.min.json"
+)];
 
 #[derive(Debug)]
 pub enum ArtifactError {
@@ -87,9 +89,11 @@ fn index_parameter(
 
 static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
     let mut index = SearchParametersIndex::default();
-    let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(SEARCH_PARAMETERS_STR)
-        .expect("Failed to parse search parameters JSON");
-    index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
+    for search_str in SEARCH_PARAMETERS_STRS {
+        let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(search_str)
+            .expect("Failed to parse search parameters JSON");
+        index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
+    }
     index
 });
 
