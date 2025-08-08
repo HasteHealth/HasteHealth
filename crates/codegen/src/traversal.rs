@@ -1,3 +1,4 @@
+use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 use regex::Regex;
 use serde_json::{Value, from_value};
 
@@ -41,12 +42,12 @@ fn ele_index_to_child_indices(elements: &[Value], index: usize) -> Result<Vec<us
 }
 
 fn traversal_bottom_up_sd_elements<'a, F, V>(
-    elements: &'a [Value],
+    elements: &'a Vec<Box<ElementDefinition>>,
     index: usize,
     visitor_function: &mut F,
 ) -> Result<V, String>
 where
-    F: FnMut(&'a Value, Vec<V>, usize) -> V,
+    F: FnMut(&'a ElementDefinition, Vec<V>, usize) -> V,
 {
     let child_indices = ele_index_to_child_indices(elements, index)?;
 
@@ -64,21 +65,16 @@ where
     ))
 }
 
-pub fn traversal<'a, F, V>(sd: &'a Value, visitor: &mut F) -> Result<V, String>
+pub fn traversal<'a, F, V>(sd: &'a StructureDefinition, visitor: &mut F) -> Result<V, String>
 where
-    F: FnMut(&'a Value, Vec<V>, usize) -> V,
+    F: FnMut(&'a StructureDefinition, Vec<V>, usize) -> V,
 {
-    let elements = sd
-        .get("snapshot")
+    let elements = &sd
+        .snapshot
         .ok_or("StructureDefinition has no snapshot")?
-        .get("element")
-        .ok_or("StructureDefinition has no elements")?;
+        .element;
 
-    if let Some(elements) = elements.as_array() {
-        traversal_bottom_up_sd_elements(elements, 0, visitor)
-    } else {
-        return Err("Elements is not an array".to_string());
-    }
+    traversal_bottom_up_sd_elements(elements, 0, visitor)
 }
 
 #[cfg(test)]

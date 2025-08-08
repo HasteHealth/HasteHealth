@@ -249,15 +249,20 @@ pub mod extract {
     }
 
     pub fn cardinality(element: &ElementDefinition) -> (usize, Max) {
-        let min = element.min.and_then(|m| m.value).map_or(0, |m| m) as usize;
+        let min = element.min.as_ref().and_then(|m| m.value).map_or(0, |m| m) as usize;
 
-        let max = element.get("max").and_then(|m| m.as_str()).and_then(|s| {
-            if s == "*" {
-                Some(Max::Unlimited)
-            } else {
-                s.parse::<usize>().ok().and_then(|i| Some(Max::Fixed(i)))
-            }
-        });
+        let max = element
+            .max
+            .as_ref()
+            .and_then(|m| m.value.as_ref())
+            .map(|v| v.as_str())
+            .and_then(|s| {
+                if s == "*" {
+                    Some(Max::Unlimited)
+                } else {
+                    s.parse::<usize>().ok().and_then(|i| Some(Max::Fixed(i)))
+                }
+            });
 
         (min, max.unwrap_or_else(|| Max::Fixed(1)))
     }
@@ -281,16 +286,15 @@ pub mod generate {
 
     pub fn struct_name(sd: &StructureDefinition, element: &ElementDefinition) -> String {
         if conditionals::is_root(sd, element) {
-            let mut interface_name: String =
-                capitalize(sd.get("id").and_then(|p| p.as_str()).unwrap());
+            let mut interface_name: String = capitalize(sd.id.as_ref().unwrap());
             if conditionals::is_primitive_sd(sd) {
                 interface_name = "FHIR".to_owned() + &interface_name;
             }
             interface_name
         } else {
             element
-                .get("id")
-                .and_then(|p| p.as_str())
+                .id
+                .as_ref()
                 .map(|p| p.split("."))
                 .map(|p| p.map(capitalize).collect::<Vec<String>>().join(""))
                 .unwrap()
@@ -334,9 +338,11 @@ pub mod generate {
                 #k
             }
         } else {
-            let fhir_type = element.get("type").and_then(|v| v.as_array()).unwrap()[0]
-                .get("code")
-                .and_then(|v| v.as_str())
+            let fhir_type = element.type_.as_ref().unwrap()[0]
+                .code
+                .as_ref()
+                .value
+                .as_ref()
                 .unwrap();
 
             conversion::fhir_type_to_rust_type(element, fhir_type)

@@ -9,6 +9,7 @@ use crate::{
     },
 };
 use indexmap::IndexMap;
+use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use serde_json::Value;
@@ -228,16 +229,17 @@ fn process_complex(
     get_struct_key_value(element, quote! {#i})
 }
 
-fn generate_from_structure_definition(sd: &Value) -> Result<TokenStream, String> {
+fn generate_from_structure_definition(sd: &StructureDefinition) -> Result<TokenStream, String> {
     let mut nested_types = IndexMap::<String, TokenStream>::new();
 
-    let mut visitor = |element: &Value, children: Vec<TokenStream>, _index: usize| -> TokenStream {
-        if children.len() == 0 {
-            process_leaf(&sd, element, &mut nested_types)
-        } else {
-            process_complex(&sd, element, children, &mut nested_types)
-        }
-    };
+    let mut visitor =
+        |element: &ElementDefinition, children: Vec<TokenStream>, _index: usize| -> TokenStream {
+            if children.len() == 0 {
+                process_leaf(&sd, element, &mut nested_types)
+            } else {
+                process_complex(&sd, element, children, &mut nested_types)
+            }
+        };
 
     traversal::traversal(sd, &mut visitor)?;
     let types_generated = nested_types.values();
@@ -268,7 +270,7 @@ pub fn generate_fhir_types_from_file(
 
     for sd in structure_definitions {
         if conditionals::is_resource_sd(&sd) {
-            resource_types.push(sd.get("id").and_then(|id| id.as_str()).unwrap().to_string());
+            resource_types.push(sd.id.as_ref().unwrap().to_string());
         }
         generated_code.push(generate_from_structure_definition(sd)?);
     }
