@@ -12,11 +12,13 @@ use indexmap::IndexMap;
 use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use serde_json::Value;
 
 type NestedTypes = IndexMap<String, TokenStream>;
 
-fn wrap_cardinality_and_optionality(element: &Value, field_value: TokenStream) -> TokenStream {
+fn wrap_cardinality_and_optionality(
+    element: &ElementDefinition,
+    field_value: TokenStream,
+) -> TokenStream {
     let cardinality = extract::cardinality(element);
 
     // Check the cardinality.
@@ -42,7 +44,10 @@ fn wrap_cardinality_and_optionality(element: &Value, field_value: TokenStream) -
     }
 }
 
-fn get_struct_key_value(element: &Value, field_value_type_name: TokenStream) -> TokenStream {
+fn get_struct_key_value(
+    element: &ElementDefinition,
+    field_value_type_name: TokenStream,
+) -> TokenStream {
     let description = extract::element_description(element);
     let field_name = extract::field_name(&extract::path(element));
     let field_name_ident = if RUST_KEYWORDS.contains(&field_name.as_str()) {
@@ -92,21 +97,27 @@ fn get_struct_key_value(element: &Value, field_value_type_name: TokenStream) -> 
     }
 }
 
-fn resolve_content_reference<'a>(sd: &'a Value, element: &Value) -> &'a Value {
-    let content_reference_id =
-        element.get("contentReference").unwrap().as_str().unwrap()[1..].to_string();
+fn resolve_content_reference<'a>(
+    sd: &'a StructureDefinition,
+    element: &ElementDefinition,
+) -> &'a ElementDefinition {
+    let content_reference_id = element
+        .contentReference
+        .as_ref()
+        .unwrap()
+        .value
+        .as_ref()
+        .unwrap()[1..]
+        .to_string();
 
-    let content_reference_element: Vec<&Value> = sd
-        .get("snapshot")
+    let content_reference_element: Vec<&Box<ElementDefinition>> = sd
+        .snapshot
+        .as_ref()
         .ok_or("StructureDefinition has no snapshot")
         .unwrap()
-        .get("element")
-        .ok_or("StructureDefinition has no elements")
-        .unwrap()
-        .as_array()
-        .unwrap()
+        .element
         .iter()
-        .filter(|e| e.get("id").unwrap().as_str().unwrap() == &content_reference_id)
+        .filter(|e| e.id == Some(content_reference_id.to_string()))
         .collect();
 
     if content_reference_element.len() != 1 {
@@ -120,7 +131,7 @@ fn resolve_content_reference<'a>(sd: &'a Value, element: &Value) -> &'a Value {
     content_reference_element
 }
 
-fn create_type_choice(sd: &Value, element: &Value) -> TokenStream {
+fn create_type_choice(sd: &StructureDefinition, element: &ElementDefinition) -> TokenStream {
     let field_name = extract::field_name(&extract::path(element));
     let type_name = format_ident!("{}", generate::type_choice_name(sd, element));
     let types = extract::field_types(element);
@@ -168,8 +179,12 @@ fn create_type_choice(sd: &Value, element: &Value) -> TokenStream {
     }
 }
 
-fn process_leaf(sd: &Value, element: &Value, types: &mut NestedTypes) -> TokenStream {
-    if element.get("contentReference").is_some() {
+fn process_leaf(
+    sd: &StructureDefinition,
+    element: &ElementDefinition,
+    types: &mut NestedTypes,
+) -> TokenStream {
+    if element.contentReference.is_some() {
         let content_reference_element = resolve_content_reference(sd, element);
         let field_type_name = field_typename(sd, content_reference_element);
         get_struct_key_value(element, field_type_name)
@@ -189,8 +204,8 @@ fn process_leaf(sd: &Value, element: &Value, types: &mut NestedTypes) -> TokenSt
 }
 
 fn process_complex(
-    sd: &Value,
-    element: &Value,
+    sd: &StructureDefinition,
+    element: &ElementDefinition,
     children: Vec<TokenStream>,
     types: &mut NestedTypes,
 ) -> TokenStream {
