@@ -14,7 +14,7 @@ use indexmap::IndexMap;
 use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 
 type NestedTypes = IndexMap<String, TokenStream>;
 
