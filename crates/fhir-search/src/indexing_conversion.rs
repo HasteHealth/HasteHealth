@@ -27,8 +27,12 @@ enum RangeValue {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuantityRange {
-    low: RangeValue,
-    high: RangeValue,
+    start_value: RangeValue,
+    start_code: Option<String>,
+    start_system: Option<String>,
+    end_value: RangeValue,
+    end_code: Option<String>,
+    end_system: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -415,20 +419,26 @@ fn get_decimal_precision(value: f64) -> u32 {
     digits
 }
 
+pub struct DecimalRange {
+    pub start: f64,
+    pub end: f64,
+}
+
 // Number and quantity dependent on the precision for indexing.
-fn get_quantity_range(value: f64) -> QuantityRange {
+pub fn get_decimal_range(value: f64) -> DecimalRange {
     let decimal_precision = get_decimal_precision(value);
-    return QuantityRange {
-        low: RangeValue::Number(value - 0.5 * 10f64.powi(-(decimal_precision as i32))),
-        high: RangeValue::Number(value + 0.5 * 10f64.powi(-(decimal_precision as i32))),
+    return DecimalRange {
+        start: value - 0.5 * 10f64.powi(-(decimal_precision as i32)),
+        end: value + 0.5 * 10f64.powi(-(decimal_precision as i32)),
     };
 }
 
-fn fhirdecimal_to_quantity_range(value: &Option<Box<FHIRDecimal>>) -> Vec<QuantityRange> {
-    value
+fn fhirdecimal_to_quantity_range(value: &Option<Box<FHIRDecimal>>) -> Option<DecimalRange> {
+    let decimal_range = value
         .as_ref()
-        .and_then(|v| v.value.as_ref().map(|v| vec![get_quantity_range(*v)]))
-        .unwrap_or(vec![])
+        .and_then(|v| v.value.as_ref().map(|v| get_decimal_range(*v)));
+
+    decimal_range
 }
 
 fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, InsertableIndexError> {
@@ -438,18 +448,40 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
                 InsertableIndexError::FailedDowncast(value.typename().to_string())
             })?;
             if fp_range.low.is_some() || fp_range.high.is_some() {
-                let low = fp_range
+                let start_value = fp_range
                     .low
                     .as_ref()
                     .and_then(|v| v.value.as_ref().and_then(|v| v.value));
-                let high = fp_range
+                let start_system = fp_range
+                    .low
+                    .as_ref()
+                    .and_then(|v| v.system.as_ref().and_then(|s| s.value.clone()));
+                let start_code = fp_range
+                    .low
+                    .as_ref()
+                    .and_then(|v| v.code.as_ref().and_then(|c| c.value.clone()));
+
+                let end_value = fp_range
                     .high
                     .as_ref()
                     .and_then(|v| v.value.as_ref().and_then(|v| v.value));
+                let end_system = fp_range
+                    .high
+                    .as_ref()
+                    .and_then(|v| v.system.as_ref().and_then(|s| s.value.clone()));
+                let end_code = fp_range
+                    .high
+                    .as_ref()
+                    .and_then(|v| v.code.as_ref().and_then(|c| c.value.clone()));
 
                 return Ok(vec![QuantityRange {
-                    low: low.map_or(RangeValue::Infinity, RangeValue::Number),
-                    high: high.map_or(RangeValue::Infinity, RangeValue::Number),
+                    start_system: start_system,
+                    start_code: start_code,
+                    start_value: start_value
+                        .map_or(RangeValue::Infinity, |v| RangeValue::Number(v)),
+                    end_system: end_system,
+                    end_code: end_code,
+                    end_value: end_value.map_or(RangeValue::Infinity, |v| RangeValue::Number(v)),
                 }]);
             }
             return Ok(vec![]);
@@ -458,25 +490,73 @@ fn index_quantity(value: &dyn MetaValue) -> Result<Vec<QuantityRange>, Insertabl
             let fp_age = value.as_any().downcast_ref::<Age>().ok_or_else(|| {
                 InsertableIndexError::FailedDowncast(value.typename().to_string())
             })?;
-            Ok(fhirdecimal_to_quantity_range(&fp_age.value))
+
+            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_age.value) {
+                return Ok(vec![QuantityRange {
+                    start_system: fp_age.system.as_ref().and_then(|s| s.value.clone()),
+                    start_code: fp_age.code.as_ref().and_then(|c| c.value.clone()),
+                    start_value: RangeValue::Number(decimal_range.start),
+                    end_system: fp_age.system.as_ref().and_then(|s| s.value.clone()),
+                    end_code: fp_age.code.as_ref().and_then(|c| c.value.clone()),
+                    end_value: RangeValue::Number(decimal_range.end),
+                }]);
+            } else {
+                return Ok(vec![]);
+            }
         }
         "Money" => {
             let fp_money = value.as_any().downcast_ref::<Money>().ok_or_else(|| {
                 InsertableIndexError::FailedDowncast(value.typename().to_string())
             })?;
-            Ok(fhirdecimal_to_quantity_range(&fp_money.value))
+
+            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_money.value) {
+                return Ok(vec![QuantityRange {
+                    start_system: Some("urn:iso:std:iso:4217".to_string()),
+                    start_code: fp_money.currency.as_ref().and_then(|c| c.value.clone()),
+                    start_value: RangeValue::Number(decimal_range.start),
+                    end_system: Some("urn:iso:std:iso:4217".to_string()),
+                    end_code: fp_money.currency.as_ref().and_then(|c| c.value.clone()),
+                    end_value: RangeValue::Number(decimal_range.end),
+                }]);
+            } else {
+                return Ok(vec![]);
+            }
         }
         "Duration" => {
             let fp_duration = value.as_any().downcast_ref::<Duration>().ok_or_else(|| {
                 InsertableIndexError::FailedDowncast(value.typename().to_string())
             })?;
-            Ok(fhirdecimal_to_quantity_range(&fp_duration.value))
+
+            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_duration.value) {
+                return Ok(vec![QuantityRange {
+                    start_system: fp_duration.system.as_ref().and_then(|s| s.value.clone()),
+                    start_code: fp_duration.code.as_ref().and_then(|c| c.value.clone()),
+                    start_value: RangeValue::Number(decimal_range.start),
+                    end_system: fp_duration.system.as_ref().and_then(|s| s.value.clone()),
+                    end_code: fp_duration.code.as_ref().and_then(|c| c.value.clone()),
+                    end_value: RangeValue::Number(decimal_range.end),
+                }]);
+            } else {
+                return Ok(vec![]);
+            }
         }
         "Quantity" => {
             let fp_quantity = value.as_any().downcast_ref::<Quantity>().ok_or_else(|| {
                 InsertableIndexError::FailedDowncast(value.typename().to_string())
             })?;
-            Ok(fhirdecimal_to_quantity_range(&fp_quantity.value))
+
+            if let Some(decimal_range) = fhirdecimal_to_quantity_range(&fp_quantity.value) {
+                return Ok(vec![QuantityRange {
+                    start_system: fp_quantity.system.as_ref().and_then(|s| s.value.clone()),
+                    start_code: fp_quantity.code.as_ref().and_then(|c| c.value.clone()),
+                    start_value: RangeValue::Number(decimal_range.start),
+                    end_system: fp_quantity.system.as_ref().and_then(|s| s.value.clone()),
+                    end_code: fp_quantity.code.as_ref().and_then(|c| c.value.clone()),
+                    end_value: RangeValue::Number(decimal_range.end),
+                }]);
+            } else {
+                return Ok(vec![]);
+            }
         }
         _ => Err(InsertableIndexError::FailedDowncast(
             value.typename().to_string(),

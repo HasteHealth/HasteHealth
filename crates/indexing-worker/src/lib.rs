@@ -8,7 +8,7 @@ use oxidized_fhir_repository::{
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
 use sqlx::{Pool, Postgres, Transaction, query_as, types::time::OffsetDateTime};
-use std::{sync::Arc, time::Instant};
+use std::sync::Arc;
 
 mod indexing_lock;
 
@@ -84,11 +84,13 @@ async fn index_tenant_next_sequence<'a, Engine: SearchEngine + 'a>(
     )
     .await?;
 
-    tracing::info!(
-        "Tenant '{}' Indexing '{}' resources",
-        tenant_id,
-        resources.len()
-    );
+    if !resources.is_empty() {
+        tracing::info!(
+            "Tenant '{}' Indexing '{}' resources",
+            tenant_id,
+            resources.len()
+        );
+    }
 
     // Perform indexing if there are resources to index.
     if !resources.is_empty() {
@@ -179,6 +181,8 @@ pub async fn run_worker() {
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 
+    tracing::info!("Starting indexing worker...");
+
     loop {
         let tenants_to_check = get_tenants(&pg_pool, &cursor, tenants_limit).await;
         if let Ok(tenants_to_check) = tenants_to_check {
@@ -189,7 +193,6 @@ pub async fn run_worker() {
             }
 
             for tenant in tenants_to_check {
-                let start = Instant::now();
                 let result =
                     index_for_tenant(repo.clone(), search_engine.clone(), &tenant.id).await;
 
@@ -198,12 +201,6 @@ pub async fn run_worker() {
                         "Failed to index tenant: '{}' cause: '{:?}'",
                         &tenant.id,
                         _error
-                    );
-                } else {
-                    tracing::info!(
-                        "Successfully indexed tenant: {} in {:?}",
-                        &tenant.id,
-                        start.elapsed()
                     );
                 }
             }

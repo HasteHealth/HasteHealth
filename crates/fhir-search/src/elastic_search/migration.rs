@@ -33,7 +33,7 @@ fn token_index_mapping() -> serde_json::Value {
 
 fn number_index_mapping() -> serde_json::Value {
     json!({
-        "type": "long"
+        "type": "double"
     })
 }
 
@@ -45,11 +45,15 @@ fn uri_index_mapping() -> serde_json::Value {
 
 fn quantity_index_mapping() -> serde_json::Value {
     json!({
-
         "type": "nested",
         "properties": {
-            "low": { "type": "long" },
-            "high": { "type": "long" }
+            "start_value": { "type": "double" },
+            "start_system": { "type": "keyword" },
+            "start_code": { "type": "keyword" },
+
+            "end_value": { "type": "double" },
+            "end_system": { "type": "keyword" },
+            "end_code": { "type": "keyword" }
         }
 
     })
