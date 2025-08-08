@@ -1,0 +1,377 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "AccessPolicyV2",
+    "url": "https://oxidized-health.com/StructureDefinition/AccessPolicyV2",
+    "version": "4.0.1",
+    "name": "AccessPolicyV2",
+    "status": "active",
+    "publisher": "oxidized-health",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "AccessPolicyV2",
+    "description": "A set of rules that govern how a system resource is accessed and used. This access policy is based around XACML https://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html#_Toc325047092",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+    "derivation": "specialization",
+    "snapshot": {
+        "element": [
+            {
+                "id": "AccessPolicyV2",
+                "path": "AccessPolicyV2",
+                "min": 0,
+                "definition": "A set of rules that govern how a system resource is accessed and used.",
+                "max": "*",
+                "base": {
+                    "path": "AccessPolicyV2",
+                    "min": 0,
+                    "max": "*"
+                },
+                "isModifier": false,
+                "isSummary": false
+            },
+            {
+                "id": "AccessPolicyV2.id",
+                "path": "AccessPolicyV2.id",
+                "short": "Logical id of this artifact",
+                "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+                "comment": "The only time that a resource does not have an id is when it is being submitted to the server using a create operation.",
+                "min": 0,
+                "max": "1",
+                "base": {
+                    "path": "Resource.id",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                                "valueUrl": "string"
+                            }
+                        ],
+                        "code": "http://hl7.org/fhirpath/System.String"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "AccessPolicyV2.meta",
+                "path": "AccessPolicyV2.meta",
+                "short": "Metadata about the resource",
+                "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+                "min": 0,
+                "max": "1",
+                "base": {
+                    "path": "Resource.meta",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "code": "Meta"
+                    }
+                ],
+                "constraint": [
+                    {
+                        "key": "ele-1",
+                        "severity": "error",
+                        "human": "All FHIR elements must have a @value or children",
+                        "expression": "hasValue() or (children().count() > id.count())",
+                        "xpath": "@value|f:*|h:div",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Element"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "AccessPolicyV2.name",
+                "path": "AccessPolicyV2.name",
+                "definition": "The name of the access policy.",
+                "short": "The name of the access policy.",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ],
+                "min": 1,
+                "max": "1"
+            },
+            {
+                "id": "AccessPolicyV2.description",
+                "path": "AccessPolicyV2.description",
+                "definition": "Description of the access policy.",
+                "short": "Description of the access policy.",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ],
+                "min": 0,
+                "max": "1"
+            },
+            {
+                "id": "AccessPolicyV2.engine",
+                "path": "AccessPolicyV2.engine",
+                "definition": "The type of evaluation that is performed to determine if access is granted or denied.",
+                "short": "The type of evaluation that is performed to determine if access is granted or denied.",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "min": 1,
+                "max": "1",
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV2.attribute",
+                "path": "AccessPolicyV2.attribute",
+                "definition": "Attributes to use for the policy evaluation.",
+                "short": "Attributes to use for the policy evaluation.",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ],
+                "min": 0,
+                "max": "15"
+            },
+            {
+                "id": "AccessPolicyV2.attribute.attributeId",
+                "path": "AccessPolicyV2.attribute.attributeId",
+                "definition": "The id of the attribute referenced using %attributeId in expressions.",
+                "short": "The id of the attribute referenced using %attributeId in expressions.",
+                "type": [
+                    {
+                        "code": "id"
+                    }
+                ],
+                "min": 1,
+                "max": "1"
+            },
+            {
+                "id": "AccessPolicyV2.attribute.operation",
+                "path": "AccessPolicyV2.attribute.operation",
+                "definition": "The operation to retrieve the attribute.",
+                "short": "The operation to retrieve the attribute.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.attribute.operation.type",
+                "path": "AccessPolicyV2.attribute.operation.type",
+                "definition": "The operation to retrieve the attribute.",
+                "short": "The operation to retrieve the attribute.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "description": "The allowable operation code types.",
+                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV2.attribute.operation.path",
+                "path": "AccessPolicyV2.attribute.operation.path",
+                "definition": "The operation to retrieve the attribute.",
+                "short": "The operation to retrieve the attribute.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "Expression"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.attribute.operation.params",
+                "path": "AccessPolicyV2.attribute.operation.params",
+                "definition": "The operation to retrieve the attribute.",
+                "short": "The operation to retrieve the attribute.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "Expression"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule",
+                "path": "AccessPolicyV2.rule",
+                "definition": "The rules that govern how the access policy is applied.",
+                "short": "The rules that govern how the access policy is applied.",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ],
+                "min": 0,
+                "max": "*"
+            },
+            {
+                "id": "AccessPolicyV2.rule.name",
+                "path": "AccessPolicyV2.rule.name",
+                "definition": "Rule identifier",
+                "short": "Access Policy rule identifier.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule.description",
+                "path": "AccessPolicyV2.rule.description",
+                "definition": "Rule description",
+                "short": "Rule description",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule.combineBehavior",
+                "path": "AccessPolicyV2.rule.combineBehavior",
+                "definition": "Rule combination behavior for children elements.",
+                "short": "Determine wether to use and/or to combine rules.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV2.rule.effect",
+                "path": "AccessPolicyV2.rule.effect",
+                "short": "Determine whether to evaluate the rule.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1"
+                }
+            },
+            {
+                "id": "AccessPolicyV2.rule.target",
+                "path": "AccessPolicyV2.rule.target",
+                "short": "Determine whether to evaluate the rule.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule.target.expression",
+                "path": "AccessPolicyV2.rule.target.expression",
+                "short": "Determine whether to evaluate the rule.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "Expression"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule.condition",
+                "path": "AccessPolicyV2.rule.condition",
+                "short": "Condition to evaluate determining whether pass/deny.",
+                "min": 0,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule.condition.expression",
+                "path": "AccessPolicyV2.rule.condition.expression",
+                "short": "Condition expression to evaluate determining whether pass/deny.",
+                "min": 1,
+                "max": "1",
+                "type": [
+                    {
+                        "code": "Expression"
+                    }
+                ]
+            },
+            {
+                "id": "AccessPolicyV2.rule.rule",
+                "path": "AccessPolicyV2.rule.rule",
+                "definition": "Nested rules to evaluate.",
+                "short": "Nested rules",
+                "min": 0,
+                "max": "*",
+                "contentReference": "#AccessPolicyV2.rule"
+            },
+            {
+                "id": "AccessPolicyV2.target",
+                "path": "AccessPolicyV2.target",
+                "definition": "Who the access policy applies to.",
+                "short": "Who the access policy applies to.",
+                "type": [
+                    {
+                        "code": "BackboneElement"
+                    }
+                ],
+                "min": 0,
+                "max": "*"
+            },
+            {
+                "id": "AccessPolicyV2.target.link",
+                "path": "AccessPolicyV2.target.link",
+                "definition": "Who the access policy applies to.",
+                "short": "The target reference of the access policy applies to.",
+                "type": [
+                    {
+                        "code": "Reference",
+                        "targetProfile": [
+                            "https://oxidized-health.com/StructureDefinition/ClientApplication",
+                            "https://oxidized-health.com/StructureDefinition/Membership",
+                            "http://hl7.org/fhir/StructureDefinition/OperationDefinition"
+                        ]
+                    }
+                ],
+                "min": 1,
+                "max": "1"
+            }
+        ]
+    }
+}

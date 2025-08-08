@@ -1894,6 +1894,8 @@ version = "0.1.0"
 dependencies = [
  "indexmap 2.10.0",
  "once_cell",
+ "oxidized-fhir-model",
+ "oxidized-fhir-serialization-json",
  "proc-macro2",
  "quote",
  "regex",

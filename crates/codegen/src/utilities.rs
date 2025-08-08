@@ -136,12 +136,12 @@ pub static FHIR_PRIMITIVE_VALUE_TYPE: Lazy<HashMap<String, String>> = Lazy::new(
 
 pub mod conversion {
     use super::{FHIR_PRIMITIVES, RUST_PRIMITIVES};
+    use oxidized_fhir_model::r4::types::ElementDefinition;
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
-    use serde_json::Value;
 
-    pub fn fhir_type_to_rust_type(element: &Value, fhir_type: &str) -> TokenStream {
-        let path = element.get("path").and_then(|p| p.as_str());
+    pub fn fhir_type_to_rust_type(element: &ElementDefinition, fhir_type: &str) -> TokenStream {
+        let path = element.path.value.as_ref().map(|p| p.as_str());
 
         match path {
             Some("unsignedInt.value") | Some("positiveInt.value") => {
@@ -154,7 +154,7 @@ pub mod conversion {
             _ => {
                 if let Some(rust_primitive) = RUST_PRIMITIVES.get(fhir_type) {
                     // Special handling for instance which should use instant type,
-                    let path = element.get("path").and_then(|p| p.as_str()).unwrap();
+                    let path = path.unwrap();
                     if path == "instant.value" {
                         let k = RUST_PRIMITIVES
                             .get("http://hl7.org/fhirpath/System.Instant")
@@ -188,17 +188,19 @@ pub mod conversion {
 }
 
 pub mod extract {
-    use serde_json::Value;
-    pub fn field_types<'a>(element: &Value) -> Vec<&str> {
-        let types = element.get("type").and_then(|t| t.as_array());
-        if let Some(types) = types {
-            types
-                .into_iter()
-                .map(|t| t.get("code").unwrap().as_str().unwrap())
-                .collect()
-        } else {
-            vec![]
-        }
+    use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
+    pub fn field_types<'a>(element: &ElementDefinition) -> Vec<&str> {
+        let codes = element
+            .type_
+            .as_ref()
+            .map(|types| {
+                types
+                    .iter()
+                    .filter_map(|t| t.code.value.as_ref().map(|v| v.as_str()))
+                    .collect()
+            })
+            .unwrap_or_else(|| vec![]);
+        codes
     }
 
     pub fn field_name(path: &str) -> String {
@@ -225,27 +227,20 @@ pub mod extract {
         removed_x
     }
 
-    pub fn is_abstract(sd: &Value) -> bool {
-        let is_abstract = sd
-            .get("abstract")
-            .and_then(|r| r.as_bool())
-            .unwrap_or(false);
-        is_abstract
+    pub fn is_abstract(sd: &StructureDefinition) -> bool {
+        sd.abstract_.value == Some(true)
     }
 
-    pub fn path(element: &Value) -> String {
-        element
-            .get("path")
-            .and_then(|p| p.as_str())
-            .unwrap_or("")
-            .to_string()
+    pub fn path(element: &ElementDefinition) -> String {
+        element.path.value.clone().unwrap_or_else(|| "".to_string())
     }
-    pub fn element_description(element: &Value) -> String {
+    pub fn element_description(element: &ElementDefinition) -> String {
         element
-            .get("definition")
-            .and_then(|d| d.as_str())
-            .map(|s| s.to_string())
-            .unwrap_or("".to_string())
+            .definition
+            .as_ref()
+            .and_then(|d| d.value.as_ref())
+            .cloned()
+            .unwrap_or_else(|| "".to_string())
     }
 
     pub enum Max {
@@ -253,25 +248,30 @@ pub mod extract {
         Fixed(usize),
     }
 
-    pub fn cardinality(element: &Value) -> (usize, Max) {
-        let min = element.get("min").and_then(|m| m.as_u64()).unwrap_or(0) as usize;
+    pub fn cardinality(element: &ElementDefinition) -> (usize, Max) {
+        let min = element.min.as_ref().and_then(|m| m.value).map_or(0, |m| m) as usize;
 
-        let max = element.get("max").and_then(|m| m.as_str()).and_then(|s| {
-            if s == "*" {
-                Some(Max::Unlimited)
-            } else {
-                s.parse::<usize>().ok().and_then(|i| Some(Max::Fixed(i)))
-            }
-        });
+        let max = element
+            .max
+            .as_ref()
+            .and_then(|m| m.value.as_ref())
+            .map(|v| v.as_str())
+            .and_then(|s| {
+                if s == "*" {
+                    Some(Max::Unlimited)
+                } else {
+                    s.parse::<usize>().ok().and_then(|i| Some(Max::Fixed(i)))
+                }
+            });
 
         (min, max.unwrap_or_else(|| Max::Fixed(1)))
     }
 }
 
 pub mod generate {
+    use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
-    use serde_json::Value;
 
     use crate::utilities::{FHIR_PRIMITIVES, conditionals, conversion, extract};
 
@@ -284,18 +284,17 @@ pub mod generate {
         }
     }
 
-    pub fn struct_name(sd: &Value, element: &Value) -> String {
+    pub fn struct_name(sd: &StructureDefinition, element: &ElementDefinition) -> String {
         if conditionals::is_root(sd, element) {
-            let mut interface_name: String =
-                capitalize(sd.get("id").and_then(|p| p.as_str()).unwrap());
+            let mut interface_name: String = capitalize(sd.id.as_ref().unwrap());
             if conditionals::is_primitive_sd(sd) {
                 interface_name = "FHIR".to_owned() + &interface_name;
             }
             interface_name
         } else {
             element
-                .get("id")
-                .and_then(|p| p.as_str())
+                .id
+                .as_ref()
                 .map(|p| p.split("."))
                 .map(|p| p.map(capitalize).collect::<Vec<String>>().join(""))
                 .unwrap()
@@ -303,23 +302,23 @@ pub mod generate {
         }
     }
 
-    pub fn type_choice_name(sd: &Value, element: &Value) -> String {
+    pub fn type_choice_name(sd: &StructureDefinition, element: &ElementDefinition) -> String {
         let name = struct_name(sd, element);
         name + "TypeChoice"
     }
 
-    pub fn type_choice_variant_name(element: &Value, fhir_type: &str) -> String {
+    pub fn type_choice_variant_name(element: &ElementDefinition, fhir_type: &str) -> String {
         let field_name = extract::field_name(&extract::path(element));
         format!("{:0}{:1}", field_name, capitalize(fhir_type))
     }
 
-    pub fn create_type_choice_variants(element: &Value) -> Vec<String> {
+    pub fn create_type_choice_variants(element: &ElementDefinition) -> Vec<String> {
         extract::field_types(element)
             .into_iter()
             .map(|fhir_type| type_choice_variant_name(element, fhir_type))
             .collect()
     }
-    pub fn create_type_choice_primitive_variants(element: &Value) -> Vec<String> {
+    pub fn create_type_choice_primitive_variants(element: &ElementDefinition) -> Vec<String> {
         extract::field_types(element)
             .into_iter()
             .filter(|fhir_type| FHIR_PRIMITIVES.contains_key(*fhir_type))
@@ -327,7 +326,7 @@ pub mod generate {
             .collect()
     }
 
-    pub fn field_typename(sd: &Value, element: &Value) -> TokenStream {
+    pub fn field_typename(sd: &StructureDefinition, element: &ElementDefinition) -> TokenStream {
         let field_value_type_name = if conditionals::is_typechoice(element) {
             let k = format_ident!("{}", type_choice_name(sd, element));
             quote! {
@@ -339,9 +338,11 @@ pub mod generate {
                 #k
             }
         } else {
-            let fhir_type = element.get("type").and_then(|v| v.as_array()).unwrap()[0]
-                .get("code")
-                .and_then(|v| v.as_str())
+            let fhir_type = element.type_.as_ref().unwrap()[0]
+                .code
+                .as_ref()
+                .value
+                .as_ref()
                 .unwrap();
 
             conversion::fhir_type_to_rust_type(element, fhir_type)
@@ -352,24 +353,24 @@ pub mod generate {
 }
 
 pub mod conditionals {
-    use serde_json::Value;
+    use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 
     use crate::utilities::{FHIR_PRIMITIVES, RUST_PRIMITIVES, extract};
 
-    pub fn is_root(sd: &Value, element: &Value) -> bool {
-        element.get("path") == sd.get("id")
+    pub fn is_root(sd: &StructureDefinition, element: &ElementDefinition) -> bool {
+        element.path.value == sd.id
     }
 
-    pub fn is_resource_sd(sd: &Value) -> bool {
-        sd.get("kind").and_then(|k| k.as_str()) == Some("resource")
+    pub fn is_resource_sd(sd: &StructureDefinition) -> bool {
+        sd.kind.value == Some("resource".to_string())
     }
 
-    pub fn is_primitive(element: &Value) -> bool {
+    pub fn is_primitive(element: &ElementDefinition) -> bool {
         let types = extract::field_types(element);
         types.len() == 1 && FHIR_PRIMITIVES.contains_key(types[0])
     }
 
-    pub fn is_nested_complex(element: &Value) -> bool {
+    pub fn is_nested_complex(element: &ElementDefinition) -> bool {
         let types = extract::field_types(element);
         // Backbone or Typechoice elements Have inlined types created.
         types.len() > 1 || types[0] == "BackboneElement" || types[0] == "Element"
@@ -380,72 +381,85 @@ pub mod conditionals {
         !RUST_PRIMITIVES.contains_key(fhir_type)
     }
 
-    pub fn is_primitive_sd(sd: &Value) -> bool {
-        sd.get("kind")
-            .and_then(|k| k.as_str())
-            .unwrap_or("resource")
-            == "primitive-type"
+    pub fn is_primitive_sd(sd: &StructureDefinition) -> bool {
+        sd.kind.value == Some("primitive-type".to_string())
     }
 
-    pub fn is_typechoice(element: &Value) -> bool {
+    pub fn is_typechoice(element: &ElementDefinition) -> bool {
         extract::field_types(element).len() > 1
     }
 }
 
 pub mod load {
-    use serde_json::Value;
+    use oxidized_fhir_model::r4::types::{Resource, StructureDefinition};
 
     use crate::utilities::extract;
 
-    pub fn load_from_file(file_path: &str) -> Result<Value, String> {
+    pub fn load_from_file(file_path: &str) -> Result<Resource, String> {
         let data = std::fs::read_to_string(file_path)
             .map_err(|e| format!("Failed to read file: {}", e))?;
 
-        let json_data: Value =
-            serde_json::from_str(&data).map_err(|e| format!("Failed to parse JSON: {}", e))?;
+        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(&data)
+            .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-        Ok(json_data)
+        Ok(resource)
     }
 
     pub fn get_structure_definitions<'a>(
-        json_data: &'a Value,
+        resource: &'a Resource,
         level: Option<&'static str>,
-    ) -> Result<impl Iterator<Item = &'a Value>, String> {
-        // Extract StructureDefinitions
-        let resources = json_data
-            .get("entry")
-            .and_then(|e| e.as_array())
-            .ok_or("No entries found")?
-            .into_iter()
-            .map(|e| e.get("resource").unwrap())
-            .filter(|sd| {
-                sd.get("derivation")
-                    .and_then(|d| d.as_str())
-                    .unwrap_or("specialization")
-                    == "specialization"
-            })
-            .filter(|sd| {
-                let resource_type = sd.get("resourceType").and_then(|rt| rt.as_str());
-                resource_type == Some("StructureDefinition")
-            })
-            .filter(|sd| {
-                // Filter out the abstract resources particularly Resource + DomainResource
-                !(extract::is_abstract(sd)
-                    && sd.get("kind").and_then(|k| k.as_str()) == Some("resource"))
-            })
-            .filter(move |sd| {
-                if let Some(level) = level {
-                    let kind = sd
-                        .get("kind")
-                        .and_then(|k| k.as_str())
-                        .unwrap_or("resource");
+    ) -> Result<Vec<&'a StructureDefinition>, String> {
+        match resource {
+            Resource::Bundle(bundle) => {
+                if let Some(entries) = bundle.entry.as_ref() {
+                    let sds = entries
+                        .iter()
+                        .filter_map(|e| e.resource.as_ref())
+                        .filter_map(|sd| match sd.as_ref() {
+                            Resource::StructureDefinition(sd) => Some(sd),
+                            _ => None,
+                        });
 
-                    kind == level
+                    let filtered_sds = sds.filter(move |sd| {
+                        if let Some(level) = level {
+                            let kind = sd
+                                .kind
+                                .as_ref()
+                                .value
+                                .as_ref()
+                                .map(|v| v.as_str())
+                                .unwrap_or("resource");
+                            kind == level
+                        } else {
+                            true
+                        }
+                    });
+
+                    Ok(filtered_sds.collect())
                 } else {
-                    true
+                    Ok(vec![])
                 }
-            });
+            }
+            Resource::StructureDefinition(sd) => {
+                let resources = std::iter::once(sd);
+                let filtered_resources = resources.filter(|sd| {
+                    if let Some(level) = level {
+                        let kind = sd
+                            .kind
+                            .as_ref()
+                            .value
+                            .as_ref()
+                            .map(|v| v.as_str())
+                            .unwrap_or("resource");
+                        kind == level
+                    } else {
+                        true
+                    }
+                });
 
-        Ok(resources)
+                Ok(filtered_resources.collect())
+            }
+            _ => Err("Resource is not a Bundle or StructureDefinition".to_string()),
+        }
     }
 }
