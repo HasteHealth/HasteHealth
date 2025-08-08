@@ -14,6 +14,7 @@ use indexmap::IndexMap;
 use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use walkdir::{DirEntry, WalkDir};
 
 type NestedTypes = IndexMap<String, TokenStream>;
 
@@ -374,9 +375,12 @@ pub fn generate_fhir_types_from_files(
 
     let mut resource_types: Vec<String> = vec![];
 
-    for _dir_path in file_paths {
-        for entry in walkdir::WalkDir::new(_dir_path) {
-            let entry = entry.unwrap();
+    for dir_path in file_paths {
+        let walker = WalkDir::new(dir_path).into_iter();
+        for entry in walker
+            .filter_map(|e| e.ok())
+            .filter(|e| e.metadata().unwrap().is_file())
+        {
             let generated_types = generate_fhir_types_from_file(entry.path(), level)?;
             let code = generated_types.types;
             resource_types.extend(generated_types.resource_types);
