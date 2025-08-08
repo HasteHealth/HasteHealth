@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "IdentityProvider-accessType",
+    "url": "https://oxidized-health.app/fhir/SearchParameter/IdentityProvider-accessType",
+    "version": "4.0.1",
+    "name": "accessType",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "oxidized-health",
+    "description": "An identity providers accessType.",
+    "code": "accessType",
+    "base": [
+        "IdentityProvider"
+    ],
+    "type": "token",
+    "expression": "IdentityProvider.accessType"
+}

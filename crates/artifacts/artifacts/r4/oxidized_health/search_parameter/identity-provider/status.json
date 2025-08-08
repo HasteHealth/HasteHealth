@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "IdentityProvider-status",
+    "url": "https://oxidized-health.app/fhir/SearchParameter/IdentityProvider-status",
+    "version": "4.0.1",
+    "name": "status",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "oxidized-health",
+    "description": "An identity providers status.",
+    "code": "status",
+    "base": [
+        "IdentityProvider"
+    ],
+    "type": "token",
+    "expression": "IdentityProvider.status"
+}

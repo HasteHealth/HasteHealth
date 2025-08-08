@@ -1,0 +1,17 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "ClientApplication-grantType",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/ClientApplication-grantType",
+  "version": "4.0.1",
+  "name": "Grant Type",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "oxidized-health",
+  "description": "ClientApplication grant type.",
+  "code": "grantType",
+  "base": [
+    "ClientApplication"
+  ],
+  "type": "token",
+  "expression": "ClientApplication.grantType"
+}

@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "AccessPolicyV2-name",
+    "url": "https://oxidized-health.app/fhir/SearchParameter/AccessPolicyV2-name",
+    "version": "4.0.1",
+    "name": "name",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "oxidized-health",
+    "description": "An access policies name.",
+    "code": "name",
+    "base": [
+        "AccessPolicyV2"
+    ],
+    "type": "string",
+    "expression": "AccessPolicyV2.name"
+}
