@@ -25,8 +25,8 @@ use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 use tracing::info;
 
+mod auth_n;
 mod fhir_http;
-mod oidc;
 mod pg;
 mod server_client;
 
@@ -144,7 +144,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
             "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{*fhir_location}",
             any(fhir_handler),
         )
-        .nest("/oidc", oidc::create_router())
+        .nest("/oidc", auth_n::oidc::routes::create_router())
         .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
         .layer(Extension(Arc::new(FPEngine::new())))
