@@ -1,0 +1,17 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "Membership-name",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/Membership-name",
+  "version": "4.0.1",
+  "name": "Name",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "oxidized-health",
+  "description": "Membership name",
+  "code": "name",
+  "base": [
+    "Membership"
+  ],
+  "type": "string",
+  "expression": "Membership.name"
+}
