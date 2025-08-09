@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
-use axum::{Router, extract::Json};
+use axum::{Extension, Router, extract::Json};
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
 
+use oxidized_fhir_model::r4::types::ClientApplication;
 use oxidized_fhir_repository::{FHIRRepository, TenantId};
 use oxidized_fhir_search::SearchEngine;
 use serde::{Deserialize, Serialize};
@@ -39,7 +40,11 @@ pub struct OIDCResponse {
 #[typed_path("/.well-known/openid-configuration")]
 pub struct WellKnown;
 
-async fn well_known(_: WellKnown) -> Result<Json<OIDCResponse>, String> {
+async fn well_known(
+    _: WellKnown,
+    Extension(client_apps): Extension<Vec<ClientApplication>>,
+) -> Result<Json<OIDCResponse>, String> {
+    println!("Client Applications: {:?}", client_apps);
     let oidc_response = serde_json::from_value::<OIDCResponse>(serde_json::json!({
         "issuer": "https://example.com",
         "authorization_endpoint": "https://example.com/authorize"
