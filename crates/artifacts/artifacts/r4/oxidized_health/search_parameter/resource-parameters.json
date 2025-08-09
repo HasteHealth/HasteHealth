@@ -1,12 +1,13 @@
 {
   "resourceType": "Bundle",
+  "type": "collection",
   "entry": [
     {
-      "fullUrl": "https:/oxidized-health.app/fhir/SearchParameter/author",
+      "fullUrl": "https://oxidized-health.app/fhir/SearchParameter/author",
       "resource": {
         "resourceType": "SearchParameter",
         "id": "author",
-        "url": "https:/oxidized-health.app/fhir/SearchParameter/author",
+        "url": "https://oxidized-health.app/fhir/SearchParameter/author",
         "version": "4.0.1",
         "name": "_oxidized-health-author",
         "status": "draft",
