@@ -1,23 +1,17 @@
 use std::sync::Arc;
 
-use axum::{
-    Router,
-    body::Body,
-    extract::{Json, Request, State},
-    response::Response,
-};
+use axum::{Router, extract::Json};
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
-use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::types::ResourceType;
-use oxidized_fhir_repository::{Author, FHIRRepository, ProjectId, TenantId};
+
+use oxidized_fhir_repository::{FHIRRepository, TenantId};
 use oxidized_fhir_search::SearchEngine;
 use serde::{Deserialize, Serialize};
 use tower::ServiceBuilder;
 
-use crate::{AppState, server_client::ServerCTX};
+use crate::{AppState, auth_n::oidc};
 
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
@@ -63,41 +57,6 @@ async fn token_post(TokenPostRoute { tenant, id }: TokenPostRoute) -> String {
     id
 }
 
-async fn middleware_test<
-    Repo: FHIRRepository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->(
-    State(state): State<Arc<AppState<Repo, Search>>>,
-    req: Request<Body>,
-    next: axum::middleware::Next,
-) -> Response<Body> {
-    let ctx = ServerCTX {
-        tenant: TenantId::new("tenant".to_string()),
-        project: ProjectId::new("project".to_string()),
-        fhir_version: oxidized_fhir_repository::SupportedFHIRVersions::R4,
-        author: Author {
-            id: "anonymous".to_string(),
-            kind: "Membership".to_string(),
-        },
-    };
-
-    let res = state
-        .fhir_client
-        .search_type(
-            ctx,
-            ResourceType::new("ClientApplication".to_string()).unwrap(),
-            vec![],
-        )
-        .await;
-    println!("{:?}", res);
-
-    let response = next.run(req).await;
-
-    // do something with `response`...
-
-    response
-}
-
 pub fn create_router<
     T: Send + Sync + 'static,
     Repo: FHIRRepository + Send + Sync + 'static,
@@ -112,7 +71,7 @@ pub fn create_router<
         .layer(
             ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
                 state.clone(),
-                middleware_test,
+                oidc::middleware::client_inject_middleware,
             )),
         )
 }

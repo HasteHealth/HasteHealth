@@ -2,6 +2,7 @@ pub mod routes;
 pub mod schemas;
 
 pub mod hardcoded_clients;
+mod middleware;
 
 fn tester() {
     let k = schemas::token_instrospection::OAuth2TokenIntrospectionBody {
