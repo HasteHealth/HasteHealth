@@ -1875,7 +1875,6 @@ dependencies = [
  "once_cell",
  "oxidized-fhir-model",
  "oxidized-fhir-serialization-json",
- "walkdir",
 ]
 
 [[package]]
