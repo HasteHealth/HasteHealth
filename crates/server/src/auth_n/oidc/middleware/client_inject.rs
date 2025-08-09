@@ -6,7 +6,8 @@ use axum::{
     http::Response,
 };
 use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::types::ResourceType;
+use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_repository::{Author, FHIRRepository, ProjectId, TenantId};
 use oxidized_fhir_search::SearchEngine;
 
@@ -17,9 +18,9 @@ pub async fn client_inject_middleware<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     State(state): State<Arc<AppState<Repo, Search>>>,
-    req: Request<Body>,
+    mut req: Request<Body>,
     next: axum::middleware::Next,
-) -> Response<Body> {
+) -> Result<Response<Body>, OperationOutcomeError> {
     let ctx = ServerCTX {
         tenant: TenantId::new("tenant".to_string()),
         project: ProjectId::new("project".to_string()),
@@ -30,20 +31,25 @@ pub async fn client_inject_middleware<
         },
     };
 
-    let res = state
+    let client_apps = state
         .fhir_client
         .search_type(
             ctx,
             ResourceType::new("ClientApplication".to_string()).unwrap(),
             vec![],
         )
-        .await;
+        .await?
+        .into_iter()
+        .filter_map(|client_app| match client_app {
+            Resource::ClientApplication(client_app) => Some(client_app),
+            _ => None,
+        })
+        .collect();
 
-    println!("{:?}", res);
+    req.extensions_mut()
+        .insert::<Vec<ClientApplication>>(client_apps);
 
     let response = next.run(req).await;
 
-    // do something with `response`...
-
-    response
+    Ok(response)
 }
