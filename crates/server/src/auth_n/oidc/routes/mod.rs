@@ -7,6 +7,7 @@ use axum_extra::routing::{
 };
 use oxidized_fhir_repository::TenantId;
 use serde::{Deserialize, Serialize};
+use tower::ServiceBuilder;
 
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
@@ -57,4 +58,13 @@ pub fn create_router<T: Send + Sync + 'static>() -> Router<Arc<T>> {
         .typed_get(token_get)
         .typed_post(token_post)
         .typed_get(well_known)
+        .layer(ServiceBuilder::new().layer(axum::middleware::from_fn(
+            |req, next: axum::middleware::Next| {
+                async move {
+                    // println!("Request: {:?}", req);
+                    // Middleware logic can be added here
+                    next.run(req).await
+                }
+            },
+        )))
 }
