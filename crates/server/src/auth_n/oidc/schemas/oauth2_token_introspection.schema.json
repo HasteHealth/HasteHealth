@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "OAuth2TokenIntrospectionBody",
+    "type": "object",
+    "description": "https://datatracker.ietf.org/doc/html/rfc7662#section-2.1",
+    "additionalProperties": false,
+    "required": [
+        "token"
+    ],
+    "$id": "https://iguhealth.app/jsonschema/oauth2/token-introspection-body",
+    "properties": {
+        "token": {
+            "description": "Token to introspect.",
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,101 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "OAuth2TokenBody",
+    "type": "object",
+    "$id": "https://iguhealth.app/jsonschema/oauth2/token-body",
+    "oneOf": [
+        {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "grant_type",
+                "code",
+                "redirect_uri",
+                "code_verifier",
+                "client_id"
+            ],
+            "properties": {
+                "grant_type": {
+                    "description": "The grant type used in the initial request.",
+                    "type": "string",
+                    "const": "authorization_code"
+                },
+                "code": {
+                    "description": "The authorization code received from the authorization server.",
+                    "type": "string"
+                },
+                "redirect_uri": {
+                    "description": "The redirect URI used in the initial request.",
+                    "type": "string"
+                },
+                "code_verifier": {
+                    "description": "The code verifier used in the initial request.",
+                    "type": "string"
+                },
+                "client_id": {
+                    "description": "The client ID used in the initial request. May also be included in the Basic header.",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "description": "The client Secret used in the initial request. May also be included in the Basic header.",
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "grant_type",
+                "refresh_token"
+            ],
+            "properties": {
+                "grant_type": {
+                    "description": "The grant type used in the initial request.",
+                    "type": "string",
+                    "const": "refresh_token"
+                },
+                "refresh_token": {
+                    "description": "The refresh token used to obtain a new access token.",
+                    "type": "string"
+                },
+                "scope": {
+                    "description": "The scope of the access request.",
+                    "type": "string"
+                },
+                "client_id": {
+                    "description": "The client ID used in the initial request. May also be included in the Basic header.",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "description": "The client Secret used in the initial request. May also be included in the Basic header.",
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+                "grant_type",
+                "client_id",
+                "client_secret"
+            ],
+            "properties": {
+                "grant_type": {
+                    "description": "The grant type used in the initial request.",
+                    "type": "string",
+                    "const": "client_credentials"
+                },
+                "client_id": {
+                    "description": "The client ID used in the initial request. May also be included in the Basic header.",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "description": "The client Secret used in the initial request. May also be included in the Basic header.",
+                    "type": "string"
+                }
+            }
+        }
+    ]
+}
