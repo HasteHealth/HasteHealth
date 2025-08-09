@@ -56,5 +56,20 @@ mod tests {
         );
 
         assert!(body.is_ok());
+
+        let body = serde_json::from_str::<token_body::OAuth2TokenBody>(
+            r#"
+            {
+                "grant_type": "authorization_code",
+                "code": "code",
+                "redirect_uri": "redirect_uri",
+                "code_verifier": "code_verifier",
+                "client_id": "client_id",
+                "refresh_token": "should not be here",
+            }
+            "#,
+        );
+
+        assert!(!body.is_ok());
     }
 }
