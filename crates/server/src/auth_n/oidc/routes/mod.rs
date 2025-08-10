@@ -11,7 +11,10 @@ use tower::ServiceBuilder;
 
 use crate::{
     AppState,
-    auth_n::oidc::{self, middleware::OIDCParameters},
+    auth_n::oidc::{
+        self,
+        middleware::{OIDCParameters, ParameterConfig, ParameterInjectLayer},
+    },
 };
 
 // A type safe route with `/users/{id}` as its associated path.
@@ -46,8 +49,8 @@ async fn well_known(
     Ok(Json(oidc_response))
 }
 
-async fn token_get(TokenGetRoute { tenant, id }: TokenGetRoute) -> String {
-    id
+async fn token_get(route: TokenGetRoute) -> String {
+    route.id
 }
 
 // A type safe route with `/users/{id}` as its associated path.
@@ -75,6 +78,12 @@ pub fn create_router<
 >(
     state: Arc<AppState<Repo, Search>>,
 ) -> Router<Arc<T>> {
+    let layer = ParameterInjectLayer::new(ParameterConfig {
+        // Initialize with your desired parameters
+        allowed_params: vec!["param1".to_string(), "param2".to_string()],
+        optional_params: vec!["optional1".to_string(), "optional2".to_string()],
+        allow_launch_params: true,
+    });
     Router::new()
         .typed_get(token_get)
         .typed_post(token_post)
@@ -85,10 +94,5 @@ pub fn create_router<
             )),
         )
         .typed_get(well_known)
-        .layer(
-            ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
-                state.clone(),
-                oidc::middleware::parameter_inject_middleware,
-            )),
-        )
+        .layer(ServiceBuilder::new().layer(layer))
 }

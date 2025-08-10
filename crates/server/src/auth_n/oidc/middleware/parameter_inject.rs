@@ -1,31 +1,99 @@
-use std::collections::HashMap;
-
-use axum::{
-    body::{Body, to_bytes},
-    extract::{Query, Request},
-    response::Response,
-};
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use axum::RequestExt;
+use axum::{body::Body, extract::Request, response::Response};
+use axum::{body::to_bytes, extract::Query};
 use serde::Deserialize;
+use std::sync::{Arc, Mutex};
+use std::task::{Context, Poll};
+use std::{collections::HashMap, pin::Pin};
+use tower::{Layer, Service};
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct OIDCParameters(pub HashMap<String, String>);
 
-pub async fn parameter_inject_middleware(
-    query_params: Query<HashMap<String, String>>,
-    request: Request<Body>,
-    next: axum::middleware::Next,
-) -> Result<Response<Body>, OperationOutcomeError> {
-    let (parts, body) = request.into_parts();
-    let bytes = to_bytes(body, 10000).await.unwrap();
+#[derive(Clone, Debug)]
+pub struct ParameterConfig {
+    pub allowed_params: Vec<String>,
+    pub optional_params: Vec<String>,
+    pub allow_launch_params: bool,
+}
 
-    let oidc_params = serde_json::from_slice::<OIDCParameters>(&bytes)
-        .unwrap_or_else(|_e| OIDCParameters(query_params.0));
+#[derive(Clone)]
+pub struct ParameterInjectLayer {
+    state: Arc<ParameterConfig>,
+}
 
-    let new_body = Body::from(bytes);
+impl<S> Layer<S> for ParameterInjectLayer {
+    type Service = ParameterInjectService<S>;
 
-    let mut request2 = Request::from_parts(parts, new_body);
-    request2.extensions_mut().insert(oidc_params);
+    fn layer(&self, inner: S) -> Self::Service {
+        ParameterInjectService {
+            inner: Arc::new(Mutex::new(inner)),
+            state: self.state.clone(),
+        }
+    }
+}
+impl ParameterInjectLayer {
+    pub fn new(state: ParameterConfig) -> Self {
+        ParameterInjectLayer {
+            state: Arc::new(state),
+        }
+    }
+}
 
-    Ok(next.run(request2).await)
+#[derive(Clone)]
+pub struct ParameterInjectService<S> {
+    inner: Arc<Mutex<S>>,
+    state: Arc<ParameterConfig>,
+}
+
+impl<'a, T> Service<Request<Body>> for ParameterInjectService<T>
+where
+    T: Service<Request, Response = Response> + Send + 'static,
+    T::Future: Send + 'static,
+    // T: 'static,
+    // T: Service<Request, Response = Response>,
+    // T::Future: Send + 'static,
+    // T::Error: Into<Box<dyn std::error::Error + Send + Sync>>,
+    // T::Response: 'static,
+{
+    type Response = T::Response;
+    type Error = T::Error;
+    // `BoxFuture` is a type alias for `Pin<Box<dyn Future + Send + 'a>>`
+    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
+
+    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        self.inner.lock().unwrap().poll_ready(cx)
+    }
+
+    fn call(&mut self, mut request: Request) -> Self::Future {
+        // let (parts, body) = request.into_parts();
+        let inner = self.inner.clone();
+        let parameter_config = self.state.clone();
+
+        Box::pin(async move {
+            let query_params = request
+                .extract_parts::<Query<HashMap<String, String>>>()
+                .await
+                .unwrap();
+            println!("{:?}", parameter_config);
+
+            let (parts, body) = request.into_parts();
+            let bytes = to_bytes(body, 10000).await.unwrap();
+
+            let oidc_params = serde_json::from_slice::<OIDCParameters>(&bytes)
+                .unwrap_or_else(|_e| OIDCParameters(query_params.0));
+
+            let new_body = Body::from(bytes);
+            let mut request2 = Request::from_parts(parts, new_body);
+            request2.extensions_mut().insert(oidc_params);
+
+            //     let res = self.inner.call(request2).await;
+
+            //     res
+            let k = inner;
+            let future = k.lock().unwrap().call(request2);
+            let response: Response = future.await?;
+            Ok(response)
+        })
+    }
 }
