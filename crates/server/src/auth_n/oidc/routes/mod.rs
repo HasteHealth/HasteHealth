@@ -1,15 +1,12 @@
-use std::sync::Arc;
-
 use axum::{Extension, Router, extract::Json};
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
-
-use oxidized_fhir_model::r4::types::ClientApplication;
 use oxidized_fhir_repository::{FHIRRepository, TenantId};
 use oxidized_fhir_search::SearchEngine;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use tower::ServiceBuilder;
 
 use crate::{
@@ -35,10 +32,7 @@ pub struct OIDCResponse {
 #[typed_path("/.well-known/openid-configuration")]
 pub struct WellKnown;
 
-async fn well_known(
-    _: WellKnown,
-    Extension(client_apps): Extension<Vec<ClientApplication>>,
-) -> Result<Json<OIDCResponse>, String> {
+async fn well_known(_: WellKnown) -> Result<Json<OIDCResponse>, String> {
     let oidc_response = serde_json::from_value::<OIDCResponse>(serde_json::json!({
         "issuer": "https://example.com",
         "authorization_endpoint": "https://example.com/authorize"
@@ -61,12 +55,11 @@ pub struct TokenPostRoute {
 }
 async fn token_post(
     TokenPostRoute { tenant, id }: TokenPostRoute,
-    Extension(client_apps): Extension<Vec<ClientApplication>>,
     Extension(oidc_params): Extension<OIDCParameters>,
 ) -> String {
     println!(
         "Token Post for tenant: {}, id: {}, params: {:?}",
-        tenant, id, oidc_params
+        tenant, id, oidc_params.0
     );
     id
 }

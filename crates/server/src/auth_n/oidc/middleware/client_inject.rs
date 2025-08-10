@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use axum::{
-    Json,
     body::Body,
     extract::{Request, State},
     http::Response,

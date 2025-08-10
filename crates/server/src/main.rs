@@ -4,7 +4,7 @@ use crate::{
     server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
-    Extension, Router,
+    Router,
     extract::{OriginalUri, Path, State},
     http::Method,
     response::{IntoResponse, Response},
