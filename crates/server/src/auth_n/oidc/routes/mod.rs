@@ -39,7 +39,7 @@ async fn well_known(
     _: WellKnown,
     Extension(oidc_params): Extension<OIDCParameters>,
 ) -> Result<Json<OIDCResponse>, String> {
-    println!("OIDC Parameters: {:?}", oidc_params.0);
+    println!("OIDC Parameters: {:?}", oidc_params.parameters);
     let oidc_response = serde_json::from_value::<OIDCResponse>(serde_json::json!({
         "issuer": "https://example.com",
         "authorization_endpoint": "https://example.com/authorize"
@@ -66,7 +66,7 @@ async fn token_post(
 ) -> String {
     println!(
         "Token Post for tenant: {}, id: {}, params: {:?}",
-        tenant, id, oidc_params.0
+        tenant, id, oidc_params.parameters
     );
     id
 }
