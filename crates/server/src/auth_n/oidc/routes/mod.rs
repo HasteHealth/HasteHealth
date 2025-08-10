@@ -78,22 +78,37 @@ pub fn create_router<
 >(
     state: Arc<AppState<Repo, Search>>,
 ) -> Router<Arc<T>> {
-    let layer = ParameterInjectLayer::new(ParameterConfig {
-        // Initialize with your desired parameters
-        required_parameters: vec![],
-        // required_parameters: vec!["param1".to_string(), "param2".to_string()],
-        optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
-        allow_launch_parameters: true,
-    });
     Router::new()
         .typed_get(token_get)
         .typed_post(token_post)
         .route_layer(
+            ServiceBuilder::new()
+                .layer(axum::middleware::from_fn_with_state(
+                    state.clone(),
+                    oidc::middleware::client_inject_middleware,
+                ))
+                .layer(ParameterInjectLayer::new(ParameterConfig {
+                    // Initialize with your desired parameters
+                    required_parameters: vec!["client_id".to_string()],
+                    // required_parameters: vec!["param1".to_string(), "param2".to_string()],
+                    optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
+                    allow_launch_parameters: true,
+                })),
+        )
+        .typed_get(well_known)
+        .route_layer(
+            ServiceBuilder::new().layer(ParameterInjectLayer::new(ParameterConfig {
+                // Initialize with your desired parameters
+                required_parameters: vec!["response_type".to_string()],
+                // required_parameters: vec!["param1".to_string(), "param2".to_string()],
+                optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
+                allow_launch_parameters: true,
+            })),
+        )
+        .layer(
             ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
                 state.clone(),
                 oidc::middleware::client_inject_middleware,
             )),
         )
-        .typed_get(well_known)
-        .layer(ServiceBuilder::new().layer(layer))
 }

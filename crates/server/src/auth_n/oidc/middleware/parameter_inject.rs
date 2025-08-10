@@ -55,6 +55,7 @@ fn validate_parameter(param_name: &str, param_value: &str) -> Result<(), String>
     if param_value.is_empty() {
         return Err("Parameter cannot be empty".to_string());
     }
+
     if param_name == "response_type" && !["code", "token"].contains(&param_value) {
         return Err(format!("Invalid response_type: {}", param_value));
     }
@@ -123,7 +124,7 @@ where
                 )
             {
                 if let Some(parameter_value) = unvalidated_parameters.get(parameter_name) {
-                    if let Err(_e) = validate_parameter(parameter_value, parameter_value) {
+                    if let Err(_e) = validate_parameter(parameter_name, parameter_value) {
                         return Ok((
                             StatusCode::BAD_REQUEST,
                             format!("Invalid parameter: '{}'", parameter_name),
