@@ -80,7 +80,8 @@ pub fn create_router<
 ) -> Router<Arc<T>> {
     let layer = ParameterInjectLayer::new(ParameterConfig {
         // Initialize with your desired parameters
-        required_parameters: vec!["param1".to_string(), "param2".to_string()],
+        required_parameters: vec![],
+        // required_parameters: vec!["param1".to_string(), "param2".to_string()],
         optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
         allow_launch_parameters: true,
     });
