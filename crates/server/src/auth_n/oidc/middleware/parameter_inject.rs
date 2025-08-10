@@ -2,7 +2,7 @@ use axum::RequestExt;
 use axum::{body::Body, extract::Request, response::Response};
 use axum::{body::to_bytes, extract::Query};
 use serde::Deserialize;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::task::{Context, Poll};
 use std::{collections::HashMap, pin::Pin};
 use tower::{Layer, Service};
@@ -27,7 +27,7 @@ impl<S> Layer<S> for ParameterInjectLayer {
 
     fn layer(&self, inner: S) -> Self::Service {
         ParameterInjectService {
-            inner: Arc::new(Mutex::new(inner)),
+            inner,
             state: self.state.clone(),
         }
     }
