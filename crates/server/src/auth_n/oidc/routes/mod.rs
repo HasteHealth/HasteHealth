@@ -32,7 +32,11 @@ pub struct OIDCResponse {
 #[typed_path("/.well-known/openid-configuration")]
 pub struct WellKnown;
 
-async fn well_known(_: WellKnown) -> Result<Json<OIDCResponse>, String> {
+async fn well_known(
+    _: WellKnown,
+    Extension(oidc_params): Extension<OIDCParameters>,
+) -> Result<Json<OIDCResponse>, String> {
+    println!("OIDC Parameters: {:?}", oidc_params.0);
     let oidc_response = serde_json::from_value::<OIDCResponse>(serde_json::json!({
         "issuer": "https://example.com",
         "authorization_endpoint": "https://example.com/authorize"
@@ -75,21 +79,16 @@ pub fn create_router<
         .typed_get(token_get)
         .typed_post(token_post)
         .route_layer(
-            ServiceBuilder::new()
-                .layer(axum::middleware::from_fn_with_state(
-                    state.clone(),
-                    oidc::middleware::parameter_inject_middleware,
-                ))
-                .layer(axum::middleware::from_fn_with_state(
-                    state.clone(),
-                    oidc::middleware::client_inject_middleware,
-                )),
+            ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
+                state.clone(),
+                oidc::middleware::client_inject_middleware,
+            )),
         )
         .typed_get(well_known)
         .layer(
             ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
                 state.clone(),
-                oidc::middleware::client_inject_middleware,
+                oidc::middleware::parameter_inject_middleware,
             )),
         )
 }
