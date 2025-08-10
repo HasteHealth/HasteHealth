@@ -3,8 +3,8 @@ use oxidized_fhir_client::{
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
-        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeResponse, FHIRUpdateResponse,
-        FHIRVersionReadResponse,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
+        FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
@@ -297,11 +297,26 @@ impl<
 
     async fn search_type(
         &self,
-        _ctx: ServerCTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
-        _parameters: Vec<ParsedParameter>,
+        ctx: ServerCTX,
+        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::SearchType(FHIRSearchTypeRequest {
+                    resource_type,
+                    parameters,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::SearchType(search_response)) => Ok(search_response.resources),
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn create(

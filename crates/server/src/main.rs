@@ -4,7 +4,7 @@ use crate::{
     server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
-    Extension, Router,
+    Router,
     extract::{OriginalUri, Path, State},
     http::Method,
     response::{IntoResponse, Response},
@@ -54,7 +54,7 @@ pub enum CustomOpError {
     InternalServerError,
 }
 
-struct AppState<
+pub struct AppState<
     Repo: FHIRRepository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 > {
@@ -144,10 +144,12 @@ async fn main() -> Result<(), OperationOutcomeError> {
             "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{*fhir_location}",
             any(fhir_handler),
         )
-        .nest("/oidc", auth_n::oidc::routes::create_router())
+        .nest(
+            "/oidc",
+            auth_n::oidc::routes::create_router(shared_state.clone()),
+        )
         .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
-        .layer(Extension(Arc::new(FPEngine::new())))
         .fallback_service(ServeDir::new("public"));
 
     // run our app with hyper, listening globally on port 3000
