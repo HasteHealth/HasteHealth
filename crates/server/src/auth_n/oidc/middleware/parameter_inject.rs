@@ -14,9 +14,9 @@ pub struct OIDCParameters(pub HashMap<String, String>);
 
 #[derive(Clone, Debug)]
 pub struct ParameterConfig {
-    pub allowed_params: Vec<String>,
-    pub optional_params: Vec<String>,
-    pub allow_launch_params: bool,
+    pub required_parameters: Vec<String>,
+    pub optional_parameters: Vec<String>,
+    pub allow_launch_parameters: bool,
 }
 
 #[derive(Clone)]
@@ -48,6 +48,17 @@ pub struct ParameterInjectService<S> {
     state: Arc<ParameterConfig>,
 }
 
+fn validate_parameter(param_name: &str, param_value: &str) -> Result<(), String> {
+    if param_value.is_empty() {
+        return Err("Parameter cannot be empty".to_string());
+    }
+    if param_name == "response_type" && !["code", "token"].contains(&param_value) {
+        return Err(format!("Invalid response_type: {}", param_value));
+    }
+
+    Ok(())
+}
+
 impl<'a, T> Service<Request<Body>> for ParameterInjectService<T>
 where
     T: Service<Request, Response = Response> + Send + 'static + Clone,
@@ -70,7 +81,6 @@ where
 
         Box::pin(async move {
             println!("{:?}", parameter_config);
-
             let query_params = request
                 .extract_parts::<Query<HashMap<String, String>>>()
                 .await;
@@ -88,13 +98,46 @@ where
                 )
                     .into_response());
             };
-
-            let oidc_params = serde_json::from_slice::<OIDCParameters>(&bytes)
+            // Either check the body if serializes or check the query params.
+            let unvalidated_parameters = serde_json::from_slice::<OIDCParameters>(&bytes)
                 .unwrap_or_else(|_e| OIDCParameters(query_params.0));
+
+            let mut oidc_parameters = HashMap::new();
+
+            // Check for required parameters
+            for (is_required, parameter_name) in parameter_config
+                .required_parameters
+                .iter()
+                .map(|p| (true, p))
+                .chain(
+                    parameter_config
+                        .optional_parameters
+                        .iter()
+                        .map(|p| (false, p)),
+                )
+            {
+                if let Some(parameter_value) = unvalidated_parameters.0.get(parameter_name) {
+                    if let Err(_e) = validate_parameter(parameter_value, parameter_value) {
+                        return Ok((
+                            StatusCode::BAD_REQUEST,
+                            format!("Invalid parameter: '{}'", parameter_name),
+                        )
+                            .into_response());
+                    }
+
+                    oidc_parameters.insert(parameter_name.clone(), parameter_value.clone());
+                } else if is_required {
+                    return Ok((
+                        StatusCode::BAD_REQUEST,
+                        format!("Missing required parameter: '{parameter_name}'",),
+                    )
+                        .into_response());
+                }
+            }
 
             let new_body = Body::from(bytes);
             let mut new_request = Request::from_parts(parts, new_body);
-            new_request.extensions_mut().insert(oidc_params);
+            new_request.extensions_mut().insert(oidc_parameters);
 
             let future = inner.call(new_request);
             let response: Response = future.await?;
