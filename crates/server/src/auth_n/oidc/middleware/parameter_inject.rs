@@ -42,32 +42,28 @@ impl ParameterInjectLayer {
 
 #[derive(Clone)]
 pub struct ParameterInjectService<S> {
-    inner: Arc<Mutex<S>>,
+    inner: S,
     state: Arc<ParameterConfig>,
 }
 
 impl<'a, T> Service<Request<Body>> for ParameterInjectService<T>
 where
-    T: Service<Request, Response = Response> + Send + 'static,
+    T: Service<Request, Response = Response> + Send + 'static + Clone,
     T::Future: Send + 'static,
-    // T: 'static,
-    // T: Service<Request, Response = Response>,
-    // T::Future: Send + 'static,
-    // T::Error: Into<Box<dyn std::error::Error + Send + Sync>>,
-    // T::Response: 'static,
 {
     type Response = T::Response;
     type Error = T::Error;
-    // `BoxFuture` is a type alias for `Pin<Box<dyn Future + Send + 'a>>`
     type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
 
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.inner.lock().unwrap().poll_ready(cx)
+        self.inner.poll_ready(cx)
     }
 
     fn call(&mut self, mut request: Request) -> Self::Future {
-        // let (parts, body) = request.into_parts();
-        let inner = self.inner.clone();
+        // https://docs.rs/tower/latest/tower/trait.Service.html#be-careful-when-cloning-inner-services
+        let clone = self.inner.clone();
+        // take the service that was ready
+        let mut inner = std::mem::replace(&mut self.inner, clone);
         let parameter_config = self.state.clone();
 
         Box::pin(async move {
@@ -84,14 +80,10 @@ where
                 .unwrap_or_else(|_e| OIDCParameters(query_params.0));
 
             let new_body = Body::from(bytes);
-            let mut request2 = Request::from_parts(parts, new_body);
-            request2.extensions_mut().insert(oidc_params);
+            let mut new_request = Request::from_parts(parts, new_body);
+            new_request.extensions_mut().insert(oidc_params);
 
-            //     let res = self.inner.call(request2).await;
-
-            //     res
-            let k = inner;
-            let future = k.lock().unwrap().call(request2);
+            let future = inner.call(new_request);
             let response: Response = future.await?;
             Ok(response)
         })
