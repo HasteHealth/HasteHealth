@@ -1,4 +1,6 @@
 use axum::RequestExt;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use axum::{body::Body, extract::Request, response::Response};
 use axum::{body::to_bytes, extract::Query};
 use serde::Deserialize;
@@ -67,14 +69,25 @@ where
         let parameter_config = self.state.clone();
 
         Box::pin(async move {
-            let query_params = request
-                .extract_parts::<Query<HashMap<String, String>>>()
-                .await
-                .unwrap();
             println!("{:?}", parameter_config);
 
+            let query_params = request
+                .extract_parts::<Query<HashMap<String, String>>>()
+                .await;
+
+            let Ok(query_params) = query_params else {
+                return Ok((StatusCode::BAD_REQUEST, "".to_string()).into_response());
+            };
+
             let (parts, body) = request.into_parts();
-            let bytes = to_bytes(body, 10000).await.unwrap();
+            let bytes = to_bytes(body, 10000).await;
+            let Ok(bytes) = bytes else {
+                return Ok((
+                    StatusCode::BAD_REQUEST,
+                    "Body was to large size limit 10k bytes".to_string(),
+                )
+                    .into_response());
+            };
 
             let oidc_params = serde_json::from_slice::<OIDCParameters>(&bytes)
                 .unwrap_or_else(|_e| OIDCParameters(query_params.0));
