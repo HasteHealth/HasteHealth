@@ -17,14 +17,6 @@ use crate::{AppState, auth_n::oidc};
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/{tenant}/token/{id}")]
-pub struct TokenPostRoute {
-    tenant: TenantId,
-    id: String,
-}
-
-// A type safe route with `/users/{id}` as its associated path.
-#[derive(TypedPath, Deserialize)]
-#[typed_path("/{tenant}/token/{id}")]
 pub struct TokenGetRoute {
     tenant: TenantId,
     pub id: String,
@@ -58,6 +50,13 @@ async fn token_get(TokenGetRoute { tenant, id }: TokenGetRoute) -> String {
     id
 }
 
+// A type safe route with `/users/{id}` as its associated path.
+#[derive(TypedPath, Deserialize)]
+#[typed_path("/{tenant}/token/{id}")]
+pub struct TokenPostRoute {
+    tenant: TenantId,
+    id: String,
+}
 async fn token_post(TokenPostRoute { tenant, id }: TokenPostRoute) -> String {
     id
 }
@@ -74,9 +73,14 @@ pub fn create_router<
         .typed_post(token_post)
         .typed_get(well_known)
         .layer(
-            ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
-                state.clone(),
-                oidc::middleware::client_inject_middleware,
-            )),
+            ServiceBuilder::new()
+                .layer(axum::middleware::from_fn_with_state(
+                    state.clone(),
+                    oidc::middleware::parameter_inject_middleware,
+                ))
+                .layer(axum::middleware::from_fn_with_state(
+                    state.clone(),
+                    oidc::middleware::client_inject_middleware,
+                )),
         )
 }

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
+    Json,
     body::Body,
     extract::{Request, State},
     http::Response,
@@ -18,7 +19,8 @@ pub async fn client_inject_middleware<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     State(state): State<Arc<AppState<Repo, Search>>>,
-    mut req: Request<Body>,
+
+    request: Request<Body>,
     next: axum::middleware::Next,
 ) -> Result<Response<Body>, OperationOutcomeError> {
     let ctx = ServerCTX {
@@ -30,6 +32,9 @@ pub async fn client_inject_middleware<
             kind: "Membership".to_string(),
         },
     };
+
+    let (parts, body) = request.into_parts();
+    let mut request = Request::from_parts(parts, body);
 
     let client_apps = state
         .fhir_client
@@ -46,10 +51,11 @@ pub async fn client_inject_middleware<
         })
         .collect();
 
-    req.extensions_mut()
+    request
+        .extensions_mut()
         .insert::<Vec<ClientApplication>>(client_apps);
 
-    let response = next.run(req).await;
+    let response = next.run(request).await;
 
     Ok(response)
 }
