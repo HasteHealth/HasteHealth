@@ -20,7 +20,7 @@ pub async fn client_inject_middleware<
 >(
     State(state): State<Arc<AppState<Repo, Search>>>,
 
-    request: Request<Body>,
+    mut request: Request<Body>,
     next: axum::middleware::Next,
 ) -> Result<Response<Body>, OperationOutcomeError> {
     let ctx = ServerCTX {
@@ -32,9 +32,6 @@ pub async fn client_inject_middleware<
             kind: "Membership".to_string(),
         },
     };
-
-    let (parts, body) = request.into_parts();
-    let mut request = Request::from_parts(parts, body);
 
     let client_apps = state
         .fhir_client

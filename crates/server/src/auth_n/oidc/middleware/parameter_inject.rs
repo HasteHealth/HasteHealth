@@ -8,8 +8,8 @@ use axum::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
-struct OIDCParameters(pub HashMap<String, String>);
+#[derive(Deserialize, Clone, Debug)]
+pub struct OIDCParameters(pub HashMap<String, String>);
 
 pub async fn parameter_inject_middleware(
     request: Request<Body>,
@@ -20,11 +20,10 @@ pub async fn parameter_inject_middleware(
 
     let oidc_params = serde_json::from_slice::<OIDCParameters>(&bytes).unwrap();
 
-    println!("OIDC Parameters: {:?}", oidc_params.0);
-
     let new_body = Body::from(bytes);
 
-    let request2 = Request::from_parts(parts, new_body);
+    let mut request2 = Request::from_parts(parts, new_body);
+    request2.extensions_mut().insert(oidc_params);
 
     Ok(next.run(request2).await)
 }
