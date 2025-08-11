@@ -1,3 +1,10 @@
+use crate::{
+    AppState,
+    auth_n::oidc::{
+        extract::client_app::OIDCClientApplication,
+        middleware::{OIDCParameterInjectLayer, OIDCParameters, ParameterConfig},
+    },
+};
 use axum::{Extension, Router, extract::Json};
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
@@ -8,14 +15,6 @@ use oxidized_fhir_search::SearchEngine;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower::ServiceBuilder;
-
-use crate::{
-    AppState,
-    auth_n::oidc::{
-        extract::client_app::OIDCClientApplication,
-        middleware::{OIDCParameterInjectLayer, OIDCParameters, ParameterConfig},
-    },
-};
 
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
