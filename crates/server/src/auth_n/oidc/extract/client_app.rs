@@ -1,9 +1,12 @@
 use std::sync::Arc;
 
-use crate::{AppState, auth_n::oidc::middleware::OIDCParameters, server_client::ServerCTX};
+use crate::{
+    AppState, auth_n::oidc::hardcoded_clients, auth_n::oidc::middleware::OIDCParameters,
+    server_client::ServerCTX,
+};
 use axum::{
     Extension, RequestPartsExt,
-    extract::FromRequestParts,
+    extract::{FromRequestParts, Path},
     http::{StatusCode, request::Parts},
     response::{IntoResponse, Response},
 };
@@ -11,8 +14,15 @@ use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
 use oxidized_fhir_repository::{Author, FHIRRepository, ProjectId, TenantId};
 use oxidized_fhir_search::SearchEngine;
+use serde::Deserialize;
 
 pub struct OIDCClientApplication(pub ClientApplication);
+
+#[derive(Deserialize)]
+struct TenantInformation {
+    tenant: TenantId,
+    project: ProjectId,
+}
 
 impl<Repo, Search> FromRequestParts<Arc<AppState<Repo, Search>>> for OIDCClientApplication
 where
@@ -30,9 +40,14 @@ where
             .await
             .map_err(|err| err.into_response())?;
 
+        let Path(TenantInformation { tenant, project }) =
+            Path::<TenantInformation>::from_request_parts(parts, state)
+                .await
+                .map_err(|err| err.into_response())?;
+
         let ctx = ServerCTX {
-            tenant: TenantId::new("tenant".to_string()),
-            project: ProjectId::new("project".to_string()),
+            tenant: tenant,
+            project: project,
             fhir_version: oxidized_fhir_repository::SupportedFHIRVersions::R4,
             author: Author {
                 id: "anonymous".to_string(),
