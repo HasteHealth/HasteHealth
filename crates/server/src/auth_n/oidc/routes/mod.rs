@@ -16,6 +16,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower::ServiceBuilder;
 
+mod interactions;
+
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/token/{id}")]
@@ -100,5 +102,8 @@ pub fn create_router<
                 },
             )));
 
-    Router::new().merge(token_routes).merge(well_known_routes)
+    Router::new()
+        .merge(token_routes)
+        .merge(well_known_routes)
+        .nest("/interactions", interactions::interactions_router())
 }
