@@ -13,7 +13,7 @@ use crate::{
     AppState,
     auth_n::oidc::{
         self,
-        middleware::{OIDCParameters, ParameterConfig, ParameterInjectLayer},
+        middleware::{OIDCParameterInjectService, OIDCParameters, ParameterConfig},
     },
 };
 
@@ -87,7 +87,7 @@ pub fn create_router<
                     state.clone(),
                     oidc::middleware::client_inject_middleware,
                 ))
-                .layer(ParameterInjectLayer::new(ParameterConfig {
+                .layer(OIDCParameterInjectService::new(ParameterConfig {
                     // Initialize with your desired parameters
                     required_parameters: vec!["client_id".to_string()],
                     // required_parameters: vec!["param1".to_string(), "param2".to_string()],
@@ -99,23 +99,15 @@ pub fn create_router<
     let well_known_routes =
         Router::new()
             .typed_get(well_known)
-            .route_layer(
-                ServiceBuilder::new().layer(ParameterInjectLayer::new(ParameterConfig {
+            .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectService::new(
+                ParameterConfig {
                     // Initialize with your desired parameters
                     required_parameters: vec!["response_type".to_string()],
                     // required_parameters: vec!["param1".to_string(), "param2".to_string()],
                     optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
                     allow_launch_parameters: true,
-                })),
-            );
+                },
+            )));
 
-    Router::new()
-        .merge(token_routes)
-        .merge(well_known_routes)
-        .layer(
-            ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
-                state.clone(),
-                oidc::middleware::client_inject_middleware,
-            )),
-        )
+    Router::new().merge(token_routes).merge(well_known_routes)
 }
