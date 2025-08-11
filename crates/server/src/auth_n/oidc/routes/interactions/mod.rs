@@ -11,5 +11,7 @@ pub fn interactions_router<
     Repo: FHIRRepository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >() -> Router<Arc<AppState<Repo, Search>>> {
-    Router::new().typed_get(login::login)
+    Router::new()
+        .typed_get(login::login_get)
+        .typed_post(login::login_post)
 }

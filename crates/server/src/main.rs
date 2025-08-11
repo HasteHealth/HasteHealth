@@ -147,7 +147,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
 
     let app = Router::new()
-        .nest("/{tenant}", tenant_router)
+        .nest("/w/{tenant}", tenant_router)
         .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
         .fallback_service(ServeDir::new("public"));
