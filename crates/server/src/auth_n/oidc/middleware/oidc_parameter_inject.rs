@@ -23,31 +23,31 @@ pub struct ParameterConfig {
 }
 
 #[derive(Clone)]
-pub struct ParameterInjectLayer {
+pub struct OIDCParameterInjectLayer {
     state: Arc<ParameterConfig>,
 }
 
-impl<S> Layer<S> for ParameterInjectLayer {
-    type Service = ParameterInjectService<S>;
+impl<S> Layer<S> for OIDCParameterInjectLayer {
+    type Service = OIDCParameterInjectService<S>;
 
     fn layer(&self, inner: S) -> Self::Service {
-        ParameterInjectService {
+        OIDCParameterInjectService {
             inner,
             state: self.state.clone(),
         }
     }
 }
 
-impl ParameterInjectLayer {
+impl OIDCParameterInjectLayer {
     pub fn new(state: ParameterConfig) -> Self {
-        ParameterInjectLayer {
+        OIDCParameterInjectLayer {
             state: Arc::new(state),
         }
     }
 }
 
 #[derive(Clone)]
-pub struct ParameterInjectService<S> {
+pub struct OIDCParameterInjectService<S> {
     inner: S,
     state: Arc<ParameterConfig>,
 }
@@ -64,7 +64,7 @@ fn validate_parameter(param_name: &str, param_value: &str) -> Result<(), String>
     Ok(())
 }
 
-impl<'a, T> Service<Request<Body>> for ParameterInjectService<T>
+impl<'a, T> Service<Request<Body>> for OIDCParameterInjectService<T>
 where
     T: Service<Request, Response = Response> + Send + 'static + Clone,
     T::Future: Send + 'static,

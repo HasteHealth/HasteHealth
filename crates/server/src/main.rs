@@ -144,10 +144,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
             "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{*fhir_location}",
             any(fhir_handler),
         )
-        .nest(
-            "/oidc",
-            auth_n::oidc::routes::create_router(shared_state.clone()),
-        )
+        .nest("/oidc", auth_n::oidc::routes::create_router())
         .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
         .fallback_service(ServeDir::new("public"));

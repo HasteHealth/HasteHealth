@@ -1,5 +1,3 @@
-mod client_inject;
-mod parameter_inject;
+mod oidc_parameter_inject;
 
-pub use client_inject::*;
-pub use parameter_inject::*;
+pub use oidc_parameter_inject::*;
