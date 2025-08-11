@@ -19,9 +19,8 @@ use crate::{
 
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/{tenant}/token/{id}")]
+#[typed_path("/token/{id}")]
 pub struct TokenGetRoute {
-    tenant: TenantId,
     pub id: String,
 }
 
@@ -55,19 +54,18 @@ async fn token_get(route: TokenGetRoute) -> String {
 
 // A type safe route with `/users/{id}` as its associated path.
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/{tenant}/token/{id}")]
+#[typed_path("/token/{id}")]
 pub struct TokenPostRoute {
-    tenant: TenantId,
     id: String,
 }
 async fn token_post(
-    TokenPostRoute { tenant, id }: TokenPostRoute,
+    TokenPostRoute { id }: TokenPostRoute,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
 ) -> String {
     println!(
-        "Token Post for tenant: {}, id: {}, params: {:?} client_app: {:?}",
-        tenant, id, oidc_params.parameters, client_app
+        "Token Post for id: {}, params: {:?} client_app: {:?}",
+        id, oidc_params.parameters, client_app
     );
 
     id

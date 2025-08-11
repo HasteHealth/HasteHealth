@@ -26,6 +26,7 @@ use tower_sessions_sqlx_store::PostgresStore;
 use tracing::info;
 
 mod auth_n;
+mod extract;
 mod fhir_http;
 mod pg;
 mod server_client;
@@ -139,12 +140,14 @@ async fn main() -> Result<(), OperationOutcomeError> {
         ),
     });
 
+    let project_router = Router::new()
+        .route("/fhir/{fhir_version}/{*fhir_location}", any(fhir_handler))
+        .nest("/oidc", auth_n::oidc::routes::create_router());
+
+    let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
+
     let app = Router::new()
-        .route(
-            "/{tenant}/api/v1/{project}/fhir/{fhir_version}/{*fhir_location}",
-            any(fhir_handler),
-        )
-        .nest("/oidc", auth_n::oidc::routes::create_router())
+        .nest("/{tenant}", tenant_router)
         .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
         .fallback_service(ServeDir::new("public"));

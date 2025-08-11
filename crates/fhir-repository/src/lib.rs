@@ -35,7 +35,7 @@ impl std::fmt::Display for SupportedFHIRVersions {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TenantId(String);
 impl TenantId {
     pub fn new(id: String) -> Self {
@@ -63,7 +63,7 @@ impl Display for TenantId {
         write!(f, "{}", self.0)
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProjectId(String);
 impl ProjectId {
     pub fn new(id: String) -> Self {
