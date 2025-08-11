@@ -4,6 +4,7 @@ use oxidized_fhir_repository::TenantId;
 
 pub mod admin_app;
 
+#[allow(dead_code)]
 pub fn get_hardcoded_clients(
     config: Box<dyn Config>,
     tenant_id: TenantId,
