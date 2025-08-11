@@ -37,6 +37,7 @@ impl<S> Layer<S> for ParameterInjectLayer {
         }
     }
 }
+
 impl ParameterInjectLayer {
     pub fn new(state: ParameterConfig) -> Self {
         ParameterInjectLayer {
