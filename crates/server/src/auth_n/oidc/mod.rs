@@ -1,5 +1,5 @@
 mod extract;
 mod hardcoded_clients;
 mod middleware;
-mod routes;
+pub mod routes;
 mod schemas;
