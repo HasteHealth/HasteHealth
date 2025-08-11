@@ -18,7 +18,6 @@ pub async fn client_inject_middleware<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     State(state): State<Arc<AppState<Repo, Search>>>,
-
     mut request: Request<Body>,
     next: axum::middleware::Next,
 ) -> Result<Response<Body>, OperationOutcomeError> {

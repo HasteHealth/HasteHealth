@@ -11,7 +11,10 @@ use tower::ServiceBuilder;
 
 use crate::{
     AppState,
-    auth_n::oidc::{self, middleware::OIDCParameters},
+    auth_n::oidc::{
+        self,
+        middleware::{OIDCParameters, ParameterConfig, ParameterInjectLayer},
+    },
 };
 
 // A type safe route with `/users/{id}` as its associated path.
@@ -32,7 +35,11 @@ pub struct OIDCResponse {
 #[typed_path("/.well-known/openid-configuration")]
 pub struct WellKnown;
 
-async fn well_known(_: WellKnown) -> Result<Json<OIDCResponse>, String> {
+async fn well_known(
+    _: WellKnown,
+    Extension(oidc_params): Extension<OIDCParameters>,
+) -> Result<Json<OIDCResponse>, String> {
+    println!("OIDC Parameters: {:?}", oidc_params.parameters);
     let oidc_response = serde_json::from_value::<OIDCResponse>(serde_json::json!({
         "issuer": "https://example.com",
         "authorization_endpoint": "https://example.com/authorize"
@@ -42,8 +49,8 @@ async fn well_known(_: WellKnown) -> Result<Json<OIDCResponse>, String> {
     Ok(Json(oidc_response))
 }
 
-async fn token_get(TokenGetRoute { tenant, id }: TokenGetRoute) -> String {
-    id
+async fn token_get(route: TokenGetRoute) -> String {
+    route.id
 }
 
 // A type safe route with `/users/{id}` as its associated path.
@@ -59,7 +66,7 @@ async fn token_post(
 ) -> String {
     println!(
         "Token Post for tenant: {}, id: {}, params: {:?}",
-        tenant, id, oidc_params.0
+        tenant, id, oidc_params.parameters
     );
     id
 }
@@ -71,21 +78,40 @@ pub fn create_router<
 >(
     state: Arc<AppState<Repo, Search>>,
 ) -> Router<Arc<T>> {
-    Router::new()
+    let token_routes = Router::new()
         .typed_get(token_get)
         .typed_post(token_post)
         .route_layer(
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
                     state.clone(),
-                    oidc::middleware::parameter_inject_middleware,
-                ))
-                .layer(axum::middleware::from_fn_with_state(
-                    state.clone(),
                     oidc::middleware::client_inject_middleware,
-                )),
-        )
-        .typed_get(well_known)
+                ))
+                .layer(ParameterInjectLayer::new(ParameterConfig {
+                    // Initialize with your desired parameters
+                    required_parameters: vec!["client_id".to_string()],
+                    // required_parameters: vec!["param1".to_string(), "param2".to_string()],
+                    optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
+                    allow_launch_parameters: true,
+                })),
+        );
+
+    let well_known_routes =
+        Router::new()
+            .typed_get(well_known)
+            .route_layer(
+                ServiceBuilder::new().layer(ParameterInjectLayer::new(ParameterConfig {
+                    // Initialize with your desired parameters
+                    required_parameters: vec!["response_type".to_string()],
+                    // required_parameters: vec!["param1".to_string(), "param2".to_string()],
+                    optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
+                    allow_launch_parameters: true,
+                })),
+            );
+
+    Router::new()
+        .merge(token_routes)
+        .merge(well_known_routes)
         .layer(
             ServiceBuilder::new().layer(axum::middleware::from_fn_with_state(
                 state.clone(),
