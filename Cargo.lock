@@ -2125,6 +2125,7 @@ dependencies = [
 name = "oxidized-fhirpath"
 version = "0.1.0"
 dependencies = [
+ "criterion",
  "dashmap",
  "insta",
  "jiff",

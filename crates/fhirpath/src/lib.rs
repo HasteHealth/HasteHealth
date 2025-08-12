@@ -1,5 +1,5 @@
 #![allow(unused)]
-#![feature(test)]
+
 mod error;
 mod parser;
 use crate::{
@@ -770,15 +770,12 @@ impl FPEngine {
 
 #[cfg(test)]
 mod tests {
-    extern crate test;
     use super::*;
-
     use oxidized_fhir_model::r4::types::{
         FHIRString, HumanName, Identifier, Patient, Reference, Resource, SearchParameter,
     };
     use oxidized_fhir_serialization_json;
     use oxidized_reflect_derive::Reflect;
-    use test::Bencher;
 
     #[derive(Reflect, Debug)]
     struct C {
@@ -1247,20 +1244,5 @@ mod tests {
             references[0].reference.as_ref().unwrap().value,
             Some("Patient/f001".to_string())
         );
-    }
-
-    #[bench]
-    fn fp_performance_simple(b: &mut Bencher) {
-        let root = A {
-            a: vec![Box::new(B {
-                b: vec![Box::new(C {
-                    c: "test".to_string(),
-                })],
-            })],
-        };
-
-        let engine = FPEngine::new();
-
-        b.iter(|| engine.evaluate("a.b.c", vec![&root]).unwrap());
     }
 }
