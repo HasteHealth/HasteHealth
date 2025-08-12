@@ -9,7 +9,8 @@ use oxidized_fhir_model::r4::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder, Transaction};
-use std::marker::PhantomData;
+use std::{marker::PhantomData, sync::Arc};
+use tokio::sync::Mutex;
 
 #[derive(sqlx::FromRow, Debug)]
 struct ReturnV {
@@ -22,14 +23,21 @@ pub enum StoreError {
     SQLXError(#[from] sqlx::Error),
 }
 
-pub struct FHIRPostgresRepositoryPool(sqlx::Pool<Postgres>);
-impl FHIRPostgresRepositoryPool {
-    pub fn new(pool: sqlx::Pool<Postgres>) -> Self {
-        FHIRPostgresRepositoryPool(pool)
+/// Connection types supported by the repository traits.
+pub enum PGConnection {
+    PgPool(sqlx::Pool<Postgres>),
+    PgTransaction(Arc<Mutex<sqlx::Transaction<'static, Postgres>>>),
+    PgConnection(Arc<Mutex<sqlx::PgConnection>>),
+}
+
+pub struct PostgresRepository(PGConnection);
+impl PostgresRepository {
+    pub fn new(connection: PGConnection) -> Self {
+        PostgresRepository(connection)
     }
 }
 
-impl FHIRRepository for FHIRPostgresRepositoryPool {
+impl FHIRRepository for PostgresRepository {
     type Transaction = Transaction<'static, Postgres>;
 
     async fn create(
@@ -40,10 +48,47 @@ impl FHIRRepository for FHIRPostgresRepositoryPool {
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        let res =
-            SQLImplementation::create(&self.0, tenant, project, author, fhir_version, resource)
+        match self.0 {
+            PGConnection::PgPool(ref pool) => {
+                let res = SQLImplementation::create(
+                    pool,
+                    tenant,
+                    project,
+                    author,
+                    fhir_version,
+                    resource,
+                )
                 .await?;
-        Ok(res)
+                Ok(res)
+            }
+            PGConnection::PgTransaction(ref tx) => {
+                let mut tx = tx.lock().await;
+                let res = SQLImplementation::create(
+                    &mut *tx,
+                    tenant,
+                    project,
+                    author,
+                    fhir_version,
+                    resource,
+                )
+                .await?;
+                Ok(res)
+            }
+            PGConnection::PgConnection(ref conn) => {
+                let mut conn = conn.lock().await;
+                // Handle PgConnection connection
+                let res = SQLImplementation::create(
+                    &mut *conn,
+                    tenant,
+                    project,
+                    author,
+                    fhir_version,
+                    resource,
+                )
+                .await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn update(
@@ -128,7 +173,7 @@ pub struct SQLImplementation<'a> {
 }
 impl<'a, Connection> FHIRTransaction<Connection> for SQLImplementation<'a>
 where
-    Connection: Acquire<'a, Database = Postgres> + Send + Sync,
+    Connection: Acquire<'a, Database = Postgres>,
 {
     async fn create(
         connection: Connection,

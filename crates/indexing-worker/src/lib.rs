@@ -3,7 +3,7 @@ use oxidized_config::get_config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
     FHIRRepository, FHIRTransaction, SupportedFHIRVersions, TenantId,
-    postgres::{FHIRPostgresRepositoryPool, SQLImplementation},
+    postgres::{PostgresRepository, SQLImplementation},
 };
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
@@ -177,7 +177,7 @@ pub async fn run_worker() {
     let pg_pool = sqlx::PgPool::connect(&config.get("DATABASE_URL").unwrap())
         .await
         .expect("Failed to connect to the database");
-    let repo = Arc::new(FHIRPostgresRepositoryPool::new(pg_pool.clone()));
+    let repo = Arc::new(PostgresRepository::new(pg_pool.clone()));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 

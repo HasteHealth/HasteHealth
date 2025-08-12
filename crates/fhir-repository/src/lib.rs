@@ -6,6 +6,7 @@ use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
+use sqlx::Postgres;
 use std::fmt::{Debug, Display};
 
 pub mod postgres;
@@ -180,7 +181,7 @@ pub trait FHIRRepository {
         author: &Author,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>>;
 
     fn update(
         &self,
@@ -190,14 +191,14 @@ pub trait FHIRRepository {
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>>;
 
     fn read_by_version_ids(
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
         version_id: Vec<VersionIdRef>,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>>;
     fn read_latest(
         &self,
         tenant_id: &TenantId,
@@ -212,15 +213,15 @@ pub trait FHIRRepository {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         request: HistoryRequest,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>>;
     fn get_sequence(
         &self,
         tenant_id: &TenantId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>>;
 
-    fn transaction<'a>(&'a self) -> impl Future<Output = Option<Self::Transaction>> + Send;
+    fn transaction<'a>(&'a self) -> impl Future<Output = Option<Self::Transaction>>;
 }
 
 pub trait FHIRTransaction<Connection> {
@@ -231,7 +232,7 @@ pub trait FHIRTransaction<Connection> {
         author: &Author,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>>;
 
     fn update(
         k: Connection,
@@ -241,14 +242,14 @@ pub trait FHIRTransaction<Connection> {
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>>;
 
     fn read_by_version_ids(
         k: Connection,
         tenant_id: &TenantId,
         project_id: &ProjectId,
         version_id: Vec<VersionIdRef>,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>>;
     fn read_latest(
         k: Connection,
         tenant_id: &TenantId,
@@ -257,17 +258,17 @@ pub trait FHIRTransaction<Connection> {
         resource_id: &ResourceId,
     ) -> impl Future<
         Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
-    > + Send;
+    >;
     fn history(
         k: Connection,
         tenant_id: &TenantId,
         project_id: &ProjectId,
         request: HistoryRequest,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>>;
     fn get_sequence(
         k: Connection,
         tenant_id: &TenantId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>>;
 }
