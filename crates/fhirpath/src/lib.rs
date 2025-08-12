@@ -1,5 +1,4 @@
 #![allow(unused)]
-#![feature(test)]
 mod error;
 mod parser;
 use crate::{

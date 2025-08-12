@@ -342,8 +342,6 @@ parser! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    extern crate test;
-    use test::Bencher;
 
     #[test]
     fn literals() {
@@ -410,20 +408,6 @@ mod tests {
 
         let result = parser::operations("-$this.field[45 + 23]").unwrap();
         insta::assert_debug_snapshot!(result);
-    }
-
-    #[bench]
-    fn parser_test_performance(b: &mut Bencher) {
-        b.iter(|| parser::operations("1 + 2 * (3 - 4) / 5").unwrap());
-    }
-
-    #[bench]
-    fn parser_test_complex(b: &mut Bencher) {
-        b.iter(|| parser::operations("$this.field + %test._asdf.test(45, $this.field) * 64 * $this.where($this.field = '23'.length())").unwrap());
-    }
-    #[bench]
-    fn parser_test_simple(b: &mut Bencher) {
-        b.iter(|| parser::operations("$this.field").unwrap());
     }
 }
 
