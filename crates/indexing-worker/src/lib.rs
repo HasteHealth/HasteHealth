@@ -60,14 +60,14 @@ async fn get_tenants(
 }
 
 async fn index_tenant_next_sequence<
-    'a,
     Repo: FHIRRepository + IndexLockProvider,
-    Engine: SearchEngine + 'a,
+    Engine: SearchEngine,
 >(
     search_client: Arc<Engine>,
     tx: &Repo,
-    tenant_id: &'a TenantId,
+    tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
+    let start = std::time::Instant::now();
     let tenant_locks = tx.get_available_locks(vec![tenant_id.as_ref()]).await?;
 
     if tenant_locks.is_empty() {
@@ -82,18 +82,9 @@ async fn index_tenant_next_sequence<
         )
         .await?;
 
-    if !resources.is_empty() {
-        tracing::info!(
-            "Tenant '{}' Indexing '{}' resources",
-            tenant_id,
-            resources.len()
-        );
-    }
-
     // Perform indexing if there are resources to index.
     if !resources.is_empty() {
         search_client
-            .clone()
             .index(
                 &SupportedFHIRVersions::R4,
                 &tenant_id,
@@ -110,10 +101,20 @@ async fn index_tenant_next_sequence<
                     .collect(),
             )
             .await?;
+
         if let Some(resource) = resources.last() {
             tx.update_lock(tenant_id.as_ref(), resource.sequence as usize)
                 .await?;
         }
+    }
+
+    if !resources.is_empty() {
+        tracing::info!(
+            "Tenant '{}' Indexing '{}' resources in {:?}",
+            tenant_id,
+            resources.len(),
+            start.elapsed()
+        );
     }
 
     Ok(())
@@ -125,8 +126,8 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let search_client = search_client.clone();
-
     let tx = repo.transaction().await.unwrap();
+
     let res = index_tenant_next_sequence(search_client, &tx, &tenant_id).await;
 
     match res {
