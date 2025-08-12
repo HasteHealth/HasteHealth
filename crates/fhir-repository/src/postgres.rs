@@ -1,5 +1,5 @@
 use crate::{
-    Author, FHIRMethod, FHIRRepository, FHIRTransaction, HistoryRequest, ProjectId, ResourceId,
+    Author, FHIRMethod, FHIRRepository, HistoryRequest, ProjectId, ResourceId,
     ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionIdRef, utilities,
 };
 use oxidized_fhir_model::r4::{
@@ -39,16 +39,6 @@ impl PostgresRepository {
     }
 }
 
-async fn get_acquirer<'a>(
-    conn: &'a PGConnection,
-) -> Result<impl Acquire<'_, Database = Postgres>, StoreError> {
-    match conn {
-        PGConnection::PgPool(pool) => Ok(pool),
-        PGConnection::PgTransaction(tx) => Ok(&mut *(tx.lock().await)),
-        PGConnection::PgConnection(conn) => Ok(conn.lock().await),
-    }
-}
-
 impl FHIRRepository for PostgresRepository {
     async fn create(
         &self,
@@ -64,26 +54,15 @@ impl FHIRRepository for PostgresRepository {
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
-                let tx = tx.clone();
-                let k = Box::pin(async move {
-                    let mut tx = tx.lock().await;
-                    let res =
-                        create(&mut *tx, tenant, project, author, fhir_version, resource).await?;
-                    Ok(res)
-                });
-                k.await
+                let mut tx = tx.lock().await;
+                let res = create(&mut *tx, tenant, project, author, fhir_version, resource).await?;
+                Ok(res)
             }
-            PGConnection::PgConnection(ref conn) => {
-                todo!();
-                // let conn = conn.clone();
-                // async move {
-                //     // Handle PgConnection connection
-                //     let mut conn = conn.lock().await;
-                //     let res =
-                //         create(&mut *conn, tenant, project, author, fhir_version, resource).await?;
-                //     Ok(res)
-                // }
-                // .await
+            PGConnection::PgConnection(conn) => {
+                let mut conn = conn.lock().await;
+                let res =
+                    create(&mut *conn, tenant, project, author, fhir_version, resource).await?;
+                Ok(res)
             }
         }
     }
@@ -312,21 +291,22 @@ fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     }
 }
 
-async fn update<'a, Connection: Acquire<'a, Database = Postgres>>(
+fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
-    tenant: &TenantId,
-    project: &ProjectId,
-    author: &Author,
-    fhir_version: &SupportedFHIRVersions,
-    resource: &mut Resource,
-    id: &str,
-) -> Result<Resource, OperationOutcomeError> {
-    utilities::set_resource_id(resource, Some(id.to_string()))?;
-    utilities::set_version_id(resource)?;
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    author: &'a Author,
+    fhir_version: &'a SupportedFHIRVersions,
+    resource: &'a mut Resource,
+    id: &'a str,
+) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a {
+    async move {
+        utilities::set_resource_id(resource, Some(id.to_string()))?;
+        utilities::set_version_id(resource)?;
 
-    let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
-    let result = sqlx::query_as!(
+        let result = sqlx::query_as!(
                 ReturnV,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
@@ -344,46 +324,53 @@ async fn update<'a, Connection: Acquire<'a, Database = Postgres>>(
                 &FHIRMethod::Update as &FHIRMethod,
             ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
 
-    Ok(result.resource.0)
-}
-
-async fn read_by_version_ids<'a, Connection: Acquire<'a, Database = Postgres>>(
-    connection: Connection,
-    tenant_id: &TenantId,
-    project_id: &ProjectId,
-    version_ids: Vec<VersionIdRef<'_>>,
-) -> Result<Vec<Resource>, OperationOutcomeError> {
-    let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-    let mut query_builder: QueryBuilder<Postgres> =
-        QueryBuilder::new(r#"SELECT resource FROM resources WHERE tenant = "#);
-    query_builder.push_bind(tenant_id.as_ref());
-    query_builder.push(" AND project =");
-    query_builder.push_bind(project_id.as_ref());
-    query_builder.push(" AND version_id in (");
-
-    let mut separated = query_builder.separated(", ");
-    for version_id in version_ids.iter() {
-        separated.push_bind(version_id.as_ref());
+        Ok(result.resource.0)
     }
-    separated.push_unseparated(")");
-
-    let query = query_builder.build_query_as();
-    let response: Vec<ReturnV> = query
-        .fetch_all(&mut *conn)
-        .await
-        .map_err(StoreError::from)?;
-    Ok(response.into_iter().map(|r| r.resource.0).collect())
 }
 
-async fn read_latest<'a, Connection: Acquire<'a, Database = Postgres>>(
+fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
-    tenant_id: &TenantId,
-    project_id: &ProjectId,
-    resource_type: &ResourceType,
-    resource_id: &ResourceId,
-) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-    let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-    let response = sqlx::query!(
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    version_ids: Vec<VersionIdRef<'a>>,
+) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let mut query_builder: QueryBuilder<Postgres> =
+            QueryBuilder::new(r#"SELECT resource FROM resources WHERE tenant = "#);
+        query_builder.push_bind(tenant_id.as_ref());
+        query_builder.push(" AND project =");
+        query_builder.push_bind(project_id.as_ref());
+        query_builder.push(" AND version_id in (");
+
+        let mut separated = query_builder.separated(", ");
+        for version_id in version_ids.iter() {
+            separated.push_bind(version_id.as_ref());
+        }
+        separated.push_unseparated(")");
+
+        let query = query_builder.build_query_as();
+        let response: Vec<ReturnV> = query
+            .fetch_all(&mut *conn)
+            .await
+            .map_err(StoreError::from)?;
+        Ok(response.into_iter().map(|r| r.resource.0).collect())
+    }
+}
+
+fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    resource_type: &'a ResourceType,
+    resource_id: &'a ResourceId,
+) -> impl Future<
+    Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
+> + Send
++ 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let response = sqlx::query!(
             r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC"#,
             tenant_id.as_ref(),
             project_id.as_ref(),
@@ -391,19 +378,21 @@ async fn read_latest<'a, Connection: Acquire<'a, Database = Postgres>>(
             resource_type.as_str(),
         ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
 
-    Ok(response.map(|r| r.resource.0))
+        Ok(response.map(|r| r.resource.0))
+    }
 }
 
-async fn history<'a, Connection: Acquire<'a, Database = Postgres>>(
+fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
-    tenant_id: &TenantId,
-    project_id: &ProjectId,
-    history_request: HistoryRequest<'_>,
-) -> Result<Vec<Resource>, OperationOutcomeError> {
-    let mut conn = connection.acquire().await.map_err(StoreError::from)?;
-    match history_request {
-        HistoryRequest::Instance(history_instance_request) => {
-            let response = sqlx::query_as!(ReturnV,
+    tenant_id: &'a TenantId,
+    project_id: &'a ProjectId,
+    history_request: HistoryRequest<'a>,
+) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::from)?;
+        match history_request {
+            HistoryRequest::Instance(history_instance_request) => {
+                let response = sqlx::query_as!(ReturnV,
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
@@ -411,40 +400,42 @@ async fn history<'a, Connection: Acquire<'a, Database = Postgres>>(
                         history_instance_request.resource_type.as_str() as &str
                     ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
 
-            Ok(response.into_iter().map(|r| r.resource.0).collect())
-        }
-        HistoryRequest::Type(history_type_request) => {
-            let response = sqlx::query_as!(ReturnV,
+                Ok(response.into_iter().map(|r| r.resource.0).collect())
+            }
+            HistoryRequest::Type(history_type_request) => {
+                let response = sqlx::query_as!(ReturnV,
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
                         history_type_request.resource_type.as_str() as &str
                     ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
 
-            Ok(response.into_iter().map(|r| r.resource.0).collect())
-        }
-        HistoryRequest::System(_request) => {
-            let response = sqlx::query_as!(ReturnV,
+                Ok(response.into_iter().map(|r| r.resource.0).collect())
+            }
+            HistoryRequest::System(_request) => {
+                let response = sqlx::query_as!(ReturnV,
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str
                     ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
 
-            Ok(response.into_iter().map(|r| r.resource.0).collect())
+                Ok(response.into_iter().map(|r| r.resource.0).collect())
+            }
         }
     }
 }
 
-async fn get_sequence<'a, Connection: Acquire<'a, Database = Postgres>>(
+fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
-    tenant_id: &TenantId,
+    tenant_id: &'a TenantId,
     cur_sequence: u64,
     count: Option<u64>,
-) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
-    let mut conn = connection.acquire().await.map_err(StoreError::from)?;
-    let result = sqlx::query_as!(
-        ResourcePollingValue,
-        r#"SELECT  id as "id: ResourceId", 
+) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::from)?;
+        let result = sqlx::query_as!(
+            ResourcePollingValue,
+            r#"SELECT  id as "id: ResourceId", 
                        tenant as "tenant: TenantId", 
                        project as "project: ProjectId", 
                        version_id, 
@@ -453,13 +444,14 @@ async fn get_sequence<'a, Connection: Acquire<'a, Database = Postgres>>(
                        sequence, 
                        resource as "resource: FHIRJson<Resource>" 
             FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
-        tenant_id.as_ref() as &str,
-        cur_sequence as i64,
-        count.unwrap_or(100) as i64
-    )
-    .fetch_all(&mut *conn)
-    .await
-    .map_err(StoreError::from)?;
+            tenant_id.as_ref() as &str,
+            cur_sequence as i64,
+            count.unwrap_or(100) as i64
+        )
+        .fetch_all(&mut *conn)
+        .await
+        .map_err(StoreError::from)?;
 
-    Ok(result)
+        Ok(result)
+    }
 }

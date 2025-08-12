@@ -2,8 +2,7 @@ use crate::indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvide
 use oxidized_config::get_config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
-    FHIRRepository, FHIRTransaction, SupportedFHIRVersions, TenantId,
-    postgres::{PostgresRepository, SQLImplementation},
+    FHIRRepository, SupportedFHIRVersions, TenantId, postgres::PostgresRepository,
 };
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
