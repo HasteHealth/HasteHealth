@@ -170,7 +170,7 @@ pub enum HistoryRequest<'a> {
     Instance(&'a FHIRHistoryInstanceRequest),
 }
 
-pub trait FHIRRepository {
+pub trait FHIRRepository: Sized {
     fn create(
         &self,
         tenant: &TenantId,
@@ -220,7 +220,8 @@ pub trait FHIRRepository {
 
     fn transaction<'a>(
         &'a self,
-    ) -> impl Future<Output = Result<impl FHIRRepository, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Self, OperationOutcomeError>> + Send;
 
     fn commit(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+    fn rollback(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
 }

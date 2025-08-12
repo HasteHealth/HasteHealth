@@ -1,9 +1,7 @@
-use crate::indexing_lock::{IndexLockProvider, postgres::PostgresIndexLockProvider};
+use crate::indexing_lock::IndexLockProvider;
 use oxidized_config::get_config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_repository::{
-    FHIRRepository, SupportedFHIRVersions, TenantId, postgres::PostgresRepository,
-};
+use oxidized_fhir_repository::{FHIRRepository, SupportedFHIRVersions, TenantId};
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
@@ -61,15 +59,16 @@ async fn get_tenants(
     Ok(result)
 }
 
-async fn index_tenant_next_sequence<'a, Repo: FHIRRepository, Engine: SearchEngine + 'a>(
+async fn index_tenant_next_sequence<
+    'a,
+    Repo: FHIRRepository + IndexLockProvider,
+    Engine: SearchEngine + 'a,
+>(
     search_client: Arc<Engine>,
-    tx: &'a Repo,
+    tx: &Repo,
     tenant_id: &'a TenantId,
 ) -> Result<(), IndexingWorkerError> {
-    let tenant_lock_provider = PostgresIndexLockProvider::new();
-    let tenant_locks = tenant_lock_provider
-        .get_available(tx, vec![tenant_id.as_ref()])
-        .await?;
+    let tenant_locks = tx.get_available_locks(vec![tenant_id.as_ref()]).await?;
 
     if tenant_locks.is_empty() {
         return Ok(());
@@ -112,8 +111,7 @@ async fn index_tenant_next_sequence<'a, Repo: FHIRRepository, Engine: SearchEngi
             )
             .await?;
         if let Some(resource) = resources.last() {
-            tenant_lock_provider
-                .update(tx, tenant_id.as_ref(), resource.sequence as usize)
+            tx.update_lock(tenant_id.as_ref(), resource.sequence as usize)
                 .await?;
         }
     }
@@ -121,14 +119,14 @@ async fn index_tenant_next_sequence<'a, Repo: FHIRRepository, Engine: SearchEngi
     Ok(())
 }
 
-async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository>(
+async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + IndexLockProvider>(
     repo: Arc<Repository>,
     search_client: Arc<Search>,
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let search_client = search_client.clone();
 
-    let mut tx = repo.transaction().await.unwrap();
+    let tx = repo.transaction().await.unwrap();
     let res = index_tenant_next_sequence(search_client, &tx, &tenant_id).await;
 
     match res {
@@ -174,8 +172,8 @@ pub async fn run_worker() {
         .await
         .expect("Failed to connect to the database");
 
-    let repo = Arc::new(PostgresRepository::new(
-        oxidized_fhir_repository::postgres::PGConnection::PgPool(pg_pool.clone()),
+    let repo = Arc::new(oxidized_fhir_repository::postgres::PGConnection::PgPool(
+        pg_pool.clone(),
     ));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;

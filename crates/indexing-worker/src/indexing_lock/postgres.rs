@@ -1,6 +1,7 @@
 use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Postgres, QueryBuilder, Transaction};
+use oxidized_fhir_repository::postgres::PGConnection;
+use sqlx::{Acquire, Postgres, QueryBuilder, Transaction};
 
 pub struct PostgresIndexLockProvider();
 
@@ -14,52 +15,76 @@ impl PostgresIndexLockProvider {
 pub enum TenantLockIndexError {
     #[fatal(code = "exception", diagnostic = "SQL error occurred {arg0}")]
     SQLError(#[from] sqlx::Error),
+    #[fatal(
+        code = "exception",
+        diagnostic = "Locking must be done in a transaction."
+    )]
+    InvalidConnection,
 }
 
-impl<'b> IndexLockProvider<Transaction<'b, Postgres>> for PostgresIndexLockProvider {
-    async fn get_available(
+impl IndexLockProvider for PGConnection {
+    async fn get_available_locks(
         &self,
-        conn: &mut Transaction<'b, Postgres>,
         tenants: Vec<&str>,
     ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
-        // Implementation for retrieving available locks from PostgreSQL
+        match self {
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+                let conn = (&mut (*tx))
+                    .acquire()
+                    .await
+                    .map_err(TenantLockIndexError::from)?;
+                // Implementation for retrieving available locks from PostgreSQL
 
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new("SELECT id, index_sequence_position FROM tenants WHERE id IN ( ");
+                let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+                    "SELECT id, index_sequence_position FROM tenants WHERE id IN ( ",
+                );
 
-        let mut separated = query_builder.separated(", ");
-        for tenant_id in tenants.iter() {
-            separated.push_bind(tenant_id);
+                let mut separated = query_builder.separated(", ");
+                for tenant_id in tenants.iter() {
+                    separated.push_bind(tenant_id);
+                }
+
+                separated.push_unseparated(") FOR UPDATE SKIP LOCKED");
+
+                let query = query_builder.build_query_as();
+                // println!("Executing query: '{:?}'", query.sql());
+                let res = query
+                    .fetch_all(conn)
+                    .await
+                    .map_err(TenantLockIndexError::from)?;
+
+                Ok(res)
+            }
+            _ => Err(TenantLockIndexError::InvalidConnection.into()),
         }
-
-        separated.push_unseparated(") FOR UPDATE SKIP LOCKED");
-
-        let query = query_builder.build_query_as();
-        // println!("Executing query: '{:?}'", query.sql());
-        let res = query
-            .fetch_all(&mut **conn)
-            .await
-            .map_err(TenantLockIndexError::from)?;
-
-        Ok(res)
     }
 
-    async fn update(
+    async fn update_lock(
         &self,
-        conn: &mut Transaction<'b, Postgres>,
         tenant_id: &str,
         next_position: usize,
     ) -> Result<(), OperationOutcomeError> {
-        // Implementation for updating a lock in PostgreSQL
-        sqlx::query!(
-            "UPDATE tenants SET index_sequence_position = $1 WHERE id = $2",
-            next_position as i64,
-            tenant_id
-        )
-        .execute(&mut **conn)
-        .await
-        .map_err(TenantLockIndexError::from)?;
+        match self {
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+                let conn = (&mut (*tx))
+                    .acquire()
+                    .await
+                    .map_err(TenantLockIndexError::from)?;
+                // Implementation for retrieving available locks from PostgreSQL
+                sqlx::query!(
+                    "UPDATE tenants SET index_sequence_position = $1 WHERE id = $2",
+                    next_position as i64,
+                    tenant_id
+                )
+                .execute(conn)
+                .await
+                .map_err(TenantLockIndexError::from)?;
 
-        Ok(())
+                Ok(())
+            }
+            _ => Err(TenantLockIndexError::InvalidConnection.into()),
+        }
     }
 }

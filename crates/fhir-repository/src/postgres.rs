@@ -237,7 +237,7 @@ impl FHIRRepository for PGConnection {
         }
     }
 
-    async fn transaction<'a>(&'a self) -> Result<impl FHIRRepository, OperationOutcomeError> {
+    async fn transaction<'a>(&'a self) -> Result<Self, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let tx = pool.begin().await.map_err(StoreError::from)?;
@@ -262,6 +262,21 @@ impl FHIRRepository for PGConnection {
 
                 // Handle PgConnection connection
                 let res = conn.commit().await.map_err(StoreError::from)?;
+                Ok(res)
+            }
+            PGConnection::PgConnection(_conn) => Err(StoreError::NotTransaction.into()),
+        }
+    }
+    async fn rollback(self) -> Result<(), OperationOutcomeError> {
+        match self {
+            PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
+            PGConnection::PgTransaction(tx) => {
+                let conn = Mutex::into_inner(
+                    Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
+                );
+
+                // Handle PgConnection connection
+                let res = conn.rollback().await.map_err(StoreError::from)?;
                 Ok(res)
             }
             PGConnection::PgConnection(_conn) => Err(StoreError::NotTransaction.into()),
