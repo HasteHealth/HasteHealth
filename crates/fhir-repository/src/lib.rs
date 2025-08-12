@@ -178,7 +178,7 @@ pub trait FHIRRepository {
         author: &Author,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
 
     fn update(
         &self,
@@ -188,14 +188,14 @@ pub trait FHIRRepository {
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
 
     fn read_by_version_ids(
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
         version_id: Vec<VersionIdRef>,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
         tenant_id: &TenantId,
@@ -204,23 +204,23 @@ pub trait FHIRRepository {
         resource_id: &ResourceId,
     ) -> impl Future<
         Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
-    >;
+    > + Send;
     fn history(
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
         request: HistoryRequest,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,
         tenant_id: &TenantId,
         sequence_id: u64,
         count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
 
     fn transaction<'a>(
         &'a self,
-    ) -> impl Future<Output = Result<impl FHIRRepository, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<impl FHIRRepository, OperationOutcomeError>> + Send;
 }
 
 pub trait FHIRTransaction<Connection> {
