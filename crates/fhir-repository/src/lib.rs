@@ -6,7 +6,6 @@ use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
-use sqlx::Postgres;
 use std::fmt::{Debug, Display};
 
 pub mod postgres;
@@ -172,8 +171,6 @@ pub enum HistoryRequest<'a> {
 }
 
 pub trait FHIRRepository {
-    type Transaction;
-
     fn create(
         &self,
         tenant: &TenantId,
@@ -207,7 +204,7 @@ pub trait FHIRRepository {
         resource_id: &ResourceId,
     ) -> impl Future<
         Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
-    > + Send;
+    >;
     fn history(
         &self,
         tenant_id: &TenantId,
@@ -221,7 +218,9 @@ pub trait FHIRRepository {
         count: Option<u64>,
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>>;
 
-    fn transaction<'a>(&'a self) -> impl Future<Output = Option<Self::Transaction>>;
+    fn transaction<'a>(
+        &'a self,
+    ) -> impl Future<Output = Result<impl FHIRRepository, OperationOutcomeError>>;
 }
 
 pub trait FHIRTransaction<Connection> {
