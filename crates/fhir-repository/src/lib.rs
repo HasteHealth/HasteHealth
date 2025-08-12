@@ -16,8 +16,6 @@ pub mod utilities;
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
 pub enum SupportedFHIRVersions {
     R4,
-    R4B,
-    R5,
 }
 
 pub struct Author {
@@ -29,8 +27,6 @@ impl std::fmt::Display for SupportedFHIRVersions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             SupportedFHIRVersions::R4 => write!(f, "R4"),
-            SupportedFHIRVersions::R4B => write!(f, "R4B"),
-            SupportedFHIRVersions::R5 => write!(f, "R5"),
         }
     }
 }
