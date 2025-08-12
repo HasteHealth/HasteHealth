@@ -221,4 +221,6 @@ pub trait FHIRRepository {
     fn transaction<'a>(
         &'a self,
     ) -> impl Future<Output = Result<impl FHIRRepository, OperationOutcomeError>> + Send;
+
+    fn commit(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
 }

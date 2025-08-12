@@ -6,7 +6,7 @@ use oxidized_fhir_repository::{
 };
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
-use sqlx::{Pool, Postgres, Transaction, query_as, types::time::OffsetDateTime};
+use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 
 mod indexing_lock;
@@ -61,9 +61,9 @@ async fn get_tenants(
     Ok(result)
 }
 
-async fn index_tenant_next_sequence<'a, Engine: SearchEngine + 'a>(
+async fn index_tenant_next_sequence<'a, Repo: FHIRRepository, Engine: SearchEngine + 'a>(
     search_client: Arc<Engine>,
-    tx: &'a mut Transaction<'_, Postgres>,
+    tx: &'a Repo,
     tenant_id: &'a TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let tenant_lock_provider = PostgresIndexLockProvider::new();
@@ -75,13 +75,13 @@ async fn index_tenant_next_sequence<'a, Engine: SearchEngine + 'a>(
         return Ok(());
     }
 
-    let resources = SQLImplementation::get_sequence(
-        &mut *tx,
-        tenant_id,
-        tenant_locks[0].index_sequence_position as u64,
-        Some(1000),
-    )
-    .await?;
+    let resources = tx
+        .get_sequence(
+            tenant_id,
+            tenant_locks[0].index_sequence_position as u64,
+            Some(1000),
+        )
+        .await?;
 
     if !resources.is_empty() {
         tracing::info!(
@@ -121,10 +121,7 @@ async fn index_tenant_next_sequence<'a, Engine: SearchEngine + 'a>(
     Ok(())
 }
 
-async fn index_for_tenant<
-    Search: SearchEngine,
-    Repository: FHIRRepository<Transaction = Transaction<'static, Postgres>>,
->(
+async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository>(
     repo: Arc<Repository>,
     search_client: Arc<Search>,
     tenant_id: &TenantId,
@@ -132,7 +129,7 @@ async fn index_for_tenant<
     let search_client = search_client.clone();
 
     let mut tx = repo.transaction().await.unwrap();
-    let res = index_tenant_next_sequence(search_client, &mut tx, &tenant_id).await;
+    let res = index_tenant_next_sequence(search_client, &tx, &tenant_id).await;
 
     match res {
         Ok(res) => {
@@ -176,7 +173,10 @@ pub async fn run_worker() {
     let pg_pool = sqlx::PgPool::connect(&config.get("DATABASE_URL").unwrap())
         .await
         .expect("Failed to connect to the database");
-    let repo = Arc::new(PostgresRepository::new(pg_pool.clone()));
+
+    let repo = Arc::new(PostgresRepository::new(
+        oxidized_fhir_repository::postgres::PGConnection::PgPool(pg_pool.clone()),
+    ));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 

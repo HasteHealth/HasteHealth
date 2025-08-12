@@ -23,6 +23,10 @@ pub enum StoreError {
     SQLXError(#[from] sqlx::Error),
     #[error(code = "exception", diagnostic = "Failed to create transaction.")]
     TransactionError,
+    #[error(code = "invalid", diagnostic = "Cannot commit non transaction.")]
+    NotTransaction,
+    #[error(code = "invalid", diagnostic = "Failed to commit the transaction.")]
+    FailedCommitTransaction,
 }
 
 /// Connection types supported by the repository traits.
@@ -32,14 +36,7 @@ pub enum PGConnection {
     PgConnection(Arc<Mutex<sqlx::PgConnection>>),
 }
 
-pub struct PostgresRepository(PGConnection);
-impl PostgresRepository {
-    pub fn new(connection: PGConnection) -> Self {
-        PostgresRepository(connection)
-    }
-}
-
-impl FHIRRepository for PostgresRepository {
+impl FHIRRepository for PGConnection {
     async fn create(
         &self,
         tenant: &TenantId,
@@ -48,7 +45,7 @@ impl FHIRRepository for PostgresRepository {
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        match &self.0 {
+        match &self {
             PGConnection::PgPool(pool) => {
                 let res = create(pool, tenant, project, author, fhir_version, resource).await?;
                 Ok(res)
@@ -76,12 +73,12 @@ impl FHIRRepository for PostgresRepository {
         resource: &mut Resource,
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
-        match self.0 {
-            PGConnection::PgPool(ref pool) => {
+        match self {
+            PGConnection::PgPool(pool) => {
                 let res = update(pool, tenant, project, author, fhir_version, resource, id).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(ref tx) => {
+            PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = update(
@@ -96,7 +93,7 @@ impl FHIRRepository for PostgresRepository {
                 .await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(ref conn) => {
+            PGConnection::PgConnection(conn) => {
                 let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res = update(
@@ -124,19 +121,19 @@ impl FHIRRepository for PostgresRepository {
             return Ok(vec![]);
         }
 
-        match self.0 {
-            PGConnection::PgPool(ref pool) => {
+        match self {
+            PGConnection::PgPool(pool) => {
                 let res = read_by_version_ids(pool, tenant_id, project_id, version_ids).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(ref tx) => {
+            PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
                     read_by_version_ids(&mut *conn, tenant_id, project_id, version_ids).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(ref conn) => {
+            PGConnection::PgConnection(conn) => {
                 let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res =
@@ -153,13 +150,13 @@ impl FHIRRepository for PostgresRepository {
         resource_type: &ResourceType,
         resource_id: &ResourceId,
     ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
-        match self.0 {
-            PGConnection::PgPool(ref pool) => {
+        match self {
+            PGConnection::PgPool(pool) => {
                 let res =
                     read_latest(pool, tenant_id, project_id, resource_type, resource_id).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(ref tx) => {
+            PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = read_latest(
@@ -172,7 +169,7 @@ impl FHIRRepository for PostgresRepository {
                 .await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(ref conn) => {
+            PGConnection::PgConnection(conn) => {
                 let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res = read_latest(
@@ -194,18 +191,18 @@ impl FHIRRepository for PostgresRepository {
         project_id: &ProjectId,
         request: HistoryRequest<'_>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        match self.0 {
-            PGConnection::PgPool(ref pool) => {
+        match self {
+            PGConnection::PgPool(pool) => {
                 let res = history(pool, tenant_id, project_id, request).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(ref tx) => {
+            PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = history(&mut *conn, tenant_id, project_id, request).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(ref conn) => {
+            PGConnection::PgConnection(conn) => {
                 let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res = history(&mut *conn, tenant_id, project_id, request).await?;
@@ -220,18 +217,18 @@ impl FHIRRepository for PostgresRepository {
         sequence_id: u64,
         count: Option<u64>,
     ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
-        match self.0 {
-            PGConnection::PgPool(ref pool) => {
+        match self {
+            PGConnection::PgPool(pool) => {
                 let res = get_sequence(pool, tenant_id, sequence_id, count).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(ref tx) => {
+            PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(ref conn) => {
+            PGConnection::PgConnection(conn) => {
                 let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
@@ -241,19 +238,33 @@ impl FHIRRepository for PostgresRepository {
     }
 
     async fn transaction<'a>(&'a self) -> Result<impl FHIRRepository, OperationOutcomeError> {
-        match self.0 {
-            PGConnection::PgPool(ref pool) => {
+        match self {
+            PGConnection::PgPool(pool) => {
                 let tx = pool.begin().await.map_err(StoreError::from)?;
-                Ok(PostgresRepository::new(PGConnection::PgTransaction(
-                    Arc::new(Mutex::new(tx)),
-                )))
+                Ok(PGConnection::PgTransaction(Arc::new(Mutex::new(tx))))
             }
-            PGConnection::PgTransaction(ref tx) => {
+            PGConnection::PgTransaction(tx) => {
                 let tx = tx.clone();
-                Ok(PostgresRepository::new(PGConnection::PgTransaction(tx)))
+                Ok(PGConnection::PgTransaction(tx))
             }
             // Transaction doesn't live long enough so cannot create.
-            PGConnection::PgConnection(ref _conn) => Err(StoreError::TransactionError.into()),
+            PGConnection::PgConnection(_conn) => Err(StoreError::TransactionError.into()),
+        }
+    }
+
+    async fn commit(self) -> Result<(), OperationOutcomeError> {
+        match self {
+            PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
+            PGConnection::PgTransaction(tx) => {
+                let conn = Mutex::into_inner(
+                    Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
+                );
+
+                // Handle PgConnection connection
+                let res = conn.commit().await.map_err(StoreError::from)?;
+                Ok(res)
+            }
+            PGConnection::PgConnection(_conn) => Err(StoreError::NotTransaction.into()),
         }
     }
 }
