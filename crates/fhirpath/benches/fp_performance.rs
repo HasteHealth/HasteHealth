@@ -13,9 +13,7 @@ fn fp_performance_simple(c: &mut Criterion) {
         })]),
         ..Default::default()
     };
-
     let engine = FPEngine::new();
-
     c.bench_function("fp_performance_simple", |b| {
         b.iter(|| engine.evaluate("Patient.name.given", vec![&root]).unwrap())
     });

@@ -342,8 +342,6 @@ parser! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    extern crate test;
-    use test::Bencher;
 
     #[test]
     fn literals() {
