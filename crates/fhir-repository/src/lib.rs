@@ -16,8 +16,6 @@ pub mod utilities;
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
 pub enum SupportedFHIRVersions {
     R4,
-    R4B,
-    R5,
 }
 
 pub struct Author {
@@ -29,8 +27,6 @@ impl std::fmt::Display for SupportedFHIRVersions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             SupportedFHIRVersions::R4 => write!(f, "R4"),
-            SupportedFHIRVersions::R4B => write!(f, "R4B"),
-            SupportedFHIRVersions::R5 => write!(f, "R5"),
         }
     }
 }
@@ -174,9 +170,7 @@ pub enum HistoryRequest<'a> {
     Instance(&'a FHIRHistoryInstanceRequest),
 }
 
-pub trait FHIRRepository {
-    type Transaction;
-
+pub trait FHIRRepository: Sized {
     fn create(
         &self,
         tenant: &TenantId,
@@ -224,54 +218,10 @@ pub trait FHIRRepository {
         count: Option<u64>,
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
 
-    fn transaction<'a>(&'a self) -> impl Future<Output = Option<Self::Transaction>> + Send;
-}
+    fn transaction<'a>(
+        &'a self,
+    ) -> impl Future<Output = Result<Self, OperationOutcomeError>> + Send;
 
-pub trait FHIRTransaction<Connection> {
-    fn create(
-        k: Connection,
-        tenant: &TenantId,
-        project: &ProjectId,
-        author: &Author,
-        fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
-
-    fn update(
-        k: Connection,
-        tenant: &TenantId,
-        project: &ProjectId,
-        author: &Author,
-        fhir_version: &SupportedFHIRVersions,
-        resource: &mut Resource,
-        id: &str,
-    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
-
-    fn read_by_version_ids(
-        k: Connection,
-        tenant_id: &TenantId,
-        project_id: &ProjectId,
-        version_id: Vec<VersionIdRef>,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
-    fn read_latest(
-        k: Connection,
-        tenant_id: &TenantId,
-        project_id: &ProjectId,
-        resource_type: &ResourceType,
-        resource_id: &ResourceId,
-    ) -> impl Future<
-        Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
-    > + Send;
-    fn history(
-        k: Connection,
-        tenant_id: &TenantId,
-        project_id: &ProjectId,
-        request: HistoryRequest,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
-    fn get_sequence(
-        k: Connection,
-        tenant_id: &TenantId,
-        sequence_id: u64,
-        count: Option<u64>,
-    ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
+    fn commit(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+    fn rollback(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
 }

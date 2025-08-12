@@ -14,7 +14,7 @@ use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
-    Author, FHIRRepository, ProjectId, SupportedFHIRVersions, TenantId,
+    Author, FHIRRepository, ProjectId, SupportedFHIRVersions, TenantId, postgres::PGConnection,
 };
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhirpath::FPEngine;
@@ -135,7 +135,9 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let shared_state = Arc::new(AppState {
         _config: config,
         fhir_client: FHIRServerClient::new(
-            oxidized_fhir_repository::postgres::FHIRPostgresRepositoryPool::new(pool.clone()),
+            oxidized_fhir_repository::postgres::PostgresRepository::new(PGConnection::PgPool(
+                pool.clone(),
+            )),
             search_engine,
         ),
     });

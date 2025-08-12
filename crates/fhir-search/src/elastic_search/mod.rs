@@ -125,7 +125,7 @@ pub fn get_index_name(
 ) -> Result<&'static str, SearchConfigError> {
     match fhir_version {
         SupportedFHIRVersions::R4 => Ok(R4_FHIR_INDEX),
-        _ => Err(SearchConfigError::UnsupportedIndex(fhir_version.clone())),
+        // _ => Err(SearchConfigError::UnsupportedIndex(fhir_version.clone())),
     }
 }
 
@@ -211,6 +211,7 @@ impl SearchEngine for ElasticSearchEngine {
         resources: Vec<IndexResource<'a>>,
     ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
         // Iterator used to evaluate all of the search expressions for indexing.
+
         let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
             .par_iter()
             .filter(|r| match r.fhir_method {
