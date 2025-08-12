@@ -3,6 +3,10 @@ name = "oxidized-fhirpath"
 version = "0.1.0"
 edition = "2024"
 
+[[bench]]
+name = "fp_performance"
+harness = false
+
 [dependencies]
 oxidized-reflect = { path = "../reflect" }
 oxidized-fhir-model = { path = "../fhir-model" }
@@ -16,3 +20,4 @@ dashmap = "6.1.0"
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 oxidized-reflect-derive = { path = "../reflect-derive" }
 insta = "1.43.1"
+criterion = "0.7"
