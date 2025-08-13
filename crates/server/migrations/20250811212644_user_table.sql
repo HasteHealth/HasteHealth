@@ -15,7 +15,6 @@ CREATE TABLE
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
         CONSTRAINT users_pkey PRIMARY KEY (tenant, fhir_user_id),
         CONSTRAINT unique_email UNIQUE NULLS NOT DISTINCT (tenant, email, method, fhir_provider_id),
-        CONSTRAINT unique_fhir_user UNIQUE (tenant, fhir_user_id),
         CONSTRAINT fk_tenant FOREIGN KEY (tenant) REFERENCES tenants (id) ON DELETE CASCADE
     );
 
