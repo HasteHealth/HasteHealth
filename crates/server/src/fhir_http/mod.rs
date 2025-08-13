@@ -10,9 +10,7 @@ use oxidized_fhir_client::request::{
     FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
 use oxidized_fhir_client::url::{ParseError, parse_query};
-use oxidized_fhir_model::r4::types::{
-    Bundle, Parameters, Resource, ResourceType, ResourceTypeError,
-};
+use oxidized_fhir_model::r4::types::{Bundle, Parameters, ResourceType, ResourceTypeError};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_serialization_json::errors::DeserializeError;
@@ -112,23 +110,26 @@ fn parse_request_1_non_empty<'a>(
                     )
                     .into()),
                     _ => {
+                        let resource_type = ResourceType::new(url_chunks[0].to_string())?;
                         // Handle create request
                         Ok(FHIRRequest::Create(FHIRCreateRequest {
                             resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                            resource: oxidized_fhir_serialization_json::from_str::<Resource>(
-                                &req.body,
-                            )?,
+                            resource: resource_type.deserialize(&req.body)?,
                         }))
                     }
                 }
             }
-            Method::PUT => Ok(FHIRRequest::ConditionalUpdate(
-                FHIRConditionalUpdateRequest {
-                    parameters: vec![],
-                    resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                    resource: oxidized_fhir_serialization_json::from_str::<Resource>(&req.body)?,
-                },
-            )),
+            Method::PUT => {
+                let resource_type = ResourceType::new(url_chunks[0].to_string())?;
+                let resource = resource_type.deserialize(&req.body)?;
+                Ok(FHIRRequest::ConditionalUpdate(
+                    FHIRConditionalUpdateRequest {
+                        parameters: vec![],
+                        resource_type,
+                        resource,
+                    },
+                ))
+            }
             Method::DELETE => Ok(FHIRRequest::DeleteType(FHIRDeleteTypeRequest {
                 parameters: vec![],
                 resource_type: ResourceType::new(url_chunks[0].to_string())?,
@@ -290,11 +291,15 @@ fn parse_request_2<'a>(
                     }))
                 }
             }
-            Method::PUT => Ok(FHIRRequest::UpdateInstance(FHIRUpdateInstanceRequest {
-                resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                id: url_chunks[1].to_string(),
-                resource: oxidized_fhir_serialization_json::from_str::<Resource>(&req.body)?,
-            })),
+            Method::PUT => {
+                let resource_type = ResourceType::new(url_chunks[0].to_string())?;
+                let resource = resource_type.deserialize(&req.body)?;
+                Ok(FHIRRequest::UpdateInstance(FHIRUpdateInstanceRequest {
+                    resource_type,
+                    id: url_chunks[1].to_string(),
+                    resource,
+                }))
+            }
             Method::PATCH => Ok(FHIRRequest::Patch(FHIRPatchRequest {
                 resource_type: ResourceType::new(url_chunks[0].to_string())?,
                 id: url_chunks[1].to_string(),

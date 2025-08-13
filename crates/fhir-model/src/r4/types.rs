@@ -30484,6 +30484,473 @@ impl ResourceType {
     pub unsafe fn unchecked(s: String) -> Self {
         ResourceType(s)
     }
+    pub fn deserialize(
+        &self,
+        data: &str,
+    ) -> Result<Resource, oxidized_fhir_serialization_json::errors::DeserializeError> {
+        match self.as_str() {
+            "Account" => Ok(Resource::Account(
+                oxidized_fhir_serialization_json::from_str::<Account>(data)?,
+            )),
+            "ActivityDefinition" => Ok(Resource::ActivityDefinition(
+                oxidized_fhir_serialization_json::from_str::<ActivityDefinition>(data)?,
+            )),
+            "AdverseEvent" => Ok(Resource::AdverseEvent(
+                oxidized_fhir_serialization_json::from_str::<AdverseEvent>(data)?,
+            )),
+            "AllergyIntolerance" => Ok(Resource::AllergyIntolerance(
+                oxidized_fhir_serialization_json::from_str::<AllergyIntolerance>(data)?,
+            )),
+            "Appointment" => Ok(Resource::Appointment(
+                oxidized_fhir_serialization_json::from_str::<Appointment>(data)?,
+            )),
+            "AppointmentResponse" => Ok(Resource::AppointmentResponse(
+                oxidized_fhir_serialization_json::from_str::<AppointmentResponse>(data)?,
+            )),
+            "AuditEvent" => Ok(Resource::AuditEvent(
+                oxidized_fhir_serialization_json::from_str::<AuditEvent>(data)?,
+            )),
+            "Basic" => Ok(Resource::Basic(
+                oxidized_fhir_serialization_json::from_str::<Basic>(data)?,
+            )),
+            "Binary" => Ok(Resource::Binary(
+                oxidized_fhir_serialization_json::from_str::<Binary>(data)?,
+            )),
+            "BiologicallyDerivedProduct" => Ok(Resource::BiologicallyDerivedProduct(
+                oxidized_fhir_serialization_json::from_str::<BiologicallyDerivedProduct>(data)?,
+            )),
+            "BodyStructure" => Ok(Resource::BodyStructure(
+                oxidized_fhir_serialization_json::from_str::<BodyStructure>(data)?,
+            )),
+            "Bundle" => Ok(Resource::Bundle(
+                oxidized_fhir_serialization_json::from_str::<Bundle>(data)?,
+            )),
+            "CapabilityStatement" => Ok(Resource::CapabilityStatement(
+                oxidized_fhir_serialization_json::from_str::<CapabilityStatement>(data)?,
+            )),
+            "CarePlan" => Ok(Resource::CarePlan(
+                oxidized_fhir_serialization_json::from_str::<CarePlan>(data)?,
+            )),
+            "CareTeam" => Ok(Resource::CareTeam(
+                oxidized_fhir_serialization_json::from_str::<CareTeam>(data)?,
+            )),
+            "CatalogEntry" => Ok(Resource::CatalogEntry(
+                oxidized_fhir_serialization_json::from_str::<CatalogEntry>(data)?,
+            )),
+            "ChargeItem" => Ok(Resource::ChargeItem(
+                oxidized_fhir_serialization_json::from_str::<ChargeItem>(data)?,
+            )),
+            "ChargeItemDefinition" => Ok(Resource::ChargeItemDefinition(
+                oxidized_fhir_serialization_json::from_str::<ChargeItemDefinition>(data)?,
+            )),
+            "Claim" => Ok(Resource::Claim(
+                oxidized_fhir_serialization_json::from_str::<Claim>(data)?,
+            )),
+            "ClaimResponse" => Ok(Resource::ClaimResponse(
+                oxidized_fhir_serialization_json::from_str::<ClaimResponse>(data)?,
+            )),
+            "ClinicalImpression" => Ok(Resource::ClinicalImpression(
+                oxidized_fhir_serialization_json::from_str::<ClinicalImpression>(data)?,
+            )),
+            "CodeSystem" => Ok(Resource::CodeSystem(
+                oxidized_fhir_serialization_json::from_str::<CodeSystem>(data)?,
+            )),
+            "Communication" => Ok(Resource::Communication(
+                oxidized_fhir_serialization_json::from_str::<Communication>(data)?,
+            )),
+            "CommunicationRequest" => Ok(Resource::CommunicationRequest(
+                oxidized_fhir_serialization_json::from_str::<CommunicationRequest>(data)?,
+            )),
+            "CompartmentDefinition" => Ok(Resource::CompartmentDefinition(
+                oxidized_fhir_serialization_json::from_str::<CompartmentDefinition>(data)?,
+            )),
+            "Composition" => Ok(Resource::Composition(
+                oxidized_fhir_serialization_json::from_str::<Composition>(data)?,
+            )),
+            "ConceptMap" => Ok(Resource::ConceptMap(
+                oxidized_fhir_serialization_json::from_str::<ConceptMap>(data)?,
+            )),
+            "Condition" => Ok(Resource::Condition(
+                oxidized_fhir_serialization_json::from_str::<Condition>(data)?,
+            )),
+            "Consent" => Ok(Resource::Consent(
+                oxidized_fhir_serialization_json::from_str::<Consent>(data)?,
+            )),
+            "Contract" => Ok(Resource::Contract(
+                oxidized_fhir_serialization_json::from_str::<Contract>(data)?,
+            )),
+            "Coverage" => Ok(Resource::Coverage(
+                oxidized_fhir_serialization_json::from_str::<Coverage>(data)?,
+            )),
+            "CoverageEligibilityRequest" => Ok(Resource::CoverageEligibilityRequest(
+                oxidized_fhir_serialization_json::from_str::<CoverageEligibilityRequest>(data)?,
+            )),
+            "CoverageEligibilityResponse" => Ok(Resource::CoverageEligibilityResponse(
+                oxidized_fhir_serialization_json::from_str::<CoverageEligibilityResponse>(data)?,
+            )),
+            "DetectedIssue" => Ok(Resource::DetectedIssue(
+                oxidized_fhir_serialization_json::from_str::<DetectedIssue>(data)?,
+            )),
+            "Device" => Ok(Resource::Device(
+                oxidized_fhir_serialization_json::from_str::<Device>(data)?,
+            )),
+            "DeviceDefinition" => Ok(Resource::DeviceDefinition(
+                oxidized_fhir_serialization_json::from_str::<DeviceDefinition>(data)?,
+            )),
+            "DeviceMetric" => Ok(Resource::DeviceMetric(
+                oxidized_fhir_serialization_json::from_str::<DeviceMetric>(data)?,
+            )),
+            "DeviceRequest" => Ok(Resource::DeviceRequest(
+                oxidized_fhir_serialization_json::from_str::<DeviceRequest>(data)?,
+            )),
+            "DeviceUseStatement" => Ok(Resource::DeviceUseStatement(
+                oxidized_fhir_serialization_json::from_str::<DeviceUseStatement>(data)?,
+            )),
+            "DiagnosticReport" => Ok(Resource::DiagnosticReport(
+                oxidized_fhir_serialization_json::from_str::<DiagnosticReport>(data)?,
+            )),
+            "DocumentManifest" => Ok(Resource::DocumentManifest(
+                oxidized_fhir_serialization_json::from_str::<DocumentManifest>(data)?,
+            )),
+            "DocumentReference" => Ok(Resource::DocumentReference(
+                oxidized_fhir_serialization_json::from_str::<DocumentReference>(data)?,
+            )),
+            "EffectEvidenceSynthesis" => Ok(Resource::EffectEvidenceSynthesis(
+                oxidized_fhir_serialization_json::from_str::<EffectEvidenceSynthesis>(data)?,
+            )),
+            "Encounter" => Ok(Resource::Encounter(
+                oxidized_fhir_serialization_json::from_str::<Encounter>(data)?,
+            )),
+            "Endpoint" => Ok(Resource::Endpoint(
+                oxidized_fhir_serialization_json::from_str::<Endpoint>(data)?,
+            )),
+            "EnrollmentRequest" => Ok(Resource::EnrollmentRequest(
+                oxidized_fhir_serialization_json::from_str::<EnrollmentRequest>(data)?,
+            )),
+            "EnrollmentResponse" => Ok(Resource::EnrollmentResponse(
+                oxidized_fhir_serialization_json::from_str::<EnrollmentResponse>(data)?,
+            )),
+            "EpisodeOfCare" => Ok(Resource::EpisodeOfCare(
+                oxidized_fhir_serialization_json::from_str::<EpisodeOfCare>(data)?,
+            )),
+            "EventDefinition" => Ok(Resource::EventDefinition(
+                oxidized_fhir_serialization_json::from_str::<EventDefinition>(data)?,
+            )),
+            "Evidence" => Ok(Resource::Evidence(
+                oxidized_fhir_serialization_json::from_str::<Evidence>(data)?,
+            )),
+            "EvidenceVariable" => Ok(Resource::EvidenceVariable(
+                oxidized_fhir_serialization_json::from_str::<EvidenceVariable>(data)?,
+            )),
+            "ExampleScenario" => Ok(Resource::ExampleScenario(
+                oxidized_fhir_serialization_json::from_str::<ExampleScenario>(data)?,
+            )),
+            "ExplanationOfBenefit" => Ok(Resource::ExplanationOfBenefit(
+                oxidized_fhir_serialization_json::from_str::<ExplanationOfBenefit>(data)?,
+            )),
+            "FamilyMemberHistory" => Ok(Resource::FamilyMemberHistory(
+                oxidized_fhir_serialization_json::from_str::<FamilyMemberHistory>(data)?,
+            )),
+            "Flag" => Ok(Resource::Flag(
+                oxidized_fhir_serialization_json::from_str::<Flag>(data)?,
+            )),
+            "Goal" => Ok(Resource::Goal(
+                oxidized_fhir_serialization_json::from_str::<Goal>(data)?,
+            )),
+            "GraphDefinition" => Ok(Resource::GraphDefinition(
+                oxidized_fhir_serialization_json::from_str::<GraphDefinition>(data)?,
+            )),
+            "Group" => Ok(Resource::Group(
+                oxidized_fhir_serialization_json::from_str::<Group>(data)?,
+            )),
+            "GuidanceResponse" => Ok(Resource::GuidanceResponse(
+                oxidized_fhir_serialization_json::from_str::<GuidanceResponse>(data)?,
+            )),
+            "HealthcareService" => Ok(Resource::HealthcareService(
+                oxidized_fhir_serialization_json::from_str::<HealthcareService>(data)?,
+            )),
+            "ImagingStudy" => Ok(Resource::ImagingStudy(
+                oxidized_fhir_serialization_json::from_str::<ImagingStudy>(data)?,
+            )),
+            "Immunization" => Ok(Resource::Immunization(
+                oxidized_fhir_serialization_json::from_str::<Immunization>(data)?,
+            )),
+            "ImmunizationEvaluation" => Ok(Resource::ImmunizationEvaluation(
+                oxidized_fhir_serialization_json::from_str::<ImmunizationEvaluation>(data)?,
+            )),
+            "ImmunizationRecommendation" => Ok(Resource::ImmunizationRecommendation(
+                oxidized_fhir_serialization_json::from_str::<ImmunizationRecommendation>(data)?,
+            )),
+            "ImplementationGuide" => Ok(Resource::ImplementationGuide(
+                oxidized_fhir_serialization_json::from_str::<ImplementationGuide>(data)?,
+            )),
+            "InsurancePlan" => Ok(Resource::InsurancePlan(
+                oxidized_fhir_serialization_json::from_str::<InsurancePlan>(data)?,
+            )),
+            "Invoice" => Ok(Resource::Invoice(
+                oxidized_fhir_serialization_json::from_str::<Invoice>(data)?,
+            )),
+            "Library" => Ok(Resource::Library(
+                oxidized_fhir_serialization_json::from_str::<Library>(data)?,
+            )),
+            "Linkage" => Ok(Resource::Linkage(
+                oxidized_fhir_serialization_json::from_str::<Linkage>(data)?,
+            )),
+            "List" => Ok(Resource::List(
+                oxidized_fhir_serialization_json::from_str::<List>(data)?,
+            )),
+            "Location" => Ok(Resource::Location(
+                oxidized_fhir_serialization_json::from_str::<Location>(data)?,
+            )),
+            "Measure" => Ok(Resource::Measure(
+                oxidized_fhir_serialization_json::from_str::<Measure>(data)?,
+            )),
+            "MeasureReport" => Ok(Resource::MeasureReport(
+                oxidized_fhir_serialization_json::from_str::<MeasureReport>(data)?,
+            )),
+            "Media" => Ok(Resource::Media(
+                oxidized_fhir_serialization_json::from_str::<Media>(data)?,
+            )),
+            "Medication" => Ok(Resource::Medication(
+                oxidized_fhir_serialization_json::from_str::<Medication>(data)?,
+            )),
+            "MedicationAdministration" => Ok(Resource::MedicationAdministration(
+                oxidized_fhir_serialization_json::from_str::<MedicationAdministration>(data)?,
+            )),
+            "MedicationDispense" => Ok(Resource::MedicationDispense(
+                oxidized_fhir_serialization_json::from_str::<MedicationDispense>(data)?,
+            )),
+            "MedicationKnowledge" => Ok(Resource::MedicationKnowledge(
+                oxidized_fhir_serialization_json::from_str::<MedicationKnowledge>(data)?,
+            )),
+            "MedicationRequest" => Ok(Resource::MedicationRequest(
+                oxidized_fhir_serialization_json::from_str::<MedicationRequest>(data)?,
+            )),
+            "MedicationStatement" => Ok(Resource::MedicationStatement(
+                oxidized_fhir_serialization_json::from_str::<MedicationStatement>(data)?,
+            )),
+            "MedicinalProduct" => Ok(Resource::MedicinalProduct(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProduct>(data)?,
+            )),
+            "MedicinalProductAuthorization" => Ok(Resource::MedicinalProductAuthorization(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductAuthorization>(data)?,
+            )),
+            "MedicinalProductContraindication" => Ok(Resource::MedicinalProductContraindication(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductContraindication>(
+                    data,
+                )?,
+            )),
+            "MedicinalProductIndication" => Ok(Resource::MedicinalProductIndication(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductIndication>(data)?,
+            )),
+            "MedicinalProductIngredient" => Ok(Resource::MedicinalProductIngredient(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductIngredient>(data)?,
+            )),
+            "MedicinalProductInteraction" => Ok(Resource::MedicinalProductInteraction(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductInteraction>(data)?,
+            )),
+            "MedicinalProductManufactured" => Ok(Resource::MedicinalProductManufactured(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductManufactured>(data)?,
+            )),
+            "MedicinalProductPackaged" => Ok(Resource::MedicinalProductPackaged(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductPackaged>(data)?,
+            )),
+            "MedicinalProductPharmaceutical" => Ok(Resource::MedicinalProductPharmaceutical(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductPharmaceutical>(data)?,
+            )),
+            "MedicinalProductUndesirableEffect" => Ok(Resource::MedicinalProductUndesirableEffect(
+                oxidized_fhir_serialization_json::from_str::<MedicinalProductUndesirableEffect>(
+                    data,
+                )?,
+            )),
+            "MessageDefinition" => Ok(Resource::MessageDefinition(
+                oxidized_fhir_serialization_json::from_str::<MessageDefinition>(data)?,
+            )),
+            "MessageHeader" => Ok(Resource::MessageHeader(
+                oxidized_fhir_serialization_json::from_str::<MessageHeader>(data)?,
+            )),
+            "MolecularSequence" => Ok(Resource::MolecularSequence(
+                oxidized_fhir_serialization_json::from_str::<MolecularSequence>(data)?,
+            )),
+            "NamingSystem" => Ok(Resource::NamingSystem(
+                oxidized_fhir_serialization_json::from_str::<NamingSystem>(data)?,
+            )),
+            "NutritionOrder" => Ok(Resource::NutritionOrder(
+                oxidized_fhir_serialization_json::from_str::<NutritionOrder>(data)?,
+            )),
+            "Observation" => Ok(Resource::Observation(
+                oxidized_fhir_serialization_json::from_str::<Observation>(data)?,
+            )),
+            "ObservationDefinition" => Ok(Resource::ObservationDefinition(
+                oxidized_fhir_serialization_json::from_str::<ObservationDefinition>(data)?,
+            )),
+            "OperationDefinition" => Ok(Resource::OperationDefinition(
+                oxidized_fhir_serialization_json::from_str::<OperationDefinition>(data)?,
+            )),
+            "OperationOutcome" => Ok(Resource::OperationOutcome(
+                oxidized_fhir_serialization_json::from_str::<OperationOutcome>(data)?,
+            )),
+            "Organization" => Ok(Resource::Organization(
+                oxidized_fhir_serialization_json::from_str::<Organization>(data)?,
+            )),
+            "OrganizationAffiliation" => Ok(Resource::OrganizationAffiliation(
+                oxidized_fhir_serialization_json::from_str::<OrganizationAffiliation>(data)?,
+            )),
+            "Parameters" => Ok(Resource::Parameters(
+                oxidized_fhir_serialization_json::from_str::<Parameters>(data)?,
+            )),
+            "Patient" => Ok(Resource::Patient(
+                oxidized_fhir_serialization_json::from_str::<Patient>(data)?,
+            )),
+            "PaymentNotice" => Ok(Resource::PaymentNotice(
+                oxidized_fhir_serialization_json::from_str::<PaymentNotice>(data)?,
+            )),
+            "PaymentReconciliation" => Ok(Resource::PaymentReconciliation(
+                oxidized_fhir_serialization_json::from_str::<PaymentReconciliation>(data)?,
+            )),
+            "Person" => Ok(Resource::Person(
+                oxidized_fhir_serialization_json::from_str::<Person>(data)?,
+            )),
+            "PlanDefinition" => Ok(Resource::PlanDefinition(
+                oxidized_fhir_serialization_json::from_str::<PlanDefinition>(data)?,
+            )),
+            "Practitioner" => Ok(Resource::Practitioner(
+                oxidized_fhir_serialization_json::from_str::<Practitioner>(data)?,
+            )),
+            "PractitionerRole" => Ok(Resource::PractitionerRole(
+                oxidized_fhir_serialization_json::from_str::<PractitionerRole>(data)?,
+            )),
+            "Procedure" => Ok(Resource::Procedure(
+                oxidized_fhir_serialization_json::from_str::<Procedure>(data)?,
+            )),
+            "Provenance" => Ok(Resource::Provenance(
+                oxidized_fhir_serialization_json::from_str::<Provenance>(data)?,
+            )),
+            "Questionnaire" => Ok(Resource::Questionnaire(
+                oxidized_fhir_serialization_json::from_str::<Questionnaire>(data)?,
+            )),
+            "QuestionnaireResponse" => Ok(Resource::QuestionnaireResponse(
+                oxidized_fhir_serialization_json::from_str::<QuestionnaireResponse>(data)?,
+            )),
+            "RelatedPerson" => Ok(Resource::RelatedPerson(
+                oxidized_fhir_serialization_json::from_str::<RelatedPerson>(data)?,
+            )),
+            "RequestGroup" => Ok(Resource::RequestGroup(
+                oxidized_fhir_serialization_json::from_str::<RequestGroup>(data)?,
+            )),
+            "ResearchDefinition" => Ok(Resource::ResearchDefinition(
+                oxidized_fhir_serialization_json::from_str::<ResearchDefinition>(data)?,
+            )),
+            "ResearchElementDefinition" => Ok(Resource::ResearchElementDefinition(
+                oxidized_fhir_serialization_json::from_str::<ResearchElementDefinition>(data)?,
+            )),
+            "ResearchStudy" => Ok(Resource::ResearchStudy(
+                oxidized_fhir_serialization_json::from_str::<ResearchStudy>(data)?,
+            )),
+            "ResearchSubject" => Ok(Resource::ResearchSubject(
+                oxidized_fhir_serialization_json::from_str::<ResearchSubject>(data)?,
+            )),
+            "RiskAssessment" => Ok(Resource::RiskAssessment(
+                oxidized_fhir_serialization_json::from_str::<RiskAssessment>(data)?,
+            )),
+            "RiskEvidenceSynthesis" => Ok(Resource::RiskEvidenceSynthesis(
+                oxidized_fhir_serialization_json::from_str::<RiskEvidenceSynthesis>(data)?,
+            )),
+            "Schedule" => Ok(Resource::Schedule(
+                oxidized_fhir_serialization_json::from_str::<Schedule>(data)?,
+            )),
+            "SearchParameter" => Ok(Resource::SearchParameter(
+                oxidized_fhir_serialization_json::from_str::<SearchParameter>(data)?,
+            )),
+            "ServiceRequest" => Ok(Resource::ServiceRequest(
+                oxidized_fhir_serialization_json::from_str::<ServiceRequest>(data)?,
+            )),
+            "Slot" => Ok(Resource::Slot(
+                oxidized_fhir_serialization_json::from_str::<Slot>(data)?,
+            )),
+            "Specimen" => Ok(Resource::Specimen(
+                oxidized_fhir_serialization_json::from_str::<Specimen>(data)?,
+            )),
+            "SpecimenDefinition" => Ok(Resource::SpecimenDefinition(
+                oxidized_fhir_serialization_json::from_str::<SpecimenDefinition>(data)?,
+            )),
+            "StructureDefinition" => Ok(Resource::StructureDefinition(
+                oxidized_fhir_serialization_json::from_str::<StructureDefinition>(data)?,
+            )),
+            "StructureMap" => Ok(Resource::StructureMap(
+                oxidized_fhir_serialization_json::from_str::<StructureMap>(data)?,
+            )),
+            "Subscription" => Ok(Resource::Subscription(
+                oxidized_fhir_serialization_json::from_str::<Subscription>(data)?,
+            )),
+            "Substance" => Ok(Resource::Substance(
+                oxidized_fhir_serialization_json::from_str::<Substance>(data)?,
+            )),
+            "SubstanceNucleicAcid" => Ok(Resource::SubstanceNucleicAcid(
+                oxidized_fhir_serialization_json::from_str::<SubstanceNucleicAcid>(data)?,
+            )),
+            "SubstancePolymer" => Ok(Resource::SubstancePolymer(
+                oxidized_fhir_serialization_json::from_str::<SubstancePolymer>(data)?,
+            )),
+            "SubstanceProtein" => Ok(Resource::SubstanceProtein(
+                oxidized_fhir_serialization_json::from_str::<SubstanceProtein>(data)?,
+            )),
+            "SubstanceReferenceInformation" => Ok(Resource::SubstanceReferenceInformation(
+                oxidized_fhir_serialization_json::from_str::<SubstanceReferenceInformation>(data)?,
+            )),
+            "SubstanceSourceMaterial" => Ok(Resource::SubstanceSourceMaterial(
+                oxidized_fhir_serialization_json::from_str::<SubstanceSourceMaterial>(data)?,
+            )),
+            "SubstanceSpecification" => Ok(Resource::SubstanceSpecification(
+                oxidized_fhir_serialization_json::from_str::<SubstanceSpecification>(data)?,
+            )),
+            "SupplyDelivery" => Ok(Resource::SupplyDelivery(
+                oxidized_fhir_serialization_json::from_str::<SupplyDelivery>(data)?,
+            )),
+            "SupplyRequest" => Ok(Resource::SupplyRequest(
+                oxidized_fhir_serialization_json::from_str::<SupplyRequest>(data)?,
+            )),
+            "Task" => Ok(Resource::Task(
+                oxidized_fhir_serialization_json::from_str::<Task>(data)?,
+            )),
+            "TerminologyCapabilities" => Ok(Resource::TerminologyCapabilities(
+                oxidized_fhir_serialization_json::from_str::<TerminologyCapabilities>(data)?,
+            )),
+            "TestReport" => Ok(Resource::TestReport(
+                oxidized_fhir_serialization_json::from_str::<TestReport>(data)?,
+            )),
+            "TestScript" => Ok(Resource::TestScript(
+                oxidized_fhir_serialization_json::from_str::<TestScript>(data)?,
+            )),
+            "ValueSet" => Ok(Resource::ValueSet(
+                oxidized_fhir_serialization_json::from_str::<ValueSet>(data)?,
+            )),
+            "VerificationResult" => Ok(Resource::VerificationResult(
+                oxidized_fhir_serialization_json::from_str::<VerificationResult>(data)?,
+            )),
+            "VisionPrescription" => Ok(Resource::VisionPrescription(
+                oxidized_fhir_serialization_json::from_str::<VisionPrescription>(data)?,
+            )),
+            "IdentityProvider" => Ok(Resource::IdentityProvider(
+                oxidized_fhir_serialization_json::from_str::<IdentityProvider>(data)?,
+            )),
+            "Membership" => Ok(Resource::Membership(
+                oxidized_fhir_serialization_json::from_str::<Membership>(data)?,
+            )),
+            "AccessPolicyV2" => Ok(Resource::AccessPolicyV2(
+                oxidized_fhir_serialization_json::from_str::<AccessPolicyV2>(data)?,
+            )),
+            "ClientApplication" => Ok(Resource::ClientApplication(
+                oxidized_fhir_serialization_json::from_str::<ClientApplication>(data)?,
+            )),
+            _ => Err(
+                oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(format!(
+                    "Unknown resource type: {}",
+                    self.as_str()
+                )),
+            ),
+        }
+    }
 }
 impl TryFrom<String> for ResourceType {
     type Error = ResourceTypeError;

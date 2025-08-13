@@ -310,6 +310,13 @@ pub fn generate_fhir_types_from_file(
 fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
     let count = resource_types.len();
 
+    let deserialize_variants = resource_types.iter().map(|resource_name| {
+        let struct_name = format_ident!("{}", generate::capitalize(resource_name));
+        quote! {
+            #resource_name => Ok(Resource::#struct_name(oxidized_fhir_serialization_json::from_str::<#struct_name>(data)?)),
+        }
+    });
+
     quote! {
         #[derive(Error, Debug)]
         pub enum ResourceTypeError {
@@ -338,6 +345,13 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
 
             pub unsafe fn unchecked(s: String) -> Self {
                 ResourceType(s)
+            }
+
+            pub fn deserialize(&self, data: &str) -> Result<Resource, oxidized_fhir_serialization_json::errors::DeserializeError> {
+                match self.as_str() {
+                    #(#deserialize_variants)*
+                    _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(format!("Unknown resource type: {}", self.as_str()))),
+                }
             }
         }
 
