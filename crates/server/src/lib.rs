@@ -90,6 +90,7 @@ async fn fhir_handler<
         body,
         uri.query().unwrap_or_default().to_string(),
     );
+
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
 
     let ctx = ServerCTX {
