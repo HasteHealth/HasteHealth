@@ -25,7 +25,7 @@ pub struct ServerCTX {
 
 struct ClientState<Repository: FHIRRepository + Send + Sync, Search: SearchEngine + Send + Sync> {
     repo: Repository,
-    search: Search,
+    search: Arc<Search>,
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -58,7 +58,7 @@ fn storage_middleware<
 >(
     state: ServerMiddlewareState<Repository, Search>,
     mut context: ServerMiddlewareContext,
-    _next: Option<Arc<ServerMiddlewareNext<Repository, Search>>>,
+    next: Option<Arc<ServerMiddlewareNext<Repository, Search>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
@@ -226,7 +226,19 @@ fn storage_middleware<
             _ => None,
         };
 
-        let mut next_context = context;
+        let mut next_context = if let Some(next) = next {
+            next(
+                Arc::new(ClientState {
+                    repo: state.repo.transaction().await.unwrap(),
+                    search: state.search.clone(),
+                }),
+                context,
+            )
+            .await?
+        } else {
+            context
+        };
+
         next_context.response = response;
         Ok(next_context)
     })
@@ -254,7 +266,10 @@ impl<
     pub fn new(repo: Repository, search: Search) -> Self {
         let middleware = Middleware::new(vec![Box::new(storage_middleware)]);
         FHIRServerClient {
-            state: Arc::new(ClientState { repo, search }),
+            state: Arc::new(ClientState {
+                repo,
+                search: Arc::new(search),
+            }),
             middleware,
         }
     }
