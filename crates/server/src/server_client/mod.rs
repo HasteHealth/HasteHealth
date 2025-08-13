@@ -226,8 +226,8 @@ fn storage_middleware<
             _ => None,
         };
 
-        let mut next_context = if let Some(next) = next {
-            next(
+        let mut next_context = if let Some(next_) = next {
+            next_(
                 Arc::new(ClientState {
                     repo: state.repo.transaction().await.unwrap(),
                     search: state.search.clone(),
