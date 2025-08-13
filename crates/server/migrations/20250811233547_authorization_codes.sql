@@ -10,6 +10,7 @@ CREATE TABLE
     authorization_code (
         tenant text NOT NULL,
         id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+        project text,
         client_id text,
         kind code_kind NOT NULL,
         code text NOT NULL,

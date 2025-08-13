@@ -9,3 +9,5 @@ CREATE TABLE
     );
 
 ALTER TABLE resources ADD CONSTRAINT fk_project FOREIGN KEY (tenant, project) REFERENCES project (tenant, id) ON DELETE CASCADE;
+
+ALTER TABLE authorization_code ADD CONSTRAINT fk_project FOREIGN KEY (tenant, project) REFERENCES project (tenant, id) ON DELETE CASCADE;
