@@ -111,10 +111,11 @@ fn parse_request_1_non_empty<'a>(
                     .into()),
                     _ => {
                         let resource_type = ResourceType::new(url_chunks[0].to_string())?;
+                        let resource = resource_type.deserialize(&req.body)?;
                         // Handle create request
                         Ok(FHIRRequest::Create(FHIRCreateRequest {
-                            resource_type: ResourceType::new(url_chunks[0].to_string())?,
-                            resource: resource_type.deserialize(&req.body)?,
+                            resource_type,
+                            resource,
                         }))
                     }
                 }
