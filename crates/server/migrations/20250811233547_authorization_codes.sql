@@ -8,11 +8,11 @@ CREATE TYPE pkce_method AS ENUM ('S256', 'plain');
 
 CREATE TABLE
     authorization_code (
+        tenant text NOT NULL,
         id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
         kind code_kind NOT NULL,
         code text NOT NULL,
         client_id text,
-        tenant text,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
         expires_in interval NOT NULL,
         user_id text NOT NULL,
@@ -27,11 +27,11 @@ CREATE TABLE
 
 CREATE TABLE
     authorization_scopes (
+        tenant text NOT NULL,
         client_id text NOT NULL,
         user_id text NOT NULL,
         scope text NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
-        tenant text NOT NULL,
         CONSTRAINT authorization_scopes_pkey PRIMARY KEY (tenant, client_id, user_id),
         CONSTRAINT authorization_scopes_tenant_fkey FOREIGN KEY (tenant) REFERENCES tenants (id) ON DELETE CASCADE,
         CONSTRAINT fk_user FOREIGN KEY (tenant, user_id) REFERENCES users (tenant, fhir_user_id) ON DELETE CASCADE
