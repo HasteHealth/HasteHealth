@@ -10,9 +10,9 @@ CREATE TABLE
     authorization_code (
         tenant text NOT NULL,
         id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+        client_id text,
         kind code_kind NOT NULL,
         code text NOT NULL,
-        client_id text,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
         expires_in interval NOT NULL,
         user_id text NOT NULL,
