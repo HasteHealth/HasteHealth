@@ -2,6 +2,7 @@ use oxidized_fhir_client::request::FHIRRequest;
 use serde::Deserialize;
 use std::fmt::{Debug, Display};
 
+pub mod auth;
 pub mod fhir;
 pub mod pg;
 mod sqlx_bindings;
