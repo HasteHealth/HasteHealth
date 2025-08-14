@@ -2,22 +2,39 @@
 use crate::{ProjectId, TenantId};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
-pub enum Models {
-    User {
-        id: String,
-        email: String,
-        name: String,
-    },
+pub struct User {
+    pub id: String,
+    pub email: String,
+    pub name: String,
+}
+
+pub enum TenantModels {
+    User(User),
     Tenant {
         id: String,
         name: String,
     },
-    AuthorizationCode {
+    Project {
         id: String,
-        user_id: String,
-        scope: String,
+        name: String,
+        description: String,
     },
 }
+
+pub enum LoginMethod {
+    OIDC { email: String, provider_id: String },
+    EmailPassword { email: String, password: String },
+}
+
+pub enum LoginResult {
+    Success { user: User },
+}
+
+pub trait Login<CTX> {
+    fn login(&self, ctx: CTX, method: LoginMethod) -> Result<LoginResult, OperationOutcomeError>;
+}
+
+pub enum ProjectModels {}
 
 pub trait TenantAuthAdmin<CTX, Model> {
     fn create(ctx: CTX, tenant: TenantId, model: Model) -> Result<Model, OperationOutcomeError>;
