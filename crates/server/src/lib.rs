@@ -14,7 +14,7 @@ use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
-    Author, FHIRRepository, ProjectId, SupportedFHIRVersions, TenantId, postgres::PGConnection,
+    Author, ProjectId, SupportedFHIRVersions, TenantId, fhir::FHIRRepository, pg::PGConnection,
 };
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhirpath::FPEngine;

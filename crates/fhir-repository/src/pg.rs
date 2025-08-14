@@ -1,6 +1,7 @@
 use crate::{
-    Author, FHIRMethod, FHIRRepository, HistoryRequest, ProjectId, ResourceId,
-    ResourcePollingValue, SupportedFHIRVersions, TenantId, VersionIdRef, utilities,
+    Author, FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
+    fhir::{FHIRRepository, HistoryRequest, ResourcePollingValue},
+    utilities,
 };
 use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},

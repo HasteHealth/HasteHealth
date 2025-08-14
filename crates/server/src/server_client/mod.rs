@@ -10,8 +10,8 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_repository::{
-    Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
-    VersionIdRef,
+    Author, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
+    fhir::{FHIRRepository, HistoryRequest},
 };
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use std::sync::Arc;
