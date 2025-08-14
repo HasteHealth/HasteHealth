@@ -1,3 +1,4 @@
+/// FHIR Access
 use crate::{
     Author, FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
 };
