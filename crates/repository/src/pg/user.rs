@@ -2,6 +2,7 @@ use crate::{
     AuthMethod, TenantId, UserRole,
     auth::{Login, LoginMethod, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
+    utilities::generate_id,
 };
 use oxidized_fhir_model::r4::types::User;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -25,7 +26,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 let user = sqlx::query_as!(
                     crate::auth::User,
                     r#"
-                  SELECT fhir_user_id, email, role as "role: UserRole" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
+                  SELECT id, email, role as "role: UserRole" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
                 "#,
                     tenant.as_ref(),
                     AuthMethod::EmailPassword as AuthMethod,
@@ -86,14 +87,6 @@ pub struct CreateUser {
     role: UserRole,
 }
 
-struct InternalUser {
-    id: String,
-    tenant: TenantId,
-    email: String,
-    role: UserRole,
-    method: AuthMethod,
-}
-
 impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
     async fn create(
         ctx: CTX,
@@ -101,12 +94,14 @@ impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PG
         model: CreateUser,
     ) -> Result<User, OperationOutcomeError> {
         let internal_user = sqlx::query_as!(
-            InternalUser,
+            crate::User,
             r#"
                INSERT INTO users(tenant, id, provider_id, email, role, method)
                VALUES($1, $2, $3, $4, $5, $6)
-               RETURNING tenant, id, provider_id, email, role, method
+               RETURNING id, provider_id, email, role, method
             "#,
+            tenant.as_ref(),
+            generate_id() as String,
         );
     }
 
