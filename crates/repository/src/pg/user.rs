@@ -89,7 +89,7 @@ pub struct CreateUser {
 }
 
 impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
-    fn create(
+    async fn create(
         ctx: CTX,
         tenant: TenantId,
         model: CreateUser,
@@ -97,22 +97,26 @@ impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PG
         todo!()
     }
 
-    fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<User, OperationOutcomeError> {
+    async fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<User, OperationOutcomeError> {
         todo!()
     }
 
-    fn update(ctx: CTX, tenant: TenantId, model: User) -> Result<User, OperationOutcomeError> {
-        todo!()
-    }
-
-    fn delete(ctx: CTX, tenant: TenantId, id: String) -> Result<(), OperationOutcomeError> {
-        todo!()
-    }
-
-    fn search(
+    async fn update(
         ctx: CTX,
         tenant: TenantId,
-        clauses: HashMap<String, String>,
+        model: User,
+    ) -> Result<User, OperationOutcomeError> {
+        todo!()
+    }
+
+    async fn delete(ctx: CTX, tenant: TenantId, id: String) -> Result<(), OperationOutcomeError> {
+        todo!()
+    }
+
+    async fn search(
+        ctx: CTX,
+        tenant: TenantId,
+        clauses: UserSearchClauses,
     ) -> Result<Vec<User>, OperationOutcomeError> {
         todo!()
     }

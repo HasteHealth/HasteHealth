@@ -46,19 +46,27 @@ pub trait TenantAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
         ctx: CTX,
         tenant: TenantId,
         model: CreatedModel,
-    ) -> Result<ReadModel, OperationOutcomeError>;
-    fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<ReadModel, OperationOutcomeError>;
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
+    fn read(
+        ctx: CTX,
+        tenant: TenantId,
+        id: String,
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
         ctx: CTX,
         tenant: TenantId,
         model: ReadModel,
-    ) -> Result<ReadModel, OperationOutcomeError>;
-    fn delete(ctx: CTX, tenant: TenantId, id: String) -> Result<(), OperationOutcomeError>;
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
+    fn delete(
+        ctx: CTX,
+        tenant: TenantId,
+        id: String,
+    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
     fn search(
         ctx: CTX,
         tenant: TenantId,
         clauses: SearchClauses,
-    ) -> Result<Vec<ReadModel>, OperationOutcomeError>;
+    ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }
 
 pub trait ProjectAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
@@ -67,29 +75,29 @@ pub trait ProjectAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
         tenant: TenantId,
         project: ProjectId,
         model: CreatedModel,
-    ) -> Result<ReadModel, OperationOutcomeError>;
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn read(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         id: String,
-    ) -> Result<ReadModel, OperationOutcomeError>;
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         model: ReadModel,
-    ) -> Result<ReadModel, OperationOutcomeError>;
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         id: String,
-    ) -> Result<(), OperationOutcomeError>;
+    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
     fn search(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         clauses: SearchClauses,
-    ) -> Result<Vec<ReadModel>, OperationOutcomeError>;
+    ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }
