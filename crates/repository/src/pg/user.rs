@@ -94,7 +94,14 @@ impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PG
         tenant: TenantId,
         model: CreateUser,
     ) -> Result<User, OperationOutcomeError> {
-        todo!()
+        sqlx::query_as!(
+            User,
+            r#"
+               INSERT INTO users(tenant, id, provider_id, email, role, method)
+               VALUES($1, $2, $3, $4, $5, $6)
+               RETURNING tenant, id, provider_id, email, role, method
+            "#
+        );
     }
 
     async fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<User, OperationOutcomeError> {
