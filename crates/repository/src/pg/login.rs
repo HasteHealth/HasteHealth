@@ -1,7 +1,7 @@
 use crate::{
-    TenantId,
+    AuthMethod, TenantId, UserRole,
     auth::{Login, LoginMethod},
-    pg::PGConnection,
+    pg::{PGConnection, StoreError},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres};
@@ -43,21 +43,24 @@ use sqlx::{Acquire, Postgres};
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    method: &crate::auth::LoginMethod,
+    method: &'a crate::auth::LoginMethod,
 ) -> impl Future<Output = Result<crate::auth::LoginResult, OperationOutcomeError>> + Send + 'a {
     async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         match method {
             LoginMethod::EmailPassword { email, password } => {
                 let user = sqlx::query_as!(
                     crate::auth::User,
                     r#"
-                  SELECT fhir_user_id, email, role FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
+                  SELECT fhir_user_id, email, role as "role: UserRole" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
                 "#,
-                    tenant,
-                    "email-password",
+                    tenant.as_ref(),
+                    AuthMethod::EmailPassword as AuthMethod,
                     email,
                     password
-                ).fetch_one(connection).await?;
+                ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
+
+                Ok(crate::auth::LoginResult::Success { user })
             }
             LoginMethod::OIDC { email, provider_id } => {
                 todo!();

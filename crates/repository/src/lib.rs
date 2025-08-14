@@ -22,6 +22,14 @@ pub enum AuthMethod {
     OIDC,
 }
 
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
+#[sqlx(type_name = "user_role", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+pub enum UserRole {
+    Owner,
+    Admin,
+    Member,
+}
+
 pub struct Author {
     pub id: String,
     pub kind: String,

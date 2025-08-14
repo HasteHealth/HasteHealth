@@ -1,11 +1,11 @@
 /// Authentication traits include management for user and Authorization codes.
-use crate::{ProjectId, TenantId};
+use crate::{ProjectId, TenantId, UserRole};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 pub struct User {
     pub fhir_user_id: String,
     pub email: String,
-    pub role: String,
+    pub role: UserRole,
 }
 
 pub enum TenantModels {

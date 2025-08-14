@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                  SELECT fhir_user_id, email, role as \"role: UserRole\" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "fhir_user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "role: UserRole",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "owner",
+                "admin",
+                "member"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "auth_method",
+            "kind": {
+              "Enum": [
+                "email-password",
+                "oidc-provider"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3f6ac077cefa4b0478606badfc7b00fac32b3d27917c16233042eb4c078b974f"
+}
