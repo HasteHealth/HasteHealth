@@ -679,6 +679,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "data-encoding"
+version = "2.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
+
+[[package]]
 name = "der"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2070,21 +2076,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "oxidized-fhir-repository"
-version = "0.1.0"
-dependencies = [
- "nanoid",
- "oxidized-fhir-client",
- "oxidized-fhir-model",
- "oxidized-fhir-operation-error",
- "oxidized-reflect",
- "serde",
- "sqlx",
- "sqlx-postgres",
- "tokio",
-]
-
-[[package]]
 name = "oxidized-fhir-search"
 version = "0.1.0"
 dependencies = [
@@ -2094,9 +2085,9 @@ dependencies = [
  "oxidized-fhir-client",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-repository",
  "oxidized-fhirpath",
  "oxidized-reflect",
+ "oxidized-repository",
  "rayon",
  "serde",
  "serde_json",
@@ -2154,9 +2145,9 @@ dependencies = [
  "oxidized-config",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-repository",
  "oxidized-fhir-search",
  "oxidized-fhirpath",
+ "oxidized-repository",
  "sqlx",
  "sqlx-postgres",
  "tokio",
@@ -2190,6 +2181,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxidized-repository"
+version = "0.1.0"
+dependencies = [
+ "nanoid",
+ "oxidized-fhir-client",
+ "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
+ "oxidized-reflect",
+ "serde",
+ "sqlx",
+ "sqlx-postgres",
+ "tokio",
+]
+
+[[package]]
 name = "oxidized-server"
 version = "0.1.0"
 dependencies = [
@@ -2205,12 +2211,13 @@ dependencies = [
  "oxidized-fhir-client",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-repository",
  "oxidized-fhir-search",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "oxidized-reflect",
+ "oxidized-repository",
  "rand 0.9.1",
+ "sendgrid",
  "serde",
  "serde_json",
  "sqlx",
@@ -2922,6 +2929,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56e6fa9c48d24d85fb3de5ad847117517440f6beceb7798af16b4a87d616b8d0"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "sendgrid"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "338e7f7246766f6c931c6eed46e49cf6ef8f7c9b00f272b07822151b762281e9"
+dependencies = [
+ "data-encoding",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "url",
 ]
 
 [[package]]

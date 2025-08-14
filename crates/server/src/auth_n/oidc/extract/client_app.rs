@@ -12,7 +12,7 @@ use axum::{
 };
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
-use oxidized_fhir_repository::{Author, FHIRRepository};
+use oxidized_repository::{Author, fhir::FHIRRepository};
 use oxidized_fhir_search::SearchEngine;
 
 pub struct OIDCClientApplication(pub ClientApplication);
@@ -40,7 +40,7 @@ where
         let ctx = ServerCTX {
             tenant: tenant,
             project: project,
-            fhir_version: oxidized_fhir_repository::SupportedFHIRVersions::R4,
+            fhir_version: oxidized_repository::SupportedFHIRVersions::R4,
             author: Author {
                 id: "anonymous".to_string(),
                 kind: "Membership".to_string(),

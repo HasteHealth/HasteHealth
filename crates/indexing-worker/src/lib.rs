@@ -1,7 +1,7 @@
 use crate::indexing_lock::IndexLockProvider;
 use oxidized_config::get_config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_repository::{FHIRRepository, SupportedFHIRVersions, TenantId};
+use oxidized_repository::{SupportedFHIRVersions, TenantId, fhir::FHIRRepository};
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
@@ -173,7 +173,7 @@ pub async fn run_worker() {
         .await
         .expect("Failed to connect to the database");
 
-    let repo = Arc::new(oxidized_fhir_repository::postgres::PGConnection::PgPool(
+    let repo = Arc::new(oxidized_repository::pg::PGConnection::PgPool(
         pg_pool.clone(),
     ));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;

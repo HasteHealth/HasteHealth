@@ -1,6 +1,6 @@
 use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_repository::postgres::PGConnection;
+use oxidized_repository::pg::PGConnection;
 use sqlx::{Acquire, Postgres, QueryBuilder, Transaction};
 
 pub struct PostgresIndexLockProvider();

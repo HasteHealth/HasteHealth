@@ -15,7 +15,7 @@ oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 oxidized-fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
 oxidized-reflect = { path = "../reflect", features = ["derive"] }
-oxidized-fhir-repository = { path = "../fhir-repository" }
+oxidized-repository = { path = "../repository" }
 oxidized-fhir-search = { path = "../fhir-search" }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
@@ -44,3 +44,4 @@ json-patch = "4.0.0"
 chrono = "0.4.41"
 typify = "0.4.2"
 tower = "0.5.2"
+sendgrid = "0.24.1"

@@ -9,11 +9,11 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_repository::{
-    Author, FHIRRepository, HistoryRequest, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
-    VersionIdRef,
-};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
+use oxidized_repository::{
+    Author, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
+    fhir::{FHIRRepository, HistoryRequest},
+};
 use std::sync::Arc;
 
 pub struct ServerCTX {
