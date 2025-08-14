@@ -31,7 +31,12 @@ pub enum LoginResult {
 }
 
 pub trait Login<CTX> {
-    fn login(&self, ctx: CTX, method: LoginMethod) -> Result<LoginResult, OperationOutcomeError>;
+    fn login(
+        &self,
+        ctx: CTX,
+        tenant: &TenantId,
+        method: &LoginMethod,
+    ) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send;
 }
 
 pub enum ProjectModels {}

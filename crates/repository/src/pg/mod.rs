@@ -4,6 +4,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 mod fhir;
+mod login;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StoreError {
