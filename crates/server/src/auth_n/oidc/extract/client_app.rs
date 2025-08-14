@@ -12,7 +12,7 @@ use axum::{
 };
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
-use oxidized_fhir_repository::{Author, FHIRRepository};
+use oxidized_fhir_repository::{Author, fhir::FHIRRepository};
 use oxidized_fhir_search::SearchEngine;
 
 pub struct OIDCClientApplication(pub ClientApplication);

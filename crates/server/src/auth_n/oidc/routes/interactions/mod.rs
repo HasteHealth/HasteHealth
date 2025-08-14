@@ -1,7 +1,7 @@
 use crate::AppState;
 use axum::Router;
 use axum_extra::routing::RouterExt;
-use oxidized_fhir_repository::FHIRRepository;
+use oxidized_fhir_repository::fhir::FHIRRepository;
 use oxidized_fhir_search::SearchEngine;
 use std::sync::Arc;
 
