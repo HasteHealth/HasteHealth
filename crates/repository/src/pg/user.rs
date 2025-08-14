@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{
     AuthMethod, TenantId, UserRole,
     auth::{Login, LoginMethod, TenantAuthAdmin},
@@ -88,19 +86,27 @@ pub struct CreateUser {
     role: UserRole,
 }
 
+struct InternalUser {
+    id: String,
+    tenant: TenantId,
+    email: String,
+    role: UserRole,
+    method: AuthMethod,
+}
+
 impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
     async fn create(
         ctx: CTX,
         tenant: TenantId,
         model: CreateUser,
     ) -> Result<User, OperationOutcomeError> {
-        sqlx::query_as!(
-            User,
+        let internal_user = sqlx::query_as!(
+            InternalUser,
             r#"
                INSERT INTO users(tenant, id, provider_id, email, role, method)
                VALUES($1, $2, $3, $4, $5, $6)
                RETURNING tenant, id, provider_id, email, role, method
-            "#
+            "#,
         );
     }
 
