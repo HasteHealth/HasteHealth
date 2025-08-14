@@ -25,7 +25,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 let user = sqlx::query_as!(
                     User,
                     r#"
-                  SELECT id, email, role as "role: UserRole" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
+                  SELECT id, email, role as "role: UserRole", method as "method: AuthMethod", provider_id FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
                 "#,
                     tenant.as_ref(),
                     AuthMethod::EmailPassword as AuthMethod,
@@ -84,31 +84,57 @@ pub struct UserSearchClauses {
 pub struct CreateUser {
     email: String,
     role: UserRole,
+    provider_id: String,
+    method: AuthMethod,
 }
 
-impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
-    async fn create(
-        ctx: CTX,
-        tenant: TenantId,
-        model: CreateUser,
-    ) -> Result<User, OperationOutcomeError> {
-        let internal_user = sqlx::query_as!(
+fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    new_user: CreateUser,
+) -> impl Future<Output = Result<User, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let user = sqlx::query_as!(
             User,
             r#"
                INSERT INTO users(tenant, id, provider_id, email, role, method)
                VALUES($1, $2, $3, $4, $5, $6)
-               RETURNING id, provider_id, email, role, method
+               RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"
             "#,
             tenant.as_ref(),
             generate_id() as String,
-        );
+            new_user.provider_id,
+            new_user.email,
+            new_user.role as UserRole,
+            new_user.method as AuthMethod,
+        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+
+        Ok(user)
+    }
+}
+
+impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
+    async fn create(
+        &self,
+        ctx: CTX,
+        tenant: TenantId,
+        new_user: CreateUser,
+    ) -> Result<User, OperationOutcomeError> {
+        todo!()
     }
 
-    async fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<User, OperationOutcomeError> {
+    async fn read(
+        &self,
+        ctx: CTX,
+        tenant: TenantId,
+        id: String,
+    ) -> Result<User, OperationOutcomeError> {
         todo!()
     }
 
     async fn update(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         model: User,
@@ -116,11 +142,17 @@ impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PG
         todo!()
     }
 
-    async fn delete(ctx: CTX, tenant: TenantId, id: String) -> Result<(), OperationOutcomeError> {
+    async fn delete(
+        &self,
+        ctx: CTX,
+        tenant: TenantId,
+        id: String,
+    ) -> Result<(), OperationOutcomeError> {
         todo!()
     }
 
     async fn search(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         clauses: UserSearchClauses,

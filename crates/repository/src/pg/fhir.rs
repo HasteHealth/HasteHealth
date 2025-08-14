@@ -37,12 +37,6 @@ impl FHIRRepository for PGConnection {
                 let res = create(&mut *tx, tenant, project, author, fhir_version, resource).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
-                let res =
-                    create(&mut *conn, tenant, project, author, fhir_version, resource).await?;
-                Ok(res)
-            }
         }
     }
 
@@ -62,21 +56,6 @@ impl FHIRRepository for PGConnection {
             }
             PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
-                // Handle PgConnection connection
-                let res = update(
-                    &mut *conn,
-                    tenant,
-                    project,
-                    author,
-                    fhir_version,
-                    resource,
-                    id,
-                )
-                .await?;
-                Ok(res)
-            }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res = update(
                     &mut *conn,
@@ -115,13 +94,6 @@ impl FHIRRepository for PGConnection {
                     read_by_version_ids(&mut *conn, tenant_id, project_id, version_ids).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
-                // Handle PgConnection connection
-                let res =
-                    read_by_version_ids(&mut *conn, tenant_id, project_id, version_ids).await?;
-                Ok(res)
-            }
         }
     }
 
@@ -140,19 +112,6 @@ impl FHIRRepository for PGConnection {
             }
             PGConnection::PgTransaction(tx) => {
                 let mut conn = tx.lock().await;
-                // Handle PgConnection connection
-                let res = read_latest(
-                    &mut *conn,
-                    tenant_id,
-                    project_id,
-                    resource_type,
-                    resource_id,
-                )
-                .await?;
-                Ok(res)
-            }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
                 // Handle PgConnection connection
                 let res = read_latest(
                     &mut *conn,
@@ -184,12 +143,6 @@ impl FHIRRepository for PGConnection {
                 let res = history(&mut *conn, tenant_id, project_id, request).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
-                // Handle PgConnection connection
-                let res = history(&mut *conn, tenant_id, project_id, request).await?;
-                Ok(res)
-            }
         }
     }
 
@@ -210,12 +163,6 @@ impl FHIRRepository for PGConnection {
                 let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
-                // Handle PgConnection connection
-                let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
-                Ok(res)
-            }
         }
     }
 
@@ -228,9 +175,7 @@ impl FHIRRepository for PGConnection {
             PGConnection::PgTransaction(tx) => {
                 let tx = tx.clone();
                 Ok(PGConnection::PgTransaction(tx))
-            }
-            // Transaction doesn't live long enough so cannot create.
-            PGConnection::PgConnection(_conn) => Err(StoreError::TransactionError.into()),
+            } // Transaction doesn't live long enough so cannot create.
         }
     }
 
@@ -246,7 +191,6 @@ impl FHIRRepository for PGConnection {
                 let res = conn.commit().await.map_err(StoreError::from)?;
                 Ok(res)
             }
-            PGConnection::PgConnection(_conn) => Err(StoreError::NotTransaction.into()),
         }
     }
     async fn rollback(self) -> Result<(), OperationOutcomeError> {
@@ -261,7 +205,6 @@ impl FHIRRepository for PGConnection {
                 let res = conn.rollback().await.map_err(StoreError::from)?;
                 Ok(res)
             }
-            PGConnection::PgConnection(_conn) => Err(StoreError::NotTransaction.into()),
         }
     }
 }

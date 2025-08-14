@@ -1,5 +1,5 @@
-use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use sqlx::Postgres;
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use sqlx::{Acquire, PgConnection, Postgres};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -22,5 +22,4 @@ pub enum StoreError {
 pub enum PGConnection {
     PgPool(sqlx::Pool<Postgres>),
     PgTransaction(Arc<Mutex<sqlx::Transaction<'static, Postgres>>>),
-    PgConnection(Arc<Mutex<sqlx::PgConnection>>),
 }

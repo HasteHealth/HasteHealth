@@ -7,6 +7,7 @@ pub struct User {
     pub email: String,
     pub role: UserRole,
     pub method: AuthMethod,
+    pub provider_id: Option<String>,
 }
 
 pub enum TenantModels {
@@ -44,26 +45,31 @@ pub enum ProjectModels {}
 
 pub trait TenantAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
     fn create(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         model: CreatedModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn read(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         id: String,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         model: ReadModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         id: String,
     ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
     fn search(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         clauses: SearchClauses,
@@ -72,30 +78,35 @@ pub trait TenantAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
 
 pub trait ProjectAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
     fn create(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         model: CreatedModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn read(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         id: String,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         model: ReadModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         id: String,
     ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
     fn search(
+        &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
