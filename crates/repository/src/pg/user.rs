@@ -112,11 +112,21 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
     async fn create(
         &self,
-        ctx: CTX,
+        _ctx: CTX,
         tenant: TenantId,
         new_user: CreateUser,
     ) -> Result<User, OperationOutcomeError> {
-        todo!()
+        match self {
+            PGConnection::PgPool(pool) => {
+                let res = create_user(pool, &tenant, new_user).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+                let res = create_user(&mut *tx, &tenant, new_user).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn read(
