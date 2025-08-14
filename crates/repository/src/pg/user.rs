@@ -68,11 +68,6 @@ impl<CTX: Send> Login<CTX> for PGConnection {
                 let res = login(&mut *tx, tenant, method).await?;
                 Ok(res)
             }
-            PGConnection::PgConnection(conn) => {
-                let mut conn = conn.lock().await;
-                let res = login(&mut *conn, tenant, method).await?;
-                Ok(res)
-            }
         }
     }
 }
