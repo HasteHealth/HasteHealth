@@ -29945,19 +29945,10 @@ pub struct Membership {
     pub meta: Option<Box<Meta>>,
     #[doc = ""]
     pub link: Option<Box<Reference>>,
-    #[primitive]
     #[doc = ""]
-    pub email: Box<FHIRString>,
-    #[primitive]
-    #[doc = ""]
-    pub emailVerified: Option<Box<FHIRBoolean>>,
+    pub user: Box<Reference>,
     #[doc = ""]
     pub name: Option<Box<HumanName>>,
-    #[primitive]
-    #[doc = ""]
-    pub role: Box<FHIRCode>,
-    #[doc = ""]
-    pub federated: Option<Box<Reference>>,
 }
 #[derive(
     Clone,
@@ -30154,6 +30145,35 @@ pub struct ClientApplication {
     Clone,
     Reflect,
     Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
+#[fhir_serialize_type = "resource"]
+#[doc = ""]
+pub struct User {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[primitive]
+    #[doc = ""]
+    pub email: Box<FHIRString>,
+    #[primitive]
+    #[doc = ""]
+    pub emailVerified: Option<Box<FHIRBoolean>>,
+    #[doc = ""]
+    pub name: Option<Box<HumanName>>,
+    #[primitive]
+    #[doc = ""]
+    pub role: Box<FHIRCode>,
+    #[doc = ""]
+    pub federated: Option<Box<Reference>>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
 )]
@@ -30310,13 +30330,14 @@ pub enum Resource {
     Membership(Membership),
     AccessPolicyV2(AccessPolicyV2),
     ClientApplication(ClientApplication),
+    User(User),
 }
 #[derive(Error, Debug)]
 pub enum ResourceTypeError {
     #[error("Invalid resource type: {0}")]
     Invalid(String),
 }
-static _RESOURCE_TYPES: [&str; 150usize] = [
+static _RESOURCE_TYPES: [&str; 151usize] = [
     "Account",
     "ActivityDefinition",
     "AdverseEvent",
@@ -30467,6 +30488,7 @@ static _RESOURCE_TYPES: [&str; 150usize] = [
     "Membership",
     "AccessPolicyV2",
     "ClientApplication",
+    "User",
 ];
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ResourceType(String);
@@ -30942,6 +30964,9 @@ impl ResourceType {
             )),
             "ClientApplication" => Ok(Resource::ClientApplication(
                 oxidized_fhir_serialization_json::from_str::<ClientApplication>(data)?,
+            )),
+            "User" => Ok(Resource::User(
+                oxidized_fhir_serialization_json::from_str::<User>(data)?,
             )),
             _ => Err(
                 oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(format!(
