@@ -14,6 +14,14 @@ pub enum SupportedFHIRVersions {
     R4,
 }
 
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
+#[sqlx(type_name = "auth_method", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+pub enum AuthMethod {
+    #[sqlx(rename = "email-password")]
+    EmailPassword,
+    OIDC,
+}
+
 pub struct Author {
     pub id: String,
     pub kind: String,

@@ -1,13 +1,69 @@
-use crate::{TenantId, auth::Login, pg::PGConnection};
+use crate::{
+    TenantId,
+    auth::{Login, LoginMethod},
+    pg::PGConnection,
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres};
+
+// switch (type) {
+//       case "email-password": {
+//         const where: s.users.Whereable = {
+//           tenant,
+//           method: "email-password",
+//           email: parameters.email,
+//           password: db.sql`${db.self} = crypt(${db.param((parameters as LoginParameters["email-password"]).password)}, ${db.self})`,
+//         };
+
+//         const usersFound: User[] = await db
+//           .select("users", where, { columns: USER_QUERY_COLS })
+//           .run(this._pgClient);
+
+//         // Sanity check should never happen given unique check on email.
+//         if (usersFound.length > 1)
+//           throw new Error(
+//             "Multiple users found with the same email and password",
+//           );
+
+//         const user = usersFound[0];
+
+//         if (user?.email_verified === false) {
+//           return { type: "failed", errors: ["email-not-verified"] };
+//         }
+//         if (!user) {
+//           return { type: "failed", errors: ["invalid-credentials"] };
+//         }
+//         return { type: "successful", user: user };
+//       }
+//       default: {
+//         throw new Error("Invalid login method.");
+//       }
+//     }
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     method: &crate::auth::LoginMethod,
 ) -> impl Future<Output = Result<crate::auth::LoginResult, OperationOutcomeError>> + Send + 'a {
-    async move { todo!() }
+    async move {
+        match method {
+            LoginMethod::EmailPassword { email, password } => {
+                let user = sqlx::query_as!(
+                    crate::auth::User,
+                    r#"
+                  SELECT fhir_user_id, email, role FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
+                "#,
+                    tenant,
+                    "email-password",
+                    email,
+                    password
+                ).fetch_one(connection).await?;
+            }
+            LoginMethod::OIDC { email, provider_id } => {
+                todo!();
+            }
+        }
+    }
 }
 
 impl<CTX: Send> Login<CTX> for PGConnection {

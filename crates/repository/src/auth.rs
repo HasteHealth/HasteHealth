@@ -3,9 +3,9 @@ use crate::{ProjectId, TenantId};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 pub struct User {
-    pub id: String,
+    pub fhir_user_id: String,
     pub email: String,
-    pub name: String,
+    pub role: String,
 }
 
 pub enum TenantModels {
