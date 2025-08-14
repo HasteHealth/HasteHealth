@@ -41,33 +41,45 @@ pub trait Login<CTX> {
 
 pub enum ProjectModels {}
 
-pub trait TenantAuthAdmin<CTX, Model> {
-    fn create(ctx: CTX, tenant: TenantId, model: Model) -> Result<Model, OperationOutcomeError>;
-    fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<Model, OperationOutcomeError>;
-    fn update(ctx: CTX, tenant: TenantId, model: Model) -> Result<Model, OperationOutcomeError>;
+pub trait TenantAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
+    fn create(
+        ctx: CTX,
+        tenant: TenantId,
+        model: CreatedModel,
+    ) -> Result<ReadModel, OperationOutcomeError>;
+    fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<ReadModel, OperationOutcomeError>;
+    fn update(
+        ctx: CTX,
+        tenant: TenantId,
+        model: ReadModel,
+    ) -> Result<ReadModel, OperationOutcomeError>;
     fn delete(ctx: CTX, tenant: TenantId, id: String) -> Result<(), OperationOutcomeError>;
-    fn search(ctx: CTX, tenant: TenantId) -> Result<Vec<Model>, OperationOutcomeError>;
+    fn search(
+        ctx: CTX,
+        tenant: TenantId,
+        clauses: SearchClauses,
+    ) -> Result<Vec<ReadModel>, OperationOutcomeError>;
 }
 
-pub trait ProjectAuthAdmin<CTX, Model> {
+pub trait ProjectAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
     fn create(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
-        model: Model,
-    ) -> Result<Model, OperationOutcomeError>;
+        model: CreatedModel,
+    ) -> Result<ReadModel, OperationOutcomeError>;
     fn read(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
         id: String,
-    ) -> Result<Model, OperationOutcomeError>;
+    ) -> Result<ReadModel, OperationOutcomeError>;
     fn update(
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
-        model: Model,
-    ) -> Result<Model, OperationOutcomeError>;
+        model: ReadModel,
+    ) -> Result<ReadModel, OperationOutcomeError>;
     fn delete(
         ctx: CTX,
         tenant: TenantId,
@@ -78,5 +90,6 @@ pub trait ProjectAuthAdmin<CTX, Model> {
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
-    ) -> Result<Vec<Model>, OperationOutcomeError>;
+        clauses: SearchClauses,
+    ) -> Result<Vec<ReadModel>, OperationOutcomeError>;
 }

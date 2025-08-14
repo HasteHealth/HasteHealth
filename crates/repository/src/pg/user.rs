@@ -1,44 +1,19 @@
+use std::collections::HashMap;
+
 use crate::{
     AuthMethod, TenantId, UserRole,
-    auth::{Login, LoginMethod},
+    auth::{Login, LoginMethod, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_model::r4::types::User;
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::{Acquire, Postgres};
 
-// switch (type) {
-//       case "email-password": {
-//         const where: s.users.Whereable = {
-//           tenant,
-//           method: "email-password",
-//           email: parameters.email,
-//           password: db.sql`${db.self} = crypt(${db.param((parameters as LoginParameters["email-password"]).password)}, ${db.self})`,
-//         };
-
-//         const usersFound: User[] = await db
-//           .select("users", where, { columns: USER_QUERY_COLS })
-//           .run(this._pgClient);
-
-//         // Sanity check should never happen given unique check on email.
-//         if (usersFound.length > 1)
-//           throw new Error(
-//             "Multiple users found with the same email and password",
-//           );
-
-//         const user = usersFound[0];
-
-//         if (user?.email_verified === false) {
-//           return { type: "failed", errors: ["email-not-verified"] };
-//         }
-//         if (!user) {
-//           return { type: "failed", errors: ["invalid-credentials"] };
-//         }
-//         return { type: "successful", user: user };
-//       }
-//       default: {
-//         throw new Error("Invalid login method.");
-//       }
-//     }
+#[derive(OperationOutcomeError, Debug)]
+enum LoginError {
+    #[error(code = "login", diagnostic = "Invalid credentials for user.")]
+    InvalidCredentials,
+}
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
@@ -58,11 +33,18 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                     AuthMethod::EmailPassword as AuthMethod,
                     email,
                     password
-                ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
+                ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
 
-                Ok(crate::auth::LoginResult::Success { user })
+                if let Some(user) = user {
+                    Ok(crate::auth::LoginResult::Success { user })
+                } else {
+                    Err(LoginError::InvalidCredentials.into())
+                }
             }
-            LoginMethod::OIDC { email, provider_id } => {
+            LoginMethod::OIDC {
+                email: _,
+                provider_id: _,
+            } => {
                 todo!();
             }
         }
@@ -94,5 +76,44 @@ impl<CTX: Send> Login<CTX> for PGConnection {
                 Ok(res)
             }
         }
+    }
+}
+
+pub struct UserSearchClauses {
+    email: Option<String>,
+}
+
+pub struct CreateUser {
+    email: String,
+    role: UserRole,
+}
+
+impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PGConnection {
+    fn create(
+        ctx: CTX,
+        tenant: TenantId,
+        model: CreateUser,
+    ) -> Result<User, OperationOutcomeError> {
+        todo!()
+    }
+
+    fn read(ctx: CTX, tenant: TenantId, id: String) -> Result<User, OperationOutcomeError> {
+        todo!()
+    }
+
+    fn update(ctx: CTX, tenant: TenantId, model: User) -> Result<User, OperationOutcomeError> {
+        todo!()
+    }
+
+    fn delete(ctx: CTX, tenant: TenantId, id: String) -> Result<(), OperationOutcomeError> {
+        todo!()
+    }
+
+    fn search(
+        ctx: CTX,
+        tenant: TenantId,
+        clauses: HashMap<String, String>,
+    ) -> Result<Vec<User>, OperationOutcomeError> {
+        todo!()
     }
 }
