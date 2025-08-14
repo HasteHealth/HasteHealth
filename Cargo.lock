@@ -2076,21 +2076,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "oxidized-fhir-repository"
-version = "0.1.0"
-dependencies = [
- "nanoid",
- "oxidized-fhir-client",
- "oxidized-fhir-model",
- "oxidized-fhir-operation-error",
- "oxidized-reflect",
- "serde",
- "sqlx",
- "sqlx-postgres",
- "tokio",
-]
-
-[[package]]
 name = "oxidized-fhir-search"
 version = "0.1.0"
 dependencies = [
@@ -2100,9 +2085,9 @@ dependencies = [
  "oxidized-fhir-client",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-repository",
  "oxidized-fhirpath",
  "oxidized-reflect",
+ "oxidized-repository",
  "rayon",
  "serde",
  "serde_json",
@@ -2160,9 +2145,9 @@ dependencies = [
  "oxidized-config",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-repository",
  "oxidized-fhir-search",
  "oxidized-fhirpath",
+ "oxidized-repository",
  "sqlx",
  "sqlx-postgres",
  "tokio",
@@ -2196,6 +2181,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxidized-repository"
+version = "0.1.0"
+dependencies = [
+ "nanoid",
+ "oxidized-fhir-client",
+ "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
+ "oxidized-reflect",
+ "serde",
+ "sqlx",
+ "sqlx-postgres",
+ "tokio",
+]
+
+[[package]]
 name = "oxidized-server"
 version = "0.1.0"
 dependencies = [
@@ -2211,11 +2211,11 @@ dependencies = [
  "oxidized-fhir-client",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
- "oxidized-fhir-repository",
  "oxidized-fhir-search",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "oxidized-reflect",
+ "oxidized-repository",
  "rand 0.9.1",
  "sendgrid",
  "serde",

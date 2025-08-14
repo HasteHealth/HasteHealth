@@ -10,7 +10,7 @@ use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
-use oxidized_fhir_repository::fhir::FHIRRepository;
+use oxidized_repository::fhir::FHIRRepository;
 use oxidized_fhir_search::SearchEngine;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

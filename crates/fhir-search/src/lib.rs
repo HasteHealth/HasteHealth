@@ -1,7 +1,7 @@
 use oxidized_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeRequest};
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_repository::{
+use oxidized_repository::{
     FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
 };
 

@@ -3,7 +3,7 @@ use axum::{
     http::request::Parts,
     response::{IntoResponse, Response},
 };
-use oxidized_fhir_repository::{ProjectId, TenantId};
+use oxidized_repository::{ProjectId, TenantId};
 use serde::Deserialize;
 
 #[derive(Deserialize, Clone)]
