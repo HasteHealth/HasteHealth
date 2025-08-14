@@ -1,10 +1,9 @@
 use crate::{
     AuthMethod, TenantId, UserRole,
-    auth::{Login, LoginMethod, TenantAuthAdmin},
+    auth::{Login, LoginMethod, TenantAuthAdmin, User},
     pg::{PGConnection, StoreError},
     utilities::generate_id,
 };
-use oxidized_fhir_model::r4::types::User;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::{Acquire, Postgres};
 
@@ -24,7 +23,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         match method {
             LoginMethod::EmailPassword { email, password } => {
                 let user = sqlx::query_as!(
-                    crate::auth::User,
+                    User,
                     r#"
                   SELECT id, email, role as "role: UserRole" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)
                 "#,
@@ -94,7 +93,7 @@ impl<CTX: Send> TenantAuthAdmin<CTX, CreateUser, User, UserSearchClauses> for PG
         model: CreateUser,
     ) -> Result<User, OperationOutcomeError> {
         let internal_user = sqlx::query_as!(
-            crate::User,
+            User,
             r#"
                INSERT INTO users(tenant, id, provider_id, email, role, method)
                VALUES($1, $2, $3, $4, $5, $6)

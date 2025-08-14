@@ -1,5 +1,5 @@
 /// Authentication traits include management for user and Authorization codes.
-use crate::{ProjectId, TenantId, UserRole};
+use crate::{AuthMethod, ProjectId, TenantId, UserRole};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 pub struct User {
