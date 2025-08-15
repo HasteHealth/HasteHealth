@@ -16,7 +16,9 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FPEngine;
 use oxidized_repository::{
-    Author, ProjectId, SupportedFHIRVersions, TenantId, fhir::FHIRRepository, pg::PGConnection,
+    fhir::FHIRRepository,
+    pg::PGConnection,
+    types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};

@@ -13,8 +13,8 @@ use elasticsearch::{
 };
 use oxidized_fhir_model::r4::types::{Resource, SearchParameter};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_repository::{FHIRMethod, ProjectId, SupportedFHIRVersions, TenantId};
 use oxidized_fhirpath::FPEngine;
+use oxidized_repository::types::{FHIRMethod, ProjectId, SupportedFHIRVersions, TenantId};
 use rayon::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
