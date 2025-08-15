@@ -6,7 +6,7 @@ use sqlx_postgres::types::PgInterval;
 
 use crate::{
     ProjectId, TenantId,
-    admin::TenantAuthAdmin,
+    admin::{ProjectAuthAdmin, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
     utilities::generate_id,
 };
@@ -364,6 +364,102 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
                 let mut tx = tx.lock().await;
 
                 let res = search_codes(&mut *tx, tenant, None, clauses).await?;
+                Ok(res)
+            }
+        }
+    }
+}
+
+impl ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
+    for PGConnection
+{
+    async fn create(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        authorization_code: CreateAuthorizationCode,
+    ) -> Result<AuthorizationCode, OperationOutcomeError> {
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = create_code(pool, tenant, Some(project), authorization_code).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = create_code(&mut *tx, tenant, Some(project), authorization_code).await?;
+                Ok(res)
+            }
+        }
+    }
+
+    async fn read(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        code: &str,
+    ) -> Result<AuthorizationCode, OperationOutcomeError> {
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = read_code(pool, tenant, Some(project), code).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = read_code(&mut *tx, tenant, Some(project), code).await?;
+                Ok(res)
+            }
+        }
+    }
+
+    async fn update(
+        &self,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+        _model: AuthorizationCode,
+    ) -> Result<AuthorizationCode, OperationOutcomeError> {
+        Err(OperationOutcomeError::fatal(
+            "exception".to_string(),
+            "Update operation for AuthorizationCode is not implemented.".to_string(),
+        ))
+    }
+
+    async fn delete(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        code: &str,
+    ) -> Result<AuthorizationCode, OperationOutcomeError> {
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = delete_code(pool, tenant, Some(project), code).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = delete_code(&mut *tx, tenant, Some(project), code).await?;
+                Ok(res)
+            }
+        }
+    }
+
+    async fn search(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        clauses: &AuthorizationCodeSearchClaims,
+    ) -> Result<Vec<AuthorizationCode>, OperationOutcomeError> {
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = search_codes(pool, tenant, Some(project), clauses).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = search_codes(&mut *tx, tenant, Some(project), clauses).await?;
                 Ok(res)
             }
         }
