@@ -2,6 +2,7 @@ use oxidized_fhir_client::request::FHIRRequest;
 use serde::Deserialize;
 use std::fmt::{Debug, Display};
 
+pub mod auth;
 pub mod fhir;
 pub mod pg;
 mod sqlx_bindings;
@@ -11,6 +12,22 @@ pub mod utilities;
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
 pub enum SupportedFHIRVersions {
     R4,
+}
+
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
+#[sqlx(type_name = "auth_method", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+pub enum AuthMethod {
+    #[sqlx(rename = "email-password")]
+    EmailPassword,
+    OIDC,
+}
+
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
+#[sqlx(type_name = "user_role", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+pub enum UserRole {
+    Owner,
+    Admin,
+    Member,
 }
 
 pub struct Author {
