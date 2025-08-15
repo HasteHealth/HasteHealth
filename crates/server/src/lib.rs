@@ -13,7 +13,7 @@ use axum::{
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FPEngine;
 use oxidized_repository::{
     Author, ProjectId, SupportedFHIRVersions, TenantId, fhir::FHIRRepository, pg::PGConnection,
@@ -109,15 +109,10 @@ async fn fhir_handler<
     Ok(response.into_response())
 }
 
-pub async fn server() -> Result<Router, OperationOutcomeError> {
-    let config = get_config("environment".into());
-    let subscriber = tracing_subscriber::FmtSubscriber::new();
-    tracing::subscriber::set_global_default(subscriber).unwrap();
-
+pub async fn create_services(
+    config: Box<dyn Config>,
+) -> Result<Arc<AppState<PGConnection, ElasticSearchEngine>>, OperationOutcomeError> {
     let pool = get_pool(config.as_ref()).await;
-    let session_store = PostgresStore::new(pool.clone());
-    session_store.migrate().await.map_err(ConfigError::from)?;
-
     let search_engine = oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
         Arc::new(FPEngine::new()),
         &config
@@ -136,6 +131,20 @@ pub async fn server() -> Result<Router, OperationOutcomeError> {
         _config: config,
         fhir_client: FHIRServerClient::new(PGConnection::PgPool(pool.clone()), search_engine),
     });
+
+    Ok(shared_state)
+}
+
+pub async fn server() -> Result<Router, OperationOutcomeError> {
+    let config = get_config("environment".into());
+    let subscriber = tracing_subscriber::FmtSubscriber::new();
+    tracing::subscriber::set_global_default(subscriber).unwrap();
+
+    let pool = get_pool(config.as_ref()).await;
+    let session_store = PostgresStore::new(pool.clone());
+    session_store.migrate().await.map_err(ConfigError::from)?;
+
+    let shared_state = create_services(config).await?;
 
     let project_router = Router::new()
         .route("/fhir/{fhir_version}/{*fhir_location}", any(fhir_handler))
