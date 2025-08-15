@@ -1,8 +1,11 @@
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use std::time::Duration;
+
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
+use sqlx_postgres::types::PgInterval;
 
 use crate::{
-    TenantId,
+    ProjectId, TenantId,
     admin::TenantAuthAdmin,
     pg::{PGConnection, StoreError},
     utilities::generate_id,
@@ -29,7 +32,7 @@ pub enum PKCECodeChallengeMethod {
 
 struct CreateAuthorizationCode {
     tenant: String,
-    expires_in: String,
+    expires_in: Duration,
     kind: AuthorizationCodeKind,
     code: String,
     user_id: String,
@@ -43,7 +46,6 @@ struct CreateAuthorizationCode {
 
 #[derive(sqlx::FromRow, Debug)]
 struct AuthorizationCode {
-    id: String,
     tenant: String,
     is_expired: bool,
     kind: AuthorizationCodeKind,
@@ -57,6 +59,55 @@ struct AuthorizationCode {
     meta: Option<Json<serde_json::Value>>,
 }
 
+#[derive(OperationOutcomeError)]
+pub enum CodeErrors {
+    #[error(code = "invalid", diagnostic = "Invalid duration for expires.")]
+    InvalidDuration,
+}
+
+fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project_id: Option<&'a ProjectId>,
+    authorization_code: CreateAuthorizationCode,
+) -> impl Future<Output = Result<AuthorizationCode, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let expires_in: PgInterval = authorization_code
+            .expires_in
+            .try_into()
+            .map_err(|_e| CodeErrors::InvalidDuration)?;
+        sqlx::query_as!(
+            AuthorizationCode,
+            r#"
+        INSERT INTO authorization_code (
+            tenant, project, client_id, kind, code, created_at, expires_in,
+            user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta
+        )
+        VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7, $8, $9, $10, $11)
+        RETURNING tenant, kind as "kind: AuthorizationCodeKind", code,
+                  user_id, project, client_id,
+                  pkce_code_challenge,
+                  pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
+                  redirect_uri,
+                  meta as "meta: Json<serde_json::Value>"
+        "#,
+            authorization_code.tenant,
+            authorization_code.project,
+            authorization_code.client_id,
+            authorization_code.kind as AuthorizationCodeKind,
+            authorization_code.code,
+            expires_in as PgInterval,
+            authorization_code.user_id,
+            authorization_code.pkce_code_challenge,
+            authorization_code.pkce_code_challenge_method as Option<PKCECodeChallengeMethod>,
+            authorization_code.redirect_uri,
+            authorization_code.meta as std::option::Option<Json<serde_json::Value>>,
+        );
+
+        todo!();
+    }
+}
+
 struct AuthorizationCodeSearchClaims {}
 
 impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
@@ -65,9 +116,22 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
     async fn create(
         &self,
         tenant: &TenantId,
-        model: CreateAuthorizationCode,
+        authorization_code: CreateAuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         let code = generate_id(Some(45));
+
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = create_code(pool, tenant, authorization_code).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = create_code(&mut *tx, tenant, authorization_code).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn read(
