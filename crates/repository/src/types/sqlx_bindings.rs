@@ -1,4 +1,4 @@
-use crate::{ProjectId, ResourceId, TenantId, VersionIdRef};
+use crate::types::{ProjectId, ResourceId, TenantId, VersionIdRef};
 use sqlx::{Database, Decode, Encode, Postgres};
 use sqlx_postgres::PgArgumentBuffer;
 use std::{error::Error, io::Write};

@@ -1,37 +1,9 @@
 /// Authentication traits include management for user and Authorization codes.
-use crate::{AuthMethod, ProjectId, TenantId, UserRole};
+use crate::types::{
+    ProjectId, TenantId,
+    user::{LoginMethod, LoginResult},
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-
-#[derive(sqlx::FromRow, Debug)]
-pub struct User {
-    pub id: String,
-    pub email: String,
-    pub role: UserRole,
-    pub method: AuthMethod,
-    pub provider_id: Option<String>,
-}
-
-pub enum TenantModels {
-    User(User),
-    Tenant {
-        id: String,
-        name: String,
-    },
-    Project {
-        id: String,
-        name: String,
-        description: String,
-    },
-}
-
-pub enum LoginMethod {
-    OIDC { email: String, provider_id: String },
-    EmailPassword { email: String, password: String },
-}
-
-pub enum LoginResult {
-    Success { user: User },
-}
 
 pub trait Login<CTX> {
     fn login(

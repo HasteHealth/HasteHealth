@@ -1,5 +1,5 @@
 /// FHIR Access
-use crate::{
+use crate::types::{
     Author, FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
 };
 use oxidized_fhir_client::request::{

@@ -1,9 +1,12 @@
 use crate::indexing_lock::IndexLockProvider;
 use oxidized_config::get_config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_repository::{SupportedFHIRVersions, TenantId, fhir::FHIRRepository};
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
+use oxidized_repository::{
+    fhir::FHIRRepository,
+    types::{SupportedFHIRVersions, TenantId},
+};
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 

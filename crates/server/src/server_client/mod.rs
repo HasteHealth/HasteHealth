@@ -11,8 +11,8 @@ use oxidized_fhir_client::{
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_repository::{
-    Author, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
     fhir::{FHIRRepository, HistoryRequest},
+    types::{Author, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef},
 };
 use std::sync::Arc;
 

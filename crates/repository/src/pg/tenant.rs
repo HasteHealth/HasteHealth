@@ -1,26 +1,14 @@
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use sqlx::{Acquire, Postgres, QueryBuilder};
-
 use crate::{
-    TenantId,
     admin::TenantAuthAdmin,
     pg::{PGConnection, StoreError},
+    types::{
+        TenantId,
+        tenant::{CreateTenant, Tenant, TenantSearchClaims},
+    },
     utilities::generate_id,
 };
-
-struct CreateTenant {
-    subscription_tier: Option<String>,
-}
-
-#[derive(sqlx::FromRow, Debug)]
-struct Tenant {
-    id: String,
-    subscription_tier: String,
-}
-
-struct TenantSearchClaims {
-    subscription_tier: Option<String>,
-}
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
@@ -147,7 +135,7 @@ impl TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims> for PGConnection 
 
     async fn read(
         &self,
-        _tenant: &crate::TenantId,
+        _tenant: &TenantId,
         id: &str,
     ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
@@ -165,7 +153,7 @@ impl TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims> for PGConnection 
 
     async fn update(
         &self,
-        _tenant: &crate::TenantId,
+        _tenant: &TenantId,
         model: Tenant,
     ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
@@ -183,7 +171,7 @@ impl TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims> for PGConnection 
 
     async fn delete(
         &self,
-        _tenant: &crate::TenantId,
+        _tenant: &TenantId,
         id: &str,
     ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
