@@ -3,6 +3,8 @@ use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use crate::Repository;
+
 mod authorization_code;
 mod fhir;
 mod tenant;
@@ -25,3 +27,5 @@ pub enum PGConnection {
     PgPool(sqlx::Pool<Postgres>),
     PgTransaction(Arc<Mutex<sqlx::Transaction<'static, Postgres>>>),
 }
+
+impl Repository for PGConnection {}

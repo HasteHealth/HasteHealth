@@ -1,5 +1,3 @@
-use oxidized_fhir_model::r4::types::User;
-
 use crate::{
     admin::{Login, ProjectAuthAdmin, TenantAuthAdmin},
     fhir::FHIRRepository,
@@ -8,7 +6,7 @@ use crate::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
-        user::{CreateUser, UserSearchClauses},
+        user::{CreateUser, User, UserSearchClauses},
     },
 };
 
