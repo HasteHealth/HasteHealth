@@ -28,7 +28,7 @@ fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 ) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let id = generate_id();
+        let id = generate_id(None);
         let tenant = sqlx::query_as!(
             Tenant,
             "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id, subscription_tier",

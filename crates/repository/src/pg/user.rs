@@ -99,7 +99,7 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"
             "#,
             tenant.as_ref(),
-            generate_id() as String,
+            generate_id(None) as String,
             new_user.provider_id,
             new_user.email,
             new_user.role as UserRole,

@@ -3,6 +3,7 @@ use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+mod authorization_code;
 mod fhir;
 mod tenant;
 mod user;

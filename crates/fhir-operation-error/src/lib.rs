@@ -1,6 +1,8 @@
 use std::{error::Error, fmt::Display};
 
-use oxidized_fhir_model::r4::types::OperationOutcome;
+use oxidized_fhir_model::r4::types::{
+    FHIRCode, FHIRString, OperationOutcome, OperationOutcomeIssue,
+};
 
 #[cfg(feature = "derive")]
 pub mod derive;
@@ -12,6 +14,31 @@ pub mod axum;
 pub struct OperationOutcomeError {
     _source: Option<anyhow::Error>,
     outcome: OperationOutcome,
+}
+
+fn create_operation_outcome(
+    severity: String,
+    code: String,
+    diagnostic: String,
+) -> OperationOutcome {
+    OperationOutcome {
+        issue: vec![OperationOutcomeIssue {
+            severity: Box::new(FHIRCode {
+                value: Some(severity),
+                ..Default::default()
+            }),
+            code: Box::new(FHIRCode {
+                value: Some(code),
+                ..Default::default()
+            }),
+            diagnostics: Some(Box::new(FHIRString {
+                value: Some(diagnostic),
+                ..Default::default()
+            })),
+            ..Default::default()
+        }],
+        ..Default::default()
+    }
 }
 
 impl OperationOutcomeError {
@@ -32,6 +59,31 @@ impl OperationOutcomeError {
 
     pub fn backtrace(&self) -> Option<&std::backtrace::Backtrace> {
         self._source.as_ref().map(|s| s.backtrace())
+    }
+
+    pub fn fatal(code: String, diagnostic: String) -> Self {
+        OperationOutcomeError::new(
+            None,
+            create_operation_outcome("fatal".to_string(), code, diagnostic),
+        )
+    }
+    pub fn error(code: String, diagnostic: String) -> Self {
+        OperationOutcomeError::new(
+            None,
+            create_operation_outcome("error".to_string(), code, diagnostic),
+        )
+    }
+    pub fn warning(code: String, diagnostic: String) -> Self {
+        OperationOutcomeError::new(
+            None,
+            create_operation_outcome("warning".to_string(), code, diagnostic),
+        )
+    }
+    pub fn information(code: String, diagnostic: String) -> Self {
+        OperationOutcomeError::new(
+            None,
+            create_operation_outcome("information".to_string(), code, diagnostic),
+        )
     }
 }
 
