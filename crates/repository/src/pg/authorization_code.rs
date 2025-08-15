@@ -47,7 +47,7 @@ struct CreateAuthorizationCode {
 #[derive(sqlx::FromRow, Debug)]
 struct AuthorizationCode {
     tenant: String,
-    is_expired: bool,
+    is_expired: Option<bool>,
     kind: AuthorizationCodeKind,
     code: String,
     user_id: String,
@@ -94,7 +94,7 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
                   redirect_uri,
                   meta as "meta: Json<serde_json::Value>",
-                  is_expired NOW() > created_at + expires_in
+                  NOW() > created_at + expires_in as is_expired
         "#,
             authorization_code.tenant,
             authorization_code.project,
