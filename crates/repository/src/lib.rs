@@ -1,5 +1,30 @@
+use oxidized_fhir_model::r4::types::User;
+
+use crate::{
+    admin::{Login, ProjectAuthAdmin, TenantAuthAdmin},
+    fhir::FHIRRepository,
+    types::{
+        authorization_code::{
+            AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
+        },
+        tenant::{CreateTenant, Tenant, TenantSearchClaims},
+        user::{CreateUser, UserSearchClauses},
+    },
+};
+
 pub mod admin;
 pub mod fhir;
 pub mod pg;
 pub mod types;
 pub mod utilities;
+
+/// Repository trait which encompasses all repository operations.
+pub trait Repository:
+    FHIRRepository
+    + TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
+    + ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
+    + TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims>
+    + TenantAuthAdmin<CreateUser, User, UserSearchClauses>
+    + Login
+{
+}
