@@ -8,12 +8,11 @@ CREATE TYPE pkce_method AS ENUM ('S256', 'plain');
 
 CREATE TABLE
     authorization_code (
+        code text NOT NULL PRIMARY KEY,
         tenant text NOT NULL,
-        id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
         project text,
         client_id text,
         kind code_kind NOT NULL,
-        code text NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
         expires_in interval NOT NULL,
         user_id text NOT NULL,
@@ -21,7 +20,6 @@ CREATE TABLE
         pkce_code_challenge_method pkce_method,
         redirect_uri character varying(255),
         meta jsonb,
-        CONSTRAINT authorization_code_code_key UNIQUE (code),
         CONSTRAINT fk_tenant FOREIGN KEY (tenant) REFERENCES tenants (id) ON DELETE CASCADE,
         CONSTRAINT fk_user FOREIGN KEY (tenant, user_id) REFERENCES users (tenant, fhir_user_id) ON DELETE CASCADE
     );

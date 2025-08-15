@@ -2190,6 +2190,7 @@ dependencies = [
  "oxidized-fhir-operation-error",
  "oxidized-reflect",
  "serde",
+ "serde_json",
  "sqlx",
  "sqlx-postgres",
  "tokio",

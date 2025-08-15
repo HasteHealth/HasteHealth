@@ -4,9 +4,9 @@ use oxidized_reflect::MetaValue;
 
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
 // Can't use _ for compliance.
-pub fn generate_id() -> String {
+pub fn generate_id(len: Option<usize>) -> String {
     nanoid::nanoid!(
-        26,
+        len.unwrap_or(26),
         &[
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
             'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
