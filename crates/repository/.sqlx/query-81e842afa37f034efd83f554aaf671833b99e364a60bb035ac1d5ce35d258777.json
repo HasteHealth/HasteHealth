@@ -1,0 +1,134 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO authorization_code (\n            tenant, project, client_id, kind, code, expires_in,\n            user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n        RETURNING tenant,\n                  kind as \"kind: AuthorizationCodeKind\",\n                  code,\n                  user_id,\n                  project,\n                  client_id,\n                  pkce_code_challenge,\n                  pkce_code_challenge_method as \"pkce_code_challenge_method: PKCECodeChallengeMethod\",\n                  redirect_uri,\n                  meta as \"meta: Json<serde_json::Value>\",\n                  NOW() > created_at + expires_in as is_expired\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "kind: AuthorizationCodeKind",
+        "type_info": {
+          "Custom": {
+            "name": "code_kind",
+            "kind": {
+              "Enum": [
+                "password_reset",
+                "oauth2_code_grant",
+                "refresh_token"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "code",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "project",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "client_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "pkce_code_challenge",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "pkce_code_challenge_method: PKCECodeChallengeMethod",
+        "type_info": {
+          "Custom": {
+            "name": "pkce_method",
+            "kind": {
+              "Enum": [
+                "S256",
+                "plain"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "redirect_uri",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "meta: Json<serde_json::Value>",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 10,
+        "name": "is_expired",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "code_kind",
+            "kind": {
+              "Enum": [
+                "password_reset",
+                "oauth2_code_grant",
+                "refresh_token"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Interval",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "pkce_method",
+            "kind": {
+              "Enum": [
+                "S256",
+                "plain"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        "Jsonb"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null
+    ]
+  },
+  "hash": "81e842afa37f034efd83f554aaf671833b99e364a60bb035ac1d5ce35d258777"
+}
