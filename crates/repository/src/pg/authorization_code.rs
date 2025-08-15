@@ -31,12 +31,9 @@ pub enum PKCECodeChallengeMethod {
 }
 
 struct CreateAuthorizationCode {
-    tenant: String,
     expires_in: Duration,
     kind: AuthorizationCodeKind,
-    code: String,
     user_id: String,
-    project: Option<String>,
     client_id: Option<String>,
     pkce_code_challenge: Option<String>,
     pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,
@@ -45,18 +42,18 @@ struct CreateAuthorizationCode {
 }
 
 #[derive(sqlx::FromRow, Debug)]
-struct AuthorizationCode {
-    tenant: String,
-    is_expired: Option<bool>,
-    kind: AuthorizationCodeKind,
-    code: String,
-    user_id: String,
-    project: Option<String>,
-    client_id: Option<String>,
-    pkce_code_challenge: Option<String>,
-    pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,
-    redirect_uri: Option<String>,
-    meta: Option<Json<serde_json::Value>>,
+pub struct AuthorizationCode {
+    pub tenant: String,
+    pub is_expired: Option<bool>,
+    pub kind: AuthorizationCodeKind,
+    pub code: String,
+    pub user_id: String,
+    pub project: Option<String>,
+    pub client_id: Option<String>,
+    pub pkce_code_challenge: Option<String>,
+    pub pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,
+    pub redirect_uri: Option<String>,
+    pub meta: Option<Json<serde_json::Value>>,
 }
 
 #[derive(OperationOutcomeError)]
@@ -68,7 +65,7 @@ pub enum CodeErrors {
 fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    project_id: Option<&'a ProjectId>,
+    project: Option<&'a ProjectId>,
     authorization_code: CreateAuthorizationCode,
 ) -> impl Future<Output = Result<AuthorizationCode, OperationOutcomeError>> + Send + 'a {
     async move {
@@ -76,7 +73,12 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             .expires_in
             .try_into()
             .map_err(|_e| CodeErrors::InvalidDuration)?;
-        sqlx::query_as!(
+
+        let code = generate_id(Some(45));
+
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+
+        let new_authorization_code = sqlx::query_as!(
             AuthorizationCode,
             r#"
         INSERT INTO authorization_code (
@@ -96,24 +98,186 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   meta as "meta: Json<serde_json::Value>",
                   NOW() > created_at + expires_in as is_expired
         "#,
-            authorization_code.tenant,
-            authorization_code.project,
+            tenant.as_ref(),
+            project.map(|p| p.as_ref()),
             authorization_code.client_id,
             authorization_code.kind as AuthorizationCodeKind,
-            authorization_code.code,
+            code,
             expires_in as PgInterval,
             authorization_code.user_id,
             authorization_code.pkce_code_challenge,
             authorization_code.pkce_code_challenge_method as Option<PKCECodeChallengeMethod>,
             authorization_code.redirect_uri,
             authorization_code.meta as std::option::Option<Json<serde_json::Value>>,
-        );
+        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
 
-        todo!();
+        Ok(new_authorization_code)
     }
 }
 
-struct AuthorizationCodeSearchClaims {}
+fn read_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: Option<&'a ProjectId>,
+    code: &'a str,
+) -> impl Future<Output = Result<AuthorizationCode, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+
+        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+            r#"
+            SELECT tenant,
+               kind as "kind: AuthorizationCodeKind",
+               code,
+               user_id,
+               project,
+               client_id,
+               pkce_code_challenge,
+               pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
+               redirect_uri,
+               meta as "meta: Json<serde_json::Value>",
+               NOW() > created_at + expires_in as is_expired
+            FROM authorization_code
+            WHERE 
+        "#,
+        );
+
+        query_builder.push("tenant = $1");
+        query_builder.push_bind(tenant.as_ref());
+
+        query_builder.push(" AND code = $2");
+        query_builder.push_bind(code);
+
+        if let Some(project) = project {
+            query_builder.push(" AND project = $3");
+            query_builder.push_bind(project.as_ref());
+        }
+
+        let query = query_builder.build_query_as();
+
+        let authorization_code: AuthorizationCode = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
+
+        Ok(authorization_code)
+    }
+}
+
+fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: Option<&'a ProjectId>,
+    code: &'a str,
+) -> impl Future<Output = Result<AuthorizationCode, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+
+        let mut query_builder = QueryBuilder::new(
+            r#"
+            DELETE FROM authorization_code
+            WHERE tenant = $1 AND code = $2
+
+            "#,
+        );
+        query_builder.push_bind(tenant.as_ref());
+        query_builder.push_bind(code);
+
+        if let Some(project) = project {
+            query_builder.push(" AND project = $3");
+            query_builder.push_bind(project.as_ref());
+        }
+
+        query_builder.push(r#" 
+             RETURNING tenant,
+                  kind as "kind: AuthorizationCodeKind",
+                  code,
+                  user_id,
+                  project,
+                  client_id,
+                  pkce_code_challenge,
+                  pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
+                  redirect_uri,
+                  meta as "meta: Json<serde_json::Value>",
+                  NOW() > created_at + expires_in as is_expired
+        "#);
+
+        let query = query_builder.build_query_as();
+
+        let authorization_code: AuthorizationCode = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
+
+        Ok(authorization_code)
+    }
+}
+
+fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: Option<&'a ProjectId>,
+    clauses: &'a AuthorizationCodeSearchClaims,
+) -> impl Future<Output = Result<Vec<AuthorizationCode>, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+            r#"
+            SELECT tenant,
+               kind as "kind: AuthorizationCodeKind",
+               code,
+               user_id,
+               project,
+               client_id,
+               pkce_code_challenge,
+               pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
+               redirect_uri,
+               meta as "meta: Json<serde_json::Value>",
+               NOW() > created_at + expires_in as is_expired
+            FROM authorization_code
+            WHERE
+        "#,
+        );
+
+        query_builder.push(" tenant = $1 ");
+        query_builder.push_bind(tenant.as_ref());
+
+        if let Some(project) = project {
+            query_builder.push(" AND project = $2 ");
+            query_builder.push_bind(project.as_ref());
+        }
+
+        if let Some(client_id) = &clauses.client_id {
+            query_builder.push(" AND client_id = $3 ");
+            query_builder.push_bind(client_id);
+        }
+
+        if let Some(code) = &clauses.code {
+            query_builder.push(" AND code = $4 ");
+            query_builder.push_bind(code);
+        }
+
+        if let Some(user_id) = &clauses.user_id {
+            query_builder.push(" AND user_id = $5 ");
+            query_builder.push_bind(user_id);
+        }
+
+        let query = query_builder.build_query_as();
+
+        let authorization_codes: Vec<AuthorizationCode> = query
+            .fetch_all(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
+
+        Ok(authorization_codes)
+    }
+}
+
+struct AuthorizationCodeSearchClaims {
+    client_id: Option<String>,
+    code: Option<String>,
+    user_id: Option<String>,
+}
 
 impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
     for PGConnection
@@ -123,17 +287,15 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
         tenant: &TenantId,
         authorization_code: CreateAuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
-        let code = generate_id(Some(45));
-
         match &self {
             PGConnection::PgPool(pool) => {
-                let res = create_code(pool, tenant, authorization_code).await?;
+                let res = create_code(pool, tenant, None, authorization_code).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
 
-                let res = create_code(&mut *tx, tenant, authorization_code).await?;
+                let res = create_code(&mut *tx, tenant, None, authorization_code).await?;
                 Ok(res)
             }
         }
@@ -142,25 +304,50 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
     async fn read(
         &self,
         tenant: &TenantId,
-        id: &str,
+        code: &str,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
-        todo!()
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = read_code(pool, tenant, None, code).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = read_code(&mut *tx, tenant, None, code).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn update(
         &self,
-        tenant: &TenantId,
-        model: AuthorizationCode,
+        _tenant: &TenantId,
+        _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
-        todo!()
+        Err(OperationOutcomeError::fatal(
+            "exception".to_string(),
+            "Update operation for AuthorizationCode is not implemented.".to_string(),
+        ))
     }
 
     async fn delete(
         &self,
         tenant: &TenantId,
-        id: &str,
+        code: &str,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
-        todo!()
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = delete_code(pool, tenant, None, code).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = delete_code(&mut *tx, tenant, None, code).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn search(
@@ -168,6 +355,17 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
         tenant: &TenantId,
         clauses: &AuthorizationCodeSearchClaims,
     ) -> Result<Vec<AuthorizationCode>, OperationOutcomeError> {
-        todo!()
+        match &self {
+            PGConnection::PgPool(pool) => {
+                let res = search_codes(pool, tenant, None, clauses).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+
+                let res = search_codes(&mut *tx, tenant, None, clauses).await?;
+                Ok(res)
+            }
+        }
     }
 }

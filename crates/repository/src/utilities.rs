@@ -5,8 +5,9 @@ use oxidized_reflect::MetaValue;
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
 // Can't use _ for compliance.
 pub fn generate_id(len: Option<usize>) -> String {
+    let len = len.unwrap_or(26);
     nanoid::nanoid!(
-        len.unwrap_or(26),
+        len,
         &[
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
             'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
@@ -40,7 +41,7 @@ pub fn set_resource_id(
             .ok_or(DataTransformError::InvalidData(
                 "Invalid 'id' field".to_string(),
             ))?;
-    *id = Some(_id.unwrap_or_else(|| generate_id()));
+    *id = Some(_id.unwrap_or_else(|| generate_id(None)));
     Ok(())
 }
 
@@ -64,7 +65,7 @@ pub fn set_version_id(resource: &mut Resource) -> Result<(), OperationOutcomeErr
         meta.versionId = Some(Box::new(FHIRId {
             id: None,
             extension: None,
-            value: Some(generate_id()),
+            value: Some(generate_id(None)),
         }));
     });
 
