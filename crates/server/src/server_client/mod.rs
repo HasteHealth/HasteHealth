@@ -12,7 +12,7 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_repository::{
     Repository,
-    fhir::HistoryRequest,
+    fhir::{FHIRRepository, HistoryRequest},
     types::{Author, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef},
 };
 use std::sync::Arc;
@@ -24,8 +24,8 @@ pub struct ServerCTX {
     pub author: Author,
 }
 
-struct ClientState<Repository: Repository + Send + Sync, Search: SearchEngine + Send + Sync> {
-    repo: Repository,
+struct ClientState<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync> {
+    repo: Repo,
     search: Arc<Search>,
 }
 
@@ -64,16 +64,15 @@ fn storage_middleware<
     Box::pin(async move {
         let response = match &mut context.request {
             FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
-                resource: state
-                    .repo
-                    .create(
-                        &context.ctx.tenant,
-                        &context.ctx.project,
-                        &context.ctx.author,
-                        &context.ctx.fhir_version,
-                        &mut create_request.resource,
-                    )
-                    .await?,
+                resource: FHIRRepository::create(
+                    &state.repo,
+                    &context.ctx.tenant,
+                    &context.ctx.project,
+                    &context.ctx.author,
+                    &context.ctx.fhir_version,
+                    &mut create_request.resource,
+                )
+                .await?,
             })),
             FHIRRequest::Read(read_request) => {
                 let resource = state
@@ -168,30 +167,28 @@ fn storage_middleware<
                     }
 
                     Some(FHIRResponse::Update(FHIRUpdateResponse {
-                        resource: state
-                            .repo
-                            .update(
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                &context.ctx.author,
-                                &context.ctx.fhir_version,
-                                &mut update_request.resource,
-                                &update_request.id,
-                            )
-                            .await?,
+                        resource: FHIRRepository::update(
+                            &state.repo,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &context.ctx.author,
+                            &context.ctx.fhir_version,
+                            &mut update_request.resource,
+                            &update_request.id,
+                        )
+                        .await?,
                     }))
                 } else {
                     Some(FHIRResponse::Create(FHIRCreateResponse {
-                        resource: state
-                            .repo
-                            .create(
-                                &context.ctx.tenant,
-                                &context.ctx.project,
-                                &context.ctx.author,
-                                &context.ctx.fhir_version,
-                                &mut update_request.resource,
-                            )
-                            .await?,
+                        resource: FHIRRepository::create(
+                            &state.repo,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &context.ctx.author,
+                            &context.ctx.fhir_version,
+                            &mut update_request.resource,
+                        )
+                        .await?,
                     }))
                 }
             }
