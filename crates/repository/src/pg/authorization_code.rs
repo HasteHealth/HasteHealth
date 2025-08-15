@@ -80,16 +80,21 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             AuthorizationCode,
             r#"
         INSERT INTO authorization_code (
-            tenant, project, client_id, kind, code, created_at, expires_in,
+            tenant, project, client_id, kind, code, expires_in,
             user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta
         )
-        VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7, $8, $9, $10, $11)
-        RETURNING tenant, kind as "kind: AuthorizationCodeKind", code,
-                  user_id, project, client_id,
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING tenant,
+                  kind as "kind: AuthorizationCodeKind",
+                  code,
+                  user_id,
+                  project,
+                  client_id,
                   pkce_code_challenge,
                   pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
                   redirect_uri,
-                  meta as "meta: Json<serde_json::Value>"
+                  meta as "meta: Json<serde_json::Value>",
+                  is_expired NOW() > created_at + expires_in
         "#,
             authorization_code.tenant,
             authorization_code.project,
