@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use clap::{Parser, Subcommand};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_server::server;

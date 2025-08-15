@@ -1,66 +1,18 @@
-use std::time::Duration;
-
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
-use sqlx_postgres::types::PgInterval;
-
 use crate::{
-    ProjectId, TenantId,
     admin::{ProjectAuthAdmin, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
+    types::{
+        ProjectId, TenantId,
+        authorization_code::{
+            AuthorizationCode, AuthorizationCodeKind, CodeErrors, CreateAuthorizationCode,
+            PKCECodeChallengeMethod,
+        },
+    },
     utilities::generate_id,
 };
-
-#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
-#[sqlx(type_name = "code_kind", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
-pub enum AuthorizationCodeKind {
-    #[sqlx(rename = "password_reset")]
-    PasswordReset,
-    #[sqlx(rename = "oauth2_code_grant")]
-    OAuth2CodeGrant,
-    #[sqlx(rename = "refresh_token")]
-    RefreshToken,
-}
-
-#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
-#[sqlx(type_name = "pkce_method")] // only for PostgreSQL to match a type definition
-pub enum PKCECodeChallengeMethod {
-    S256,
-    #[sqlx(rename = "plain")]
-    Plain,
-}
-
-struct CreateAuthorizationCode {
-    expires_in: Duration,
-    kind: AuthorizationCodeKind,
-    user_id: String,
-    client_id: Option<String>,
-    pkce_code_challenge: Option<String>,
-    pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,
-    redirect_uri: Option<String>,
-    meta: Option<Json<serde_json::Value>>,
-}
-
-#[derive(sqlx::FromRow, Debug)]
-pub struct AuthorizationCode {
-    pub tenant: String,
-    pub is_expired: Option<bool>,
-    pub kind: AuthorizationCodeKind,
-    pub code: String,
-    pub user_id: String,
-    pub project: Option<String>,
-    pub client_id: Option<String>,
-    pub pkce_code_challenge: Option<String>,
-    pub pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,
-    pub redirect_uri: Option<String>,
-    pub meta: Option<Json<serde_json::Value>>,
-}
-
-#[derive(OperationOutcomeError)]
-pub enum CodeErrors {
-    #[error(code = "invalid", diagnostic = "Invalid duration for expires.")]
-    InvalidDuration,
-}
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
+use sqlx_postgres::types::PgInterval;
 
 fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,

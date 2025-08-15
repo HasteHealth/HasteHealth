@@ -1,7 +1,12 @@
 use crate::{
-    AuthMethod, TenantId, UserRole,
-    admin::{Login, LoginMethod, TenantAuthAdmin, User},
+    admin::{Login, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
+    types::{
+        TenantId,
+        user::{
+            AuthMethod, CreateUser, LoginMethod, LoginResult, User, UserRole, UserSearchClauses,
+        },
+    },
     utilities::generate_id,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -16,8 +21,8 @@ enum LoginError {
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    method: &'a crate::admin::LoginMethod,
-) -> impl Future<Output = Result<crate::admin::LoginResult, OperationOutcomeError>> + Send + 'a {
+    method: &'a LoginMethod,
+) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         match method {
@@ -34,7 +39,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
 
                 if let Some(user) = user {
-                    Ok(crate::admin::LoginResult::Success { user })
+                    Ok(LoginResult::Success { user })
                 } else {
                     Err(LoginError::InvalidCredentials.into())
                 }
@@ -54,9 +59,8 @@ impl<CTX: Send> Login<CTX> for PGConnection {
         &self,
         _ctx: CTX,
         tenant: &TenantId,
-        method: &crate::admin::LoginMethod,
-    ) -> Result<crate::admin::LoginResult, oxidized_fhir_operation_error::OperationOutcomeError>
-    {
+        method: &LoginMethod,
+    ) -> Result<LoginResult, oxidized_fhir_operation_error::OperationOutcomeError> {
         match &self {
             PGConnection::PgPool(pool) => {
                 let res = login(pool, tenant, method).await?;
@@ -70,18 +74,6 @@ impl<CTX: Send> Login<CTX> for PGConnection {
             }
         }
     }
-}
-
-pub struct UserSearchClauses {
-    email: Option<String>,
-    role: Option<UserRole>,
-}
-
-pub struct CreateUser {
-    email: String,
-    role: UserRole,
-    provider_id: String,
-    method: AuthMethod,
 }
 
 fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(

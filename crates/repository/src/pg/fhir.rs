@@ -1,7 +1,9 @@
 use crate::{
-    Author, FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
     fhir::{FHIRRepository, HistoryRequest, ResourcePollingValue},
     pg::{PGConnection, StoreError},
+    types::{
+        Author, FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
+    },
     utilities,
 };
 use oxidized_fhir_model::r4::{
