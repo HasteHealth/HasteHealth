@@ -5,10 +5,9 @@ use crate::types::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
-pub trait Login<CTX> {
+pub trait Login {
     fn login(
         &self,
-        ctx: CTX,
         tenant: &TenantId,
         method: &LoginMethod,
     ) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send;

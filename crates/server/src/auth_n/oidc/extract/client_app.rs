@@ -14,7 +14,7 @@ use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
-    fhir::FHIRRepository,
+    Repository,
     types::{Author, SupportedFHIRVersions},
 };
 
@@ -22,7 +22,7 @@ pub struct OIDCClientApplication(pub ClientApplication);
 
 impl<Repo, Search> FromRequestParts<Arc<AppState<Repo, Search>>> for OIDCClientApplication
 where
-    Repo: FHIRRepository + Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 {
     type Rejection = Response;

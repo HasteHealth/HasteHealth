@@ -4,8 +4,8 @@ use crate::{
     types::{
         ProjectId, TenantId,
         authorization_code::{
-            AuthorizationCode, AuthorizationCodeKind, CodeErrors, CreateAuthorizationCode,
-            PKCECodeChallengeMethod,
+            AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims, CodeErrors,
+            CreateAuthorizationCode, PKCECodeChallengeMethod,
         },
     },
     utilities::generate_id,
@@ -223,12 +223,6 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 
         Ok(authorization_codes)
     }
-}
-
-struct AuthorizationCodeSearchClaims {
-    client_id: Option<String>,
-    code: Option<String>,
-    user_id: Option<String>,
 }
 
 impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>

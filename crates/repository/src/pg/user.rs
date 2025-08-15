@@ -54,10 +54,9 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     }
 }
 
-impl<CTX: Send> Login<CTX> for PGConnection {
+impl Login for PGConnection {
     async fn login(
         &self,
-        _ctx: CTX,
         tenant: &TenantId,
         method: &LoginMethod,
     ) -> Result<LoginResult, oxidized_fhir_operation_error::OperationOutcomeError> {

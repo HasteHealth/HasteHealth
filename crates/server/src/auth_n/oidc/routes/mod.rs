@@ -10,8 +10,8 @@ use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
-use oxidized_repository::fhir::FHIRRepository;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_repository::Repository;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower::ServiceBuilder;
@@ -73,7 +73,7 @@ async fn token_post(
 }
 
 pub fn create_router<
-    Repo: FHIRRepository + Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >() -> Router<Arc<AppState<Repo, Search>>> {
     let token_routes = Router::new()

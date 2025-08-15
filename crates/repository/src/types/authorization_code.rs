@@ -21,6 +21,12 @@ pub enum PKCECodeChallengeMethod {
     Plain,
 }
 
+pub struct AuthorizationCodeSearchClaims {
+    pub client_id: Option<String>,
+    pub code: Option<String>,
+    pub user_id: Option<String>,
+}
+
 pub struct CreateAuthorizationCode {
     pub expires_in: Duration,
     pub kind: AuthorizationCodeKind,
