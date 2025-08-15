@@ -2,6 +2,7 @@
 use crate::{AuthMethod, ProjectId, TenantId, UserRole};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
+#[derive(sqlx::FromRow, Debug)]
 pub struct User {
     pub id: String,
     pub email: String,
@@ -43,73 +44,63 @@ pub trait Login<CTX> {
 
 pub enum ProjectModels {}
 
-pub trait TenantAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
+pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
     fn create(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
+        tenant: &TenantId,
         model: CreatedModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn read(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        id: String,
+        tenant: &TenantId,
+        id: &str,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
+        tenant: &TenantId,
         model: ReadModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        id: String,
-    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+        tenant: &TenantId,
+        id: &str,
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn search(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        clauses: SearchClauses,
+        tenant: &TenantId,
+        clauses: &SearchClauses,
     ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }
 
-pub trait ProjectAuthAdmin<CTX, CreatedModel, ReadModel, SearchClauses> {
+pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
     fn create(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        project: ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         model: CreatedModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn read(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        project: ProjectId,
-        id: String,
+        tenant: &TenantId,
+        project: &ProjectId,
+        id: &str,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        project: ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         model: ReadModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        project: ProjectId,
-        id: String,
-    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+        tenant: &TenantId,
+        project: &ProjectId,
+        id: &str,
+    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn search(
         &self,
-        ctx: CTX,
-        tenant: TenantId,
-        project: ProjectId,
-        clauses: SearchClauses,
+        tenant: &TenantId,
+        project: &ProjectId,
+        clauses: &SearchClauses,
     ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }

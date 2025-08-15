@@ -1,5 +1,5 @@
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Acquire, PgConnection, Postgres};
+use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
