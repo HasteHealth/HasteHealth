@@ -11,7 +11,8 @@ use oxidized_fhir_client::{
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_repository::{
-    fhir::{FHIRRepository, HistoryRequest},
+    Repository,
+    fhir::HistoryRequest,
     types::{Author, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef},
 };
 use std::sync::Arc;
@@ -23,7 +24,7 @@ pub struct ServerCTX {
     pub author: Author,
 }
 
-struct ClientState<Repository: FHIRRepository + Send + Sync, Search: SearchEngine + Send + Sync> {
+struct ClientState<Repository: Repository + Send + Sync, Search: SearchEngine + Send + Sync> {
     repo: Repository,
     search: Arc<Search>,
 }
@@ -53,12 +54,12 @@ type ServerMiddlewareNext<Repo, Search> =
 type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
 
 fn storage_middleware<
-    Repository: FHIRRepository + Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >(
-    state: ServerMiddlewareState<Repository, Search>,
+    state: ServerMiddlewareState<Repo, Search>,
     mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repository, Search>>>,
+    next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
@@ -245,12 +246,12 @@ fn storage_middleware<
 }
 
 pub struct FHIRServerClient<
-    Repository: FHIRRepository + Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 > {
-    state: Arc<ClientState<Repository, Search>>,
+    state: Arc<ClientState<Repo, Search>>,
     middleware: Middleware<
-        Arc<ClientState<Repository, Search>>,
+        Arc<ClientState<Repo, Search>>,
         ServerCTX,
         FHIRRequest,
         FHIRResponse,
@@ -258,12 +259,10 @@ pub struct FHIRServerClient<
     >,
 }
 
-impl<
-    Repository: FHIRRepository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-> FHIRServerClient<Repository, Search>
+impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
+    FHIRServerClient<Repo, Search>
 {
-    pub fn new(repo: Repository, search: Search) -> Self {
+    pub fn new(repo: Repo, search: Search) -> Self {
         let middleware = Middleware::new(vec![Box::new(storage_middleware)]);
         FHIRServerClient {
             state: Arc::new(ClientState {
@@ -275,10 +274,8 @@ impl<
     }
 }
 
-impl<
-    Repository: FHIRRepository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-> FHIRClient<ServerCTX, OperationOutcomeError> for FHIRServerClient<Repository, Search>
+impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
+    FHIRClient<ServerCTX, OperationOutcomeError> for FHIRServerClient<Repo, Search>
 {
     async fn request(
         &self,

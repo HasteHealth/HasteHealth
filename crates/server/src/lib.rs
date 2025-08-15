@@ -16,7 +16,7 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FPEngine;
 use oxidized_repository::{
-    fhir::FHIRRepository,
+    Repository,
     pg::PGConnection,
     types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
@@ -58,7 +58,7 @@ pub enum CustomOpError {
 }
 
 pub struct AppState<
-    Repo: FHIRRepository + Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 > {
     fhir_client: FHIRServerClient<Repo, Search>,
@@ -74,7 +74,7 @@ struct FHIRHandlerPath {
 }
 
 async fn fhir_handler<
-    Repo: FHIRRepository + Send + Sync + 'static,
+    Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
