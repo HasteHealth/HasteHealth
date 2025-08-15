@@ -1,6 +1,6 @@
 use crate::{
     AuthMethod, TenantId, UserRole,
-    auth::{Login, LoginMethod, TenantAuthAdmin, User},
+    admin::{Login, LoginMethod, TenantAuthAdmin, User},
     pg::{PGConnection, StoreError},
     utilities::generate_id,
 };
@@ -16,8 +16,8 @@ enum LoginError {
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    method: &'a crate::auth::LoginMethod,
-) -> impl Future<Output = Result<crate::auth::LoginResult, OperationOutcomeError>> + Send + 'a {
+    method: &'a crate::admin::LoginMethod,
+) -> impl Future<Output = Result<crate::admin::LoginResult, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         match method {
@@ -34,7 +34,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
 
                 if let Some(user) = user {
-                    Ok(crate::auth::LoginResult::Success { user })
+                    Ok(crate::admin::LoginResult::Success { user })
                 } else {
                     Err(LoginError::InvalidCredentials.into())
                 }
@@ -54,8 +54,8 @@ impl<CTX: Send> Login<CTX> for PGConnection {
         &self,
         _ctx: CTX,
         tenant: &TenantId,
-        method: &crate::auth::LoginMethod,
-    ) -> Result<crate::auth::LoginResult, oxidized_fhir_operation_error::OperationOutcomeError>
+        method: &crate::admin::LoginMethod,
+    ) -> Result<crate::admin::LoginResult, oxidized_fhir_operation_error::OperationOutcomeError>
     {
         match &self {
             PGConnection::PgPool(pool) => {

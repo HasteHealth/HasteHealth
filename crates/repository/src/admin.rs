@@ -42,8 +42,6 @@ pub trait Login<CTX> {
     ) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send;
 }
 
-pub enum ProjectModels {}
-
 pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
     fn create(
         &self,

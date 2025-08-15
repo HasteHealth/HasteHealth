@@ -4,6 +4,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 mod fhir;
+mod tenant;
 mod user;
 
 #[derive(OperationOutcomeError, Debug)]
