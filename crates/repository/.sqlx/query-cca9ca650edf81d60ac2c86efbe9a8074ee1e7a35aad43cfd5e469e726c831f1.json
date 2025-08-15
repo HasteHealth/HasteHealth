@@ -1,20 +1,25 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                  SELECT fhir_user_id, email, role as \"role: UserRole\" FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)\n                ",
+  "query": "\n                SELECT id, provider_id, email, role as \"role: UserRole\", method as \"method: AuthMethod\"\n                FROM users\n                WHERE tenant = $1 AND id = $2\n            ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "fhir_user_id",
+        "name": "id",
         "type_info": "Text"
       },
       {
         "ordinal": 1,
-        "name": "email",
+        "name": "provider_id",
         "type_info": "Text"
       },
       {
         "ordinal": 2,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
         "name": "role: UserRole",
         "type_info": {
           "Custom": {
@@ -28,12 +33,11 @@
             }
           }
         }
-      }
-    ],
-    "parameters": {
-      "Left": [
-        "Text",
-        {
+      },
+      {
+        "ordinal": 4,
+        "name": "method: AuthMethod",
+        "type_info": {
           "Custom": {
             "name": "auth_method",
             "kind": {
@@ -43,16 +47,22 @@
               ]
             }
           }
-        },
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
         "Text",
         "Text"
       ]
     },
     "nullable": [
       false,
+      true,
+      false,
       false,
       false
     ]
   },
-  "hash": "3f6ac077cefa4b0478606badfc7b00fac32b3d27917c16233042eb4c078b974f"
+  "hash": "cca9ca650edf81d60ac2c86efbe9a8074ee1e7a35aad43cfd5e469e726c831f1"
 }

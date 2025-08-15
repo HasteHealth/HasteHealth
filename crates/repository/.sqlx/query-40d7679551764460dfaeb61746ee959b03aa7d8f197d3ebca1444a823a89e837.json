@@ -1,0 +1,93 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                UPDATE users\n                SET provider_id = $1, email = $2, role = $3, method = $4\n                WHERE tenant = $5 AND id = $6\n                RETURNING id, provider_id, email, role as \"role: UserRole\", method as \"method: AuthMethod\"\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "provider_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "role: UserRole",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "owner",
+                "admin",
+                "member"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "method: AuthMethod",
+        "type_info": {
+          "Custom": {
+            "name": "auth_method",
+            "kind": {
+              "Enum": [
+                "email-password",
+                "oidc-provider"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "owner",
+                "admin",
+                "member"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "auth_method",
+            "kind": {
+              "Enum": [
+                "email-password",
+                "oidc-provider"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "40d7679551764460dfaeb61746ee959b03aa7d8f197d3ebca1444a823a89e837"
+}
