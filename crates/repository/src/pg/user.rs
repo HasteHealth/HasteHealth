@@ -11,7 +11,7 @@ use crate::{
     utilities::generate_id,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Acquire, Execute, Postgres, QueryBuilder};
+use sqlx::{Acquire, Postgres, QueryBuilder};
 
 #[derive(OperationOutcomeError, Debug)]
 enum LoginError {
