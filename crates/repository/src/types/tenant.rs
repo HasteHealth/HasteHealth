@@ -1,4 +1,7 @@
+use crate::types::TenantId;
+
 pub struct CreateTenant {
+    pub id: Option<TenantId>,
     pub subscription_tier: Option<String>,
 }
 

@@ -291,9 +291,11 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> =
             QueryBuilder::new(r#"SELECT resource FROM resources WHERE tenant = "#);
-        query_builder.push_bind(tenant_id.as_ref());
-        query_builder.push(" AND project =");
-        query_builder.push_bind(project_id.as_ref());
+        query_builder
+            .push_bind(tenant_id.as_ref())
+            .push(" AND project =")
+            .push_bind(project_id.as_ref());
+
         query_builder.push(" AND version_id in (");
 
         let mut separated = query_builder.separated(", ");

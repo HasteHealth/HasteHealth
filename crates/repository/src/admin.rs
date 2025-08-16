@@ -13,7 +13,7 @@ pub trait Login {
     ) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send;
 }
 
-pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
+pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = ReadModel> {
     fn create(
         &self,
         tenant: &TenantId,
@@ -27,7 +27,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
     fn update(
         &self,
         tenant: &TenantId,
-        model: ReadModel,
+        model: UpdateModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
         &self,
@@ -41,7 +41,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
     ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }
 
-pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
+pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = ReadModel> {
     fn create(
         &self,
         tenant: &TenantId,
@@ -58,7 +58,7 @@ pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses> {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        model: ReadModel,
+        model: UpdateModel,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn delete(
         &self,

@@ -16,11 +16,11 @@ fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 ) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let id = generate_id(None);
+        let id = tenant.id.unwrap_or(TenantId::new(generate_id(None)));
         let tenant = sqlx::query_as!(
             Tenant,
             "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id, subscription_tier",
-            id,
+            id.as_ref(),
             tenant.subscription_tier.unwrap_or("free".to_string())
         )
         .fetch_one(&mut *conn)
@@ -99,8 +99,9 @@ fn search_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
             QueryBuilder::new(r#"SELECT id, subscription_tier FROM tenants WHERE "#);
 
         if let Some(subscription_tier) = clauses.subscription_tier.as_ref() {
-            query_builder.push(" subscription_tier = $1");
-            query_builder.push_bind(subscription_tier);
+            query_builder
+                .push(" subscription_tier = ")
+                .push_bind(subscription_tier);
         }
 
         let query = query_builder.build_query_as();

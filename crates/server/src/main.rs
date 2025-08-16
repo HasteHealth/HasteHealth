@@ -1,6 +1,11 @@
 use clap::{Parser, Subcommand};
+use oxidized_config::get_config;
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_server::server;
+use oxidized_repository::{
+    admin::TenantAuthAdmin,
+    types::{TenantId, tenant::CreateTenant, user::User},
+};
+use oxidized_server::{create_services, server};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -54,6 +59,9 @@ enum UserCommands {
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
 
+    let config = get_config("environment".into());
+    let services = create_services(config).await?;
+
     match &cli.command {
         Commands::Start { port } => {
             let server = server().await?;
@@ -71,13 +79,18 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 id,
                 subscription_tier,
             } => {
-                println!(
-                    "Creating tenant with id: {}, subscription tier: {:?}",
-                    id, subscription_tier
-                );
+                services
+                    .repo
+                    .create(
+                        &TenantId::System,
+                        CreateTenant {
+                            id: Some(TenantId::new(id.clone())),
+                            subscription_tier: subscription_tier.clone(),
+                        },
+                    )
+                    .await?;
 
-                todo!();
-                // Ok(())
+                Ok(())
             }
         },
         Commands::User { command } => match command {
@@ -86,6 +99,9 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 password,
                 tenant,
             } => {
+                services
+                    .repo
+                    .create(&TenantId::new(tenant.clone()), User {});
                 println!(
                     "Creating user with username: {}, password: {}, tenant: {}",
                     username, password, tenant

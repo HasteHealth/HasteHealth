@@ -2,6 +2,8 @@ use oxidized_fhir_client::request::FHIRRequest;
 use serde::Deserialize;
 use std::fmt::{Debug, Display};
 
+use crate::utilities::generate_id;
+
 pub mod authorization_code;
 mod sqlx_bindings;
 pub mod tenant;
@@ -26,17 +28,31 @@ impl std::fmt::Display for SupportedFHIRVersions {
     }
 }
 
+static SYSTEM_TENANT: &str = "system";
+
 #[derive(Debug, Clone)]
-pub struct TenantId(String);
+pub enum TenantId {
+    System,
+    Custom(String),
+}
+
 impl TenantId {
     pub fn new(id: String) -> Self {
-        TenantId(id)
+        // Should never be able to create a system tenant from user.
+        if id == SYSTEM_TENANT {
+            TenantId::Custom(generate_id(Some(26)))
+        } else {
+            TenantId::Custom(id)
+        }
     }
 }
 
 impl AsRef<str> for TenantId {
     fn as_ref(&self) -> &str {
-        &self.0
+        match self {
+            TenantId::System => SYSTEM_TENANT,
+            TenantId::Custom(id) => id,
+        }
     }
 }
 
@@ -51,7 +67,10 @@ impl<'de> Deserialize<'de> for TenantId {
 
 impl Display for TenantId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        match self {
+            TenantId::System => write!(f, "{}", SYSTEM_TENANT),
+            TenantId::Custom(id) => write!(f, "{}", id),
+        }
     }
 }
 #[derive(Debug, Clone)]

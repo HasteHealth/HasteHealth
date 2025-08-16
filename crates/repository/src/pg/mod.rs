@@ -23,6 +23,7 @@ pub enum StoreError {
 }
 
 /// Connection types supported by the repository traits.
+#[derive(Debug, Clone)]
 pub enum PGConnection {
     PgPool(sqlx::Pool<Postgres>),
     PgTransaction(Arc<Mutex<sqlx::Transaction<'static, Postgres>>>),
