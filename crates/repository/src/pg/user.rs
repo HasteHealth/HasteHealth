@@ -86,15 +86,9 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 
         let mut query_builder = QueryBuilder::new(
             r#"
-                INSERT INTO users(tenant, id, provider_id, email, role, method
+                INSERT INTO users(tenant, id, email, role, method, provider_id, password)
             "#,
         );
-
-        if new_user.password.is_some() {
-            query_builder.push(", password)");
-        } else {
-            query_builder.push(")");
-        }
 
         query_builder.push(" VALUES (");
 
@@ -103,13 +97,23 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         seperator
             .push_bind(tenant.as_ref())
             .push_bind(generate_id(None))
-            .push_bind(new_user.provider_id)
             .push_bind(new_user.email)
             .push_bind(new_user.role as UserRole)
             .push_bind(new_user.method as AuthMethod);
 
         if let Some(password) = new_user.password {
-            seperator.push_bind(password);
+            seperator
+                .push_unseparated(" password = crypt(")
+                .push_bind_unseparated(password)
+                .push(", gen_salt('bf'))");
+        } else {
+            seperator.push_bind(None::<String>);
+        }
+
+        if let Some(provider_id) = new_user.provider_id {
+            seperator.push_bind(provider_id);
+        } else {
+            seperator.push_bind(None::<String>);
         }
 
         query_builder.push(

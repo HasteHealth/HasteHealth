@@ -33,8 +33,8 @@ pub struct UserSearchClauses {
 pub struct CreateUser {
     pub email: String,
     pub role: UserRole,
-    pub provider_id: String,
     pub method: AuthMethod,
+    pub provider_id: Option<String>,
     pub password: Option<String>,
 }
 

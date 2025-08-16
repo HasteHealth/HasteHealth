@@ -3,7 +3,11 @@ use oxidized_config::get_config;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
-    types::{TenantId, tenant::CreateTenant, user::User},
+    types::{
+        TenantId,
+        tenant::CreateTenant,
+        user::{AuthMethod, CreateUser, User},
+    },
 };
 use oxidized_server::{create_services, server};
 
@@ -101,9 +105,11 @@ async fn main() -> Result<(), OperationOutcomeError> {
             } => {
                 services.repo.create(
                     &TenantId::new(tenant.clone()),
-                    User {
+                    CreateUser {
                         email: email.clone(),
-                        password: password.clone(),
+                        password: Some(password.clone()),
+                        provider_id: None,
+                        method: AuthMethod::EmailPassword,
                     },
                 );
 
