@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
+use crate::{AppState, auth_n::session, extract::path_tenant::Tenant};
 use axum::{
     Form,
     extract::{OriginalUri, State},
 };
 use axum_extra::routing::TypedPath;
 use maud::{Markup, html};
-use oxidized_fhir_client::request::Operation;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
@@ -14,15 +12,30 @@ use oxidized_repository::{
     types::user::{LoginMethod, LoginResult},
 };
 use serde::Deserialize;
-
-use crate::{AppState, extract::path_tenant::Tenant};
+use std::sync::Arc;
+use tower_sessions::Session;
 
 #[derive(TypedPath)]
 #[typed_path("/login")]
 pub struct Login;
 
-pub async fn login_get(_: Login, uri: OriginalUri) -> Result<Markup, String> {
+pub async fn login_get(
+    _: Login,
+    current_session: Session,
+    uri: OriginalUri,
+) -> Result<Markup, OperationOutcomeError> {
     let route = uri.path().to_string();
+
+    let user = session::user::get_user(current_session).await?;
+
+    if user.is_some() {
+        return Ok(html! {
+            body {
+                h1 { "YOUR LOGGED IN!"}
+            }
+        });
+    }
+
     let response = html! {
         head {
             meta charset="utf-8" {}
@@ -90,6 +103,7 @@ pub async fn login_post<
 >(
     _: Login,
     State(state): State<Arc<AppState<Repo, Search>>>,
+    current_session: Session,
     Tenant { tenant }: Tenant,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Markup, OperationOutcomeError> {
@@ -109,6 +123,7 @@ pub async fn login_post<
 
     match login_result {
         LoginResult::Success { user } => {
+            session::user::set_user(current_session, &user).await?;
             let message = format!("User {} logged in successfully", user.id);
             // Handle successful login, e.g., set session, redirect, etc.
             Ok(html! {
