@@ -1,6 +1,21 @@
-use axum::extract::OriginalUri;
+use std::sync::Arc;
+
+use axum::{
+    Form,
+    extract::{OriginalUri, State},
+};
 use axum_extra::routing::TypedPath;
 use maud::{Markup, html};
+use oxidized_fhir_client::request::Operation;
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_search::SearchEngine;
+use oxidized_repository::{
+    Repository,
+    types::user::{LoginMethod, LoginResult},
+};
+use serde::Deserialize;
+
+use crate::{AppState, extract::path_tenant::Tenant};
 
 #[derive(TypedPath)]
 #[typed_path("/login")]
@@ -63,12 +78,42 @@ pub async fn login_get(_: Login, uri: OriginalUri) -> Result<Markup, String> {
     Ok(response)
 }
 
-pub async fn login_post(_: Login) -> Result<Markup, String> {
+#[derive(Deserialize)]
+pub struct LoginForm {
+    pub email: String,
+    pub password: String,
+}
+
+pub async fn login_post<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    _: Login,
+    State(state): State<Arc<AppState<Repo, Search>>>,
+    Tenant { tenant }: Tenant,
+    Form(login_data): Form<LoginForm>,
+) -> Result<Markup, OperationOutcomeError> {
     // Handle the login post request here
     // For now, we will just return a simple message
-    let response = html! {
-        h1 { "Login POST request received" }
-    };
 
-    Ok(response)
+    let login_result = state
+        .repo
+        .login(
+            &tenant,
+            &LoginMethod::EmailPassword {
+                email: login_data.email,
+                password: login_data.password,
+            },
+        )
+        .await?;
+
+    match login_result {
+        LoginResult::Success { user } => {
+            let message = format!("User {} logged in successfully", user.id);
+            // Handle successful login, e.g., set session, redirect, etc.
+            Ok(html! {
+                h1 { (message) }
+            })
+        }
+    }
 }
