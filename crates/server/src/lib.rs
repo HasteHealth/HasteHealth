@@ -61,7 +61,8 @@ pub struct AppState<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 > {
-    fhir_client: FHIRServerClient<Repo, Search>,
+    pub repo: Repo,
+    pub fhir_client: FHIRServerClient<Repo, Search>,
     _config: Box<dyn Config>,
 }
 
@@ -129,9 +130,12 @@ pub async fn create_services(
     )
     .expect("Failed to create Elasticsearch client");
 
+    let repo = PGConnection::PgPool(pool.clone());
+
     let shared_state = Arc::new(AppState {
         _config: config,
-        fhir_client: FHIRServerClient::new(PGConnection::PgPool(pool.clone()), search_engine),
+        repo: repo.clone(),
+        fhir_client: FHIRServerClient::new(repo, search_engine),
     });
 
     Ok(shared_state)

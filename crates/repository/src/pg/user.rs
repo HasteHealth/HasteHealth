@@ -4,7 +4,8 @@ use crate::{
     types::{
         TenantId,
         user::{
-            AuthMethod, CreateUser, LoginMethod, LoginResult, User, UserRole, UserSearchClauses,
+            AuthMethod, CreateUser, LoginMethod, LoginResult, UpdateUser, User, UserRole,
+            UserSearchClauses,
         },
     },
     utilities::generate_id,
@@ -82,20 +83,47 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 ) -> impl Future<Output = Result<User, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let user = sqlx::query_as!(
-            User,
+
+        let mut query_builder = QueryBuilder::new(
             r#"
-               INSERT INTO users(tenant, id, provider_id, email, role, method)
-               VALUES($1, $2, $3, $4, $5, $6)
-               RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"
+                INSERT INTO users(tenant, id, email, role, method, provider_id, password)
             "#,
-            tenant.as_ref(),
-            generate_id(None) as String,
-            new_user.provider_id,
-            new_user.email,
-            new_user.role as UserRole,
-            new_user.method as AuthMethod,
-        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+        );
+
+        query_builder.push(" VALUES (");
+
+        let mut seperator = query_builder.separated(", ");
+
+        seperator
+            .push_bind(tenant.as_ref())
+            .push_bind(generate_id(None))
+            .push_bind(new_user.email)
+            .push_bind(new_user.role as UserRole)
+            .push_bind(new_user.method as AuthMethod);
+
+        if let Some(provider_id) = new_user.provider_id {
+            seperator.push_bind(provider_id);
+        } else {
+            seperator.push_bind(None::<String>);
+        }
+
+        if let Some(password) = new_user.password {
+            seperator
+                .push("crypt(")
+                .push_bind_unseparated(password)
+                .push_unseparated(", gen_salt('bf'))");
+        } else {
+            seperator.push_bind(None::<String>);
+        }
+
+        query_builder.push(r#") RETURNING id, provider_id, email, role , method"#);
+
+        let query = query_builder.build_query_as();
+
+        let user = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
 
         Ok(user)
     }
@@ -126,25 +154,49 @@ fn read_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
 fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
-    model: User,
+    model: UpdateUser,
 ) -> impl Future<Output = Result<User, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let user = sqlx::query_as!(
-            User,
+        let mut query_builder = QueryBuilder::new(
             r#"
-                UPDATE users
-                SET provider_id = $1, email = $2, role = $3, method = $4
-                WHERE tenant = $5 AND id = $6
-                RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"
+                UPDATE users SET 
             "#,
-            model.provider_id,
-            model.email,
-            model.role as UserRole,
-            model.method as AuthMethod,
-            tenant.as_ref(),
-            model.id
-        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+        );
+
+        let mut seperator = query_builder.separated(", ");
+
+        if let Some(provider_id) = model.provider_id {
+            seperator
+                .push(" provider_id = ")
+                .push_bind_unseparated(provider_id);
+        }
+
+        seperator
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref())
+            .push(" email = ")
+            .push_bind_unseparated(model.email)
+            .push(" role = ")
+            .push_bind_unseparated(model.role)
+            .push(" method = ")
+            .push_bind_unseparated(model.method);
+
+        if let Some(password) = model.password {
+            seperator
+                .push(" password = crypt(")
+                .push_bind_unseparated(password)
+                .push_unseparated(", gen_salt('bf'))");
+        }
+
+        query_builder.push(r#" RETURNING id, provider_id, email, role, method"#);
+
+        let query = query_builder.build_query_as();
+
+        let user = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
 
         Ok(user)
     }
@@ -180,22 +232,20 @@ fn search_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT id, email, role as "role: UserRole", method as "method: AuthMethod", provider_id FROM users WHERE tenant = "#,
+            r#"SELECT id, email, role as "role: UserRole", method as "method: AuthMethod", provider_id FROM users WHERE  "#,
         );
 
-        query_builder.push_bind(tenant.as_ref());
+        let mut seperator = query_builder.separated(" AND ");
+        seperator
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref());
 
         if let Some(email) = clauses.email.as_ref() {
-            query_builder.push(" email = $1");
-            query_builder.push_bind(email);
+            seperator.push(" email = ").push_bind_unseparated(email);
         }
 
         if let Some(role) = clauses.role.as_ref() {
-            if !query_builder.sql().ends_with("WHERE") {
-                query_builder.push(" AND");
-            }
-            query_builder.push(" role = $2");
-            query_builder.push_bind(role);
+            seperator.push(" role = ").push_bind_unseparated(role);
         }
 
         let query = query_builder.build_query_as();
@@ -209,7 +259,7 @@ fn search_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     }
 }
 
-impl TenantAuthAdmin<CreateUser, User, UserSearchClauses> for PGConnection {
+impl TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser> for PGConnection {
     async fn create(
         &self,
         tenant: &TenantId,
@@ -242,7 +292,11 @@ impl TenantAuthAdmin<CreateUser, User, UserSearchClauses> for PGConnection {
         }
     }
 
-    async fn update(&self, tenant: &TenantId, user: User) -> Result<User, OperationOutcomeError> {
+    async fn update(
+        &self,
+        tenant: &TenantId,
+        user: UpdateUser,
+    ) -> Result<User, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = update_user(pool, &tenant, user).await?;

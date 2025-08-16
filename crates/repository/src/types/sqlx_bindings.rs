@@ -20,7 +20,7 @@ impl<'r> Encode<'r, Postgres> for TenantId {
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.0.as_bytes())?;
+        buf.write(self.as_ref().as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }

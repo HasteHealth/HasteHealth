@@ -1,6 +1,15 @@
 use clap::{Parser, Subcommand};
+use oxidized_config::get_config;
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_server::server;
+use oxidized_repository::{
+    admin::TenantAuthAdmin,
+    types::{
+        TenantId,
+        tenant::CreateTenant,
+        user::{AuthMethod, CreateUser, UserRole},
+    },
+};
+use oxidized_server::{create_services, server};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -42,7 +51,7 @@ enum TenantCommands {
 enum UserCommands {
     Create {
         #[arg(short, long)]
-        username: String,
+        email: String,
         #[arg(short, long)]
         password: String,
         #[arg(short, long)]
@@ -53,6 +62,9 @@ enum UserCommands {
 #[tokio::main]
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
+
+    let config = get_config("environment".into());
+    let services = create_services(config).await?;
 
     match &cli.command {
         Commands::Start { port } => {
@@ -71,28 +83,41 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 id,
                 subscription_tier,
             } => {
-                println!(
-                    "Creating tenant with id: {}, subscription tier: {:?}",
-                    id, subscription_tier
-                );
+                services
+                    .repo
+                    .create(
+                        &TenantId::System,
+                        CreateTenant {
+                            id: Some(TenantId::new(id.clone())),
+                            subscription_tier: subscription_tier.clone(),
+                        },
+                    )
+                    .await?;
 
-                todo!();
-                // Ok(())
+                Ok(())
             }
         },
         Commands::User { command } => match command {
             UserCommands::Create {
-                username,
+                email,
                 password,
                 tenant,
             } => {
-                println!(
-                    "Creating user with username: {}, password: {}, tenant: {}",
-                    username, password, tenant
-                );
+                services
+                    .repo
+                    .create(
+                        &TenantId::new(tenant.clone()),
+                        CreateUser {
+                            role: UserRole::Admin,
+                            email: email.clone(),
+                            password: Some(password.clone()),
+                            provider_id: None,
+                            method: AuthMethod::EmailPassword,
+                        },
+                    )
+                    .await?;
 
-                todo!();
-                // Ok(())
+                Ok(())
             }
         },
     }

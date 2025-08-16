@@ -94,15 +94,13 @@ fn read_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         "#,
         );
 
-        query_builder.push("tenant = $1");
-        query_builder.push_bind(tenant.as_ref());
-
-        query_builder.push(" AND code = $2");
-        query_builder.push_bind(code);
+        query_builder.push("tenant = ").push_bind(tenant.as_ref());
+        query_builder.push(" AND code = ").push_bind(code);
 
         if let Some(project) = project {
-            query_builder.push(" AND project = $3");
-            query_builder.push_bind(project.as_ref());
+            query_builder
+                .push(" AND project = ")
+                .push_bind(project.as_ref());
         }
 
         let query = query_builder.build_query_as();
@@ -128,16 +126,16 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         let mut query_builder = QueryBuilder::new(
             r#"
             DELETE FROM authorization_code
-            WHERE tenant = $1 AND code = $2
-
+            WHERE
             "#,
         );
-        query_builder.push_bind(tenant.as_ref());
-        query_builder.push_bind(code);
+        query_builder.push(" tenant =  ").push_bind(tenant.as_ref());
+        query_builder.push("AND code = ").push_bind(code);
 
         if let Some(project) = project {
-            query_builder.push(" AND project = $3");
-            query_builder.push_bind(project.as_ref());
+            query_builder
+                .push(" AND project = ")
+                .push_bind(project.as_ref());
         }
 
         query_builder.push(r#" 
@@ -191,27 +189,26 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         "#,
         );
 
-        query_builder.push(" tenant = $1 ");
-        query_builder.push_bind(tenant.as_ref());
+        query_builder.push(" tenant =  ").push_bind(tenant.as_ref());
 
         if let Some(project) = project {
-            query_builder.push(" AND project = $2 ");
-            query_builder.push_bind(project.as_ref());
+            query_builder
+                .push(" AND project = ")
+                .push_bind(project.as_ref());
         }
 
         if let Some(client_id) = &clauses.client_id {
-            query_builder.push(" AND client_id = $3 ");
-            query_builder.push_bind(client_id);
+            query_builder
+                .push(" AND client_id =  ")
+                .push_bind(client_id);
         }
 
         if let Some(code) = &clauses.code {
-            query_builder.push(" AND code = $4 ");
-            query_builder.push_bind(code);
+            query_builder.push(" AND code =  ").push_bind(code);
         }
 
         if let Some(user_id) = &clauses.user_id {
-            query_builder.push(" AND user_id = $5 ");
-            query_builder.push_bind(user_id);
+            query_builder.push(" AND user_id =  ").push_bind(user_id);
         }
 
         let query = query_builder.build_query_as();

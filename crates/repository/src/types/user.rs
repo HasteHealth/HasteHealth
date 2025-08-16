@@ -7,6 +7,15 @@ pub struct User {
     pub provider_id: Option<String>,
 }
 
+pub struct UpdateUser {
+    pub id: String,
+    pub email: String,
+    pub role: UserRole,
+    pub method: AuthMethod,
+    pub provider_id: Option<String>,
+    pub password: Option<String>,
+}
+
 pub enum LoginMethod {
     OIDC { email: String, provider_id: String },
     EmailPassword { email: String, password: String },
@@ -24,8 +33,9 @@ pub struct UserSearchClauses {
 pub struct CreateUser {
     pub email: String,
     pub role: UserRole,
-    pub provider_id: String,
     pub method: AuthMethod,
+    pub provider_id: Option<String>,
+    pub password: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
