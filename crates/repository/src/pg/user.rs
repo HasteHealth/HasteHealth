@@ -101,17 +101,17 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             .push_bind(new_user.role as UserRole)
             .push_bind(new_user.method as AuthMethod);
 
+        if let Some(provider_id) = new_user.provider_id {
+            seperator.push_bind(provider_id);
+        } else {
+            seperator.push_bind(None::<String>);
+        }
+
         if let Some(password) = new_user.password {
             seperator
                 .push("crypt(")
                 .push_bind_unseparated(password)
                 .push_unseparated(", gen_salt('bf'))");
-        } else {
-            seperator.push_bind(None::<String>);
-        }
-
-        if let Some(provider_id) = new_user.provider_id {
-            seperator.push_bind(provider_id);
         } else {
             seperator.push_bind(None::<String>);
         }
