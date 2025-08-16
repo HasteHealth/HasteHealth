@@ -173,23 +173,23 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         }
 
         seperator
-            .push_unseparated(" tenant = ")
-            .push_bind(tenant.as_ref())
-            .push_unseparated(" email = ")
-            .push_bind(model.email)
-            .push_unseparated(" role = ")
-            .push_bind(model.role)
-            .push_unseparated(" method = ")
-            .push_bind(model.method);
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref())
+            .push(" email = ")
+            .push_bind_unseparated(model.email)
+            .push(" role = ")
+            .push_bind_unseparated(model.role)
+            .push(" method = ")
+            .push_bind_unseparated(model.method);
 
         if let Some(password) = model.password {
             seperator
-                .push_unseparated(" password = crypt(")
+                .push(" password = crypt(")
                 .push_bind_unseparated(password)
-                .push(", gen_salt('bf'))");
+                .push_unseparated(", gen_salt('bf'))");
         }
 
-        query_builder.push(r#" RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"#);
+        query_builder.push(r#" RETURNING id, provider_id, email, role, method"#);
 
         let query = query_builder.build_query_as();
 
