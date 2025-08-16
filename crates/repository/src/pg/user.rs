@@ -146,6 +146,8 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         }
 
         seperator
+            .push_unseparated(" tenant = ")
+            .push_bind(tenant.as_ref())
             .push_unseparated(" email = ")
             .push_bind(model.email)
             .push_unseparated(" role = ")
