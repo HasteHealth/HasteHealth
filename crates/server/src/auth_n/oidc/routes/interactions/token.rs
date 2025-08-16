@@ -70,7 +70,8 @@ pub async fn token<
                 }
 
                 let mut header = Header::new(Algorithm::RS256);
-                jsonwebtoken::encode(header, claims, key)
+                // jsonwebtoken::encode(header, claims, key)
+                todo!();
             } else {
                 Err(OperationOutcomeError::fatal(
                     "invalid".to_string(),
