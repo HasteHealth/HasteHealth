@@ -23,3 +23,14 @@ pub async fn set_user(session: Session, user: &User) -> Result<(), OperationOutc
         )
     })
 }
+
+pub async fn clear_user(session: Session) -> Result<(), OperationOutcomeError> {
+    session.remove::<User>(USER_KEY).await.map_err(|_e| {
+        OperationOutcomeError::fatal(
+            "exception".to_string(),
+            "Failed to clear user from session.".to_string(),
+        )
+    })?;
+
+    Ok(())
+}
