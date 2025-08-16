@@ -2,6 +2,7 @@ use crate::{AppState, auth_n::session, extract::path_tenant::Tenant};
 use axum::{
     Form,
     extract::{OriginalUri, State},
+    response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::routing::TypedPath;
 use maud::{Markup, html};
@@ -15,28 +16,8 @@ use serde::Deserialize;
 use std::sync::Arc;
 use tower_sessions::Session;
 
-#[derive(TypedPath)]
-#[typed_path("/login")]
-pub struct Login;
-
-pub async fn login_get(
-    _: Login,
-    current_session: Session,
-    uri: OriginalUri,
-) -> Result<Markup, OperationOutcomeError> {
-    let route = uri.path().to_string();
-
-    let user = session::user::get_user(current_session).await?;
-
-    if user.is_some() {
-        return Ok(html! {
-            body {
-                h1 { "YOUR LOGGED IN!"}
-            }
-        });
-    }
-
-    let response = html! {
+fn login_html_form(login_route: &str) -> Markup {
+    html! {
         head {
             meta charset="utf-8" {}
             meta name="viewport" content="width=device-width, initial-scale=1" {}
@@ -57,7 +38,7 @@ pub async fn login_get(
                             div {}
                             div {}
                             h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl " { "Sign in to your account" }
-                            form class="space-y-4 md:space-y-6" action=(route) method="POST" {
+                            form class="space-y-4 md:space-y-6" action=(login_route) method="POST" {
                                 div {
                                     label for="email" class="block mb-2 text-sm font-medium text-gray-900 " { "Your email" }
                                     input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
@@ -86,7 +67,15 @@ pub async fn login_get(
             }
         }
 
-    };
+    }
+}
+
+#[derive(TypedPath)]
+#[typed_path("/login")]
+pub struct Login;
+
+pub async fn login_get(_: Login, uri: OriginalUri) -> Result<Markup, OperationOutcomeError> {
+    let response = login_html_form(&uri.to_string());
 
     Ok(response)
 }
@@ -102,11 +91,12 @@ pub async fn login_post<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     _: Login,
+    uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,
     current_session: Session,
     Tenant { tenant }: Tenant,
     Form(login_data): Form<LoginForm>,
-) -> Result<Markup, OperationOutcomeError> {
+) -> Result<Response, OperationOutcomeError> {
     // Handle the login post request here
     // For now, we will just return a simple message
 
@@ -121,14 +111,19 @@ pub async fn login_post<
         )
         .await?;
 
+    println!("Login result");
+
     match login_result {
         LoginResult::Success { user } => {
             session::user::set_user(current_session, &user).await?;
-            let message = format!("User {} logged in successfully", user.id);
-            // Handle successful login, e.g., set session, redirect, etc.
-            Ok(html! {
-                h1 { (message) }
-            })
+            let authorization_redirect = Redirect::to(
+                &(uri.path().to_string().replace("/login", "/authorize")
+                    + "?"
+                    + uri.query().unwrap()),
+            );
+
+            Ok(authorization_redirect.into_response())
         }
+        LoginResult::Failure => Ok(login_html_form(&uri.to_string()).into_response()),
     }
 }

@@ -24,12 +24,12 @@ pub fn interactions_router<
             (*AUTHORIZE_PARAMETERS).clone(),
         )));
 
-    let authorize_routes =
-        Router::new()
-            .typed_post(authorize::authorize)
-            .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
-                (*AUTHORIZE_PARAMETERS).clone(),
-            )));
+    let authorize_routes = Router::new()
+        .typed_post(authorize::authorize)
+        .typed_get(authorize::authorize)
+        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
+            (*AUTHORIZE_PARAMETERS).clone(),
+        )));
 
     let logout_routes = Router::new()
         .typed_post(logout::logout)

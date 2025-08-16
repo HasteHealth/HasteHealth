@@ -25,6 +25,7 @@ pub enum LoginMethod {
 
 pub enum LoginResult {
     Success { user: User },
+    Failure,
 }
 
 pub struct UserSearchClauses {

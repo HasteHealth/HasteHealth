@@ -16,14 +16,14 @@ use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 
 #[derive(TypedPath)]
-#[typed_path("/logout")]
-pub struct Logout;
+#[typed_path("/authorize")]
+pub struct Authorize;
 
 pub async fn authorize<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >(
-    _: Logout,
+    _: Authorize,
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
     Extension(oidc_params): Extension<OIDCParameters>,
@@ -54,11 +54,9 @@ pub async fn authorize<
         OperationOutcomeError::error("invalid".to_string(), "Invalid redirect uri".to_string())
     })?;
 
-    uri.host();
-
     let redirection = Uri::builder()
         .scheme("https")
-        .authority(uri.host().unwrap())
+        .authority(uri.authority().unwrap().clone())
         .path_and_query(uri.path().to_string() + "?code=" + &authorzation_code.code)
         .build()
         .unwrap();

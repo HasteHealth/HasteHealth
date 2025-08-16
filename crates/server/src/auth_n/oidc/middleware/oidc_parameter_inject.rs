@@ -83,7 +83,6 @@ where
         let parameter_config = self.state.clone();
 
         Box::pin(async move {
-            println!("{:?}", parameter_config);
             let query_params = request
                 .extract_parts::<Query<HashMap<String, String>>>()
                 .await;
