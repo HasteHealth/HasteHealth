@@ -83,20 +83,47 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 ) -> impl Future<Output = Result<User, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let user = sqlx::query_as!(
-            User,
+
+        let mut query_builder = QueryBuilder::new(
             r#"
-               INSERT INTO users(tenant, id, provider_id, email, role, method)
-               VALUES($1, $2, $3, $4, $5, $6)
-               RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"
+                INSERT INTO users(tenant, id, provider_id, email, role, method
             "#,
-            tenant.as_ref(),
-            generate_id(None) as String,
-            new_user.provider_id,
-            new_user.email,
-            new_user.role as UserRole,
-            new_user.method as AuthMethod,
-        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+        );
+
+        if new_user.password.is_some() {
+            query_builder.push(", password)");
+        } else {
+            query_builder.push(")");
+        }
+
+        query_builder.push(" VALUES (");
+
+        let mut seperator = query_builder.separated(", ");
+
+        seperator
+            .push_bind(tenant.as_ref())
+            .push_bind(generate_id(None))
+            .push_bind(new_user.provider_id)
+            .push_bind(new_user.email)
+            .push_bind(new_user.role as UserRole)
+            .push_bind(new_user.method as AuthMethod);
+
+        if let Some(password) = new_user.password {
+            seperator.push_bind(password);
+        }
+
+        query_builder.push(
+            r#")
+        RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod
+        "#,
+        );
+
+        let query = query_builder.build_query_as();
+
+        let user = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
 
         Ok(user)
     }

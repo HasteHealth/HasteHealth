@@ -47,7 +47,7 @@ enum TenantCommands {
 enum UserCommands {
     Create {
         #[arg(short, long)]
-        username: String,
+        email: String,
         #[arg(short, long)]
         password: String,
         #[arg(short, long)]
@@ -95,16 +95,16 @@ async fn main() -> Result<(), OperationOutcomeError> {
         },
         Commands::User { command } => match command {
             UserCommands::Create {
-                username,
+                email,
                 password,
                 tenant,
             } => {
-                services
-                    .repo
-                    .create(&TenantId::new(tenant.clone()), User {});
-                println!(
-                    "Creating user with username: {}, password: {}, tenant: {}",
-                    username, password, tenant
+                services.repo.create(
+                    &TenantId::new(tenant.clone()),
+                    User {
+                        email: email.clone(),
+                        password: password.clone(),
+                    },
                 );
 
                 todo!();
