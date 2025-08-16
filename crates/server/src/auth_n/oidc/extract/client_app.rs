@@ -18,6 +18,7 @@ use oxidized_repository::{
     types::{Author, SupportedFHIRVersions},
 };
 
+#[allow(unused)]
 pub struct OIDCClientApplication(pub ClientApplication);
 
 impl<Repo, Search> FromRequestParts<Arc<AppState<Repo, Search>>> for OIDCClientApplication
