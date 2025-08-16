@@ -12,6 +12,7 @@ use tower::ServiceBuilder;
 mod authorize;
 mod login;
 mod logout;
+mod token;
 
 pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
