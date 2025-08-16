@@ -11,7 +11,7 @@ use crate::{
     utilities::generate_id,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{Acquire, Execute, Postgres, QueryBuilder};
 
 #[derive(OperationOutcomeError, Debug)]
 enum LoginError {
@@ -103,9 +103,9 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 
         if let Some(password) = new_user.password {
             seperator
-                .push_unseparated(" password = crypt(")
+                .push("crypt(")
                 .push_bind_unseparated(password)
-                .push(", gen_salt('bf'))");
+                .push_unseparated(", gen_salt('bf'))");
         } else {
             seperator.push_bind(None::<String>);
         }
@@ -116,11 +116,7 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             seperator.push_bind(None::<String>);
         }
 
-        query_builder.push(
-            r#")
-        RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod
-        "#,
-        );
+        query_builder.push(r#") RETURNING id, provider_id, email, role , method"#);
 
         let query = query_builder.build_query_as();
 

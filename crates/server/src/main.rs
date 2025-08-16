@@ -6,7 +6,7 @@ use oxidized_repository::{
     types::{
         TenantId,
         tenant::CreateTenant,
-        user::{AuthMethod, CreateUser, User},
+        user::{AuthMethod, CreateUser, UserRole},
     },
 };
 use oxidized_server::{create_services, server};
@@ -103,18 +103,21 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 password,
                 tenant,
             } => {
-                services.repo.create(
-                    &TenantId::new(tenant.clone()),
-                    CreateUser {
-                        email: email.clone(),
-                        password: Some(password.clone()),
-                        provider_id: None,
-                        method: AuthMethod::EmailPassword,
-                    },
-                );
+                services
+                    .repo
+                    .create(
+                        &TenantId::new(tenant.clone()),
+                        CreateUser {
+                            role: UserRole::Admin,
+                            email: email.clone(),
+                            password: Some(password.clone()),
+                            provider_id: None,
+                            method: AuthMethod::EmailPassword,
+                        },
+                    )
+                    .await?;
 
-                todo!();
-                // Ok(())
+                Ok(())
             }
         },
     }
