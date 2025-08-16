@@ -6,7 +6,7 @@ use crate::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
-        user::{CreateUser, User, UserSearchClauses},
+        user::{CreateUser, UpdateUser, User, UserSearchClauses},
     },
 };
 
@@ -22,7 +22,7 @@ pub trait Repository:
     + TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
     + ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
     + TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims>
-    + TenantAuthAdmin<CreateUser, User, UserSearchClauses>
+    + TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser>
     + Login
 {
 }

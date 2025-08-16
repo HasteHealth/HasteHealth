@@ -133,29 +133,41 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder = QueryBuilder::new(
             r#"
-                UPDATE users
-                SET provider_id = $1, email = $2, role = $3, method = $4
-             
+                UPDATE users SET 
             "#,
         );
 
-        query_builder.push(" WHERE tenant = $5 AND id = $6 ");
+        let mut seperator = query_builder.separated(", ");
 
-        let user = sqlx::query_as!(
-            User,
-            r#"
-                UPDATE users
-                SET provider_id = $1, email = $2, role = $3, method = $4
-                WHERE tenant = $5 AND id = $6
-                RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"
-            "#,
-            model.provider_id,
-            model.email,
-            model.role as UserRole,
-            model.method as AuthMethod,
-            tenant.as_ref(),
-            model.id
-        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+        if let Some(provider_id) = model.provider_id {
+            seperator
+                .push_unseparated(" provider_id = ")
+                .push(provider_id);
+        }
+
+        seperator
+            .push_unseparated(" email = ")
+            .push_bind(model.email)
+            .push_unseparated(" role = ")
+            .push_bind(model.role)
+            .push_unseparated(" method = ")
+            .push_bind(model.method);
+
+        if let Some(password) = model.password {
+            seperator
+                .push_unseparated(" password = crypt(")
+                .push_bind_unseparated(password)
+                .push(", gen_salt('bf'))");
+        }
+
+        query_builder.push(r#" RETURNING id, provider_id, email, role as "role: UserRole", method as "method: AuthMethod"#);
+
+        let query = query_builder.build_query_as();
+
+        let user = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
 
         Ok(user)
     }
