@@ -6,6 +6,7 @@ use oxidized_repository::Repository;
 use std::sync::Arc;
 
 mod login;
+mod logout;
 
 pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
@@ -14,4 +15,6 @@ pub fn interactions_router<
     Router::new()
         .typed_get(login::login_get)
         .typed_post(login::login_post)
+        .typed_post(logout::logout)
+        .typed_get(logout::logout)
 }

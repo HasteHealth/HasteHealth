@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    AppState, auth_n::oidc::middleware::OIDCParameters, extract::path_tenant::PathTenant,
+    AppState, auth_n::oidc::middleware::OIDCParameters, extract::path_tenant::TenantProject,
     server_client::ServerCTX,
 };
 use axum::{
@@ -36,7 +36,7 @@ where
             .await
             .map_err(|err| err.into_response())?;
 
-        let PathTenant { tenant, project } = PathTenant::from_request_parts(parts, state)
+        let TenantProject { tenant, project } = TenantProject::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 
