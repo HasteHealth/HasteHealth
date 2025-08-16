@@ -168,8 +168,8 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 
         if let Some(provider_id) = model.provider_id {
             seperator
-                .push_unseparated(" provider_id = ")
-                .push(provider_id);
+                .push(" provider_id = ")
+                .push_bind_unseparated(provider_id);
         }
 
         seperator
