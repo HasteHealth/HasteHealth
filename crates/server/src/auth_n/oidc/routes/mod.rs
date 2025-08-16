@@ -1,9 +1,6 @@
 use crate::{
     AppState,
-    auth_n::oidc::{
-        extract::client_app::OIDCClientApplication,
-        middleware::{OIDCParameterInjectLayer, OIDCParameters, ParameterConfig},
-    },
+    auth_n::oidc::middleware::{OIDCParameterInjectLayer, OIDCParameters, ParameterConfig},
 };
 use axum::{Extension, Router, extract::Json};
 use axum_extra::routing::{
@@ -13,17 +10,10 @@ use axum_extra::routing::{
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use tower::ServiceBuilder;
 
 mod interactions;
-
-// A type safe route with `/users/{id}` as its associated path.
-#[derive(TypedPath, Deserialize)]
-#[typed_path("/token/{id}")]
-pub struct TokenGetRoute {
-    pub id: String,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OIDCResponse {
@@ -49,61 +39,40 @@ async fn well_known(
     Ok(Json(oidc_response))
 }
 
-async fn token_get(route: TokenGetRoute) -> String {
-    route.id
-}
-
-// A type safe route with `/users/{id}` as its associated path.
-#[derive(TypedPath, Deserialize)]
-#[typed_path("/token/{id}")]
-pub struct TokenPostRoute {
-    id: String,
-}
-async fn token_post(
-    TokenPostRoute { id }: TokenPostRoute,
-    OIDCClientApplication(client_app): OIDCClientApplication,
-    Extension(oidc_params): Extension<OIDCParameters>,
-) -> String {
-    println!(
-        "Token Post for id: {}, params: {:?} client_app: {:?}",
-        id, oidc_params.parameters, client_app
-    );
-
-    id
-}
+static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
+    Arc::new(ParameterConfig {
+        required_parameters: vec![
+            "client_id".to_string(),
+            "response_type".to_string(),
+            "state".to_string(),
+            "code_challenge".to_string(),
+            "code_challenge_method".to_string(),
+        ],
+        optional_parameters: vec!["scope".to_string(), "redirect_uri".to_string()],
+        allow_launch_parameters: true,
+    })
+});
 
 pub fn create_router<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >() -> Router<Arc<AppState<Repo, Search>>> {
-    let token_routes = Router::new()
-        .typed_get(token_get)
-        .typed_post(token_post)
-        .route_layer(
-            ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(ParameterConfig {
-                // Initialize with your desired parameters
-                required_parameters: vec!["client_id".to_string()],
-                // required_parameters: vec!["param1".to_string(), "param2".to_string()],
-                optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
-                allow_launch_parameters: true,
-            })),
-        );
-
     let well_known_routes =
         Router::new()
             .typed_get(well_known)
-            .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
-                ParameterConfig {
-                    // Initialize with your desired parameters
-                    required_parameters: vec!["response_type".to_string()],
-                    // required_parameters: vec!["param1".to_string(), "param2".to_string()],
-                    optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
-                    allow_launch_parameters: true,
-                },
-            )));
+            .route_layer(
+                ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(Arc::new(
+                    ParameterConfig {
+                        // Initialize with your desired parameters
+                        required_parameters: vec!["response_type".to_string()],
+                        // required_parameters: vec!["param1".to_string(), "param2".to_string()],
+                        optional_parameters: vec!["optional1".to_string(), "optional2".to_string()],
+                        allow_launch_parameters: true,
+                    },
+                ))),
+            );
 
     Router::new()
-        .merge(token_routes)
         .merge(well_known_routes)
         .nest("/interactions", interactions::interactions_router())
 }

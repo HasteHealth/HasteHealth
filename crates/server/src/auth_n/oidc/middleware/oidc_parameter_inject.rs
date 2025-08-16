@@ -39,10 +39,8 @@ impl<S> Layer<S> for OIDCParameterInjectLayer {
 }
 
 impl OIDCParameterInjectLayer {
-    pub fn new(state: ParameterConfig) -> Self {
-        OIDCParameterInjectLayer {
-            state: Arc::new(state),
-        }
+    pub fn new(state: Arc<ParameterConfig>) -> Self {
+        OIDCParameterInjectLayer { state: state }
     }
 }
 
@@ -85,7 +83,6 @@ where
         let parameter_config = self.state.clone();
 
         Box::pin(async move {
-            println!("{:?}", parameter_config);
             let query_params = request
                 .extract_parts::<Query<HashMap<String, String>>>()
                 .await;

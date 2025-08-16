@@ -1,10 +1,15 @@
-use crate::AppState;
+use crate::{
+    AppState,
+    auth_n::oidc::{middleware::OIDCParameterInjectLayer, routes::AUTHORIZE_PARAMETERS},
+};
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
 use std::sync::Arc;
+use tower::ServiceBuilder;
 
+mod authorize;
 mod login;
 mod logout;
 
@@ -12,9 +17,26 @@ pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >() -> Router<Arc<AppState<Repo, Search>>> {
-    Router::new()
+    let login_routes = Router::new()
         .typed_get(login::login_get)
         .typed_post(login::login_post)
+        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
+            (*AUTHORIZE_PARAMETERS).clone(),
+        )));
+
+    let authorize_routes = Router::new()
+        .typed_post(authorize::authorize)
+        .typed_get(authorize::authorize)
+        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
+            (*AUTHORIZE_PARAMETERS).clone(),
+        )));
+
+    let logout_routes = Router::new()
         .typed_post(logout::logout)
-        .typed_get(logout::logout)
+        .typed_get(logout::logout);
+
+    Router::new()
+        .merge(login_routes)
+        .merge(logout_routes)
+        .merge(authorize_routes)
 }

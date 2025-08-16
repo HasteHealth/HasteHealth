@@ -10,14 +10,8 @@ use crate::{
     },
     utilities::generate_id,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
-
-#[derive(OperationOutcomeError, Debug)]
-enum LoginError {
-    #[error(code = "login", diagnostic = "Invalid credentials for user.")]
-    InvalidCredentials,
-}
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
@@ -42,7 +36,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 if let Some(user) = user {
                     Ok(LoginResult::Success { user })
                 } else {
-                    Err(LoginError::InvalidCredentials.into())
+                    Ok(LoginResult::Failure)
                 }
             }
             LoginMethod::OIDC {
