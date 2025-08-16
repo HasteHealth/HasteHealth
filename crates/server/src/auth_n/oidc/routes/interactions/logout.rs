@@ -15,8 +15,6 @@ pub async fn logout(
     current_session: Session,
 ) -> Result<Redirect, OperationOutcomeError> {
     session::user::clear_user(current_session).await?;
-
     let path = uri.path().to_string();
-
     Ok(Redirect::to(&path.replace("/logout", "/login")))
 }

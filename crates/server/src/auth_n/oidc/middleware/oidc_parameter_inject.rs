@@ -39,10 +39,8 @@ impl<S> Layer<S> for OIDCParameterInjectLayer {
 }
 
 impl OIDCParameterInjectLayer {
-    pub fn new(state: ParameterConfig) -> Self {
-        OIDCParameterInjectLayer {
-            state: Arc::new(state),
-        }
+    pub fn new(state: Arc<ParameterConfig>) -> Self {
+        OIDCParameterInjectLayer { state: state }
     }
 }
 
