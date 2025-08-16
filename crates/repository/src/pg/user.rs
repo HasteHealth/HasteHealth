@@ -232,20 +232,20 @@ fn search_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT id, email, role as "role: UserRole", method as "method: AuthMethod", provider_id FROM users WHERE tenant = "#,
+            r#"SELECT id, email, role as "role: UserRole", method as "method: AuthMethod", provider_id FROM users WHERE  "#,
         );
 
-        query_builder.push_bind(tenant.as_ref());
+        let mut seperator = query_builder.separated(" AND ");
+        seperator
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref());
 
         if let Some(email) = clauses.email.as_ref() {
-            query_builder.push(" email = ").push_bind(email);
+            seperator.push(" email = ").push_bind_unseparated(email);
         }
 
         if let Some(role) = clauses.role.as_ref() {
-            if !query_builder.sql().ends_with("WHERE") {
-                query_builder.push(" AND");
-            }
-            query_builder.push(" role = ").push_bind(role);
+            seperator.push(" role = ").push_bind_unseparated(role);
         }
 
         let query = query_builder.build_query_as();
