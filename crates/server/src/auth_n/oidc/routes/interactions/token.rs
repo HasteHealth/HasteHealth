@@ -1,6 +1,7 @@
 use crate::{
     AppState,
     auth_n::{
+        certificates::encoding_key,
         oidc::{
             middleware::OIDCParameters,
             schemas::{self, token_body::OAuth2TokenBody},
@@ -19,6 +20,7 @@ use oxidized_repository::{
     admin::ProjectAuthAdmin,
     types::authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
 };
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower_sessions::Session;
 
@@ -28,6 +30,12 @@ pub struct Token;
 
 pub struct TokenResponse {
     token: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TokenClaims {
+    sub: String,
+    exp: usize,
 }
 
 pub async fn token<
@@ -70,8 +78,22 @@ pub async fn token<
                 }
 
                 let mut header = Header::new(Algorithm::RS256);
-                // jsonwebtoken::encode(header, claims, key)
-                todo!();
+                let token = jsonwebtoken::encode(
+                    &header,
+                    &TokenClaims {
+                        sub: "random".to_string(),
+                        exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,
+                    },
+                    encoding_key(),
+                )
+                .map_err(|_| {
+                    OperationOutcomeError::error(
+                        "exception".to_string(),
+                        "Failed to create access token.".to_string(),
+                    )
+                })?;
+
+                Ok(Response::new(Json(TokenResponse { token })))
             } else {
                 Err(OperationOutcomeError::fatal(
                     "invalid".to_string(),
