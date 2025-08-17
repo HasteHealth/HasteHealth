@@ -51,6 +51,7 @@ pub enum AuthMethod {
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
 #[sqlx(type_name = "user_role", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+#[serde(rename_all = "lowercase")]
 pub enum UserRole {
     Owner,
     Admin,

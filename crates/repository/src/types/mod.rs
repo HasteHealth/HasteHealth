@@ -1,5 +1,5 @@
 use oxidized_fhir_client::request::FHIRRequest;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
 use crate::utilities::generate_id;
@@ -65,6 +65,15 @@ impl<'de> Deserialize<'de> for TenantId {
     }
 }
 
+impl Serialize for TenantId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_ref())
+    }
+}
+
 impl Display for TenantId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -110,8 +119,26 @@ impl<'a> AsRef<str> for VersionIdRef<'a> {
         &self.0
     }
 }
+impl<'a> From<&'a VersionId> for VersionIdRef<'a> {
+    fn from(version_id: &'a VersionId) -> Self {
+        VersionIdRef::new(&version_id.0)
+    }
+}
 
-#[derive(Clone)]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct VersionId(String);
+impl VersionId {
+    pub fn new(id: String) -> Self {
+        VersionId(id)
+    }
+}
+impl From<String> for VersionId {
+    fn from(id: String) -> Self {
+        VersionId(id)
+    }
+}
+
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct ResourceId(String);
 impl ResourceId {
     pub fn new(id: String) -> Self {

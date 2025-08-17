@@ -7,24 +7,60 @@ use crate::{
 use axum::{
     Extension, RequestPartsExt,
     extract::FromRequestParts,
-    http::{StatusCode, request::Parts},
+    http::request::Parts,
     response::{IntoResponse, Response},
 };
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
-    types::{Author, SupportedFHIRVersions},
+    types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
+
+pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
+    state: &Arc<AppState<Repo, Search>>,
+    tenant: TenantId,
+    project: ProjectId,
+    client_id: String,
+) -> Result<ClientApplication, OperationOutcomeError> {
+    let ctx = ServerCTX {
+        tenant,
+        project,
+        fhir_version: SupportedFHIRVersions::R4,
+        author: Author {
+            id: "anonymous".to_string(),
+            kind: "Membership".to_string(),
+        },
+    };
+
+    let client_app = state
+        .fhir_client
+        .read(
+            ctx,
+            ResourceType::new("ClientApplication".to_string()).unwrap(),
+            client_id,
+        )
+        .await?;
+
+    if let Some(Resource::ClientApplication(client_app)) = client_app {
+        Ok(client_app)
+    } else {
+        Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::NotFound,
+            "Client application not found".to_string(),
+        ))
+    }
+}
 
 #[allow(unused)]
 pub struct OIDCClientApplication(pub ClientApplication);
 
 impl<Repo, Search> FromRequestParts<Arc<AppState<Repo, Search>>> for OIDCClientApplication
 where
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
 {
     type Rejection = Response;
 
@@ -41,34 +77,19 @@ where
             .await
             .map_err(|err| err.into_response())?;
 
-        let ctx = ServerCTX {
-            tenant: tenant,
-            project: project,
-            fhir_version: SupportedFHIRVersions::R4,
-            author: Author {
-                id: "anonymous".to_string(),
-                kind: "Membership".to_string(),
-            },
-        };
+        let client_app = find_client_app(
+            state,
+            tenant,
+            project,
+            oidc_params
+                .parameters
+                .get("client_id")
+                .cloned()
+                .unwrap_or_default(),
+        )
+        .await
+        .map_err(|err| err.into_response())?;
 
-        let client_app = state
-            .fhir_client
-            .read(
-                ctx,
-                ResourceType::new("ClientApplication".to_string()).unwrap(),
-                oidc_params
-                    .parameters
-                    .get("client_id")
-                    .cloned()
-                    .unwrap_or_default(),
-            )
-            .await
-            .map_err(|err| err.into_response())?;
-
-        if let Some(Resource::ClientApplication(client_app)) = client_app {
-            Ok(OIDCClientApplication(client_app))
-        } else {
-            Err((StatusCode::NOT_FOUND, "Client application not found").into_response())
-        }
+        Ok(OIDCClientApplication(client_app))
     }
 }

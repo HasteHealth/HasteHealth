@@ -3,31 +3,32 @@ use crate::{
     auth_n::{
         certificates::encoding_key,
         oidc::{
-            middleware::OIDCParameters,
+            extract::client_app::find_client_app,
             schemas::{self, token_body::OAuth2TokenBody},
         },
-        session,
     },
     extract::path_tenant::TenantProject,
 };
 use axum::{
-    Extension, Json,
+    Json,
     extract::State,
-    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use axum_extra::routing::TypedPath;
 use jsonwebtoken::{Algorithm, Header};
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
+    types::{
+        ResourceId, TenantId, VersionId,
+        authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
+        user::UserRole,
+    },
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tower_sessions::Session;
 
 #[derive(TypedPath)]
 #[typed_path("/token")]
@@ -39,19 +40,35 @@ pub struct TokenResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TokenClaims {
-    sub: String,
-    exp: usize,
+enum UserResourceTypes {
+    Membership,
+    ClientApplication,
+    OperationDefinition,
 }
 
-pub async fn token<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->(
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TokenClaims {
+    sub: ResourceId,
+    exp: usize,
+    aud: String,
+    scope: String,
+
+    #[serde(rename = "https://oxidized-health.app/tenant")]
+    tenant: TenantId,
+    #[serde(rename = "https://oxidized-health.app/user_role")]
+    user_role: UserRole,
+    #[serde(rename = "https://oxidized-health.app/user_id")]
+    user_id: Option<ResourceId>,
+    #[serde(rename = "https://oxidized-health.app/resource_type")]
+    resource_type: UserResourceTypes,
+    #[serde(rename = "https://oxidized-health.app/access_policies")]
+    access_policy_version_ids: Vec<VersionId>,
+}
+
+pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: TokenPath,
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
-    current_session: Session,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
     match token_body {
@@ -59,15 +76,30 @@ pub async fn token<
             client_id,
             client_secret,
             code,
-            code_verifier,
+            code_verifier: _,
             redirect_uri,
         } => {
+            let client_app = find_client_app(
+                &state,
+                tenant.tenant.clone(),
+                tenant.project.clone(),
+                client_id.clone(),
+            )
+            .await?;
+
+            if client_secret != client_app.secret.and_then(|v| v.value) {
+                return Err(OperationOutcomeError::error(
+                    OperationOutcomeCodes::Security,
+                    "Invalid client secret".to_string(),
+                ));
+            }
+
             let code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
                 &state.repo,
                 &tenant.tenant,
                 &tenant.project,
                 &AuthorizationCodeSearchClaims {
-                    client_id: Some(client_id),
+                    client_id: Some(client_id.clone()),
                     code: Some(code),
                     user_id: None,
                 },
@@ -77,22 +109,40 @@ pub async fn token<
             if let Some(code) = code.get(0) {
                 if code.is_expired.unwrap_or(false) {
                     return Err(OperationOutcomeError::fatal(
-                        "invalid".to_string(),
+                        OperationOutcomeCodes::Security,
                         "Authorization code has expired.".to_string(),
                     ));
                 }
 
+                if code.redirect_uri != Some(redirect_uri) {
+                    return Err(OperationOutcomeError::fatal(
+                        OperationOutcomeCodes::Invalid,
+                        "Redirect URI does not match the one used to create the authorization code.".to_string(),
+                    ));
+                }
+
+                // Remove the code once valid.
+                ProjectAuthAdmin::delete(&state.repo, &tenant.tenant, &tenant.project, &code.code)
+                    .await?;
+
                 let token = jsonwebtoken::encode(
                     &Header::new(Algorithm::RS256),
                     &TokenClaims {
-                        sub: "random".to_string(),
+                        sub: ResourceId::new(code.user_id.clone()),
                         exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,
+                        aud: client_id,
+                        scope: "".to_string(),
+                        tenant: tenant.tenant,
+                        user_role: UserRole::Member,
+                        user_id: Some(ResourceId::new(code.user_id.clone())),
+                        resource_type: UserResourceTypes::Membership,
+                        access_policy_version_ids: vec![],
                     },
                     encoding_key(),
                 )
                 .map_err(|_| {
                     OperationOutcomeError::error(
-                        "exception".to_string(),
+                        OperationOutcomeCodes::Exception,
                         "Failed to create access token.".to_string(),
                     )
                 })?;
@@ -100,14 +150,14 @@ pub async fn token<
                 Ok(Json(TokenResponse { token }).into_response())
             } else {
                 Err(OperationOutcomeError::fatal(
-                    "invalid".to_string(),
+                    OperationOutcomeCodes::Invalid,
                     "The provided authorization code is invalid.".to_string(),
                 ))
             }
         }
 
         _ => Err(OperationOutcomeError::fatal(
-            "not-supported".to_string(),
+            OperationOutcomeCodes::NotSupported,
             "The provided grant type is not supported.".to_string(),
         )),
     }

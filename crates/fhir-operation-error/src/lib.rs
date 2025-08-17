@@ -41,6 +41,78 @@ fn create_operation_outcome(
     }
 }
 
+pub enum OperationOutcomeCodes {
+    Invalid,
+    Structure,
+    Required,
+    Value,
+    Invariant,
+    Security,
+    Login,
+    Unknown,
+    Expired,
+    Forbidden,
+    Suppressed,
+    Processing,
+    NotSupported,
+    Duplicate,
+    MultipleMatches,
+    NotFound,
+    Deleted,
+    TooLong,
+    CodeInvalid,
+    Extension,
+    TooCostly,
+    BusinessRule,
+    Conflict,
+    Transient,
+    LockError,
+    NoStore,
+    Exception,
+    Timeout,
+    Incomplete,
+    Throttled,
+    Informational,
+}
+
+impl Into<String> for OperationOutcomeCodes {
+    fn into(self) -> String {
+        match self {
+            OperationOutcomeCodes::Invalid => "invalid".to_string(),
+            OperationOutcomeCodes::Structure => "structure".to_string(),
+            OperationOutcomeCodes::Required => "required".to_string(),
+            OperationOutcomeCodes::Value => "value".to_string(),
+            OperationOutcomeCodes::Invariant => "invariant".to_string(),
+            OperationOutcomeCodes::Security => "security".to_string(),
+            OperationOutcomeCodes::Login => "login".to_string(),
+            OperationOutcomeCodes::Unknown => "unknown".to_string(),
+            OperationOutcomeCodes::Expired => "expired".to_string(),
+            OperationOutcomeCodes::Forbidden => "forbidden".to_string(),
+            OperationOutcomeCodes::Suppressed => "suppressed".to_string(),
+            OperationOutcomeCodes::Processing => "processing".to_string(),
+            OperationOutcomeCodes::NotSupported => "not-supported".to_string(),
+            OperationOutcomeCodes::Duplicate => "duplicate".to_string(),
+            OperationOutcomeCodes::MultipleMatches => "multiple-matches".to_string(),
+            OperationOutcomeCodes::NotFound => "not-found".to_string(),
+            OperationOutcomeCodes::Deleted => "deleted".to_string(),
+            OperationOutcomeCodes::TooLong => "too-long".to_string(),
+            OperationOutcomeCodes::CodeInvalid => "code-invalid".to_string(),
+            OperationOutcomeCodes::Extension => "extension".to_string(),
+            OperationOutcomeCodes::TooCostly => "too-costly".to_string(),
+            OperationOutcomeCodes::BusinessRule => "business-rule".to_string(),
+            OperationOutcomeCodes::Conflict => "conflict".to_string(),
+            OperationOutcomeCodes::Transient => "transient".to_string(),
+            OperationOutcomeCodes::LockError => "lock-error".to_string(),
+            OperationOutcomeCodes::NoStore => "no-store".to_string(),
+            OperationOutcomeCodes::Exception => "exception".to_string(),
+            OperationOutcomeCodes::Timeout => "timeout".to_string(),
+            OperationOutcomeCodes::Incomplete => "incomplete".to_string(),
+            OperationOutcomeCodes::Throttled => "throttled".to_string(),
+            OperationOutcomeCodes::Informational => "informational".to_string(),
+        }
+    }
+}
+
 impl OperationOutcomeError {
     pub fn new(source: Option<anyhow::Error>, outcome: OperationOutcome) -> Self {
         OperationOutcomeError {
@@ -61,28 +133,28 @@ impl OperationOutcomeError {
         self._source.as_ref().map(|s| s.backtrace())
     }
 
-    pub fn fatal(code: String, diagnostic: String) -> Self {
+    pub fn fatal(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("fatal".to_string(), code, diagnostic),
+            create_operation_outcome("fatal".to_string(), code.into(), diagnostic),
         )
     }
-    pub fn error(code: String, diagnostic: String) -> Self {
+    pub fn error(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("error".to_string(), code, diagnostic),
+            create_operation_outcome("error".to_string(), code.into(), diagnostic),
         )
     }
-    pub fn warning(code: String, diagnostic: String) -> Self {
+    pub fn warning(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("warning".to_string(), code, diagnostic),
+            create_operation_outcome("warning".to_string(), code.into(), diagnostic),
         )
     }
-    pub fn information(code: String, diagnostic: String) -> Self {
+    pub fn information(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("information".to_string(), code, diagnostic),
+            create_operation_outcome("information".to_string(), code.into(), diagnostic),
         )
     }
 }

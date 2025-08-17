@@ -1,5 +1,5 @@
 use oxidized_config::{Config, ConfigType, get_config};
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use rand::rngs::OsRng;
 use rsa::{
     RsaPrivateKey, RsaPublicKey,
@@ -18,31 +18,35 @@ pub fn create_certifications(config: &Box<dyn Config>) -> Result<(), OperationOu
     let mut rng = OsRng;
     let bits = 2048;
 
-    let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
-    let pub_key = RsaPublicKey::from(&priv_key);
-
     let private_key_file = dir.join(PRIVATE_KEY_FILENAME);
     let public_key_file = dir.join(PUBLIC_KEY_FILENAME);
 
     // If no private key than write.
     if !private_key_file.exists() {
+        let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+        let pub_key = RsaPublicKey::from(&priv_key);
         std::fs::create_dir_all(certificate_dir).unwrap();
         std::fs::write(
             private_key_file,
             priv_key.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
-        .map_err(|e| OperationOutcomeError::fatal("file_error".to_string(), e.to_string()))?;
+        .map_err(|e| {
+            OperationOutcomeError::fatal(OperationOutcomeCodes::Exception, e.to_string())
+        })?;
 
         std::fs::write(
             public_key_file,
             pub_key.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
-        .map_err(|e| OperationOutcomeError::fatal("file_error".to_string(), e.to_string()))?;
+        .map_err(|e| {
+            OperationOutcomeError::fatal(OperationOutcomeCodes::Exception, e.to_string())
+        })?;
     }
 
     Ok(())
 }
 
+#[allow(unused)]
 // Only used if an environment.
 static DECODING_KEY: LazyLock<jsonwebtoken::DecodingKey> = LazyLock::new(|| {
     // let key = CERTIFICATES.public_key.clone();
@@ -66,6 +70,7 @@ static ENCODING_KEY: LazyLock<jsonwebtoken::EncodingKey> = LazyLock::new(|| {
     .unwrap()
 });
 
+#[allow(unused)]
 pub fn decoding_key() -> &'static jsonwebtoken::DecodingKey {
     &*DECODING_KEY
 }

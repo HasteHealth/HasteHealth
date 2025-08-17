@@ -2230,6 +2230,7 @@ dependencies = [
  "oxidized-reflect",
  "oxidized-repository",
  "rand",
+ "regex",
  "rsa",
  "sendgrid",
  "serde",

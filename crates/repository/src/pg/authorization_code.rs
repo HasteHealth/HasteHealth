@@ -10,8 +10,8 @@ use crate::{
     },
     utilities::generate_id,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use sqlx::{Acquire, Execute, Postgres, QueryBuilder, types::Json};
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
 use sqlx_postgres::types::PgInterval;
 
 fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -79,15 +79,15 @@ fn read_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
             r#"
             SELECT tenant,
-               kind as "kind: AuthorizationCodeKind",
+               kind,
                code,
                user_id,
                project,
                client_id,
                pkce_code_challenge,
-               pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
+               pkce_code_challenge_method,
                redirect_uri,
-               meta as "meta: Json<serde_json::Value>",
+               meta,
                NOW() > created_at + expires_in as is_expired
             FROM authorization_code
             WHERE 
@@ -129,8 +129,9 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             WHERE
             "#,
         );
+
         query_builder.push(" tenant =  ").push_bind(tenant.as_ref());
-        query_builder.push("AND code = ").push_bind(code);
+        query_builder.push(" AND code = ").push_bind(code);
 
         if let Some(project) = project {
             query_builder
@@ -138,19 +139,21 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                 .push_bind(project.as_ref());
         }
 
-        query_builder.push(r#" 
+        query_builder.push(
+            r#" 
              RETURNING tenant,
-                  kind as "kind: AuthorizationCodeKind",
+                  kind,
                   code,
                   user_id,
                   project,
                   client_id,
                   pkce_code_challenge,
-                  pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
+                  pkce_code_challenge_method,
                   redirect_uri,
-                  meta as "meta: Json<serde_json::Value>",
+                  meta,
                   NOW() > created_at + expires_in as is_expired
-        "#);
+        "#,
+        );
 
         let query = query_builder.build_query_as();
 
@@ -269,7 +272,7 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
         _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         Err(OperationOutcomeError::fatal(
-            "exception".to_string(),
+            oxidized_fhir_operation_error::OperationOutcomeCodes::Exception,
             "Update operation for AuthorizationCode is not implemented.".to_string(),
         ))
     }
@@ -363,7 +366,7 @@ impl ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationC
         _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         Err(OperationOutcomeError::fatal(
-            "exception".to_string(),
+            OperationOutcomeCodes::Exception,
             "Update operation for AuthorizationCode is not implemented.".to_string(),
         ))
     }

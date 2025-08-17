@@ -54,10 +54,8 @@ static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
     })
 });
 
-pub fn create_router<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->() -> Router<Arc<AppState<Repo, Search>>> {
+pub fn create_router<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>()
+-> Router<Arc<AppState<Repo, Search>>> {
     let well_known_routes =
         Router::new()
             .typed_get(well_known)

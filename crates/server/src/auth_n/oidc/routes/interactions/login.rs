@@ -1,4 +1,8 @@
-use crate::{AppState, auth_n::session, extract::path_tenant::Tenant};
+use crate::{
+    AppState,
+    auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
+    extract::path_tenant::Tenant,
+};
 use axum::{
     Form,
     extract::{OriginalUri, State},
@@ -74,7 +78,11 @@ fn login_html_form(login_route: &str) -> Markup {
 #[typed_path("/login")]
 pub struct Login;
 
-pub async fn login_get(_: Login, uri: OriginalUri) -> Result<Markup, OperationOutcomeError> {
+pub async fn login_get(
+    _: Login,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
+    uri: OriginalUri,
+) -> Result<Markup, OperationOutcomeError> {
     let response = login_html_form(&uri.to_string());
 
     Ok(response)
@@ -86,20 +94,15 @@ pub struct LoginForm {
     pub password: String,
 }
 
-pub async fn login_post<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->(
+pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: Login,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,
     current_session: Session,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
     Tenant { tenant }: Tenant,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    // Handle the login post request here
-    // For now, we will just return a simple message
-
     let login_result = state
         .repo
         .login(
@@ -111,15 +114,13 @@ pub async fn login_post<
         )
         .await?;
 
-    println!("Login result");
-
     match login_result {
         LoginResult::Success { user } => {
             session::user::set_user(current_session, &user).await?;
             let authorization_redirect = Redirect::to(
                 &(uri.path().to_string().replace("/login", "/authorize")
                     + "?"
-                    + uri.query().unwrap()),
+                    + uri.query().unwrap_or("")),
             );
 
             Ok(authorization_redirect.into_response())
