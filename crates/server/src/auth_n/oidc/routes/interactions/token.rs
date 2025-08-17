@@ -10,7 +10,12 @@ use crate::{
     },
     extract::path_tenant::TenantProject,
 };
-use axum::{Extension, Json, extract::State, http::Response, response::Redirect};
+use axum::{
+    Extension, Json,
+    extract::State,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 use axum_extra::routing::TypedPath;
 use jsonwebtoken::{Algorithm, Header};
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -26,8 +31,9 @@ use tower_sessions::Session;
 
 #[derive(TypedPath)]
 #[typed_path("/token")]
-pub struct Token;
+pub struct TokenPath;
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
     token: String,
 }
@@ -42,13 +48,12 @@ pub async fn token<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >(
-    _: Token,
+    _: TokenPath,
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
-    Extension(oidc_params): Extension<OIDCParameters>,
     current_session: Session,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
-) -> Result<Response<Json<TokenResponse>>, OperationOutcomeError> {
+) -> Result<Response, OperationOutcomeError> {
     match token_body {
         OAuth2TokenBody::AuthorizationCode {
             client_id,
@@ -93,7 +98,7 @@ pub async fn token<
                     )
                 })?;
 
-                Ok(Response::new(Json(TokenResponse { token })))
+                Ok(Json(TokenResponse { token }).into_response())
             } else {
                 Err(OperationOutcomeError::fatal(
                     "invalid".to_string(),
