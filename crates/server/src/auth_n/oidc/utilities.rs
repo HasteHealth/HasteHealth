@@ -1,18 +1,3 @@
-// function getRegexForRedirect(urlPattern: string): RegExp {
-//   const regex = new RegExp(urlPattern.replaceAll("*", "(.+)"));
-//   return regex;
-// }
-
-// export function isInvalidRedirectUrl(
-//   redirectUrl: string | undefined,
-//   client: ClientApplication,
-// ): boolean {
-//   return (
-//     !redirectUrl ||
-//     !client.redirectUri?.find((v) => getRegexForRedirect(v).test(redirectUrl))
-//   );
-// }
-
 use oxidized_fhir_model::r4::types::ClientApplication;
 use regex::Regex;
 
