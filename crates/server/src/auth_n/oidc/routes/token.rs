@@ -18,12 +18,17 @@ use axum::{
 };
 use axum_extra::routing::TypedPath;
 use jsonwebtoken::{Algorithm, Header};
+use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
+    types::{
+        ResourceId, TenantId, VersionId, VersionIdRef,
+        authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
+        user::UserRole,
+    },
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -39,9 +44,22 @@ pub struct TokenResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+enum UserResourceTypes {
+    Membership,
+    ClientApplication,
+    OperationDefinition,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TokenClaims {
-    sub: String,
+    sub: ResourceId,
     exp: usize,
+
+    tenant: TenantId,
+    user_role: UserRole,
+    user_resource_type: UserResourceTypes,
+    user_resource_id: ResourceId,
+    access_policy_version_ids: Vec<VersionId>,
 }
 
 pub async fn token<
@@ -85,8 +103,13 @@ pub async fn token<
                 let token = jsonwebtoken::encode(
                     &Header::new(Algorithm::RS256),
                     &TokenClaims {
-                        sub: "random".to_string(),
+                        sub: ResourceId::new(code.user_id.clone()),
                         exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,
+                        tenant: tenant.tenant,
+                        user_role: UserRole::Member,
+                        user_resource_type: UserResourceTypes::Membership,
+                        user_resource_id: ResourceId::new(code.user_id.clone()),
+                        access_policy_version_ids: vec![],
                     },
                     encoding_key(),
                 )
