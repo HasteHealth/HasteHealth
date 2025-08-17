@@ -1,6 +1,6 @@
 use crate::{
     AppState,
-    auth_n::oidc::middleware::{OIDCParameterInjectLayer, OIDCParameters, ParameterConfig},
+    auth_n::oidc::middleware::{OIDCParameters, ParameterConfig},
 };
 use axum::{Extension, Router, extract::Json};
 use axum_extra::routing::{
@@ -11,7 +11,6 @@ use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, LazyLock};
-use tower::ServiceBuilder;
 
 mod interactions;
 mod token;

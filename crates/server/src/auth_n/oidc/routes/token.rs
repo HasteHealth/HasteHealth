@@ -121,7 +121,7 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
             client_id,
             client_secret,
             code,
-            code_verifier: code_verifier,
+            code_verifier,
             redirect_uri,
         } => {
             let client_app = find_client_app(
