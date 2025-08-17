@@ -114,6 +114,17 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                     ));
                 }
 
+                if code.redirect_uri != Some(redirect_uri) {
+                    return Err(OperationOutcomeError::fatal(
+                        OperationOutcomeCodes::Invalid,
+                        "Redirect URI does not match the one used to create the authorization code.".to_string(),
+                    ));
+                }
+
+                // Remove the code once valid.
+                ProjectAuthAdmin::delete(&state.repo, &tenant.tenant, &tenant.project, &code.code)
+                    .await?;
+
                 let token = jsonwebtoken::encode(
                     &Header::new(Algorithm::RS256),
                     &TokenClaims {

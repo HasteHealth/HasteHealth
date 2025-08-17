@@ -99,13 +99,10 @@ pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + S
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,
     current_session: Session,
-    OIDCClientApplication(client_app): OIDCClientApplication,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
     Tenant { tenant }: Tenant,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    // Handle the login post request here
-    // For now, we will just return a simple message
-
     let login_result = state
         .repo
         .login(
@@ -117,15 +114,13 @@ pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + S
         )
         .await?;
 
-    println!("Login result");
-
     match login_result {
         LoginResult::Success { user } => {
             session::user::set_user(current_session, &user).await?;
             let authorization_redirect = Redirect::to(
                 &(uri.path().to_string().replace("/login", "/authorize")
                     + "?"
-                    + uri.query().unwrap()),
+                    + uri.query().unwrap_or("")),
             );
 
             Ok(authorization_redirect.into_response())

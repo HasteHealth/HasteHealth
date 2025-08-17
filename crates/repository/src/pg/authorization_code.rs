@@ -129,8 +129,9 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             WHERE
             "#,
         );
+
         query_builder.push(" tenant =  ").push_bind(tenant.as_ref());
-        query_builder.push("AND code = ").push_bind(code);
+        query_builder.push(" AND code = ").push_bind(code);
 
         if let Some(project) = project {
             query_builder
