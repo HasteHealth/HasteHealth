@@ -3,29 +3,26 @@ use crate::{
     auth_n::{
         certificates::encoding_key,
         oidc::{
-            middleware::OIDCParameters,
+            extract::client_app::OIDCClientApplication,
             schemas::{self, token_body::OAuth2TokenBody},
         },
-        session,
     },
     extract::path_tenant::TenantProject,
 };
 use axum::{
-    Extension, Json,
+    Json,
     extract::State,
-    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use axum_extra::routing::TypedPath;
 use jsonwebtoken::{Algorithm, Header};
-use oxidized_fhir_model::r4::types::ResourceType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
-        ResourceId, TenantId, VersionId, VersionIdRef,
+        ResourceId, TenantId, VersionId,
         authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
         user::UserRole,
     },
@@ -62,14 +59,12 @@ pub struct TokenClaims {
     access_policy_version_ids: Vec<VersionId>,
 }
 
-pub async fn token<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->(
+pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: TokenPath,
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
     current_session: Session,
+    OIDCClientApplication(client_app): OIDCClientApplication,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
     match token_body {
@@ -80,6 +75,10 @@ pub async fn token<
             code_verifier,
             redirect_uri,
         } => {
+            // if client_secret != client_app.secret.map(|v| v.value) {
+            //     // return Err(OperationOutcomeError::error(""));
+            // }
+
             let code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
                 &state.repo,
                 &tenant.tenant,
@@ -95,7 +94,7 @@ pub async fn token<
             if let Some(code) = code.get(0) {
                 if code.is_expired.unwrap_or(false) {
                     return Err(OperationOutcomeError::fatal(
-                        "invalid".to_string(),
+                        OperationOutcomeCodes::Security,
                         "Authorization code has expired.".to_string(),
                     ));
                 }
@@ -115,7 +114,7 @@ pub async fn token<
                 )
                 .map_err(|_| {
                     OperationOutcomeError::error(
-                        "exception".to_string(),
+                        OperationOutcomeCodes::Exception,
                         "Failed to create access token.".to_string(),
                     )
                 })?;
@@ -123,14 +122,14 @@ pub async fn token<
                 Ok(Json(TokenResponse { token }).into_response())
             } else {
                 Err(OperationOutcomeError::fatal(
-                    "invalid".to_string(),
+                    OperationOutcomeCodes::Invalid,
                     "The provided authorization code is invalid.".to_string(),
                 ))
             }
         }
 
         _ => Err(OperationOutcomeError::fatal(
-            "not-supported".to_string(),
+            OperationOutcomeCodes::NotSupported,
             "The provided grant type is not supported.".to_string(),
         )),
     }

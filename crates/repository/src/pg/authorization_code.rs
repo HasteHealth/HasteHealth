@@ -10,7 +10,7 @@ use crate::{
     },
     utilities::generate_id,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
 use sqlx_postgres::types::PgInterval;
 
@@ -271,7 +271,7 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
         _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         Err(OperationOutcomeError::fatal(
-            "exception".to_string(),
+            oxidized_fhir_operation_error::OperationOutcomeCodes::Exception,
             "Update operation for AuthorizationCode is not implemented.".to_string(),
         ))
     }
@@ -365,7 +365,7 @@ impl ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationC
         _model: AuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         Err(OperationOutcomeError::fatal(
-            "exception".to_string(),
+            OperationOutcomeCodes::Exception,
             "Update operation for AuthorizationCode is not implemented.".to_string(),
         ))
     }

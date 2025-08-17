@@ -1,4 +1,4 @@
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_repository::types::user::User;
 use tower_sessions::Session;
 
@@ -7,7 +7,7 @@ static USER_KEY: &str = "auth_user";
 pub async fn get_user(session: Session) -> Result<Option<User>, OperationOutcomeError> {
     let user = session.get::<User>(USER_KEY).await.map_err(|_e| {
         OperationOutcomeError::fatal(
-            "exception".to_string(),
+            OperationOutcomeCodes::Exception,
             "Session returned an error when retrieving current user.".to_string(),
         )
     })?;
@@ -18,7 +18,7 @@ pub async fn get_user(session: Session) -> Result<Option<User>, OperationOutcome
 pub async fn set_user(session: Session, user: &User) -> Result<(), OperationOutcomeError> {
     session.insert(USER_KEY, user).await.map_err(|_e| {
         OperationOutcomeError::fatal(
-            "exception".to_string(),
+            OperationOutcomeCodes::Exception,
             "Failed to set user in session.".to_string(),
         )
     })
@@ -27,7 +27,7 @@ pub async fn set_user(session: Session, user: &User) -> Result<(), OperationOutc
 pub async fn clear_user(session: Session) -> Result<(), OperationOutcomeError> {
     session.remove::<User>(USER_KEY).await.map_err(|_e| {
         OperationOutcomeError::fatal(
-            "exception".to_string(),
+            OperationOutcomeCodes::Exception,
             "Failed to clear user from session.".to_string(),
         )
     })?;

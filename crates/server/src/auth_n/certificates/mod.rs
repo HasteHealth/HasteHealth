@@ -1,5 +1,5 @@
 use oxidized_config::{Config, ConfigType, get_config};
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use rand::rngs::OsRng;
 use rsa::{
     RsaPrivateKey, RsaPublicKey,
@@ -31,13 +31,17 @@ pub fn create_certifications(config: &Box<dyn Config>) -> Result<(), OperationOu
             private_key_file,
             priv_key.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
-        .map_err(|e| OperationOutcomeError::fatal("file_error".to_string(), e.to_string()))?;
+        .map_err(|e| {
+            OperationOutcomeError::fatal(OperationOutcomeCodes::Exception, e.to_string())
+        })?;
 
         std::fs::write(
             public_key_file,
             pub_key.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
-        .map_err(|e| OperationOutcomeError::fatal("file_error".to_string(), e.to_string()))?;
+        .map_err(|e| {
+            OperationOutcomeError::fatal(OperationOutcomeCodes::Exception, e.to_string())
+        })?;
     }
 
     Ok(())

@@ -86,10 +86,7 @@ pub struct LoginForm {
     pub password: String,
 }
 
-pub async fn login_post<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->(
+pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: Login,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,

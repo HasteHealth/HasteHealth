@@ -5,7 +5,7 @@ use crate::{
 };
 use axum::{Extension, extract::State, http::Uri, response::Redirect};
 use axum_extra::routing::TypedPath;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
@@ -19,10 +19,7 @@ use tower_sessions::Session;
 #[typed_path("/authorize")]
 pub struct Authorize;
 
-pub async fn authorize<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
->(
+pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: Authorize,
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
@@ -51,7 +48,10 @@ pub async fn authorize<
     .await?;
 
     let uri = Uri::try_from(redirect_uri).map_err(|_| {
-        OperationOutcomeError::error("invalid".to_string(), "Invalid redirect uri".to_string())
+        OperationOutcomeError::error(
+            OperationOutcomeCodes::Invalid,
+            "Invalid redirect uri".to_string(),
+        )
     })?;
 
     let redirection = Uri::builder()
