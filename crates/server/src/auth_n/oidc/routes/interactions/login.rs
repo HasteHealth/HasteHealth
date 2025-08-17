@@ -80,7 +80,7 @@ pub struct Login;
 
 pub async fn login_get(
     _: Login,
-    OIDCClientApplication(client_app): OIDCClientApplication,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
     let response = login_html_form(&uri.to_string());

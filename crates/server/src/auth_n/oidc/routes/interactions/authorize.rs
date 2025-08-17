@@ -11,7 +11,6 @@ use crate::{
 };
 use axum::{Extension, extract::State, http::Uri, response::Redirect};
 use axum_extra::routing::TypedPath;
-use oxidized_fhir_client::request::Operation;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{

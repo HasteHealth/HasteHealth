@@ -46,6 +46,7 @@ pub fn create_certifications(config: &Box<dyn Config>) -> Result<(), OperationOu
     Ok(())
 }
 
+#[allow(unused)]
 // Only used if an environment.
 static DECODING_KEY: LazyLock<jsonwebtoken::DecodingKey> = LazyLock::new(|| {
     // let key = CERTIFICATES.public_key.clone();
@@ -69,6 +70,7 @@ static ENCODING_KEY: LazyLock<jsonwebtoken::EncodingKey> = LazyLock::new(|| {
     .unwrap()
 });
 
+#[allow(unused)]
 pub fn decoding_key() -> &'static jsonwebtoken::DecodingKey {
     &*DECODING_KEY
 }
