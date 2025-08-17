@@ -1,4 +1,3 @@
-use oxidized_fhir_client::request::Operation;
 use oxidized_fhir_operation_error::{
     OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
 };
