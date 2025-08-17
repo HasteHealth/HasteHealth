@@ -143,6 +143,7 @@ pub async fn create_services(
 
 pub async fn server() -> Result<Router, OperationOutcomeError> {
     let config = get_config("environment".into());
+    auth_n::certificates::create_certifications(&config).unwrap();
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 

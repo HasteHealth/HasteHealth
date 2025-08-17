@@ -33,7 +33,7 @@ serde_json = "1.0.140"
 thiserror = "2.0.12"
 tower-sessions = "0.14.0"
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
-rand = "0.9.1"
+rand = "0.8"
 axum-extra = { version = "0.10.1", features = ["typed-routing"] }
 tower-http = { version = "0.6.6", features = ["fs"] }
 maud = { version = "0.27.0", features = ["axum"] }
@@ -46,3 +46,4 @@ typify = "0.4.2"
 tower = "0.5.2"
 sendgrid = "0.24.1"
 clap = { version = "4.5.45", features = ["derive"] }
+rsa = "0.9.8"
