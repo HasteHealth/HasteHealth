@@ -1,4 +1,8 @@
-use crate::{AppState, auth_n::session, extract::path_tenant::Tenant};
+use crate::{
+    AppState,
+    auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
+    extract::path_tenant::Tenant,
+};
 use axum::{
     Form,
     extract::{OriginalUri, State},
@@ -74,7 +78,11 @@ fn login_html_form(login_route: &str) -> Markup {
 #[typed_path("/login")]
 pub struct Login;
 
-pub async fn login_get(_: Login, uri: OriginalUri) -> Result<Markup, OperationOutcomeError> {
+pub async fn login_get(
+    _: Login,
+    OIDCClientApplication(client_app): OIDCClientApplication,
+    uri: OriginalUri,
+) -> Result<Markup, OperationOutcomeError> {
     let response = login_html_form(&uri.to_string());
 
     Ok(response)
@@ -91,6 +99,7 @@ pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + S
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,
     current_session: Session,
+    OIDCClientApplication(client_app): OIDCClientApplication,
     Tenant { tenant }: Tenant,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {

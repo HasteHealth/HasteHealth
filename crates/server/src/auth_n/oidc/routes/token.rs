@@ -3,7 +3,7 @@ use crate::{
     auth_n::{
         certificates::encoding_key,
         oidc::{
-            extract::client_app::{OIDCClientApplication, find_client_app},
+            extract::client_app::find_client_app,
             schemas::{self, token_body::OAuth2TokenBody},
         },
     },
@@ -29,7 +29,6 @@ use oxidized_repository::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tower_sessions::Session;
 
 #[derive(TypedPath)]
 #[typed_path("/token")]
@@ -51,11 +50,18 @@ enum UserResourceTypes {
 pub struct TokenClaims {
     sub: ResourceId,
     exp: usize,
+    aud: String,
+    scope: String,
 
+    #[serde(rename = "https://oxidized-health.app/tenant")]
     tenant: TenantId,
+    #[serde(rename = "https://oxidized-health.app/user_role")]
     user_role: UserRole,
-    user_resource_type: UserResourceTypes,
-    user_resource_id: ResourceId,
+    #[serde(rename = "https://oxidized-health.app/resource_type")]
+    resource_type: UserResourceTypes,
+    #[serde(rename = "https://oxidized-health.app/resource_id")]
+    resource_id: ResourceId,
+    #[serde(rename = "https://oxidized-health.app/access_policies")]
     access_policy_version_ids: Vec<VersionId>,
 }
 
@@ -63,7 +69,6 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
     _: TokenPath,
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
-    current_session: Session,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
     match token_body {
@@ -94,7 +99,7 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                 &tenant.tenant,
                 &tenant.project,
                 &AuthorizationCodeSearchClaims {
-                    client_id: Some(client_id),
+                    client_id: Some(client_id.clone()),
                     code: Some(code),
                     user_id: None,
                 },
@@ -114,10 +119,12 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                     &TokenClaims {
                         sub: ResourceId::new(code.user_id.clone()),
                         exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,
+                        aud: client_id,
+                        scope: "".to_string(),
                         tenant: tenant.tenant,
                         user_role: UserRole::Member,
-                        user_resource_type: UserResourceTypes::Membership,
-                        user_resource_id: ResourceId::new(code.user_id.clone()),
+                        resource_type: UserResourceTypes::Membership,
+                        resource_id: ResourceId::new(code.user_id.clone()),
                         access_policy_version_ids: vec![],
                     },
                     encoding_key(),
