@@ -57,10 +57,10 @@ pub struct TokenClaims {
     tenant: TenantId,
     #[serde(rename = "https://oxidized-health.app/user_role")]
     user_role: UserRole,
+    #[serde(rename = "https://oxidized-health.app/user_id")]
+    user_id: Option<ResourceId>,
     #[serde(rename = "https://oxidized-health.app/resource_type")]
     resource_type: UserResourceTypes,
-    #[serde(rename = "https://oxidized-health.app/resource_id")]
-    resource_id: ResourceId,
     #[serde(rename = "https://oxidized-health.app/access_policies")]
     access_policy_version_ids: Vec<VersionId>,
 }
@@ -123,8 +123,8 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                         scope: "".to_string(),
                         tenant: tenant.tenant,
                         user_role: UserRole::Member,
+                        user_id: Some(ResourceId::new(code.user_id.clone())),
                         resource_type: UserResourceTypes::Membership,
-                        resource_id: ResourceId::new(code.user_id.clone()),
                         access_policy_version_ids: vec![],
                     },
                     encoding_key(),
