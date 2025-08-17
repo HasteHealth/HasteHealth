@@ -82,9 +82,8 @@ pub async fn token<
                     ));
                 }
 
-                let mut header = Header::new(Algorithm::RS256);
                 let token = jsonwebtoken::encode(
-                    &header,
+                    &Header::new(Algorithm::RS256),
                     &TokenClaims {
                         sub: "random".to_string(),
                         exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,

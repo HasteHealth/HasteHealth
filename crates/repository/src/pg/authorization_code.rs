@@ -213,8 +213,6 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 
         let query = query_builder.build_query_as();
 
-        println!("{:?}", query.sql());
-
         let authorization_codes: Vec<AuthorizationCode> = query
             .fetch_all(&mut *conn)
             .await
