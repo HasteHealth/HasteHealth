@@ -14,6 +14,7 @@ use std::sync::{Arc, LazyLock};
 use tower::ServiceBuilder;
 
 mod interactions;
+mod token;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OIDCResponse {
@@ -72,7 +73,10 @@ pub fn create_router<
                 ))),
             );
 
+    let token_routes = Router::new().typed_post(token::token);
+
     Router::new()
+        .merge(token_routes)
         .merge(well_known_routes)
         .nest("/interactions", interactions::interactions_router())
 }

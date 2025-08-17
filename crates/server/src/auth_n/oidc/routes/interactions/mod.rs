@@ -12,7 +12,6 @@ use tower::ServiceBuilder;
 mod authorize;
 mod login;
 mod logout;
-mod token;
 
 pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
@@ -36,11 +35,8 @@ pub fn interactions_router<
         .typed_post(logout::logout)
         .typed_get(logout::logout);
 
-    let token_routes = Router::new().typed_post(token::token);
-
     Router::new()
         .merge(login_routes)
         .merge(logout_routes)
         .merge(authorize_routes)
-        .merge(token_routes)
 }
