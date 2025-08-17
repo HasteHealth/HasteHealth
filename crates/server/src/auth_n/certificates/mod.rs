@@ -18,14 +18,13 @@ pub fn create_certifications(config: &Box<dyn Config>) -> Result<(), OperationOu
     let mut rng = OsRng;
     let bits = 2048;
 
-    let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
-    let pub_key = RsaPublicKey::from(&priv_key);
-
     let private_key_file = dir.join(PRIVATE_KEY_FILENAME);
     let public_key_file = dir.join(PUBLIC_KEY_FILENAME);
 
     // If no private key than write.
     if !private_key_file.exists() {
+        let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+        let pub_key = RsaPublicKey::from(&priv_key);
         std::fs::create_dir_all(certificate_dir).unwrap();
         std::fs::write(
             private_key_file,
