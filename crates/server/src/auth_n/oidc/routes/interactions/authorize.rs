@@ -53,12 +53,12 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
         .parameters
         .get("code_challenge_method")
         .and_then(|code_challenge_method| {
-            serde_json::from_str::<PKCECodeChallengeMethod>(code_challenge_method).ok()
+            PKCECodeChallengeMethod::try_from(code_challenge_method.as_str()).ok()
         })
     else {
         return Err(OperationOutcomeError::error(
             OperationOutcomeCodes::Invalid,
-            "code_challenge_method parameter is required.".to_string(),
+            "code_challenge_method must be a valid PKCE code challenge method.".to_string(),
         ));
     };
 
