@@ -75,9 +75,12 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
             code_verifier,
             redirect_uri,
         } => {
-            // if client_secret != client_app.secret.map(|v| v.value) {
-            //     // return Err(OperationOutcomeError::error(""));
-            // }
+            if client_secret != client_app.secret.and_then(|v| v.value) {
+                return Err(OperationOutcomeError::error(
+                    OperationOutcomeCodes::Security,
+                    "Invalid client secret".to_string(),
+                ));
+            }
 
             let code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
                 &state.repo,
