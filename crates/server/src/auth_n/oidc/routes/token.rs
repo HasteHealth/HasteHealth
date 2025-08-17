@@ -3,7 +3,7 @@ use crate::{
     auth_n::{
         certificates::encoding_key,
         oidc::{
-            extract::client_app::OIDCClientApplication,
+            extract::client_app::{OIDCClientApplication, find_client_app},
             schemas::{self, token_body::OAuth2TokenBody},
         },
     },
@@ -64,7 +64,6 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
     tenant: TenantProject,
     State(state): State<Arc<AppState<Repo, Search>>>,
     current_session: Session,
-    OIDCClientApplication(client_app): OIDCClientApplication,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
     match token_body {
@@ -75,6 +74,14 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
             code_verifier,
             redirect_uri,
         } => {
+            let client_app = find_client_app(
+                &state,
+                tenant.tenant.clone(),
+                tenant.project.clone(),
+                client_id.clone(),
+            )
+            .await?;
+
             if client_secret != client_app.secret.and_then(|v| v.value) {
                 return Err(OperationOutcomeError::error(
                     OperationOutcomeCodes::Security,
