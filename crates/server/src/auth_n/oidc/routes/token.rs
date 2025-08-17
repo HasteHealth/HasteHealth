@@ -15,6 +15,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::routing::TypedPath;
+use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 use jsonwebtoken::{Algorithm, Header};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
@@ -23,11 +24,14 @@ use oxidized_repository::{
     admin::ProjectAuthAdmin,
     types::{
         ResourceId, TenantId, VersionId,
-        authorization_code::{AuthorizationCode, AuthorizationCodeSearchClaims},
+        authorization_code::{
+            AuthorizationCode, AuthorizationCodeSearchClaims, PKCECodeChallengeMethod,
+        },
         user::UserRole,
     },
 };
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::sync::Arc;
 
 #[derive(TypedPath)]
@@ -65,6 +69,47 @@ pub struct TokenClaims {
     access_policy_version_ids: Vec<VersionId>,
 }
 
+pub fn verify_code_verifier(
+    code: &AuthorizationCode,
+    code_verifier: &str,
+) -> Result<(), OperationOutcomeError> {
+    match code.pkce_code_challenge_method {
+        Some(PKCECodeChallengeMethod::S256) => {
+            let mut hasher = Sha256::new();
+            hasher.update(code_verifier.as_bytes());
+            let hashed = hasher.finalize();
+
+            let mut computed_challenge = URL_SAFE.encode(&hashed);
+            // Remove last character which is an equal.
+            computed_challenge.pop();
+
+            if Some(computed_challenge.as_str())
+                != code.pkce_code_challenge.as_ref().map(|v| v.as_str())
+            {
+                return Err(OperationOutcomeError::error(
+                    OperationOutcomeCodes::Invalid,
+                    "PKCE code verifier does not match the code challenge.".to_string(),
+                ));
+            }
+
+            Ok(())
+        }
+        Some(PKCECodeChallengeMethod::Plain) => {
+            if code_verifier != code.pkce_code_challenge.as_deref().unwrap_or("") {
+                return Err(OperationOutcomeError::error(
+                    OperationOutcomeCodes::Invalid,
+                    "PKCE code verifier does not match the code challenge.".to_string(),
+                ));
+            }
+            Ok(())
+        }
+        _ => Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::Invalid,
+            "PKCE code challenge method not supported.".to_string(),
+        )),
+    }
+}
+
 pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: TokenPath,
     tenant: TenantProject,
@@ -76,7 +121,7 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
             client_id,
             client_secret,
             code,
-            code_verifier: _,
+            code_verifier,
             redirect_uri,
         } => {
             let client_app = find_client_app(
@@ -111,6 +156,13 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                     return Err(OperationOutcomeError::fatal(
                         OperationOutcomeCodes::Security,
                         "Authorization code has expired.".to_string(),
+                    ));
+                }
+
+                if let Err(_e) = verify_code_verifier(&code, &code_verifier) {
+                    return Err(OperationOutcomeError::fatal(
+                        OperationOutcomeCodes::Invalid,
+                        "Failed to verify PKCE code verifier.".to_string(),
                     ));
                 }
 

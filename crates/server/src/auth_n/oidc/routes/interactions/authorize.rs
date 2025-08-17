@@ -16,7 +16,9 @@ use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
+    types::authorization_code::{
+        AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
+    },
 };
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
@@ -41,6 +43,25 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
         )
     })?;
 
+    let Some(code_challenge) = oidc_params.parameters.get("code_challenge") else {
+        return Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::Invalid,
+            "code_challenge parameter is required.".to_string(),
+        ));
+    };
+    let Some(code_challenge_method) = oidc_params
+        .parameters
+        .get("code_challenge_method")
+        .and_then(|code_challenge_method| {
+            PKCECodeChallengeMethod::try_from(code_challenge_method.as_str()).ok()
+        })
+    else {
+        return Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::Invalid,
+            "code_challenge_method must be a valid PKCE code challenge method.".to_string(),
+        ));
+    };
+
     if !is_valid_redirect_url(&redirect_uri, &client_app) {
         return Err(OperationOutcomeError::error(
             OperationOutcomeCodes::Invalid,
@@ -64,8 +85,8 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
             kind: AuthorizationCodeKind::OAuth2CodeGrant,
             user_id: user.id,
             client_id: Some(client_id.to_string()),
-            pkce_code_challenge: None,
-            pkce_code_challenge_method: None,
+            pkce_code_challenge: Some(code_challenge.to_string()),
+            pkce_code_challenge_method: Some(code_challenge_method),
             redirect_uri: Some(redirect_uri.to_string()),
             meta: None,
         },

@@ -1,4 +1,6 @@
-use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use oxidized_fhir_operation_error::{
+    OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
+};
 use sqlx::types::Json;
 use std::time::Duration;
 
@@ -19,6 +21,21 @@ pub enum PKCECodeChallengeMethod {
     S256,
     #[sqlx(rename = "plain")]
     Plain,
+}
+
+impl<'a> TryFrom<&'a str> for PKCECodeChallengeMethod {
+    type Error = OperationOutcomeError;
+
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+        match value {
+            "S256" => Ok(PKCECodeChallengeMethod::S256),
+            "plain" => Ok(PKCECodeChallengeMethod::Plain),
+            _ => Err(OperationOutcomeError::error(
+                OperationOutcomeCodes::Invalid,
+                "Invalid PKCE code challenge method.".to_string(),
+            )),
+        }
+    }
 }
 
 pub struct AuthorizationCodeSearchClaims {

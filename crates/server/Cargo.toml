@@ -48,3 +48,5 @@ sendgrid = "0.24.1"
 clap = { version = "4.5.45", features = ["derive"] }
 rsa = "0.9.8"
 regex = "1.11.1"
+sha2 = "0.10.9"
+base64 = "0.22.1"
