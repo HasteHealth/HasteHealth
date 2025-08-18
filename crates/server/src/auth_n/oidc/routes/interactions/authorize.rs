@@ -30,12 +30,20 @@ pub struct Authorize;
 pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: Authorize,
     tenant: TenantProject,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    State(app_state): State<Arc<AppState<Repo, Search>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
     current_session: Session,
 ) -> Result<Redirect, OperationOutcomeError> {
     let user = session::user::get_user(current_session).await?.unwrap();
+
+    let state = oidc_params.parameters.get("state").ok_or_else(|| {
+        OperationOutcomeError::error(
+            OperationOutcomeCodes::Invalid,
+            "state parameter is required.".to_string(),
+        )
+    })?;
+
     let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
         OperationOutcomeError::error(
             OperationOutcomeCodes::Invalid,
@@ -49,6 +57,7 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
             "code_challenge parameter is required.".to_string(),
         ));
     };
+
     let Some(code_challenge_method) = oidc_params
         .parameters
         .get("code_challenge_method")
@@ -77,7 +86,7 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     })?;
 
     let authorzation_code = ProjectAuthAdmin::create(
-        &state.repo,
+        &app_state.repo,
         &tenant.tenant,
         &tenant.project,
         CreateAuthorizationCode {
@@ -103,7 +112,9 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     let redirection = Uri::builder()
         .scheme("https")
         .authority(uri.authority().unwrap().clone())
-        .path_and_query(uri.path().to_string() + "?code=" + &authorzation_code.code)
+        .path_and_query(
+            uri.path().to_string() + "?code=" + &authorzation_code.code + "&state=" + state,
+        )
         .build()
         .unwrap();
 
