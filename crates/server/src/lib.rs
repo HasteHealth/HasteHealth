@@ -1,4 +1,5 @@
 use crate::{
+    auth_n::certificates::decoding_key,
     fhir_http::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
     server_client::{FHIRServerClient, ServerCTX},
@@ -10,6 +11,7 @@ use axum::{
     response::{IntoResponse, Response},
     routing::any,
 };
+use jsonwebkey::JsonWebKey;
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -140,6 +142,12 @@ pub async fn create_services(
 
     Ok(shared_state)
 }
+
+// pub async fn jwks_get() -> Result<jsonwebkey::JsonWebKey, OperationOutcomeError> {
+//     let my_key = decoding_key();
+
+//     JsonWebKey::from_slice(my_key)
+// }
 
 pub async fn server() -> Result<Router, OperationOutcomeError> {
     let config = get_config("environment".into());
