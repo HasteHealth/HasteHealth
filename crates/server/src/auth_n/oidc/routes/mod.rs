@@ -1,10 +1,11 @@
 use crate::{
-    AppState, auth_n::oidc::middleware::ParameterConfig, extract::path_tenant::TenantProject,
+    AppState,
+    auth_n::oidc::middleware::{OIDCParameterInjectLayer, ParameterConfig},
+    extract::path_tenant::TenantProject,
 };
 use axum::{
     Router,
     extract::{Json, State},
-    http::Uri,
 };
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
@@ -14,12 +15,11 @@ use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
 use serde::{Deserialize, Serialize};
-use std::{
-    str::FromStr,
-    sync::{Arc, LazyLock},
-};
+use std::sync::{Arc, LazyLock};
+use tower::ServiceBuilder;
 use url::Url;
 
+mod authorize;
 mod interactions;
 mod token;
 
@@ -28,6 +28,12 @@ pub struct OIDCResponse {
     pub issuer: String,
     pub authorization_endpoint: String,
     pub jwks_uri: String,
+    pub token_endpoint: String,
+    pub scopes_supported: Vec<String>,
+    pub response_types_supported: Vec<String>,
+    pub token_endpoint_auth_methods_supported: Vec<String>,
+    pub id_token_signing_alg_values_supported: Vec<String>,
+    pub subject_types_supported: Vec<String>,
 }
 
 #[derive(TypedPath)]
@@ -60,8 +66,26 @@ async fn openid_configuration<
 
     let oidc_response = OIDCResponse {
         issuer: api_url.to_string(),
-        authorization_endpoint: "https://example.com/authorize".to_string(),
+        authorization_endpoint: api_url.join("auth/authorize").unwrap().to_string(),
+        token_endpoint: api_url.join("auth/token").unwrap().to_string(),
         jwks_uri: api_url.join("certs/jwks").unwrap().to_string(),
+        scopes_supported: vec![
+            "openid".to_string(),
+            "profile".to_string(),
+            "email".to_string(),
+            "offline_access".to_string(),
+        ],
+        response_types_supported: vec![
+            "code".to_string(),
+            "id_token".to_string(),
+            "id_token token".to_string(),
+        ],
+        token_endpoint_auth_methods_supported: vec![
+            "client_secret_basic".to_string(),
+            "client_secret_post".to_string(),
+        ],
+        id_token_signing_alg_values_supported: vec!["RS256".to_string()],
+        subject_types_supported: vec!["public".to_string()],
     };
 
     Ok(Json(oidc_response))
@@ -87,8 +111,17 @@ pub fn create_router<Repo: Repository + Send + Sync, Search: SearchEngine + Send
 
     let token_routes = Router::new().typed_post(token::token);
 
+    let authorize_routes = Router::new()
+        .typed_post(authorize::authorize)
+        .typed_get(authorize::authorize)
+        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
+            (*AUTHORIZE_PARAMETERS).clone(),
+        )));
+
+    let auth_router = Router::new().merge(token_routes).merge(authorize_routes);
+
     Router::new()
-        .merge(token_routes)
         .merge(well_known_routes)
+        .nest("/auth", auth_router)
         .nest("/interactions", interactions::interactions_router())
 }
