@@ -118,7 +118,10 @@ pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + S
         LoginResult::Success { user } => {
             session::user::set_user(current_session, &user).await?;
             let authorization_redirect = Redirect::to(
-                &(uri.path().to_string().replace("/login", "/authorize")
+                &(uri
+                    .path()
+                    .to_string()
+                    .replace("/interactions/login", "/auth/authorize")
                     + "?"
                     + uri.query().unwrap_or("")),
             );

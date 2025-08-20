@@ -2249,6 +2249,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "typify",
+ "url",
 ]
 
 [[package]]

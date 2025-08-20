@@ -9,7 +9,6 @@ use oxidized_repository::Repository;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 
-mod authorize;
 mod login;
 mod logout;
 
@@ -24,19 +23,9 @@ pub fn interactions_router<
             (*AUTHORIZE_PARAMETERS).clone(),
         )));
 
-    let authorize_routes = Router::new()
-        .typed_post(authorize::authorize)
-        .typed_get(authorize::authorize)
-        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
-            (*AUTHORIZE_PARAMETERS).clone(),
-        )));
-
     let logout_routes = Router::new()
         .typed_post(logout::logout)
         .typed_get(logout::logout);
 
-    Router::new()
-        .merge(login_routes)
-        .merge(logout_routes)
-        .merge(authorize_routes)
+    Router::new().merge(login_routes).merge(logout_routes)
 }
