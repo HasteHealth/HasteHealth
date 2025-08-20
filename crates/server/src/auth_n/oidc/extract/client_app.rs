@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use crate::{
-    AppState, auth_n::oidc::middleware::OIDCParameters, extract::path_tenant::TenantProject,
+    AppState,
+    auth_n::oidc::{hardcoded_clients::get_hardcoded_clients, middleware::OIDCParameters},
+    extract::path_tenant::TenantProject,
     server_client::ServerCTX,
 };
 use axum::{
@@ -25,6 +27,7 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
     project: ProjectId,
     client_id: String,
 ) -> Result<ClientApplication, OperationOutcomeError> {
+    let hardcoded_clients = get_hardcoded_clients(&state.config);
     let ctx = ServerCTX {
         tenant,
         project,

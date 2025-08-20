@@ -2,7 +2,7 @@ use oxidized_config::Config;
 use oxidized_fhir_model::r4::types::{ClientApplication, FHIRCode, FHIRString};
 use oxidized_repository::types::TenantId;
 
-pub fn get_admin_app(config: Box<dyn Config>) -> Option<ClientApplication> {
+pub fn get_admin_app(config: &Box<dyn Config>) -> Option<ClientApplication> {
     let redirect_uri = config.get("ADMIN_APP_REDIRECT_URI");
 
     if let Ok(redirect_uri) = redirect_uri {
@@ -43,7 +43,7 @@ pub fn get_admin_app(config: Box<dyn Config>) -> Option<ClientApplication> {
 
 #[allow(dead_code)]
 // Return the Admin app redirect url for the current tenant.
-pub fn redirect_url(config: Box<dyn Config>, tenant_id: TenantId) -> Option<String> {
+pub fn redirect_url(config: &Box<dyn Config>, tenant_id: TenantId) -> Option<String> {
     let admin_app = get_admin_app(config);
 
     if let Some(app) = admin_app {
