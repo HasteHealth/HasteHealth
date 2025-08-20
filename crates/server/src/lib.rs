@@ -1,9 +1,15 @@
 use crate::{
-
-    auth_n::certificates::{JSONWebKeySet, JWK_SET}, fhir_http::{http_request_to_fhir_request, HTTPRequest}, pg::get_pool, server_client::{FHIRServerClient, ServerCTX}
+    auth_n::certificates::{JSONWebKeySet, JWK_SET},
+    fhir_http::{HTTPRequest, http_request_to_fhir_request},
+    pg::get_pool,
+    server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
-    extract::{OriginalUri, Path, State}, http::Method, response::{IntoResponse, Response}, routing::{self, any}, Json, Router
+    Json, Router,
+    extract::{OriginalUri, Path, State},
+    http::Method,
+    response::{IntoResponse, Response},
+    routing::{self, any},
 };
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
@@ -58,7 +64,7 @@ pub struct AppState<
 > {
     pub repo: Repo,
     pub fhir_client: FHIRServerClient<Repo, Search>,
-    _config: Box<dyn Config>,
+    pub config: Box<dyn Config>,
 }
 
 #[derive(Deserialize)]
@@ -128,7 +134,7 @@ pub async fn create_services(
     let repo = PGConnection::PgPool(pool.clone());
 
     let shared_state = Arc::new(AppState {
-        _config: config,
+        config,
         repo: repo.clone(),
         fhir_client: FHIRServerClient::new(repo, search_engine),
     });
