@@ -1,7 +1,6 @@
 use crate::{
     AppState,
     auth_n::oidc::middleware::{OIDCParameterInjectLayer, ParameterConfig},
-    extract::path_tenant::TenantProject,
 };
 use axum::{
     Router,
@@ -46,7 +45,6 @@ async fn openid_configuration<
 >(
     _: WellKnown,
     State(state): State<Arc<AppState<Repo, Search>>>,
-    TenantProject { tenant, project }: TenantProject,
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
     let api_url_string = state.config.get("API_URL").unwrap_or_default();
 
