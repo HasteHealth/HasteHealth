@@ -42,7 +42,10 @@ pub enum StorageError {
         diagnostic = "No response was returned from the request."
     )]
     NoResponse,
-    #[error(code = "not-found", diagnostic = "Resource '{arg0:?}' with id '{arg1}' not found.")]
+    #[error(
+        code = "not-found",
+        diagnostic = "Resource '{arg0:?}' with id '{arg1}' not found."
+    )]
     NotFound(ResourceType, String),
     #[error(code = "invalid", diagnostic = "Invalid resource type.")]
     InvalidType,
@@ -85,7 +88,12 @@ fn storage_middleware<
                         &ResourceId::new(read_request.id.to_string()),
                     )
                     .await?
-                    .ok_or_else(|| StorageError::NotFound(read_request.resource_type.clone(), read_request.id.clone()))?;
+                    .ok_or_else(|| {
+                        StorageError::NotFound(
+                            read_request.resource_type.clone(),
+                            read_request.id.clone(),
+                        )
+                    })?;
 
                 Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
             }

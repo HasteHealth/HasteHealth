@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use crate::{
-    AppState, auth_n::oidc::middleware::OIDCParameters, extract::path_tenant::TenantProject,
+    AppState,
+    auth_n::oidc::{hardcoded_clients::get_hardcoded_clients, middleware::OIDCParameters},
+    extract::path_tenant::TenantProject,
     server_client::ServerCTX,
 };
 use axum::{
@@ -25,32 +27,41 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
     project: ProjectId,
     client_id: String,
 ) -> Result<ClientApplication, OperationOutcomeError> {
-    let ctx = ServerCTX {
-        tenant,
-        project,
-        fhir_version: SupportedFHIRVersions::R4,
-        author: Author {
-            id: "anonymous".to_string(),
-            kind: "Membership".to_string(),
-        },
-    };
+    let hardcoded_clients = get_hardcoded_clients(&state.config);
 
-    let client_app = state
-        .fhir_client
-        .read(
-            ctx,
-            ResourceType::new("ClientApplication".to_string()).unwrap(),
-            client_id,
-        )
-        .await?;
-
-    if let Some(Resource::ClientApplication(client_app)) = client_app {
-        Ok(client_app)
+    if let Some(client) = hardcoded_clients
+        .into_iter()
+        .find(|client| client.id.as_ref() == Some(&client_id))
+    {
+        Ok(client)
     } else {
-        Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::NotFound,
-            "Client application not found".to_string(),
-        ))
+        let ctx = ServerCTX {
+            tenant,
+            project,
+            fhir_version: SupportedFHIRVersions::R4,
+            author: Author {
+                id: "anonymous".to_string(),
+                kind: "Membership".to_string(),
+            },
+        };
+
+        let client_app = state
+            .fhir_client
+            .read(
+                ctx,
+                ResourceType::new("ClientApplication".to_string()).unwrap(),
+                client_id,
+            )
+            .await?;
+
+        if let Some(Resource::ClientApplication(client_app)) = client_app {
+            Ok(client_app)
+        } else {
+            Err(OperationOutcomeError::error(
+                OperationOutcomeCodes::NotFound,
+                "Client application not found".to_string(),
+            ))
+        }
     }
 }
 
