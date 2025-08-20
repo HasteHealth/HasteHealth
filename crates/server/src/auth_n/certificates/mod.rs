@@ -1,6 +1,4 @@
-use base64::{
-    Engine as _, engine::general_purpose::STANDARD, engine::general_purpose::URL_SAFE_NO_PAD,
-};
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use oxidized_config::{Config, ConfigType, get_config};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use rand::rngs::OsRng;
