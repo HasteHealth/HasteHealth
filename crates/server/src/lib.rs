@@ -1,14 +1,9 @@
 use crate::{
-    fhir_http::{HTTPRequest, http_request_to_fhir_request},
-    pg::get_pool,
-    server_client::{FHIRServerClient, ServerCTX},
+
+    auth_n::certificates::{JSONWebKeySet, JWK_SET}, fhir_http::{http_request_to_fhir_request, HTTPRequest}, pg::get_pool, server_client::{FHIRServerClient, ServerCTX}
 };
 use axum::{
-    Router,
-    extract::{OriginalUri, Path, State},
-    http::Method,
-    response::{IntoResponse, Response},
-    routing::any,
+    extract::{OriginalUri, Path, State}, http::Method, response::{IntoResponse, Response}, routing::{self, any}, Json, Router
 };
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
@@ -141,6 +136,10 @@ pub async fn create_services(
     Ok(shared_state)
 }
 
+pub async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeError> {
+    Ok(Json(&*JWK_SET))
+}
+
 pub async fn server() -> Result<Router, OperationOutcomeError> {
     let config = get_config("environment".into());
     auth_n::certificates::create_certifications(&config).unwrap();
@@ -160,6 +159,7 @@ pub async fn server() -> Result<Router, OperationOutcomeError> {
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
 
     let app = Router::new()
+        .route("/certs/jwks", routing::get(jwks_get))
         .nest("/w/{tenant}", tenant_router)
         .layer(SessionManagerLayer::new(session_store).with_secure(true))
         .with_state(shared_state)
