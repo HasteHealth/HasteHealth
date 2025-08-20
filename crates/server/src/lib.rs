@@ -23,6 +23,8 @@ use oxidized_repository::{
 };
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};
+use tower::ServiceBuilder;
+use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
@@ -167,7 +169,17 @@ pub async fn server() -> Result<Router, OperationOutcomeError> {
     let app = Router::new()
         .route("/certs/jwks", routing::get(jwks_get))
         .nest("/w/{tenant}", tenant_router)
-        .layer(SessionManagerLayer::new(session_store).with_secure(true))
+        .layer(
+            ServiceBuilder::new()
+                .layer(
+                    CorsLayer::new()
+                        // allow `GET` and `POST` when accessing the resource
+                        .allow_methods(Any)
+                        // allow requests from any origin
+                        .allow_origin(Any),
+                )
+                .layer(SessionManagerLayer::new(session_store).with_secure(true)),
+        )
         .with_state(shared_state)
         .fallback_service(ServeDir::new("public"));
 
