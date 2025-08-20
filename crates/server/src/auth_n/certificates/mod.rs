@@ -1,4 +1,6 @@
-use jsonwebkey::{RsaPrivate, RsaPublic};
+use base64::{
+    Engine as _, engine::general_purpose::STANDARD, engine::general_purpose::URL_SAFE_NO_PAD,
+};
 use oxidized_config::{Config, ConfigType, get_config};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use rand::rngs::OsRng;
@@ -6,8 +8,10 @@ use rsa::{
     RsaPrivateKey, RsaPublicKey,
     pkcs1::{DecodeRsaPrivateKey, EncodeRsaPrivateKey, EncodeRsaPublicKey},
     pkcs8::LineEnding,
-    traits::PrivateKeyParts,
+    traits::PublicKeyParts,
 };
+use serde::{Deserialize, Serialize};
+use sha1::{Digest, Sha1};
 use std::{path::Path, sync::LazyLock};
 
 static PRIVATE_KEY_FILENAME: &str = "private_key.pem";
@@ -48,7 +52,34 @@ pub fn create_certifications(config: &Box<dyn Config>) -> Result<(), OperationOu
     Ok(())
 }
 
-static JWK_SET: LazyLock<Vec<jsonwebkey::JsonWebKey>> = LazyLock::new(|| {
+#[derive(Serialize, Deserialize, Debug)]
+pub enum JSONWebKeyAlgorithm {
+    RS256,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum JSONWebKeyType {
+    RSA,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct JSONWebKey {
+    kid: String,
+
+    alg: JSONWebKeyAlgorithm,
+    kty: JSONWebKeyType,
+    // Base64 URL SAFE
+    e: String,
+    n: String,
+    x5t: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct JSONWebKeySet {
+    keys: Vec<JSONWebKey>,
+}
+
+pub static JWK_SET: LazyLock<JSONWebKeySet> = LazyLock::new(|| {
     let config = get_config(ConfigType::Environment);
     let certificate_dir = config.get("CERTIFICATION_DIR").unwrap();
     let cert_dir: &Path = Path::new(&certificate_dir);
@@ -56,21 +87,24 @@ static JWK_SET: LazyLock<Vec<jsonwebkey::JsonWebKey>> = LazyLock::new(|| {
         &std::fs::read_to_string(&cert_dir.join(PRIVATE_KEY_FILENAME)).unwrap(),
     )
     .unwrap();
-    let primes = rsa_private.primes();
+    let rsa_public_key = rsa_private.to_public_key();
 
-    let rsa_private = RsaPrivate {
-        d: rsa_private.d().clone().to_bytes_be().into(),
-        p: primes.get(0).map(|p| p.to_bytes_be().into()),
-        q: primes.get(1).map(|p| p.to_bytes_be().into()),
-        dp: rsa_private.dp().map(|dp| dp.to_bytes_be().into()),
-        dq: rsa_private.dq().map(|dq| dq.to_bytes_be().into()),
-        qi: rsa_private.qinv().map(|qi| qi.to_bytes_be().into()),
+    let mut hasher = Sha1::new();
+    hasher.update(rsa_public_key.to_pkcs1_der().unwrap().as_bytes());
+    let x5t = hasher.finalize();
+
+    let rsa_public = JSONWebKey {
+        kid: URL_SAFE_NO_PAD.encode(&x5t),
+        alg: JSONWebKeyAlgorithm::RS256,
+        kty: JSONWebKeyType::RSA,
+        e: URL_SAFE_NO_PAD.encode(&rsa_public_key.e().clone().to_bytes_be()),
+        n: URL_SAFE_NO_PAD.encode(&rsa_public_key.n().clone().to_bytes_be()),
+        x5t: Some(URL_SAFE_NO_PAD.encode(&x5t)),
     };
 
-    let rsa_public = RsaPublic::from(&rsa_private);
-
-    my_jwk.set_algorithm(jsonwebkey::Algorithm::RS256).unwrap();
-    vec![my_jwk]
+    JSONWebKeySet {
+        keys: vec![rsa_public],
+    }
 });
 
 #[allow(unused)]
