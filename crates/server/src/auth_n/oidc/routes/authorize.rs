@@ -25,7 +25,7 @@ use oxidized_repository::{
         AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
     },
 };
-use std::{str::FromStr, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 
 #[derive(TypedPath)]
