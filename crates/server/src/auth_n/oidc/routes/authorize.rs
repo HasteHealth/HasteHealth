@@ -36,7 +36,6 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     current_session: Session,
 ) -> Result<Redirect, OperationOutcomeError> {
     let user = session::user::get_user(current_session).await?.unwrap();
-
     let state = oidc_params.parameters.get("state").ok_or_else(|| {
         OperationOutcomeError::error(
             OperationOutcomeCodes::Invalid,

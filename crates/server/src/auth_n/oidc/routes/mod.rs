@@ -4,12 +4,13 @@ use crate::{
 };
 use axum::{
     Router,
-    extract::{Json, State},
+    extract::{Json, OriginalUri, Path, State},
 };
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
+use jsonwebtoken::jwk;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
@@ -44,6 +45,7 @@ async fn openid_configuration<
     Search: SearchEngine + Send + Sync,
 >(
     _: WellKnown,
+    OriginalUri(uri): OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
     let api_url_string = state.config.get("API_URL").unwrap_or_default();
@@ -62,10 +64,16 @@ async fn openid_configuration<
         ));
     };
 
+    let path = uri.path();
+    let well_known_path = WellKnown.to_string();
+
+    let authorize_path = path.replace(&well_known_path, "/auth/authorize");
+    let token_path = path.replace(&well_known_path, "/auth/token");
+
     let oidc_response = OIDCResponse {
         issuer: api_url.to_string(),
-        authorization_endpoint: api_url.join("auth/authorize").unwrap().to_string(),
-        token_endpoint: api_url.join("auth/token").unwrap().to_string(),
+        authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
+        token_endpoint: api_url.join(&token_path).unwrap().to_string(),
         jwks_uri: api_url.join("certs/jwks").unwrap().to_string(),
         scopes_supported: vec![
             "openid".to_string(),
