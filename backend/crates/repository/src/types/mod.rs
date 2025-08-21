@@ -11,6 +11,7 @@ pub mod user;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
+#[serde(rename_all = "lowercase")]
 pub enum SupportedFHIRVersions {
     R4,
 }
@@ -23,7 +24,7 @@ pub struct Author {
 impl std::fmt::Display for SupportedFHIRVersions {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SupportedFHIRVersions::R4 => write!(f, "R4"),
+            SupportedFHIRVersions::R4 => write!(f, "r4"),
         }
     }
 }
