@@ -39,8 +39,18 @@ use std::sync::Arc;
 pub struct TokenPath;
 
 #[derive(Serialize, Deserialize, Debug)]
+pub enum TokenType {
+    Bearer,
+}
+
+pub static TOKEN_EXPIRATION: usize = 3600; // 1 hour
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
-    token: String,
+    access_token: String,
+    id_token: String,
+    token_type: TokenType,
+    expires_in: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -181,7 +191,9 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                     &Header::new(Algorithm::RS256),
                     &TokenClaims {
                         sub: ResourceId::new(code.user_id.clone()),
-                        exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,
+                        exp: (chrono::Utc::now()
+                            + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
+                        .timestamp() as usize,
                         aud: client_id,
                         scope: "".to_string(),
                         tenant: tenant.tenant,
@@ -199,7 +211,13 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                     )
                 })?;
 
-                Ok(Json(TokenResponse { token }).into_response())
+                Ok(Json(TokenResponse {
+                    access_token: token.clone(),
+                    id_token: token,
+                    expires_in: TOKEN_EXPIRATION,
+                    token_type: TokenType::Bearer,
+                })
+                .into_response())
             } else {
                 Err(OperationOutcomeError::fatal(
                     OperationOutcomeCodes::Invalid,

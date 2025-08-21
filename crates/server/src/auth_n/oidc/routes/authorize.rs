@@ -9,7 +9,12 @@ use crate::{
     },
     extract::path_tenant::TenantProject,
 };
-use axum::{Extension, extract::State, http::Uri, response::Redirect};
+use axum::{
+    Extension,
+    extract::State,
+    http::{Uri, uri::Scheme},
+    response::Redirect,
+};
 use axum_extra::routing::TypedPath;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
@@ -20,7 +25,7 @@ use oxidized_repository::{
         AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
     },
 };
-use std::{sync::Arc, time::Duration};
+use std::{str::FromStr, sync::Arc, time::Duration};
 use tower_sessions::Session;
 
 #[derive(TypedPath)]
@@ -109,7 +114,7 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     })?;
 
     let redirection = Uri::builder()
-        .scheme("https")
+        .scheme(uri.scheme().cloned().unwrap_or(Scheme::HTTPS))
         .authority(uri.authority().unwrap().clone())
         .path_and_query(
             uri.path().to_string() + "?code=" + &authorzation_code.code + "&state=" + state,
