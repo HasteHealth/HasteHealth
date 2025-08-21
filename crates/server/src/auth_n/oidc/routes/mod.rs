@@ -1,16 +1,17 @@
 use crate::{
     AppState,
-    auth_n::oidc::middleware::{OIDCParameterInjectLayer, ParameterConfig},
+    auth_n::oidc::middleware::{
+        AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig,
+    },
 };
 use axum::{
     Router,
-    extract::{Json, OriginalUri, Path, State},
+    extract::{Json, OriginalUri, State},
 };
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
-use jsonwebtoken::jwk;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
@@ -120,9 +121,16 @@ pub fn create_router<Repo: Repository + Send + Sync, Search: SearchEngine + Send
     let authorize_routes = Router::new()
         .typed_post(authorize::authorize)
         .typed_get(authorize::authorize)
-        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
-            (*AUTHORIZE_PARAMETERS).clone(),
-        )));
+        .route_layer(
+            ServiceBuilder::new()
+                .layer(OIDCParameterInjectLayer::new(
+                    (*AUTHORIZE_PARAMETERS).clone(),
+                ))
+                .layer(AuthSessionValidationLayer::new(
+                    "/auth/authorize",
+                    "/interactions/login",
+                )),
+        );
 
     let auth_router = Router::new().merge(token_routes).merge(authorize_routes);
 
