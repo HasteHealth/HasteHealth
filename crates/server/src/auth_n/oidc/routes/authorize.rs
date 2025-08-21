@@ -9,7 +9,12 @@ use crate::{
     },
     extract::path_tenant::TenantProject,
 };
-use axum::{Extension, extract::State, http::Uri, response::Redirect};
+use axum::{
+    Extension,
+    extract::State,
+    http::{Uri, uri::Scheme},
+    response::Redirect,
+};
 use axum_extra::routing::TypedPath;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
@@ -36,7 +41,6 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     current_session: Session,
 ) -> Result<Redirect, OperationOutcomeError> {
     let user = session::user::get_user(current_session).await?.unwrap();
-
     let state = oidc_params.parameters.get("state").ok_or_else(|| {
         OperationOutcomeError::error(
             OperationOutcomeCodes::Invalid,
@@ -110,7 +114,7 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     })?;
 
     let redirection = Uri::builder()
-        .scheme("https")
+        .scheme(uri.scheme().cloned().unwrap_or(Scheme::HTTPS))
         .authority(uri.authority().unwrap().clone())
         .path_and_query(
             uri.path().to_string() + "?code=" + &authorzation_code.code + "&state=" + state,

@@ -1,10 +1,12 @@
 use crate::{
     AppState,
-    auth_n::oidc::middleware::{OIDCParameterInjectLayer, ParameterConfig},
+    auth_n::oidc::middleware::{
+        AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig,
+    },
 };
 use axum::{
     Router,
-    extract::{Json, State},
+    extract::{Json, OriginalUri, State},
 };
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
@@ -44,6 +46,7 @@ async fn openid_configuration<
     Search: SearchEngine + Send + Sync,
 >(
     _: WellKnown,
+    OriginalUri(uri): OriginalUri,
     State(state): State<Arc<AppState<Repo, Search>>>,
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
     let api_url_string = state.config.get("API_URL").unwrap_or_default();
@@ -62,10 +65,16 @@ async fn openid_configuration<
         ));
     };
 
+    let path = uri.path();
+    let well_known_path = WellKnown.to_string();
+
+    let authorize_path = path.replace(&well_known_path, "/auth/authorize");
+    let token_path = path.replace(&well_known_path, "/auth/token");
+
     let oidc_response = OIDCResponse {
         issuer: api_url.to_string(),
-        authorization_endpoint: api_url.join("auth/authorize").unwrap().to_string(),
-        token_endpoint: api_url.join("auth/token").unwrap().to_string(),
+        authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
+        token_endpoint: api_url.join(&token_path).unwrap().to_string(),
         jwks_uri: api_url.join("certs/jwks").unwrap().to_string(),
         scopes_supported: vec![
             "openid".to_string(),
@@ -112,9 +121,16 @@ pub fn create_router<Repo: Repository + Send + Sync, Search: SearchEngine + Send
     let authorize_routes = Router::new()
         .typed_post(authorize::authorize)
         .typed_get(authorize::authorize)
-        .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
-            (*AUTHORIZE_PARAMETERS).clone(),
-        )));
+        .route_layer(
+            ServiceBuilder::new()
+                .layer(OIDCParameterInjectLayer::new(
+                    (*AUTHORIZE_PARAMETERS).clone(),
+                ))
+                .layer(AuthSessionValidationLayer::new(
+                    "/auth/authorize",
+                    "/interactions/login",
+                )),
+        );
 
     let auth_router = Router::new().merge(token_routes).merge(authorize_routes);
 
