@@ -1,4 +1,4 @@
-/target
+target
 .env
 .DS_Store
 *.pem
