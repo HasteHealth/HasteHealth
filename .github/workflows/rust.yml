@@ -17,6 +17,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
+      - run: cd backend
       - name: Build
         run: cargo build --verbose --workspace
       - name: Run tests
