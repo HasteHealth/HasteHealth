@@ -52,23 +52,23 @@ if (
 }
 
 function LoginWrapper() {
-  const oxidized-health = useOxidizedHealth();
+  const oxidizedHealth = useOxidizedHealth();
 
   return (
     <>
-      {oxidized-health.loading ? (
+      {oxidizedHealth.loading ? (
         <div className="h-screen flex flex-1 justify-center items-center flex-col">
           <Loading />
           <div className="mt-1 ">Loading...</div>
         </div>
-      ) : oxidized-health.error ? (
+      ) : oxidizedHealth.error ? (
         <div className="h-screen flex">
           <div className="flex-1 flex items-center justify-center">
             <div className="p-4 bg-red-100 text-red-800 border border-red-400 rounded-md space-y-2">
               <div className="font-bold">
-                {oxidized-health.error.code.split("_").map(capitalize).join(" ")}
+                {oxidizedHealth.error.code.split("_").map(capitalize).join(" ")}
               </div>
-              <div>{oxidized-health.error.description}</div>
+              <div>{oxidizedHealth.error.description}</div>
             </div>
           </div>
         </div>
@@ -82,9 +82,9 @@ function LoginWrapper() {
 }
 
 function ServiceSetup({ children }: { children: React.ReactNode }) {
-  const oxidized-health = useOxidizedHealth();
-  const client = oxidized-health.isAuthenticated
-    ? oxidized-health.client
+  const oxidizedHealth = useOxidizedHealth();
+  const client = oxidizedHealth.isAuthenticated
+    ? oxidizedHealth.client
     : undefined;
   const [c, setClient] = useAtom(getClient);
 
@@ -92,7 +92,7 @@ function ServiceSetup({ children }: { children: React.ReactNode }) {
     if (client) {
       setClient(createAdminAppClient(client));
     }
-  }, [setClient, oxidized-health.isAuthenticated, oxidized-health.client]);
+  }, [setClient, oxidizedHealth.isAuthenticated, oxidizedHealth.client]);
 
   return <>{c ? <>{children}</> : undefined}</>;
 }
@@ -192,7 +192,7 @@ const router = createBrowserRouter([
 ]);
 
 function Root() {
-  const oxidized-health = useOxidizedHealth();
+  const oxidizedHealth = useOxidizedHealth();
   const navigate = useNavigate();
   const matches = useMatches();
 
@@ -420,7 +420,7 @@ function Root() {
               <SideBar.SideBarItem
                 logo={<ArrowLeftOnRectangleIcon />}
                 onClick={() => {
-                  oxidized-health.logout(window.location.origin);
+                  oxidizedHealth.logout(window.location.origin);
                 }}
               >
                 Sign out
@@ -445,10 +445,10 @@ function Root() {
                 </a>
                 <ProfileDropdown
                   user={{
-                    email: oxidized-health.user?.email,
+                    email: oxidizedHealth.user?.email,
                     name:
-                      oxidized-health.user?.given_name ||
-                      oxidized-health.user?.email,
+                      oxidizedHealth.user?.given_name ||
+                      oxidizedHealth.user?.email,
                     // imageUrl: auth0.user?.picture,
                   }}
                 >
@@ -467,7 +467,7 @@ function Root() {
                       <a
                         className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-blue-800 hover:bg-blue-100"
                         onClick={() => {
-                          oxidized-health.logout(window.location.origin);
+                          oxidizedHealth.logout(window.location.origin);
                         }}
                       >
                         Sign out

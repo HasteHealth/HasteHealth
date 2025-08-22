@@ -59,7 +59,7 @@ function Copyable({
 }
 
 function Scopes() {
-  const oxidized-health = useOxidizedHealth();
+  const oxidizedHealth = useOxidizedHealth();
   const client = useAtomValue(getClient);
   const [scopes, setScopes] = React.useState<
     OxidizedHealthListScopes.Output["scopes"]
@@ -72,7 +72,7 @@ function Scopes() {
           setScopes(res.scopes);
         });
     };
-  }, [oxidized-health]);
+  }, [oxidizedHealth]);
   React.useEffect(() => {
     fetchScopes();
   }, []);
@@ -101,7 +101,7 @@ function Scopes() {
         },
       });
     };
-  }, [oxidized-health]);
+  }, [oxidizedHealth]);
 
   return (
     <div className="space-y-2">
@@ -158,7 +158,7 @@ function Scopes() {
 }
 
 function RefreshTokens() {
-  const oxidized-health = useOxidizedHealth();
+  const oxidizedHealth = useOxidizedHealth();
   const client = useAtomValue(getClient);
   const [refreshTokens, setRefreshTokens] = React.useState<
     OxidizedHealthListRefreshTokens.Output["refresh-tokens"]
@@ -171,7 +171,7 @@ function RefreshTokens() {
           setRefreshTokens(res["refresh-tokens"]);
         });
     };
-  }, [oxidized-health]);
+  }, [oxidizedHealth]);
   React.useEffect(() => {
     fetchRefreshTokens();
   }, []);
@@ -200,7 +200,7 @@ function RefreshTokens() {
         },
       });
     };
-  }, [oxidized-health]);
+  }, [oxidizedHealth]);
 
   return (
     <div className="space-y-2">
@@ -257,7 +257,7 @@ function RefreshTokens() {
 }
 
 function SettingDisplay({ user }: Readonly<SettingProps>) {
-  const oxidized-health = useOxidizedHealth();
+  const oxidizedHealth = useOxidizedHealth();
   return (
     <div className="flex flex-col flex-1 space-y-4 w-full">
       <h2 className="text-2xl font-semibold mb-0">Settings</h2>
@@ -285,9 +285,9 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
                   <Copyable
                     label="R4"
                     value={
-                      oxidized-health.rootURL
+                      oxidizedHealth.rootURL
                         ? deriveOxidizedHealthVersionedURL(
-                            oxidized-health.rootURL,
+                            oxidizedHealth.rootURL,
                             R4
                           )
                         : ""
@@ -298,9 +298,9 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
                   <Copyable
                     label="R4B"
                     value={
-                      oxidized-health.rootURL
+                      oxidizedHealth.rootURL
                         ? deriveOxidizedHealthVersionedURL(
-                            oxidized-health.rootURL,
+                            oxidizedHealth.rootURL,
                             R4B
                           )
                         : ""
@@ -315,19 +315,19 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
                 <div className="flex flex-col">
                   <Copyable
                     label="Discovery"
-                    value={oxidized-health.well_known_uri}
+                    value={oxidizedHealth.well_known_uri}
                   />
                 </div>
                 <div className="flex flex-col">
                   <Copyable
                     label="Token"
-                    value={oxidized-health.well_known?.token_endpoint}
+                    value={oxidizedHealth.well_known?.token_endpoint}
                   />
                 </div>
                 <div className="flex flex-col">
                   <Copyable
                     label="Authorization"
-                    value={oxidized-health.well_known?.authorization_endpoint}
+                    value={oxidizedHealth.well_known?.authorization_endpoint}
                   />
                 </div>
               </div>
@@ -342,7 +342,7 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
 }
 
 export default function Settings() {
-  const oxidized-health = useOxidizedHealth();
+  const oxidizedHealth = useOxidizedHealth();
   return (
     <React.Suspense
       fallback={
@@ -352,7 +352,7 @@ export default function Settings() {
         </div>
       }
     >
-      <SettingDisplay user={oxidized-health.user} />
+      <SettingDisplay user={oxidizedHealth.user} />
     </React.Suspense>
   );
 }
