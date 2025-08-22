@@ -105,7 +105,7 @@ function ChannelParameters({
             </div>
             <div className="mt-1">
               <span
-                className="flex items-center cursor-pointer text-xs hover:text-blue-600 text-blue-500"
+                className="flex items-center cursor-pointer text-xs hover:text-teal-600 text-teal-500"
                 onClick={() => {
                   onChange({
                     ...resource,

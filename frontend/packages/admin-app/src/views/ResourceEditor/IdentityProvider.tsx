@@ -49,7 +49,7 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
           For more information on how to register an external IDP read the
           following{" "}
           <a
-            className="text-blue-500 hover:text-blue-600 cursor-pointer"
+            className="text-teal-500 hover:text-teal-600 cursor-pointer"
             href="https://oxidized-health.app/documentation/Getting%20Started/Local_Development"
           >
             documentation

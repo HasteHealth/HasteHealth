@@ -1,7 +1,7 @@
 import React from "react";
 
 export const Logo = ({
-  className = "fill-blue-500",
+  className = "fill-teal-500",
 }: Readonly<{ className?: string }>) => (
   <svg
     className={className}

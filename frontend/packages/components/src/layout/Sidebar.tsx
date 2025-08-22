@@ -24,8 +24,8 @@ export function SideBarItem({
           "cursor-pointer flex items-center p-1 px-2 group rounded-lg group",
           {
             "text-slate-800 hover:bg-gray-200": !active,
-            "text-blue-800 bg-blue-100 ": active,
-          },
+            "text-teal-800 bg-teal-100 ": active,
+          }
         )}
       >
         {logo && (
@@ -50,7 +50,7 @@ export interface SideBarItemGroupProps
 export function SideBarItemGroup(props: SideBarItemGroupProps) {
   return (
     <li {...props}>
-      <div className="px-2 text-blue-800 text-xs">{props.label}</div>
+      <div className="px-2 text-teal-800 text-xs">{props.label}</div>
       <div className="mt-1 ml-1">
         <ul className="space-y-1">{props.children}</ul>
       </div>
@@ -72,7 +72,7 @@ export function SideBar({
       id="sidebar-multi-level-sidebar"
       className={classNames(
         "flex fixed top-0 left-0 z-40 w-64 h-screen transition-transform",
-        { "translate-x-0": isOpen, "-translate-x-full": !isOpen },
+        { "translate-x-0": isOpen, "-translate-x-full": !isOpen }
       )}
       aria-label="Sidebar"
     >

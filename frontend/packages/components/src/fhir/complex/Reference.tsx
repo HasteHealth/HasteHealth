@@ -96,7 +96,7 @@ const SearchResult = ({
 }) => {
   return (
     <div
-      className="hover:bg-blue-100 py-2 px-4 cursor-pointer border "
+      className="hover:bg-teal-100 py-2 px-4 cursor-pointer border "
       onClick={(_e) =>
         onChange?.call(this, {
           reference: `${resource.resourceType}/${resource.id}`,
@@ -203,13 +203,13 @@ export const FHIRReferenceEditable = ({
             >
               <div className="flex space-x-1">
                 <div onClick={() => openDisplay(true)}>
-                  <a className="text-blue-400 hover:text-blue-500 cursor-pointer">
+                  <a className="text-teal-400 hover:text-teal-500 cursor-pointer">
                     {value?.reference}
                   </a>
                 </div>
                 {!disabled && (
                   <span onClick={() => openSearch(true)}>
-                    <a className="text-slate-700 hover:text-blue-700 cursor-pointer font-semibold">
+                    <a className="text-slate-700 hover:text-teal-700 cursor-pointer font-semibold">
                       {<MagnifyingGlassCircleIcon className="w-5 h-5" />}
                     </a>
                   </span>
