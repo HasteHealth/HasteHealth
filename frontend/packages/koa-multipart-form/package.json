@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@types/multer": "^1.4.12",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

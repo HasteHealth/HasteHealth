@@ -16,9 +16,10 @@
     "@jest/globals": "^29.7.0",
     "@oxidized-health/fhir-types": "workspace:^",
     "@types/jest": "^29.5.14",
+    "@types/node": "^24.3.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.2",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "exports": {
     ".": "./lib/index.js",

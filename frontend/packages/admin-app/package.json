@@ -35,7 +35,7 @@
     "react-router-dom": "^7.6.0",
     "react-scripts": "^5.0.1",
     "react-window": "^1.8.11",
-    "typescript": "5.8.3",
+    "typescript": "5.9.2",
     "web-vitals": "^3.5.2"
   },
   "scripts": {

@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@oxidized-health/fhir-types": "workspace:^",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "scripts": {
     "build": "tsc && node executable.js ./lib/oxidizedhealth.js && chmod +x ./lib/oxidizedhealth.js",
