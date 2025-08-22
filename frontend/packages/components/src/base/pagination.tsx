@@ -11,7 +11,7 @@ export interface PaginationProps {
 function paginationWindow(
   totalPages: number,
   currentPage: number,
-  window: number = 5,
+  window: number = 5
 ) {
   const half = Math.floor(window / 2);
   const start = Math.max(1, currentPage - half);
@@ -40,12 +40,12 @@ const PaginationItem = ({
         className={classNames(
           "cursor-pointer flex items-center justify-center px-2 h-6 leading-tight",
           {
-            "text-blue-600 border border-slate-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 ":
+            "text-teal-600 border border-slate-300 bg-teal-50 hover:bg-teal-100 hover:text-teal-700 ":
               active,
 
             "text-slate-500 bg-white border border-slate-300 hover:bg-slate-100 hover:text-slate-700 ":
               !active,
-          },
+          }
         )}
       >
         {children}
@@ -83,7 +83,7 @@ export const Pagination = (props: PaginationProps) => {
         <PaginationItem
           onClick={(_e) => {
             props.onPagination(
-              Math.min(props.currentPage + 1, props.totalPages),
+              Math.min(props.currentPage + 1, props.totalPages)
             );
           }}
         >

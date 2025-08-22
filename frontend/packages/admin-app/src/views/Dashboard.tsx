@@ -46,7 +46,7 @@ const Dashboard = () => {
           upgrades click{" "}
           <a
             target="_blank"
-            className="underline text-blue-400"
+            className="underline text-teal-400"
             href="https://oxidized-health.app/pricing"
           >
             here
@@ -74,7 +74,7 @@ const Dashboard = () => {
           available upgrades click{" "}
           <a
             target="_blank"
-            className="underline text-blue-400"
+            className="underline text-teal-400"
             href="https://oxidized-health.app/pricing"
           >
             here

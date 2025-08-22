@@ -51,7 +51,7 @@ export const TenantSelect = ({
             <li key={t.id}>
               <a
                 href={generateTenantURL(email, t.id)}
-                className="p-2 flex cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-800"
+                className="p-2 flex cursor-pointer hover:bg-teal-50 dark:hover:bg-teal-800"
               >
                 <div className="flex items-center space-x-4 rtl:space-x-reverse">
                   <div className="flex-shrink-0">
