@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "generate": "yarn node ../cli/lib/oxidized-health.js generate operations --output=./src/r4 && yarn prettier --write ./src/r4/**/*.ts",
+    "generate": "yarn node ../cli/lib/oxidizedhealth.js generate operations --output=./src/r4 && yarn prettier --write ./src/r4/**/*.ts",
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "dependencies": {

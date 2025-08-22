@@ -1,6 +1,5 @@
 import type * as fhirTypes from "@oxidized-health/fhir-types/r4/types";
-import { IOperation, Operation } from "@oxidized-health/operation-execution";
-
+import { Operation, IOperation } from "@oxidized-health/operation-execution";
 export namespace ActivityDefinitionApply {
   export type Input = {
     activityDefinition?: fhirTypes.ActivityDefinition;

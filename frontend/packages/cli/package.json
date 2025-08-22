@@ -33,7 +33,7 @@
     "typescript": "5.8.3"
   },
   "scripts": {
-    "build": "tsc && node executable.js ./lib/oxidized-health.js && chmod +x ./lib/oxidized-health.js",
+    "build": "tsc && node executable.js ./lib/oxidizedhealth.js && chmod +x ./lib/oxidizedhealth.js",
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "files": [
