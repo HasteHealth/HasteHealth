@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "Basic-subscriptiontopic-status",
+    "url": "https://oxidized-health.app/fhir/SearchParameter/Basic-subscriptiontopic-status",
+    "version": "4.0.1",
+    "name": "Subscription Topic Status",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "OxidizedHealth",
+    "description": "Subscription Topic Status",
+    "code": "subscriptiontopic-status",
+    "base": [
+        "Basic"
+    ],
+    "type": "string",
+    "expression": "Basic.extension.where(url='http://hl7.org/fhir/5.0/StructureDefinition/extension-SubscriptionTopic.status').value"
+}

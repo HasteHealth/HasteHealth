@@ -1,0 +1,17 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "MessageTopic-topic",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/MessageTopic-topic",
+  "version": "4.0.1",
+  "name": "Topic",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "MessageTopic topic id.",
+  "code": "role",
+  "base": [
+    "MessageTopic"
+  ],
+  "type": "token",
+  "expression": "MessageTopic.topicId"
+}

@@ -1,0 +1,67 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "oxidized-health-usage-statistics",
+  "url": "https://oxidized-health.app/OperationDefinition/usage-statistics",
+  "version": "4.0.1",
+  "name": "OxidizedHealth Usage Statistics",
+  "status": "draft",
+  "kind": "operation",
+  "date": "2024-05-16T09:29:23+11:00",
+  "publisher": "OxidizedHealth",
+  "description": "Get current tenants limitations and usage.",
+  "code": "usage-statistics",
+  "system": true,
+  "type": false,
+  "instance": false,
+  "parameter": [
+    {
+      "name": "statistics",
+      "use": "out",
+      "min": 0,
+      "max": "*",
+      "documentation": "The result of the operation.",
+      "part": [
+        {
+          "name": "name",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "documentation": "The name of the limit.",
+          "type": "string"
+        },
+        {
+          "name": "version",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "documentation": "The fhir version for the limit.",
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "documentation": "Value of the limit.",
+          "type": "integer"
+        },
+        {
+          "name": "usage",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "documentation": "The current usage.",
+          "type": "integer"
+        },
+        {
+          "name": "description",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "documentation": "The description of the limit.",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

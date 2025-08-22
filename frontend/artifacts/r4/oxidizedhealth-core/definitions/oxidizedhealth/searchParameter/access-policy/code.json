@@ -1,0 +1,17 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "AccessPolicy-code",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/AccessPolicy-code",
+  "version": "4.0.1",
+  "name": "code",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "An access policies unique code.",
+  "code": "code",
+  "base": [
+    "AccessPolicy"
+  ],
+  "type": "token",
+  "expression": "AccessPolicy.code"
+}

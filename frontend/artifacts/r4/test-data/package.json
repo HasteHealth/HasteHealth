@@ -1,0 +1,20 @@
+{
+  "name": "@oxidized-health/hl7.fhir.r4.test-data",
+  "version": "0.2.3",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "scripts": {
+    "generate-index-file": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file -p . -r examples-json",
+    "publish": "yarn npm publish --access public --tolerate-republish"
+  },
+  "files": [
+    ".index.json",
+    "examples-json/**"
+  ]
+}

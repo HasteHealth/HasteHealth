@@ -1,0 +1,30 @@
+{
+  "version": "0.0.4",
+  "tools-version": 3,
+  "type": "IG",
+  "date": "20240617160736",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/uv/subscriptions-backport",
+  "notForPublication": true,
+  "url": "https://build.fhir.org/ig/HL7/fhir-subscription-backport-ig/",
+  "title": "Subscriptions R5 Backport",
+  "description": "The Subscription R5 Backport Implementation Guide enables servers running versions of FHIR earlier than R5 to implement a subset of R5 Subscriptions in a standardized way. (built Mon, Jun 17, 2024 16:07+0000+00:00)",
+  "dependencies": {
+    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
+  },
+  "author": "HL7 International / FHIR Infrastructure",
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  },
+  "scripts": {
+    "minify": "yarn node ../../../packages/cli/lib/oxidized-health.js minimize artifacts -d .",
+    "generate-index": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file --extension .json -p . -r .",
+    "publish": "yarn npm publish --access public --tolerate-republish"
+  },
+  "jurisdiction": "http://unstats.un.org/unsd/methods/m49/m49.htm#001",
+  "name": "@oxidized-health/hl7.fhir.uv.subscriptions-backport.r4",
+  "fhirVersions": [
+    "4.0.0"
+  ]
+}

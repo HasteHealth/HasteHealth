@@ -1,0 +1,16 @@
+{
+  "name": "hl7.fhir.r4b.examples",
+  "version": "4.4.0",
+  "fhirVersions": [
+    "4.3.0"
+  ],
+  "type": "Examples",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir",
+  "tools-version": 3,
+  "homepage": "http://hl7.org/fhir/R4B",
+  "title": "FHIR R4B package : Examples",
+  "description": "Example resources in the R4B version of the FHIR standard",
+  "author": "HL7 Inc",
+  "url": "http://hl7.org/fhir/R4B"
+}

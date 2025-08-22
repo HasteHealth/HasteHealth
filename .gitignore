@@ -2,3 +2,28 @@ target
 .env
 .DS_Store
 *.pem
+
+# ----------------
+# FRONTEND
+# ----------------
+node_modules
+frontend/**/lib 
+frontend/**/dist
+frontend/**/build
+frontend/**/coverage
+
+storybook-static
+
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/sdks
+!frontend/.yarn/versions
+
+# Swap the comments on the following lines if you wish to use zero-installs
+# In that case, don't forget to run `yarn config set enableGlobalCache false`!
+# Documentation here: https://yarnpkg.com/features/caching#zero-installs
+
+#!.yarn/cache
+frontend/.pnp.*

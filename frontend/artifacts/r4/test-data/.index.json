@@ -1,0 +1,285 @@
+{
+  "index-version": "1",
+  "files": [
+    {
+      "filename": "examples-json/account-example.json",
+      "resourceType": "Account"
+    },
+    {
+      "filename": "examples-json/allergyintolerance-example.json",
+      "resourceType": "AllergyIntolerance"
+    },
+    {
+      "filename": "examples-json/appointment-example.json",
+      "resourceType": "Appointment"
+    },
+    {
+      "filename": "examples-json/appointmentresponse-example.json",
+      "resourceType": "AppointmentResponse"
+    },
+    {
+      "filename": "examples-json/auditevent-example.json",
+      "resourceType": "AuditEvent"
+    },
+    {
+      "filename": "examples-json/basic-example.json",
+      "resourceType": "Basic"
+    },
+    {
+      "filename": "examples-json/binary-example.json",
+      "resourceType": "Binary"
+    },
+    {
+      "filename": "examples-json/bodystructure-example-fetus.json",
+      "resourceType": "BodyStructure"
+    },
+    {
+      "filename": "examples-json/capabilitystatement-example.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "examples-json/careteam-example.json",
+      "resourceType": "CareTeam"
+    },
+    {
+      "filename": "examples-json/clinicalimpression-example.json",
+      "resourceType": "ClinicalImpression"
+    },
+    {
+      "filename": "examples-json/codesystem-example.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "examples-json/communication-example.json",
+      "resourceType": "Communication"
+    },
+    {
+      "filename": "examples-json/compartmentdefinition-example.json",
+      "resourceType": "CompartmentDefinition"
+    },
+    {
+      "filename": "examples-json/composition-example.json",
+      "resourceType": "Composition"
+    },
+    {
+      "filename": "examples-json/conceptmap-example.json",
+      "resourceType": "ConceptMap"
+    },
+    {
+      "filename": "examples-json/condition-example.json",
+      "resourceType": "Condition"
+    },
+    {
+      "filename": "examples-json/consent-example.json",
+      "resourceType": "Consent"
+    },
+    {
+      "filename": "examples-json/detectedissue-example.json",
+      "resourceType": "DetectedIssue"
+    },
+    {
+      "filename": "examples-json/device-example.json",
+      "resourceType": "Device"
+    },
+    {
+      "filename": "examples-json/devicemetric-example.json",
+      "resourceType": "DeviceMetric"
+    },
+    {
+      "filename": "examples-json/deviceusestatement-example.json",
+      "resourceType": "DeviceUseStatement"
+    },
+    {
+      "filename": "examples-json/diagnosticreport-example.json",
+      "resourceType": "DiagnosticReport"
+    },
+    {
+      "filename": "examples-json/diagnosticreport-example.json",
+      "resourceType": "Observation"
+    },
+    {
+      "filename": "examples-json/documentreference-example.json",
+      "resourceType": "DocumentReference"
+    },
+    {
+      "filename": "examples-json/encounter-example.json",
+      "resourceType": "Encounter"
+    },
+    {
+      "filename": "examples-json/endpoint-example.json",
+      "resourceType": "Endpoint"
+    },
+    {
+      "filename": "examples-json/episodeofcare-example.json",
+      "resourceType": "EpisodeOfCare"
+    },
+    {
+      "filename": "examples-json/familymemberhistory-example.json",
+      "resourceType": "FamilyMemberHistory"
+    },
+    {
+      "filename": "examples-json/flag-example.json",
+      "resourceType": "Flag"
+    },
+    {
+      "filename": "examples-json/goal-example.json",
+      "resourceType": "Goal"
+    },
+    {
+      "filename": "examples-json/graphdefinition-example.json",
+      "resourceType": "GraphDefinition"
+    },
+    {
+      "filename": "examples-json/group-example.json",
+      "resourceType": "Group"
+    },
+    {
+      "filename": "examples-json/healthcareservice-example.json",
+      "resourceType": "HealthcareService"
+    },
+    {
+      "filename": "examples-json/immunization-example.json",
+      "resourceType": "Immunization"
+    },
+    {
+      "filename": "examples-json/implementationguide-example.json",
+      "resourceType": "ImplementationGuide"
+    },
+    {
+      "filename": "examples-json/linkage-example.json",
+      "resourceType": "Linkage"
+    },
+    {
+      "filename": "examples-json/list-example.json",
+      "resourceType": "List"
+    },
+    {
+      "filename": "examples-json/location-example.json",
+      "resourceType": "Location"
+    },
+    {
+      "filename": "examples-json/medicationadministration0301.json",
+      "resourceType": "MedicationAdministration"
+    },
+    {
+      "filename": "examples-json/medicationdispense0301.json",
+      "resourceType": "MedicationDispense"
+    },
+    {
+      "filename": "examples-json/medicationrequest0301.json",
+      "resourceType": "MedicationRequest"
+    },
+    {
+      "filename": "examples-json/medicationstatementexample1.json",
+      "resourceType": "MedicationStatement"
+    },
+    {
+      "filename": "examples-json/messagedefinition-example.json",
+      "resourceType": "MessageDefinition"
+    },
+    {
+      "filename": "examples-json/messageheader-example.json",
+      "resourceType": "MessageHeader"
+    },
+    {
+      "filename": "examples-json/molecularsequence-example.json",
+      "resourceType": "MolecularSequence"
+    },
+    {
+      "filename": "examples-json/namingsystem-example.json",
+      "resourceType": "NamingSystem"
+    },
+    {
+      "filename": "examples-json/observation-decimal.json",
+      "resourceType": "Observation"
+    },
+    {
+      "filename": "examples-json/observation-example.json",
+      "resourceType": "Observation"
+    },
+    {
+      "filename": "examples-json/operationdefinition-example.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "examples-json/operationoutcome-example.json",
+      "resourceType": "OperationOutcome"
+    },
+    {
+      "filename": "examples-json/organization-1.json",
+      "resourceType": "Organization"
+    },
+    {
+      "filename": "examples-json/organization-example.json",
+      "resourceType": "Organization"
+    },
+    {
+      "filename": "examples-json/parameters-example.json",
+      "resourceType": "Parameters"
+    },
+    {
+      "filename": "examples-json/patient-example.json",
+      "resourceType": "Patient"
+    },
+    {
+      "filename": "examples-json/paymentnotice-example.json",
+      "resourceType": "PaymentNotice"
+    },
+    {
+      "filename": "examples-json/person-example.json",
+      "resourceType": "Person"
+    },
+    {
+      "filename": "examples-json/practitioner-example.json",
+      "resourceType": "Practitioner"
+    },
+    {
+      "filename": "examples-json/practitionerrole-example.json",
+      "resourceType": "PractitionerRole"
+    },
+    {
+      "filename": "examples-json/questionnaire-example.json",
+      "resourceType": "Questionnaire"
+    },
+    {
+      "filename": "examples-json/questionnaireresponse-example-bluebook.json",
+      "resourceType": "QuestionnaireResponse"
+    },
+    {
+      "filename": "examples-json/riskassessment-example.json",
+      "resourceType": "RiskAssessment"
+    },
+    {
+      "filename": "examples-json/schedule-example.json",
+      "resourceType": "Schedule"
+    },
+    {
+      "filename": "examples-json/slot-example.json",
+      "resourceType": "Slot"
+    },
+    {
+      "filename": "examples-json/specimen-example.json",
+      "resourceType": "Specimen"
+    },
+    {
+      "filename": "examples-json/structuremap-example.json",
+      "resourceType": "StructureMap"
+    },
+    {
+      "filename": "examples-json/subscription-example.json",
+      "resourceType": "Subscription"
+    },
+    {
+      "filename": "examples-json/substance-example.json",
+      "resourceType": "Substance"
+    },
+    {
+      "filename": "examples-json/supplydelivery-example.json",
+      "resourceType": "SupplyDelivery"
+    },
+    {
+      "filename": "examples-json/valueset-example.json",
+      "resourceType": "ValueSet"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+    "resourceType": "Bundle",
+    "id": "access-policy-attribute-operation-types",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyAttributeOperationTypes",
+            "resource": {
+                "id": "access-policy-attribute-operation-types-codesystem",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyAttributeOperationTypes",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyAttributeOperationTypes",
+                "title": "AccessPolicyAttributeOperationTypes",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Pollicy Attribute Operation Types.",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "search-type",
+                        "display": "Search by type"
+                    },
+                    {
+                        "code": "search-system",
+                        "display": "Search by system"
+                    },
+                    {
+                        "code": "read",
+                        "display": "Read"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "access-policy-attribute-operation-types-valueset",
+                "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
+                "version": "4.0.1",
+                "name": "AccessPolicyAttributeOperationTypes",
+                "title": "AccessPolicyAttributeOperationTypes",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Pollicy Attribute Operation Types.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyAttributeOperationTypes"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

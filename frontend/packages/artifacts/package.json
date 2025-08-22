@@ -1,0 +1,34 @@
+{
+  "name": "@oxidized-health/artifacts",
+  "version": "0.11.1",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\"",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "fhirVersion": [
+    "r4"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@oxidized-health/fhir-types": "workspace:^",
+    "@types/node": "^22.15.17",
+    "typescript": "5.8.3"
+  },
+  "files": [
+    "lib/**",
+    "r4/**",
+    ".index.json"
+  ]
+}

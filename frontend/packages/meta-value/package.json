@@ -1,0 +1,50 @@
+{
+  "name": "@oxidized-health/meta-value",
+  "version": "0.12.1",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "_generate_meta": "yarn node ../cli/lib/oxidized-health.js generate meta --output src/v2/generated/meta/r4.ts && yarn node ../cli/lib/oxidized-health.js generate meta --version 4.3 --output src/v2/generated/meta/r4b.ts",
+    "_generate_type_canonical": "yarn node ../cli/lib/oxidized-health.js generate type-to-canonical --output src/v2/generated/type-canonical/r4.ts && yarn node ../cli/lib/oxidized-health.js generate type-to-canonical --version 4.3 --output src/v2/generated/type-canonical/r4b.ts",
+    "generate": "yarn _generate_meta && yarn _generate_type_canonical",
+    "build": "tsc",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "keywords": [],
+  "author": "oxidized-health",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/plugin-syntax-import-attributes": "^7.26.0",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@jest/globals": "^29.7.0",
+    "@oxidized-health/artifacts": "workspace:^",
+    "@oxidized-health/codegen": "workspace:^",
+    "@oxidized-health/fhir-types": "workspace:^",
+    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
+    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2",
+    "typescript": "5.8.3"
+  },
+  "files": [
+    "lib/**"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./v2": "./lib/v2/index.js",
+    "./meta": "./lib/v2/meta.js",
+    "./spoof": "./lib/v2/spoof.js",
+    "./utilities": "./lib/utilities.js",
+    "./interface": "./lib/interface.js"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "AccessPolicy",
+  "url": "https://oxidized-health.com/StructureDefinition/AccessPolicy",
+  "version": "4.0.1",
+  "name": "AccessPolicy",
+  "status": "active",
+  "publisher": "OxidizedHealth",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "AccessPolicy",
+  "description": "A set of rules that govern how a system resource is accessed and used.",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+  "derivation": "specialization",
+  "snapshot": {
+    "element": [
+      {
+        "id": "AccessPolicy",
+        "path": "AccessPolicy",
+        "min": 0,
+        "definition": "A set of rules that govern how a system resource is accessed and used.",
+        "max": "*",
+        "base": {
+          "path": "AccessPolicy",
+          "min": 0,
+          "max": "*"
+        },
+        "isModifier": false,
+        "isSummary": false
+      },
+      {
+        "id": "AccessPolicy.id",
+        "path": "AccessPolicy.id",
+        "short": "Logical id of this artifact",
+        "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+        "comment": "The only time that a resource does not have an id is when it is being submitted to the server using a create operation.",
+        "min": 0,
+        "max": "1",
+        "base": {
+          "path": "Resource.id",
+          "min": 0,
+          "max": "1"
+        },
+        "type": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                "valueUrl": "string"
+              }
+            ],
+            "code": "http://hl7.org/fhirpath/System.String"
+          }
+        ],
+        "isModifier": false,
+        "isSummary": true
+      },
+      {
+        "id": "AccessPolicy.meta",
+        "path": "AccessPolicy.meta",
+        "short": "Metadata about the resource",
+        "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+        "min": 0,
+        "max": "1",
+        "base": {
+          "path": "Resource.meta",
+          "min": 0,
+          "max": "1"
+        },
+        "type": [
+          {
+            "code": "Meta"
+          }
+        ],
+        "constraint": [
+          {
+            "key": "ele-1",
+            "severity": "error",
+            "human": "All FHIR elements must have a @value or children",
+            "expression": "hasValue() or (children().count() > id.count())",
+            "xpath": "@value|f:*|h:div",
+            "source": "http://hl7.org/fhir/StructureDefinition/Element"
+          }
+        ],
+        "isModifier": false,
+        "isSummary": true
+      },
+      {
+        "id": "AccessPolicy.name",
+        "path": "AccessPolicy.name",
+        "definition": "The name of the access policy.",
+        "short": "The name of the access policy.",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "AccessPolicy.code",
+        "path": "AccessPolicy.code",
+        "definition": "Unique identifier for an access policy.",
+        "short": "Unique identifier for the access policy.",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "AccessPolicy.description",
+        "path": "AccessPolicy.description",
+        "definition": "Description of the access policy.",
+        "short": "Description of the access policy.",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "AccessPolicy.type",
+        "path": "AccessPolicy.type",
+        "definition": "The type of evaluation that is performed to determine if access is granted or denied.",
+        "short": "The type of evaluation that is performed to determine if access is granted or denied.",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "min": 1,
+        "max": "1",
+        "binding": {
+          "strength": "required",
+          "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyType|4.0.1"
+        }
+      },
+      {
+        "id": "AccessPolicy.target",
+        "path": "AccessPolicy.target",
+        "definition": "Who the access policy applies to.",
+        "short": "Who the access policy applies to.",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "AccessPolicy.target.link",
+        "path": "AccessPolicy.target.link",
+        "definition": "Who the access policy applies to.",
+        "short": "The target reference of the access policy applies to.",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://oxidized-health.com/StructureDefinition/ClientApplication",
+              "https://oxidized-health.com/StructureDefinition/Membership",
+              "http://hl7.org/fhir/StructureDefinition/OperationDefinition"
+            ]
+          }
+        ],
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "AccessPolicy.access",
+        "path": "AccessPolicy.access",
+        "definition": "The access policy rules that are evaluated to determine if access is granted or denied.",
+        "short": "Access policy rules that are evaluated to determine if access is granted or denied.",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "AccessPolicy.access.fhir",
+        "path": "AccessPolicy.access.fhir",
+        "definition": "The access policy rules that are evaluated to determine if access is granted or denied.",
+        "short": "FHIR Based rules to determine if access is granted or denied.",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "AccessPolicy.access.fhir.method",
+        "path": "AccessPolicy.access.fhir.method",
+        "definition": "The FHIR Method that is evaluated to determine if access is granted or denied.",
+        "short": "The FHIR Method that is evaluated to determine if access is granted or denied.",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "min": 1,
+        "max": "1",
+        "binding": {
+          "strength": "required",
+          "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod|4.0.1"
+        }
+      },
+      {
+        "id": "AccessPolicy.access.fhir.resourceType",
+        "path": "AccessPolicy.access.fhir.resourceType",
+        "definition": "FHIR resource types that are granted access.",
+        "short": "FHIR resource types that are granted access.",
+        "binding": {
+          "strength": "required",
+          "description": "One of the resource types defined as part of this version of FHIR.",
+          "valueSet": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes|4.0.1"
+        },
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "AccessPolicy.access.fhir.parameter",
+        "path": "AccessPolicy.access.fhir.parameter",
+        "definition": "FHIR Parameters that are evaluated to determine if access is granted or denied.",
+        "short": "FHIR Parameters that are evaluated to determine if access is granted or denied.",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "AccessPolicy.access.fhir.parameter.name",
+        "path": "AccessPolicy.access.fhir.parameter.name",
+        "definition": "The name of the FHIR Parameter that is evaluated to determine if access is granted or denied.",
+        "short": "The name of the FHIR parameter.",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "binding": {
+          "strength": "required",
+          "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter|4.0.1"
+        },
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "AccessPolicy.access.fhir.parameter.value",
+        "path": "AccessPolicy.access.fhir.parameter.value",
+        "definition": "The value of the FHIR Parameter that is evaluated to determine if access is granted or denied.",
+        "short": "The value of the FHIR parameter.",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "min": 1,
+        "max": "1"
+      }
+    ]
+  }
+}

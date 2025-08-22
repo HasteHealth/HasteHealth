@@ -1,0 +1,51 @@
+{
+    "resourceType": "OperationDefinition",
+    "id": "oxidized-health-list-refresh-tokens",
+    "url": "https://oxidized-health.app/OperationDefinition/list-refresh-tokens",
+    "version": "4.0.1",
+    "name": "Show Refresh Tokens",
+    "status": "draft",
+    "kind": "operation",
+    "date": "2023-11-16T09:29:23+11:00",
+    "publisher": "OxidizedHealth",
+    "description": "Show list of users refresh tokens.",
+    "code": "refresh-tokens",
+    "system": true,
+    "type": false,
+    "instance": false,
+    "parameter": [
+        {
+            "name": "refresh-tokens",
+            "use": "out",
+            "min": 0,
+            "max": "*",
+            "documentation": "The result of the operation.",
+            "part": [
+                {
+                    "name": "client_id",
+                    "use": "out",
+                    "min": 1,
+                    "max": "1",
+                    "documentation": "Client for refresh token.",
+                    "type": "id"
+                },
+                {
+                    "name": "id",
+                    "use": "out",
+                    "min": 1,
+                    "max": "1",
+                    "documentation": "Refresh token id to delete.",
+                    "type": "id"
+                },
+                {
+                    "name": "created_at",
+                    "use": "out",
+                    "min": 1,
+                    "max": "1",
+                    "documentation": "When the refresh token was created.",
+                    "type": "dateTime"
+                }
+            ]
+        }
+    ]
+}

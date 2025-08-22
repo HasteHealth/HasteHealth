@@ -1,0 +1,34 @@
+{
+    "resourceType": "OperationDefinition",
+    "id": "oxidized-health-delete-scope",
+    "url": "https://oxidized-health.app/OperationDefinition/delete-scopes",
+    "version": "4.0.1",
+    "name": "Delete Scope",
+    "status": "draft",
+    "kind": "operation",
+    "date": "2023-11-16T09:29:23+11:00",
+    "publisher": "OxidizedHealth",
+    "description": "Delete scope from user accepted scopes for the client.",
+    "code": "delete-scope",
+    "system": true,
+    "type": false,
+    "instance": false,
+    "parameter": [
+        {
+            "name": "client_id",
+            "use": "in",
+            "min": 1,
+            "max": "1",
+            "documentation": "Client for which scopes are being shown.",
+            "type": "id"
+        },
+        {
+            "name": "return",
+            "use": "out",
+            "min": 1,
+            "max": "1",
+            "documentation": "Result of the delete operation.",
+            "type": "OperationOutcome"
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@oxidized-health/codegen",
+  "version": "0.12.1",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "@oxidized-health/artifacts": "workspace:^",
+    "@oxidized-health/fhir-types": "workspace:^",
+    "commander": "^12.1.0"
+  },
+  "files": [
+    "lib/**"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./generate/type-to-canonical": "./lib/generate/type-to-canonical.js",
+    "./generate/meta-data": "./lib/generate/meta-data.js",
+    "./generate/operation-definition": "./lib/generate/operation-definition.js",
+    "./generate/sets": "./lib/generate/sets.js",
+    "./generate/typescript-types": "./lib/generate/typescript-types.js",
+    "./traversal/structure-definition": "./lib/sdTraversal.js"
+  }
+}

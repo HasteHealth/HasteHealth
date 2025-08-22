@@ -1,0 +1,41 @@
+{
+  "name": "@oxidized-health/fhir-pointer",
+  "version": "0.10.1",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "description": "FHIR Pointer allows creation and manipulation of pointers to fhir-types.",
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "keywords": [],
+  "author": "OxidizedHealth",
+  "license": "ISC",
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@oxidized-health/fhir-types": "workspace:^",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2",
+    "typescript": "5.8.3"
+  },
+  "files": [
+    "readme.md",
+    "lib/**",
+    "src/**"
+  ],
+  "dependencies": {
+    "@oxidized-health/meta-value": "workspace:^",
+    "@oxidized-health/operation-outcomes": "workspace:^",
+    "jsonpointer": "^5.0.1"
+  }
+}

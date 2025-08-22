@@ -1,0 +1,229 @@
+{
+  "index-version": "1",
+  "files": [
+    {
+      "filename": "CapabilityStatement-backport-subscription-server.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "CodeSystem-backport-content-code-system.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-empty-with-auth.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-empty.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-error.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-full-resource-with-query.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-full-resource-with-query.json",
+      "resourceType": "Encounter"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-full-resource.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-full-resource.json",
+      "resourceType": "Encounter"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-handshake.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-heartbeat.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-id-only-with-auth.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-id-only-with-query.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-id-only.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-multi-resource.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-multi-resource.json",
+      "resourceType": "Encounter"
+    },
+    {
+      "filename": "example/Bundle-r4b-notification-multi-resource.json",
+      "resourceType": "Patient"
+    },
+    {
+      "filename": "example/CapabilityStatement-r4-capabilitystatement-example-server.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "example/Parameters-r4-notification-status.json",
+      "resourceType": "Parameters"
+    },
+    {
+      "filename": "example/Subscription-subscription-admission.json",
+      "resourceType": "Subscription"
+    },
+    {
+      "filename": "example/Subscription-subscription-multi-resource.json",
+      "resourceType": "Subscription"
+    },
+    {
+      "filename": "example/Subscription-subscription-zulip.json",
+      "resourceType": "Subscription"
+    },
+    {
+      "filename": "example/SubscriptionStatus-r4b-notification-status.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "example/SubscriptionTopic-r4b-encounter-complete.json",
+      "resourceType": "SubscriptionTopic"
+    },
+    {
+      "filename": "oxidized-health/extensions/subscription-resource-trigger/index.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "oxidized-health/extensions/subscription-resource-trigger/resource.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "oxidized-health/extensions/subscription-resource-trigger/supported-interaction.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "oxidized-health/extensions/subscriptiontopic-status.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "oxidized-health/extensions/subscriptiontopic-url.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "oxidized-health/resource/r4-subscription-topic-backport.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "ImplementationGuide-hl7.fhir.uv.subscriptions-backport.json",
+      "resourceType": "ImplementationGuide"
+    },
+    {
+      "filename": "OperationDefinition-backport-subscription-events.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "OperationDefinition-backport-subscription-get-ws-binding-token.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "OperationDefinition-backport-subscription-resend.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "OperationDefinition-backport-subscription-status.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "other/validation-oo.json",
+      "resourceType": "OperationOutcome"
+    },
+    {
+      "filename": "SearchParameter-Subscription-custom-channel.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-Subscription-filter-criteria.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-Subscription-identifier.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-Subscription-payload-type.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "SearchParameter-Subscription-topic.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "searchParameter/r4-subscription-topic-status.json",
+      "resourceType": "SearchParameter"
+    },
+    {
+      "filename": "StructureDefinition-backport-channel-type.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-filter-criteria.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-heartbeat-period.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-max-count.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-payload-content.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-related-query.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-subscription-notification-r4.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-subscription-notification.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-subscription-status-r4.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-subscription.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-backport-timeout.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-capabilitystatement-subscriptiontopic-canonical.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "StructureDefinition-notification-authorization-hint.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "ValueSet-backport-content-value-set.json",
+      "resourceType": "ValueSet"
+    }
+  ]
+}
