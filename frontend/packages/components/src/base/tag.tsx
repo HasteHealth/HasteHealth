@@ -32,7 +32,7 @@ export function Tag({
         className,
         "text-nowrap inline-block text-xs font-medium me-2 px-2.5 py-0.5",
         {
-          "hover:bg-teal-200 hover:text-teal-900 bg-teal-100 text-teal-800 rounded":
+          "hover:bg-teal-200 hover:text-teal-900 bg-teal-200 text-teal-800 rounded":
             color === "blue",
           "hover:bg-gray-200 hover:text-gray-900 bg-gray-100 text-gray-800 rounded":
             color === "gray",

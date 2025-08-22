@@ -204,17 +204,8 @@ function Root() {
             top={
               <div
                 onClick={() => navigate(generatePath("/", {}))}
-                className="cursor-pointer w-16 h-16 p-2 mt-4"
-              >
-                <Logo
-                  className={
-                    matches.find((match) => match.id === "dashboard") !==
-                    undefined
-                      ? "fill-teal-600"
-                      : "fill-teal-500 hover:fill-teal-600"
-                  }
-                />
-              </div>
+                className="cursor-pointer p-2 mt-4"
+              ></div>
             }
           >
             <SideBar.SideBarItemGroup label="Configuration">
@@ -456,7 +447,7 @@ function Root() {
                     <div className="mt-2">
                       <a
                         className={classNames(
-                          "cursor-pointer block px-4 py-2 text-sm  hover:text-teal-800 hover:bg-teal-100"
+                          "cursor-pointer block px-4 py-2 text-sm  hover:text-teal-800 hover:bg-teal-200"
                         )}
                         onClick={() => {
                           navigate(generatePath("/settings", {}));
@@ -465,7 +456,7 @@ function Root() {
                         Settings
                       </a>
                       <a
-                        className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-teal-800 hover:bg-teal-100"
+                        className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-teal-800 hover:bg-teal-200"
                         onClick={() => {
                           oxidizedHealth.logout(window.location.origin);
                         }}

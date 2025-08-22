@@ -96,7 +96,7 @@ const SearchResult = ({
 }) => {
   return (
     <div
-      className="hover:bg-teal-100 py-2 px-4 cursor-pointer border "
+      className="hover:bg-teal-200 py-2 px-4 cursor-pointer border "
       onClick={(_e) =>
         onChange?.call(this, {
           reference: `${resource.resourceType}/${resource.id}`,

@@ -22,7 +22,7 @@ const ModalContent = ({ setOpen }: { setOpen: (v: boolean) => void }) => {
       <div className="mt-4">
         <button
           type="button"
-          className="inline-flex justify-center rounded-md border border-transparent bg-teal-100 px-4 py-2 text-sm font-medium text-teal-900 hover:bg-teal-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+          className="inline-flex justify-center rounded-md border border-transparent bg-teal-200 px-4 py-2 text-sm font-medium text-teal-900 hover:bg-teal-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
           onClick={() => setOpen(false)}
         >
           Close
