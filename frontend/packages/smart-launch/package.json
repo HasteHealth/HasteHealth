@@ -1,0 +1,42 @@
+{
+  "name": "@oxidized-health/smart-launch",
+  "version": "0.6.7",
+  "scripts": {
+    "build-css": "yarn postcss -o dist/css/index.css index.css",
+    "build": "yarn rollup -c -i src/launch.tsx -o dist/launch.js & yarn build-css",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "dependencies": {
+    "@oxidized-health/client": "workspace:^",
+    "@oxidized-health/components": "workspace:^",
+    "@types/react": "^19.1.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^26.0.3",
+    "@rollup/plugin-node-resolve": "^15.3.1",
+    "@rollup/plugin-replace": "^5.0.7",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react-dom": "^19.1.4",
+    "autoprefixer": "^10.4.20",
+    "cssnano": "^7.0.6",
+    "postcss": "^8.5.3",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.1.0",
+    "rollup": "^4.34.9",
+    "tailwindcss": "^3.4.17",
+    "tslib": "^2.8.1",
+    "typescript": "5.9.2"
+  },
+  "files": [
+    "dist/**",
+    "index.css",
+    "src/**",
+    "README.md"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "Membership-federated-identityProvider",
+    "url": "https://oxidized-health.app/fhir/SearchParameter/Membership-federated-identityProvider",
+    "version": "4.0.1",
+    "name": "IdentityProvider",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "OxidizedHealth",
+    "description": "Membership federated identityProvider",
+    "code": "identityProvider",
+    "base": [
+        "Membership"
+    ],
+    "type": "reference",
+    "expression": "Membership.federated",
+    "target": [
+        "IdentityProvider"
+    ]
+}

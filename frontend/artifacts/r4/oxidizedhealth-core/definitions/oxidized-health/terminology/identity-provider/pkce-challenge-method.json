@@ -1,0 +1,58 @@
+{
+    "resourceType": "Bundle",
+    "id": "identity-provider-pkce-challenge-method",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
+            "resource": {
+                "id": "identity-provider-pkce-challenge-method-codesystem",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "IdentityProviderPKCEChallengeMethod",
+                "title": "IdentityProviderPKCEChallengeMethod",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "PKCE Challenge Methods",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "S256",
+                        "display": "S256"
+                    },
+                    {
+                        "code": "plain",
+                        "display": "plain"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "identity-provider-pkce-challenge-method-valueset",
+                "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+                "version": "4.0.1",
+                "name": "IdentityProviderPKCEChallengeMethod",
+                "title": "IdentityProviderPKCEChallengeMethod",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "PKCE Challenge Methods",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

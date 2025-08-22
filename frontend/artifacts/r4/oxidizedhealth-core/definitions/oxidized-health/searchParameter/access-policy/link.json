@@ -1,0 +1,22 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "AccessPolicy-link",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/AccessPolicy-link",
+  "version": "4.0.1",
+  "name": "link",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "What/Who is associated with a given access policy.",
+  "code": "link",
+  "base": [
+    "AccessPolicy"
+  ],
+  "type": "reference",
+  "expression": "AccessPolicy.target.link",
+  "target": [
+    "Membership",
+    "OperationDefinition",
+    "ClientApplication"
+  ]
+}

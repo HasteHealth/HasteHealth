@@ -1,0 +1,14 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "iso-4217",
+  "url": "urn:iso:std:iso:4217",
+  "version": "2015",
+  "name": "ISO-4217",
+  "title": "Currencies",
+  "status": "active",
+  "experimental": false,
+  "publisher": "International Organization for Standardization",
+  "description": "Codes for the representation of currencies.",
+  "caseSensitive": true,
+  "content": "not-present"
+}

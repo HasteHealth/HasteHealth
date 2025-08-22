@@ -1,0 +1,20 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "MessageTopic-broker",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/MessageTopic-broker",
+  "version": "4.0.1",
+  "name": "broker",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "MessageTopic broker.",
+  "code": "broker",
+  "base": [
+    "MessageTopic"
+  ],
+  "type": "reference",
+  "expression": "MessageTopic.broker",
+  "target": [
+    "MessageBroker"
+  ]
+}

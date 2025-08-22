@@ -1,0 +1,44 @@
+{
+  "name": "@oxidized-health/fhir-types",
+  "version": "0.12.1",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "generate-r4": "yarn node ../cli/lib/oxidized-health.js generate types-artifacts --version=4.0 --output=./src/generated/r4 && yarn build",
+    "generate-r4b": "yarn node ../cli/lib/oxidized-health.js generate types-artifacts --version=4.3 --output=./src/generated/r4b && yarn build",
+    "generate": "yarn generate-r4 && yarn generate-r4b",
+    "build": "tsc",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "types": "lib/r4/types.d.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "exports": {
+    "./versions": "./lib/versions.js",
+    "./lib/generated/r4/types": "./lib/generated/r4/types.js",
+    "./lib/generated/r4/sets": "./lib/generated/r4/sets.js",
+    "./lib/generated/r4b/types": "./lib/generated/r4b/types.js",
+    "./lib/generated/r4b/sets": "./lib/generated/r4b/sets.js",
+    "./lib/versions": "./lib/versions.js",
+    "./r4/sets": "./lib/generated/r4/sets.js",
+    "./r4/types": "./lib/generated/r4/types.js",
+    "./r4b/sets": "./lib/generated/r4b/sets.js",
+    "./r4b/types": "./lib/generated/r4b/types.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "typescript": "5.9.2"
+  },
+  "files": [
+    "readme.md",
+    "types/**",
+    "lib/**",
+    "src/**"
+  ]
+}

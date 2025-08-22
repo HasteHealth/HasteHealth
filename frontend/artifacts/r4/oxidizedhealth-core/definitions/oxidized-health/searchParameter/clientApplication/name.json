@@ -1,0 +1,17 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "ClientApplication-name",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/ClientApplication-name",
+  "version": "4.0.1",
+  "name": "Name",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "ClientApplication name",
+  "code": "name",
+  "base": [
+    "ClientApplication"
+  ],
+  "type": "string",
+  "expression": "ClientApplication.name"
+}

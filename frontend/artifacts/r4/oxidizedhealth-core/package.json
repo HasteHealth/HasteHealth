@@ -1,0 +1,32 @@
+{
+  "name": "@oxidized-health/oxidized-health.fhir.r4.core",
+  "version": "0.7.7",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "canonical": "https://oxidized-health.app/fhir/ImplementationGuide/oxidized-health.fhir.r4.core",
+  "url": "https://oxidized-health.app/fhir/ImplementationGuide/oxidized-health.fhir.r4.core",
+  "title": "OxidizedHealth Core resources",
+  "description": "OxidizedHealth package that contains core oxidized-health R4 resources.",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "author": "OxidizedHealth",
+  "maintainers": [
+    {
+      "name": "OxidizedHealth",
+      "email": "dev@oxidized-health.app"
+    }
+  ],
+  "scripts": {
+    "generate-index": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file -p . -r definitions",
+    "publish": "yarn npm publish --access public --tolerate-republish"
+  },
+  "files": [
+    "definitions/**",
+    ".index.json",
+    "README.md"
+  ]
+}

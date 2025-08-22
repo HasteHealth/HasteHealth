@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QLexer Test 1`] = `
+{
+  "errors": [],
+  "groups": {},
+  "tokens": [
+    {
+      "endColumn": 4,
+      "endLine": 1,
+      "endOffset": 3,
+      "image": "45.5",
+      "startColumn": 1,
+      "startLine": 1,
+      "startOffset": 0,
+      "tokenType": {
+        "CATEGORIES": [],
+        "PATTERN": /\\[0-9\\]\\+\\(\\\\\\.\\[0-9\\]\\+\\)\\?/,
+        "categoryMatches": [],
+        "categoryMatchesMap": {},
+        "isParent": false,
+        "name": "Number",
+        "tokenTypeIdx": 15,
+      },
+      "tokenTypeIdx": 15,
+    },
+    {
+      "endColumn": 6,
+      "endLine": 1,
+      "endOffset": 5,
+      "image": "+",
+      "startColumn": 6,
+      "startLine": 1,
+      "startOffset": 5,
+      "tokenType": {
+        "CATEGORIES": [],
+        "PATTERN": /\\\\\\+\\|-\\|&/,
+        "categoryMatches": [],
+        "categoryMatchesMap": {},
+        "isParent": false,
+        "name": "AdditiveOperation",
+        "tokenTypeIdx": 12,
+      },
+      "tokenTypeIdx": 12,
+    },
+    {
+      "endColumn": 11,
+      "endLine": 1,
+      "endOffset": 10,
+      "image": "32.3",
+      "startColumn": 8,
+      "startLine": 1,
+      "startOffset": 7,
+      "tokenType": {
+        "CATEGORIES": [],
+        "PATTERN": /\\[0-9\\]\\+\\(\\\\\\.\\[0-9\\]\\+\\)\\?/,
+        "categoryMatches": [],
+        "categoryMatchesMap": {},
+        "isParent": false,
+        "name": "Number",
+        "tokenTypeIdx": 15,
+      },
+      "tokenTypeIdx": 15,
+    },
+  ],
+}
+`;

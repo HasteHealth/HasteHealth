@@ -1,0 +1,60 @@
+{
+    "resourceType": "Bundle",
+    "id": "access-policy-rule-effect",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyV2RuleEffect",
+            "resource": {
+                "id": "access-policy-rule-effect-codesystem",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyV2RuleEffect",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV2RuleEffect",
+                "title": "AccessPolicyV2RuleEffect",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Policy V2 Rule Effects.",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "permit",
+                        "display": "Permit",
+                        "definition": "If conditional passes then rule will permit access."
+                    },
+                    {
+                        "code": "deny",
+                        "display": "Deny",
+                        "definition": "If conditional passes then rule will deny access."
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "access-policy-rule-effect-valueset",
+                "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
+                "version": "4.0.1",
+                "name": "AccessPolicyV2RuleEffect",
+                "title": "AccessPolicyV2RuleEffect",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Policy V2 Rule Effects.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyV2RuleEffect"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

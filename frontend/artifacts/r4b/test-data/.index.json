@@ -1,0 +1,569 @@
+{
+  "index-version": "1",
+  "files": [
+    {
+      "filename": "examples-json/Account-ewg.json",
+      "resourceType": "Account"
+    },
+    {
+      "filename": "examples-json/ActivityDefinition-administer-zika-virus-exposure-assessment.json",
+      "resourceType": "ActivityDefinition"
+    },
+    {
+      "filename": "examples-json/AdministrableProductDefinition-example.json",
+      "resourceType": "AdministrableProductDefinition"
+    },
+    {
+      "filename": "examples-json/AdverseEvent-example.json",
+      "resourceType": "AdverseEvent"
+    },
+    {
+      "filename": "examples-json/AllergyIntolerance-example.json",
+      "resourceType": "AllergyIntolerance"
+    },
+    {
+      "filename": "examples-json/Appointment-2docs.json",
+      "resourceType": "Appointment"
+    },
+    {
+      "filename": "examples-json/AppointmentResponse-example.json",
+      "resourceType": "AppointmentResponse"
+    },
+    {
+      "filename": "examples-json/AuditEvent-example-disclosure.json",
+      "resourceType": "AuditEvent"
+    },
+    {
+      "filename": "examples-json/Basic-basic-example-narrative.json",
+      "resourceType": "Basic"
+    },
+    {
+      "filename": "examples-json/Binary-example.json",
+      "resourceType": "Binary"
+    },
+    {
+      "filename": "examples-json/BiologicallyDerivedProduct-example.json",
+      "resourceType": "BiologicallyDerivedProduct"
+    },
+    {
+      "filename": "examples-json/BodyStructure-fetus.json",
+      "resourceType": "BodyStructure"
+    },
+    {
+      "filename": "examples-json/Bundle-00b99077-2bda-436e-98cc-a4f65d6c2fe0.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "examples-json/Bundle-00b99077-2bda-436e-98cc-a4f65d6c2fe0.json",
+      "resourceType": "Encounter"
+    },
+    {
+      "filename": "examples-json/CapabilityStatement-base.json",
+      "resourceType": "CapabilityStatement"
+    },
+    {
+      "filename": "examples-json/CarePlan-example.json",
+      "resourceType": "CarePlan"
+    },
+    {
+      "filename": "examples-json/CareTeam-example.json",
+      "resourceType": "CareTeam"
+    },
+    {
+      "filename": "examples-json/CatalogEntry-example.json",
+      "resourceType": "CatalogEntry"
+    },
+    {
+      "filename": "examples-json/ChargeItem-example.json",
+      "resourceType": "ChargeItem"
+    },
+    {
+      "filename": "examples-json/ChargeItemDefinition-device.json",
+      "resourceType": "ChargeItemDefinition"
+    },
+    {
+      "filename": "examples-json/Citation-example.json",
+      "resourceType": "Citation"
+    },
+    {
+      "filename": "examples-json/Claim-100150.json",
+      "resourceType": "Claim"
+    },
+    {
+      "filename": "examples-json/ClaimResponse-R3500.json",
+      "resourceType": "ClaimResponse"
+    },
+    {
+      "filename": "examples-json/ClinicalImpression-example.json",
+      "resourceType": "ClinicalImpression"
+    },
+    {
+      "filename": "examples-json/ClinicalUseDefinition-example.json",
+      "resourceType": "ClinicalUseDefinition"
+    },
+    {
+      "filename": "examples-json/CodeSystem-FHIR-version.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "examples-json/Communication-example.json",
+      "resourceType": "Communication"
+    },
+    {
+      "filename": "examples-json/CommunicationRequest-example.json",
+      "resourceType": "CommunicationRequest"
+    },
+    {
+      "filename": "examples-json/CompartmentDefinition-device.json",
+      "resourceType": "CompartmentDefinition"
+    },
+    {
+      "filename": "examples-json/Composition-example-mixed.json",
+      "resourceType": "Composition"
+    },
+    {
+      "filename": "examples-json/ConceptMap-101.json",
+      "resourceType": "ConceptMap"
+    },
+    {
+      "filename": "examples-json/Condition-example.json",
+      "resourceType": "Condition"
+    },
+    {
+      "filename": "examples-json/Consent-consent-example-Emergency.json",
+      "resourceType": "Consent"
+    },
+    {
+      "filename": "examples-json/Contract-C-123.json",
+      "resourceType": "Contract"
+    },
+    {
+      "filename": "examples-json/Coverage-7546D.json",
+      "resourceType": "Coverage"
+    },
+    {
+      "filename": "examples-json/CoverageEligibilityRequest-52345.json",
+      "resourceType": "CoverageEligibilityRequest"
+    },
+    {
+      "filename": "examples-json/CoverageEligibilityResponse-E2500.json",
+      "resourceType": "CoverageEligibilityResponse"
+    },
+    {
+      "filename": "examples-json/DetectedIssue-allergy.json",
+      "resourceType": "DetectedIssue"
+    },
+    {
+      "filename": "examples-json/Device-example.json",
+      "resourceType": "Device"
+    },
+    {
+      "filename": "examples-json/DeviceDefinition-example.json",
+      "resourceType": "DeviceDefinition"
+    },
+    {
+      "filename": "examples-json/DeviceMetric-example.json",
+      "resourceType": "DeviceMetric"
+    },
+    {
+      "filename": "examples-json/DeviceRequest-example.json",
+      "resourceType": "DeviceRequest"
+    },
+    {
+      "filename": "examples-json/DeviceUseStatement-example.json",
+      "resourceType": "DeviceUseStatement"
+    },
+    {
+      "filename": "examples-json/DiagnosticReport-102.json",
+      "resourceType": "DiagnosticReport"
+    },
+    {
+      "filename": "examples-json/DocumentManifest-654789.json",
+      "resourceType": "DocumentManifest"
+    },
+    {
+      "filename": "examples-json/DocumentReference-example.json",
+      "resourceType": "DocumentReference"
+    },
+    {
+      "filename": "examples-json/Encounter-emerg.json",
+      "resourceType": "Encounter"
+    },
+    {
+      "filename": "examples-json/Endpoint-direct-endpoint.json",
+      "resourceType": "Endpoint"
+    },
+    {
+      "filename": "examples-json/EnrollmentRequest-22345.json",
+      "resourceType": "EnrollmentRequest"
+    },
+    {
+      "filename": "examples-json/EnrollmentResponse-ER2500.json",
+      "resourceType": "EnrollmentResponse"
+    },
+    {
+      "filename": "examples-json/EpisodeOfCare-example.json",
+      "resourceType": "EpisodeOfCare"
+    },
+    {
+      "filename": "examples-json/EventDefinition-example.json",
+      "resourceType": "EventDefinition"
+    },
+    {
+      "filename": "examples-json/Evidence-example-ASTRAL-12-alteplase-mRS3-6.json",
+      "resourceType": "Evidence"
+    },
+    {
+      "filename": "examples-json/EvidenceReport-example.json",
+      "resourceType": "EvidenceReport"
+    },
+    {
+      "filename": "examples-json/EvidenceVariable-example-Stroke-Thrombolysis-Trialists-2014-2016-IPD-MA-Cohort.json",
+      "resourceType": "EvidenceVariable"
+    },
+    {
+      "filename": "examples-json/ExampleScenario-example.json",
+      "resourceType": "ExampleScenario"
+    },
+    {
+      "filename": "examples-json/ExplanationOfBenefit-EB3500.json",
+      "resourceType": "ExplanationOfBenefit"
+    },
+    {
+      "filename": "examples-json/FamilyMemberHistory-father.json",
+      "resourceType": "FamilyMemberHistory"
+    },
+    {
+      "filename": "examples-json/Flag-example-encounter.json",
+      "resourceType": "Flag"
+    },
+    {
+      "filename": "examples-json/Goal-example.json",
+      "resourceType": "Goal"
+    },
+    {
+      "filename": "examples-json/GraphDefinition-example.json",
+      "resourceType": "GraphDefinition"
+    },
+    {
+      "filename": "examples-json/Group-101.json",
+      "resourceType": "Group"
+    },
+    {
+      "filename": "examples-json/GuidanceResponse-example.json",
+      "resourceType": "GuidanceResponse"
+    },
+    {
+      "filename": "examples-json/HealthcareService-example.json",
+      "resourceType": "HealthcareService"
+    },
+    {
+      "filename": "examples-json/ImagingStudy-example-xr.json",
+      "resourceType": "ImagingStudy"
+    },
+    {
+      "filename": "examples-json/Immunization-example.json",
+      "resourceType": "Immunization"
+    },
+    {
+      "filename": "examples-json/ImmunizationEvaluation-example.json",
+      "resourceType": "ImmunizationEvaluation"
+    },
+    {
+      "filename": "examples-json/ImmunizationRecommendation-example.json",
+      "resourceType": "ImmunizationRecommendation"
+    },
+    {
+      "filename": "examples-json/ImplementationGuide-example.json",
+      "resourceType": "ImplementationGuide"
+    },
+    {
+      "filename": "examples-json/Ingredient-example.json",
+      "resourceType": "Ingredient"
+    },
+    {
+      "filename": "examples-json/InsurancePlan-example.json",
+      "resourceType": "InsurancePlan"
+    },
+    {
+      "filename": "examples-json/Invoice-example.json",
+      "resourceType": "Invoice"
+    },
+    {
+      "filename": "examples-json/Library-FHIR-ModelInfo.json",
+      "resourceType": "Library"
+    },
+    {
+      "filename": "examples-json/Linkage-example.json",
+      "resourceType": "Linkage"
+    },
+    {
+      "filename": "examples-json/List-current-allergies.json",
+      "resourceType": "List"
+    },
+    {
+      "filename": "examples-json/Location-1.json",
+      "resourceType": "Location"
+    },
+    {
+      "filename": "examples-json/ManufacturedItemDefinition-example.json",
+      "resourceType": "ManufacturedItemDefinition"
+    },
+    {
+      "filename": "examples-json/Measure-component-a-example.json",
+      "resourceType": "Measure"
+    },
+    {
+      "filename": "examples-json/MeasureReport-general-example-of-report.json",
+      "resourceType": "MeasureReport"
+    },
+    {
+      "filename": "examples-json/Media-1.2.840.11361907579238403408700.3.1.04.19970327150033.json",
+      "resourceType": "Media"
+    },
+    {
+      "filename": "examples-json/Medication-med0301.json",
+      "resourceType": "Medication"
+    },
+    {
+      "filename": "examples-json/MedicationAdministration-medadmin0301.json",
+      "resourceType": "MedicationAdministration"
+    },
+    {
+      "filename": "examples-json/MedicationDispense-meddisp008.json",
+      "resourceType": "MedicationDispense"
+    },
+    {
+      "filename": "examples-json/MedicationKnowledge-example.json",
+      "resourceType": "MedicationKnowledge"
+    },
+    {
+      "filename": "examples-json/MedicationRequest-medrx002.json",
+      "resourceType": "MedicationRequest"
+    },
+    {
+      "filename": "examples-json/MedicationStatement-example001.json",
+      "resourceType": "MedicationStatement"
+    },
+    {
+      "filename": "examples-json/MedicinalProductDefinition-Acetamin-500-20-generic.json",
+      "resourceType": "MedicinalProductDefinition"
+    },
+    {
+      "filename": "examples-json/MessageDefinition-example.json",
+      "resourceType": "MessageDefinition"
+    },
+    {
+      "filename": "examples-json/MessageHeader-1cbdfb97-5859-48a4-8301-d54eab818d68.json",
+      "resourceType": "MessageHeader"
+    },
+    {
+      "filename": "examples-json/MolecularSequence-breastcancer.json",
+      "resourceType": "MolecularSequence"
+    },
+    {
+      "filename": "examples-json/NamingSystem-example-id.json",
+      "resourceType": "NamingSystem"
+    },
+    {
+      "filename": "examples-json/NutritionOrder-cardiacdiet.json",
+      "resourceType": "NutritionOrder"
+    },
+    {
+      "filename": "examples-json/NutritionProduct-example.json",
+      "resourceType": "NutritionProduct"
+    },
+    {
+      "filename": "examples-json/Observation-10minute-apgar-score.json",
+      "resourceType": "Observation"
+    },
+    {
+      "filename": "examples-json/ObservationDefinition-example.json",
+      "resourceType": "ObservationDefinition"
+    },
+    {
+      "filename": "examples-json/OperationDefinition-ActivityDefinition-apply.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "examples-json/OperationOutcome-101.json",
+      "resourceType": "OperationOutcome"
+    },
+    {
+      "filename": "examples-json/Organization-1.json",
+      "resourceType": "Organization"
+    },
+    {
+      "filename": "examples-json/OrganizationAffiliation-example.json",
+      "resourceType": "OrganizationAffiliation"
+    },
+    {
+      "filename": "examples-json/PackagedProductDefinition-example.json",
+      "resourceType": "PackagedProductDefinition"
+    },
+    {
+      "filename": "examples-json/Parameters-example.json",
+      "resourceType": "Parameters"
+    },
+    {
+      "filename": "examples-json/Patient-animal.json",
+      "resourceType": "Patient"
+    },
+    {
+      "filename": "examples-json/PaymentNotice-77654.json",
+      "resourceType": "PaymentNotice"
+    },
+    {
+      "filename": "examples-json/PaymentReconciliation-ER2500.json",
+      "resourceType": "PaymentReconciliation"
+    },
+    {
+      "filename": "examples-json/Person-example.json",
+      "resourceType": "Person"
+    },
+    {
+      "filename": "examples-json/PlanDefinition-KDN5.json",
+      "resourceType": "PlanDefinition"
+    },
+    {
+      "filename": "examples-json/Practitioner-example.json",
+      "resourceType": "Practitioner"
+    },
+    {
+      "filename": "examples-json/PractitionerRole-example.json",
+      "resourceType": "PractitionerRole"
+    },
+    {
+      "filename": "examples-json/Procedure-HCBS.json",
+      "resourceType": "Procedure"
+    },
+    {
+      "filename": "examples-json/Provenance-consent-signature.json",
+      "resourceType": "Provenance"
+    },
+    {
+      "filename": "examples-json/Questionnaire-3141.json",
+      "resourceType": "Questionnaire"
+    },
+    {
+      "filename": "examples-json/QuestionnaireResponse-3141.json",
+      "resourceType": "QuestionnaireResponse"
+    },
+    {
+      "filename": "examples-json/RegulatedAuthorization-basic-drug-auth.json",
+      "resourceType": "RegulatedAuthorization"
+    },
+    {
+      "filename": "examples-json/RelatedPerson-benedicte.json",
+      "resourceType": "RelatedPerson"
+    },
+    {
+      "filename": "examples-json/RequestGroup-example.json",
+      "resourceType": "RequestGroup"
+    },
+    {
+      "filename": "examples-json/ResearchDefinition-example.json",
+      "resourceType": "ResearchDefinition"
+    },
+    {
+      "filename": "examples-json/ResearchElementDefinition-example.json",
+      "resourceType": "ResearchElementDefinition"
+    },
+    {
+      "filename": "examples-json/ResearchStudy-example.json",
+      "resourceType": "ResearchStudy"
+    },
+    {
+      "filename": "examples-json/ResearchSubject-example.json",
+      "resourceType": "ResearchSubject"
+    },
+    {
+      "filename": "examples-json/RiskAssessment-breastcancer-risk.json",
+      "resourceType": "RiskAssessment"
+    },
+    {
+      "filename": "examples-json/Schedule-example.json",
+      "resourceType": "Schedule"
+    },
+    {
+      "filename": "examples-json/ServiceRequest-ambulation.json",
+      "resourceType": "ServiceRequest"
+    },
+    {
+      "filename": "examples-json/Slot-1.json",
+      "resourceType": "Slot"
+    },
+    {
+      "filename": "examples-json/Specimen-101.json",
+      "resourceType": "Specimen"
+    },
+    {
+      "filename": "examples-json/SpecimenDefinition-2364.json",
+      "resourceType": "SpecimenDefinition"
+    },
+    {
+      "filename": "examples-json/StructureDefinition-11179-objectClass.json",
+      "resourceType": "StructureDefinition"
+    },
+    {
+      "filename": "examples-json/StructureMap-example.json",
+      "resourceType": "StructureMap"
+    },
+    {
+      "filename": "examples-json/Subscription-example-error.json",
+      "resourceType": "Subscription"
+    },
+    {
+      "filename": "examples-json/SubscriptionStatus-example.json",
+      "resourceType": "SubscriptionStatus"
+    },
+    {
+      "filename": "examples-json/SubscriptionTopic-admission.json",
+      "resourceType": "SubscriptionTopic"
+    },
+    {
+      "filename": "examples-json/Substance-example.json",
+      "resourceType": "Substance"
+    },
+    {
+      "filename": "examples-json/SubstanceDefinition-example.json",
+      "resourceType": "SubstanceDefinition"
+    },
+    {
+      "filename": "examples-json/SupplyDelivery-pumpdelivery.json",
+      "resourceType": "SupplyDelivery"
+    },
+    {
+      "filename": "examples-json/SupplyRequest-simpleorder.json",
+      "resourceType": "SupplyRequest"
+    },
+    {
+      "filename": "examples-json/Task-example1.json",
+      "resourceType": "Task"
+    },
+    {
+      "filename": "examples-json/TerminologyCapabilities-example.json",
+      "resourceType": "TerminologyCapabilities"
+    },
+    {
+      "filename": "examples-json/TestReport-testreport-example.json",
+      "resourceType": "TestReport"
+    },
+    {
+      "filename": "examples-json/TestScript-testscript-example-history.json",
+      "resourceType": "TestScript"
+    },
+    {
+      "filename": "examples-json/ValueSet-abstract-types.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "examples-json/VerificationResult-example.json",
+      "resourceType": "VerificationResult"
+    },
+    {
+      "filename": "examples-json/VisionPrescription-33123.json",
+      "resourceType": "VisionPrescription"
+    }
+  ]
+}

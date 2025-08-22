@@ -1,0 +1,45 @@
+{
+  "name": "@oxidized-health/client",
+  "version": "0.15.3",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./lib/url": "./lib/url.js",
+    "./lib/types": "./lib/types/index.js",
+    "./lib/interface": "./lib/interface.js",
+    "./types": "./lib/types/index.js",
+    "./interface": "./lib/interface.js",
+    "./middleware": "./lib/middleware/index.js",
+    "./url": "./lib/url.js",
+    "./lib/http": "./lib/http/index.js",
+    "./http": "./lib/http/index.js"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@oxidized-health/fhir-types": "workspace:^",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "@oxidized-health/operation-execution": "workspace:^",
+    "@oxidized-health/operation-outcomes": "workspace:^"
+  },
+  "files": [
+    "lib/**",
+    "README.md",
+    "src/**"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@oxidized-health/cli",
+  "version": "1.12.3",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "bin": {
+    "oxidized-health": "lib/oxidized-health.js"
+  },
+  "types": "lib/oxidized-health.d.ts",
+  "target": "node",
+  "type": "module",
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@inquirer/prompts": "^5.5.0",
+    "@oxidized-health/artifacts": "workspace:^",
+    "@oxidized-health/client": "workspace:^",
+    "@oxidized-health/codegen": "workspace:^",
+    "@oxidized-health/generated-ops": "workspace:^",
+    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
+    "@oxidized-health/hl7.fhir.r4b.core": "workspace:^",
+    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
+    "@oxidized-health/testscript-runner": "workspace:^",
+    "@types/node": "^22.15.17",
+    "commander": "^12.1.0",
+    "pino": "^9.6.0",
+    "pino-pretty": "^11.3.0"
+  },
+  "devDependencies": {
+    "@oxidized-health/fhir-types": "workspace:^",
+    "typescript": "5.9.2"
+  },
+  "scripts": {
+    "build": "tsc && node executable.js ./lib/oxidizedhealth.js && chmod +x ./lib/oxidizedhealth.js",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "files": [
+    "lib/**"
+  ]
+}

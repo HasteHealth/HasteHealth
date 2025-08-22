@@ -1,0 +1,34 @@
+{
+  "name": "@oxidized-health/hl7.fhir.r4.core",
+  "version": "0.4.6",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "canonical": "https://oxidized-health.app/fhir/ImplementationGuide/oxidized-health.hl7.fhir.r4.core",
+  "url": "https://oxidized-health.app/fhir/ImplementationGuide/oxidized-health.hl7.fhir.r4.core",
+  "title": "Hl7 Core resources",
+  "description": "OxidizedHealth package that contains core hl7 R4 resources.",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "author": "OxidizedHealth",
+  "maintainers": [
+    {
+      "name": "OxidizedHealth",
+      "email": "dev@oxidized-health.app"
+    }
+  ],
+  "scripts": {
+    "minify": "yarn node ../../../packages/cli/lib/oxidized-health.js minimize artifacts -d definitions",
+    "generate-index-nonmin": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file --extension json -p . -r definitions --ignore \\*.min.json",
+    "generate-index": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file --extension .min.json -p . -r definitions",
+    "publish": "yarn npm publish --access public --tolerate-republish"
+  },
+  "files": [
+    "definitions/**",
+    ".index.json",
+    "README.md"
+  ]
+}

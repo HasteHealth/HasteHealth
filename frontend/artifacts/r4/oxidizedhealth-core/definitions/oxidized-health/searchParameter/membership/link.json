@@ -1,0 +1,21 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "Membership-link",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/Membership-link",
+  "version": "4.0.1",
+  "name": "Link",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "What/Who is associated with a given Membership.",
+  "code": "link",
+  "base": [
+    "Membership"
+  ],
+  "type": "reference",
+  "expression": "Membership.link",
+  "target": [
+    "Patient",
+    "Practitioner"
+  ]
+}

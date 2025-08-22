@@ -1,0 +1,11 @@
+{
+  "extends": "../../config/base.tsconfig.json",
+  "exclude": ["./**/*.test.ts", "lib/*", "jest.config.js", "dist/*"],
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "jsx": "react",
+  },
+}

@@ -1,0 +1,13 @@
+{
+    "name": "@oxidized-health/performance-testing",
+    "homepage": "https://oxidized-health.app",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    },
+    "description": "OxidizedHealth performance tests",
+    "type": "module",
+    "dependencies": {
+        "artillery": "^2.0.22"
+    }
+}

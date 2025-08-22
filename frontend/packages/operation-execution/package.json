@@ -1,0 +1,36 @@
+{
+  "name": "@oxidized-health/operation-execution",
+  "version": "0.14.3",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "description": "Package to create operation definition executables.",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "dependencies": {
+    "@oxidized-health/fhir-pointer": "workspace:^",
+    "@oxidized-health/fhir-types": "workspace:^",
+    "@oxidized-health/fhir-validation": "workspace:^",
+    "@oxidized-health/operation-outcomes": "workspace:^"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@oxidized-health/artifacts": "workspace:^",
+    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
+    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2",
+    "typescript": "5.9.2"
+  },
+  "files": [
+    "lib/**"
+  ]
+}

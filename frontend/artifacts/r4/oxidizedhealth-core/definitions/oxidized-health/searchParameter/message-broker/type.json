@@ -1,0 +1,17 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "MessageBroker-type",
+  "url": "https://oxidized-health.app/fhir/SearchParameter/MessageBroker-type",
+  "version": "4.0.1",
+  "name": "type",
+  "status": "draft",
+  "experimental": false,
+  "publisher": "OxidizedHealth",
+  "description": "MessageBroker broker.",
+  "code": "type",
+  "base": [
+    "MessageBroker"
+  ],
+  "type": "token",
+  "expression": "MessageBroker.type"
+}

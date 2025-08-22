@@ -1,0 +1,37 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "oxidized-health-message-post",
+  "url": "https://oxidized-health.app/OperationDefinition/message-post",
+  "version": "4.0.1",
+  "name": "Send a message to a given topic.",
+  "status": "draft",
+  "kind": "operation",
+  "date": "2024-05-01T09:29:23+11:00",
+  "publisher": "OxidizedHealth",
+  "description": "Posts a message to a given topic.",
+  "code": "message-post",
+  "system": false,
+  "type": false,
+  "instance": true,
+  "resource": [
+    "MessageTopic"
+  ],
+  "parameter": [
+    {
+      "name": "input",
+      "use": "in",
+      "min": 1,
+      "max": "1",
+      "documentation": "Value to encrypt",
+      "type": "Resource"
+    },
+    {
+      "name": "return",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "documentation": "Result of the message post operation.",
+      "type": "OperationOutcome"
+    }
+  ]
+}

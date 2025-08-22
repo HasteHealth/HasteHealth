@@ -1,0 +1,60 @@
+{
+  "resourceType": "Bundle",
+  "id": "access-policy-types",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyType",
+      "resource": {
+        "id": "access-policy-type-codesystem",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyType",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "AccessPolicyType",
+        "title": "AccessPolicyType",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Access Policy types allowed.",
+        "caseSensitive": true,
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyType",
+        "content": "complete",
+        "concept": [
+          {
+            "code": "fhir-rest",
+            "display": "FHIR Rest",
+            "definition": "Uses FHIR rest methods to apply access controls."
+          },
+          {
+            "code": "full-access",
+            "display": "Full Access",
+            "definition": "Grants full access to all resources."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyType",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "access-policy-type-valueset",
+        "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyType",
+        "version": "4.0.1",
+        "name": "AccessPolicyType",
+        "title": "AccessPolicyType",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Access Policy types allowed.",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyType"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

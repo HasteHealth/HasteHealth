@@ -1,0 +1,40 @@
+@top Program { expression* }
+
+@skip { space | LineComment }
+
+expression {
+  Variable |
+  Identifier |
+  String |
+  @specialize[@name=Boolean]<Identifier, "true" | "false"> |
+  This |
+  FunctionCall { Identifier "(" expression* ")" } |
+  Number |
+  Dot |
+  Operators
+}
+
+@tokens {
+  Identifier { $[a-zA-Z] $[a-zA-Z_\-0-9]* }
+  Dot { "." }
+  Operators { "=" "*" "/" "+" "-" "!="}
+
+  Number { '-'? int frac?  }
+  int  { '0' | $[1-9] std.digit* }
+  frac { '.' std.digit+ }
+
+  Variable { '%' Identifier }
+  This { '$this' }
+
+  String {
+    "'" (!['\\] | "\\" _)* "'" 
+   }
+
+  LineComment { "//" ![\n]* }
+
+  space { $[ \t\n\r]+ }
+
+  "(" ")"
+}
+
+@detectDelim

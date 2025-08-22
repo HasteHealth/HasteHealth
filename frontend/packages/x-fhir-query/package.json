@@ -1,0 +1,28 @@
+{
+  "name": "@oxidized-health/x-fhir-query",
+  "version": "0.7.2",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "dependencies": {
+    "@oxidized-health/fhirpath": "workspace:^"
+  },
+  "devDependencies": {
+    "@babel/plugin-syntax-import-attributes": "^7.26.0",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2",
+    "typescript": "5.9.2"
+  },
+  "files": [
+    "lib/**"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@oxidized-health/generated-ops",
+  "version": "0.12.3",
+  "homepage": "https://oxidized-health.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+  },
+  "main": "./lib/index.js",
+  "type": "module",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "generate": "yarn node ../cli/lib/oxidizedhealth.js generate operations --output=./src/r4 && yarn prettier --write ./src/r4/**/*.ts",
+    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+  },
+  "dependencies": {
+    "@oxidized-health/operation-execution": "workspace:^"
+  },
+  "exports": {
+    "./lib/r4/ops": "./lib/r4/ops.js",
+    "./r4": "./lib/r4/ops.js"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@oxidized-health/artifacts": "workspace:^",
+    "@oxidized-health/fhir-types": "workspace:^",
+    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
+    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.2",
+    "typescript": "5.9.2"
+  },
+  "files": [
+    "README.md",
+    "lib/**"
+  ]
+}
