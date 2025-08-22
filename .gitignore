@@ -1,7 +1,10 @@
 target
 .env
+env.json
+.aws-sam
 .DS_Store
 *.pem
+.dccache
 
 # ----------------
 # FRONTEND
@@ -23,3 +26,12 @@ frontend/.yarn/*
 !frontend/.yarn/cache
 
 frontend/.pnp.*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
