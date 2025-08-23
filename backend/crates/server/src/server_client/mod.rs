@@ -2,15 +2,18 @@ use oxidized_fhir_client::{
     FHIRClient,
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
-        FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
-        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
-        FHIRUpdateResponse, FHIRVersionReadResponse,
+        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRCreateResponse,
+        FHIRHistoryInstanceResponse, FHIRReadRequest, FHIRReadResponse, FHIRRequest, FHIRResponse,
+        FHIRSearchTypeRequest, FHIRSearchTypeResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::types::ResourceType;
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_operation_error::{
+    OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
+};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
+use oxidized_reflect::MetaValue;
 use oxidized_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
@@ -230,6 +233,45 @@ fn storage_middleware<
                     resources,
                 }))
             }
+            FHIRRequest::ConditionalUpdate(request) => {
+                let search_results = state
+                    .search
+                    .search(
+                        &context.ctx.fhir_version,
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
+                            resource_type: request.resource_type,
+                            parameters: request
+                                .parameters
+                                .into_iter()
+                                .filter(|p| match p {
+                                    ParsedParameter::Resource(_) => true,
+                                    _ => false,
+                                })
+                                .collect(),
+                        }),
+                    )
+                    .await?;
+                match search_results.version_ids.len() {
+                    0 => {}
+                    1 => {
+                        let resource = search_results.into_iter().next().unwrap();
+                        let found_id = resource
+                            .get_field("id")
+                            .unwrap()
+                            .as_any()
+                            .downcast_ref::<String>()
+                            .unwrap();
+
+                        self.update(ctx, resource_type, found_id, resource).await
+                    }
+                    _ => Err(OperationOutcomeError::error(
+                        OperationOutcomeCodes::Conflict,
+                        "Multiple resources found for conditional update.".to_string(),
+                    )),
+                }
+            }
             _ => None,
         };
 
@@ -373,12 +415,11 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn conditional_update(
         &self,
-        _ctx: ServerCTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
-        _parameters: Vec<ParsedParameter>,
-        _resource: oxidized_fhir_model::r4::types::Resource,
+        ctx: ServerCTX,
+        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        parameters: Vec<ParsedParameter>,
+        resource: oxidized_fhir_model::r4::types::Resource,
     ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
-        todo!()
     }
 
     async fn patch(
