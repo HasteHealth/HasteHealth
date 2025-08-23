@@ -31,7 +31,7 @@ pub struct IndexResource<'a> {
     pub resource: &'a Resource,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SearchEntry {
     pub id: ResourceId,
     pub resource_type: ResourceType,

@@ -30490,7 +30490,7 @@ static _RESOURCE_TYPES: [&str; 151usize] = [
     "ClientApplication",
     "User",
 ];
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde :: Deserialize, serde :: Serialize)]
 pub struct ResourceType(String);
 impl ResourceType {
     pub fn new(s: String) -> Result<Self, ResourceTypeError> {

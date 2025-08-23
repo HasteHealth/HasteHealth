@@ -1,5 +1,5 @@
 use crate::{
-    IndexResource, SearchEngine, SearchReturn,
+    IndexResource, SearchEngine, SearchEntry, SearchReturn,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -182,20 +182,15 @@ impl SearchEngine for ElasticSearchEngine {
                     .into());
                 }
 
-                let results = search_response
+                let search_results = search_response
                     .json::<ElasticSearchResponse>()
                     .await
                     .map_err(SearchError::from)?;
 
-                let version_ids = results
-                    .hits
-                    .hits
-                    .into_iter()
-                    .filter_map(|hit| hit.fields.get("version_id").cloned())
-                    .flatten();
+                let version_ids = search_results.hits.hits.into_iter().map(|hit| hit.fields);
 
                 Ok(SearchReturn {
-                    total: results.hits.total.as_ref().map(|t| t.value),
+                    total: search_results.hits.total.as_ref().map(|t| t.value),
                     entries: version_ids.collect(),
                 })
             }
