@@ -1,35 +1,12 @@
-use std::{collections::HashMap, sync::Arc};
-
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
+use oxidized_macro_loads::load_artifacts;
+use std::{collections::HashMap, sync::Arc};
 
-static SEARCH_PARAMETERS_STRS: &[&str] = &[
-    // Hl7 FHIR Search Parameters
-    include_str!("../artifacts/r4/hl7/search-parameters.min.json"),
-    // Access Policy Search Parameters
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/access_policy_v2/engine.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/access_policy_v2/link.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/access_policy_v2/name.json"),
-    // Client Application Search Parameters
-    include_str!(
-        "../artifacts/r4/oxidized_health/search_parameter/client_application/grant_type.json"
-    ),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/client_application/name.json"),
-    // Identity Provider Search Parameters
-    include_str!(
-        "../artifacts/r4/oxidized_health/search_parameter/identity_provider/access_type.json"
-    ),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/identity_provider/name.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/identity_provider/status.json"),
-    // Membership Search Parameters
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/membership/email.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/membership/federation.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/membership/link.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/membership/name.json"),
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/membership/role.json"),
-    // Resource Search Parameters
-    include_str!("../artifacts/r4/oxidized_health/search_parameter/resource-parameters.json"),
-];
+static SEARCH_PARAMETERS_STRS: &[&str] = load_artifacts!(
+    "../artifacts/r4/hl7/search-parameters.min.json"
+    "../artifacts/r4/oxidized_health/search_parameter/"
+);
 
 #[derive(Debug)]
 pub enum ArtifactError {
