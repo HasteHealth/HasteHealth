@@ -4,6 +4,7 @@ use oxidized_fhir_model::r4::{
     types::{ResourceType, SearchParameter},
 };
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{indexing_conversion::{date_time_range, get_decimal_range}, SearchRequest};
@@ -29,6 +30,49 @@ pub enum QueryBuildError {
     InvalidParameterValue(String),
     #[error(code = "invalid", diagnostic = "Invalid date format: '{arg0}'")]
     InvalidDateFormat(String),
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum SortDirection {
+    Asc,
+    Desc,
+}
+
+fn sort_build(search_param: &SearchParameter, direction: &SortDirection) -> Result<serde_json::Value, QueryBuildError> {
+    let url = search_param.url.value.clone().ok_or_else(|| {
+        QueryBuildError::UnsupportedParameter(search_param.name.value.clone().unwrap_or_default())
+    })?;
+
+    match search_param.type_.value.as_ref().map(|s| s.as_str()) {
+        Some("date") => {
+            match direction {
+                SortDirection::Asc => {
+                    let sort_col = url.clone() + ".start";
+                    Ok(json!({
+                        sort_col: {
+                            "order": "asc",
+                            "nested": {
+                                "path": url
+                            }
+                        }
+                    }))
+                }
+                SortDirection::Desc => {
+                    let sort_col = url.clone() + ".end";
+                    Ok(json!({
+                        sort_col: {
+                            "order": "desc",
+                            "nested": {
+                                "path": url
+                            }
+                        }
+                    }))
+                }
+            }
+        }
+        _ => return Err(QueryBuildError::UnsupportedParameter(search_param.name.value.clone().unwrap_or_default())),
+    }
 }
 
 fn parameter_to_elasticsearch_clauses(
@@ -355,7 +399,7 @@ fn parameter_to_elasticsearch_clauses(
                     Ok(json!({
                         "match":{
                             search_param.url.value.as_ref().unwrap(): {
-                                "query": value
+                                "query": (value.to_owned() + "*")
                             }
                         }
                     }))
@@ -385,6 +429,7 @@ pub fn build_elastic_search_query(
             let mut clauses: Vec<serde_json::Value> = vec![];
             let mut size = MAX_COUNT;
             let mut show_total = false;
+            let mut sort: Vec<serde_json::Value> = Vec::new();
 
             for parameter in parameters.iter() {
                 match parameter {
@@ -431,6 +476,35 @@ pub fn build_elastic_search_query(
                                     }
                                 }
                             }
+                            "_sort" => {
+                                sort = result_param.value.iter().map(|sort_param| {
+                                   let parameter_name = if sort_param.starts_with("-") {
+                                        &sort_param[1..]
+                                    } else {
+                                        sort_param
+                                    };
+
+                                    let sort_direction = if sort_param.starts_with("-") {
+                                        SortDirection::Desc
+                                    } else {
+                                        SortDirection::Asc
+                                    };
+
+                                    let search_param =
+                                        oxidized_artifacts::search_parameters::get_search_parameter_for_name(
+                                            &resource_type,
+                                            parameter_name,
+                                        )
+                                        .ok_or_else(|| {
+                                            QueryBuildError::MissingParameter(
+                                                resource_type.clone(),
+                                                parameter_name.to_string(),
+                                            )
+                                    })?; 
+
+                                    sort_build(search_param.as_ref(), &sort_direction)
+                                }).collect::<Result<Vec<_>, _>>()?;
+                            }
                             _ => {
                                 return Err(QueryBuildError::UnsupportedParameter(
                                   result_param.name.to_string(),
@@ -456,8 +530,11 @@ pub fn build_elastic_search_query(
                     "bool": {
                         "must": clauses
                     }
-                }
+                },
+                "sort": sort,
             });
+
+            println!("{}", serde_json::to_string_pretty(&query).unwrap());
 
             Ok(query)
         }
