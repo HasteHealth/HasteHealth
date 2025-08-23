@@ -2,8 +2,9 @@ use oxidized_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeReque
 use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_repository::types::{
-    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId,
+    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionId,
 };
+use serde::Deserialize;
 
 pub mod elastic_search;
 mod indexing_conversion;
@@ -30,9 +31,16 @@ pub struct IndexResource<'a> {
     pub resource: &'a Resource,
 }
 
+#[derive(Deserialize)]
+pub struct SearchEntry {
+    pub id: ResourceId,
+    pub resource_type: ResourceType,
+    pub version_id: VersionId,
+}
+
 pub struct SearchReturn {
     pub total: Option<i64>,
-    pub version_ids: Vec<String>,
+    pub entries: Vec<SearchEntry>,
 }
 
 pub trait SearchEngine: Send + Sync {

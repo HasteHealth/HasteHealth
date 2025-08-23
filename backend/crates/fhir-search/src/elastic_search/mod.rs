@@ -134,7 +134,7 @@ struct ElasticSearchHitResult {
     _index: String,
     _id: String,
     _score: Option<f64>,
-    fields: HashMap<String, Vec<String>>,
+    fields: SearchEntry,
     // sort: Option<Vec<serde_json::Value>>,
 }
 
@@ -196,7 +196,7 @@ impl SearchEngine for ElasticSearchEngine {
 
                 Ok(SearchReturn {
                     total: results.hits.total.as_ref().map(|t| t.value),
-                    version_ids: version_ids.collect(),
+                    entries: version_ids.collect(),
                 })
             }
             super::SearchRequest::SystemSearch(_) => {

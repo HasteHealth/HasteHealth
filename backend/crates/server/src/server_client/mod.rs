@@ -221,7 +221,7 @@ fn storage_middleware<
                         &context.ctx.tenant,
                         &context.ctx.project,
                         search_results
-                            .version_ids
+                            .entries
                             .iter()
                             .map(|v| VersionIdRef::new(v))
                             .collect(),
@@ -253,7 +253,7 @@ fn storage_middleware<
                         }),
                     )
                     .await?;
-                match search_results.version_ids.len() {
+                match search_results.entries.len() {
                     0 => {}
                     1 => {
                         let resource = search_results.into_iter().next().unwrap();
