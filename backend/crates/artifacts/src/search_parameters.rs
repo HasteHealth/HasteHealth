@@ -77,7 +77,7 @@ fn index_parameter(
                             .entry(resource_type.to_string())
                             .or_default()
                             .insert(
-                                param.name.value.as_ref().unwrap().to_string(),
+                                param.code.value.as_ref().unwrap().to_string(),
                                 param.clone(),
                             );
                     }
@@ -98,7 +98,7 @@ fn index_parameter(
                         .entry(resource_type.to_string())
                         .or_default()
                         .insert(
-                            param.name.value.as_ref().unwrap().to_string(),
+                            param.code.value.as_ref().unwrap().to_string(),
                             param.clone(),
                         );
                 }
