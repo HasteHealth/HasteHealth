@@ -397,9 +397,10 @@ fn parameter_to_elasticsearch_clauses(
                 .iter()
                 .map(|value| {
                     Ok(json!({
-                        "match":{
+                        "prefix":{
                             search_param.url.value.as_ref().unwrap(): {
-                                "query": (value.to_owned() + "*")
+                                "value": value,
+                                "case_insensitive": true
                             }
                         }
                     }))

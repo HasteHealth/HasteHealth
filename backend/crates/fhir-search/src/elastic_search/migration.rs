@@ -16,7 +16,7 @@ fn date_index_mapping() -> serde_json::Value {
 
 fn string_index_mapping() -> serde_json::Value {
     json!({
-        "type": "text"
+        "type": "keyword"
     })
 }
 
@@ -26,7 +26,7 @@ fn token_index_mapping() -> serde_json::Value {
         "properties": {
             "system": { "type": "keyword" },
             "code": { "type": "keyword" },
-            "display": { "type": "text" }
+            "display": { "type": "keyword" }
         }
     })
 }
