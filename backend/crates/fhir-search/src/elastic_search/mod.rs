@@ -133,8 +133,9 @@ pub fn get_index_name(
 struct ElasticSearchHitResult {
     _index: String,
     _id: String,
-    _score: f64,
+    _score: Option<f64>,
     fields: HashMap<String, Vec<String>>,
+    // sort: Option<Vec<serde_json::Value>>,
 }
 
 #[derive(serde::Deserialize, Debug)]
