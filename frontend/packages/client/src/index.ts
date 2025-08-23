@@ -84,7 +84,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
       throw new Error("Unexpected response type");
     return {
       total: response.body.total,
-      resources: response.body.entry?.map((e) => e.resource) as Resource<
+      resources: (response.body.entry ?? []).map((e) => e.resource) as Resource<
         FHIRVersion,
         ResourceType<FHIRVersion>
       >[],
@@ -117,7 +117,7 @@ export class AsynchronousClient<CTX> implements FHIRClientAsync<CTX> {
       throw new Error(`Unexpected response type '${response.type}'`);
     return {
       total: response.body.total,
-      resources: response.body.entry?.map((e) => e.resource) as Resource<
+      resources: (response.body.entry ?? []).map((e) => e.resource) as Resource<
         Version,
         T
       >[],
