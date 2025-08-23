@@ -5,7 +5,7 @@ use std::{collections::HashMap, sync::Arc};
 
 static SEARCH_PARAMETERS_STRS: &[&str] = load_artifacts!(
     "../artifacts/r4/hl7/search-parameters.min.json"
-    "../artifacts/r4/oxidized_health/search_parameter/"
+    "../artifacts/r4/oxidized_health/search_parameter"
 );
 
 #[derive(Debug)]
