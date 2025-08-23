@@ -1997,6 +1997,7 @@ dependencies = [
  "once_cell",
  "oxidized-fhir-model",
  "oxidized-fhir-serialization-json",
+ "oxidized-macro-loads",
 ]
 
 [[package]]
@@ -2174,6 +2175,15 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "oxidized-macro-loads"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
+ "walkdir",
 ]
 
 [[package]]
