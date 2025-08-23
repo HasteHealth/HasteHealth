@@ -306,6 +306,7 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
         }
         separated.push_unseparated(")");
 
+        // To preserve sort order.
         query_builder.push(" ORDER BY  array_position(array[");
         let mut order_separator = query_builder.separated(", ");
         for version_id in version_ids.iter() {
