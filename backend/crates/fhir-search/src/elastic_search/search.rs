@@ -534,7 +534,7 @@ pub fn build_elastic_search_query(
                 "sort": sort,
             });
 
-            println!("{}", serde_json::to_string_pretty(&query).unwrap());
+            // println!("{}", serde_json::to_string_pretty(&query).unwrap());
 
             Ok(query)
         }

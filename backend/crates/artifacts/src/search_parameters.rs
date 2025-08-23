@@ -158,13 +158,6 @@ pub fn get_search_parameter_for_name(
     resource_type: &ResourceType,
     name: &str,
 ) -> Option<Arc<SearchParameter>> {
-    println!(
-        "{:?}",
-        R4_SEARCH_PARAMETERS
-            .by_resource_type
-            .get(resource_type.as_str())
-    );
-
     R4_SEARCH_PARAMETERS
         .by_resource_type
         .get(resource_type.as_str())
