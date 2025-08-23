@@ -289,8 +289,10 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
 ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+
         let mut query_builder: QueryBuilder<Postgres> =
             QueryBuilder::new(r#"SELECT resource FROM resources WHERE tenant = "#);
+
         query_builder
             .push_bind(tenant_id.as_ref())
             .push(" AND project =")
@@ -304,11 +306,19 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
         }
         separated.push_unseparated(")");
 
+        query_builder.push(" ORDER BY  array_position(array[");
+        let mut order_separator = query_builder.separated(", ");
+        for version_id in version_ids.iter() {
+            order_separator.push_bind(version_id.as_ref());
+        }
+        query_builder.push("], version_id)");
+
         let query = query_builder.build_query_as();
         let response: Vec<ReturnV> = query
             .fetch_all(&mut *conn)
             .await
             .map_err(StoreError::from)?;
+
         Ok(response.into_iter().map(|r| r.resource.0).collect())
     }
 }
