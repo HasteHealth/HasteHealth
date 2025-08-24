@@ -174,7 +174,6 @@ impl SearchEngine for ElasticSearchEngine {
         _search_request: super::SearchRequest<'a>,
     ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(&_search_request)?;
-        // println!("Query: {}", serde_json::to_string(&query).unwrap());
         match _search_request {
             super::SearchRequest::TypeSearch(_) => {
                 let search_response = self
@@ -248,7 +247,7 @@ impl SearchEngine for ElasticSearchEngine {
 
                     elastic_index.insert(
                         "id".to_string(),
-                        InsertableIndex::Meta(r.resource_type.as_str().to_string()),
+                        InsertableIndex::Meta(r.id.as_ref().to_string()),
                     );
 
                     elastic_index.insert(

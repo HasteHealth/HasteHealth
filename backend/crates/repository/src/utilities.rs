@@ -28,7 +28,7 @@ pub enum DataTransformError {
 
 pub fn set_resource_id(
     resource: &mut Resource,
-    _id: Option<String>,
+    id_: Option<String>,
 ) -> Result<(), OperationOutcomeError> {
     let id: &mut dyn std::any::Any =
         resource
@@ -41,7 +41,7 @@ pub fn set_resource_id(
             .ok_or(DataTransformError::InvalidData(
                 "Invalid 'id' field".to_string(),
             ))?;
-    *id = Some(_id.unwrap_or_else(|| generate_id(None)));
+    *id = Some(id_.unwrap_or_else(|| generate_id(None)));
     Ok(())
 }
 

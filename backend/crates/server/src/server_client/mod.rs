@@ -279,6 +279,7 @@ fn storage_middleware<
                             .downcast_ref::<Option<String>>()
                             .unwrap()
                             .clone();
+
                         // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
                         if let Some(id) = id {
                             let latest = state
@@ -332,7 +333,7 @@ fn storage_middleware<
                             ));
                         }
 
-                        let id = update_request
+                        let resource_id_body = update_request
                             .resource
                             .get_field("id")
                             .ok_or_else(|| {
@@ -345,7 +346,11 @@ fn storage_middleware<
                             .downcast_ref::<Option<String>>()
                             .unwrap();
 
-                        if id.as_ref().map(|s| s.as_str()) != Some(search_result.id.as_ref()) {
+                        // If body has resource Id verify it's the same as one in search result.
+                        if resource_id_body.is_some()
+                            && resource_id_body.as_ref().map(|s| s.as_str())
+                                != Some(search_result.id.as_ref())
+                        {
                             return Err(OperationOutcomeError::error(
                                 OperationOutcomeCodes::Conflict,
                                 "Resource ID mismatch".to_string(),
