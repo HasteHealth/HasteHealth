@@ -38,13 +38,6 @@ pub struct SearchEntry {
     pub version_id: VersionId,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct SearchEntryPrivate {
-    pub id: Vec<ResourceId>,
-    pub resource_type: Vec<ResourceType>,
-    pub version_id: Vec<VersionId>,
-}
-
 pub struct SearchReturn {
     pub total: Option<i64>,
     pub entries: Vec<SearchEntry>,
