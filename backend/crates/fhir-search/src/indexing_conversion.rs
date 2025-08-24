@@ -52,6 +52,7 @@ pub struct ReferenceIndex {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InsertableIndex {
+    Meta(String),
     String(Vec<String>),
     Number(Vec<f64>),
     URI(Vec<String>),

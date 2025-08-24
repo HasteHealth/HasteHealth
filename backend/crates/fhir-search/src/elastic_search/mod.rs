@@ -243,25 +243,25 @@ impl SearchEngine for ElasticSearchEngine {
 
                     elastic_index.insert(
                         "resource_type".to_string(),
-                        InsertableIndex::String(vec![r.resource_type.as_str().to_string()]),
+                        InsertableIndex::Meta(r.resource_type.as_str().to_string()),
                     );
 
                     elastic_index.insert(
                         "id".to_string(),
-                        InsertableIndex::String(vec![r.resource_type.as_str().to_string()]),
+                        InsertableIndex::Meta(r.resource_type.as_str().to_string()),
                     );
 
                     elastic_index.insert(
                         "version_id".to_string(),
-                        InsertableIndex::String(vec![r.version_id.to_string()]),
+                        InsertableIndex::Meta(r.version_id.to_string()),
                     );
                     elastic_index.insert(
                         "project".to_string(),
-                        InsertableIndex::String(vec![r.project.as_ref().to_string()]),
+                        InsertableIndex::Meta(r.project.as_ref().to_string()),
                     );
                     elastic_index.insert(
                         "tenant".to_string(),
-                        InsertableIndex::String(vec![tenant.as_ref().to_string()]),
+                        InsertableIndex::Meta(tenant.as_ref().to_string()),
                     );
 
                     Ok(BulkOperation::index(elastic_index)

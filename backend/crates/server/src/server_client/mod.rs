@@ -69,17 +69,19 @@ fn storage_middleware<
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
-            FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
-                resource: FHIRRepository::create(
-                    &state.repo,
-                    &context.ctx.tenant,
-                    &context.ctx.project,
-                    &context.ctx.author,
-                    &context.ctx.fhir_version,
-                    &mut create_request.resource,
-                )
-                .await?,
-            })),
+            FHIRRequest::Create(create_request) => {
+                Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
+                    resource: FHIRRepository::create(
+                        &state.repo,
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &context.ctx.author,
+                        &context.ctx.fhir_version,
+                        &mut create_request.resource,
+                    )
+                    .await?,
+                })))
+            }
             FHIRRequest::Read(read_request) => {
                 let resource = state
                     .repo
@@ -97,7 +99,9 @@ fn storage_middleware<
                         )
                     })?;
 
-                Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
+                Ok(Some(FHIRResponse::Read(FHIRReadResponse {
+                    resource: resource,
+                })))
             }
             FHIRRequest::VersionRead(vread_request) => {
                 let mut vread_resources = state
@@ -110,11 +114,11 @@ fn storage_middleware<
                     .await?;
 
                 if vread_resources.get(0).is_some() {
-                    Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
+                    Ok(Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
                         resource: vread_resources.swap_remove(0),
-                    }))
+                    })))
                 } else {
-                    None
+                    Ok(None)
                 }
             }
             FHIRRequest::HistoryInstance(history_instance_request) => {
@@ -127,9 +131,11 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
-                    resources: history_resources,
-                }))
+                Ok(Some(FHIRResponse::HistoryInstance(
+                    FHIRHistoryInstanceResponse {
+                        resources: history_resources,
+                    },
+                )))
             }
             FHIRRequest::HistoryType(history_type_request) => {
                 let history_resources = state
@@ -141,9 +147,11 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
-                    resources: history_resources,
-                }))
+                Ok(Some(FHIRResponse::HistoryInstance(
+                    FHIRHistoryInstanceResponse {
+                        resources: history_resources,
+                    },
+                )))
             }
             FHIRRequest::HistorySystem(history_system_request) => {
                 let history_resources = state
@@ -155,9 +163,11 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
-                    resources: history_resources,
-                }))
+                Ok(Some(FHIRResponse::HistoryInstance(
+                    FHIRHistoryInstanceResponse {
+                        resources: history_resources,
+                    },
+                )))
             }
             FHIRRequest::UpdateInstance(update_request) => {
                 let resource = state
@@ -177,7 +187,7 @@ fn storage_middleware<
                         return Err(StorageError::InvalidType.into());
                     }
 
-                    Some(FHIRResponse::Update(FHIRUpdateResponse {
+                    Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
                         resource: FHIRRepository::update(
                             &state.repo,
                             &context.ctx.tenant,
@@ -188,9 +198,9 @@ fn storage_middleware<
                             &update_request.id,
                         )
                         .await?,
-                    }))
+                    })))
                 } else {
-                    Some(FHIRResponse::Create(FHIRCreateResponse {
+                    Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
                         resource: FHIRRepository::create(
                             &state.repo,
                             &context.ctx.tenant,
@@ -200,7 +210,7 @@ fn storage_middleware<
                             &mut update_request.resource,
                         )
                         .await?,
-                    }))
+                    })))
                 }
             }
             FHIRRequest::SearchType(search_type_request) => {
@@ -227,13 +237,13 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
+                Ok(Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
                     total: search_results.total,
                     resources,
-                }))
+                })))
             }
             FHIRRequest::ConditionalUpdate(request) => {
-                let _search_results = state
+                let search_results = state
                     .search
                     .search(
                         &context.ctx.fhir_version,
@@ -254,31 +264,27 @@ fn storage_middleware<
                     )
                     .await?;
 
-                return Err(OperationOutcomeError::error(
-                    OperationOutcomeCodes::Conflict,
-                    "Multiple resources found for conditional update.".to_string(),
-                ));
-
-                // match search_results.entries.len() {
-                //     // 0 => {}
-                //     // 1 => {
-                //     //     let resource = search_results.into_iter().next().unwrap();
-                //     //     let found_id = resource
-                //     //         .get_field("id")
-                //     //         .unwrap()
-                //     //         .as_any()
-                //     //         .downcast_ref::<String>()
-                //     //         .unwrap();
-                //     //     self.update(ctx, resource_type, found_id, resource).await
-                //     // }
-                //     _ => Err(OperationOutcomeError::error(
-                //         OperationOutcomeCodes::Conflict,
-                //         "Multiple resources found for conditional update.".to_string(),
-                //     )),
-                // }
+                match search_results.entries.len() {
+                    0 => Ok(None),
+                    1 => {
+                        Ok(None)
+                        // let resource = search_results.into_iter().next().unwrap();
+                        // let found_id = resource
+                        //     .get_field("id")
+                        //     .unwrap()
+                        //     .as_any()
+                        //     .downcast_ref::<String>()
+                        //     .unwrap();
+                        // self.update(ctx, resource_type, found_id, resource).await
+                    }
+                    _ => Err(OperationOutcomeError::error(
+                        OperationOutcomeCodes::Conflict,
+                        "Multiple resources found for conditional update.".to_string(),
+                    )),
+                }
             }
-            _ => None,
-        };
+            _ => Ok(None),
+        }?;
 
         let mut next_context = if let Some(next_) = next {
             next_(
