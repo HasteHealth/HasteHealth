@@ -138,6 +138,11 @@ impl From<String> for VersionId {
         VersionId(id)
     }
 }
+impl AsRef<str> for VersionId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct ResourceId(String);

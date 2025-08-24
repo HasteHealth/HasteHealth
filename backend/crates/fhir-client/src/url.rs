@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Parameter {
     pub name: String,
     pub value: Vec<String>,
@@ -10,7 +10,7 @@ pub struct Parameter {
 
 /// Represnet both resource parameters IE Patient.name and
 /// result parameters IE _count
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ParsedParameter {
     Result(Parameter),
     Resource(Parameter),
