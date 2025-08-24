@@ -9,8 +9,11 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::types::ResourceType;
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_operation_error::{
+    OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
+};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
+use oxidized_reflect::MetaValue;
 use oxidized_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
@@ -67,17 +70,19 @@ fn storage_middleware<
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
-            FHIRRequest::Create(create_request) => Some(FHIRResponse::Create(FHIRCreateResponse {
-                resource: FHIRRepository::create(
-                    &state.repo,
-                    &context.ctx.tenant,
-                    &context.ctx.project,
-                    &context.ctx.author,
-                    &context.ctx.fhir_version,
-                    &mut create_request.resource,
-                )
-                .await?,
-            })),
+            FHIRRequest::Create(create_request) => {
+                Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
+                    resource: FHIRRepository::create(
+                        &state.repo,
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &context.ctx.author,
+                        &context.ctx.fhir_version,
+                        &mut create_request.resource,
+                    )
+                    .await?,
+                })))
+            }
             FHIRRequest::Read(read_request) => {
                 let resource = state
                     .repo
@@ -95,7 +100,9 @@ fn storage_middleware<
                         )
                     })?;
 
-                Some(FHIRResponse::Read(FHIRReadResponse { resource: resource }))
+                Ok(Some(FHIRResponse::Read(FHIRReadResponse {
+                    resource: resource,
+                })))
             }
             FHIRRequest::VersionRead(vread_request) => {
                 let mut vread_resources = state
@@ -108,11 +115,11 @@ fn storage_middleware<
                     .await?;
 
                 if vread_resources.get(0).is_some() {
-                    Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
+                    Ok(Some(FHIRResponse::VersionRead(FHIRVersionReadResponse {
                         resource: vread_resources.swap_remove(0),
-                    }))
+                    })))
                 } else {
-                    None
+                    Ok(None)
                 }
             }
             FHIRRequest::HistoryInstance(history_instance_request) => {
@@ -125,9 +132,11 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
-                    resources: history_resources,
-                }))
+                Ok(Some(FHIRResponse::HistoryInstance(
+                    FHIRHistoryInstanceResponse {
+                        resources: history_resources,
+                    },
+                )))
             }
             FHIRRequest::HistoryType(history_type_request) => {
                 let history_resources = state
@@ -139,9 +148,11 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
-                    resources: history_resources,
-                }))
+                Ok(Some(FHIRResponse::HistoryInstance(
+                    FHIRHistoryInstanceResponse {
+                        resources: history_resources,
+                    },
+                )))
             }
             FHIRRequest::HistorySystem(history_system_request) => {
                 let history_resources = state
@@ -153,9 +164,11 @@ fn storage_middleware<
                     )
                     .await?;
 
-                Some(FHIRResponse::HistoryInstance(FHIRHistoryInstanceResponse {
-                    resources: history_resources,
-                }))
+                Ok(Some(FHIRResponse::HistoryInstance(
+                    FHIRHistoryInstanceResponse {
+                        resources: history_resources,
+                    },
+                )))
             }
             FHIRRequest::UpdateInstance(update_request) => {
                 let resource = state
@@ -175,7 +188,7 @@ fn storage_middleware<
                         return Err(StorageError::InvalidType.into());
                     }
 
-                    Some(FHIRResponse::Update(FHIRUpdateResponse {
+                    Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
                         resource: FHIRRepository::update(
                             &state.repo,
                             &context.ctx.tenant,
@@ -186,9 +199,9 @@ fn storage_middleware<
                             &update_request.id,
                         )
                         .await?,
-                    }))
+                    })))
                 } else {
-                    Some(FHIRResponse::Create(FHIRCreateResponse {
+                    Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
                         resource: FHIRRepository::create(
                             &state.repo,
                             &context.ctx.tenant,
@@ -198,7 +211,7 @@ fn storage_middleware<
                             &mut update_request.resource,
                         )
                         .await?,
-                    }))
+                    })))
                 }
             }
             FHIRRequest::SearchType(search_type_request) => {
@@ -218,20 +231,153 @@ fn storage_middleware<
                         &context.ctx.tenant,
                         &context.ctx.project,
                         search_results
-                            .version_ids
+                            .entries
                             .iter()
-                            .map(|v| VersionIdRef::new(v))
+                            .map(|v| VersionIdRef::new(v.version_id.as_ref()))
                             .collect(),
                     )
                     .await?;
 
-                Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
+                Ok(Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
                     total: search_results.total,
                     resources,
-                }))
+                })))
             }
-            _ => None,
-        };
+            FHIRRequest::ConditionalUpdate(update_request) => {
+                let search_results = state
+                    .search
+                    .search(
+                        &context.ctx.fhir_version,
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
+                            resource_type: update_request.resource_type.clone(),
+                            parameters: update_request
+                                .parameters
+                                .clone()
+                                .into_iter()
+                                .filter(|p| match p {
+                                    ParsedParameter::Resource(_) => true,
+                                    _ => false,
+                                })
+                                .collect(),
+                        }),
+                    )
+                    .await?;
+
+                // No matches, no id provided:
+                //   The server creates the resource.
+                // No matches, id provided:
+                //   The server treats the interaction as an Update as Create interaction (or rejects it, if it does not support Update as Create)
+                match search_results.entries.len() {
+                    0 => {
+                        let id = update_request
+                            .resource
+                            .get_field("id")
+                            .unwrap()
+                            .as_any()
+                            .downcast_ref::<Option<String>>()
+                            .unwrap()
+                            .clone();
+
+                        // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
+                        if let Some(id) = id {
+                            let latest = state
+                                .repo
+                                .read_latest(
+                                    &context.ctx.tenant,
+                                    &context.ctx.project,
+                                    &update_request.resource_type,
+                                    &ResourceId::new(id.clone()),
+                                )
+                                .await?;
+                            if latest.is_none() {
+                                return Err(OperationOutcomeError::error(
+                                    OperationOutcomeCodes::NotFound,
+                                    "Resource already exists. But not found in conditional criteria.".to_string(),
+                                ));
+                            }
+                            Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
+                                resource: FHIRRepository::update(
+                                    &state.repo,
+                                    &context.ctx.tenant,
+                                    &context.ctx.project,
+                                    &context.ctx.author,
+                                    &context.ctx.fhir_version,
+                                    &mut update_request.resource,
+                                    &id,
+                                )
+                                .await?,
+                            })))
+                        } else {
+                            Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
+                                resource: FHIRRepository::create(
+                                    &state.repo,
+                                    &context.ctx.tenant,
+                                    &context.ctx.project,
+                                    &context.ctx.author,
+                                    &context.ctx.fhir_version,
+                                    &mut update_request.resource,
+                                )
+                                .await?,
+                            })))
+                        }
+                    }
+                    1 => {
+                        let search_result = search_results.entries.into_iter().next().unwrap();
+
+                        if update_request.resource_type != search_result.resource_type {
+                            return Err(OperationOutcomeError::error(
+                                OperationOutcomeCodes::Conflict,
+                                "Resource type mismatch".to_string(),
+                            ));
+                        }
+
+                        let resource_id_body = update_request
+                            .resource
+                            .get_field("id")
+                            .ok_or_else(|| {
+                                OperationOutcomeError::error(
+                                    OperationOutcomeCodes::Invalid,
+                                    "Missing resource ID".to_string(),
+                                )
+                            })?
+                            .as_any()
+                            .downcast_ref::<Option<String>>()
+                            .unwrap();
+
+                        // If body has resource Id verify it's the same as one in search result.
+                        if resource_id_body.is_some()
+                            && resource_id_body.as_ref().map(|s| s.as_str())
+                                != Some(search_result.id.as_ref())
+                        {
+                            return Err(OperationOutcomeError::error(
+                                OperationOutcomeCodes::Conflict,
+                                "Resource ID mismatch".to_string(),
+                            ));
+                        }
+
+                        Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
+                            resource: FHIRRepository::update(
+                                &state.repo,
+                                &context.ctx.tenant,
+                                &context.ctx.project,
+                                &context.ctx.author,
+                                &context.ctx.fhir_version,
+                                &mut update_request.resource,
+                                &search_result.id.as_ref(),
+                            )
+                            .await?,
+                        })))
+                    }
+                    _ => Err(OperationOutcomeError::error(
+                        OperationOutcomeCodes::Conflict,
+                        "Multiple resources found for conditional update.".to_string(),
+                    )),
+                }
+            }
+            _ => Ok(None),
+        }?;
 
         let mut next_context = if let Some(next_) = next {
             next_(

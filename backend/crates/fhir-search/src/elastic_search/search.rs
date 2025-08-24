@@ -523,7 +523,7 @@ pub fn build_elastic_search_query(
             }));
 
             let query = json!({
-                "fields": ["version_id", "id"],
+                "fields": ["version_id", "id", "resource_type"],
                 "size": size,
                 "track_total_hits": show_total,
                 "_source": false,

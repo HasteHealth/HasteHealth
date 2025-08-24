@@ -125,14 +125,14 @@ fn parse_request_1_non_empty<'a>(
                 let resource = resource_type.deserialize(&req.body)?;
                 Ok(FHIRRequest::ConditionalUpdate(
                     FHIRConditionalUpdateRequest {
-                        parameters: vec![],
+                        parameters: parse_query(&req.query)?,
                         resource_type,
                         resource,
                     },
                 ))
             }
             Method::DELETE => Ok(FHIRRequest::DeleteType(FHIRDeleteTypeRequest {
-                parameters: vec![],
+                parameters: parse_query(&req.query)?,
                 resource_type: ResourceType::new(url_chunks[0].to_string())?,
             })),
             Method::GET => {
@@ -142,7 +142,7 @@ fn parse_request_1_non_empty<'a>(
                         Ok(FHIRRequest::Capabilities)
                     }
                     "_history" => Ok(FHIRRequest::HistorySystem(FHIRHistorySystemRequest {
-                        parameters: vec![],
+                        parameters: parse_query(&req.query)?,
                     })),
                     _ => {
                         // Handle search request

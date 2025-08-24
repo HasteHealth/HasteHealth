@@ -1,5 +1,5 @@
 use crate::{
-    IndexResource, SearchEngine, SearchReturn,
+    IndexResource, SearchEngine, SearchEntry, SearchReturn,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -11,15 +11,25 @@ use elasticsearch::{
         transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
 };
-use oxidized_fhir_model::r4::types::{Resource, SearchParameter};
+use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhirpath::FPEngine;
-use oxidized_repository::types::{FHIRMethod, ProjectId, SupportedFHIRVersions, TenantId};
+use oxidized_repository::types::{
+    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionId,
+};
 use rayon::prelude::*;
+use serde::Deserialize;
 use std::{collections::HashMap, sync::Arc};
 
 mod migration;
 mod search;
+
+#[derive(Deserialize, Debug)]
+struct SearchEntryPrivate {
+    pub id: Vec<ResourceId>,
+    pub resource_type: Vec<ResourceType>,
+    pub version_id: Vec<VersionId>,
+}
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum SearchError {
@@ -134,7 +144,7 @@ struct ElasticSearchHitResult {
     _index: String,
     _id: String,
     _score: Option<f64>,
-    fields: HashMap<String, Vec<String>>,
+    fields: SearchEntryPrivate,
     // sort: Option<Vec<serde_json::Value>>,
 }
 
@@ -164,7 +174,6 @@ impl SearchEngine for ElasticSearchEngine {
         _search_request: super::SearchRequest<'a>,
     ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(&_search_request)?;
-        // println!("Query: {}", serde_json::to_string(&query).unwrap());
         match _search_request {
             super::SearchRequest::TypeSearch(_) => {
                 let search_response = self
@@ -182,21 +191,23 @@ impl SearchEngine for ElasticSearchEngine {
                     .into());
                 }
 
-                let results = search_response
+                let search_results = search_response
                     .json::<ElasticSearchResponse>()
                     .await
                     .map_err(SearchError::from)?;
 
-                let version_ids = results
-                    .hits
-                    .hits
-                    .into_iter()
-                    .filter_map(|hit| hit.fields.get("version_id").cloned())
-                    .flatten();
-
                 Ok(SearchReturn {
-                    total: results.hits.total.as_ref().map(|t| t.value),
-                    version_ids: version_ids.collect(),
+                    total: search_results.hits.total.as_ref().map(|t| t.value),
+                    entries: search_results
+                        .hits
+                        .hits
+                        .into_iter()
+                        .map(|mut hit| SearchEntry {
+                            id: hit.fields.id.pop().unwrap(),
+                            resource_type: hit.fields.resource_type.pop().unwrap(),
+                            version_id: hit.fields.version_id.pop().unwrap(),
+                        })
+                        .collect(),
                 })
             }
             super::SearchRequest::SystemSearch(_) => {
@@ -231,19 +242,25 @@ impl SearchEngine for ElasticSearchEngine {
 
                     elastic_index.insert(
                         "resource_type".to_string(),
-                        InsertableIndex::String(vec![r.resource_type.as_str().to_string()]),
+                        InsertableIndex::Meta(r.resource_type.as_str().to_string()),
                     );
+
+                    elastic_index.insert(
+                        "id".to_string(),
+                        InsertableIndex::Meta(r.id.as_ref().to_string()),
+                    );
+
                     elastic_index.insert(
                         "version_id".to_string(),
-                        InsertableIndex::String(vec![r.version_id.to_string()]),
+                        InsertableIndex::Meta(r.version_id.to_string()),
                     );
                     elastic_index.insert(
                         "project".to_string(),
-                        InsertableIndex::String(vec![r.project.as_ref().to_string()]),
+                        InsertableIndex::Meta(r.project.as_ref().to_string()),
                     );
                     elastic_index.insert(
                         "tenant".to_string(),
-                        InsertableIndex::String(vec![tenant.as_ref().to_string()]),
+                        InsertableIndex::Meta(tenant.as_ref().to_string()),
                     );
 
                     Ok(BulkOperation::index(elastic_index)
