@@ -13,6 +13,7 @@ use oxidized_fhir_operation_error::{
     OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
 };
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
+use oxidized_reflect::MetaValue;
 use oxidized_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
@@ -267,14 +268,37 @@ fn storage_middleware<
                 match search_results.entries.len() {
                     0 => Ok(None),
                     1 => {
+                        let search_result = search_results.entries.into_iter().next().unwrap();
+
+                        if request.resource_type != search_result.resource_type {
+                            return Err(OperationOutcomeError::error(
+                                OperationOutcomeCodes::Conflict,
+                                "Resource type mismatch".to_string(),
+                            ));
+                        }
+
+                        let id = request
+                            .resource
+                            .get_field("id")
+                            .ok_or_else(|| {
+                                OperationOutcomeError::error(
+                                    OperationOutcomeCodes::Invalid,
+                                    "Missing resource ID".to_string(),
+                                )
+                            })?
+                            .as_any()
+                            .downcast_ref::<Option<String>>()
+                            .unwrap();
+
+                        if id.as_ref().map(|s| s.as_str()) != Some(search_result.id.as_ref()) {
+                            return Err(OperationOutcomeError::error(
+                                OperationOutcomeCodes::Conflict,
+                                "Resource ID mismatch".to_string(),
+                            ));
+                        }
+
                         Ok(None)
-                        // let resource = search_results.into_iter().next().unwrap();
-                        // let found_id = resource
-                        //     .get_field("id")
-                        //     .unwrap()
-                        //     .as_any()
-                        //     .downcast_ref::<String>()
-                        //     .unwrap();
+
                         // self.update(ctx, resource_type, found_id, resource).await
                     }
                     _ => Err(OperationOutcomeError::error(
