@@ -1,6 +1,6 @@
 use oxidized_fhir_client::{
     FHIRClient,
-    middleware::Middleware,
+    middleware::{Middleware, MiddlewareChain},
     request::{
         FHIRCreateRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
     },
@@ -14,6 +14,10 @@ use oxidized_repository::{
     types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
 use std::sync::Arc;
+
+use crate::fhir_client::middleware::{
+    ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
+};
 
 mod middleware;
 
@@ -50,6 +54,18 @@ struct ClientState<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
     search: Arc<Search>,
 }
 
+struct Route<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
+{
+    filter: Box<dyn Fn(&FHIRRequest) -> bool + Send + Sync>,
+    middleware: Middleware<
+        Arc<ClientState<Repo, Search>>,
+        ServerCTX,
+        FHIRRequest,
+        FHIRResponse,
+        OperationOutcomeError,
+    >,
+}
+
 pub struct FHIRServerClient<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -64,20 +80,67 @@ pub struct FHIRServerClient<
     >,
 }
 
+fn router_middleware_chain<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    routes: Arc<Vec<Route<Repo, Search>>>,
+) -> MiddlewareChain<
+    Arc<ClientState<Repo, Search>>,
+    ServerCTX,
+    FHIRRequest,
+    FHIRResponse,
+    OperationOutcomeError,
+> {
+    Box::new(
+        move |state: ServerMiddlewareState<Repo, Search>,
+              context: ServerMiddlewareContext,
+              next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>|
+              -> ServerMiddlewareOutput {
+            let routes = routes.clone();
+            Box::pin(async move {
+                let route = Arc::new(routes.iter().find(|r| (r.filter)(&context.request)).clone());
+                match route.as_ref() {
+                    Some(route) => {
+                        route
+                            .middleware
+                            .call(state, context.ctx, context.request)
+                            .await
+                    }
+                    None => panic!("No matching route found"),
+                }
+            })
+        },
+    )
+}
+
 impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
     FHIRServerClient<Repo, Search>
 {
     pub fn new(repo: Repo, search: Search) -> Self {
-        let middleware = Middleware::new(vec![
-            Box::new(middleware::capabilities),
-            Box::new(middleware::storage),
-        ]);
+        let storage_route = Route {
+            filter: Box::new(|req: &FHIRRequest| match req {
+                FHIRRequest::Read(_)
+                | FHIRRequest::SearchType(_)
+                | FHIRRequest::Create(_)
+                // Add other request types as needed
+                => true,
+                _ => false,
+            }),
+            middleware: Middleware::new(vec![Box::new(middleware::storage)]),
+        };
+
+        let route_middleware = router_middleware_chain(Arc::new(vec![storage_route]));
+
         FHIRServerClient {
             state: Arc::new(ClientState {
                 repo,
                 search: Arc::new(search),
             }),
-            middleware,
+            middleware: Middleware::new(vec![
+                Box::new(middleware::capabilities),
+                Box::new(route_middleware),
+            ]),
         }
     }
 }
