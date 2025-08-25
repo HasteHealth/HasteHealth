@@ -139,7 +139,6 @@ async fn fhir_root_handler<
     State(state): State<Arc<AppState<Repo, Search>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
-    println!("root");
     fhir_handler(
         method,
         uri,
@@ -165,7 +164,6 @@ async fn fhir_type_handler<
     State(state): State<Arc<AppState<Repo, Search>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
-    println!("type");
     fhir_handler(method, uri, path, state, body).await
 }
 
