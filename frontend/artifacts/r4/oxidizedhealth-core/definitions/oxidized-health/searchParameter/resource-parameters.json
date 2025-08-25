@@ -38,6 +38,7 @@
             "valueCode": "trial-use"
           }
         ],
+        "expression": "$this.type().name",
         "url": "http://hl7.org/fhir/SearchParameter/Resource-type",
         "version": "4.0.1",
         "name": "_type",
