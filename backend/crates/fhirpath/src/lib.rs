@@ -15,6 +15,7 @@ use oxidized_fhir_model::r4::types::{
     FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt, ResourceType,
 };
 use oxidized_reflect::MetaValue;
+use oxidized_reflect_derive::Reflect;
 
 /// Number types to use in FHIR evaluation
 static NUMBER_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
@@ -355,6 +356,20 @@ fn downcast_number(value: &dyn MetaValue) -> Result<f64, FHIRPathError> {
     }
 }
 
+fn fp_func_0<'b>(
+    ast_arguments: &Vec<Expression>,
+    context: Context<'b>,
+    executor: impl Fn(Context<'b>) -> Result<Context<'b>, FHIRPathError>,
+) -> Result<Context<'b>, FHIRPathError> {
+    if ast_arguments.len() != 0 {
+        return Err(FHIRPathError::OperationError(
+            OperationError::InvalidCardinality,
+        ));
+    }
+
+    executor(context)
+}
+
 fn fp_func_1<'b>(
     ast_arguments: &Vec<Expression>,
     context: Context<'b>,
@@ -428,6 +443,11 @@ fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
     )
 }
 
+#[derive(Debug, Reflect)]
+struct Reflection {
+    name: String,
+}
+
 fn evaluate_function<'b>(
     function: &FunctionInvocation,
     context: Context<'b>,
@@ -476,6 +496,18 @@ fn evaluate_function<'b>(
 
             Ok(context
                 .new_context_from(vec![context.allocate(Box::new(!context.values.is_empty()))]))
+        }),
+        "type" => fp_func_0(&function.arguments, context, |context| {
+            if let Some(value) = context.values.get(0) {
+                let type_name = value.typename();
+                Ok(
+                    context.new_context_from(vec![context.allocate(Box::new(Reflection {
+                        name: type_name.to_string(),
+                    }))]),
+                )
+            } else {
+                Ok(context.new_context_from(vec![]))
+            }
         }),
         _ => {
             return Err(FHIRPathError::NotImplemented(format!(
@@ -1147,6 +1179,23 @@ mod tests {
             .collect();
         assert_eq!(ids2.len(), 1);
         assert_eq!(ids2[0], "patient-id");
+    }
+
+    #[test]
+    fn type_test() {
+        let engine = FPEngine::new();
+        let patient = Patient::default();
+
+        let result = engine
+            .evaluate("$this.type().name", vec![&patient])
+            .unwrap();
+        let ids: Vec<&String> = result
+            .iter()
+            .map(|r| r.as_any().downcast_ref::<String>().unwrap())
+            .collect();
+
+        assert_eq!(ids.len(), 1);
+        assert_eq!(ids[0], "Patient");
     }
 
     #[test]
