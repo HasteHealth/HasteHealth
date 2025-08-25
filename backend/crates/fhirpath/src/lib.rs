@@ -498,16 +498,18 @@ fn evaluate_function<'b>(
                 .new_context_from(vec![context.allocate(Box::new(!context.values.is_empty()))]))
         }),
         "type" => fp_func_0(&function.arguments, context, |context| {
-            if let Some(value) = context.values.get(0) {
-                let type_name = value.typename();
-                Ok(
-                    context.new_context_from(vec![context.allocate(Box::new(Reflection {
-                        name: type_name.to_string(),
-                    }))]),
-                )
-            } else {
-                Ok(context.new_context_from(vec![]))
-            }
+            Ok(context.new_context_from(
+                context
+                    .values
+                    .iter()
+                    .map(|value| {
+                        let type_name = value.typename();
+                        context.allocate(Box::new(Reflection {
+                            name: type_name.to_string(),
+                        }))
+                    })
+                    .collect(),
+            ))
         }),
         _ => {
             return Err(FHIRPathError::NotImplemented(format!(
