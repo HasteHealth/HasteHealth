@@ -244,5 +244,6 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         )
         .with_state(shared_state)
         .fallback_service(ServeDir::new("public"));
+
     Ok(NormalizePathLayer::trim_trailing_slash().layer(app))
 }
