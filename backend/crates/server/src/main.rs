@@ -1,3 +1,4 @@
+use axum::{Router, ServiceExt, body::Body};
 use clap::{Parser, Subcommand};
 use oxidized_config::get_config;
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -74,7 +75,14 @@ async fn main() -> Result<(), OperationOutcomeError> {
             let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
             tracing::info!("Server started");
-            axum::serve(listener, server).await.unwrap();
+            axum::serve(
+                listener,
+                <tower_http::normalize_path::NormalizePath<Router> as ServiceExt<
+                    axum::http::Request<Body>,
+                >>::into_make_service(server),
+            )
+            .await
+            .unwrap();
 
             Ok(())
         }

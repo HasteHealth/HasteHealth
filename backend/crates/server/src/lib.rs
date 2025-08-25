@@ -7,7 +7,7 @@ use crate::{
 use axum::{
     Json, Router,
     extract::{OriginalUri, Path, State},
-    http::Method,
+    http::{Method, Uri},
     response::{IntoResponse, Response},
     routing::{self, any},
 };
@@ -23,9 +23,12 @@ use oxidized_repository::{
 };
 use serde::Deserialize;
 use std::{env::VarError, sync::Arc, time::Instant};
-use tower::ServiceBuilder;
-use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
+use tower::{Layer, ServiceBuilder};
+use tower_http::{
+    cors::{Any, CorsLayer},
+    normalize_path::NormalizePathLayer,
+};
+use tower_http::{normalize_path::NormalizePath, services::ServeDir};
 use tower_sessions::{
     Expiry, SessionManagerLayer,
     cookie::{SameSite, time::Duration},
@@ -77,7 +80,14 @@ struct FHIRHandlerPath {
     tenant: TenantId,
     project: ProjectId,
     fhir_version: SupportedFHIRVersions,
-    fhir_location: String,
+    fhir_location: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct FHIRRootHandlerPath {
+    tenant: TenantId,
+    project: ProjectId,
+    fhir_version: SupportedFHIRVersions,
 }
 
 async fn fhir_handler<
@@ -85,17 +95,18 @@ async fn fhir_handler<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
-    OriginalUri(uri): OriginalUri,
-    Path(path): Path<FHIRHandlerPath>,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    uri: Uri,
+    path: FHIRHandlerPath,
+    state: Arc<AppState<Repo, Search>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
-    info!("[{}] '{}'", method, path.fhir_location);
+    let fhir_location = path.fhir_location.unwrap_or_default();
+    info!("[{}] '{}'", method, fhir_location);
 
     let http_req = HTTPRequest::new(
         method,
-        path.fhir_location,
+        fhir_location,
         body,
         uri.query().unwrap_or_default().to_string(),
     );
@@ -116,6 +127,44 @@ async fn fhir_handler<
     info!("Request processed in {:?}", start.elapsed());
 
     Ok(response.into_response())
+}
+
+async fn fhir_root_handler<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    method: Method,
+    OriginalUri(uri): OriginalUri,
+    Path(path): Path<FHIRRootHandlerPath>,
+    State(state): State<Arc<AppState<Repo, Search>>>,
+    body: String,
+) -> Result<Response, OperationOutcomeError> {
+    fhir_handler(
+        method,
+        uri,
+        FHIRHandlerPath {
+            tenant: path.tenant,
+            project: path.project,
+            fhir_version: path.fhir_version,
+            fhir_location: None,
+        },
+        state,
+        body,
+    )
+    .await
+}
+
+async fn fhir_type_handler<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    method: Method,
+    OriginalUri(uri): OriginalUri,
+    Path(path): Path<FHIRHandlerPath>,
+    State(state): State<Arc<AppState<Repo, Search>>>,
+    body: String,
+) -> Result<Response, OperationOutcomeError> {
+    fhir_handler(method, uri, path, state, body).await
 }
 
 pub async fn create_services(
@@ -151,7 +200,7 @@ pub async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcome
     Ok(Json(&*JWK_SET))
 }
 
-pub async fn server() -> Result<Router, OperationOutcomeError> {
+pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
     auth_n::certificates::create_certifications(&config).unwrap();
     let subscriber = tracing_subscriber::FmtSubscriber::new();
@@ -164,7 +213,11 @@ pub async fn server() -> Result<Router, OperationOutcomeError> {
     let shared_state = create_services(config).await?;
 
     let project_router = Router::new()
-        .route("/fhir/{fhir_version}/{*fhir_location}", any(fhir_handler))
+        .route("/fhir/{fhir_version}", any(fhir_root_handler))
+        .route(
+            "/fhir/{fhir_version}/{*fhir_location}",
+            any(fhir_type_handler),
+        )
         .nest("/oidc", auth_n::oidc::routes::create_router());
 
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
@@ -192,5 +245,5 @@ pub async fn server() -> Result<Router, OperationOutcomeError> {
         .with_state(shared_state)
         .fallback_service(ServeDir::new("public"));
 
-    Ok(app)
+    Ok(NormalizePathLayer::trim_trailing_slash().layer(app))
 }

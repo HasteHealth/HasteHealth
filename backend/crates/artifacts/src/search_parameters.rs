@@ -132,12 +132,15 @@ pub fn get_search_parameters_for_resource(
 }
 
 pub fn get_search_parameter_for_name(
-    resource_type: &ResourceType,
+    resource_type: Option<&ResourceType>,
     name: &str,
 ) -> Option<Arc<SearchParameter>> {
-    R4_SEARCH_PARAMETERS
-        .by_resource_type
-        .get(resource_type.as_str())
+    resource_type
+        .and_then(|resource_type| {
+            R4_SEARCH_PARAMETERS
+                .by_resource_type
+                .get(resource_type.as_str())
+        })
         .and_then(|params| params.get(name))
         .or_else(|| {
             R4_SEARCH_PARAMETERS

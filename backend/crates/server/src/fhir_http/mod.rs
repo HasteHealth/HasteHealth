@@ -37,7 +37,7 @@ impl HTTPRequest {
 pub enum FHIRRequestParsingError {
     #[error(code = "invalid", diagnostic = "Invalid HTTP Method")]
     InvalidMethod,
-    #[error(code = "invalid", diagnostic = "Invalid FHIR path")]
+    #[error(code = "invalid", diagnostic = "Invalid Path location")]
     InvalidPath,
     #[error(code = "invalid", diagnostic = "Invalid FHIR body")]
     InvalidBody,
@@ -169,7 +169,6 @@ delete-conditional  ?                                   DELETE N/A N/A N/A O: If
 */
 fn parse_request_1_empty<'a>(
     _fhir_version: SupportedFHIRVersions,
-    _url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
     match req.method {
@@ -214,8 +213,8 @@ fn parse_request_1<'a>(
     url_chunks: Vec<&'a str>,
     req: &HTTPRequest,
 ) -> Result<FHIRRequest, FHIRRequestParsingError> {
-    if url_chunks[0] == "" {
-        parse_request_1_empty(fhir_version, url_chunks, req)
+    if url_chunks.is_empty() {
+        parse_request_1_empty(fhir_version, req)
     } else {
         parse_request_1_non_empty(fhir_version, url_chunks, req)
     }
@@ -406,7 +405,7 @@ pub fn http_request_to_fhir_request(
     let url_pieces = req.path.split_terminator('/').collect::<Vec<&str>>();
 
     match url_pieces.len() {
-        1 => parse_request_1(fhir_version, url_pieces, req),
+        0 | 1 => parse_request_1(fhir_version, url_pieces, req),
         2 => parse_request_2(fhir_version, url_pieces, req),
         3 => parse_request_3(fhir_version, url_pieces, req),
         4 => parse_request_4(fhir_version, url_pieces, req),

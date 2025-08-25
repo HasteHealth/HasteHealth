@@ -13,9 +13,9 @@ use crate::{indexing_conversion::{date_time_range, get_decimal_range}, SearchReq
 pub enum QueryBuildError {
     #[error(
         code = "not-found",
-        diagnostic = "Search parameter with name '{arg1}' not found for resource type '{arg0:?}'"
+        diagnostic = "Search parameter with name '{arg0}' not found.'"
     )]
-    MissingParameter(ResourceType, String),
+    MissingParameter(String),
     #[error(
         code = "not-supported",
         diagnostic = "Unsupported search request type or parameter: {arg0}"
@@ -419,130 +419,135 @@ fn parameter_to_elasticsearch_clauses(
 
 static MAX_COUNT: usize = 50;
 
+fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
+    match request {
+        SearchRequest::TypeSearch(type_search_request) => Some(&type_search_request.resource_type),
+        _ => None,
+    }
+}
+
+fn get_parameters<'a>(request: &'a SearchRequest) -> &'a Vec<ParsedParameter> {
+    match request {
+        SearchRequest::TypeSearch(type_search_request) => &type_search_request.parameters,
+        SearchRequest::SystemSearch(system_search_request) => &system_search_request.parameters,
+    }
+}
+
 pub fn build_elastic_search_query(
     request: &SearchRequest,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    match request {
-        SearchRequest::TypeSearch(type_search_request) => {
-            let resource_type = &type_search_request.resource_type;
-            let parameters = &type_search_request.parameters;
+    let resource_type = get_resource_type(request);
+    let parameters = get_parameters(request);
 
-            let mut clauses: Vec<serde_json::Value> = vec![];
-            let mut size = MAX_COUNT;
-            let mut show_total = false;
-            let mut sort: Vec<serde_json::Value> = Vec::new();
+    let mut clauses: Vec<serde_json::Value> = vec![];
+    let mut size = MAX_COUNT;
+    let mut show_total = false;
+    let mut sort: Vec<serde_json::Value> = Vec::new();
 
-            for parameter in parameters.iter() {
-                match parameter {
-                    ParsedParameter::Resource(resource_param) => {
-                        let search_param =
-                            oxidized_artifacts::search_parameters::get_search_parameter_for_name(
-                                &resource_type,
-                                &resource_param.name,
-                            )
-                            .ok_or_else(|| {
-                                QueryBuildError::MissingParameter(
-                                    resource_type.clone(),
-                                    resource_param.name.to_string(),
-                                )
-                            })?;
-                        let clause =
-                            parameter_to_elasticsearch_clauses(&search_param, &resource_param)?;
-                        clauses.push(clause);
+    for parameter in parameters.iter() {
+        match parameter {
+            ParsedParameter::Resource(resource_param) => {
+                let search_param =
+                    oxidized_artifacts::search_parameters::get_search_parameter_for_name(
+                        resource_type,
+                        &resource_param.name,
+                    )
+                    .ok_or_else(|| {
+                        QueryBuildError::MissingParameter(
+                            resource_param.name.to_string(),
+                        )
+                    })?;
+                let clause =
+                    parameter_to_elasticsearch_clauses(&search_param, &resource_param)?;
+                clauses.push(clause);
+            }
+            ParsedParameter::Result(result_param) => {
+                match result_param.name.as_str() {
+                    "_count" => {
+                        size = std::cmp::min( result_param
+                            .value
+                            .get(0)
+                            .and_then(|v| v.parse::<usize>().ok())
+                            .unwrap_or(100), MAX_COUNT);
                     }
-                    ParsedParameter::Result(result_param) => {
-                        match result_param.name.as_str() {
-                            "_count" => {
-                                size = std::cmp::min( result_param
-                                    .value
-                                    .get(0)
-                                    .and_then(|v| v.parse::<usize>().ok())
-                                    .unwrap_or(100), MAX_COUNT);
+                    "_total" => {
+                        match result_param.value.iter().map(|s| s.as_str()).collect::<Vec<_>>().as_slice() {
+                            ["none"] => {
+                                show_total = false;
                             }
-                            "_total" => {
-                                match result_param.value.iter().map(|s| s.as_str()).collect::<Vec<_>>().as_slice() {
-                                    ["none"] => {
-                                        show_total = false;
-                                    }
-                                    ["accurate"] => {
-                                        show_total = true;
-                                    }
-                                    ["estimate"] => {
-                                        show_total = true;
-                                    }
-                                    _ => {
-                                        return Err(QueryBuildError::InvalidParameterValue(
-                                            result_param.name.to_string(),
-                                        ));
-                                    }
-                                }
+                            ["accurate"] => {
+                                show_total = true;
                             }
-                            "_sort" => {
-                                sort = result_param.value.iter().map(|sort_param| {
-                                   let parameter_name = if sort_param.starts_with("-") {
-                                        &sort_param[1..]
-                                    } else {
-                                        sort_param
-                                    };
-
-                                    let sort_direction = if sort_param.starts_with("-") {
-                                        SortDirection::Desc
-                                    } else {
-                                        SortDirection::Asc
-                                    };
-
-                                    let search_param =
-                                        oxidized_artifacts::search_parameters::get_search_parameter_for_name(
-                                            &resource_type,
-                                            parameter_name,
-                                        )
-                                        .ok_or_else(|| {
-                                            QueryBuildError::MissingParameter(
-                                                resource_type.clone(),
-                                                parameter_name.to_string(),
-                                            )
-                                    })?; 
-
-                                    sort_build(search_param.as_ref(), &sort_direction)
-                                }).collect::<Result<Vec<_>, _>>()?;
+                            ["estimate"] => {
+                                show_total = true;
                             }
                             _ => {
-                                return Err(QueryBuildError::UnsupportedParameter(
-                                  result_param.name.to_string(),
+                                return Err(QueryBuildError::InvalidParameterValue(
+                                    result_param.name.to_string(),
                                 ));
                             }
                         }
                     }
+                    "_sort" => {
+                        sort = result_param.value.iter().map(|sort_param| {
+                            let parameter_name = if sort_param.starts_with("-") {
+                                &sort_param[1..]
+                            } else {
+                                sort_param
+                            };
+
+                            let sort_direction = if sort_param.starts_with("-") {
+                                SortDirection::Desc
+                            } else {
+                                SortDirection::Asc
+                            };
+
+                            let search_param =
+                                oxidized_artifacts::search_parameters::get_search_parameter_for_name(
+                                    resource_type,
+                                    parameter_name,
+                                )
+                                .ok_or_else(|| {
+                                    QueryBuildError::MissingParameter(
+                                        parameter_name.to_string(),
+                                    )
+                            })?; 
+
+                            sort_build(search_param.as_ref(), &sort_direction)
+                        }).collect::<Result<Vec<_>, _>>()?;
+                    }
+                    _ => {
+                        return Err(QueryBuildError::UnsupportedParameter(
+                            result_param.name.to_string(),
+                        ));
+                    }
                 }
             }
-
-            clauses.push(json!({
-                "match": {
-                    "resource_type": resource_type.as_str()
-                }
-            }));
-
-            let query = json!({
-                "fields": ["version_id", "id", "resource_type"],
-                "size": size,
-                "track_total_hits": show_total,
-                "_source": false,
-                "query": {
-                    "bool": {
-                        "must": clauses
-                    }
-                },
-                "sort": sort,
-            });
-
-            // println!("{}", serde_json::to_string_pretty(&query).unwrap());
-
-            Ok(query)
-        }
-        _ => {
-            return Err(QueryBuildError::UnsupportedParameter(
-                "Unsupported search request type".to_string(),
-            ));
         }
     }
+
+    if let Some(resource_type) = resource_type {
+        clauses.push(json!({
+            "match": {
+                "resource_type": resource_type.as_str()
+            }
+        }));
+    }
+
+    let query = json!({
+        "fields": ["version_id", "id", "resource_type"],
+        "size": size,
+        "track_total_hits": show_total,
+        "_source": false,
+        "query": {
+            "bool": {
+                "must": clauses
+            }
+        },
+        "sort": sort,
+    });
+
+    // println!("{}", serde_json::to_string_pretty(&query).unwrap());
+
+    Ok(query)
 }

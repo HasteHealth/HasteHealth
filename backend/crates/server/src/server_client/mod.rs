@@ -3,8 +3,8 @@ use oxidized_fhir_client::{
     middleware::{Context, Middleware, MiddlewareOutput, Next},
     request::{
         FHIRCreateRequest, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadRequest,
-        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
-        FHIRUpdateResponse, FHIRVersionReadResponse,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, FHIRSearchSystemResponse,
+        FHIRSearchTypeRequest, FHIRSearchTypeResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
@@ -213,6 +213,35 @@ fn storage_middleware<
                         .await?,
                     })))
                 }
+            }
+            FHIRRequest::SearchSystem(search_system_request) => {
+                let search_results = state
+                    .search
+                    .search(
+                        &context.ctx.fhir_version,
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        SearchRequest::SystemSearch(search_system_request),
+                    )
+                    .await?;
+
+                let resources = state
+                    .repo
+                    .read_by_version_ids(
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        search_results
+                            .entries
+                            .iter()
+                            .map(|v| VersionIdRef::new(v.version_id.as_ref()))
+                            .collect(),
+                    )
+                    .await?;
+
+                Ok(Some(FHIRResponse::SearchSystem(FHIRSearchSystemResponse {
+                    total: search_results.total,
+                    resources,
+                })))
             }
             FHIRRequest::SearchType(search_type_request) => {
                 let search_results = state
