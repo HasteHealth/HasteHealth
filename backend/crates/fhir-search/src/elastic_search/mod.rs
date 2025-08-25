@@ -174,46 +174,40 @@ impl SearchEngine for ElasticSearchEngine {
         _search_request: super::SearchRequest<'a>,
     ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(&_search_request)?;
-        match _search_request {
-            super::SearchRequest::TypeSearch(_) => {
-                let search_response = self
-                    .client
-                    .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
-                    .body(query)
-                    .send()
-                    .await
-                    .map_err(SearchError::from)?;
 
-                if !search_response.status_code().is_success() {
-                    return Err(SearchError::ElasticSearchResponseError(
-                        search_response.status_code().as_u16(),
-                    )
-                    .into());
-                }
+        let search_response = self
+            .client
+            .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
+            .body(query)
+            .send()
+            .await
+            .map_err(SearchError::from)?;
 
-                let search_results = search_response
-                    .json::<ElasticSearchResponse>()
-                    .await
-                    .map_err(SearchError::from)?;
-
-                Ok(SearchReturn {
-                    total: search_results.hits.total.as_ref().map(|t| t.value),
-                    entries: search_results
-                        .hits
-                        .hits
-                        .into_iter()
-                        .map(|mut hit| SearchEntry {
-                            id: hit.fields.id.pop().unwrap(),
-                            resource_type: hit.fields.resource_type.pop().unwrap(),
-                            version_id: hit.fields.version_id.pop().unwrap(),
-                        })
-                        .collect(),
-                })
-            }
-            super::SearchRequest::SystemSearch(_) => {
-                todo!();
-            }
+        if !search_response.status_code().is_success() {
+            return Err(SearchError::ElasticSearchResponseError(
+                search_response.status_code().as_u16(),
+            )
+            .into());
         }
+
+        let search_results = search_response
+            .json::<ElasticSearchResponse>()
+            .await
+            .map_err(SearchError::from)?;
+
+        Ok(SearchReturn {
+            total: search_results.hits.total.as_ref().map(|t| t.value),
+            entries: search_results
+                .hits
+                .hits
+                .into_iter()
+                .map(|mut hit| SearchEntry {
+                    id: hit.fields.id.pop().unwrap(),
+                    resource_type: hit.fields.resource_type.pop().unwrap(),
+                    version_id: hit.fields.version_id.pop().unwrap(),
+                })
+                .collect(),
+        })
     }
 
     async fn index<'a>(

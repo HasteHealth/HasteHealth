@@ -95,6 +95,15 @@ impl IntoResponse for FHIRResponse {
                 )
                     .into_response()
             }
+            FHIRResponse::SearchSystem(response) => {
+                let bundle = to_bundle("searchset".to_string(), response.total, response.resources);
+                (
+                    StatusCode::OK,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                )
+                    .into_response()
+            }
             _ => panic!("Unsupported FHIRResponse type"),
         }
     }
