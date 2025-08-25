@@ -18,9 +18,14 @@ pub enum QueryBuildError {
     MissingParameter(String),
     #[error(
         code = "not-supported",
-        diagnostic = "Unsupported search request type or parameter: {arg0}"
+        diagnostic = "Unsupported parameter: '{arg0}'"
     )]
     UnsupportedParameter(String),
+        #[error(
+        code = "not-supported",
+        diagnostic = "Unsupported sorting parameter: '{arg0}'"
+    )]
+    UnsupportedSortParameter(String),
         #[error(
         code = "not-supported",
         diagnostic = "Parameter value '{arg0}' is not supported for this search type."
@@ -71,7 +76,27 @@ fn sort_build(search_param: &SearchParameter, direction: &SortDirection) -> Resu
                 }
             }
         }
-        _ => return Err(QueryBuildError::UnsupportedParameter(search_param.name.value.clone().unwrap_or_default())),
+        Some("string") => {
+            match direction {
+                SortDirection::Asc => {
+                    let sort_col = url.clone();
+                    Ok(json!({
+                        sort_col: {
+                            "order": "asc"
+                        }
+                    }))
+                }
+                SortDirection::Desc => {
+                    let sort_col = url.clone();
+                    Ok(json!({
+                        sort_col: {
+                            "order": "desc"
+                        }
+                    }))
+                }
+            }
+        }
+        _ => return Err(QueryBuildError::UnsupportedSortParameter(search_param.name.value.clone().unwrap_or_default())),
     }
 }
 
@@ -511,7 +536,7 @@ pub fn build_elastic_search_query(
                                     QueryBuildError::MissingParameter(
                                         parameter_name.to_string(),
                                     )
-                            })?; 
+                            })?;
 
                             sort_build(search_param.as_ref(), &sort_direction)
                         }).collect::<Result<Vec<_>, _>>()?;
