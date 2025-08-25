@@ -137,7 +137,7 @@ fn parse_request_1_non_empty<'a>(
             })),
             Method::GET => {
                 match url_chunks[0] {
-                    "capabilities" => {
+                    "metadata" => {
                         // Handle capabilities request
                         Ok(FHIRRequest::Capabilities)
                     }

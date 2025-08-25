@@ -1,8 +1,8 @@
 use crate::{
     auth_n::certificates::{JSONWebKeySet, JWK_SET},
+    fhir_client::{FHIRServerClient, ServerCTX},
     fhir_http::{HTTPRequest, http_request_to_fhir_request},
     pg::get_pool,
-    server_client::{FHIRServerClient, ServerCTX},
 };
 use axum::{
     Json, Router,
@@ -38,9 +38,9 @@ use tracing::info;
 
 mod auth_n;
 mod extract;
+mod fhir_client;
 mod fhir_http;
 mod pg;
-mod server_client;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum ConfigError {
