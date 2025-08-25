@@ -59,6 +59,12 @@ impl IntoResponse for FHIRResponse {
                 oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
+            FHIRResponse::Capabilities(response) => (
+                StatusCode::OK,
+                // Unwrap should be safe here.
+                oxidized_fhir_serialization_json::to_string(&response.capabilities).unwrap(),
+            )
+                .into_response(),
             FHIRResponse::HistoryInstance(response) => {
                 let bundle = to_bundle("history".to_string(), None, response.resources);
                 (
