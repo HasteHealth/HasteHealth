@@ -15,7 +15,7 @@ use oxidized_repository::{
 };
 use std::sync::Arc;
 
-mod storage;
+mod middleware;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
@@ -68,7 +68,10 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     FHIRServerClient<Repo, Search>
 {
     pub fn new(repo: Repo, search: Search) -> Self {
-        let middleware = Middleware::new(vec![Box::new(storage::middleware)]);
+        let middleware = Middleware::new(vec![
+            Box::new(middleware::capabilities),
+            Box::new(middleware::storage),
+        ]);
         FHIRServerClient {
             state: Arc::new(ClientState {
                 repo,

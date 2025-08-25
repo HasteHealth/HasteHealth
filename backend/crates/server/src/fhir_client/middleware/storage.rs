@@ -1,5 +1,4 @@
 use oxidized_fhir_client::{
-    middleware::{Context, MiddlewareOutput, Next},
     request::{
         FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest,
         FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
@@ -8,6 +7,13 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 
+use crate::fhir_client::{
+    ClientState, StorageError,
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
+    },
+};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_reflect::MetaValue;
@@ -18,15 +24,7 @@ use oxidized_repository::{
 };
 use std::sync::Arc;
 
-use crate::fhir_client::{ClientState, ServerCTX, StorageError};
-
-type ServerMiddlewareState<Repository, Search> = Arc<ClientState<Repository, Search>>;
-type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
-type ServerMiddlewareNext<Repo, Search> =
-    Next<Arc<ClientState<Repo, Search>>, ServerMiddlewareContext, OperationOutcomeError>;
-type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
-
-pub fn middleware<
+pub fn storage<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >(
