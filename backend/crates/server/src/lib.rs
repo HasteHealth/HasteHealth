@@ -111,11 +111,7 @@ async fn fhir_handler<
         uri.query().unwrap_or_default().to_string(),
     );
 
-    println!("HTTP REQ: {:?}", http_req);
-
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
-
-    println!("{:?}", fhir_request);
 
     let ctx = ServerCTX {
         tenant: path.tenant,
