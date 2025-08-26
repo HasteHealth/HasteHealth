@@ -1,0 +1,7 @@
+[package]
+name = "generated-ops"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+oxidized-fhir-model = { path = "../fhir-model" }
