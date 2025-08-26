@@ -1,3 +1,6 @@
+use crate::fhir_client::middleware::{
+    ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
+};
 use oxidized_fhir_client::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
@@ -7,19 +10,13 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::types::ResourceType;
-use oxidized_fhir_operation_error::{
-    OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
-};
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
     types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
 use std::sync::Arc;
-
-use crate::fhir_client::middleware::{
-    ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
-};
 
 mod middleware;
 
@@ -106,7 +103,7 @@ fn router_middleware_chain<
                     Some(route) => {
                         let context = route
                             .middleware
-                            .call(state, context.ctx, context.request)
+                            .call(state.clone(), context.ctx, context.request)
                             .await?;
                         if let Some(next) = next {
                             next(state, context).await
@@ -116,12 +113,9 @@ fn router_middleware_chain<
                     }
                     None => {
                         if let Some(next) = next {
-                            next(state, context)
+                            next(state, context).await
                         } else {
-                            Err(OperationOutcomeError::fatal(
-                                OperationOutcomeCodes::Exception,
-                                "No route matched and no next middleware found".to_string(),
-                            ))
+                            Ok(context)
                         }
                     }
                 }
