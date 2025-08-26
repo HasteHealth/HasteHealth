@@ -1,0 +1,1 @@
+cargo run generate types -i ../artifacts/artifacts/r4/hl7/profiles-types.json -i ../artifacts/artifacts/r4/hl7/profiles-resources.json -i ../artifacts/artifacts/r4/oxidized_health/structure_definition  -o ../fhir-model/src/r4/types.rs

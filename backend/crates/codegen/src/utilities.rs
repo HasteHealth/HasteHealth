@@ -24,6 +24,8 @@ pub static RUST_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     m.insert("break");
     m.insert("continue");
     m.insert("ref");
+    m.insert("return");
+    m.insert("async");
     m
 });
 
