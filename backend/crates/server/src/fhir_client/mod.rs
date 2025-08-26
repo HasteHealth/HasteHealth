@@ -7,7 +7,9 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::types::ResourceType;
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_fhir_operation_error::{
+    OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
+};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
@@ -102,12 +104,26 @@ fn router_middleware_chain<
                 let route = Arc::new(routes.iter().find(|r| (r.filter)(&context.request)).clone());
                 match route.as_ref() {
                     Some(route) => {
-                        route
+                        let context = route
                             .middleware
                             .call(state, context.ctx, context.request)
-                            .await
+                            .await?;
+                        if let Some(next) = next {
+                            next(state, context).await
+                        } else {
+                            Ok(context)
+                        }
                     }
-                    None => panic!("No matching route found"),
+                    None => {
+                        if let Some(next) = next {
+                            next(state, context)
+                        } else {
+                            Err(OperationOutcomeError::fatal(
+                                OperationOutcomeCodes::Exception,
+                                "No route matched and no next middleware found".to_string(),
+                            ))
+                        }
+                    }
                 }
             })
         },
@@ -121,6 +137,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
         let storage_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
                 FHIRRequest::Read(_)
+                | FHIRRequest::SearchSystem(_)
                 | FHIRRequest::SearchType(_)
                 | FHIRRequest::Create(_)
                 // Add other request types as needed
