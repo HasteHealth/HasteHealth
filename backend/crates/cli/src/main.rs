@@ -23,7 +23,7 @@ enum GenerateLevel {
 
 #[derive(Subcommand)]
 enum CLICommand {
-    FHIRPATH {
+    FHIRPath {
         /// lists test values
         fhirpath: String,
         /// FHIR data to evaluate the FHIRPath on
@@ -99,7 +99,7 @@ fn format_code(rust_code: String) -> String {
 fn main() -> Result<(), CLIError> {
     let cli = Cli::parse();
     match &cli.command {
-        CLICommand::FHIRPATH { fhirpath, data } => {
+        CLICommand::FHIRPath { fhirpath, data } => {
             let data = parse_fhir_data(data)?;
             println!("FHIRPath: {} {}", fhirpath, data);
 
