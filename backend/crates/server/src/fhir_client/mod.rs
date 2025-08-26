@@ -130,13 +130,32 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     pub fn new(repo: Repo, search: Search) -> Self {
         let storage_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Read(_)
+                FHIRRequest::Create(_)
+                | FHIRRequest::Read(_)
+                | FHIRRequest::VersionRead(_)
+                | FHIRRequest::UpdateInstance(_)
+                | FHIRRequest::ConditionalUpdate(_)
+                | FHIRRequest::DeleteInstance(_)
+                | FHIRRequest::DeleteType(_)
+                | FHIRRequest::Patch(_)
+                | FHIRRequest::DeleteSystem(_)
+                | FHIRRequest::HistoryInstance(_)
+                | FHIRRequest::HistoryType(_)
+                | FHIRRequest::HistorySystem(_)
+                // Search
                 | FHIRRequest::SearchSystem(_)
                 | FHIRRequest::SearchType(_)
-                | FHIRRequest::Create(_)
-                // Add other request types as needed
+                // Bundle operations
+                | FHIRRequest::Batch(_)
+                | FHIRRequest::Transaction(_)
                 => true,
-                _ => false,
+
+                FHIRRequest::InvokeInstance(_)
+                | FHIRRequest::InvokeType(_)
+                | FHIRRequest::InvokeSystem(_)
+                | FHIRRequest::Capabilities
+                 => false,
+               
             }),
             middleware: Middleware::new(vec![Box::new(middleware::storage)]),
         };
