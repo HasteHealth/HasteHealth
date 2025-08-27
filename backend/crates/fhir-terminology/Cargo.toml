@@ -9,3 +9,5 @@ oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
+oxidized-repository = { path = "../repository" }
+oxidized-fhir-client = { path = "../fhir-client" }

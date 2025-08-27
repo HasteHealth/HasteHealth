@@ -2135,9 +2135,11 @@ dependencies = [
 name = "oxidized-fhir-terminology"
 version = "0.1.0"
 dependencies = [
+ "oxidized-fhir-client",
  "oxidized-fhir-generated-ops",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-repository",
 ]
 
 [[package]]
