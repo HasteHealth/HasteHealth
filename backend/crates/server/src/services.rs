@@ -12,7 +12,7 @@ use tracing::info;
 
 // Singleton for the database connection pool in postgres.
 static POOL: OnceCell<Pool<Postgres>> = OnceCell::const_new();
-async fn get_pool(config: &dyn Config) -> &'static Pool<Postgres> {
+pub async fn get_pool(config: &dyn Config) -> &'static Pool<Postgres> {
     POOL.get_or_init(async || {
         let database_url = config
             .get("DATABASE_URL")
