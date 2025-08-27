@@ -10,7 +10,7 @@ use oxidized_repository::{
         user::{AuthMethod, CreateUser, UserRole},
     },
 };
-use oxidized_server::{create_services, server};
+use oxidized_server::{server, services};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -65,11 +65,11 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
 
     let config = get_config("environment".into());
-    let services = create_services(config).await?;
+    let services = services::create_services(config).await?;
 
     match &cli.command {
         Commands::Start { port } => {
-            let server = server().await?;
+            let server = server::server().await?;
             // run our app with hyper, listening globally on port 3000
             let addr = format!("0.0.0.0:{}", port.unwrap_or(3000));
             let listener = tokio::net::TcpListener::bind(addr).await.unwrap();

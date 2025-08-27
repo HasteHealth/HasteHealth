@@ -1,4 +1,3 @@
-use crate::SupportedFHIRVersions;
 use axum::http::Method;
 use json_patch::Patch;
 use oxidized_fhir_client::request::{
@@ -14,6 +13,7 @@ use oxidized_fhir_model::r4::types::{Bundle, Parameters, ResourceType, ResourceT
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_serialization_json::errors::DeserializeError;
+use oxidized_repository::types::SupportedFHIRVersions;
 
 #[derive(Debug)]
 pub struct HTTPRequest {

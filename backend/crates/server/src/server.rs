@@ -1,0 +1,182 @@
+use crate::{
+    auth_n::{
+        self,
+        certificates::{JSONWebKeySet, JWK_SET},
+    },
+    fhir_client::ServerCTX,
+    fhir_http::{HTTPRequest, http_request_to_fhir_request},
+    services::{AppState, ConfigError, create_services, get_pool},
+};
+use axum::{
+    Json, Router,
+    extract::{OriginalUri, Path, State},
+    http::{Method, Uri},
+    response::{IntoResponse, Response},
+    routing::{self, any},
+};
+use oxidized_config::get_config;
+use oxidized_fhir_client::FHIRClient;
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_search::SearchEngine;
+use oxidized_repository::{
+    Repository,
+    types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
+};
+use serde::Deserialize;
+use std::{sync::Arc, time::Instant};
+use tower::{Layer, ServiceBuilder};
+use tower_http::{
+    cors::{Any, CorsLayer},
+    normalize_path::NormalizePathLayer,
+};
+use tower_http::{normalize_path::NormalizePath, services::ServeDir};
+use tower_sessions::{
+    Expiry, SessionManagerLayer,
+    cookie::{SameSite, time::Duration},
+};
+use tower_sessions_sqlx_store::PostgresStore;
+use tracing::info;
+
+#[derive(Deserialize)]
+struct FHIRHandlerPath {
+    tenant: TenantId,
+    project: ProjectId,
+    fhir_version: SupportedFHIRVersions,
+    fhir_location: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct FHIRRootHandlerPath {
+    tenant: TenantId,
+    project: ProjectId,
+    fhir_version: SupportedFHIRVersions,
+}
+
+async fn fhir_handler<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    method: Method,
+    uri: Uri,
+    path: FHIRHandlerPath,
+    state: Arc<AppState<Repo, Search>>,
+    body: String,
+) -> Result<Response, OperationOutcomeError> {
+    let start = Instant::now();
+    let fhir_location = path.fhir_location.unwrap_or_default();
+    info!("[{}] '{}'", method, fhir_location);
+
+    let http_req = HTTPRequest::new(
+        method,
+        fhir_location,
+        body,
+        uri.query().unwrap_or_default().to_string(),
+    );
+
+    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
+
+    let ctx = ServerCTX {
+        tenant: path.tenant,
+        project: path.project,
+        fhir_version: path.fhir_version,
+        author: Author {
+            id: "anonymous".to_string(),
+            kind: "Membership".to_string(),
+        },
+    };
+
+    let response = state.fhir_client.request(ctx, fhir_request).await?;
+    info!("Request processed in {:?}", start.elapsed());
+
+    Ok(response.into_response())
+}
+
+async fn fhir_root_handler<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    method: Method,
+    OriginalUri(uri): OriginalUri,
+    Path(path): Path<FHIRRootHandlerPath>,
+    State(state): State<Arc<AppState<Repo, Search>>>,
+    body: String,
+) -> Result<Response, OperationOutcomeError> {
+    fhir_handler(
+        method,
+        uri,
+        FHIRHandlerPath {
+            tenant: path.tenant,
+            project: path.project,
+            fhir_version: path.fhir_version,
+            fhir_location: None,
+        },
+        state,
+        body,
+    )
+    .await
+}
+
+async fn fhir_type_handler<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+>(
+    method: Method,
+    OriginalUri(uri): OriginalUri,
+    Path(path): Path<FHIRHandlerPath>,
+    State(state): State<Arc<AppState<Repo, Search>>>,
+    body: String,
+) -> Result<Response, OperationOutcomeError> {
+    fhir_handler(method, uri, path, state, body).await
+}
+
+async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeError> {
+    Ok(Json(&*JWK_SET))
+}
+
+pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
+    let config = get_config("environment".into());
+    auth_n::certificates::create_certifications(&config).unwrap();
+    let subscriber = tracing_subscriber::FmtSubscriber::new();
+    tracing::subscriber::set_global_default(subscriber).unwrap();
+
+    let pool = get_pool(config.as_ref()).await;
+    let session_store = PostgresStore::new(pool.clone());
+    session_store.migrate().await.map_err(ConfigError::from)?;
+
+    let shared_state = create_services(config).await?;
+
+    let project_router = Router::new()
+        .route("/fhir/{fhir_version}", any(fhir_root_handler))
+        .route(
+            "/fhir/{fhir_version}/{*fhir_location}",
+            any(fhir_type_handler),
+        )
+        .nest("/oidc", auth_n::oidc::routes::create_router());
+
+    let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
+
+    let app = Router::new()
+        .route("/certs/jwks", routing::get(jwks_get))
+        .nest("/w/{tenant}", tenant_router)
+        .layer(
+            ServiceBuilder::new()
+                .layer(
+                    SessionManagerLayer::new(session_store)
+                        .with_secure(true)
+                        .with_same_site(SameSite::None)
+                        .with_expiry(Expiry::OnInactivity(Duration::hours(2))),
+                )
+                .layer(
+                    CorsLayer::new()
+                        // allow `GET` and `POST` when accessing the resource
+                        .allow_methods(Any)
+                        // allow requests from any origin
+                        .allow_origin(Any)
+                        .allow_headers(Any),
+                ),
+        )
+        .with_state(shared_state)
+        .fallback_service(ServeDir::new("public"));
+
+    Ok(NormalizePathLayer::trim_trailing_slash().layer(app))
+}
