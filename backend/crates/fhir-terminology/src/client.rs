@@ -17,26 +17,26 @@ impl<CTX: Send + Sync, Client: FHIRClient<CTX, OperationOutcomeError>> FHIRTermi
     async fn expand(
         &self,
         ctx: CTX,
-        input: &ValueSetExpand::Input,
+        _input: &ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
         // Implementation would go here
         let valueset = unsafe { ResourceType::unchecked("ValueSet".to_string()) };
-        let result = self.client.search_type(ctx, valueset, vec![]).await;
+        let _result = self.client.search_type(ctx, valueset, vec![]).await;
 
         panic!();
     }
     async fn validate(
         &self,
-        ctx: CTX,
-        input: &ValueSetValidateCode::Input,
+        _ctx: CTX,
+        _input: &ValueSetValidateCode::Input,
     ) -> Result<ValueSetValidateCode::Output, OperationOutcomeError> {
         // Implementation would go here
         unimplemented!()
     }
     async fn lookup(
         &self,
-        ctx: CTX,
-        input: &CodeSystemLookup::Input,
+        _ctx: CTX,
+        _input: &CodeSystemLookup::Input,
     ) -> Result<CodeSystemLookup::Output, OperationOutcomeError> {
         // Implementation would go here
         unimplemented!()

@@ -1,6 +1,5 @@
 use oxidized_fhir_generated_ops::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_repository::types::{ProjectId, TenantId};
 
 pub mod client;
 
