@@ -989,13 +989,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "generated-ops"
-version = "0.1.0"
-dependencies = [
- "oxidized-fhir-model",
-]
-
-[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2057,6 +2050,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxidized-fhir-generated-ops"
+version = "0.1.0"
+dependencies = [
+ "oxidized-fhir-model",
+]
+
+[[package]]
 name = "oxidized-fhir-model"
 version = "0.1.0"
 dependencies = [
@@ -2129,6 +2129,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "oxidized-fhir-terminology"
+version = "0.1.0"
+dependencies = [
+ "oxidized-fhir-client",
+ "oxidized-fhir-generated-ops",
+ "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
+ "oxidized-repository",
 ]
 
 [[package]]

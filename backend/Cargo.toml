@@ -28,7 +28,9 @@ members = [
     "crates/artifacts",
     "crates/fhir-search",
     "crates/repository",
-    "crates/macro-loads", "crates/generated-ops",
+    "crates/macro-loads",
+    "crates/fhir-generated-ops",
+    "crates/fhir-terminology",
 ]
 
 [dependencies]
