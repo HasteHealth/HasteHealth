@@ -1,7 +1,8 @@
 use axum::{Router, ServiceExt, body::Body};
 use clap::{Parser, Subcommand};
-use oxidized_config::get_config;
+use oxidized_config::{Config, get_config};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
     types::{
@@ -10,7 +11,10 @@ use oxidized_repository::{
         user::{AuthMethod, CreateUser, UserRole},
     },
 };
-use oxidized_server::{server, services};
+use oxidized_server::{
+    server,
+    services::{self, get_pool},
+};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -36,6 +40,19 @@ enum Commands {
         #[command(subcommand)]
         command: UserCommands,
     },
+
+    Migrate {
+        #[command(subcommand)]
+        command: MigrationCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum MigrationCommands {
+    Artifacts {},
+    RepoSchema {},
+    SearchSchema {},
+    All,
 }
 
 #[derive(Subcommand, Debug)]
@@ -60,12 +77,28 @@ enum UserCommands {
     },
 }
 
+async fn migrate_repo(config: &dyn Config) -> Result<(), OperationOutcomeError> {
+    sqlx::migrate!("./migrations")
+        .run(get_pool(config).await)
+        .await
+        .unwrap();
+    Ok(())
+}
+
+async fn migrate_search(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
+    let services = services::create_services(config).await?;
+    services
+        .search
+        .migrate(&oxidized_repository::types::SupportedFHIRVersions::R4)
+        .await?;
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
 
     let config = get_config("environment".into());
-    let services = services::create_services(config).await?;
 
     match &cli.command {
         Commands::Start { port } => {
@@ -86,11 +119,25 @@ async fn main() -> Result<(), OperationOutcomeError> {
 
             Ok(())
         }
+        Commands::Migrate { command } => match command {
+            MigrationCommands::Artifacts {} => Err(OperationOutcomeError::error(
+                oxidized_fhir_operation_error::OperationOutcomeCodes::NotSupported,
+                "Artifact migrations are not supported yet".to_string(),
+            )),
+            MigrationCommands::RepoSchema {} => migrate_repo(config.as_ref()).await,
+            MigrationCommands::SearchSchema {} => migrate_search(config).await,
+            MigrationCommands::All => {
+                migrate_repo(config.as_ref()).await?;
+                migrate_search(config).await?;
+                Ok(())
+            }
+        },
         Commands::Tenant { command } => match command {
             TenantCommands::Create {
                 id,
                 subscription_tier,
             } => {
+                let services = services::create_services(config).await?;
                 services
                     .repo
                     .create(
@@ -111,6 +158,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 password,
                 tenant,
             } => {
+                let services = services::create_services(config).await?;
                 services
                     .repo
                     .create(
