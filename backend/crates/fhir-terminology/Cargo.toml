@@ -1,0 +1,11 @@
+[package]
+name = "oxidized-fhir-terminology"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+oxidized-fhir-model = { path = "../fhir-model" }
+oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
+oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+    "derive",
+] }
