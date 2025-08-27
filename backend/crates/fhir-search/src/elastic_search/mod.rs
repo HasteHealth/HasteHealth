@@ -76,6 +76,7 @@ pub enum SearchConfigError {
     UnsupportedIndex(SupportedFHIRVersions),
 }
 
+#[derive(Clone)]
 pub struct ElasticSearchEngine {
     fp_engine: Arc<FPEngine>,
     client: Elasticsearch,

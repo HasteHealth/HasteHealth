@@ -2,6 +2,7 @@ use axum::{Router, ServiceExt, body::Body};
 use clap::{Parser, Subcommand};
 use oxidized_config::get_config;
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
     types::{
@@ -114,7 +115,12 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 Ok(())
             }
             MigrationCommands::SearchSchema {} => {
-                todo!();
+                let services = services::create_services(config).await?;
+                services
+                    .search
+                    .migrate(&oxidized_repository::types::SupportedFHIRVersions::R4)
+                    .await?;
+                Ok(())
             }
             MigrationCommands::All => {
                 todo!();
