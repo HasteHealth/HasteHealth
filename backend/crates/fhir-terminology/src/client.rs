@@ -1,26 +1,29 @@
 use crate::{FHIRTerminology, TerminologyError};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_generated_ops::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
+use oxidized_fhir_model::r4::types::ResourceType;
 use std::{marker::PhantomData, sync::Arc};
 
 pub struct FHIRClientTerminology<CTX, Error, Client: FHIRClient<CTX, Error>> {
     _ctx: PhantomData<CTX>,
     _error: PhantomData<Error>,
-    fhir_client: Arc<Box<Client>>,
+    client: Arc<Box<Client>>,
 }
 
-impl<CTX, Error, Client: FHIRClient<CTX, Error>> FHIRTerminology<CTX>
+impl<CTX: Send + Sync, Error: Send + Sync, Client: FHIRClient<CTX, Error>> FHIRTerminology<CTX>
     for FHIRClientTerminology<CTX, Error, Client>
 {
-    fn expand(
+    async fn expand(
         &self,
         ctx: CTX,
         input: &ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, TerminologyError> {
         // Implementation would go here
+        let valueset = unsafe { ResourceType::unchecked("ValueSet".to_string()) };
+        let _result = self.client.search_type(ctx, valueset, vec![]).await;
         unimplemented!()
     }
-    fn validate(
+    async fn validate(
         &self,
         ctx: CTX,
         input: &ValueSetValidateCode::Input,
@@ -28,7 +31,7 @@ impl<CTX, Error, Client: FHIRClient<CTX, Error>> FHIRTerminology<CTX>
         // Implementation would go here
         unimplemented!()
     }
-    fn lookup(
+    async fn lookup(
         &self,
         ctx: CTX,
         input: &CodeSystemLookup::Input,

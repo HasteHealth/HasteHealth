@@ -19,15 +19,15 @@ pub trait FHIRTerminology<CTX> {
         &self,
         ctx: CTX,
         input: &ValueSetExpand::Input,
-    ) -> Result<ValueSetExpand::Output, TerminologyError>;
+    ) -> impl Future<Output = Result<ValueSetExpand::Output, TerminologyError>> + Send;
     fn validate(
         &self,
         ctx: CTX,
         input: &ValueSetValidateCode::Input,
-    ) -> Result<ValueSetValidateCode::Output, TerminologyError>;
+    ) -> impl Future<Output = Result<ValueSetValidateCode::Output, TerminologyError>> + Send;
     fn lookup(
         &self,
         ctx: CTX,
         input: &CodeSystemLookup::Input,
-    ) -> Result<CodeSystemLookup::Output, TerminologyError>;
+    ) -> impl Future<Output = Result<CodeSystemLookup::Output, TerminologyError>> + Send;
 }
