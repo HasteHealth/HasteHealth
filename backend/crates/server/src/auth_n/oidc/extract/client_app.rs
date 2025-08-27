@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use crate::{
-    AppState,
     auth_n::oidc::{hardcoded_clients::get_hardcoded_clients, middleware::OIDCParameters},
     extract::path_tenant::TenantProject,
     fhir_client::ServerCTX,
+    services::AppState,
 };
 use axum::{
     Extension, RequestPartsExt,

@@ -1,5 +1,4 @@
 use crate::{
-    AppState,
     auth_n::{
         oidc::{
             extract::client_app::OIDCClientApplication, middleware::OIDCParameters,
@@ -8,6 +7,7 @@ use crate::{
         session,
     },
     extract::path_tenant::TenantProject,
+    services::AppState,
 };
 use axum::{
     Extension,

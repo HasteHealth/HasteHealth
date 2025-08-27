@@ -1,6 +1,6 @@
 use crate::{
-    AppState,
     auth_n::oidc::{middleware::OIDCParameterInjectLayer, routes::AUTHORIZE_PARAMETERS},
+    services::AppState,
 };
 use axum::Router;
 use axum_extra::routing::RouterExt;
