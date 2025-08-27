@@ -10,7 +10,10 @@ use oxidized_repository::{
         user::{AuthMethod, CreateUser, UserRole},
     },
 };
-use oxidized_server::{server, services};
+use oxidized_server::{
+    server,
+    services::{self, get_pool},
+};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -36,6 +39,19 @@ enum Commands {
         #[command(subcommand)]
         command: UserCommands,
     },
+
+    Migrate {
+        #[command(subcommand)]
+        command: MigrationCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum MigrationCommands {
+    Artifacts {},
+    RepoSchema {},
+    SearchSchema {},
+    All,
 }
 
 #[derive(Subcommand, Debug)]
@@ -65,7 +81,6 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
 
     let config = get_config("environment".into());
-    let services = services::create_services(config).await?;
 
     match &cli.command {
         Commands::Start { port } => {
@@ -86,11 +101,31 @@ async fn main() -> Result<(), OperationOutcomeError> {
 
             Ok(())
         }
+        Commands::Migrate { command } => match command {
+            MigrationCommands::Artifacts {} => Err(OperationOutcomeError::error(
+                oxidized_fhir_operation_error::OperationOutcomeCodes::NotSupported,
+                "Artifact migrations are not supported yet".to_string(),
+            )),
+            MigrationCommands::RepoSchema {} => {
+                sqlx::migrate!("./migrations")
+                    .run(get_pool(config.as_ref()).await)
+                    .await
+                    .unwrap();
+                Ok(())
+            }
+            MigrationCommands::SearchSchema {} => {
+                todo!();
+            }
+            MigrationCommands::All => {
+                todo!();
+            }
+        },
         Commands::Tenant { command } => match command {
             TenantCommands::Create {
                 id,
                 subscription_tier,
             } => {
+                let services = services::create_services(config).await?;
                 services
                     .repo
                     .create(
@@ -111,6 +146,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 password,
                 tenant,
             } => {
+                let services = services::create_services(config).await?;
                 services
                     .repo
                     .create(
