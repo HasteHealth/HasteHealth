@@ -2,6 +2,7 @@ use crate::{FHIRTerminology, TerminologyError};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_generated_ops::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
 use oxidized_fhir_model::r4::types::ResourceType;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::{marker::PhantomData, sync::Arc};
 
 pub struct FHIRClientTerminology<CTX, Error, Client: FHIRClient<CTX, Error>> {
@@ -10,24 +11,25 @@ pub struct FHIRClientTerminology<CTX, Error, Client: FHIRClient<CTX, Error>> {
     client: Arc<Box<Client>>,
 }
 
-impl<CTX: Send + Sync, Error: Send + Sync, Client: FHIRClient<CTX, Error>> FHIRTerminology<CTX>
-    for FHIRClientTerminology<CTX, Error, Client>
+impl<CTX: Send + Sync, Client: FHIRClient<CTX, OperationOutcomeError>> FHIRTerminology<CTX>
+    for FHIRClientTerminology<CTX, OperationOutcomeError, Client>
 {
     async fn expand(
         &self,
         ctx: CTX,
         input: &ValueSetExpand::Input,
-    ) -> Result<ValueSetExpand::Output, TerminologyError> {
+    ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
         // Implementation would go here
         let valueset = unsafe { ResourceType::unchecked("ValueSet".to_string()) };
-        let _result = self.client.search_type(ctx, valueset, vec![]).await;
-        unimplemented!()
+        let result = self.client.search_type(ctx, valueset, vec![]).await;
+
+        panic!();
     }
     async fn validate(
         &self,
         ctx: CTX,
         input: &ValueSetValidateCode::Input,
-    ) -> Result<ValueSetValidateCode::Output, TerminologyError> {
+    ) -> Result<ValueSetValidateCode::Output, TermiOperationOutcomeErrornologyError> {
         // Implementation would go here
         unimplemented!()
     }
@@ -35,7 +37,7 @@ impl<CTX: Send + Sync, Error: Send + Sync, Client: FHIRClient<CTX, Error>> FHIRT
         &self,
         ctx: CTX,
         input: &CodeSystemLookup::Input,
-    ) -> Result<CodeSystemLookup::Output, TerminologyError> {
+    ) -> Result<CodeSystemLookup::Output, OperationOutcomeError> {
         // Implementation would go here
         unimplemented!()
     }

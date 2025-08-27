@@ -1,5 +1,5 @@
 use oxidized_fhir_generated_ops::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
-use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_repository::types::{ProjectId, TenantId};
 
 pub mod client;
@@ -19,15 +19,15 @@ pub trait FHIRTerminology<CTX> {
         &self,
         ctx: CTX,
         input: &ValueSetExpand::Input,
-    ) -> impl Future<Output = Result<ValueSetExpand::Output, TerminologyError>> + Send;
+    ) -> impl Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send;
     fn validate(
         &self,
         ctx: CTX,
         input: &ValueSetValidateCode::Input,
-    ) -> impl Future<Output = Result<ValueSetValidateCode::Output, TerminologyError>> + Send;
+    ) -> impl Future<Output = Result<ValueSetValidateCode::Output, OperationOutcomeError>> + Send;
     fn lookup(
         &self,
         ctx: CTX,
         input: &CodeSystemLookup::Input,
-    ) -> impl Future<Output = Result<CodeSystemLookup::Output, TerminologyError>> + Send;
+    ) -> impl Future<Output = Result<CodeSystemLookup::Output, OperationOutcomeError>> + Send;
 }
