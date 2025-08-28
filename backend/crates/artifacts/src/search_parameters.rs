@@ -3,11 +3,6 @@ use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
 use oxidized_macro_loads::load_artifacts;
 use std::{collections::HashMap, sync::Arc};
 
-static SEARCH_PARAMETERS_STRS: &[&str] = load_artifacts!(
-    "../artifacts/r4/hl7/minified/search-parameters.min.json"
-    "../artifacts/r4/oxidized_health/search_parameter"
-);
-
 #[derive(Debug)]
 pub enum ArtifactError {
     InvalidResource(String),
@@ -90,7 +85,12 @@ fn index_parameter(
 
 static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
     let mut index = SearchParametersIndex::default();
-    for search_str in SEARCH_PARAMETERS_STRS {
+    let search_parameter_data_strings = load_artifacts!(
+        "../artifacts/r4/hl7/minified/search-parameters.min.json"
+        "../artifacts/r4/oxidized_health/search_parameter"
+    );
+
+    for search_str in search_parameter_data_strings {
         let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(search_str)
             .expect("Failed to parse search parameters JSON");
         index_parameter(&mut index, bundle).expect("Failed to extract search parameters");

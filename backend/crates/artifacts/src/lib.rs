@@ -4,11 +4,6 @@ use oxidized_macro_loads::load_artifacts;
 
 pub mod search_parameters;
 
-static ALL_RESOURCES: &[&str] = load_artifacts!(
-    "../artifacts/r4/hl7/minified"
-    "../artifacts/r4/oxidized_health"
-);
-
 fn flatten_if_bundle(resource: Resource) -> Vec<Box<Resource>> {
     match resource {
         Resource::Bundle(bundle) => bundle
@@ -34,6 +29,10 @@ fn load_resources(data_strings: &[&str]) -> Vec<Box<Resource>> {
 }
 
 pub static ARTIFACT_RESOURCES: Lazy<Vec<Box<Resource>>> = Lazy::new(|| {
-    let data_strings = ALL_RESOURCES;
+    let data_strings = load_artifacts!(
+        "../artifacts/r4/hl7/minified"
+        "../artifacts/r4/oxidized_health"
+    );
+
     load_resources(data_strings)
 });
