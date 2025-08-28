@@ -89,8 +89,10 @@ mod tests {
     #[test]
     fn test_traversal() {
         let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(
-            &std::fs::read_to_string("../artifacts/artifacts/r4/hl7/profiles-resources.json")
-                .unwrap(),
+            &std::fs::read_to_string(
+                "../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json",
+            )
+            .unwrap(),
         )
         .unwrap();
 
