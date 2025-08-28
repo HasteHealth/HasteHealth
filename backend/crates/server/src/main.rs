@@ -12,7 +12,7 @@ use oxidized_repository::{
     },
 };
 use oxidized_server::{
-    server,
+    load_artifacts, server,
     services::{self, get_pool},
 };
 
@@ -120,10 +120,10 @@ async fn main() -> Result<(), OperationOutcomeError> {
             Ok(())
         }
         Commands::Migrate { command } => match command {
-            MigrationCommands::Artifacts {} => Err(OperationOutcomeError::error(
-                oxidized_fhir_operation_error::OperationOutcomeCodes::NotSupported,
-                "Artifact migrations are not supported yet".to_string(),
-            )),
+            MigrationCommands::Artifacts {} => {
+                load_artifacts::load_artifacts().await?;
+                Ok(())
+            }
             MigrationCommands::RepoSchema {} => migrate_repo(config.as_ref()).await,
             MigrationCommands::SearchSchema {} => migrate_search(config).await,
             MigrationCommands::All => {

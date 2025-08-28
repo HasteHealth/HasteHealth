@@ -2249,6 +2249,7 @@ dependencies = [
  "json-patch",
  "jsonwebtoken",
  "maud",
+ "oxidized-artifacts",
  "oxidized-config",
  "oxidized-fhir-client",
  "oxidized-fhir-model",

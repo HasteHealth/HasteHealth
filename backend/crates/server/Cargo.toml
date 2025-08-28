@@ -10,6 +10,7 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
     "axum",
 ] }
+oxidized-artifacts = { path = "../artifacts" }
 oxidized-fhirpath = { path = "../fhirpath" }
 oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }

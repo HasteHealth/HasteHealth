@@ -147,7 +147,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                                 // Handle deserialization for each variant
                                 match context.field {
                                     #(#serialize_by_name_matches),*,
-                                    _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string())),
+                                    _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidTypeChoiceVariant(context.field.to_string())),
                                 }
                             }
                             oxidized_fhir_serialization_json::Context::AsValue => {
@@ -209,7 +209,7 @@ fn create_type_choice_struct_handler(
             if(#primitive_variant == #field_variable || #extension_variant == #field_variable) {
                 #found_fields_variable.insert(#primitive_variant);
                 #found_fields_variable.insert(#extension_variant);
-                #field_ident = Some(#field_type::from_serde_value(#obj_variable, (#field_variable, true).into())?);
+                #field_ident = Some(#field_type::from_serde_value(#obj_variable, (#primitive_variant, true).into())?);
             }
         }
     });
@@ -377,7 +377,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                                   #(#set_value)else *
                                   else {
                                     return Err(oxidized_fhir_serialization_json::errors::DeserializeError::UnknownField(
-                                        format!("{}: {}", #name_string, #field_variable.to_string())
+                                        format!("{}: '{}'", #name_string, #field_variable.to_string())
                                     ));
                                   }
                                 }

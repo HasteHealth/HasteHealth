@@ -33,6 +33,8 @@ impl TypeChoiceAttribute {
     pub fn all(&self) -> Vec<String> {
         let mut all_variants = self.complex_variants.clone();
         all_variants.extend(self.primitive_variants.clone());
+        // Extension variant.
+        all_variants.extend(self.primitive_variants.iter().map(|v| format!("_{}", v)));
         all_variants
     }
 }

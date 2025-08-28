@@ -827,7 +827,8 @@ mod tests {
     }
 
     fn load_search_parameters() -> Vec<SearchParameter> {
-        let json = include_str!("../../artifacts/artifacts/r4/hl7/search-parameters.json");
+        let json =
+            include_str!("../../artifacts/artifacts/r4/hl7/minified/search-parameters.min.json");
         let bundle = oxidized_fhir_serialization_json::from_str::<
             oxidized_fhir_model::r4::types::Bundle,
         >(json)
