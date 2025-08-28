@@ -200,7 +200,7 @@ mod tests {
 
         assert_eq!(
             address.unwrap_err().to_string(),
-            "Unknown field encountered: Address: bad_field"
+            "Unknown field encountered: Address: 'bad_field'"
         );
     }
 
