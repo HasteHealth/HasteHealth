@@ -21,7 +21,7 @@ fn load_resources(data_strings: &[&str]) -> Vec<Box<Resource>> {
 
     for data_str in data_strings.into_iter() {
         let resource = oxidized_fhir_serialization_json::from_str::<Resource>(data_str)
-            .expect("Failed to parse search parameters JSON");
+            .expect("Failed to parse artifact parameters JSON");
         resources.extend(flatten_if_bundle(resource));
     }
 

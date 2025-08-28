@@ -20,4 +20,6 @@ pub enum DeserializeError {
     InvalidResourceType(String, String),
     #[error("Invalid '{0}' found '{1}'")]
     InvalidEnumVariant(String, String),
+    #[error("Invalid type choice variant: {0}")]
+    InvalidTypeChoiceVariant(String),
 }
