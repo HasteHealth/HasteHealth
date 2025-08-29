@@ -38,6 +38,7 @@ pub enum StorageError {
     InvalidType,
 }
 
+#[derive(Debug)]
 pub struct ServerCTX {
     pub tenant: TenantId,
     pub project: ProjectId,

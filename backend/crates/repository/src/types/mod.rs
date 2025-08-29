@@ -16,6 +16,7 @@ pub enum SupportedFHIRVersions {
     R4,
 }
 
+#[derive(Debug)]
 pub struct Author {
     pub id: String,
     pub kind: String,
@@ -41,7 +42,7 @@ impl TenantId {
     pub fn new(id: String) -> Self {
         // Should never be able to create a system tenant from user.
         if id == SYSTEM_TENANT {
-            TenantId::Custom(generate_id(Some(26)))
+            panic!("Attempted to create system tenant from user input.");
         } else {
             TenantId::Custom(id)
         }

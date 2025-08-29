@@ -237,6 +237,7 @@ pub fn storage<
                 })))
             }
             FHIRRequest::ConditionalUpdate(update_request) => {
+                println!("{:?}", context.ctx);
                 let search_results = state
                     .search
                     .search(
@@ -284,12 +285,15 @@ pub fn storage<
                                     &ResourceId::new(id.clone()),
                                 )
                                 .await?;
-                            if latest.is_none() {
+
+                            if latest.is_some() {
                                 return Err(OperationOutcomeError::error(
                                     OperationOutcomeCodes::NotFound,
-                                    "Resource not found in conditional criteria.".to_string(),
+                                    "Resource exists but not found in conditional criteria."
+                                        .to_string(),
                                 ));
                             }
+
                             Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
                                 resource: FHIRRepository::update(
                                     &state.repo,

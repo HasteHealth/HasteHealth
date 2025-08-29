@@ -53,19 +53,18 @@ pub fn add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
     }
 }
 
-static SYSTEM_TENANT: LazyLock<TenantId> = LazyLock::new(|| TenantId::new("system".to_string()));
 static SYSTEM_PROJECT_TENANT: LazyLock<ProjectId> =
-    LazyLock::new(|| ProjectId::new("project".to_string()));
+    LazyLock::new(|| ProjectId::new("system".to_string()));
 
 pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config).await?;
 
-    let ctx = Arc::new(ServerCTX {
-        tenant: SYSTEM_TENANT.clone(),
+    let ctx: Arc<ServerCTX> = Arc::new(ServerCTX {
+        tenant: TenantId::System,
         project: SYSTEM_PROJECT_TENANT.clone(),
         fhir_version: SupportedFHIRVersions::R4,
         author: Author {
-            id: "author-id".into(),
+            id: "system".into(),
             kind: "admin".into(),
         },
     });
@@ -80,7 +79,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 let resource_type =
                     unsafe { ResourceType::unchecked("StructureDefinition".to_string()) };
 
-                services
+                let res = services
                     .fhir_client
                     .conditional_update(
                         ctx.clone(),
@@ -88,14 +87,18 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                         vec![ParsedParameter::Resource(Parameter {
                             name: "_tag".to_string(),
                             value: vec![HASH_TAG_SYSTEM.to_string() + ":" + &sha_hash],
-                            modifier: None,
+                            modifier: Some("not".to_string()),
                             chains: None,
                         })],
                         Resource::StructureDefinition(sd),
                     )
-                    .await?;
+                    .await;
 
-                println!("Loaded StructureDefinition: {:#?}", &sha_hash);
+                if let Ok(_res) = res {
+                    println!("Updated StructureDefinition");
+                } else if let Err(err) = res {
+                    println!("Did not update StructureDefinition {:?}", err);
+                }
             }
             _ => {
                 println!("Skipping resource.");
