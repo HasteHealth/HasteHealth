@@ -30,6 +30,11 @@ pub enum QueryBuildError {
     InvalidParameterValue(String),
     #[error(code = "invalid", diagnostic = "Invalid date format: '{arg0}'")]
     InvalidDateFormat(String),
+    #[error(
+        code = "not-supported",
+        diagnostic = "Modifier '{arg0}' is not supported"
+    )]
+    ModifierNotSupported(String),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
