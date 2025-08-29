@@ -86,7 +86,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                         ctx.clone(),
                         resource_type,
                         vec![ParsedParameter::Resource(Parameter {
-                            name: "tag".to_string(),
+                            name: "_tag".to_string(),
                             value: vec![HASH_TAG_SYSTEM.to_string() + ":" + &sha_hash],
                             modifier: None,
                             chains: None,

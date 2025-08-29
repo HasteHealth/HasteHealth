@@ -2,12 +2,9 @@ use crate::fhir_client::middleware::{
     ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
 };
 use oxidized_fhir_client::{
-    FHIRClient,
-    middleware::{Middleware, MiddlewareChain},
-    request::{
-        FHIRCreateRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
-    },
-    url::ParsedParameter,
+    middleware::{Middleware, MiddlewareChain}, request::{
+        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest
+    }, url::ParsedParameter, FHIRClient
 };
 use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -268,12 +265,25 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn conditional_update(
         &self,
-        _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
-        _parameters: Vec<ParsedParameter>,
-        _resource: oxidized_fhir_model::r4::types::Resource,
+        ctx: Arc<ServerCTX>,
+        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        parameters: Vec<ParsedParameter>,
+        resource: oxidized_fhir_model::r4::types::Resource,
     ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::ConditionalUpdate(FHIRConditionalUpdateRequest { resource_type, parameters, resource }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
+            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn patch(
