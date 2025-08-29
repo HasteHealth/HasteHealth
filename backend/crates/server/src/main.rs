@@ -121,7 +121,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
         }
         Commands::Migrate { command } => match command {
             MigrationCommands::Artifacts {} => {
-                load_artifacts::load_artifacts().await?;
+                load_artifacts::load_artifacts(config).await?;
                 Ok(())
             }
             MigrationCommands::RepoSchema {} => migrate_repo(config.as_ref()).await,

@@ -287,7 +287,7 @@ pub fn storage<
                             if latest.is_none() {
                                 return Err(OperationOutcomeError::error(
                                     OperationOutcomeCodes::NotFound,
-                                    "Resource already exists. But not found in conditional criteria.".to_string(),
+                                    "Resource not found in conditional criteria.".to_string(),
                                 ));
                             }
                             Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {

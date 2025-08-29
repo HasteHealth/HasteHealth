@@ -35,7 +35,7 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
     {
         Ok(client)
     } else {
-        let ctx = ServerCTX {
+        let ctx = Arc::new(ServerCTX {
             tenant,
             project,
             fhir_version: SupportedFHIRVersions::R4,
@@ -43,7 +43,7 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
                 id: "anonymous".to_string(),
                 kind: "Membership".to_string(),
             },
-        };
+        });
 
         let client_app = state
             .fhir_client
