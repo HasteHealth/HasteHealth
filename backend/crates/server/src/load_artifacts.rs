@@ -70,50 +70,92 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
         },
     });
 
-    let tasks: JoinSet<_> = ARTIFACT_RESOURCES
-        .iter()
-        .map(|resource| {
-            let services = services.clone();
-            let ctx = ctx.clone();
-            async move {
-                match &**resource {
-                    Resource::StructureDefinition(sd) => {
-                        let sha_hash = generate_sha256_hash(*&resource);
-                        let mut sd = sd.clone();
-                        add_hash_tag(&mut sd.meta, sha_hash.clone());
+    // let tasks: JoinSet<_> = ARTIFACT_RESOURCES
+    //     .iter()
+    //     .map(|resource| {
+    //         let services = services.clone();
+    //         let ctx = ctx.clone();
+    //         async move {
+    //             match &**resource {
+    //                 Resource::StructureDefinition(sd) => {
+    //                     let sha_hash = generate_sha256_hash(*&resource);
+    //                     let mut sd = sd.clone();
+    //                     add_hash_tag(&mut sd.meta, sha_hash.clone());
 
-                        let resource_type =
-                            unsafe { ResourceType::unchecked("StructureDefinition".to_string()) };
+    //                     let resource_type =
+    //                         unsafe { ResourceType::unchecked("StructureDefinition".to_string()) };
 
-                        let res = services
-                            .fhir_client
-                            .conditional_update(
-                                ctx,
-                                resource_type,
-                                vec![ParsedParameter::Resource(Parameter {
-                                    name: "_tag".to_string(),
-                                    value: vec![HASH_TAG_SYSTEM.to_string() + ":" + &sha_hash],
-                                    modifier: Some("not".to_string()),
-                                    chains: None,
-                                })],
-                                Resource::StructureDefinition(sd),
-                            )
-                            .await;
+    //                     let res = services
+    //                         .fhir_client
+    //                         .conditional_update(
+    //                             ctx,
+    //                             resource_type,
+    //                             vec![ParsedParameter::Resource(Parameter {
+    //                                 name: "_tag".to_string(),
+    //                                 value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
+    //                                 modifier: Some("not".to_string()),
+    //                                 chains: None,
+    //                             })],
+    //                             Resource::StructureDefinition(sd),
+    //                         )
+    //                         .await;
 
-                        if let Ok(_res) = res {
-                            println!("Updated StructureDefinition");
-                        } else if let Err(err) = res {
-                            println!("Did not update StructureDefinition {:?}", err);
-                        }
+    //                     if let Ok(_res) = res {
+    //                         println!("Updated StructureDefinition");
+    //                     } else if let Err(err) = res {
+    //                         println!("Did not update StructureDefinition {:?}", err);
+    //                     }
+    //                 }
+    //                 _ => {
+    //                     println!("Skipping resource.");
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     .collect();
+    // tasks.join_all().await;
+
+    for resource in ARTIFACT_RESOURCES.iter() {
+        match &**resource {
+            Resource::StructureDefinition(sd) => {
+                let sha_hash = generate_sha256_hash(*&resource);
+                let mut sd = sd.clone();
+                add_hash_tag(&mut sd.meta, sha_hash.clone());
+
+                let resource_type =
+                    unsafe { ResourceType::unchecked("StructureDefinition".to_string()) };
+
+                let res = services
+                    .fhir_client
+                    .conditional_update(
+                        ctx.clone(),
+                        resource_type,
+                        vec![ParsedParameter::Resource(Parameter {
+                            name: "_tag".to_string(),
+                            value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
+                            modifier: Some("not".to_string()),
+                            chains: None,
+                        })],
+                        Resource::StructureDefinition(sd.clone()),
+                    )
+                    .await;
+
+                if let Ok(_res) = res {
+                    println!("Updated StructureDefinition");
+                } else if let Err(err) = res {
+                    if err.outcome().issue[0].code.value == Some("invalid".to_string()) {
+                        println!("INVALID! {:?}", err);
+                        println!("BACKTRACE: {}", err.backtrace().unwrap());
+                        panic!("INVALID");
                     }
-                    _ => {
-                        println!("Skipping resource.");
-                    }
+                    // println!("Did not update StructureDefinition {:?}", err);
                 }
             }
-        })
-        .collect();
-    tasks.join_all().await;
+            _ => {
+                println!("Skipping resource.");
+            }
+        }
+    }
 
     Ok(())
 }
