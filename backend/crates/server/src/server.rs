@@ -75,7 +75,7 @@ async fn fhir_handler<
 
     let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
 
-    let ctx = ServerCTX {
+    let ctx = Arc::new(ServerCTX {
         tenant: path.tenant,
         project: path.project,
         fhir_version: path.fhir_version,
@@ -83,7 +83,7 @@ async fn fhir_handler<
             id: "anonymous".to_string(),
             kind: "Membership".to_string(),
         },
-    };
+    });
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;
     info!("Request processed in {:?}", start.elapsed());

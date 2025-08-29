@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 use crate::{fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
@@ -12,7 +12,6 @@ use oxidized_fhir_model::r4::types::{Coding, FHIRCode, FHIRUri, Meta, Resource, 
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_repository::types::{Author, ProjectId, SupportedFHIRVersions, TenantId};
 use sha1::{Digest, Sha1};
-use tracing::info;
 
 fn generate_sha256_hash(value: &Resource) -> String {
     let json =
@@ -61,7 +60,7 @@ static SYSTEM_PROJECT_TENANT: LazyLock<ProjectId> =
 pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config).await?;
 
-    let ctx: ServerCTX = ServerCTX {
+    let ctx = Arc::new(ServerCTX {
         tenant: SYSTEM_TENANT.clone(),
         project: SYSTEM_PROJECT_TENANT.clone(),
         fhir_version: SupportedFHIRVersions::R4,
@@ -69,14 +68,14 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
             id: "author-id".into(),
             kind: "admin".into(),
         },
-    };
+    });
 
     for resource in ARTIFACT_RESOURCES.iter() {
         match &**resource {
             Resource::StructureDefinition(sd) => {
                 let sha_hash = generate_sha256_hash(*&resource);
                 let mut sd = sd.clone();
-                add_hash_tag(&mut sd.meta, sha_hash);
+                add_hash_tag(&mut sd.meta, sha_hash.clone());
 
                 let resource_type =
                     unsafe { ResourceType::unchecked("StructureDefinition".to_string()) };
@@ -84,7 +83,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 services
                     .fhir_client
                     .conditional_update(
-                        ctx,
+                        ctx.clone(),
                         resource_type,
                         vec![ParsedParameter::Resource(Parameter {
                             name: "tag".to_string(),
@@ -96,7 +95,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                     )
                     .await?;
 
-                println!("Loaded StructureDefinition: {:#?}", sd.meta);
+                println!("Loaded StructureDefinition: {:#?}", &sha_hash);
             }
             _ => {
                 println!("Skipping resource.");

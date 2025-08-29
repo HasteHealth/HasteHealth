@@ -14,7 +14,7 @@ pub use capabilities::*;
 pub use storage::*;
 
 pub type ServerMiddlewareState<Repository, Search> = Arc<ClientState<Repository, Search>>;
-pub type ServerMiddlewareContext = Context<ServerCTX, FHIRRequest, FHIRResponse>;
+pub type ServerMiddlewareContext = Context<Arc<ServerCTX>, FHIRRequest, FHIRResponse>;
 pub type ServerMiddlewareNext<Repo, Search> =
     Next<Arc<ClientState<Repo, Search>>, ServerMiddlewareContext, OperationOutcomeError>;
 pub type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
