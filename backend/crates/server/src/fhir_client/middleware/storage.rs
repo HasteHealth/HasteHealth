@@ -237,7 +237,6 @@ pub fn storage<
                 })))
             }
             FHIRRequest::ConditionalUpdate(update_request) => {
-                println!("{:?}", context.ctx);
                 let search_results = state
                     .search
                     .search(
