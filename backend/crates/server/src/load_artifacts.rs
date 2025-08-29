@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use crate::{fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use oxidized_artifacts::ARTIFACT_RESOURCES;
@@ -8,7 +10,7 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::types::{Coding, FHIRCode, FHIRUri, Meta, Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_repository::types::{Author, SupportedFHIRVersions};
+use oxidized_repository::types::{Author, ProjectId, SupportedFHIRVersions, TenantId};
 use sha1::{Digest, Sha1};
 use tracing::info;
 
@@ -52,15 +54,16 @@ pub fn add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
     }
 }
 
-static SYSTEM_TENANT: &str = "system";
-static SYSTEM_PROJECT_TENANT: &str = "project";
+static SYSTEM_TENANT: LazyLock<TenantId> = LazyLock::new(|| TenantId::new("system".to_string()));
+static SYSTEM_PROJECT_TENANT: LazyLock<ProjectId> =
+    LazyLock::new(|| ProjectId::new("project".to_string()));
 
 pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config).await?;
 
     let ctx: ServerCTX = ServerCTX {
-        tenant: SYSTEM_TENANT,
-        project: SYSTEM_PROJECT_TENANT,
+        tenant: SYSTEM_TENANT.clone(),
+        project: SYSTEM_PROJECT_TENANT.clone(),
         fhir_version: SupportedFHIRVersions::R4,
         author: Author {
             id: "author-id".into(),
