@@ -1,11 +1,9 @@
 use oxidized_fhir_client::request::FHIRRequest;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
-
-use crate::utilities::generate_id;
+mod sqlx_bindings;
 
 pub mod authorization_code;
-mod sqlx_bindings;
 pub mod tenant;
 pub mod user;
 
