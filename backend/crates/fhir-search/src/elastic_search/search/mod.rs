@@ -169,6 +169,7 @@ pub fn build_elastic_search_query(
     let mut size = MAX_COUNT;
     let mut show_total = false;
     let mut sort: Vec<serde_json::Value> = Vec::new();
+    let mut offset: usize = 0;
 
     for parameter in parameters.iter() {
         match parameter {
@@ -193,6 +194,16 @@ pub fn build_elastic_search_query(
                             .and_then(|v| v.parse::<usize>().ok())
                             .unwrap_or(100),
                         MAX_COUNT,
+                    );
+                }
+                "_offset" => {
+                    offset = std::cmp::max(
+                        result_param
+                            .value
+                            .get(0)
+                            .and_then(|v| v.parse::<usize>().ok())
+                            .unwrap_or(0),
+                        0,
                     );
                 }
                 "_total" => {
@@ -269,6 +280,7 @@ pub fn build_elastic_search_query(
         "size": size,
         "track_total_hits": show_total,
         "_source": false,
+        "from": offset,
         "query": {
             "bool": {
                 "must": clauses
