@@ -125,7 +125,7 @@ impl<'a> From<&'a VersionId> for VersionIdRef<'a> {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct VersionId(String);
 impl VersionId {
     pub fn new(id: String) -> Self {
