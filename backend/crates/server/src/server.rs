@@ -2,13 +2,14 @@ use crate::{
     auth_n::{
         self,
         certificates::{JSONWebKeySet, JWK_SET},
+        claims::TokenClaims,
     },
     fhir_client::ServerCTX,
     fhir_http::{HTTPRequest, http_request_to_fhir_request},
     services::{AppState, ConfigError, create_services, get_pool},
 };
 use axum::{
-    Json, Router,
+    Extension, Json, Router,
     extract::{OriginalUri, Path, State},
     http::{Method, Uri},
     response::{IntoResponse, Response},
@@ -87,9 +88,11 @@ async fn fhir_handler<
     });
 
     let response = state.fhir_client.request(ctx, fhir_request).await?;
+
     info!("Request processed in {:?}", start.elapsed());
 
-    Ok(response.into_response())
+    let http_response = response.into_response();
+    Ok(http_response)
 }
 
 async fn fhir_root_handler<
@@ -97,6 +100,7 @@ async fn fhir_root_handler<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
+    user: Extension<TokenClaims>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search>>>,
