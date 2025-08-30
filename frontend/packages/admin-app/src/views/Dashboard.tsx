@@ -11,29 +11,29 @@ import Card from "../components/Card";
 import { getClient } from "../db/client";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<{
-    [key: string]: OxidizedHealthUsageStatistics.Output["statistics"];
-  }>({});
+  // const [stats, setStats] = useState<{
+  //   [key: string]: OxidizedHealthUsageStatistics.Output["statistics"];
+  // }>({});
 
-  const client = useAtomValue(getClient);
-  useEffect(() => {
-    client
-      .invoke_system(OxidizedHealthUsageStatistics.Op, {}, R4, {})
-      .then((stats) =>
-        setStats(
-          Object.groupBy(stats?.statistics ?? [], (stat) => stat.version)
-        )
-      )
-      .catch((e) => {
-        if (isResponseError(e))
-          Toaster.error(
-            e.response.body.issue?.[0]?.diagnostics ?? "Failed to fetch stats."
-          );
-        else {
-          Toaster.error("Failed to usage stats.");
-        }
-      });
-  }, [setStats]);
+  // const client = useAtomValue(getClient);
+  // useEffect(() => {
+  //   client
+  //     .invoke_system(OxidizedHealthUsageStatistics.Op, {}, R4, {})
+  //     .then((stats) =>
+  //       setStats(
+  //         Object.groupBy(stats?.statistics ?? [], (stat) => stat.version)
+  //       )
+  //     )
+  //     .catch((e) => {
+  //       if (isResponseError(e))
+  //         Toaster.error(
+  //           e.response.body.issue?.[0]?.diagnostics ?? "Failed to fetch stats."
+  //         );
+  //       else {
+  //         Toaster.error("Failed to usage stats.");
+  //       }
+  //     });
+  // }, [setStats]);
 
   return (
     <div className="flex flex-col flex-1 overflow-auto">
@@ -55,7 +55,7 @@ const Dashboard = () => {
         </span>
       </div>
       <div className="flex flex-wrap mb-6">
-        {stats["R4"]?.map((statistic) => (
+        {/* {stats["R4"]?.map((statistic) => (
           <Card
             key={statistic.name}
             title={`${statistic.name} Limit`}
@@ -63,7 +63,7 @@ const Dashboard = () => {
             usage={statistic.usage}
             description={statistic.description ?? ""}
           />
-        ))}
+        ))} */}
       </div>
       <div className="mt-6 mb-6">
         <h2 className=" px-6 text-left flex text-2xl font-semibold">
@@ -83,7 +83,7 @@ const Dashboard = () => {
         </span>
       </div>
       <div className="flex flex-wrap mb-6">
-        {stats["R4B"]?.map((statistic) => (
+        {/* {stats["R4B"]?.map((statistic) => (
           <Card
             key={statistic.name}
             title={`${statistic.name} Limit`}
@@ -91,7 +91,7 @@ const Dashboard = () => {
             usage={statistic.usage}
             description={statistic.description ?? ""}
           />
-        ))}
+        ))} */}
       </div>
     </div>
   );
