@@ -146,12 +146,15 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
 
     let shared_state = create_services(config).await?;
 
+    let fhir_router = Router::new()
+        .route("/{fhir_version}", any(fhir_root_handler))
+        .route("/{fhir_version}/{*fhir_location}", any(fhir_type_handler))
+        .layer(ServiceBuilder::new().layer(axum::middleware::from_fn(
+            auth_n::middleware::jwt::token_verifcation,
+        )));
+
     let project_router = Router::new()
-        .route("/fhir/{fhir_version}", any(fhir_root_handler))
-        .route(
-            "/fhir/{fhir_version}/{*fhir_location}",
-            any(fhir_type_handler),
-        )
+        .nest("/fhir", fhir_router)
         .nest("/oidc", auth_n::oidc::routes::create_router());
 
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
