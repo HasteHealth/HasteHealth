@@ -1,6 +1,7 @@
 use crate::{
     auth_n::{
         certificates::encoding_key,
+        claims::{TokenClaims, UserResourceTypes},
         oidc::{
             extract::client_app::find_client_app,
             schemas::{self, token_body::OAuth2TokenBody},
@@ -23,7 +24,7 @@ use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
-        ResourceId, TenantId, VersionId,
+        ResourceId,
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, PKCECodeChallengeMethod,
         },
@@ -51,32 +52,6 @@ pub struct TokenResponse {
     id_token: String,
     token_type: TokenType,
     expires_in: usize,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-enum UserResourceTypes {
-    Membership,
-    ClientApplication,
-    OperationDefinition,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct TokenClaims {
-    sub: ResourceId,
-    exp: usize,
-    aud: String,
-    scope: String,
-
-    #[serde(rename = "https://oxidized-health.app/tenant")]
-    tenant: TenantId,
-    #[serde(rename = "https://oxidized-health.app/user_role")]
-    user_role: UserRole,
-    #[serde(rename = "https://oxidized-health.app/user_id")]
-    user_id: Option<ResourceId>,
-    #[serde(rename = "https://oxidized-health.app/resource_type")]
-    resource_type: UserResourceTypes,
-    #[serde(rename = "https://oxidized-health.app/access_policies")]
-    access_policy_version_ids: Vec<VersionId>,
 }
 
 pub fn verify_code_verifier(
