@@ -2,9 +2,13 @@ use crate::fhir_client::middleware::{
     ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
 };
 use oxidized_fhir_client::{
-    middleware::{Middleware, MiddlewareChain}, request::{
-        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest
-    }, url::ParsedParameter, FHIRClient
+    FHIRClient,
+    middleware::{Middleware, MiddlewareChain},
+    request::{
+        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest, FHIRRequest,
+        FHIRResponse, FHIRSearchTypeRequest,
+    },
+    url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -122,27 +126,63 @@ fn router_middleware_chain<
     )
 }
 
+static ARTIFACT_TYPES: &[&str] = &[
+    "ValueSet",
+    "CodeSystem",
+    "StructureDefinition",
+    "SearchParameter",
+];
+
+fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {
+    match request {
+        FHIRRequest::Read(req) => Some(&req.resource_type),
+        FHIRRequest::VersionRead(req) => Some(&req.resource_type),
+        FHIRRequest::UpdateInstance(req) => Some(&req.resource_type),
+        FHIRRequest::DeleteInstance(req) => Some(&req.resource_type),
+        FHIRRequest::Patch(req) => Some(&req.resource_type),
+        FHIRRequest::HistoryInstance(req) => Some(&req.resource_type),
+
+        // Type operations
+        FHIRRequest::Create(req) => Some(&req.resource_type),
+        FHIRRequest::HistoryType(req) => Some(&req.resource_type),
+        FHIRRequest::SearchType(req) => Some(&req.resource_type),
+        FHIRRequest::ConditionalUpdate(req) => Some(&req.resource_type),
+        FHIRRequest::DeleteType(req) => Some(&req.resource_type),
+        _ => None,
+    }
+}
+
 impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
     FHIRServerClient<Repo, Search>
 {
     pub fn new(repo: Repo, search: Search) -> Self {
         let storage_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Create(_)
-                | FHIRRequest::Read(_)
+                // Instance Operations
+                FHIRRequest::Read(_)
                 | FHIRRequest::VersionRead(_)
                 | FHIRRequest::UpdateInstance(_)
-                | FHIRRequest::ConditionalUpdate(_)
                 | FHIRRequest::DeleteInstance(_)
-                | FHIRRequest::DeleteType(_)
                 | FHIRRequest::Patch(_)
-                | FHIRRequest::DeleteSystem(_)
                 | FHIRRequest::HistoryInstance(_)
+
+                // Type operations
+                | FHIRRequest::Create(_)
                 | FHIRRequest::HistoryType(_)
-                | FHIRRequest::HistorySystem(_)
-                // Search
-                | FHIRRequest::SearchSystem(_)
                 | FHIRRequest::SearchType(_)
+                | FHIRRequest::ConditionalUpdate(_)
+                | FHIRRequest::DeleteType(_) => {
+                    if let Some(resource_type) = request_to_resource_type(req) {
+                       !ARTIFACT_TYPES.contains(&resource_type.as_str())
+                    } else {
+                        false
+                    }
+                }
+
+                // System operations
+                | FHIRRequest::HistorySystem(_)
+                | FHIRRequest::SearchSystem(_)
+                | FHIRRequest::DeleteSystem(_)
                 // Bundle operations
                 | FHIRRequest::Batch(_)
                 | FHIRRequest::Transaction(_)
@@ -153,12 +193,29 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                 | FHIRRequest::InvokeSystem(_)
                 | FHIRRequest::Capabilities
                  => false,
-               
             }),
             middleware: Middleware::new(vec![Box::new(middleware::storage)]),
         };
 
-        let route_middleware = router_middleware_chain(Arc::new(vec![storage_route]));
+        let artifact_route = Route {
+            filter: Box::new(|req: &FHIRRequest| match req {
+                FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => {
+                    if let Some(resource_type) = request_to_resource_type(req) {
+                        ARTIFACT_TYPES.contains(&resource_type.as_str())
+                    } else {
+                        false
+                    }
+                }
+                _ => false,
+            }),
+            middleware: Middleware::new(vec![
+                Box::new(middleware::set_artifact_tenant),
+                Box::new(middleware::storage),
+            ]),
+        };
+
+        let route_middleware =
+            router_middleware_chain(Arc::new(vec![storage_route, artifact_route]));
 
         FHIRServerClient {
             state: Arc::new(ClientState {
@@ -276,7 +333,11 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::ConditionalUpdate(FHIRConditionalUpdateRequest { resource_type, parameters, resource }),
+                FHIRRequest::ConditionalUpdate(FHIRConditionalUpdateRequest {
+                    resource_type,
+                    parameters,
+                    resource,
+                }),
             )
             .await?;
 

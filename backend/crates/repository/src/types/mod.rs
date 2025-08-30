@@ -40,7 +40,7 @@ impl TenantId {
     pub fn new(id: String) -> Self {
         // Should never be able to create a system tenant from user.
         if id == SYSTEM_TENANT {
-            panic!("Attempted to create system tenant from user input.");
+            TenantId::System
         } else {
             TenantId::Custom(id)
         }

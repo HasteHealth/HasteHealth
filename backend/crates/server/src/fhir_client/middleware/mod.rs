@@ -8,9 +8,11 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 mod capabilities;
+mod set_artifact_tenant;
 mod storage;
 
 pub use capabilities::*;
+pub use set_artifact_tenant::*;
 pub use storage::*;
 
 pub type ServerMiddlewareState<Repository, Search> = Arc<ClientState<Repository, Search>>;

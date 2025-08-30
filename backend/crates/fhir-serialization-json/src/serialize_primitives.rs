@@ -148,9 +148,9 @@ impl FHIRJSONSerializer for String {
         writer.write_all(&[b'"'])?;
         for c in self.chars() {
             match c {
-                '\u{002F}' => {
-                    writer.write_all(&[b'\x5c', b'\x2f'])?;
-                }
+                // '\u{002F}' => {
+                //     writer.write_all(&[b'\x5c', b'\x2f'])?;
+                // }
 
                 // backslash
                 '\u{005C}' => {
