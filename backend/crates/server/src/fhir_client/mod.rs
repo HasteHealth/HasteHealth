@@ -2,9 +2,13 @@ use crate::fhir_client::middleware::{
     ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
 };
 use oxidized_fhir_client::{
-    middleware::{Middleware, MiddlewareChain}, request::{
-        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest
-    }, url::ParsedParameter, FHIRClient
+    FHIRClient,
+    middleware::{Middleware, MiddlewareChain},
+    request::{
+        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest, FHIRRequest,
+        FHIRResponse, FHIRSearchTypeRequest,
+    },
+    url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -128,21 +132,25 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     pub fn new(repo: Repo, search: Search) -> Self {
         let storage_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Create(_)
-                | FHIRRequest::Read(_)
+                // Instance Operations
+                FHIRRequest::Read(_)
                 | FHIRRequest::VersionRead(_)
                 | FHIRRequest::UpdateInstance(_)
-                | FHIRRequest::ConditionalUpdate(_)
                 | FHIRRequest::DeleteInstance(_)
-                | FHIRRequest::DeleteType(_)
                 | FHIRRequest::Patch(_)
-                | FHIRRequest::DeleteSystem(_)
                 | FHIRRequest::HistoryInstance(_)
+
+                // Type operations
+                | FHIRRequest::Create(_)
                 | FHIRRequest::HistoryType(_)
-                | FHIRRequest::HistorySystem(_)
-                // Search
-                | FHIRRequest::SearchSystem(_)
                 | FHIRRequest::SearchType(_)
+                | FHIRRequest::ConditionalUpdate(_)
+                | FHIRRequest::DeleteType(_)
+
+                // System operations
+                | FHIRRequest::HistorySystem(_)
+                | FHIRRequest::SearchSystem(_)
+                | FHIRRequest::DeleteSystem(_)
                 // Bundle operations
                 | FHIRRequest::Batch(_)
                 | FHIRRequest::Transaction(_)
@@ -153,7 +161,6 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                 | FHIRRequest::InvokeSystem(_)
                 | FHIRRequest::Capabilities
                  => false,
-               
             }),
             middleware: Middleware::new(vec![Box::new(middleware::storage)]),
         };
@@ -276,7 +283,11 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::ConditionalUpdate(FHIRConditionalUpdateRequest { resource_type, parameters, resource }),
+                FHIRRequest::ConditionalUpdate(FHIRConditionalUpdateRequest {
+                    resource_type,
+                    parameters,
+                    resource,
+                }),
             )
             .await?;
 
