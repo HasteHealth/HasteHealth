@@ -11,7 +11,7 @@ use oxidized_fhir_model::r4::{
     types::{Resource, ResourceType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use sqlx::{Acquire, Execute, Postgres, QueryBuilder};
+use sqlx::{Acquire, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 

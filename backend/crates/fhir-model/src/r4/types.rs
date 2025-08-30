@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use oxidized_fhir_serialization_json;
 use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
-use oxidized_reflect::{derive::Reflect, MetaValue};
+use oxidized_reflect::{MetaValue, derive::Reflect};
 use std::io::Write;
 use thiserror::Error;
 #[derive(

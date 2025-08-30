@@ -146,7 +146,6 @@ struct ElasticSearchHitResult {
     _id: String,
     _score: Option<f64>,
     fields: SearchEntryPrivate,
-    // sort: Option<Vec<serde_json::Value>>,
 }
 
 #[derive(serde::Deserialize, Debug)]

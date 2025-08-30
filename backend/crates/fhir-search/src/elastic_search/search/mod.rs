@@ -95,6 +95,30 @@ fn sort_build(
                 }))
             }
         },
+        Some("token") => match direction {
+            SortDirection::Asc => {
+                let sort_col = url.clone() + ".code";
+                Ok(json!({
+                    sort_col: {
+                        "order": "asc",
+                        "nested": {
+                            "path": url
+                        }
+                    }
+                }))
+            }
+            SortDirection::Desc => {
+                let sort_col = url.clone() + ".code";
+                Ok(json!({
+                    sort_col: {
+                        "order": "desc",
+                        "nested": {
+                            "path": url
+                        }
+                    }
+                }))
+            }
+        },
         _ => {
             return Err(QueryBuildError::UnsupportedSortParameter(
                 search_param.name.value.clone().unwrap_or_default(),
