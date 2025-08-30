@@ -11,7 +11,7 @@ use oxidized_fhir_model::r4::{
     types::{Resource, ResourceType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{Acquire, Execute, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -259,23 +259,28 @@ fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
 
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
-        let result = sqlx::query_as!(
-                ReturnV,
-                r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
+        let query = sqlx::query_as!(
+            ReturnV,
+            r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
-                tenant.as_ref() as &str,
-                project.as_ref() as &str,
-                author.id,
-                // Useless cast so that macro has access to the type information.
-                // Otherwise it will not compile on type check.
-                fhir_version as &SupportedFHIRVersions,
-                &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
-                false, // deleted
-                "PUT",
-                author.kind,
-                &FHIRMethod::Update as &FHIRMethod,
-            ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
+            tenant.as_ref() as &str,
+            project.as_ref() as &str,
+            author.id,
+            // Useless cast so that macro has access to the type information.
+            // Otherwise it will not compile on type check.
+            fhir_version as &SupportedFHIRVersions,
+            &FHIRJsonRef(resource) as &FHIRJsonRef<'_, Resource>,
+            false, // deleted
+            "PUT",
+            author.kind,
+            &FHIRMethod::Update as &FHIRMethod,
+        );
+
+        let result = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::from)?;
 
         Ok(result.resource.0)
     }

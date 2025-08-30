@@ -1,11 +1,9 @@
 use oxidized_fhir_client::request::FHIRRequest;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
-
-use crate::utilities::generate_id;
+mod sqlx_bindings;
 
 pub mod authorization_code;
-mod sqlx_bindings;
 pub mod tenant;
 pub mod user;
 
@@ -16,6 +14,7 @@ pub enum SupportedFHIRVersions {
     R4,
 }
 
+#[derive(Debug)]
 pub struct Author {
     pub id: String,
     pub kind: String,
@@ -41,7 +40,7 @@ impl TenantId {
     pub fn new(id: String) -> Self {
         // Should never be able to create a system tenant from user.
         if id == SYSTEM_TENANT {
-            TenantId::Custom(generate_id(Some(26)))
+            panic!("Attempted to create system tenant from user input.");
         } else {
             TenantId::Custom(id)
         }

@@ -148,8 +148,14 @@ impl FHIRJSONSerializer for String {
         writer.write_all(&[b'"'])?;
         for c in self.chars() {
             match c {
-                // Simple escapes just reuse character
-                // | '\u{005C}' | '\u{002F}'
+                '\u{002F}' => {
+                    writer.write_all(&[b'\x5c', b'\x2f'])?;
+                }
+
+                // backslash
+                '\u{005C}' => {
+                    writer.write_all(&[b'\x5c', b'\x5c'])?;
+                }
                 '\u{0022}' => {
                     writer.write_all(&[b'\x5c', c as u8])?;
                 }
@@ -169,6 +175,7 @@ impl FHIRJSONSerializer for String {
                 '\u{000D}' => {
                     writer.write_all(&[b'\x5c', b'\x72'])?;
                 }
+
                 // Tab
                 '\u{0009}' => {
                     writer.write_all(&[b'\x5c', b'\x74'])?;
