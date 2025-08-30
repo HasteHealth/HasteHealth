@@ -26,6 +26,7 @@ use serde::Deserialize;
 use std::{sync::Arc, time::Instant};
 use tower::{Layer, ServiceBuilder};
 use tower_http::{
+    compression::CompressionLayer,
     cors::{Any, CorsLayer},
     normalize_path::NormalizePathLayer,
 };
@@ -160,6 +161,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                .layer(CompressionLayer::new())
                 .layer(
                     SessionManagerLayer::new(session_store)
                         .with_secure(true)
