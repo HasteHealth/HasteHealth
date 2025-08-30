@@ -100,7 +100,7 @@ async fn fhir_root_handler<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
-    user: Extension<TokenClaims>,
+    _user: Extension<TokenClaims>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search>>>,
