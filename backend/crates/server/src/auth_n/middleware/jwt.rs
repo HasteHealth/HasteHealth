@@ -20,10 +20,7 @@ fn validate_jwt(token: &str) -> Result<TokenClaims, StatusCode> {
         certificates::decoding_key(),
         &*VALIDATION_CONFIG,
     )
-    .map_err(|e| {
-        println!("{:?}", e);
-        StatusCode::UNAUTHORIZED
-    })?;
+    .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     Ok(result.claims)
 }
