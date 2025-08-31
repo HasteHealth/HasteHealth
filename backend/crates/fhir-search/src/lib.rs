@@ -44,7 +44,7 @@ pub struct SearchReturn {
 }
 
 pub struct SearchOptions {
-    count_limit: bool,
+    pub count_limit: bool,
 }
 
 pub trait SearchEngine: Send + Sync {
