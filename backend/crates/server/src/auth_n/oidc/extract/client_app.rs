@@ -43,7 +43,6 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
                 id: "anonymous".to_string(),
                 kind: "Membership".to_string(),
             },
-            client: state.fhir_client.clone(),
         });
 
         let client_app = state

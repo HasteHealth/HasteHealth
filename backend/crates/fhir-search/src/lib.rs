@@ -43,6 +43,10 @@ pub struct SearchReturn {
     pub entries: Vec<SearchEntry>,
 }
 
+pub struct SearchOptions {
+    count_limit: bool,
+}
+
 pub trait SearchEngine: Send + Sync {
     fn search(
         &self,
@@ -50,6 +54,7 @@ pub trait SearchEngine: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
         search_request: SearchRequest,
+        options: Option<SearchOptions>,
     ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send;
 
     fn index(

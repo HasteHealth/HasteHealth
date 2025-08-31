@@ -2,13 +2,13 @@ use axum::http::Method;
 use oxidized_fhir_client::{
     FHIRClient,
     request::{
-        FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest,
-        FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
-        FHIRUpdateResponse, FHIRVersionReadResponse,
+        FHIRBatchResponse, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadResponse,
+        FHIRRequest, FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest,
+        FHIRSearchTypeResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
-use oxidized_fhir_model::r4::types::{Bundle, FHIRCode};
+use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode, Resource};
 
 use crate::{
     fhir_client::{
@@ -28,7 +28,73 @@ use oxidized_repository::{
     fhir::{FHIRRepository, HistoryRequest},
     types::{ResourceId, SupportedFHIRVersions, VersionIdRef},
 };
-use std::{borrow::Cow, str::FromStr, sync::Arc};
+use std::{str::FromStr, sync::Arc};
+
+fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
+    BundleEntry {
+        resource: match fhir_response {
+            FHIRResponse::Create(res) => Some(Box::new(res.resource)),
+            FHIRResponse::Read(res) => Some(Box::new(res.resource)),
+            FHIRResponse::Update(res) => Some(Box::new(res.resource)),
+            FHIRResponse::VersionRead(res) => Some(Box::new(res.resource)),
+            FHIRResponse::DeleteInstance(_res) => None,
+            FHIRResponse::DeleteType(_res) => None,
+            FHIRResponse::DeleteSystem(_res) => None,
+            FHIRResponse::HistoryInstance(res) => {
+                let bundle = oxidized_fhir_client::axum::to_bundle(
+                    "searchset".to_string(),
+                    None,
+                    res.resources,
+                );
+                Some(Box::new(Resource::Bundle(bundle)))
+            }
+            FHIRResponse::HistoryType(res) => {
+                let bundle = oxidized_fhir_client::axum::to_bundle(
+                    "searchset".to_string(),
+                    None,
+                    res.resources,
+                );
+                Some(Box::new(Resource::Bundle(bundle)))
+            }
+            FHIRResponse::HistorySystem(res) => {
+                let bundle = oxidized_fhir_client::axum::to_bundle(
+                    "searchset".to_string(),
+                    None,
+                    res.resources,
+                );
+                Some(Box::new(Resource::Bundle(bundle)))
+            }
+            FHIRResponse::SearchSystem(res) => {
+                let bundle = oxidized_fhir_client::axum::to_bundle(
+                    "searchset".to_string(),
+                    res.total,
+                    res.resources,
+                );
+                Some(Box::new(Resource::Bundle(bundle)))
+            }
+            FHIRResponse::SearchType(res) => {
+                let bundle = oxidized_fhir_client::axum::to_bundle(
+                    "searchset".to_string(),
+                    res.total,
+                    res.resources,
+                );
+                Some(Box::new(Resource::Bundle(bundle)))
+            }
+            FHIRResponse::Patch(res) => Some(Box::new(res.resource)),
+
+            FHIRResponse::Capabilities(res) => {
+                Some(Box::new(Resource::CapabilityStatement(res.capabilities)))
+            }
+
+            FHIRResponse::InvokeInstance(res) => Some(Box::new(Resource::Parameters(res.resource))),
+            FHIRResponse::InvokeType(res) => Some(Box::new(Resource::Parameters(res.resource))),
+            FHIRResponse::InvokeSystem(res) => Some(Box::new(Resource::Parameters(res.resource))),
+            FHIRResponse::Batch(res) => Some(Box::new(Resource::Bundle(res.resource))),
+            FHIRResponse::Transaction(res) => Some(Box::new(Resource::Bundle(res.resource))),
+        },
+        ..Default::default()
+    }
+}
 
 pub fn storage<
     Repo: Repository + Send + Sync + 'static,
@@ -192,6 +258,7 @@ pub fn storage<
                         &context.ctx.tenant,
                         &context.ctx.project,
                         SearchRequest::SystemSearch(search_system_request),
+                        None,
                     )
                     .await?;
 
@@ -221,6 +288,7 @@ pub fn storage<
                         &context.ctx.tenant,
                         &context.ctx.project,
                         SearchRequest::TypeSearch(search_type_request),
+                        None,
                     )
                     .await?;
 
@@ -261,6 +329,7 @@ pub fn storage<
                                 })
                                 .collect(),
                         }),
+                        None,
                     )
                     .await?;
 
@@ -382,66 +451,76 @@ pub fn storage<
                 let mut bundle_entries = Some(Vec::new());
                 // Memswap so I can avoid cloning.
                 std::mem::swap(&mut batch_request.resource.entry, &mut bundle_entries);
-
                 let batch_client = FHIRServerClient::new(state.repo.clone(), state.search.clone());
-                let mut response = Bundle {
+
+                let mut bundle_response = Bundle {
                     type_: Box::new(FHIRCode {
                         value: Some("batch-response".to_string()),
                         ..Default::default()
                     }),
-                    entry: bundle_entries
-                        .unwrap_or(vec![])
-                        .into_iter()
-                        .filter_map(|e| {
-                            if let Some(request) = e.request.as_ref() {
-                                let url = request
-                                    .url
+                    ..Default::default()
+                };
+                if let Some(bundle_entries) = bundle_entries {
+                    let mut bundle_response_entries = Vec::with_capacity(bundle_entries.len());
+                    for e in bundle_entries.into_iter() {
+                        if let Some(request) = e.request.as_ref() {
+                            let url = request
+                                .url
+                                .value
+                                .as_ref()
+                                .map(|s| s.as_str())
+                                .unwrap_or_default();
+
+                            let (path, query) = url.split_once("?").unwrap_or((url, ""));
+
+                            let Ok(method) = Method::from_str(
+                                request
+                                    .method
                                     .value
                                     .as_ref()
                                     .map(|s| s.as_str())
-                                    .unwrap_or_default();
+                                    .unwrap_or_default(),
+                            ) else {
+                                return Err(OperationOutcomeError::error(
+                                    OperationOutcomeCodes::Invalid,
+                                    "Invalid HTTP Method".to_string(),
+                                ));
+                            };
 
-                                let (path, query) = url.split_once("?").unwrap_or((url, ""));
+                            let http_request = HTTPRequest::new(
+                                method,
+                                path.to_string(),
+                                if let Some(body) = e.resource {
+                                    fhir_http::HTTPBody::Resource(*body)
+                                } else {
+                                    fhir_http::HTTPBody::String("".to_string())
+                                },
+                                query.to_string(),
+                            );
 
-                                let Ok(method) = Method::from_str(
-                                    request
-                                        .method
-                                        .value
-                                        .as_ref()
-                                        .map(|s| s.as_str())
-                                        .unwrap_or_default(),
-                                ) else {
-                                    return None;
-                                };
+                            let Ok(fhir_request) = fhir_http::http_request_to_fhir_request(
+                                SupportedFHIRVersions::R4,
+                                http_request,
+                            ) else {
+                                return Err(OperationOutcomeError::error(
+                                    OperationOutcomeCodes::Invalid,
+                                    "Invalid Bundle entry".to_string(),
+                                ));
+                            };
 
-                                let http_request = HTTPRequest::new(
-                                    method,
-                                    path.to_string(),
-                                    fhir_http::HTTPBody::Resource(*(e.resource.clone().unwrap())),
-                                    query.to_string(),
-                                );
+                            let fhir_response = batch_client
+                                .request(context.ctx.clone(), fhir_request)
+                                .await?;
 
-                                let Ok(fhir_request) = fhir_http::http_request_to_fhir_request(
-                                    SupportedFHIRVersions::R4,
-                                    http_request,
-                                ) else {
-                                    return None;
-                                };
+                            bundle_response_entries.push(convert_bundle_entry(fhir_response));
+                        }
+                    }
+                    bundle_response.entry = Some(bundle_response_entries);
+                }
 
-                                batch_client.request(context.ctx.clone(), fhir_request);
-
-                                // BundleEntry {
-                                //     response: fhir_request,
-                                // };
-                            }
-
-                            todo!();
-                        })
-                        .collect(),
-                    ..Default::default()
-                };
-
-                todo!();
+                Ok(Some(FHIRResponse::Batch(FHIRBatchResponse {
+                    resource: bundle_response,
+                })))
             }
             _ => Ok(None),
         }?;
