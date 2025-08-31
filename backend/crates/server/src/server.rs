@@ -37,7 +37,7 @@ use tower_sessions::{
     cookie::{SameSite, time::Duration},
 };
 use tower_sessions_sqlx_store::PostgresStore;
-use tracing::info;
+use tracing::{Instrument, Level, info, span};
 
 #[derive(Deserialize)]
 struct FHIRHandlerPath {
@@ -66,33 +66,37 @@ async fn fhir_handler<
 ) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
     let fhir_location = path.fhir_location.unwrap_or_default();
-    info!("[{}] '{}'", method, fhir_location);
+    let method_str = method.to_string();
+    let span = span!(Level::ERROR, "FHIR-HTTP", method_str, fhir_location);
+    async {
+        let http_req = HTTPRequest::new(
+            method,
+            fhir_location,
+            body,
+            uri.query().unwrap_or_default().to_string(),
+        );
 
-    let http_req = HTTPRequest::new(
-        method,
-        fhir_location,
-        body,
-        uri.query().unwrap_or_default().to_string(),
-    );
+        let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
 
-    let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
+        let ctx = Arc::new(ServerCTX {
+            tenant: path.tenant,
+            project: path.project,
+            fhir_version: path.fhir_version,
+            author: Author {
+                id: "anonymous".to_string(),
+                kind: "Membership".to_string(),
+            },
+        });
 
-    let ctx = Arc::new(ServerCTX {
-        tenant: path.tenant,
-        project: path.project,
-        fhir_version: path.fhir_version,
-        author: Author {
-            id: "anonymous".to_string(),
-            kind: "Membership".to_string(),
-        },
-    });
+        let response = state.fhir_client.request(ctx, fhir_request).await?;
 
-    let response = state.fhir_client.request(ctx, fhir_request).await?;
+        info!("Request processed in {:?}", start.elapsed());
 
-    info!("Request processed in {:?}", start.elapsed());
-
-    let http_response = response.into_response();
-    Ok(http_response)
+        let http_response = response.into_response();
+        Ok(http_response)
+    }
+    .instrument(span)
+    .await
 }
 
 async fn fhir_root_handler<
