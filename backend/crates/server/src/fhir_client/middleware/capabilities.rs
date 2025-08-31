@@ -6,7 +6,10 @@ use oxidized_fhir_model::r4::types::CapabilityStatement;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock, Mutex};
+
+static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
+    LazyLock::new(|| Mutex::new(None));
 
 pub fn capabilities<
     Repo: Repository + Send + Sync + 'static,
@@ -19,10 +22,28 @@ pub fn capabilities<
     Box::pin(async move {
         match context.request {
             FHIRRequest::Capabilities => {
-                let capabilities = CapabilityStatement::default();
-                context.response = Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                    capabilities: capabilities,
-                }));
+                match CAPABILITIES.lock() {
+                    Ok(mut guard) => {
+                        if let Some(capabilities) = &*guard {
+                            context.response =
+                                Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                                    capabilities: capabilities.clone(),
+                                }));
+                        } else {
+                            let capabilities = CapabilityStatement::default();
+                            *guard = Some(capabilities.clone());
+
+                            context.response =
+                                Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                                    capabilities: capabilities,
+                                }));
+                        }
+                    }
+                    Err(_) => {
+                        // Handle the error case
+                    }
+                }
+
                 Ok(context)
             }
             _ => {
