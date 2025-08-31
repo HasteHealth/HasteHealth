@@ -42,7 +42,6 @@ pub enum StorageError {
     InvalidType,
 }
 
-#[derive(Debug)]
 pub struct ServerCTX {
     pub tenant: TenantId,
     pub project: ProjectId,
@@ -51,7 +50,7 @@ pub struct ServerCTX {
 }
 
 struct ClientState<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync> {
-    repo: Repo,
+    repo: Arc<Repo>,
     search: Arc<Search>,
 }
 
@@ -155,7 +154,7 @@ fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a Resource
 impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
     FHIRServerClient<Repo, Search>
 {
-    pub fn new(repo: Repo, search: Search) -> Self {
+    pub fn new(repo: Arc<Repo>, search: Arc<Search>) -> Self {
         let storage_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
                 // Instance Operations
@@ -218,10 +217,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             router_middleware_chain(Arc::new(vec![storage_route, artifact_route]));
 
         FHIRServerClient {
-            state: Arc::new(ClientState {
-                repo,
-                search: Arc::new(search),
-            }),
+            state: Arc::new(ClientState { repo, search }),
             middleware: Middleware::new(vec![
                 Box::new(middleware::capabilities),
                 Box::new(route_middleware),

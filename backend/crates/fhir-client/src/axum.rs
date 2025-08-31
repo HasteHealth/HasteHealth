@@ -5,7 +5,7 @@ use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode, FHIRUnsigned
 
 use crate::request::FHIRResponse;
 
-fn to_bundle(bundle_type: String, total: Option<i64>, resources: Vec<Resource>) -> Bundle {
+pub fn to_bundle(bundle_type: String, total: Option<i64>, resources: Vec<Resource>) -> Bundle {
     Bundle {
         id: None,
         meta: None,
@@ -119,6 +119,15 @@ impl IntoResponse for FHIRResponse {
                     header,
                     // Unwrap should be safe here.
                     oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                )
+                    .into_response()
+            }
+            FHIRResponse::Batch(response) => {
+                (
+                    StatusCode::OK,
+                    header,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
                 )
                     .into_response()
             }

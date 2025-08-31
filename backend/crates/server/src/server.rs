@@ -5,7 +5,7 @@ use crate::{
         claims::TokenClaims,
     },
     fhir_client::ServerCTX,
-    fhir_http::{HTTPRequest, http_request_to_fhir_request},
+    fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     services::{AppState, ConfigError, create_services, get_pool},
 };
 use axum::{
@@ -72,11 +72,11 @@ async fn fhir_handler<
         let http_req = HTTPRequest::new(
             method,
             fhir_location,
-            body,
+            HTTPBody::String(body),
             uri.query().unwrap_or_default().to_string(),
         );
 
-        let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, &http_req)?;
+        let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
 
         let ctx = Arc::new(ServerCTX {
             tenant: path.tenant,

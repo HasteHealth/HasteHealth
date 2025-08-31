@@ -58,7 +58,7 @@ pub struct AppState<
 > {
     pub search: Search,
     pub repo: Repo,
-    pub fhir_client: FHIRServerClient<Repo, Search>,
+    pub fhir_client: Arc<FHIRServerClient<Repo, Search>>,
     pub config: Box<dyn Config>,
 }
 
@@ -86,7 +86,10 @@ pub async fn create_services(
         config,
         repo: repo.clone(),
         search: search_engine.clone(),
-        fhir_client: FHIRServerClient::new(repo, search_engine),
+        fhir_client: Arc::new(FHIRServerClient::new(
+            Arc::new(repo),
+            Arc::new(search_engine),
+        )),
     });
 
     Ok(shared_state)

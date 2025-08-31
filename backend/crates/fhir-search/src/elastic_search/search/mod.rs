@@ -2,6 +2,7 @@ use crate::SearchRequest;
 use oxidized_fhir_client::url::{Parameter, ParsedParameter};
 use oxidized_fhir_model::r4::types::{ResourceType, SearchParameter};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use oxidized_repository::types::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -160,6 +161,8 @@ fn get_parameters<'a>(request: &'a SearchRequest) -> &'a Vec<ParsedParameter> {
 }
 
 pub fn build_elastic_search_query(
+    tenant: &TenantId,
+    project: &ProjectId,
     request: &SearchRequest,
 ) -> Result<serde_json::Value, QueryBuildError> {
     let resource_type = get_resource_type(request);
@@ -274,6 +277,18 @@ pub fn build_elastic_search_query(
             }
         }));
     }
+
+    clauses.push(json! ({
+        "match": {
+            "tenant": tenant.as_ref()
+        }
+    }));
+
+    clauses.push(json! ({
+        "match": {
+            "project": project.as_ref()
+        }
+    }));
 
     let query = json!({
         "fields": ["version_id", "id", "resource_type"],

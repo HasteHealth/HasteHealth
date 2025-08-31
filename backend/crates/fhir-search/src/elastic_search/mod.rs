@@ -1,5 +1,5 @@
 use crate::{
-    IndexResource, SearchEngine, SearchEntry, SearchReturn,
+    IndexResource, SearchEngine, SearchEntry, SearchOptions, SearchReturn,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -169,11 +169,12 @@ impl SearchEngine for ElasticSearchEngine {
     async fn search<'a>(
         &self,
         fhir_version: &SupportedFHIRVersions,
-        _tenant: &TenantId,
-        _project: &ProjectId,
-        _search_request: super::SearchRequest<'a>,
+        tenant: &TenantId,
+        project: &ProjectId,
+        search_request: super::SearchRequest<'a>,
+        _options: Option<SearchOptions>,
     ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
-        let query = search::build_elastic_search_query(&_search_request)?;
+        let query = search::build_elastic_search_query(tenant, project, &search_request)?;
 
         let search_response = self
             .client
