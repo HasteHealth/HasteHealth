@@ -86,7 +86,10 @@ pub async fn create_services(
         config,
         repo: repo.clone(),
         search: search_engine.clone(),
-        fhir_client: Arc::new(FHIRServerClient::new(repo, search_engine)),
+        fhir_client: Arc::new(FHIRServerClient::new(
+            Arc::new(repo),
+            Arc::new(search_engine),
+        )),
     });
 
     Ok(shared_state)

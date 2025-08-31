@@ -13,9 +13,9 @@ pub fn capabilities<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     state: ServerMiddlewareState<Repo, Search>,
-    mut context: ServerMiddlewareContext<Repo, Search>,
+    mut context: ServerMiddlewareContext,
     next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
-) -> ServerMiddlewareOutput<Repo, Search> {
+) -> ServerMiddlewareOutput {
     Box::pin(async move {
         match context.request {
             FHIRRequest::Capabilities => {

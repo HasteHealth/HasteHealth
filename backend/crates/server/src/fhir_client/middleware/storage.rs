@@ -1,5 +1,6 @@
 use axum::http::Method;
 use oxidized_fhir_client::{
+    FHIRClient,
     request::{
         FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest,
         FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
@@ -7,11 +8,11 @@ use oxidized_fhir_client::{
     },
     url::ParsedParameter,
 };
-use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode};
+use oxidized_fhir_model::r4::types::{Bundle, FHIRCode};
 
 use crate::{
     fhir_client::{
-        ClientState, StorageError,
+        ClientState, FHIRServerClient, StorageError,
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
             ServerMiddlewareState,
@@ -34,15 +35,15 @@ pub fn storage<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     state: ServerMiddlewareState<Repo, Search>,
-    mut context: ServerMiddlewareContext<Repo, Search>,
+    mut context: ServerMiddlewareContext,
     next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
-) -> ServerMiddlewareOutput<Repo, Search> {
+) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
             FHIRRequest::Create(create_request) => {
                 Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
                     resource: FHIRRepository::create(
-                        &state.repo,
+                        state.repo.as_ref(),
                         &context.ctx.tenant,
                         &context.ctx.project,
                         &context.ctx.author,
@@ -159,7 +160,7 @@ pub fn storage<
 
                     Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
                         resource: FHIRRepository::update(
-                            &state.repo,
+                            state.repo.as_ref(),
                             &context.ctx.tenant,
                             &context.ctx.project,
                             &context.ctx.author,
@@ -172,7 +173,7 @@ pub fn storage<
                 } else {
                     Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
                         resource: FHIRRepository::create(
-                            &state.repo,
+                            state.repo.as_ref(),
                             &context.ctx.tenant,
                             &context.ctx.project,
                             &context.ctx.author,
@@ -300,7 +301,7 @@ pub fn storage<
 
                             Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
                                 resource: FHIRRepository::update(
-                                    &state.repo,
+                                    state.repo.as_ref(),
                                     &context.ctx.tenant,
                                     &context.ctx.project,
                                     &context.ctx.author,
@@ -313,7 +314,7 @@ pub fn storage<
                         } else {
                             Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
                                 resource: FHIRRepository::create(
-                                    &state.repo,
+                                    state.repo.as_ref(),
                                     &context.ctx.tenant,
                                     &context.ctx.project,
                                     &context.ctx.author,
@@ -360,7 +361,7 @@ pub fn storage<
 
                         Ok(Some(FHIRResponse::Update(FHIRUpdateResponse {
                             resource: FHIRRepository::update(
-                                &state.repo,
+                                state.repo.as_ref(),
                                 &context.ctx.tenant,
                                 &context.ctx.project,
                                 &context.ctx.author,
@@ -378,27 +379,37 @@ pub fn storage<
                 }
             }
             FHIRRequest::Batch(batch_request) => {
+                let mut bundle_entries = Some(Vec::new());
+                // Memswap so I can avoid cloning.
+                std::mem::swap(&mut batch_request.resource.entry, &mut bundle_entries);
+
+                let batch_client = FHIRServerClient::new(state.repo.clone(), state.search.clone());
                 let mut response = Bundle {
                     type_: Box::new(FHIRCode {
                         value: Some("batch-response".to_string()),
                         ..Default::default()
                     }),
-                    entry: batch_request
-                        .resource
-                        .entry
-                        .as_deref_mut()
-                        .map(|v| Cow::Borrowed(v))
-                        .unwrap_or(Cow::Owned(vec![]))
+                    entry: bundle_entries
+                        .unwrap_or(vec![])
                         .into_iter()
                         .filter_map(|e| {
                             if let Some(request) = e.request.as_ref() {
-                                let url = request.url.value.unwrap_or_default();
+                                let url = request
+                                    .url
+                                    .value
+                                    .as_ref()
+                                    .map(|s| s.as_str())
+                                    .unwrap_or_default();
 
-                                let (path, query) =
-                                    url.split_once("?").unwrap_or((url.as_str(), ""));
+                                let (path, query) = url.split_once("?").unwrap_or((url, ""));
 
                                 let Ok(method) = Method::from_str(
-                                    &request.method.value.unwrap_or_else(|| "".to_string()),
+                                    request
+                                        .method
+                                        .value
+                                        .as_ref()
+                                        .map(|s| s.as_str())
+                                        .unwrap_or_default(),
                                 ) else {
                                     return None;
                                 };
@@ -410,10 +421,14 @@ pub fn storage<
                                     query.to_string(),
                                 );
 
-                                let fhir_request = fhir_http::http_request_to_fhir_request(
+                                let Ok(fhir_request) = fhir_http::http_request_to_fhir_request(
                                     SupportedFHIRVersions::R4,
                                     http_request,
-                                );
+                                ) else {
+                                    return None;
+                                };
+
+                                batch_client.request(context.ctx.clone(), fhir_request);
 
                                 // BundleEntry {
                                 //     response: fhir_request,
@@ -434,7 +449,7 @@ pub fn storage<
         let mut next_context = if let Some(next_) = next {
             next_(
                 Arc::new(ClientState {
-                    repo: state.repo.transaction().await.unwrap(),
+                    repo: Arc::new(state.repo.transaction().await.unwrap()),
                     search: state.search.clone(),
                 }),
                 context,

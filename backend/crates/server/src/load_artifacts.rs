@@ -64,7 +64,6 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
         tenant: TenantId::System,
         project: SYSTEM_PROJECT_TENANT.clone(),
         fhir_version: SupportedFHIRVersions::R4,
-        client: services.fhir_client.clone(),
         author: Author {
             id: "system".into(),
             kind: "admin".into(),

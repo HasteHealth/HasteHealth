@@ -82,7 +82,6 @@ async fn fhir_handler<
             tenant: path.tenant,
             project: path.project,
             fhir_version: path.fhir_version,
-            client: state.fhir_client.clone(),
             author: Author {
                 id: "anonymous".to_string(),
                 kind: "Membership".to_string(),
