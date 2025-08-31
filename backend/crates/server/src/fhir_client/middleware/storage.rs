@@ -27,7 +27,7 @@ use oxidized_repository::{
     fhir::{FHIRRepository, HistoryRequest},
     types::{ResourceId, SupportedFHIRVersions, VersionIdRef},
 };
-use std::{str::FromStr, sync::Arc};
+use std::{borrow::Cow, str::FromStr, sync::Arc};
 
 pub fn storage<
     Repo: Repository + Send + Sync + 'static,
@@ -386,26 +386,43 @@ pub fn storage<
                     entry: batch_request
                         .resource
                         .entry
-                        .unwrap_or(vec![])
-                        .iter()
+                        .as_deref_mut()
+                        .map(|v| Cow::Borrowed(v))
+                        .unwrap_or(Cow::Owned(vec![]))
+                        .into_iter()
                         .filter_map(|e| {
-                            if let Some(request) = e.request {
+                            if let Some(request) = e.request.as_ref() {
+                                let url = request.url.value.unwrap_or_default();
+
+                                let (path, query) =
+                                    url.split_once("?").unwrap_or((url.as_str(), ""));
+
+                                let Ok(method) = Method::from_str(
+                                    &request.method.value.unwrap_or_else(|| "".to_string()),
+                                ) else {
+                                    return None;
+                                };
+
+                                let http_request = HTTPRequest::new(
+                                    method,
+                                    path.to_string(),
+                                    fhir_http::HTTPBody::Resource(*(e.resource.clone().unwrap())),
+                                    query.to_string(),
+                                );
+
                                 let fhir_request = fhir_http::http_request_to_fhir_request(
                                     SupportedFHIRVersions::R4,
-                                    &HTTPRequest {
-                                        method: Method::from_str(
-                                            request.method.value.unwrap_or(""),
-                                        ),
-                                        path: request.url.value.unwrap_or(""),
-                                        body,
-                                        query,
-                                    },
+                                    http_request,
                                 );
-                                BundleEntry {
-                                    response: fhir_request,
-                                }
+
+                                // BundleEntry {
+                                //     response: fhir_request,
+                                // };
                             }
-                        }),
+
+                            todo!();
+                        })
+                        .collect(),
                     ..Default::default()
                 };
 
