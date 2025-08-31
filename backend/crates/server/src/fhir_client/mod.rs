@@ -42,12 +42,15 @@ pub enum StorageError {
     InvalidType,
 }
 
-#[derive(Debug)]
-pub struct ServerCTX {
+pub struct ServerCTX<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+> {
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
     pub author: Author,
+    pub client: Arc<FHIRServerClient<Repo, Search>>,
 }
 
 struct ClientState<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync> {
@@ -60,7 +63,7 @@ struct Route<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Se
     filter: Box<dyn Fn(&FHIRRequest) -> bool + Send + Sync>,
     middleware: Middleware<
         Arc<ClientState<Repo, Search>>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -74,7 +77,7 @@ pub struct FHIRServerClient<
     state: Arc<ClientState<Repo, Search>>,
     middleware: Middleware<
         Arc<ClientState<Repo, Search>>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -88,16 +91,16 @@ fn router_middleware_chain<
     routes: Arc<Vec<Route<Repo, Search>>>,
 ) -> MiddlewareChain<
     Arc<ClientState<Repo, Search>>,
-    Arc<ServerCTX>,
+    Arc<ServerCTX<Repo, Search>>,
     FHIRRequest,
     FHIRResponse,
     OperationOutcomeError,
 > {
     Box::new(
         move |state: ServerMiddlewareState<Repo, Search>,
-              context: ServerMiddlewareContext,
+              context: ServerMiddlewareContext<Repo, Search>,
               next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>|
-              -> ServerMiddlewareOutput {
+              -> ServerMiddlewareOutput<Repo, Search> {
             let routes = routes.clone();
             Box::pin(async move {
                 let route = Arc::new(routes.iter().find(|r| (r.filter)(&context.request)).clone());
@@ -231,11 +234,12 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 }
 
 impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
-    FHIRClient<Arc<ServerCTX>, OperationOutcomeError> for FHIRServerClient<Repo, Search>
+    FHIRClient<Arc<ServerCTX<Repo, Search>>, OperationOutcomeError>
+    for FHIRServerClient<Repo, Search>
 {
     async fn request(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         request: FHIRRequest,
     ) -> Result<FHIRResponse, OperationOutcomeError> {
         let response = self
@@ -250,14 +254,14 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn capabilities(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
     ) -> oxidized_fhir_model::r4::types::CapabilityStatement {
         todo!()
     }
 
     async fn search_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
         todo!()
@@ -265,7 +269,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn search_type(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search>>,
         resource_type: oxidized_fhir_model::r4::types::ResourceType,
         parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
@@ -289,7 +293,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn create(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search>>,
         resource_type: oxidized_fhir_model::r4::types::ResourceType,
         resource: oxidized_fhir_model::r4::types::Resource,
     ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
@@ -313,7 +317,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn update(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _id: String,
         _resource: oxidized_fhir_model::r4::types::Resource,
@@ -323,7 +327,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn conditional_update(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search>>,
         resource_type: oxidized_fhir_model::r4::types::ResourceType,
         parameters: Vec<ParsedParameter>,
         resource: oxidized_fhir_model::r4::types::Resource,
@@ -350,7 +354,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn patch(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _id: String,
         _patches: json_patch::Patch,
@@ -360,7 +364,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn read(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search>>,
         resource_type: oxidized_fhir_model::r4::types::ResourceType,
         id: String,
     ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
@@ -381,7 +385,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn vread(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _id: String,
         _version_id: String,
@@ -391,7 +395,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn delete_instance(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _id: String,
     ) -> Result<(), OperationOutcomeError> {
@@ -400,7 +404,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn delete_type(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
@@ -409,7 +413,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn delete_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
         todo!()
@@ -417,7 +421,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn history_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
         todo!()
@@ -425,7 +429,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn history_type(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
@@ -434,7 +438,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn history_instance(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _id: String,
         _parameters: Vec<ParsedParameter>,
@@ -444,7 +448,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn invoke_instance(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _id: String,
         _operation: String,
@@ -455,7 +459,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn invoke_type(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _resource_type: oxidized_fhir_model::r4::types::ResourceType,
         _operation: String,
         _parameters: oxidized_fhir_model::r4::types::Parameters,
@@ -465,7 +469,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn invoke_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _operation: String,
         _parameters: oxidized_fhir_model::r4::types::Parameters,
     ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
@@ -474,7 +478,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn transaction(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _bundle: oxidized_fhir_model::r4::types::Resource,
     ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
         todo!()
@@ -482,7 +486,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
 
     async fn batch(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search>>,
         _bundle: oxidized_fhir_model::r4::types::Resource,
     ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
         todo!()

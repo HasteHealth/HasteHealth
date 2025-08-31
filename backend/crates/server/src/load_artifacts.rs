@@ -60,10 +60,11 @@ static SYSTEM_PROJECT_TENANT: LazyLock<ProjectId> =
 pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config).await?;
 
-    let ctx: Arc<ServerCTX> = Arc::new(ServerCTX {
+    let ctx = Arc::new(ServerCTX {
         tenant: TenantId::System,
         project: SYSTEM_PROJECT_TENANT.clone(),
         fhir_version: SupportedFHIRVersions::R4,
+        client: services.fhir_client.clone(),
         author: Author {
             id: "system".into(),
             kind: "admin".into(),

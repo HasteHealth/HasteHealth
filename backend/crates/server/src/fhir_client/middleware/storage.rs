@@ -1,3 +1,4 @@
+use axum::http::Method;
 use oxidized_fhir_client::{
     request::{
         FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest,
@@ -6,13 +7,17 @@ use oxidized_fhir_client::{
     },
     url::ParsedParameter,
 };
+use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode};
 
-use crate::fhir_client::{
-    ClientState, StorageError,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+use crate::{
+    fhir_client::{
+        ClientState, StorageError,
+        middleware::{
+            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+            ServerMiddlewareState,
+        },
     },
+    fhir_http::{self, HTTPRequest},
 };
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
@@ -20,18 +25,18 @@ use oxidized_reflect::MetaValue;
 use oxidized_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
-    types::{ResourceId, VersionIdRef},
+    types::{ResourceId, SupportedFHIRVersions, VersionIdRef},
 };
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 
 pub fn storage<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
 >(
     state: ServerMiddlewareState<Repo, Search>,
-    mut context: ServerMiddlewareContext,
+    mut context: ServerMiddlewareContext<Repo, Search>,
     next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
-) -> ServerMiddlewareOutput {
+) -> ServerMiddlewareOutput<Repo, Search> {
     Box::pin(async move {
         let response = match &mut context.request {
             FHIRRequest::Create(create_request) => {
@@ -371,6 +376,40 @@ pub fn storage<
                         "Multiple resources found for conditional update.".to_string(),
                     )),
                 }
+            }
+            FHIRRequest::Batch(batch_request) => {
+                let mut response = Bundle {
+                    type_: Box::new(FHIRCode {
+                        value: Some("batch-response".to_string()),
+                        ..Default::default()
+                    }),
+                    entry: batch_request
+                        .resource
+                        .entry
+                        .unwrap_or(vec![])
+                        .iter()
+                        .filter_map(|e| {
+                            if let Some(request) = e.request {
+                                let fhir_request = fhir_http::http_request_to_fhir_request(
+                                    SupportedFHIRVersions::R4,
+                                    &HTTPRequest {
+                                        method: Method::from_str(
+                                            request.method.value.unwrap_or(""),
+                                        ),
+                                        path: request.url.value.unwrap_or(""),
+                                        body,
+                                        query,
+                                    },
+                                );
+                                BundleEntry {
+                                    response: fhir_request,
+                                }
+                            }
+                        }),
+                    ..Default::default()
+                };
+
+                todo!();
             }
             _ => Ok(None),
         }?;

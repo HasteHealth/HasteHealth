@@ -19,14 +19,15 @@ pub fn set_artifact_tenant<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     state: ServerMiddlewareState<Repo, Search>,
-    mut context: ServerMiddlewareContext,
+    mut context: ServerMiddlewareContext<Repo, Search>,
     next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
-) -> ServerMiddlewareOutput {
+) -> ServerMiddlewareOutput<Repo, Search> {
     Box::pin(async move {
         let ctx = Arc::new(ServerCTX {
             tenant: TenantId::System,
             project: ProjectId::new("system".to_string()),
             fhir_version: context.ctx.fhir_version.clone(),
+            client: context.ctx.client.clone(),
             author: Author {
                 id: "system".to_string(),
                 kind: "admin".to_string(),
