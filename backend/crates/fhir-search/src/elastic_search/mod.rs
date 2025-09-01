@@ -172,9 +172,9 @@ impl SearchEngine for ElasticSearchEngine {
         tenant: &TenantId,
         project: &ProjectId,
         search_request: super::SearchRequest<'a>,
-        _options: Option<SearchOptions>,
+        options: Option<SearchOptions>,
     ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
-        let query = search::build_elastic_search_query(tenant, project, &search_request)?;
+        let query = search::build_elastic_search_query(tenant, project, &search_request, &options)?;
 
         let search_response = self
             .client

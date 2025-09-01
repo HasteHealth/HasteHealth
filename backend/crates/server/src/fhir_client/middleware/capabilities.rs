@@ -1,15 +1,145 @@
 use crate::fhir_client::middleware::{
     ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
 };
-use oxidized_fhir_client::request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse};
-use oxidized_fhir_model::r4::types::CapabilityStatement;
+use oxidized_fhir_client::{
+    request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest},
+    url::{Parameter, ParsedParameter},
+};
+use oxidized_fhir_model::r4::types::{
+    CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
+    CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, FHIRBoolean,
+    FHIRCode, FHIRString, Resource, ResourceType,
+};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
-use oxidized_fhir_search::SearchEngine;
-use oxidized_repository::Repository;
-use std::sync::{Arc, LazyLock, Mutex};
+use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
+use oxidized_repository::{
+    Repository,
+    types::{ProjectId, SupportedFHIRVersions, TenantId, VersionIdRef},
+};
+use std::sync::{Arc, LazyLock};
+use tokio::sync::Mutex;
 
 static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
     LazyLock::new(|| Mutex::new(None));
+
+pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+) -> Result<CapabilityStatement, OperationOutcomeError> {
+    let project = ProjectId::new("system".to_string());
+    let sd_search = FHIRSearchTypeRequest {
+        resource_type: unsafe { ResourceType::unchecked("StructureDefinition".to_string()) },
+        parameters: vec![
+            ParsedParameter::Resource(Parameter {
+                name: "kind".to_string(),
+                value: vec!["resource".to_string()],
+                modifier: None,
+                chains: None,
+            }),
+            ParsedParameter::Resource(Parameter {
+                name: "abstract".to_string(),
+                value: vec!["false".to_string()],
+                modifier: None,
+                chains: None,
+            }),
+            ParsedParameter::Resource(Parameter {
+                name: "derivation".to_string(),
+                value: vec!["specialization".to_string()],
+                modifier: None,
+                chains: None,
+            }),
+            // ParsedParameter::Result(Parameter {
+            //     name: "_sort".to_string(),
+            //     value: vec!["url".to_string()],
+            //     modifier: None,
+            //     chains: None,
+            // }),
+        ],
+    };
+    let sd_results = search_engine
+        .search(
+            &SupportedFHIRVersions::R4,
+            &TenantId::System,
+            &project,
+            SearchRequest::TypeSearch(&sd_search),
+            Some(SearchOptions { count_limit: false }),
+        )
+        .await?;
+    let sds = repo
+        .read_by_version_ids(
+            &TenantId::System,
+            &project,
+            sd_results
+                .entries
+                .iter()
+                .map(|v| VersionIdRef::new(v.version_id.as_ref()))
+                .collect(),
+        )
+        .await?
+        .into_iter()
+        .filter_map(|r| match r {
+            Resource::StructureDefinition(sd) => Some(sd),
+            _ => None,
+        });
+
+    Ok(CapabilityStatement {
+        rest: Some(vec![CapabilityStatementRest {
+            mode: Box::new(FHIRCode {
+                value: Some("server".to_string()),
+                ..Default::default()
+            }),
+            security: Some(CapabilityStatementRestSecurity {
+                cors: Some(Box::new(FHIRBoolean {
+                    value: Some(true),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            }),
+            resource: Some(
+                sds.map(|sd| CapabilityStatementRestResource {
+                    type_: Box::new(FHIRCode {
+                        value: sd.type_.value,
+                        ..Default::default()
+                    }),
+                    profile: Some(Box::new(FHIRString {
+                        value: sd.url.value,
+                        ..Default::default()
+                    })),
+                    interaction: Some(
+                        vec![
+                            "vread",
+                            "read",
+                            "update",
+                            "delete",
+                            "search-type",
+                            "create",
+                            "history-instance",
+                            "history-type",
+                            "history-instance",
+                        ]
+                        .into_iter()
+                        .map(|code| CapabilityStatementRestResourceInteraction {
+                            code: Box::new(FHIRCode {
+                                value: Some(code.to_string()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        })
+                        .collect(),
+                    ),
+                    versioning: Some(Box::new(FHIRCode {
+                        value: Some("versioned".to_string()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                })
+                .collect(),
+            ),
+            ..Default::default()
+        }]),
+        ..Default::default()
+    })
+}
 
 pub fn capabilities<
     Repo: Repository + Send + Sync + 'static,
@@ -22,26 +152,22 @@ pub fn capabilities<
     Box::pin(async move {
         match context.request {
             FHIRRequest::Capabilities => {
-                match CAPABILITIES.lock() {
-                    Ok(mut guard) => {
-                        if let Some(capabilities) = &*guard {
-                            context.response =
-                                Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                                    capabilities: capabilities.clone(),
-                                }));
-                        } else {
-                            let capabilities = CapabilityStatement::default();
-                            *guard = Some(capabilities.clone());
+                let mut guard = CAPABILITIES.lock().await;
 
-                            context.response =
-                                Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                                    capabilities: capabilities,
-                                }));
-                        }
-                    }
-                    Err(_) => {
-                        // Handle the error case
-                    }
+                if let Some(capabilities) = &*guard {
+                    context.response = Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                        capabilities: capabilities.clone(),
+                    }));
+                } else {
+                    let capabilities =
+                        generate_capabilities(state.repo.as_ref(), state.search.as_ref())
+                            .await
+                            .unwrap();
+                    *guard = Some(capabilities.clone());
+
+                    context.response = Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                        capabilities: capabilities,
+                    }));
                 }
 
                 Ok(context)
