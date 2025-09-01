@@ -329,32 +329,6 @@ function Root() {
                 Identity Providers
               </SideBar.SideBarItem>
             </SideBar.SideBarItemGroup>
-            <SideBar.SideBarItemGroup label="Messaging">
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "MessageBroker"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "MessageBroker",
-                    })
-                  );
-                }}
-              >
-                Message Brokers
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "MessageTopic"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "MessageTopic",
-                    })
-                  );
-                }}
-              >
-                Message Topics
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
             <SideBar.SideBarItemGroup label="Data">
               <SideBar.SideBarItem
                 active={
