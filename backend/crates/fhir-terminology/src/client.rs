@@ -20,8 +20,10 @@ impl<CTX: Send + Sync, Client: FHIRClient<CTX, OperationOutcomeError>> FHIRTermi
         _input: &ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
         // Implementation would go here
-        let valueset = unsafe { ResourceType::unchecked("ValueSet".to_string()) };
-        let _result = self.client.search_type(ctx, valueset, vec![]).await;
+        let _result = self
+            .client
+            .search_type(ctx, ResourceType::ValueSet, vec![])
+            .await;
 
         panic!();
     }

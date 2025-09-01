@@ -61,7 +61,7 @@ fn fhir_request_to_http_request(
                 .join(&format!(
                     "{}/{}/{}",
                     state.api_url.path(),
-                    read_request.resource_type.as_str(),
+                    read_request.resource_type.as_ref(),
                     read_request.id
                 ))
                 .map_err(|_e| FHIRHTTPError::UrlParseError("Read request".to_string()))?;
@@ -360,11 +360,7 @@ mod tests {
             FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
 
         let read_response = client
-            .read(
-                (),
-                ResourceType::new("Patient".to_string()).unwrap(),
-                "48426182".to_string(),
-            )
+            .read((), ResourceType::Patient, "48426182".to_string())
             .await
             .unwrap();
 

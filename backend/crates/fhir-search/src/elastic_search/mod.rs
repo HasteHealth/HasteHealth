@@ -237,7 +237,7 @@ impl SearchEngine for ElasticSearchEngine {
 
                     elastic_index.insert(
                         "resource_type".to_string(),
-                        InsertableIndex::Meta(r.resource_type.as_str().to_string()),
+                        InsertableIndex::Meta(r.resource_type.as_ref().to_string()),
                     );
 
                     elastic_index.insert(

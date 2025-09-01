@@ -308,12 +308,34 @@ pub fn generate_fhir_types_from_file(
 }
 
 fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
-    let count = resource_types.len();
-
     let deserialize_variants = resource_types.iter().map(|resource_name| {
-        let struct_name = format_ident!("{}", generate::capitalize(resource_name));
+        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+
         quote! {
-            #resource_name => Ok(Resource::#struct_name(oxidized_fhir_serialization_json::from_str::<#struct_name>(data)?)),
+            ResourceType::#resource_type => Ok(Resource::#resource_type(oxidized_fhir_serialization_json::from_str::<#resource_type>(data)?)),
+        }
+    });
+
+    let enum_variants = resource_types.iter().map(|resource_name| {
+        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+        quote! {
+           #resource_type
+        }
+    });
+
+    let from_str_variants = resource_types.iter().map(|resource_name| {
+        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+        quote! {
+           #resource_name => Ok(ResourceType::#resource_type)
+        }
+    });
+
+    let from_string_variants = from_str_variants.clone();
+
+    let to_str_variants = resource_types.iter().map(|resource_name| {
+        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+        quote! {
+            ResourceType::#resource_type => #resource_name,
         }
     });
 
@@ -324,33 +346,23 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
             Invalid(String),
         }
 
-        static _RESOURCE_TYPES: [&str; #count] = [
-            #(#resource_types),*
-        ];
-
         #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Deserialize, serde::Serialize)]
-        pub struct ResourceType(String);
+        pub enum ResourceType {
+            #(#enum_variants),*
+        }
+
         impl ResourceType {
-            pub fn new(s: String) -> Result<Self, ResourceTypeError> {
-                if !_RESOURCE_TYPES.contains(&s.as_str()) {
-                    Err(ResourceTypeError::Invalid(s))
-                } else {
-                    Ok(ResourceType(s))
+            pub fn deserialize(&self, data: &str) -> Result<Resource, oxidized_fhir_serialization_json::errors::DeserializeError> {
+                match self {
+                    #(#deserialize_variants)*
                 }
             }
+        }
 
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-
-            pub unsafe fn unchecked(s: String) -> Self {
-                ResourceType(s)
-            }
-
-            pub fn deserialize(&self, data: &str) -> Result<Resource, oxidized_fhir_serialization_json::errors::DeserializeError> {
-                match self.as_str() {
-                    #(#deserialize_variants)*
-                    _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(format!("Unknown resource type: {}", self.as_str()))),
+        impl AsRef<str> for ResourceType {
+            fn as_ref(&self) -> &str {
+                match self {
+                    #(#to_str_variants)*
                 }
             }
         }
@@ -359,7 +371,10 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
             type Error = ResourceTypeError;
 
             fn try_from(s: String) -> Result<Self, Self::Error> {
-                ResourceType::new(s)
+                match s.as_str() {
+                    #(#from_string_variants),*,
+                     _ => Err(ResourceTypeError::Invalid(s.to_string())),
+                }
             }
         }
 
@@ -367,7 +382,10 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
             type Error = ResourceTypeError;
 
             fn try_from(s: &str) -> Result<Self, Self::Error> {
-                ResourceType::new(s.to_string())
+                match s {
+                    #(#from_str_variants),*,
+                    _ => Err(ResourceTypeError::Invalid(s.to_string())),
+                }
             }
         }
 
@@ -380,9 +398,9 @@ pub fn generate_fhir_types_from_files(
 ) -> Result<String, String> {
     let mut generated_code = quote! {
         #![allow(non_snake_case)]
+        use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
         use oxidized_reflect::{MetaValue, derive::Reflect};
         use oxidized_fhir_serialization_json;
-        use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
         use thiserror::Error;
         use std::io::Write;
     };

@@ -172,7 +172,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                 | FHIRRequest::ConditionalUpdate(_)
                 | FHIRRequest::DeleteType(_) => {
                     if let Some(resource_type) = request_to_resource_type(req) {
-                       !ARTIFACT_TYPES.contains(&resource_type.as_str())
+                       !ARTIFACT_TYPES.contains(&resource_type.as_ref())
                     } else {
                         false
                     }
@@ -200,7 +200,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             filter: Box::new(|req: &FHIRRequest| match req {
                 FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => {
                     if let Some(resource_type) = request_to_resource_type(req) {
-                        ARTIFACT_TYPES.contains(&resource_type.as_str())
+                        ARTIFACT_TYPES.contains(&resource_type.as_ref())
                     } else {
                         false
                     }

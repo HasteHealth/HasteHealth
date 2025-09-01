@@ -283,7 +283,7 @@ pub fn build_elastic_search_query(
     if let Some(resource_type) = resource_type {
         clauses.push(json!({
             "match": {
-                "resource_type": resource_type.as_str()
+                "resource_type": resource_type.as_ref()
             }
         }));
     }

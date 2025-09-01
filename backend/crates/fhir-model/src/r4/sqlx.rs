@@ -86,7 +86,7 @@ where
         value: <DB as Database>::ValueRef<'r>,
     ) -> Result<ResourceType, Box<dyn std::error::Error + 'static + Send + Sync>> {
         let value = <&str as Decode<DB>>::decode(value)?;
-        Ok(unsafe { ResourceType::unchecked(value.to_string()) })
+        Ok(ResourceType::try_from(value).unwrap())
     }
 }
 
@@ -95,7 +95,7 @@ impl<'r> Encode<'r, Postgres> for ResourceType {
         &self,
         buf: &mut PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
-        buf.write(self.as_str().as_bytes())?;
+        buf.write(self.as_ref().as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
     }
 }

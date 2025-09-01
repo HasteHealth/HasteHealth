@@ -27,7 +27,7 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
     let sd_search = FHIRSearchTypeRequest {
-        resource_type: unsafe { ResourceType::unchecked("StructureDefinition".to_string()) },
+        resource_type: ResourceType::StructureDefinition,
         parameters: vec![
             ParsedParameter::Resource(Parameter {
                 name: "kind".to_string(),

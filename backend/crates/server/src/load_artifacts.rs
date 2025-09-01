@@ -74,14 +74,11 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 let mut structure_definition = structure_definition.clone();
                 add_hash_tag(&mut structure_definition.meta, sha_hash.clone());
 
-                let resource_type =
-                    unsafe { ResourceType::unchecked("StructureDefinition".to_string()) };
-
                 let res = services
                     .fhir_client
                     .conditional_update(
                         ctx.clone(),
-                        resource_type,
+                        ResourceType::StructureDefinition,
                         vec![ParsedParameter::Resource(Parameter {
                             name: "_tag".to_string(),
                             value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
@@ -107,13 +104,11 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 let mut valueset = valueset.clone();
                 add_hash_tag(&mut valueset.meta, sha_hash.clone());
 
-                let resource_type = unsafe { ResourceType::unchecked("ValueSet".to_string()) };
-
                 let res = services
                     .fhir_client
                     .conditional_update(
                         ctx.clone(),
-                        resource_type,
+                        ResourceType::ValueSet,
                         vec![ParsedParameter::Resource(Parameter {
                             name: "_tag".to_string(),
                             value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
@@ -139,13 +134,11 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 let mut code_system = code_system.clone();
                 add_hash_tag(&mut code_system.meta, sha_hash.clone());
 
-                let resource_type = unsafe { ResourceType::unchecked("CodeSystem".to_string()) };
-
                 let res = services
                     .fhir_client
                     .conditional_update(
                         ctx.clone(),
-                        resource_type,
+                        ResourceType::CodeSystem,
                         vec![ParsedParameter::Resource(Parameter {
                             name: "_tag".to_string(),
                             value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
@@ -171,14 +164,11 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 let mut search_param = search_param.clone();
                 add_hash_tag(&mut search_param.meta, sha_hash.clone());
 
-                let resource_type =
-                    unsafe { ResourceType::unchecked("SearchParameter".to_string()) };
-
                 let res = services
                     .fhir_client
                     .conditional_update(
                         ctx.clone(),
-                        resource_type,
+                        ResourceType::SearchParameter,
                         vec![ParsedParameter::Resource(Parameter {
                             name: "_tag".to_string(),
                             value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],

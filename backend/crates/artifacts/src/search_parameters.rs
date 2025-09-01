@@ -123,7 +123,7 @@ pub fn get_search_parameters_for_resource(
 
     if let Some(params) = R4_SEARCH_PARAMETERS
         .by_resource_type
-        .get(resource_type.as_str())
+        .get(resource_type.as_ref())
     {
         return_vec.extend(params.values().cloned());
     }
@@ -139,7 +139,7 @@ pub fn get_search_parameter_for_name(
         .and_then(|resource_type| {
             R4_SEARCH_PARAMETERS
                 .by_resource_type
-                .get(resource_type.as_str())
+                .get(resource_type.as_ref())
         })
         .and_then(|params| params.get(name))
         .or_else(|| {
