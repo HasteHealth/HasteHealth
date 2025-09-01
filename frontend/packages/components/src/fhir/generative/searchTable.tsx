@@ -643,7 +643,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                     renderer(data: unknown[]) {
                       return DataDisplay(
                         searchParameter.type,
-                        data.slice(0, 3)
+                        data.slice(0, 1)
                       );
                     },
                   } as Parameters<typeof Table>[0]["columns"][number])

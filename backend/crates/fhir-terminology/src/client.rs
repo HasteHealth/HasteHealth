@@ -1,5 +1,8 @@
 use crate::FHIRTerminology;
-use oxidized_fhir_client::FHIRClient;
+use oxidized_fhir_client::{
+    FHIRClient,
+    url::{Parameter, ParsedParameter},
+};
 use oxidized_fhir_generated_ops::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
 use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -20,10 +23,19 @@ impl<CTX: Send + Sync, Client: FHIRClient<CTX, OperationOutcomeError>> FHIRTermi
         _input: &ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
         // Implementation would go here
-        let _result = self
-            .client
-            .search_type(ctx, ResourceType::ValueSet, vec![])
-            .await;
+        // let _result = self
+        //     .client
+        //     .search_type(
+        //         ctx,
+        //         ResourceType::ValueSet,
+        //         vec![ParsedParameter::Resource(Parameter {
+        //             name: "url".to_string(),
+        //             value: vec!["http://example.org/fhir/ValueSet/example".to_string()],
+        //             modifier: None,
+        //             chains: None,
+        //         })],
+        //     )
+        //     .await;
 
         panic!();
     }
