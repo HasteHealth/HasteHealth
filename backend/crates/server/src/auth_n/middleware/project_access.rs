@@ -1,4 +1,5 @@
-use axum::{Extension, extract::Request, http::StatusCode, middleware::Next, response::Response};
+use axum::{Extension, extract::Request, middleware::Next, response::Response};
+use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 
 use crate::{
     auth_n::claims::UserTokenClaims,
@@ -13,21 +14,29 @@ pub async fn project_access(
     // you can also add more extractors here but the last
     // extractor must implement `FromRequest` which
     // `Request` does
-    mut request: Request,
+    request: Request,
     next: Next,
-) -> Result<Response, StatusCode> {
+) -> Result<Response, OperationOutcomeError> {
     if claims.tenant != tenant {
-        return Err(StatusCode::FORBIDDEN);
+        return Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::Forbidden,
+            "User does not have access to project".to_string(),
+        ));
     }
 
-    if let Some(user_project) = &claims.project {
-        if user_project != &project {
-            return Err(StatusCode::FORBIDDEN);
-        }
-    } else {
-        return Err(StatusCode::FORBIDDEN);
+    let Some(user_project) = &claims.project else {
+        return Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::Forbidden,
+            "User does not have access to project".to_string(),
+        ));
+    };
+
+    if user_project != &project {
+        return Err(OperationOutcomeError::error(
+            OperationOutcomeCodes::Forbidden,
+            "User does not have access to project".to_string(),
+        ));
     }
 
-    request.extensions_mut().insert(claims);
     Ok(next.run(request).await)
 }

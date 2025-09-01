@@ -113,6 +113,47 @@ impl Into<String> for OperationOutcomeCodes {
     }
 }
 
+impl TryFrom<String> for OperationOutcomeCodes {
+    type Error = String;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        match value.as_str() {
+            "invalid" => Ok(OperationOutcomeCodes::Invalid),
+            "structure" => Ok(OperationOutcomeCodes::Structure),
+            "required" => Ok(OperationOutcomeCodes::Required),
+            "value" => Ok(OperationOutcomeCodes::Value),
+            "invariant" => Ok(OperationOutcomeCodes::Invariant),
+            "security" => Ok(OperationOutcomeCodes::Security),
+            "login" => Ok(OperationOutcomeCodes::Login),
+            "unknown" => Ok(OperationOutcomeCodes::Unknown),
+            "expired" => Ok(OperationOutcomeCodes::Expired),
+            "forbidden" => Ok(OperationOutcomeCodes::Forbidden),
+            "suppressed" => Ok(OperationOutcomeCodes::Suppressed),
+            "processing" => Ok(OperationOutcomeCodes::Processing),
+            "not-supported" => Ok(OperationOutcomeCodes::NotSupported),
+            "duplicate" => Ok(OperationOutcomeCodes::Duplicate),
+            "multiple-matches" => Ok(OperationOutcomeCodes::MultipleMatches),
+            "not-found" => Ok(OperationOutcomeCodes::NotFound),
+            "deleted" => Ok(OperationOutcomeCodes::Deleted),
+            "too-long" => Ok(OperationOutcomeCodes::TooLong),
+            "code-invalid" => Ok(OperationOutcomeCodes::CodeInvalid),
+            "extension" => Ok(OperationOutcomeCodes::Extension),
+            "too-costly" => Ok(OperationOutcomeCodes::TooCostly),
+            "business-rule" => Ok(OperationOutcomeCodes::BusinessRule),
+            "conflict" => Ok(OperationOutcomeCodes::Conflict),
+            "transient" => Ok(OperationOutcomeCodes::Transient),
+            "lock-error" => Ok(OperationOutcomeCodes::LockError),
+            "no-store" => Ok(OperationOutcomeCodes::NoStore),
+            "exception" => Ok(OperationOutcomeCodes::Exception),
+            "timeout" => Ok(OperationOutcomeCodes::Timeout),
+            "incomplete" => Ok(OperationOutcomeCodes::Incomplete),
+            "throttled" => Ok(OperationOutcomeCodes::Throttled),
+            "informational" => Ok(OperationOutcomeCodes::Informational),
+            _ => Err(format!("Unknown operation outcome code: {}", value)),
+        }
+    }
+}
+
 impl OperationOutcomeError {
     pub fn new(source: Option<anyhow::Error>, outcome: OperationOutcome) -> Self {
         OperationOutcomeError {

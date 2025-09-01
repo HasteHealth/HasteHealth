@@ -167,6 +167,7 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                         aud: client_id,
                         scope: "".to_string(),
                         tenant: tenant,
+                        project: Some(project),
                         user_role: UserRole::Member,
                         user_id: Some(ResourceId::new(code.user_id.clone())),
                         resource_type: UserResourceTypes::Membership,

@@ -1,4 +1,4 @@
-use std::sync::{Arc, LazyLock};
+use std::sync::Arc;
 
 use crate::{fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};

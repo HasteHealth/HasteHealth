@@ -30,7 +30,7 @@ impl std::fmt::Display for SupportedFHIRVersions {
 
 static SYSTEM: &str = "system";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TenantId {
     System,
     Custom(String),
@@ -83,7 +83,7 @@ impl Display for TenantId {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ProjectId {
     System,
     Custom(String),
