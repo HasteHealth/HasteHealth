@@ -47,11 +47,7 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
 
         let client_app = state
             .fhir_client
-            .read(
-                ctx,
-                ResourceType::new("ClientApplication".to_string()).unwrap(),
-                client_id,
-            )
+            .read(ctx, ResourceType::ClientApplication, client_id)
             .await?;
 
         if let Some(Resource::ClientApplication(client_app)) = client_app {

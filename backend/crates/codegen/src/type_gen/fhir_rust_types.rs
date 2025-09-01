@@ -332,6 +332,13 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
 
     let from_string_variants = from_str_variants.clone();
 
+    let to_str_variants = resource_types.iter().map(|resource_name| {
+        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
+        quote! {
+            ResourceType::#resource_type => #resource_name,
+        }
+    });
+
     quote! {
         #[derive(Error, Debug)]
         pub enum ResourceTypeError {
@@ -345,18 +352,17 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
         }
 
         impl ResourceType {
-            pub fn as_str(&self) -> &str {
-                &self.0
-            }
-
-            pub unsafe fn unchecked(s: String) -> Self {
-                ResourceType(s)
-            }
-
             pub fn deserialize(&self, data: &str) -> Result<Resource, oxidized_fhir_serialization_json::errors::DeserializeError> {
                 match self {
                     #(#deserialize_variants)*
-                    _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(format!("Unknown resource type: {}", self.as_str()))),
+                }
+            }
+        }
+
+        impl AsRef<str> for ResourceType {
+            fn as_ref(&self) -> &str {
+                match self {
+                    #(#to_str_variants)*
                 }
             }
         }
