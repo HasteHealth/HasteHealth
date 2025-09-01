@@ -25,7 +25,7 @@ pub fn set_artifact_tenant<
     Box::pin(async move {
         let ctx = Arc::new(ServerCTX {
             tenant: TenantId::System,
-            project: ProjectId::new("system".to_string()),
+            project: ProjectId::System,
             fhir_version: context.ctx.fhir_version.clone(),
             author: Author {
                 id: "system".to_string(),

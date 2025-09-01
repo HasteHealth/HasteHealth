@@ -54,15 +54,12 @@ pub fn add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
     }
 }
 
-static SYSTEM_PROJECT_TENANT: LazyLock<ProjectId> =
-    LazyLock::new(|| ProjectId::new("system".to_string()));
-
 pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config).await?;
 
     let ctx = Arc::new(ServerCTX {
         tenant: TenantId::System,
-        project: SYSTEM_PROJECT_TENANT.clone(),
+        project: ProjectId::System,
         fhir_version: SupportedFHIRVersions::R4,
         author: Author {
             id: "system".into(),
