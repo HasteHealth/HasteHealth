@@ -360,11 +360,7 @@ mod tests {
             FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
 
         let read_response = client
-            .read(
-                (),
-                ResourceType::new("Patient".to_string()).unwrap(),
-                "48426182".to_string(),
-            )
+            .read((), ResourceType::Patient, "48426182".to_string())
             .await
             .unwrap();
 

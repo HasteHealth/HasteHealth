@@ -326,7 +326,7 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
     let from_str_variants = resource_types.iter().map(|resource_name| {
         let resource_type = format_ident!("{}", generate::capitalize(resource_name));
         quote! {
-           #resource_name => ResourceType::#resource_type
+           #resource_name => Ok(ResourceType::#resource_type)
         }
     });
 
@@ -366,7 +366,8 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
 
             fn try_from(s: String) -> Result<Self, Self::Error> {
                 match s.as_str() {
-                    #(#from_string_variants),*
+                    #(#from_string_variants),*,
+                     _ => Err(ResourceTypeError::Invalid(s.to_string())),
                 }
             }
         }
@@ -376,7 +377,8 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
 
             fn try_from(s: &str) -> Result<Self, Self::Error> {
                 match s {
-                    #(#from_str_variants),*
+                    #(#from_str_variants),*,
+                    _ => Err(ResourceTypeError::Invalid(s.to_string())),
                 }
             }
         }
@@ -390,9 +392,9 @@ pub fn generate_fhir_types_from_files(
 ) -> Result<String, String> {
     let mut generated_code = quote! {
         #![allow(non_snake_case)]
+        use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
         use oxidized_reflect::{MetaValue, derive::Reflect};
         use oxidized_fhir_serialization_json;
-        use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
         use thiserror::Error;
         use std::io::Write;
     };
