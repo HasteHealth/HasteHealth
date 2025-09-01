@@ -4,7 +4,7 @@ use axum::{extract::Request, http::StatusCode, middleware::Next, response::Respo
 use jsonwebtoken::Validation;
 
 use crate::{
-    auth_n::{certificates, claims::TokenClaims},
+    auth_n::{certificates, claims::UserTokenClaims},
     extract::bearer_token::AuthBearer,
 };
 
@@ -14,8 +14,8 @@ static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {
     config
 });
 
-fn validate_jwt(token: &str) -> Result<TokenClaims, StatusCode> {
-    let result = jsonwebtoken::decode::<TokenClaims>(
+fn validate_jwt(token: &str) -> Result<UserTokenClaims, StatusCode> {
+    let result = jsonwebtoken::decode::<UserTokenClaims>(
         token,
         certificates::decoding_key(),
         &*VALIDATION_CONFIG,

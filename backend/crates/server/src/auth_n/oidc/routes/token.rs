@@ -1,13 +1,13 @@
 use crate::{
     auth_n::{
         certificates::encoding_key,
-        claims::{TokenClaims, UserResourceTypes},
+        claims::{UserResourceTypes, UserTokenClaims},
         oidc::{
             extract::client_app::find_client_app,
             schemas::{self, token_body::OAuth2TokenBody},
         },
     },
-    extract::path_tenant::TenantProject,
+    extract::path_tenant::{Project, Tenant},
     services::AppState,
 };
 use axum::{
@@ -97,7 +97,8 @@ pub fn verify_code_verifier(
 
 pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: TokenPath,
-    tenant: TenantProject,
+    Tenant { tenant }: Tenant,
+    Project { project }: Project,
     State(state): State<Arc<AppState<Repo, Search>>>,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
@@ -109,13 +110,8 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
             code_verifier,
             redirect_uri,
         } => {
-            let client_app = find_client_app(
-                &state,
-                tenant.tenant.clone(),
-                tenant.project.clone(),
-                client_id.clone(),
-            )
-            .await?;
+            let client_app =
+                find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
             if client_secret != client_app.secret.and_then(|v| v.value) {
                 return Err(OperationOutcomeError::error(
@@ -126,8 +122,8 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
 
             let code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
                 &state.repo,
-                &tenant.tenant,
-                &tenant.project,
+                &tenant,
+                &project,
                 &AuthorizationCodeSearchClaims {
                     client_id: Some(client_id.clone()),
                     code: Some(code),
@@ -159,19 +155,19 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                 }
 
                 // Remove the code once valid.
-                ProjectAuthAdmin::delete(&state.repo, &tenant.tenant, &tenant.project, &code.code)
-                    .await?;
+                ProjectAuthAdmin::delete(&state.repo, &tenant, &project, &code.code).await?;
 
                 let token = jsonwebtoken::encode(
                     &Header::new(Algorithm::RS256),
-                    &TokenClaims {
+                    &UserTokenClaims {
                         sub: ResourceId::new(code.user_id.clone()),
                         exp: (chrono::Utc::now()
                             + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
                         .timestamp() as usize,
                         aud: client_id,
                         scope: "".to_string(),
-                        tenant: tenant.tenant,
+                        tenant: tenant,
+                        project: Some(project),
                         user_role: UserRole::Member,
                         user_id: Some(ResourceId::new(code.user_id.clone())),
                         resource_type: UserResourceTypes::Membership,

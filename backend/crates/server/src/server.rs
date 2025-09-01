@@ -2,7 +2,7 @@ use crate::{
     auth_n::{
         self,
         certificates::{JSONWebKeySet, JWK_SET},
-        claims::TokenClaims,
+        claims::UserTokenClaims,
     },
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
@@ -104,7 +104,7 @@ async fn fhir_root_handler<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
-    _user: Extension<TokenClaims>,
+    _user: Extension<UserTokenClaims>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search>>>,
@@ -157,9 +157,15 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let fhir_router = Router::new()
         .route("/{fhir_version}", any(fhir_root_handler))
         .route("/{fhir_version}/{*fhir_location}", any(fhir_type_handler))
-        .layer(ServiceBuilder::new().layer(axum::middleware::from_fn(
-            auth_n::middleware::jwt::token_verifcation,
-        )));
+        .layer(
+            ServiceBuilder::new()
+                .layer(axum::middleware::from_fn(
+                    auth_n::middleware::jwt::token_verifcation,
+                ))
+                .layer(axum::middleware::from_fn(
+                    auth_n::middleware::project_access::project_access,
+                )),
+        );
 
     let project_router = Router::new()
         .nest("/fhir", fhir_router)

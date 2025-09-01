@@ -28,9 +28,9 @@ impl std::fmt::Display for SupportedFHIRVersions {
     }
 }
 
-static SYSTEM_TENANT: &str = "system";
+static SYSTEM: &str = "system";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TenantId {
     System,
     Custom(String),
@@ -39,7 +39,7 @@ pub enum TenantId {
 impl TenantId {
     pub fn new(id: String) -> Self {
         // Should never be able to create a system tenant from user.
-        if id == SYSTEM_TENANT {
+        if id == SYSTEM {
             TenantId::System
         } else {
             TenantId::Custom(id)
@@ -50,7 +50,7 @@ impl TenantId {
 impl AsRef<str> for TenantId {
     fn as_ref(&self) -> &str {
         match self {
-            TenantId::System => SYSTEM_TENANT,
+            TenantId::System => SYSTEM,
             TenantId::Custom(id) => id,
         }
     }
@@ -77,23 +77,37 @@ impl Serialize for TenantId {
 impl Display for TenantId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TenantId::System => write!(f, "{}", SYSTEM_TENANT),
+            TenantId::System => write!(f, "{}", SYSTEM),
             TenantId::Custom(id) => write!(f, "{}", id),
         }
     }
 }
-#[derive(Debug, Clone)]
-pub struct ProjectId(String);
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ProjectId {
+    System,
+    Custom(String),
+}
 impl ProjectId {
     pub fn new(id: String) -> Self {
-        ProjectId(id)
+        // Should never be able to create a system project from user.
+        if id == SYSTEM {
+            ProjectId::System
+        } else {
+            ProjectId::Custom(id)
+        }
     }
 }
+
 impl AsRef<str> for ProjectId {
     fn as_ref(&self) -> &str {
-        &self.0
+        match self {
+            ProjectId::System => SYSTEM,
+            ProjectId::Custom(id) => id,
+        }
     }
 }
+
 impl<'de> Deserialize<'de> for ProjectId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -103,11 +117,24 @@ impl<'de> Deserialize<'de> for ProjectId {
     }
 }
 
-impl Display for ProjectId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+impl Serialize for ProjectId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_ref())
     }
 }
+
+impl Display for ProjectId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ProjectId::System => write!(f, "{}", SYSTEM),
+            ProjectId::Custom(id) => write!(f, "{}", id),
+        }
+    }
+}
+
 pub struct VersionIdRef<'a>(&'a str);
 impl<'a> VersionIdRef<'a> {
     pub fn new(id: &'a str) -> Self {

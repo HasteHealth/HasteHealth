@@ -1,4 +1,4 @@
-use oxidized_repository::types::{ResourceId, TenantId, VersionId, user::UserRole};
+use oxidized_repository::types::{ProjectId, ResourceId, TenantId, VersionId, user::UserRole};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -9,7 +9,7 @@ pub enum UserResourceTypes {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TokenClaims {
+pub struct UserTokenClaims {
     pub sub: ResourceId,
     pub exp: usize,
     pub aud: String,
@@ -17,6 +17,8 @@ pub struct TokenClaims {
 
     #[serde(rename = "https://oxidized-health.app/tenant")]
     pub tenant: TenantId,
+    #[serde(rename = "https://oxidized-health.app/project")]
+    pub project: Option<ProjectId>,
     #[serde(rename = "https://oxidized-health.app/user_role")]
     pub user_role: UserRole,
     #[serde(rename = "https://oxidized-health.app/user_id")]

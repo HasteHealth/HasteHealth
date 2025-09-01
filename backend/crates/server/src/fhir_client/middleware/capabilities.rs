@@ -26,7 +26,6 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
-    let project = ProjectId::new("system".to_string());
     let sd_search = FHIRSearchTypeRequest {
         resource_type: unsafe { ResourceType::unchecked("StructureDefinition".to_string()) },
         parameters: vec![
@@ -60,7 +59,7 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
         .search(
             &SupportedFHIRVersions::R4,
             &TenantId::System,
-            &project,
+            &ProjectId::System,
             SearchRequest::TypeSearch(&sd_search),
             Some(SearchOptions { count_limit: false }),
         )
@@ -68,7 +67,7 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     let sds = repo
         .read_by_version_ids(
             &TenantId::System,
-            &project,
+            &ProjectId::System,
             sd_results
                 .entries
                 .iter()
