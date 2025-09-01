@@ -346,7 +346,7 @@ fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             tenant_id.as_ref(),
             project_id.as_ref(),
             resource_id.as_ref(),
-            resource_type.as_str(),
+            resource_type.as_ref(),
         ).fetch_optional(&mut *conn).await.map_err(StoreError::from)?;
 
         Ok(response.map(|r| r.resource.0))
@@ -368,7 +368,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
                         history_instance_request.id.as_ref() as &str,
-                        history_instance_request.resource_type.as_str() as &str
+                        history_instance_request.resource_type.as_ref() as &str
                     ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
 
                 Ok(response.into_iter().map(|r| r.resource.0).collect())
@@ -378,7 +378,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
-                        history_type_request.resource_type.as_str() as &str
+                        history_type_request.resource_type.as_ref() as &str
                     ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
 
                 Ok(response.into_iter().map(|r| r.resource.0).collect())

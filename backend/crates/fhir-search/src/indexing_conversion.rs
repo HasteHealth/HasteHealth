@@ -783,7 +783,7 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
                     let resource_type = ResourceType::try_from(parts[0])?;
                     let id = parts[1].to_string();
                     return Ok(vec![ReferenceIndex {
-                        resource_type: Some(resource_type.as_str().to_string()),
+                        resource_type: Some(resource_type.as_ref().to_string()),
                         id: Some(id),
                         uri: None,
                     }]);

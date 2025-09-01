@@ -61,7 +61,7 @@ fn fhir_request_to_http_request(
                 .join(&format!(
                     "{}/{}/{}",
                     state.api_url.path(),
-                    read_request.resource_type.as_str(),
+                    read_request.resource_type.as_ref(),
                     read_request.id
                 ))
                 .map_err(|_e| FHIRHTTPError::UrlParseError("Read request".to_string()))?;
