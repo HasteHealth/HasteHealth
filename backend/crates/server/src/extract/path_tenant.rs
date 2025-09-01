@@ -7,20 +7,19 @@ use oxidized_repository::types::{ProjectId, TenantId};
 use serde::Deserialize;
 
 #[derive(Deserialize, Clone)]
-pub struct TenantProject {
-    pub tenant: TenantId,
+pub struct Project {
     pub project: ProjectId,
 }
 
-impl<S: Send + Sync> FromRequestParts<S> for TenantProject {
+impl<S: Send + Sync> FromRequestParts<S> for Project {
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let Path(tenant_project) = Path::<TenantProject>::from_request_parts(parts, state)
+        let Path(project) = Path::<Project>::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 
-        Ok(tenant_project)
+        Ok(project)
     }
 }
 

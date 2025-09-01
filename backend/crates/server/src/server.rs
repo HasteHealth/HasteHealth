@@ -2,7 +2,7 @@ use crate::{
     auth_n::{
         self,
         certificates::{JSONWebKeySet, JWK_SET},
-        claims::TokenClaims,
+        claims::UserTokenClaims,
     },
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
@@ -104,7 +104,7 @@ async fn fhir_root_handler<
     Search: SearchEngine + Send + Sync + 'static,
 >(
     method: Method,
-    _user: Extension<TokenClaims>,
+    _user: Extension<UserTokenClaims>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search>>>,

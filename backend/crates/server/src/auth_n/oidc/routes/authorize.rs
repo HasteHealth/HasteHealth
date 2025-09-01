@@ -6,7 +6,7 @@ use crate::{
         },
         session,
     },
-    extract::path_tenant::TenantProject,
+    extract::path_tenant::{Project, Tenant},
     services::AppState,
 };
 use axum::{
@@ -34,7 +34,8 @@ pub struct Authorize;
 
 pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
     _: Authorize,
-    tenant: TenantProject,
+    Tenant { tenant }: Tenant,
+    Project { project }: Project,
     State(app_state): State<Arc<AppState<Repo, Search>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
@@ -91,8 +92,8 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
 
     let authorzation_code = ProjectAuthAdmin::create(
         &app_state.repo,
-        &tenant.tenant,
-        &tenant.project,
+        &tenant,
+        &project,
         CreateAuthorizationCode {
             expires_in: Duration::from_secs(60 * 5),
             kind: AuthorizationCodeKind::OAuth2CodeGrant,
