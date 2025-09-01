@@ -1,4 +1,4 @@
-use crate::SearchRequest;
+use crate::{SearchOptions, SearchRequest};
 use oxidized_fhir_client::url::{Parameter, ParsedParameter};
 use oxidized_fhir_model::r4::types::{ResourceType, SearchParameter};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
@@ -144,7 +144,10 @@ fn parameter_to_elasticsearch_clauses(
     }
 }
 
-static MAX_COUNT: usize = 50;
+// Default value for Elasticsearch is 10k
+// see index.max_result_window
+static ABSOLUTE_MAX: usize = 10_000;
+static DEFAULT_MAX_COUNT: usize = 50;
 
 fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
     match request {
@@ -164,12 +167,19 @@ pub fn build_elastic_search_query(
     tenant: &TenantId,
     project: &ProjectId,
     request: &SearchRequest,
+    options: &Option<SearchOptions>,
 ) -> Result<serde_json::Value, QueryBuildError> {
     let resource_type = get_resource_type(request);
     let parameters = get_parameters(request);
 
     let mut clauses: Vec<serde_json::Value> = vec![];
-    let mut size = MAX_COUNT;
+    let mut size = if let Some(options) = options
+        && !options.count_limit
+    {
+        ABSOLUTE_MAX
+    } else {
+        DEFAULT_MAX_COUNT
+    };
     let mut show_total = false;
     let mut sort: Vec<serde_json::Value> = Vec::new();
     let mut offset: usize = 0;
@@ -196,7 +206,7 @@ pub fn build_elastic_search_query(
                             .get(0)
                             .and_then(|v| v.parse::<usize>().ok())
                             .unwrap_or(100),
-                        MAX_COUNT,
+                        DEFAULT_MAX_COUNT,
                     );
                 }
                 "_offset" => {
