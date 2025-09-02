@@ -30,7 +30,8 @@ members = [
     "crates/repository",
     "crates/macro-loads",
     "crates/fhir-generated-ops",
-    "crates/fhir-terminology", "crates/fhir-ops",
+    "crates/fhir-terminology",
+    "crates/fhir-ops",
 ]
 
 [dependencies]
