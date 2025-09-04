@@ -1,5 +1,5 @@
 [package]
-name = "fhir-ops"
+name = "oxidized-fhir-ops"
 version = "0.1.0"
 edition = "2024"
 
