@@ -837,6 +837,7 @@ version = "0.1.0"
 dependencies = [
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-fhir-ops-derive",
 ]
 
 [[package]]
@@ -2094,6 +2095,16 @@ dependencies = [
 
 [[package]]
 name = "oxidized-fhir-operation-error-derive"
+version = "0.1.0"
+dependencies = [
+ "oxidized-fhir-model",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "oxidized-fhir-ops-derive"
 version = "0.1.0"
 dependencies = [
  "oxidized-fhir-model",
