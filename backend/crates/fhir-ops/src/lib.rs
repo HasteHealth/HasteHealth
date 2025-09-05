@@ -1,6 +1,9 @@
 use oxidized_fhir_model::r4::types::Parameters;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
+#[cfg(feature = "derive")]
+pub mod derive;
+
 pub enum Param<I: TryFrom<Parameters, Error = OperationOutcomeError>> {
     Value(I),
     Parameters(Parameters),

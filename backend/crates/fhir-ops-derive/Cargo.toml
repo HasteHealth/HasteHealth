@@ -1,0 +1,13 @@
+[package]
+name = "oxidized-fhir-ops-derive"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+oxidized-fhir-model = { path = "../fhir-model" }
+proc-macro2 = "1.0.101"
+quote = "1.0.40"
+syn = "2.0.104"

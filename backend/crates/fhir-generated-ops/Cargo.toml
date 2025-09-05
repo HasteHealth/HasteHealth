@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 oxidized-fhir-model = { path = "../fhir-model" }
+oxidized-fhir-ops = { path = "../fhir-ops", features = ["derive"] }
+oxidized-fhir-operation-error = { path = "../fhir-operation-error" }

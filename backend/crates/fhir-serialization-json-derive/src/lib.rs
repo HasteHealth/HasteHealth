@@ -42,6 +42,7 @@ fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
         primitive,
     )
 )]
+
 pub fn serialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
