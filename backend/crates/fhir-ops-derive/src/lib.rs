@@ -1,7 +1,10 @@
 use oxidized_fhir_model::r4::types::ResourceType;
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use syn::{Attribute, Data, DeriveInput, Expr, Field, Lit, Meta, Type, parse_macro_input};
+use syn::{
+    Attribute, Data, DeriveInput, Expr, Field, Lit, Meta, PathArguments, PathSegment, Type,
+    parse_macro_input,
+};
 
 enum Direction {
     Input,
@@ -33,77 +36,71 @@ fn get_direction(attrs: &[Attribute]) -> Direction {
     }
 }
 
-fn get_field_type(field: &Field) -> proc_macro2::Ident {
-    match &field.ty {
-        Type::Path(path) => path.path.segments.first().unwrap().ident.clone(),
-        _ => panic!("Unsupported field type for serialization"),
-    }
+fn is_nested_parameter(attrs: &[Attribute]) -> bool {
+    attrs
+        .iter()
+        .any(|attr| attr.path().is_ident("parameter_nested"))
 }
 
-fn is_optional<'a>(field: &'a Field) -> bool {
-    let field_type = get_field_type(field);
-    if field_type == "Option" { true } else { false }
+fn determine_is_vector(field: &Field) -> bool {
+    let inner_type = get_optional_type(field);
+
+    inner_type.ident == format_ident!("Vec")
 }
 
-fn is_vec<'a>(field: &'a Field) -> bool {
-    match &field.ty {
-        Type::Path(path) => {
-            for segment in path.path.segments.iter() {
-                if segment.ident == format_ident!("Vec") {
-                    return true;
+fn _inner_type(segment: &PathSegment, ignore_cases: Vec<String>) -> PathSegment {
+    if ignore_cases.contains(&segment.ident.to_string()) {
+        match &segment.arguments {
+            PathArguments::AngleBracketed(args) => {
+                if let Some(syn::GenericArgument::Type(Type::Path(inner_path))) = args.args.first()
+                {
+                    let k = inner_path.path.segments.first().unwrap();
+                    _inner_type(k, ignore_cases)
+                } else {
+                    panic!("invalid");
                 }
             }
-            false
+            _ => panic!("invalid"),
         }
-        _ => panic!("Unsupported field type for serialization"),
+    } else {
+        segment.clone()
     }
 }
 
 /// Returns the inner type if it's between Options and Vecs etc..
-fn inner_type(field: &Field) -> Option<proc_macro2::Ident> {
+fn inner_type(field: &Field) -> PathSegment {
     match &field.ty {
         Type::Path(path) => {
-            for segment in path.path.segments.iter() {
-                if segment.ident != format_ident!("Option") && segment.ident != format_ident!("Vec")
-                {
-                    return Some(segment.ident.clone());
-                }
-            }
-            None
+            let type_ = path.path.segments.first().unwrap();
+            _inner_type(type_, vec!["Option".to_string(), "Vec".to_string()])
         }
         _ => panic!("Unsupported field type for serialization"),
     }
 }
 
 /// Returns the inner type if it's between Option
-fn get_optional_type(field: &Field) -> Option<proc_macro2::Ident> {
+fn get_optional_type(field: &Field) -> PathSegment {
     match &field.ty {
         Type::Path(path) => {
-            for segment in path.path.segments.iter() {
-                if segment.ident != format_ident!("Option") {
-                    return Some(segment.ident.clone());
-                }
-            }
-            None
+            let type_ = path.path.segments.first().unwrap();
+            _inner_type(type_, vec!["Option".to_string()])
         }
         _ => panic!("Unsupported field type for serialization"),
     }
 }
 
 fn is_resource_type(field: &Field) -> bool {
-    let Some(field_type) = inner_type(field) else {
-        return false;
-    };
+    let field_type = inner_type(field).ident;
 
     let res = ResourceType::try_from(field_type.to_string());
     if let Ok(_) = res {
         return true;
     } else {
-        field_type == format_ident!("Resource")
+        return false;
     }
 }
 
-#[proc_macro_derive(ParametersParse, attributes(rename_field))]
+#[proc_macro_derive(ParametersParse, attributes(direction, parameter_nested))]
 pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
@@ -119,7 +116,7 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
             // Declare all the fields on the struct.
             let declare_fields = data.fields.iter().map(|field| {
                 let field_name = field.ident.as_ref().unwrap();
-                let field_type_token = get_optional_type(field);
+                let field_type_token = get_optional_type(field).to_token_stream();
 
                 quote! {
                     let mut #field_name: Option<#field_type_token> = None;
@@ -128,28 +125,41 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
 
             let set_fields = data.fields.iter().map(|field| {
                 let field_name = field.ident.as_ref().unwrap();
-                let is_vector = is_vec(field);
+                let is_vector = determine_is_vector(field);
                 let value_type = inner_type(field);
                 let expected_parameter_name = field_name.to_string();
 
-                let get_value_from_param = if value_type == Some(format_ident!("Resource")) {
-                    quote!{
-                        Ok(param.resource)
+                let get_value_from_param = if is_nested_parameter(&field.attrs) {
+                    quote!{ 
+                        #value_type::try_from(#current_parameter.part.unwrap_or_default()).map(|v| Some(v))
                     }
-                } else if is_resource_type(field) {
+                }else if value_type.ident == format_ident!("Resource") {
+                    quote!{
+                        Ok(#current_parameter.resource.map(|r| *r))
+                    }
+                }else  if value_type.ident == format_ident!("ParametersParameterValueTypeChoice") {
                     quote! {
-                        if let Some(Resource::#value_type(resource)) = param.resource {
+                        Ok(#current_parameter.value)
+                    }
+                }
+                 else if is_resource_type(field) {
+                    quote! {
+                        if let Some(Resource::#value_type(resource)) = #current_parameter.resource.map(|r| *r) {
                             Ok(Some(resource))
                         } else {
-                            return Err(OperatinOutcomeError(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 } else {
+                    // Need to remove the start FHIR on the primitives.
+                    let removed_fhir = value_type.ident.to_string().replacen("FHIR", "", 1);
+                    let parameter_value_type = format_ident!("{}", removed_fhir);
+
                     quote! {
-                        if let Some(oxidized_fhir_model::r4::types::ParametersParameterValueTypeChoice::#value_type(value)) = param.value {
-                            Ok(Some(value))
+                        if let Some(oxidized_fhir_model::r4::types::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
+                            Ok(Some(*value))
                         } else {
-                            return Err(OperatinOutcomeError(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 };
@@ -157,41 +167,57 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                 let setter = if is_vector {
                     quote! {
                         let tmp_value = #get_value_from_param;
-                        let mut tmp_value_array = #field_name.unwrap_or_default();
-                        tmp_value_array.push(tmp_value?);
-                        #field_name = Some(tmp_value_array);
-
+                        if let Some(tmp_value) = tmp_value? {
+                            if let Some(tmp_array) = #field_name.as_mut(){
+                                tmp_array.push(tmp_value);
+                            } else {
+                                #field_name = Some(vec![tmp_value]);
+                            }
+                        }
                     }
                 } else {
                     quote! {
                         if #field_name.is_some(){
-                            return Err(OperatinOutcomeError(OperationOutcomeCodes::Invalid, format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
                         }
                         let tmp_value = #get_value_from_param;
-                        #field_name = Some(tmp_value);
+                        #field_name = tmp_value?;
                     }
                 };
 
                 quote!{
-                    if #current_parameter.name.value.as_ref().map(|v| v.as_str()) == Some(#expected_parameter_name) {
+                    Some(#expected_parameter_name) =>  {
                         #setter
                     }
                 }
             });
 
-            quote! {
-                impl TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> for #struct_name {
+            let try_from_code = quote! {
+                impl TryFrom<Vec<ParametersParameter>> for #struct_name {
+                    type Error = OperationOutcomeError;
                     fn try_from(#parameters_name: Vec<ParametersParameter>) -> Result<Self, Self::Error> {
                         #(#declare_fields)*
 
                         for #current_parameter in #parameters_name {
-                            #(#set_fields)*
+                            match #current_parameter.name.value.as_ref().map(|v| v.as_str()) {
+                                #(#set_fields),*
+                                Some(k) => {
+                                    return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' is not allowed.", k)));
+                                },
+                                None => {
+                                    return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter must have a name on it")));
+                                }
+                            }
                         }
 
                         todo!("Not implemented.");
                     }
                 }
-            }.into()
+            };
+
+            println!("{}", try_from_code.to_string());
+
+            try_from_code.into()
         }
         _ => panic!("From parameter deriviation is only supported for structs."),
     }

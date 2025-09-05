@@ -48,13 +48,18 @@ fn get_name(op_def: &OperationDefinition) -> String {
 }
 
 fn create_field_value(type_: &str, is_array: bool, required: bool) -> TokenStream {
-    let type_ = if let Some(primitive) = FHIR_PRIMITIVES.get(type_) {
+    let base_type = if let Some(primitive) = FHIR_PRIMITIVES.get(type_) {
         primitive.as_str()
+    }
+    // For element move to ParametersParameterValueTypeChoice
+    // This sets it as parameter.parameter.value where it would be pulled from.
+    else if type_ == "Element" {
+        "ParametersParameterValueTypeChoice"
     } else {
         type_
     };
 
-    let type_ = format_ident!("{}", type_);
+    let type_ = format_ident!("{}", base_type);
 
     let type_ = if is_array {
         quote! {Vec<#type_>}
@@ -74,6 +79,7 @@ fn create_field_value(type_: &str, is_array: bool, required: bool) -> TokenStrea
 fn generate_parameter_type(
     name: &str,
     parameters: &Vec<&OperationDefinitionParameter>,
+    direction: &Direction,
 ) -> Vec<TokenStream> {
     let mut types = vec![];
     let mut fields = vec![];
@@ -106,18 +112,28 @@ fn generate_parameter_type(
                     .as_ref()
                     .map(|v| v.iter().collect())
                     .unwrap_or(vec![]),
+                direction,
             );
             types.extend(nested_types);
 
             let type_ = create_field_value(&name, is_array, required);
-            fields.push(quote! {pub #field_ident: #type_ })
+            fields.push(quote! {
+                #[parameter_nested]
+                pub #field_ident: #type_
+            })
         }
     }
 
     let struct_name = format_ident!("{}", name);
 
+    let attribute = match direction {
+        Direction::Input => quote! { #[direction = "in"] },
+        Direction::Output => quote! { #[direction = "out"] },
+    };
+
     let base_parameter_type = quote! {
         #[derive(ParametersParse)]
+        #attribute
         pub struct #struct_name {
             #(#fields),*
         }
@@ -140,7 +156,7 @@ fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<T
         })
         .collect::<Vec<_>>();
 
-    generate_parameter_type("Output", &input_parameters)
+    generate_parameter_type("Output", &input_parameters, &Direction::Output)
 }
 
 fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
@@ -155,7 +171,12 @@ fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<To
         })
         .collect::<Vec<_>>();
 
-    generate_parameter_type("Input", &input_parameters)
+    generate_parameter_type("Input", &input_parameters, &Direction::Input)
+}
+
+enum Direction {
+    Input,
+    Output,
 }
 
 fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String> {
@@ -194,6 +215,7 @@ pub fn generate_operation_definitions_from_files(
         #![allow(non_snake_case)]
         use oxidized_fhir_ops::derive::ParametersParse;
         use oxidized_fhir_model::r4::types::*;
+        use oxidized_fhir_operation_error::*;
     };
 
     for dir_path in file_paths {

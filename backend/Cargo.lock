@@ -2054,6 +2054,7 @@ name = "oxidized-fhir-generated-ops"
 version = "0.1.0"
 dependencies = [
  "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
  "oxidized-fhir-ops",
 ]
 
