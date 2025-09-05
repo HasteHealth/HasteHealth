@@ -3,7 +3,9 @@ use oxidized_fhir_client::{
     FHIRClient,
     // url::{Parameter, ParsedParameter},
 };
-use oxidized_fhir_generated_ops::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
+use oxidized_fhir_generated_ops::generated::{
+    CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
+};
 // use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::marker::PhantomData;

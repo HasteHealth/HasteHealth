@@ -108,6 +108,7 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
     }
 }
 
+
 #[proc_macro_derive(ParametersParse, attributes(parameter_rename, parameter_nested))]
 pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
