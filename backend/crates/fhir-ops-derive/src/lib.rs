@@ -2,8 +2,7 @@ use oxidized_fhir_model::r4::types::ResourceType;
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::{
-    Attribute, Data, DeriveInput, Expr, Field, Lit, Meta, PathArguments, PathSegment, Type,
-    parse_macro_input,
+    parse_macro_input, Attribute, Data, DeriveInput, Expr, Field, Fields, Lit, Meta, PathArguments, PathSegment, Type
 };
 
 enum Direction {
@@ -89,6 +88,17 @@ fn get_optional_type(field: &Field) -> PathSegment {
     }
 }
 
+fn is_optional(field: &Field) -> bool {
+    match &field.ty {
+        Type::Path(path) => {
+            let type_ = path.path.segments.first().unwrap();
+            type_.ident == format_ident!("Option")
+        }
+        _ => panic!("Unsupported field type for serialization"),
+    }
+}
+
+
 fn is_resource_type(field: &Field) -> bool {
     let field_type = inner_type(field).ident;
 
@@ -97,6 +107,34 @@ fn is_resource_type(field: &Field) -> bool {
         return true;
     } else {
         return false;
+    }
+}
+
+fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
+    
+    let field_setters = fields.iter().map(|field| {
+        let optional = is_optional(field);
+        let field = field.ident.as_ref().unwrap();
+        let field_name = field.to_string();
+
+        if optional {
+            quote!{ 
+                #field: #field
+            }
+        } else {
+            quote!{
+                #field: #field.ok_or_else(|| 
+                    OperationOutcomeError::error(
+                        OperationOutcomeCodes::Invalid, format!("Field '{}' is required.", stringify!(#field_name))))?
+             }
+        }
+        
+    });
+
+    quote! {
+        Ok(Self {
+            #(#field_setters),*
+        })
     }
 }
 
@@ -192,6 +230,8 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                 }
             });
 
+            let return_value = build_return_value(&data.fields);
+
             let try_from_code = quote! {
                 impl TryFrom<Vec<ParametersParameter>> for #struct_name {
                     type Error = OperationOutcomeError;
@@ -210,12 +250,12 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                             }
                         }
 
-                        todo!("Not implemented.");
+                        #return_value
                     }
                 }
             };
 
-            println!("{}", try_from_code.to_string());
+            // println!("{}", try_from_code.to_string());
 
             try_from_code.into()
         }
