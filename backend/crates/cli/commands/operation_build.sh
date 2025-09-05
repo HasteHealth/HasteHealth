@@ -1,1 +1,1 @@
-cargo run generate operations -i ../artifacts/artifacts/r4/hl7/original/profiles-resources.json -o ../fhir-generated-ops/src/lib.rs
+cargo run generate operations -i ../artifacts/artifacts/r4/hl7/original/profiles-resources.json -o ../fhir-generated-ops/src/generated.rs

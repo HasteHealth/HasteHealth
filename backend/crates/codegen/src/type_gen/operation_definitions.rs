@@ -127,7 +127,7 @@ fn generate_parameter_type(
     let struct_name = format_ident!("{}", name);
 
     let base_parameter_type = quote! {
-        #[derive(ParametersParse)]
+        #[derive(Debug, ParametersParse)]
         pub struct #struct_name {
             #(#fields),*
         }
