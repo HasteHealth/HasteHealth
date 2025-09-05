@@ -21,8 +21,6 @@ mod tests {
             },
         ]);
 
-        println!("Result: {:?}", result);
-
         assert_eq!(result.is_ok(), true);
     }
 }

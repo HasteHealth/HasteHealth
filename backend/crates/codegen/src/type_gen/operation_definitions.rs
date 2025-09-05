@@ -93,17 +93,27 @@ fn generate_parameter_type(
             .as_ref()
             .expect("Parameter must have a name")
             .replace("-", "_");
+
         let field_ident = if RUST_KEYWORDS.contains(&field_name.as_str()) {
             format_ident!("{}_", field_name)
         } else {
             format_ident!("{}", field_name)
         };
 
+        let attribute_rename = if RUST_KEYWORDS.contains(&field_name.as_str()) {
+            quote! {  #[parameter_rename=#field_name] }
+        } else {
+            quote! {}
+        };
+
         if let Some(type_) = p.type_.as_ref().and_then(|v| v.value.as_ref()) {
             let type_ = if type_ == "Any" { "Resource" } else { type_ };
             let type_ = create_field_value(type_, is_array, required);
 
-            fields.push(quote! {pub #field_ident: #type_ })
+            fields.push(quote! {
+                #attribute_rename
+                pub #field_ident: #type_
+            })
         } else {
             let name = name.to_string() + &capitalize(field_name.as_str());
             let nested_types = generate_parameter_type(
@@ -118,6 +128,7 @@ fn generate_parameter_type(
 
             let type_ = create_field_value(&name, is_array, required);
             fields.push(quote! {
+                #attribute_rename
                 #[parameter_nested]
                 pub #field_ident: #type_
             })

@@ -19,6 +19,7 @@ pub mod ActivityDefinitionApply {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Resource,
     }
 }
@@ -28,6 +29,7 @@ pub mod ActivityDefinitionDataRequirements {
     pub struct Input {}
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Library,
     }
 }
@@ -56,6 +58,7 @@ pub mod CapabilityStatementImplements {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: OperationOutcome,
     }
 }
@@ -68,6 +71,7 @@ pub mod CapabilityStatementSubset {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: CapabilityStatement,
     }
 }
@@ -90,6 +94,7 @@ pub mod ChargeItemDefinitionApply {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Resource,
     }
 }
@@ -101,6 +106,7 @@ pub mod ClaimSubmit {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Resource,
     }
 }
@@ -148,6 +154,7 @@ pub mod CodeSystemFindMatches {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "match"]
         #[parameter_nested]
         pub match_: Option<Vec<OutputMatch>>,
     }
@@ -167,6 +174,7 @@ pub mod CodeSystemLookup {
     #[derive(Debug, ParametersParse)]
     pub struct OutputDesignation {
         pub language: Option<FHIRCode>,
+        #[parameter_rename = "use"]
         pub use_: Option<Coding>,
         pub value: FHIRString,
     }
@@ -223,6 +231,7 @@ pub mod CodeSystemValidateCode {
         pub coding: Option<Coding>,
         pub codeableConcept: Option<CodeableConcept>,
         pub date: Option<FHIRDateTime>,
+        #[parameter_rename = "abstract"]
         pub abstract_: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
     }
@@ -254,6 +263,7 @@ pub mod ConceptMapClosure {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: ConceptMap,
     }
 }
@@ -298,6 +308,7 @@ pub mod ConceptMapTranslate {
     pub struct Output {
         pub result: FHIRBoolean,
         pub message: Option<FHIRString>,
+        #[parameter_rename = "match"]
         #[parameter_nested]
         pub match_: Option<Vec<OutputMatch>>,
     }
@@ -310,6 +321,7 @@ pub mod CoverageEligibilityRequestSubmit {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Resource,
     }
 }
@@ -323,6 +335,7 @@ pub mod EncounterEverything {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -338,6 +351,7 @@ pub mod GroupEverything {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -349,6 +363,7 @@ pub mod LibraryDataRequirements {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Library,
     }
 }
@@ -373,6 +388,7 @@ pub mod MeasureCareGaps {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -402,6 +418,7 @@ pub mod MeasureDataRequirements {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Library,
     }
 }
@@ -419,6 +436,7 @@ pub mod MeasureEvaluateMeasure {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: MeasureReport,
     }
 }
@@ -441,6 +459,7 @@ pub mod MedicinalProductEverything {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -449,11 +468,13 @@ pub mod MessageHeaderProcessMessage {
     #[derive(Debug, ParametersParse)]
     pub struct Input {
         pub content: Bundle,
+        #[parameter_rename = "async"]
         pub async_: Option<FHIRBoolean>,
         pub response_url: Option<FHIRUrl>,
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Option<Bundle>,
     }
 }
@@ -462,6 +483,7 @@ pub mod NamingSystemPreferredId {
     #[derive(Debug, ParametersParse)]
     pub struct Input {
         pub id: FHIRString,
+        #[parameter_rename = "type"]
         pub type_: FHIRCode,
     }
     #[derive(Debug, ParametersParse)]
@@ -477,6 +499,7 @@ pub mod ObservationLastn {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -512,6 +535,7 @@ pub mod PatientEverything {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -525,6 +549,7 @@ pub mod PatientMatch {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Bundle,
     }
 }
@@ -545,6 +570,7 @@ pub mod PlanDefinitionApply {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: CarePlan,
     }
 }
@@ -554,6 +580,7 @@ pub mod PlanDefinitionDataRequirements {
     pub struct Input {}
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Library,
     }
 }
@@ -596,6 +623,7 @@ pub mod ResourceMeta {
     pub struct Input {}
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Meta,
     }
 }
@@ -607,6 +635,7 @@ pub mod ResourceMetaAdd {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Meta,
     }
 }
@@ -618,6 +647,7 @@ pub mod ResourceMetaDelete {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Meta,
     }
 }
@@ -631,6 +661,7 @@ pub mod ResourceValidate {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: OperationOutcome,
     }
 }
@@ -638,6 +669,7 @@ pub mod StructureDefinitionQuestionnaire {
     use super::*;
     #[derive(Debug, ParametersParse)]
     pub struct Input {
+        #[parameter_rename = "identifier"]
         pub identifier_: Option<FHIRString>,
         pub profile: Option<FHIRString>,
         pub url: Option<FHIRString>,
@@ -645,6 +677,7 @@ pub mod StructureDefinitionQuestionnaire {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Questionnaire,
     }
 }
@@ -657,6 +690,7 @@ pub mod StructureDefinitionSnapshot {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: StructureDefinition,
     }
 }
@@ -669,6 +703,7 @@ pub mod StructureMapTransform {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: Resource,
     }
 }
@@ -700,6 +735,7 @@ pub mod ValueSetExpand {
     }
     #[derive(Debug, ParametersParse)]
     pub struct Output {
+        #[parameter_rename = "return"]
         pub return_: ValueSet,
     }
 }
@@ -718,6 +754,7 @@ pub mod ValueSetValidateCode {
         pub coding: Option<Coding>,
         pub codeableConcept: Option<CodeableConcept>,
         pub date: Option<FHIRDateTime>,
+        #[parameter_rename = "abstract"]
         pub abstract_: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
     }
