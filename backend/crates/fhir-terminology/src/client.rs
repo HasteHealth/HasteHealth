@@ -22,9 +22,9 @@ async fn resolve_valueset<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     input: &ValueSetExpand::Input,
 ) -> Result<Option<ValueSet>, OperationOutcomeError> {
-    if let Some(valueset) = input.valueSet {
+    if let Some(valueset) = input.valueSet.as_ref() {
         return Ok(Some(valueset.clone()));
-    } else if let Some(url) = &input.url.and_then(|u| u.value.as_ref()) {
+    } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
         let mut result = client
             .search_type(
                 ctx,
