@@ -11,20 +11,29 @@ use oxidized_fhir_model::r4::types::{
     ValueSetComposeInclude, ValueSetComposeIncludeConceptDesignation, ValueSetExpansion,
     ValueSetExpansionContains,
 };
-// use oxidized_fhir_model::r4::types::ResourceType;
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
-use std::{borrow::Cow, marker::PhantomData, sync::Arc};
+use std::{borrow::Cow, marker::PhantomData, pin::Pin, sync::Arc};
 
 pub struct FHIRClientTerminology<CTX, Error, Client: FHIRClient<CTX, Error>> {
     _ctx: PhantomData<CTX>,
     _error: PhantomData<Error>,
-    client: Arc<Box<Client>>,
+    client: Arc<Client>,
+}
+
+impl<CTX, Error, Client: FHIRClient<CTX, Error>> FHIRClientTerminology<CTX, Error, Client> {
+    pub fn new(client: Arc<Client>) -> Self {
+        FHIRClientTerminology {
+            _ctx: PhantomData,
+            _error: PhantomData,
+            client,
+        }
+    }
 }
 
 async fn resolve_valueset<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    client: &Arc<Box<Client>>,
+    client: Arc<Client>,
     ctx: CTX,
-    input: &ValueSetExpand::Input,
+    input: ValueSetExpand::Input,
 ) -> Result<Option<ValueSet>, OperationOutcomeError> {
     if let Some(valueset) = input.valueSet.as_ref() {
         return Ok(Some(valueset.clone()));
@@ -77,7 +86,7 @@ fn codes_inline_to_expansion(include: &ValueSetComposeInclude) -> Vec<ValueSetEx
 }
 
 async fn resolve_codesystem<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    client: &Arc<Box<Client>>,
+    client: Arc<Client>,
     ctx: CTX,
     url: &str,
 ) -> Result<Option<CodeSystem>, OperationOutcomeError> {
@@ -175,10 +184,10 @@ fn code_system_concept_to_valueset_expansion(
 }
 
 async fn get_valueset_expansion_contains<
-    CTX: Clone,
-    Client: FHIRClient<CTX, OperationOutcomeError>,
+    CTX: Clone + Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
-    client: &Arc<Box<Client>>,
+    client: Arc<Client>,
     ctx: CTX,
     include: &ValueSetComposeInclude,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
@@ -189,9 +198,9 @@ async fn get_valueset_expansion_contains<
         for valueset_uri in valueset_uris {
             if let Some(valueset_uri) = valueset_uri.value.as_ref() {
                 let output = expand_valueset(
-                    client,
+                    client.clone(),
                     ctx.clone(),
-                    &ValueSetExpand::Input {
+                    ValueSetExpand::Input {
                         url: Some(FHIRUri {
                             value: Some(valueset_uri.to_string()),
                             ..Default::default()
@@ -233,7 +242,7 @@ async fn get_valueset_expansion_contains<
         Ok(contains)
     } else if let Some(system) = include.system.as_ref()
         && let Some(uri) = system.value.as_ref()
-        && let Some(code_system) = resolve_codesystem(client, ctx, uri.as_str()).await?
+        && let Some(code_system) = resolve_codesystem(client.clone(), ctx, uri.as_str()).await?
     {
         let url = code_system.url.clone();
         let version = code_system.version.clone();
@@ -248,58 +257,71 @@ async fn get_valueset_expansion_contains<
     }
 }
 
-async fn get_valueset_expansion<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    client: &Arc<Box<Client>>,
+async fn get_valueset_expansion<
+    CTX: Clone + Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    client: Arc<Client>,
     ctx: CTX,
     value_set: &ValueSet,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     let mut result = Vec::new();
     if let Some(compose) = value_set.compose.as_ref() {
         for include in compose.include.iter() {
-            result.extend(get_valueset_expansion_contains(client, ctx.clone(), include).await?);
+            result.extend(
+                get_valueset_expansion_contains(client.clone(), ctx.clone(), include).await?,
+            );
         }
     }
     Ok(result)
 }
 
-async fn expand_valueset<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    client: &Arc<Box<Client>>,
+fn expand_valueset<
+    CTX: Clone + Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    client: Arc<Client>,
     ctx: CTX,
-    input: &ValueSetExpand::Input,
-) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
+    input: ValueSetExpand::Input,
+) -> Pin<Box<dyn Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send>> {
     // Implementation would go here
-    let value_set = resolve_valueset(client, ctx.clone(), input).await?;
+    let ctx = ctx.clone();
+    Box::pin(async move {
+        let value_set = resolve_valueset(client.clone(), ctx.clone(), input).await?;
 
-    if let Some(mut value_set) = value_set {
-        let contains = get_valueset_expansion(client, ctx.clone(), &value_set).await?;
-        value_set.expansion = Some(ValueSetExpansion {
-            contains: Some(contains),
-            ..Default::default()
-        });
+        if let Some(mut value_set) = value_set {
+            let contains = get_valueset_expansion(client.clone(), ctx.clone(), &value_set).await?;
+            value_set.expansion = Some(ValueSetExpansion {
+                contains: Some(contains),
+                ..Default::default()
+            });
 
-        Ok(ValueSetExpand::Output { return_: value_set })
-    } else {
-        return Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::NotFound,
-            "ValueSet could not be resolved".to_string(),
-        ));
-    }
+            Ok(ValueSetExpand::Output { return_: value_set })
+        } else {
+            return Err(OperationOutcomeError::error(
+                OperationOutcomeCodes::NotFound,
+                "ValueSet could not be resolved".to_string(),
+            ));
+        }
+    })
 }
 
-impl<CTX: Send + Sync + Clone, Client: FHIRClient<CTX, OperationOutcomeError>> FHIRTerminology<CTX>
-    for FHIRClientTerminology<CTX, OperationOutcomeError, Client>
+impl<
+    CTX: Clone + 'static + Send + Sync,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static + Send + Sync,
+> FHIRTerminology<CTX> for FHIRClientTerminology<CTX, OperationOutcomeError, Client>
 {
     async fn expand(
         &self,
         ctx: CTX,
-        input: &ValueSetExpand::Input,
+        input: ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
-        expand_valueset(&self.client, ctx.clone(), input).await
+        expand_valueset(self.client.clone(), ctx.clone(), input).await
     }
     async fn validate(
         &self,
         _ctx: CTX,
-        _input: &ValueSetValidateCode::Input,
+        _input: ValueSetValidateCode::Input,
     ) -> Result<ValueSetValidateCode::Output, OperationOutcomeError> {
         // Implementation would go here
         unimplemented!()
@@ -307,7 +329,7 @@ impl<CTX: Send + Sync + Clone, Client: FHIRClient<CTX, OperationOutcomeError>> F
     async fn lookup(
         &self,
         _ctx: CTX,
-        _input: &CodeSystemLookup::Input,
+        _input: CodeSystemLookup::Input,
     ) -> Result<CodeSystemLookup::Output, OperationOutcomeError> {
         // Implementation would go here
         unimplemented!()
