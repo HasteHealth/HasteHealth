@@ -126,14 +126,8 @@ fn generate_parameter_type(
 
     let struct_name = format_ident!("{}", name);
 
-    let attribute = match direction {
-        Direction::Input => quote! { #[direction = "in"] },
-        Direction::Output => quote! { #[direction = "out"] },
-    };
-
     let base_parameter_type = quote! {
         #[derive(ParametersParse)]
-        #attribute
         pub struct #struct_name {
             #(#fields),*
         }

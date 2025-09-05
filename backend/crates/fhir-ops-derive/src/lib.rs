@@ -2,38 +2,8 @@ use oxidized_fhir_model::r4::types::ResourceType;
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::{
-    parse_macro_input, Attribute, Data, DeriveInput, Expr, Field, Fields, Lit, Meta, PathArguments, PathSegment, Type
+    parse_macro_input, Attribute, Data, DeriveInput, Field, Fields, PathArguments, PathSegment, Type
 };
-
-enum Direction {
-    Input,
-    Output,
-}
-
-fn get_direction(attrs: &[Attribute]) -> Direction {
-    let direction = attrs.iter().find_map(|attr| match &attr.meta {
-        Meta::NameValue(name_value) => {
-            if name_value.path.is_ident("direction") {
-                match &name_value.value {
-                    Expr::Lit(lit) => match &lit.lit {
-                        Lit::Str(lit) => Some(lit.value()),
-                        _ => panic!("Expected a string literal"),
-                    },
-                    _ => panic!("Expected a string literal"),
-                }
-            } else {
-                None
-            }
-        }
-        _ => None,
-    });
-
-    match direction.as_ref().map(|s| s.as_str()) {
-        Some("in") => Direction::Input,
-        Some("out") => Direction::Output,
-        _ => panic!("Direction attribute is required and must be either 'in' or 'out'."),
-    }
-}
 
 fn is_nested_parameter(attrs: &[Attribute]) -> bool {
     attrs
@@ -142,8 +112,6 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
 pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
-
-    let direction = get_direction(&input.attrs);
 
     match input.data {
         Data::Struct(data) => {
