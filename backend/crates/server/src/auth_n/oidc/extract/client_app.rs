@@ -13,7 +13,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::types::{ClientApplication, Resource, ResourceType};
+use oxidized_fhir_model::r4::generated::resources::{ClientApplication, Resource, ResourceType};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{

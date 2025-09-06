@@ -1,5 +1,5 @@
 use json_patch::Patch;
-use oxidized_fhir_model::r4::types::{
+use oxidized_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
 use thiserror::Error;

@@ -1,5 +1,5 @@
 use oxidized_config::Config;
-use oxidized_fhir_model::r4::types::ClientApplication;
+use oxidized_fhir_model::r4::generated::resources::ClientApplication;
 
 pub mod admin_app;
 

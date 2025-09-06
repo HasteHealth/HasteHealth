@@ -1,6 +1,6 @@
 use crate::{SearchOptions, SearchRequest};
 use oxidized_fhir_client::url::{Parameter, ParsedParameter};
-use oxidized_fhir_model::r4::types::{ResourceType, SearchParameter};
+use oxidized_fhir_model::r4::generated::resources::{ResourceType, SearchParameter};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_repository::types::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};

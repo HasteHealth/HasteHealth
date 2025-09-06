@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
-use oxidized_fhir_model::r4::types::*;
+use oxidized_fhir_model::r4::generated::resources::*;
+use oxidized_fhir_model::r4::generated::types::*;
 use oxidized_fhir_operation_error::*;
 use oxidized_fhir_ops::derive::ParametersParse;
 pub mod ActivityDefinitionApply {

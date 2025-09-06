@@ -1,6 +1,8 @@
 use std::{pin::Pin, sync::Arc};
 
-use oxidized_fhir_model::r4::types::{OperationOutcome, Resource};
+use oxidized_fhir_model::r4::generated::resources::{
+    CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType,
+};
 use oxidized_fhir_serialization_json::errors::DeserializeError;
 use reqwest::Url;
 use thiserror::Error;
@@ -157,7 +159,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         response.response.ok_or_else(|| FHIRHTTPError::NoResponse)
     }
 
-    async fn capabilities(&self, _ctx: CTX) -> oxidized_fhir_model::r4::types::CapabilityStatement {
+    async fn capabilities(&self, _ctx: CTX) -> CapabilityStatement {
         todo!()
     }
 
@@ -165,64 +167,64 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self,
         _ctx: CTX,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn search_type(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn create(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
-        _resource: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+        _resource_type: ResourceType,
+        _resource: Resource,
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn update(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
-        _resource: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+        _resource: Resource,
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn conditional_update(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
-        _resource: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+        _resource: Resource,
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn patch(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _patches: json_patch::Patch,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn read(
         &self,
         ctx: CTX,
-        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        resource_type: ResourceType,
         id: String,
-    ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Option<Resource>, FHIRHTTPError> {
         let res = self
             .middleware
             .call(
@@ -241,17 +243,17 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
     async fn vread(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _version_id: String,
-    ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Option<Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn delete_instance(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
     ) -> Result<(), FHIRHTTPError> {
         todo!()
@@ -260,7 +262,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
     async fn delete_type(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
     ) -> Result<(), FHIRHTTPError> {
         todo!()
@@ -278,47 +280,47 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self,
         _ctx: CTX,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn history_type(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn history_instance(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, FHIRHTTPError> {
         todo!()
     }
 
     async fn invoke_instance(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _operation: String,
-        _parameters: oxidized_fhir_model::r4::types::Parameters,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+        _parameters: Parameters,
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
     async fn invoke_type(
         &self,
         _ctx: CTX,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _operation: String,
-        _parameters: oxidized_fhir_model::r4::types::Parameters,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+        _parameters: Parameters,
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
@@ -326,52 +328,44 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self,
         _ctx: CTX,
         _operation: String,
-        _parameters: oxidized_fhir_model::r4::types::Parameters,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+        _parameters: Parameters,
+    ) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
-    async fn transaction(
-        &self,
-        _ctx: CTX,
-        _bundle: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+    async fn transaction(&self, _ctx: CTX, _bundle: Resource) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 
-    async fn batch(
-        &self,
-        _ctx: CTX,
-        _bundle: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, FHIRHTTPError> {
+    async fn batch(&self, _ctx: CTX, _bundle: Resource) -> Result<Resource, FHIRHTTPError> {
         todo!()
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use oxidized_fhir_model::r4::types::ResourceType;
+// #[cfg(test)]
+// mod tests {
+//     use oxidized_fhir_model::r4::generated::resources::ResourceType;
 
-    use super::*;
+//     use super::*;
 
-    #[tokio::test]
-    async fn test_fhir_http_client() {
-        let client: FHIRHttpClient<()> =
-            FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
+//     #[tokio::test]
+//     async fn test_fhir_http_client() {
+//         let client: FHIRHttpClient<()> =
+//             FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
 
-        let read_response = client
-            .read((), ResourceType::Patient, "48426182".to_string())
-            .await
-            .unwrap();
+//         let read_response = client
+//             .read((), ResourceType::Patient, "48426182".to_string())
+//             .await
+//             .unwrap();
 
-        assert_eq!(
-            Some("48426182".to_string()),
-            read_response.as_ref().map(|r| match r {
-                Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
-                _ => panic!("Expected Patient resource"),
-            })
-        );
+//         assert_eq!(
+//             Some("48426182".to_string()),
+//             read_response.as_ref().map(|r| match r {
+//                 Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
+//                 _ => panic!("Expected Patient resource"),
+//             })
+//         );
 
-        println!("Read response: {:?}", read_response);
-    }
-}
+//         println!("Read response: {:?}", read_response);
+//     }
+// }

@@ -1,5 +1,6 @@
 use crate::indexing_lock::IndexLockProvider;
 use oxidized_config::get_config;
+use oxidized_fhir_model::r4::generated::resources::ResourceTypeError;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
@@ -36,7 +37,7 @@ pub enum IndexingWorkerError {
         code = "exception",
         diagnostic = "Artifact error: Invalid resource type '{arg0}'"
     )]
-    ResourceTypeError(#[from] oxidized_fhir_model::r4::types::ResourceTypeError),
+    ResourceTypeError(#[from] ResourceTypeError),
 }
 
 struct TenantReturn {

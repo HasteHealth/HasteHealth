@@ -1,4 +1,4 @@
-use crate::r4::types::ResourceType;
+use crate::r4::generated::resources::ResourceType;
 use sqlx::{
     Database, Decode, Encode, Postgres,
     encode::IsNull,

@@ -1,5 +1,8 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use oxidized_fhir_model::r4::types::{FHIRString, HumanName, Patient};
+use oxidized_fhir_model::r4::generated::{
+    resources::Patient,
+    types::{FHIRString, HumanName},
+};
 use oxidized_fhirpath::FPEngine;
 
 fn fp_performance_simple(c: &mut Criterion) {

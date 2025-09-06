@@ -1,7 +1,10 @@
 use axum::response::IntoResponse;
 use core::panic;
 use http::{HeaderMap, StatusCode};
-use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode, FHIRUnsignedInt, Resource};
+use oxidized_fhir_model::r4::generated::{
+    resources::{Bundle, BundleEntry, Resource},
+    types::{FHIRCode, FHIRUnsignedInt},
+};
 
 use crate::request::FHIRResponse;
 

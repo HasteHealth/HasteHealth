@@ -7,8 +7,8 @@ use crate::{
     utilities,
 };
 use oxidized_fhir_model::r4::{
+    generated::resources::{Resource, ResourceType},
     sqlx::{FHIRJson, FHIRJsonRef},
-    types::{Resource, ResourceType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
@@ -105,7 +105,7 @@ impl FHIRRepository for PGConnection {
         project_id: &ProjectId,
         resource_type: &ResourceType,
         resource_id: &ResourceId,
-    ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res =
@@ -335,10 +335,7 @@ fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     project_id: &'a ProjectId,
     resource_type: &'a ResourceType,
     resource_id: &'a ResourceId,
-) -> impl Future<
-    Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
-> + Send
-+ 'a {
+) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let response = sqlx::query!(

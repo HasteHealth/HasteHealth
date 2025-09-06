@@ -1,4 +1,4 @@
-use oxidized_fhir_model::r4::types::ResourceType;
+use oxidized_fhir_model::r4::generated::resources::ResourceType;
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::{
@@ -163,7 +163,7 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                     let parameter_value_type = format_ident!("{}", removed_fhir);
 
                     quote! {
-                        if let Some(oxidized_fhir_model::r4::types::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
+                        if let Some(oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
                             Ok(Some(*value))
                         } else {
                             return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));

@@ -1,11 +1,15 @@
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
 use oxidized_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
-    types::{
-        Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean, FHIRCanonical, FHIRCode,
-        FHIRDecimal, FHIRId, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
-        FHIRUrl, FHIRUuid, Identifier, Money, Quantity, Range, ResourceType, ResourceTypeError,
-        SearchParameter,
+    generated::{
+        resources::{ResourceType, ResourceTypeError, SearchParameter},
+        types::{
+            Address, Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean,
+            FHIRCanonical, FHIRCode, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRId, FHIRInstant,
+            FHIRInteger, FHIRMarkdown, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
+            FHIRUrl, FHIRUuid, HumanName, Identifier, Money, Period, Quantity, Range, Reference,
+            Timing,
+        },
     },
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -113,12 +117,9 @@ fn convert_optional_fp_string_vec(value: &Option<Vec<Box<FHIRString>>>) -> Vec<S
 fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexError> {
     match value.typename() {
         "FHIRString" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRString>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
+            let fp_string = value.as_any().downcast_ref::<FHIRString>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
             Ok(fp_string
                 .value
                 .as_ref()
@@ -129,7 +130,7 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
         "FHIRMarkdown" => {
             let fp_markdown = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRMarkdown>()
+                .downcast_ref::<FHIRMarkdown>()
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
@@ -140,12 +141,9 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
                 .unwrap_or_else(|| vec![]))
         }
         "HumanName" => {
-            let human_name = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::HumanName>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
+            let human_name = value.as_any().downcast_ref::<HumanName>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
 
             let mut string_index = vec![];
             string_index.extend(convert_optional_fp_string(&human_name.text));
@@ -157,12 +155,9 @@ fn index_string(value: &dyn MetaValue) -> Result<Vec<String>, InsertableIndexErr
         }
         "Address" => {
             let mut string_index = vec![];
-            let address = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Address>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
+            let address = value.as_any().downcast_ref::<Address>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
             string_index.extend(convert_optional_fp_string(&address.text));
             string_index.extend(convert_optional_fp_string_vec(&address.line));
             string_index.extend(convert_optional_fp_string(&address.city));
@@ -647,12 +642,9 @@ pub fn date_time_range(value: &DateTime) -> Result<DateRange, InsertableIndexErr
 fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexError> {
     match value.typename() {
         "Timing" => {
-            let fp_timing = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Timing>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
+            let fp_timing = value.as_any().downcast_ref::<Timing>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
 
             if let Some(events) = fp_timing.event.as_ref() {
                 let date_ranges = events
@@ -667,7 +659,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
         "FHIRDate" => {
             let fp_date = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDate>()
+                .downcast_ref::<FHIRDate>()
                 .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
                 .value
                 .as_ref();
@@ -686,7 +678,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
         "FHIRDateTime" => {
             let fp_datetime = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRDateTime>()
+                .downcast_ref::<FHIRDateTime>()
                 .ok_or_else(|| InsertableIndexError::FailedDowncast(value.typename().to_string()))?
                 .value
                 .as_ref();
@@ -701,7 +693,7 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
         "FHIRInstant" => {
             let fp_instant = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRInstant>()
+                .downcast_ref::<FHIRInstant>()
                 .ok_or_else(|| {
                     InsertableIndexError::FailedDowncast(value.typename().to_string())
                 })?;
@@ -720,12 +712,9 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
             }
         }
         "Period" => {
-            let fp_period = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Period>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
+            let fp_period = value.as_any().downcast_ref::<Period>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
             let fp_start = if let Some(date) = fp_period.start.as_ref() {
                 let date = date.as_ref();
                 let date_range = index_date(date)?;
@@ -766,12 +755,9 @@ fn index_date(value: &dyn MetaValue) -> Result<Vec<DateRange>, InsertableIndexEr
 fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, InsertableIndexError> {
     match value.typename() {
         "Reference" => {
-            let fp_reference = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Reference>()
-                .ok_or_else(|| {
-                    InsertableIndexError::FailedDowncast(value.typename().to_string())
-                })?;
+            let fp_reference = value.as_any().downcast_ref::<Reference>().ok_or_else(|| {
+                InsertableIndexError::FailedDowncast(value.typename().to_string())
+            })?;
 
             if let Some(reference) = &fp_reference
                 .reference
@@ -906,7 +892,9 @@ pub fn to_insertable_index(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::types::{FHIRDate, FHIRDateTime, Period, Reference, Timing};
+    use oxidized_fhir_model::r4::generated::types::{
+        FHIRDate, FHIRDateTime, Period, Reference, Timing,
+    };
 
     #[test]
     fn test_year_month_to_daterange() {

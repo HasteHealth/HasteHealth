@@ -1,7 +1,9 @@
 use std::{borrow::Cow, path::Path};
 
 use crate::utilities::{FHIR_PRIMITIVES, RUST_KEYWORDS, generate::capitalize, load};
-use oxidized_fhir_model::r4::types::{OperationDefinition, OperationDefinitionParameter, Resource};
+use oxidized_fhir_model::r4::generated::resources::{
+    OperationDefinition, OperationDefinitionParameter, Resource,
+};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use walkdir::WalkDir;
@@ -219,7 +221,8 @@ pub fn generate_operation_definitions_from_files(
     let mut generated_code = quote! {
         #![allow(non_snake_case)]
         use oxidized_fhir_ops::derive::ParametersParse;
-        use oxidized_fhir_model::r4::types::*;
+        use oxidized_fhir_model::r4::generated::types::*;
+        use oxidized_fhir_model::r4::generated::resources::*;
         use oxidized_fhir_operation_error::*;
     };
 

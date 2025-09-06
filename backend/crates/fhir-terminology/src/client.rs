@@ -2,10 +2,12 @@ use crate::{CanonicalResolution, FHIRTerminology};
 use oxidized_fhir_generated_ops::generated::{
     CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
 };
-use oxidized_fhir_model::r4::types::{
-    CodeSystem, CodeSystemConcept, FHIRString, FHIRUri, Resource, ResourceType, ValueSet,
-    ValueSetComposeInclude, ValueSetComposeIncludeConceptDesignation, ValueSetExpansion,
-    ValueSetExpansionContains,
+use oxidized_fhir_model::r4::generated::{
+    resources::{
+        CodeSystem, CodeSystemConcept, Resource, ResourceType, ValueSet, ValueSetComposeInclude,
+        ValueSetComposeIncludeConceptDesignation, ValueSetExpansion, ValueSetExpansionContains,
+    },
+    types::{FHIRString, FHIRUri},
 };
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use std::{borrow::Cow, pin::Pin};

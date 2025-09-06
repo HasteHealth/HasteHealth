@@ -1,7 +1,8 @@
 use crate::utilities::{generate::capitalize, load};
 use oxidized_fhir_generated_ops::generated::ValueSetExpand;
-use oxidized_fhir_model::r4::types::{
-    FHIRCode, Resource, ResourceType, ValueSet, ValueSetExpansionContains,
+use oxidized_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType, ValueSet, ValueSetExpansionContains},
+    types::FHIRCode,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_terminology::{

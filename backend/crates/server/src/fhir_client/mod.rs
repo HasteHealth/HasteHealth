@@ -10,7 +10,9 @@ use oxidized_fhir_client::{
     },
     url::ParsedParameter,
 };
-use oxidized_fhir_model::r4::types::ResourceType;
+use oxidized_fhir_model::r4::generated::resources::{
+    CapabilityStatement, Parameters, Resource, ResourceType,
+};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
@@ -244,10 +246,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             .ok_or_else(|| StorageError::NoResponse.into())
     }
 
-    async fn capabilities(
-        &self,
-        _ctx: Arc<ServerCTX>,
-    ) -> oxidized_fhir_model::r4::types::CapabilityStatement {
+    async fn capabilities(&self, _ctx: Arc<ServerCTX>) -> CapabilityStatement {
         todo!()
     }
 
@@ -255,16 +254,16 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
         &self,
         _ctx: Arc<ServerCTX>,
         _parameters: Vec<ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
     async fn search_type(
         &self,
         ctx: Arc<ServerCTX>,
-        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        resource_type: ResourceType,
         parameters: Vec<ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -286,9 +285,9 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     async fn create(
         &self,
         ctx: Arc<ServerCTX>,
-        resource_type: oxidized_fhir_model::r4::types::ResourceType,
-        resource: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        resource_type: ResourceType,
+        resource: Resource,
+    ) -> Result<Resource, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -310,20 +309,20 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     async fn update(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
-        _resource: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        _resource: Resource,
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
     async fn conditional_update(
         &self,
         ctx: Arc<ServerCTX>,
-        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        resource_type: ResourceType,
         parameters: Vec<ParsedParameter>,
-        resource: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        resource: Resource,
+    ) -> Result<Resource, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -347,19 +346,19 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     async fn patch(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _patches: json_patch::Patch,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
     async fn read(
         &self,
         ctx: Arc<ServerCTX>,
-        resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        resource_type: ResourceType,
         id: String,
-    ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -378,17 +377,17 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     async fn vread(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _version_id: String,
-    ) -> Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
         todo!()
     }
 
     async fn delete_instance(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
     ) -> Result<(), OperationOutcomeError> {
         todo!()
@@ -397,7 +396,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     async fn delete_type(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
         todo!()
@@ -415,47 +414,47 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
         &self,
         _ctx: Arc<ServerCTX>,
         _parameters: Vec<ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
     async fn history_type(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _parameters: Vec<ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
     async fn history_instance(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _parameters: Vec<ParsedParameter>,
-    ) -> Result<Vec<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
     async fn invoke_instance(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _id: String,
         _operation: String,
-        _parameters: oxidized_fhir_model::r4::types::Parameters,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        _parameters: Parameters,
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
     async fn invoke_type(
         &self,
         _ctx: Arc<ServerCTX>,
-        _resource_type: oxidized_fhir_model::r4::types::ResourceType,
+        _resource_type: ResourceType,
         _operation: String,
-        _parameters: oxidized_fhir_model::r4::types::Parameters,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        _parameters: Parameters,
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -463,24 +462,24 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
         &self,
         _ctx: Arc<ServerCTX>,
         _operation: String,
-        _parameters: oxidized_fhir_model::r4::types::Parameters,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        _parameters: Parameters,
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
     async fn transaction(
         &self,
         _ctx: Arc<ServerCTX>,
-        _bundle: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        _bundle: Resource,
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
     async fn batch(
         &self,
         _ctx: Arc<ServerCTX>,
-        _bundle: oxidized_fhir_model::r4::types::Resource,
-    ) -> Result<oxidized_fhir_model::r4::types::Resource, OperationOutcomeError> {
+        _bundle: Resource,
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 }

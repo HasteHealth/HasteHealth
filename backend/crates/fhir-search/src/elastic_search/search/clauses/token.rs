@@ -1,6 +1,6 @@
 use crate::elastic_search::search::QueryBuildError;
 use oxidized_fhir_client::url::Parameter;
-use oxidized_fhir_model::r4::types::SearchParameter;
+use oxidized_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
 fn matching_modifier(modifier: &Option<String>) -> Result<String, QueryBuildError> {

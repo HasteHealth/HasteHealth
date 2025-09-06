@@ -8,7 +8,10 @@ use oxidized_fhir_client::{
     FHIRClient,
     url::{Parameter, ParsedParameter},
 };
-use oxidized_fhir_model::r4::types::{Coding, FHIRCode, FHIRUri, Meta, Resource, ResourceType};
+use oxidized_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType},
+    types::{Coding, FHIRCode, FHIRUri, Meta},
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_repository::types::{Author, ProjectId, SupportedFHIRVersions, TenantId};
 use sha1::{Digest, Sha1};

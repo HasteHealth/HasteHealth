@@ -3,6 +3,7 @@ use oxidized_codegen::type_gen;
 use oxidized_fhirpath::FHIRPathError;
 use std::{
     io::Write,
+    path::Path,
     process::{Command, Stdio},
 };
 use thiserror::Error;
@@ -43,7 +44,7 @@ enum CodeGen {
         input: Vec<String>,
         /// Output Rust file path
         #[arg(short, long)]
-        output: Option<String>,
+        output: String,
         #[arg(short, long)]
         level: Option<GenerateLevel>,
     },
@@ -177,17 +178,21 @@ async fn main() -> Result<(), CLIError> {
                     type_gen::fhir_rust_types::generate_fhir_types_from_files(input, level)
                         .map_err(|e| CLIError::GenerationError(e))?;
 
-                let formatted_code = format_code(rust_code);
+                let resource_code = format_code(rust_code.resources);
+                let type_code = format_code(rust_code.types);
+                let mod_code = format_code(rust_code.module);
 
-                match output {
-                    Some(output_path) => {
-                        std::fs::write(output_path, formatted_code.to_string())?;
-                        println!("Generated FHIR types written to: {}", output_path);
-                    }
-                    None => {
-                        println!("{}", formatted_code);
-                    }
-                }
+                let output_path = Path::new(output);
+                let resource_path = output_path.join("resources.rs");
+                std::fs::write(resource_path, resource_code)?;
+
+                let type_path = output_path.join("types.rs");
+                std::fs::write(type_path, type_code)?;
+
+                let mod_path = output_path.join("mod.rs");
+                std::fs::write(mod_path, mod_code)?;
+
+                println!("Generated FHIR types written to: {}", output_path.display());
 
                 Ok(())
             }

@@ -1,4 +1,4 @@
-use oxidized_fhir_model::r4::types::ClientApplication;
+use oxidized_fhir_model::r4::generated::resources::ClientApplication;
 use regex::Regex;
 
 pub fn is_valid_redirect_url(redirect_url: &str, client: &ClientApplication) -> bool {
