@@ -18,12 +18,8 @@ fn flatten_concepts(contains: ValueSetExpansionContains) -> Vec<Box<FHIRCode>> {
     if let Some(code) = contains.code {
         codes.push(code);
     }
-    for concept in contains.contains.unwrap_or_default().into_iter() {
-        if let Some(expansions) = concept.contains {
-            for contains in expansions {
-                codes.extend(flatten_concepts(contains));
-            }
-        }
+    for contains in contains.contains.unwrap_or_default().into_iter() {
+        codes.extend(flatten_concepts(contains));
     }
 
     codes
@@ -68,8 +64,9 @@ fn format_string(id: &str) -> String {
 fn generate_enum_variants(value_set: ValueSet) -> TokenStream {
     let terminology_enum_name = format_ident!(
         "{}",
-        format_string(&value_set.id.expect("ValueSet must have an id"))
+        format_string(&value_set.id.clone().expect("ValueSet must have an id"))
     );
+
     if let Some(expansion) = value_set.expansion {
         let codes = expansion
             .clone()
