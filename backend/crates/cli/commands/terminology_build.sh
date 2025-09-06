@@ -1,1 +1,0 @@
-cargo run generate terminology -i ../artifacts/artifacts/r4/hl7/original/valuesets.json -i ../artifacts/artifacts/r4/hl7/original/v3-codesystems.json   -o ../fhir-model/src/r4/terminology.rs

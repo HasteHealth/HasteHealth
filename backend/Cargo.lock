@@ -2006,7 +2006,9 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "oxidized-codegen",
+ "oxidized-fhir-operation-error",
  "oxidized-fhirpath",
+ "quote",
  "serde_json",
  "thiserror 2.0.15",
  "tokio",
