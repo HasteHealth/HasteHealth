@@ -16,13 +16,22 @@ use std::{
 };
 use walkdir::WalkDir;
 
-fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeSet<String> {
+#[derive(Hash, Ord, PartialOrd, Eq, PartialEq)]
+struct Code {
+    description: Option<String>,
+    code: String,
+}
+
+fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeSet<Code> {
     let mut codes = BTreeSet::new();
 
     if let Some(code) = contains.code
-        && let Some(code) = code.value
+        && let Some(code_string) = code.value.as_ref()
     {
-        codes.insert(code);
+        codes.insert(Code {
+            description: Some(code_string.to_string()),
+            code: code_string.to_string(),
+        });
     }
     for contains in contains.contains.unwrap_or_default().into_iter() {
         codes.extend(flatten_concepts(contains));
@@ -95,8 +104,12 @@ fn generate_enum_variants(value_set: ValueSet) -> TokenStream {
 
         if codes.len() > 0 && codes.len() < 100 {
             let enum_variants = codes.into_iter().map(|code| {
-                let code_ident = format_ident!("{}", format_string(&code));
+                let code_ident = format_ident!("{}", format_string(&code.code));
+                let description = code.description.map_or(quote! {}, |d| {
+                    quote! {#[doc = #d]}
+                });
                 quote! {
+                    #description
                     #code_ident(Option<Element>)
                 }
             });
