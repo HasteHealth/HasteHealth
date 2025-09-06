@@ -47,6 +47,13 @@ enum CodeGen {
         #[arg(short, long)]
         level: Option<GenerateLevel>,
     },
+    Terminology {
+        #[arg(short, long)]
+        input: Vec<String>,
+        /// Output Rust file path
+        #[arg(short, long)]
+        output: Option<String>,
+    },
     Operations {
         #[arg(short, long)]
         input: Vec<String>,
@@ -96,7 +103,8 @@ fn format_code(rust_code: String) -> String {
     formatted_code.to_string()
 }
 
-fn main() -> Result<(), CLIError> {
+#[tokio::main]
+async fn main() -> Result<(), CLIError> {
     let cli = Cli::parse();
     match &cli.command {
         CLICommand::FHIRPath { fhirpath, data } => {
@@ -118,6 +126,26 @@ fn main() -> Result<(), CLIError> {
                     .map_err(|e| CLIError::GenerationError(e))?;
 
                 let formatted_code = format_code(generated_operation_definitions);
+
+                match output {
+                    Some(output_path) => {
+                        std::fs::write(output_path, formatted_code.to_string())?;
+                        println!("Generated FHIR types written to: {}", output_path);
+                    }
+                    None => {
+                        println!("{}", formatted_code);
+                    }
+                }
+
+                Ok(())
+            }
+            CodeGen::Terminology { input, output } => {
+                let terminology_codes =
+                    type_gen::terminology_rust_types::generate_fhir_types_from_files(input)
+                        .await
+                        .expect("Failed to generate types");
+
+                let formatted_code = format_code(terminology_codes.to_string());
 
                 match output {
                     Some(output_path) => {

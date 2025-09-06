@@ -346,7 +346,7 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
             Invalid(String),
         }
 
-        #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Deserialize, serde::Serialize)]
+        #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Deserialize, serde::Serialize, PartialOrd, Ord)]
         pub enum ResourceType {
             #(#enum_variants),*
         }

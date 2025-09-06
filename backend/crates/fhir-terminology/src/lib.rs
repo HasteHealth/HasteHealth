@@ -1,7 +1,10 @@
 use oxidized_fhir_generated_ops::generated::{
     CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
 };
+use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use std::pin::Pin;
+use std::sync::Arc;
 
 pub mod client;
 
@@ -15,20 +18,31 @@ pub enum TerminologyError {
     LookupError,
 }
 
-pub trait FHIRTerminology<CTX> {
+pub type CanonicalResolution = Arc<
+    Box<
+        dyn Fn(
+                ResourceType,
+                String,
+            ) -> Pin<
+                Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>,
+            > + Send
+            + Sync,
+    >,
+>;
+
+pub trait FHIRTerminology {
     fn expand(
         &self,
-        ctx: CTX,
-        input: &ValueSetExpand::Input,
+
+        input: ValueSetExpand::Input,
     ) -> impl Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send;
     fn validate(
         &self,
-        ctx: CTX,
-        input: &ValueSetValidateCode::Input,
+
+        input: ValueSetValidateCode::Input,
     ) -> impl Future<Output = Result<ValueSetValidateCode::Output, OperationOutcomeError>> + Send;
     fn lookup(
         &self,
-        ctx: CTX,
-        input: &CodeSystemLookup::Input,
+        input: CodeSystemLookup::Input,
     ) -> impl Future<Output = Result<CodeSystemLookup::Output, OperationOutcomeError>> + Send;
 }
