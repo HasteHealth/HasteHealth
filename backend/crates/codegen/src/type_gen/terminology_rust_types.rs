@@ -14,10 +14,11 @@ use walkdir::WalkDir;
 
 fn flatten_concepts(contains: ValueSetExpansionContains) -> Vec<Box<FHIRCode>> {
     let mut codes = vec![];
+
+    if let Some(code) = contains.code {
+        codes.push(code);
+    }
     for concept in contains.contains.unwrap_or_default().into_iter() {
-        if let Some(code) = concept.code {
-            codes.push(code);
-        }
         if let Some(expansions) = concept.contains {
             for contains in expansions {
                 codes.extend(flatten_concepts(contains));
@@ -37,6 +38,14 @@ fn format_string(id: &str) -> String {
         .replace(" ", "")
         .replace("<", "Greater")
         .replace(">", "Less")
+        .replace("=", "Equal")
+        .replace("/", "_")
+        .replace("[", "LeftSquareBracket")
+        .replace("]", "RightSquareBracket")
+        .replace(":", "_")
+        .replace("*", "Star")
+        .replace("%", "Percent")
+        .replace("!", "__")
         .split('.')
         .map(|id| capitalize(id))
         .collect::<Vec<_>>()
@@ -49,6 +58,8 @@ fn format_string(id: &str) -> String {
 
     if safe_string.as_bytes()[0].is_ascii_digit() {
         format!("V{}", safe_string)
+    } else if safe_string == "Self" {
+        format!("_Self")
     } else {
         safe_string
     }
@@ -61,13 +72,14 @@ fn generate_enum_variants(value_set: ValueSet) -> TokenStream {
     );
     if let Some(expansion) = value_set.expansion {
         let codes = expansion
+            .clone()
             .contains
             .unwrap_or_default()
             .into_iter()
             .flat_map(|concept| flatten_concepts(concept))
             .collect::<Vec<_>>();
 
-        if codes.len() < 100 {
+        if codes.len() > 0 && codes.len() < 100 {
             let enum_variants = codes.into_iter().filter_map(|v| v.value).map(|code| {
                 let code_ident = format_ident!("{}", format_string(&code));
                 quote! {
