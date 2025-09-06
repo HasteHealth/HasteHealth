@@ -1,14 +1,15 @@
 use crate::utilities::{generate::capitalize, load};
-use oxidized_config::{ConfigType, get_config};
 use oxidized_fhir_generated_ops::generated::ValueSetExpand;
-use oxidized_fhir_model::r4::types::{FHIRCode, Resource, ValueSet, ValueSetExpansionContains};
+use oxidized_fhir_model::r4::types::{
+    FHIRCode, Resource, ResourceType, ValueSet, ValueSetExpansionContains,
+};
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
-use oxidized_fhir_terminology::{FHIRTerminology, client::FHIRCanonicalTerminology};
-use oxidized_repository::types::{Author, ProjectId, TenantId};
-use oxidized_server::{fhir_client::ServerCTX, services::create_services};
+use oxidized_fhir_terminology::{
+    CanonicalResolution, FHIRTerminology, client::FHIRCanonicalTerminology,
+};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::sync::Arc;
+use std::{collections::HashMap, pin::Pin, sync::Arc};
 use walkdir::WalkDir;
 
 fn flatten_concepts(contains: ValueSetExpansionContains) -> Vec<Box<FHIRCode>> {
@@ -28,14 +29,29 @@ fn flatten_concepts(contains: ValueSetExpansionContains) -> Vec<Box<FHIRCode>> {
 }
 
 fn format_string(id: &str) -> String {
-    let k = id
+    let safe_string = id
         .split('-')
         .map(|id| capitalize(id))
         .collect::<Vec<_>>()
         .join("")
-        .replace(" ", "");
+        .replace(" ", "")
+        .replace("<", "Greater")
+        .replace(">", "Less")
+        .split('.')
+        .map(|id| capitalize(id))
+        .collect::<Vec<_>>()
+        .join("");
 
-    k
+    if safe_string.is_empty() {
+        println!("Invalid '{}'", id);
+        panic!();
+    }
+
+    if safe_string.as_bytes()[0].is_ascii_digit() {
+        format!("V{}", safe_string)
+    } else {
+        safe_string
+    }
 }
 
 fn generate_enum_variants(value_set: ValueSet) -> TokenStream {
@@ -70,8 +86,15 @@ fn generate_enum_variants(value_set: ValueSet) -> TokenStream {
     quote! {}
 }
 
-fn load_terminologies(file_paths: &Vec<String>) -> Result<Vec<ValueSet>, OperationOutcomeError> {
-    let mut value_sets = Vec::new();
+type ResolverData = HashMap<ResourceType, HashMap<String, Resource>>;
+
+fn load_terminologies(
+    file_paths: &Vec<String>,
+) -> Result<Arc<ResolverData>, OperationOutcomeError> {
+    let mut resolver_data: ResolverData = HashMap::new();
+    resolver_data.insert(ResourceType::ValueSet, HashMap::new());
+    resolver_data.insert(ResourceType::CodeSystem, HashMap::new());
+
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).into_iter();
         for entry in walker
@@ -87,7 +110,30 @@ fn load_terminologies(file_paths: &Vec<String>) -> Result<Vec<ValueSet>, Operati
                         if let Some(resource) = e.resource {
                             match *resource {
                                 Resource::ValueSet(vs) => {
-                                    value_sets.push(vs);
+                                    let data = resolver_data
+                                        .get_mut(&ResourceType::ValueSet)
+                                        .expect("Must have ValueSet");
+                                    data.insert(
+                                        vs.url
+                                            .clone()
+                                            .expect("VS Must have url")
+                                            .value
+                                            .expect("VS must have url"),
+                                        Resource::ValueSet(vs),
+                                    );
+                                }
+                                Resource::CodeSystem(cs) => {
+                                    let data = resolver_data
+                                        .get_mut(&ResourceType::CodeSystem)
+                                        .expect("Must have CodeSystem");
+                                    data.insert(
+                                        cs.url
+                                            .clone()
+                                            .expect("CS Must have url")
+                                            .value
+                                            .expect("CS must have url"),
+                                        Resource::CodeSystem(cs),
+                                    );
                                 }
                                 _ => {}
                             }
@@ -95,70 +141,110 @@ fn load_terminologies(file_paths: &Vec<String>) -> Result<Vec<ValueSet>, Operati
                     });
                 }
                 Resource::ValueSet(vs) => {
-                    value_sets.push(vs);
+                    let data = resolver_data
+                        .get_mut(&ResourceType::ValueSet)
+                        .expect("Must have ValueSet");
+                    data.insert(
+                        vs.url
+                            .clone()
+                            .expect("VS Must have url")
+                            .value
+                            .expect("VS must have url"),
+                        Resource::ValueSet(vs),
+                    );
+                }
+                Resource::CodeSystem(cs) => {
+                    let data = resolver_data
+                        .get_mut(&ResourceType::CodeSystem)
+                        .expect("Must have CodeSystem");
+                    data.insert(
+                        cs.url
+                            .clone()
+                            .expect("CS Must have url")
+                            .value
+                            .expect("CS must have url"),
+                        Resource::CodeSystem(cs),
+                    );
                 }
                 _ => {}
             }
         }
     }
 
-    Ok(value_sets)
+    Ok(Arc::new(resolver_data))
+}
+
+fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
+    Arc::new(Box::new(
+        move |resource_type: ResourceType,
+              url: String|
+              -> Pin<
+            Box<
+                dyn std::future::Future<Output = Result<Resource, OperationOutcomeError>>
+                    + Send
+                    + Sync,
+            >,
+        > {
+            let data = data.clone();
+            Box::pin(async move {
+                if let Some(resources) = data.clone().get(&resource_type)
+                    && let Some(resource) = resources.get(&url)
+                {
+                    Ok(resource.clone())
+                } else {
+                    Err(OperationOutcomeError::error(
+                        OperationOutcomeCodes::NotFound,
+                        format!("Could not resolve canonical url: {}", url),
+                    ))
+                }
+            })
+        },
+    ))
 }
 
 pub async fn generate_fhir_types_from_files(
     file_paths: &Vec<String>,
 ) -> Result<TokenStream, OperationOutcomeError> {
-    let config = get_config(ConfigType::Environment);
-    let services = create_services(config).await?;
-    let client = services.fhir_client.clone();
+    let data = load_terminologies(file_paths)?;
 
-    let value_sets = load_terminologies(file_paths)?;
-
-    let terminology = FHIRCanonicalTerminology::new(client);
-    let ctx = Arc::new(ServerCTX {
-        author: Author {
-            id: "root".to_string(),
-            kind: "admin".to_string(),
-        },
-        tenant: TenantId::System,
-        project: ProjectId::System,
-        fhir_version: oxidized_repository::types::SupportedFHIRVersions::R4,
-    });
+    let terminology = FHIRCanonicalTerminology::new(create_resolver(data.clone()));
 
     let mut codes = Vec::new();
 
-    for valueset_to_expand in value_sets {
-        let expanded_valueset = terminology
-            .expand(
-                ctx.clone(),
-                ValueSetExpand::Input {
-                    valueSet: Some(valueset_to_expand),
-                    url: None,
-                    valueSetVersion: None,
-                    context: None,
-                    contextDirection: None,
-                    filter: None,
-                    date: None,
-                    offset: None,
-                    count: None,
-                    includeDesignations: None,
-                    designation: None,
-                    includeDefinition: None,
-                    activeOnly: None,
-                    excludeNested: None,
-                    excludeNotForUI: None,
-                    excludePostCoordinated: None,
-                    displayLanguage: None,
-                    exclude_system: None,
-                    system_version: None,
-                    check_system_version: None,
-                    force_system_version: None,
-                },
-            )
-            .await?
-            .return_;
-
-        codes.push(generate_enum_variants(expanded_valueset));
+    for resource in data.get(&ResourceType::ValueSet).unwrap().values() {
+        match resource {
+            Resource::ValueSet(valueset) => {
+                let expanded_valueset = terminology
+                    .expand(ValueSetExpand::Input {
+                        valueSet: Some(valueset.clone()),
+                        url: None,
+                        valueSetVersion: None,
+                        context: None,
+                        contextDirection: None,
+                        filter: None,
+                        date: None,
+                        offset: None,
+                        count: None,
+                        includeDesignations: None,
+                        designation: None,
+                        includeDefinition: None,
+                        activeOnly: None,
+                        excludeNested: None,
+                        excludeNotForUI: None,
+                        excludePostCoordinated: None,
+                        displayLanguage: None,
+                        exclude_system: None,
+                        system_version: None,
+                        check_system_version: None,
+                        force_system_version: None,
+                    })
+                    .await;
+                if let Ok(expanded_valueset) = expanded_valueset {
+                    codes.push(generate_enum_variants(expanded_valueset.return_));
+                }
+            }
+            _ => panic!("Expected ValueSet resource"),
+        }
     }
 
     Ok(quote! {

@@ -22,7 +22,7 @@ pub type CanonicalResolution = Arc<
     Box<
         dyn Fn(
                 ResourceType,
-                &str,
+                String,
             ) -> Pin<
                 Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>,
             > + Send

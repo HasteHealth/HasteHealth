@@ -28,36 +28,12 @@ async fn resolve_valueset(
         return Ok(Some(valueset.clone()));
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
         let Resource::ValueSet(value_set) =
-            canonical_resolution(ResourceType::ValueSet, url).await?
+            canonical_resolution(ResourceType::ValueSet, url.to_string()).await?
         else {
             return Ok(None);
         };
 
         return Ok(Some(value_set));
-
-        // let mut result = client
-        //     .search_type(
-        //         ctx,
-        //         ResourceType::ValueSet,
-        //         vec![ParsedParameter::Resource(Parameter {
-        //             name: "url".to_string(),
-        //             value: vec![url.to_string()],
-        //             modifier: None,
-        //             chains: None,
-        //         })],
-        //     )
-        //     .await?;
-        // if result.len() > 1 {
-        //     return Err(OperationOutcomeError::error(
-        //         OperationOutcomeCodes::Duplicate,
-        //         format!("Multiple ValueSet resources found for url {}", url),
-        //     ));
-        // } else if let Some(resource) = result.pop() {
-        //     return match resource {
-        //         Resource::ValueSet(vs) => Ok(Some(vs)),
-        //         _ => Ok(None),
-        //     };
-        // }
     }
     Ok(None)
 }
@@ -87,35 +63,10 @@ async fn resolve_codesystem(
     url: &str,
 ) -> Result<Option<CodeSystem>, OperationOutcomeError> {
     let Resource::CodeSystem(code_system) =
-        canonical_resolution(ResourceType::CodeSystem, url).await?
+        canonical_resolution(ResourceType::CodeSystem, url.to_string()).await?
     else {
         return Ok(None);
     };
-
-    // let mut result = client
-    //     .search_type(
-    //         ctx,
-    //         ResourceType::CodeSystem,
-    //         vec![ParsedParameter::Resource(Parameter {
-    //             name: "url".to_string(),
-    //             value: vec![url.to_string()],
-    //             modifier: None,
-    //             chains: None,
-    //         })],
-    //     )
-    //     .await?;
-
-    // if result.len() > 1 {
-    //     return Err(OperationOutcomeError::error(
-    //         OperationOutcomeCodes::Duplicate,
-    //         format!("Multiple ValueSet resources found for url {}", url),
-    //     ));
-    // } else if let Some(resource) = result.pop() {
-    //     return match resource {
-    //         Resource::CodeSystem(code_system) => Ok(Some(code_system)),
-    //         _ => Ok(None),
-    //     };
-    // }
 
     Ok(Some(code_system))
 }

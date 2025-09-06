@@ -7,10 +7,7 @@ edition = "2024"
 oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
 oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-server = { path = "../server" }
-oxidized-config = { path = "../config" }
 oxidized-fhir-terminology = { path = "../fhir-terminology" }
-oxidized-repository = { path = "../repository" }
 oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
 indexmap = "2.10.0"
 once_cell = "1.21.3"
