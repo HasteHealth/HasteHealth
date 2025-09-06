@@ -5,10 +5,13 @@ use oxidized_fhir_client::{
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest},
     url::{Parameter, ParsedParameter},
 };
-use oxidized_fhir_model::r4::types::{
-    CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
-    CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, FHIRBoolean,
-    FHIRCode, FHIRString, Resource, ResourceType,
+use oxidized_fhir_model::r4::generated::{
+    resources::{
+        CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
+        CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
+        ResourceType,
+    },
+    types::{FHIRBoolean, FHIRCode, FHIRString},
 };
 use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};

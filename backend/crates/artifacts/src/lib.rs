@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::types::Resource;
+use oxidized_fhir_model::r4::generated::resources::Resource;
 use oxidized_macro_loads::load_artifacts;
 
 pub mod search_parameters;

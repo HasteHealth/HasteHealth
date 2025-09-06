@@ -1,5 +1,5 @@
 use oxidized_fhir_client::url::Parameter;
-use oxidized_fhir_model::r4::types::SearchParameter;
+use oxidized_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
 use crate::elastic_search::search::QueryBuildError;

@@ -1,6 +1,6 @@
 use crate::elastic_search::search::QueryBuildError;
 use oxidized_fhir_client::url::{Parameter };
-use oxidized_fhir_model::r4::types::SearchParameter;
+use oxidized_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
 pub fn quantity( parsed_parameter: &Parameter, search_param: &SearchParameter) -> Result<serde_json::Value, QueryBuildError> {

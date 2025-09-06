@@ -1,7 +1,8 @@
 use std::{error::Error, fmt::Display};
 
-use oxidized_fhir_model::r4::types::{
-    FHIRCode, FHIRString, OperationOutcome, OperationOutcomeIssue,
+use oxidized_fhir_model::r4::generated::{
+    resources::{OperationOutcome, OperationOutcomeIssue},
+    types::{FHIRCode, FHIRString},
 };
 
 #[cfg(feature = "derive")]
@@ -166,7 +167,10 @@ impl OperationOutcomeError {
         &self.outcome
     }
 
-    pub fn push_issue(&mut self, issue: oxidized_fhir_model::r4::types::OperationOutcomeIssue) {
+    pub fn push_issue(
+        &mut self,
+        issue: oxidized_fhir_model::r4::generated::resources::OperationOutcomeIssue,
+    ) {
         self.outcome.issue.push(issue);
     }
 
@@ -201,7 +205,7 @@ impl OperationOutcomeError {
 }
 
 fn get_issue_diagnostics<'a>(
-    issue: &'a oxidized_fhir_model::r4::types::OperationOutcomeIssue,
+    issue: &'a oxidized_fhir_model::r4::generated::resources::OperationOutcomeIssue,
 ) -> Option<&'a str> {
     issue
         .diagnostics

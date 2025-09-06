@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::types::{Resource, ResourceType, SearchParameter};
+use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use oxidized_macro_loads::load_artifacts;
 use std::{collections::HashMap, sync::Arc};
 

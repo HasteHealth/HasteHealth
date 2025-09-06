@@ -138,7 +138,7 @@ pub static FHIR_PRIMITIVE_VALUE_TYPE: Lazy<HashMap<String, String>> = Lazy::new(
 
 pub mod conversion {
     use super::{FHIR_PRIMITIVES, RUST_PRIMITIVES};
-    use oxidized_fhir_model::r4::types::ElementDefinition;
+    use oxidized_fhir_model::r4::generated::types::ElementDefinition;
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
@@ -190,7 +190,8 @@ pub mod conversion {
 }
 
 pub mod extract {
-    use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
+    use oxidized_fhir_model::r4::generated::resources::StructureDefinition;
+    use oxidized_fhir_model::r4::generated::types::ElementDefinition;
     pub fn field_types<'a>(element: &ElementDefinition) -> Vec<&str> {
         let codes = element
             .type_
@@ -271,7 +272,9 @@ pub mod extract {
 }
 
 pub mod generate {
-    use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
+    use oxidized_fhir_model::r4::generated::{
+        resources::StructureDefinition, types::ElementDefinition,
+    };
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
@@ -355,7 +358,9 @@ pub mod generate {
 }
 
 pub mod conditionals {
-    use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
+    use oxidized_fhir_model::r4::generated::{
+        resources::StructureDefinition, types::ElementDefinition,
+    };
 
     use crate::utilities::{FHIR_PRIMITIVES, RUST_PRIMITIVES, extract};
 
@@ -395,7 +400,7 @@ pub mod conditionals {
 pub mod load {
     use std::path::Path;
 
-    use oxidized_fhir_model::r4::types::{Resource, StructureDefinition};
+    use oxidized_fhir_model::r4::generated::resources::{Resource, StructureDefinition};
 
     use crate::utilities::extract;
 

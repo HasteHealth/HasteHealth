@@ -3,10 +3,10 @@ pub mod r4;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::r4::types::{Practitioner, Resource};
+    use crate::r4::generated::resources::{Practitioner, Resource};
     use oxidized_fhir_serialization_json::{FHIRJSONDeserializer, errors::DeserializeError};
     use oxidized_reflect::MetaValue;
-    use r4::types::{Address, Patient};
+    use r4::generated::{resources::Patient, types::Address};
     use serde_json;
 
     #[test]
@@ -267,7 +267,8 @@ mod tests {
 }
         "#;
 
-        let bundle: r4::types::Bundle = r4::types::Bundle::from_json_str(bundle).unwrap();
+        let bundle: r4::generated::resources::Bundle =
+            r4::generated::resources::Bundle::from_json_str(bundle).unwrap();
         assert_eq!(bundle.entry.as_ref().unwrap().len(), 2);
         let k = bundle.entry.as_ref().unwrap()[0]
             .resource

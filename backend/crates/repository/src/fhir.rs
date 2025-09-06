@@ -5,8 +5,8 @@ use crate::types::{
 use oxidized_fhir_client::request::{
     FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
 };
+use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_model::r4::sqlx::FHIRJson;
-use oxidized_fhir_model::r4::types::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 pub struct ResourcePollingValue {
@@ -58,9 +58,7 @@ pub trait FHIRRepository: Sized {
         project_id: &ProjectId,
         resource_type: &ResourceType,
         resource_id: &ResourceId,
-    ) -> impl Future<
-        Output = Result<Option<oxidized_fhir_model::r4::types::Resource>, OperationOutcomeError>,
-    > + Send;
+    ) -> impl Future<Output = Result<Option<Resource>, OperationOutcomeError>> + Send;
     fn history(
         &self,
         tenant_id: &TenantId,

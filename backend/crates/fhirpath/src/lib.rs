@@ -11,8 +11,13 @@ pub use error::FHIRPathError;
 use std::{cell::RefCell, collections::HashSet, marker::PhantomData, rc::Rc, sync::Arc};
 // use owning_ref::BoxRef;
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::types::{
-    FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt, ResourceType,
+use oxidized_fhir_model::r4::generated::{
+    resources::ResourceType,
+    types::{
+        FHIRBase64Binary, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal, FHIRInteger, FHIROid,
+        FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid, FHIRXhtml,
+        Reference,
+    },
 };
 use oxidized_reflect::MetaValue;
 use oxidized_reflect_derive::Reflect;
@@ -236,14 +241,14 @@ fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
         "FHIRBase64Binary" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRBase64Binary>()
+                .downcast_ref::<FHIRBase64Binary>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRCanonical" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRCanonical>()
+                .downcast_ref::<FHIRCanonical>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
@@ -251,42 +256,42 @@ fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
         "FHIRCode" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRCode>()
+                .downcast_ref::<FHIRCode>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRString" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRString>()
+                .downcast_ref::<FHIRString>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIROid" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIROid>()
+                .downcast_ref::<FHIROid>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRUri" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRUri>()
+                .downcast_ref::<FHIRUri>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRUrl" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRUrl>()
+                .downcast_ref::<FHIRUrl>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
         "FHIRUuid" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRUuid>()
+                .downcast_ref::<FHIRUuid>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
         }
@@ -294,7 +299,7 @@ fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
         "FHIRXhtml" => {
             let fp_string = value
                 .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::FHIRXhtml>()
+                .downcast_ref::<FHIRXhtml>()
                 .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
             downcast_string(&fp_string.value)
         }
@@ -413,10 +418,7 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
     match value.typename() {
         // Special handling for reference which is to check the reference type.
         "Reference" => {
-            if let Some(reference) = value
-                .as_any()
-                .downcast_ref::<oxidized_fhir_model::r4::types::Reference>()
-            {
+            if let Some(reference) = value.as_any().downcast_ref::<Reference>() {
                 if let Some(resource_type) = reference
                     .reference
                     .as_ref()
@@ -805,8 +807,11 @@ impl FPEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::types::{
-        FHIRString, HumanName, Identifier, Patient, Reference, Resource, SearchParameter,
+    use oxidized_fhir_model::r4::generated::{
+        resources::{Bundle, Patient, Resource, SearchParameter},
+        types::{
+            Extension, ExtensionValueTypeChoice, FHIRString, HumanName, Identifier, Reference,
+        },
     };
     use oxidized_fhir_serialization_json;
     use oxidized_reflect_derive::Reflect;
@@ -829,10 +834,7 @@ mod tests {
     fn load_search_parameters() -> Vec<SearchParameter> {
         let json =
             include_str!("../../artifacts/artifacts/r4/hl7/minified/search-parameters.min.json");
-        let bundle = oxidized_fhir_serialization_json::from_str::<
-            oxidized_fhir_model::r4::types::Bundle,
-        >(json)
-        .unwrap();
+        let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(json).unwrap();
 
         let search_parameters: Vec<SearchParameter> = bundle
             .entry
@@ -857,19 +859,15 @@ mod tests {
         let engine = FPEngine::new();
         let mut patient = Patient::default();
         let mut identifier = Identifier::default();
-        let mut extension = oxidized_fhir_model::r4::types::Extension {
+        let mut extension = Extension {
             id: None,
             url: "test-extension".to_string(),
             extension: None,
-            value: Some(
-                oxidized_fhir_model::r4::types::ExtensionValueTypeChoice::String(Box::new(
-                    FHIRString {
-                        id: None,
-                        extension: None,
-                        value: Some("example value".to_string()),
-                    },
-                )),
-            ),
+            value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
+                id: None,
+                extension: None,
+                value: Some("example value".to_string()),
+            }))),
         };
         identifier.value = Some(Box::new(FHIRString {
             id: None,
@@ -926,7 +924,7 @@ mod tests {
             extension: None,
             value: Some("mrn-12345".to_string()),
         }));
-        mrn_identifier.system = Some(Box::new(oxidized_fhir_model::r4::types::FHIRUri {
+        mrn_identifier.system = Some(Box::new(FHIRUri {
             id: None,
             extension: None,
             value: Some("mrn".to_string()),
@@ -938,13 +936,13 @@ mod tests {
             extension: None,
             value: Some("ssn-12345".to_string()),
         }));
-        ssn_identifier.system = Some(Box::new(oxidized_fhir_model::r4::types::FHIRUri {
+        ssn_identifier.system = Some(Box::new(FHIRUri {
             id: None,
             extension: None,
             value: Some("ssn".to_string()),
         }));
 
-        mrn_identifier.system = Some(Box::new(oxidized_fhir_model::r4::types::FHIRUri {
+        mrn_identifier.system = Some(Box::new(FHIRUri {
             id: None,
             extension: None,
             value: Some("mrn".to_string()),

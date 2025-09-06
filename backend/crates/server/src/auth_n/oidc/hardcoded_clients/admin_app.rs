@@ -1,5 +1,8 @@
 use oxidized_config::Config;
-use oxidized_fhir_model::r4::types::{ClientApplication, FHIRCode, FHIRString};
+use oxidized_fhir_model::r4::generated::{
+    resources::ClientApplication,
+    types::{FHIRCode, FHIRString},
+};
 use oxidized_repository::types::TenantId;
 
 pub fn get_admin_app(config: &Box<dyn Config>) -> Option<ClientApplication> {

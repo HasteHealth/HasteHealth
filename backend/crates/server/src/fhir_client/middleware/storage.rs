@@ -8,7 +8,10 @@ use oxidized_fhir_client::{
     },
     url::ParsedParameter,
 };
-use oxidized_fhir_model::r4::types::{Bundle, BundleEntry, FHIRCode, Resource};
+use oxidized_fhir_model::r4::generated::{
+    resources::{Bundle, BundleEntry, Resource},
+    types::FHIRCode,
+};
 
 use crate::{
     fhir_client::{

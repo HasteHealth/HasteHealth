@@ -2,7 +2,7 @@ use crate::{elastic_search::search::QueryBuildError, indexing_conversion::date_t
 use oxidized_fhir_client::url::Parameter;
 use oxidized_fhir_model::r4::{
     datetime::parse_datetime,
-    types::SearchParameter,
+    generated::resources::SearchParameter,
 };
 use serde_json::json;
 

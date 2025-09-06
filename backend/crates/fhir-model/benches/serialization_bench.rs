@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use oxidized_fhir_model::r4::types::Patient;
+use oxidized_fhir_model::r4::generated::resources::Patient;
 use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
 
 fn complex_patient(c: &mut Criterion) {

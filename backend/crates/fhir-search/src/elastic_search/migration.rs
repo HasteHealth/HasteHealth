@@ -72,7 +72,7 @@ fn reference_index_mapping() -> serde_json::Value {
 }
 
 pub async fn create_elasticsearch_searchparameter_mappings(
-    search_parameters: &Vec<Arc<oxidized_fhir_model::r4::types::SearchParameter>>,
+    search_parameters: &Vec<Arc<oxidized_fhir_model::r4::generated::resources::SearchParameter>>,
 ) -> Result<Value, OperationOutcomeError> {
     let mut property_mapping: HashMap<String, Value> = HashMap::new();
     for parameter in search_parameters.iter() {

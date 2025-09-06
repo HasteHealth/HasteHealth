@@ -1,4 +1,6 @@
-use oxidized_fhir_model::r4::types::{ElementDefinition, StructureDefinition};
+use oxidized_fhir_model::r4::generated::{
+    resources::StructureDefinition, types::ElementDefinition,
+};
 use regex::Regex;
 
 fn ele_index_to_child_indices(
@@ -82,7 +84,7 @@ where
 #[cfg(test)]
 mod tests {
 
-    use oxidized_fhir_model::r4::types::{Bundle, Resource};
+    use oxidized_fhir_model::r4::generated::resources::{Bundle, Resource};
 
     use super::*;
 
