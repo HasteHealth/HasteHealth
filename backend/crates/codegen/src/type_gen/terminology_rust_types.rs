@@ -9,11 +9,7 @@ use oxidized_fhir_terminology::{
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::{
-    collections::{BTreeMap, HashMap},
-    pin::Pin,
-    sync::Arc,
-};
+use std::{collections::BTreeMap, pin::Pin, sync::Arc};
 use walkdir::WalkDir;
 
 fn flatten_concepts(contains: ValueSetExpansionContains) -> Vec<Box<FHIRCode>> {
