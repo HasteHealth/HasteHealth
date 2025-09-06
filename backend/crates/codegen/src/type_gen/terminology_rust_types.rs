@@ -9,7 +9,11 @@ use oxidized_fhir_terminology::{
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::{collections::HashMap, pin::Pin, sync::Arc};
+use std::{
+    collections::{BTreeMap, HashMap},
+    pin::Pin,
+    sync::Arc,
+};
 use walkdir::WalkDir;
 
 fn flatten_concepts(contains: ValueSetExpansionContains) -> Vec<Box<FHIRCode>> {
@@ -98,14 +102,14 @@ fn generate_enum_variants(value_set: ValueSet) -> TokenStream {
     quote! {}
 }
 
-type ResolverData = HashMap<ResourceType, HashMap<String, Resource>>;
+type ResolverData = BTreeMap<ResourceType, BTreeMap<String, Resource>>;
 
 fn load_terminologies(
     file_paths: &Vec<String>,
 ) -> Result<Arc<ResolverData>, OperationOutcomeError> {
-    let mut resolver_data: ResolverData = HashMap::new();
-    resolver_data.insert(ResourceType::ValueSet, HashMap::new());
-    resolver_data.insert(ResourceType::CodeSystem, HashMap::new());
+    let mut resolver_data: ResolverData = BTreeMap::new();
+    resolver_data.insert(ResourceType::ValueSet, BTreeMap::new());
+    resolver_data.insert(ResourceType::CodeSystem, BTreeMap::new());
 
     for dir_path in file_paths {
         let walker = WalkDir::new(dir_path).into_iter();

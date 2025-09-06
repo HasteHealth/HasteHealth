@@ -30337,7 +30337,9 @@ pub enum ResourceTypeError {
     #[error("Invalid resource type: {0}")]
     Invalid(String),
 }
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde :: Deserialize, serde :: Serialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, serde :: Deserialize, serde :: Serialize, PartialOrd, Ord,
+)]
 pub enum ResourceType {
     Account,
     ActivityDefinition,
