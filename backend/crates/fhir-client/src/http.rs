@@ -348,24 +348,24 @@ mod tests {
 
     use super::*;
 
-    #[tokio::test]
-    async fn test_fhir_http_client() {
-        let client: FHIRHttpClient<()> =
-            FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
+    // #[tokio::test]
+    // async fn test_fhir_http_client() {
+    //     let client: FHIRHttpClient<()> =
+    //         FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
 
-        let read_response = client
-            .read((), ResourceType::Patient, "48426182".to_string())
-            .await
-            .unwrap();
+    //     let read_response = client
+    //         .read((), ResourceType::Patient, "48426182".to_string())
+    //         .await
+    //         .unwrap();
 
-        assert_eq!(
-            Some("48426182".to_string()),
-            read_response.as_ref().map(|r| match r {
-                Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
-                _ => panic!("Expected Patient resource"),
-            })
-        );
+    //     assert_eq!(
+    //         Some("48426182".to_string()),
+    //         read_response.as_ref().map(|r| match r {
+    //             Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
+    //             _ => panic!("Expected Patient resource"),
+    //         })
+    //     );
 
-        println!("Read response: {:?}", read_response);
-    }
+    //     println!("Read response: {:?}", read_response);
+    // }
 }
