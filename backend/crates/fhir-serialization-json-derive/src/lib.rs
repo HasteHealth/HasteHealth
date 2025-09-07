@@ -32,17 +32,14 @@ fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
     attributes(
         fhir_serialize_type,
         rename_field,
-
         // Used on the enum itself for typechoice.
         type_choice_field_name,
-
          // Used on field itself for variants.
         type_choice_variants,
-
         primitive,
+        code
     )
 )]
-
 pub fn serialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -56,6 +53,9 @@ pub fn serialize(input: TokenStream) -> TokenStream {
         }
         "resource" => {
             serialize::complex_serialization(input, serialize::ComplexSerializeType::Resource)
+        }
+        "value-set" => {
+            serialize::value_set_serialization(input)
         }
         "enum-variant" => serialize::enum_variant_serialization(input),
         // Some("typechoice") => typechoice_serialization(input),

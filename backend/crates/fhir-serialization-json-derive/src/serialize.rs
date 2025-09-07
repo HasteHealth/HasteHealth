@@ -265,8 +265,20 @@ pub fn complex_serialization(
     }
 }
 
+pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
+    match input.data {
+        Data::Enum(data) => {
+            panic!();
+
+            let variants_serialize_value 
+        }
+        _ => panic!("Value set serialization only works for enums"),
+    }
+}
+
 pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
-    let name = input.ident;
+    let enum_name = input.ident;
+    
     match input.data {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
@@ -298,7 +310,7 @@ pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #name {
+                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #enum_name {
                     fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
                         match self {
                             #(#variants_serialize_value),*
