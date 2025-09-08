@@ -267,10 +267,8 @@ pub fn complex_serialization(
 
 pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
     match input.data {
-        Data::Enum(data) => {
-            panic!();
-
-            let variants_serialize_value 
+        Data::Enum(_data) => {
+            todo!("Fail");
         }
         _ => panic!("Value set serialization only works for enums"),
     }
@@ -278,7 +276,7 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
 
 pub fn enum_variant_serialization(input: DeriveInput) -> TokenStream {
     let enum_name = input.ident;
-    
+
     match input.data {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
