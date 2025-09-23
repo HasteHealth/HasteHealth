@@ -259,7 +259,10 @@ where
     }
 
     fn as_any(&self) -> &dyn Any {
-        self
+        match self {
+            Some(value) => value.as_any(),
+            None => self,
+        }
     }
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {

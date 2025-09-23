@@ -347,8 +347,7 @@ pub fn storage<
                             .get_field("id")
                             .unwrap()
                             .as_any()
-                            .downcast_ref::<Option<String>>()
-                            .unwrap()
+                            .downcast_ref::<String>()
                             .clone();
 
                         // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
@@ -417,8 +416,7 @@ pub fn storage<
                                 )
                             })?
                             .as_any()
-                            .downcast_ref::<Option<String>>()
-                            .unwrap();
+                            .downcast_ref::<String>();
 
                         // If body has resource Id verify it's the same as one in search result.
                         if resource_id_body.is_some()
