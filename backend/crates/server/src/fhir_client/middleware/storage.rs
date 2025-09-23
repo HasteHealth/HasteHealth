@@ -348,7 +348,7 @@ pub fn storage<
                             .unwrap()
                             .as_any()
                             .downcast_ref::<String>()
-                            .clone();
+                            .cloned();
 
                         // From R5 but Applying here on all versions to dissallow updating a Resource if it already exists
                         if let Some(id) = id {
