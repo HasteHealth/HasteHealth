@@ -14,12 +14,13 @@ pub async fn generate(
     file_paths: &Vec<String>,
     level: Option<&'static str>,
 ) -> Result<GeneratedTypes, OperationOutcomeError> {
-    let data_types = data_types::generate(file_paths, level)
-        .map_err(|d| OperationOutcomeError::error(OperationOutcomeCodes::Exception, d))?;
     let terminology_types = terminology::generate(file_paths).await?;
 
+    let data_types = data_types::generate(file_paths, level)
+        .map_err(|d| OperationOutcomeError::error(OperationOutcomeCodes::Exception, d))?;
+
     Ok(GeneratedTypes {
-        terminology: terminology_types,
+        terminology: terminology_types.tokens,
         resources: data_types.resources,
         types: data_types.types,
     })
