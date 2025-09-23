@@ -81,6 +81,8 @@ fn format_string(id: &str) -> String {
         format!("V{}", safe_string)
     } else if safe_string == "Self" {
         format!("_Self")
+    } else if safe_string == "Null" {
+        format!("_Null")
     } else {
         safe_string
     }
