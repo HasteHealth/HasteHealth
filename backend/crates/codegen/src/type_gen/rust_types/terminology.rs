@@ -10,7 +10,7 @@ use oxidized_fhir_terminology::{
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{
-    collections::{BTreeMap, BTreeSet, HashSet},
+    collections::{BTreeMap, HashSet},
     pin::Pin,
     sync::Arc,
 };
@@ -22,16 +22,19 @@ struct Code {
     code: String,
 }
 
-fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeSet<Code> {
-    let mut codes = BTreeSet::new();
+fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeMap<String, Code> {
+    let mut codes = BTreeMap::new();
 
     if let Some(code) = contains.code
         && let Some(code_string) = code.value.as_ref()
     {
-        codes.insert(Code {
-            description: contains.display.and_then(|d| d.value),
-            code: code_string.to_string(),
-        });
+        codes.insert(
+            code_string.to_string(),
+            Code {
+                description: contains.display.and_then(|d| d.value),
+                code: code_string.to_string(),
+            },
+        );
     }
     for contains in contains.contains.unwrap_or_default().into_iter() {
         codes.extend(flatten_concepts(contains));
@@ -103,7 +106,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             .unwrap_or_default();
 
         if codes.len() > 0 && codes.len() < 100 {
-            let enum_variants = codes.into_iter().map(|code| {
+            let enum_variants = codes.into_iter().map(|(_code, code)| {
                 let code_ident = format_ident!("{}", format_string(&code.code));
                 let description = code.description.map_or(quote! {}, |d| {
                     quote! {#[doc = #d]

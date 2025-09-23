@@ -178,12 +178,12 @@ pub enum Additionalmaterials {
     Xray(Option<Element>),
 }
 pub enum AddressType {
+    #[doc = "Postal & Physical"]
+    Both(Option<Element>),
     #[doc = "Physical"]
     Physical(Option<Element>),
     #[doc = "Postal"]
     Postal(Option<Element>),
-    #[doc = "Postal & Physical"]
-    Both(Option<Element>),
 }
 pub enum AddressUse {
     #[doc = "Billing"]
@@ -204,10 +204,10 @@ pub enum Adjudication {
     Copay(Option<Element>),
     #[doc = "Deductible"]
     Deductible(Option<Element>),
-    #[doc = "Eligible %"]
-    Eligpercent(Option<Element>),
     #[doc = "Eligible Amount"]
     Eligible(Option<Element>),
+    #[doc = "Eligible %"]
+    Eligpercent(Option<Element>),
     #[doc = "Submitted Amount"]
     Submitted(Option<Element>),
     #[doc = "Tax"]
@@ -216,10 +216,10 @@ pub enum Adjudication {
     Unallocdeduct(Option<Element>),
 }
 pub enum AdjudicationError {
-    #[doc = "Missing Creation Date"]
-    A002(Option<Element>),
     #[doc = "Missing Identifier"]
     A001(Option<Element>),
+    #[doc = "Missing Creation Date"]
+    A002(Option<Element>),
 }
 pub enum AdjudicationReason {
     #[doc = "Not covered"]
@@ -310,22 +310,22 @@ pub enum AdverseEventOutcome {
     Unknown(Option<Element>),
 }
 pub enum AdverseEventSeriousness {
-    #[doc = "Is Life-threatening"]
-    SeriousIsLifeThreatening(Option<Element>),
-    #[doc = "Is a congenital anomaly/birth defect"]
-    SeriousIsBirthDefect(Option<Element>),
     #[doc = "Non-serious"]
     NonSerious(Option<Element>),
+    #[doc = "Serious"]
+    Serious(Option<Element>),
+    #[doc = "Is a congenital anomaly/birth defect"]
+    SeriousIsBirthDefect(Option<Element>),
+    #[doc = "Is Life-threatening"]
+    SeriousIsLifeThreatening(Option<Element>),
     #[doc = "Requires intervention to prevent permanent impairment"]
     SeriousRequiresPreventImpairment(Option<Element>),
-    #[doc = "Requires or prolongs inpatient hospitalization"]
-    SeriousResultsInHospitalization(Option<Element>),
     #[doc = "Results in death"]
     SeriousResultsInDeath(Option<Element>),
     #[doc = "Results in persistent or significant disability/incapacity"]
     SeriousResultsInDisability(Option<Element>),
-    #[doc = "Serious"]
-    Serious(Option<Element>),
+    #[doc = "Requires or prolongs inpatient hospitalization"]
+    SeriousResultsInHospitalization(Option<Element>),
 }
 pub enum AdverseEventSeverity {
     #[doc = "Mild"]
@@ -336,6 +336,8 @@ pub enum AdverseEventSeverity {
     Severe(Option<Element>),
 }
 pub enum AgeUnits {
+    #[doc = "years"]
+    A(Option<Element>),
     #[doc = "days"]
     D(Option<Element>),
     #[doc = "hours"]
@@ -346,8 +348,6 @@ pub enum AgeUnits {
     Mo(Option<Element>),
     #[doc = "weeks"]
     Wk(Option<Element>),
-    #[doc = "years"]
-    A(Option<Element>),
 }
 pub enum AllergIntolSubstanceExpRisk {
     #[doc = "Known Reaction Risk"]
@@ -406,26 +406,26 @@ pub enum AnimalGenderstatus {
     Unknown(Option<Element>),
 }
 pub enum AnimalSpecies {
-    #[doc = "chicken"]
-    V47290002(Option<Element>),
-    #[doc = "cow"]
-    V34618005(Option<Element>),
-    #[doc = "donkey"]
-    V85626006(Option<Element>),
-    #[doc = "duck"]
-    V396620009(Option<Element>),
     #[doc = "goat"]
     V125097000(Option<Element>),
-    #[doc = "goose"]
-    V15778005(Option<Element>),
-    #[doc = "horse"]
-    V388445009(Option<Element>),
-    #[doc = "mule"]
-    V132950000(Option<Element>),
     #[doc = "sheep"]
     V125099002(Option<Element>),
+    #[doc = "mule"]
+    V132950000(Option<Element>),
+    #[doc = "goose"]
+    V15778005(Option<Element>),
+    #[doc = "cow"]
+    V34618005(Option<Element>),
+    #[doc = "horse"]
+    V388445009(Option<Element>),
+    #[doc = "duck"]
+    V396620009(Option<Element>),
     #[doc = "turkey"]
     V425134008(Option<Element>),
+    #[doc = "chicken"]
+    V47290002(Option<Element>),
+    #[doc = "donkey"]
+    V85626006(Option<Element>),
 }
 pub enum Appointmentstatus {
     #[doc = "Arrived"]
@@ -522,14 +522,14 @@ pub enum AuditEventAction {
     U(Option<Element>),
 }
 pub enum AuditEventOutcome {
+    #[doc = "Success"]
+    V0(Option<Element>),
     #[doc = "Major failure"]
     V12(Option<Element>),
     #[doc = "Minor failure"]
     V4(Option<Element>),
     #[doc = "Serious failure"]
     V8(Option<Element>),
-    #[doc = "Success"]
-    V0(Option<Element>),
 }
 pub enum AuditEventSubType {
     V110120(Option<Element>),
@@ -608,18 +608,16 @@ pub enum AuditEventType {
     V110114(Option<Element>),
     #[doc = "Access/View Record Lifecycle Event"]
     Access(Option<Element>),
-    #[doc = "Add Legal Hold Record Lifecycle Event"]
-    Hold(Option<Element>),
     #[doc = "Amend (Update) Record Lifecycle Event"]
     Amend(Option<Element>),
     #[doc = "Archive Record Lifecycle Event"]
     Archive(Option<Element>),
     #[doc = "Attest Record Lifecycle Event"]
     Attest(Option<Element>),
-    #[doc = "De-Identify (Anononymize) Record Lifecycle Event"]
-    Deidentify(Option<Element>),
     #[doc = "Decrypt Record Lifecycle Event"]
     Decrypt(Option<Element>),
+    #[doc = "De-Identify (Anononymize) Record Lifecycle Event"]
+    Deidentify(Option<Element>),
     #[doc = "Deprecate Record Lifecycle Event"]
     Deprecate(Option<Element>),
     #[doc = "Destroy/Delete Record Lifecycle Event"]
@@ -630,6 +628,8 @@ pub enum AuditEventType {
     Encrypt(Option<Element>),
     #[doc = "Extract Record Lifecycle Event"]
     Extract(Option<Element>),
+    #[doc = "Add Legal Hold Record Lifecycle Event"]
+    Hold(Option<Element>),
     #[doc = "Link Record Lifecycle Event"]
     Link(Option<Element>),
     #[doc = "Merge Record Lifecycle Event"]
@@ -638,24 +638,24 @@ pub enum AuditEventType {
     Originate(Option<Element>),
     #[doc = "Pseudonymize Record Lifecycle Event"]
     Pseudonymize(Option<Element>),
-    #[doc = "RESTful Operation"]
-    Rest(Option<Element>),
     #[doc = "Re-activate Record Lifecycle Event"]
     Reactivate(Option<Element>),
-    #[doc = "Re-identify Record Lifecycle Event"]
-    Reidentify(Option<Element>),
     #[doc = "Receive/Retain Record Lifecycle Event"]
     Receive(Option<Element>),
-    #[doc = "Remove Legal Hold Record Lifecycle Event"]
-    Unhold(Option<Element>),
+    #[doc = "Re-identify Record Lifecycle Event"]
+    Reidentify(Option<Element>),
     #[doc = "Report (Output) Record Lifecycle Event"]
     Report(Option<Element>),
+    #[doc = "RESTful Operation"]
+    Rest(Option<Element>),
     #[doc = "Restore Record Lifecycle Event"]
     Restore(Option<Element>),
     #[doc = "Transform/Translate Record Lifecycle Event"]
     Transform(Option<Element>),
     #[doc = "Transmit Record Lifecycle Event"]
     Transmit(Option<Element>),
+    #[doc = "Remove Legal Hold Record Lifecycle Event"]
+    Unhold(Option<Element>),
     #[doc = "Unlink Record Lifecycle Event"]
     Unlink(Option<Element>),
     #[doc = "Unmerge Record Lifecycle Event"]
@@ -664,28 +664,30 @@ pub enum AuditEventType {
     Verify(Option<Element>),
 }
 pub enum AuditSourceType {
-    #[doc = "Application Server"]
-    V4(Option<Element>),
+    #[doc = "User Device"]
+    V1(Option<Element>),
     #[doc = "Data Interface"]
     V2(Option<Element>),
+    #[doc = "Web Server"]
+    V3(Option<Element>),
+    #[doc = "Application Server"]
+    V4(Option<Element>),
     #[doc = "Database Server"]
     V5(Option<Element>),
+    #[doc = "Security Server"]
+    V6(Option<Element>),
     #[doc = "Network Device"]
     V7(Option<Element>),
     #[doc = "Network Router"]
     V8(Option<Element>),
     #[doc = "Other"]
     V9(Option<Element>),
-    #[doc = "Security Server"]
-    V6(Option<Element>),
-    #[doc = "User Device"]
-    V1(Option<Element>),
-    #[doc = "Web Server"]
-    V3(Option<Element>),
 }
 pub enum BasicResourceType {
     #[doc = "Account"]
     Account(Option<Element>),
+    #[doc = "Invoice Adjudication"]
+    Adjudicat(Option<Element>),
     #[doc = "Administrative Activity"]
     Adminact(Option<Element>),
     #[doc = "Adverse Event"]
@@ -702,12 +704,10 @@ pub enum BasicResourceType {
     Investigation(Option<Element>),
     #[doc = "Invoice"]
     Invoice(Option<Element>),
-    #[doc = "Invoice Adjudication"]
-    Adjudicat(Option<Element>),
-    #[doc = "Pre-determination Request"]
-    Predetreq(Option<Element>),
     #[doc = "Predetermination"]
     Predetermine(Option<Element>),
+    #[doc = "Pre-determination Request"]
+    Predetreq(Option<Element>),
     #[doc = "Protocol"]
     Protocol(Option<Element>),
     #[doc = "Referral"]
@@ -734,12 +734,12 @@ pub enum BenefitTerm {
 pub enum BenefitType {
     #[doc = "Benefit"]
     Benefit(Option<Element>),
-    #[doc = "Copayment Percent per service"]
-    CopayPercent(Option<Element>),
-    #[doc = "Copayment maximum per service"]
-    CopayMaximum(Option<Element>),
     #[doc = "Copayment per service"]
     Copay(Option<Element>),
+    #[doc = "Copayment maximum per service"]
+    CopayMaximum(Option<Element>),
+    #[doc = "Copayment Percent per service"]
+    CopayPercent(Option<Element>),
     #[doc = "Deductible"]
     Deductible(Option<Element>),
     #[doc = "Medical Primary Health Coverage"]
@@ -774,38 +774,38 @@ pub enum BindingStrength {
     Required(Option<Element>),
 }
 pub enum BodysiteLaterality {
-    #[doc = "Bilateral"]
-    V51440002(Option<Element>),
     #[doc = "Unilateral left"]
     V419161000(Option<Element>),
     #[doc = "Unilateral right"]
     V419465000(Option<Element>),
+    #[doc = "Bilateral"]
+    V51440002(Option<Element>),
 }
 pub enum BodystructureRelativeLocation {
-    #[doc = "Above"]
-    V352730000(Option<Element>),
-    #[doc = "Below"]
-    V351726001(Option<Element>),
-    #[doc = "Bilateral"]
-    V51440002(Option<Element>),
-    #[doc = "Inferior"]
-    V261089000(Option<Element>),
-    #[doc = "Lateral"]
-    V49370004(Option<Element>),
-    #[doc = "Lower"]
-    V261122009(Option<Element>),
-    #[doc = "Medial"]
-    V255561001(Option<Element>),
     #[doc = "Posterior"]
     V255551008(Option<Element>),
+    #[doc = "Medial"]
+    V255561001(Option<Element>),
+    #[doc = "Inferior"]
+    V261089000(Option<Element>),
+    #[doc = "Lower"]
+    V261122009(Option<Element>),
+    #[doc = "Upper"]
+    V261183002(Option<Element>),
     #[doc = "Superior"]
     V264217000(Option<Element>),
+    #[doc = "Below"]
+    V351726001(Option<Element>),
+    #[doc = "Above"]
+    V352730000(Option<Element>),
     #[doc = "Unilateral left"]
     V419161000(Option<Element>),
     #[doc = "Unilateral right"]
     V419465000(Option<Element>),
-    #[doc = "Upper"]
-    V261183002(Option<Element>),
+    #[doc = "Lateral"]
+    V49370004(Option<Element>),
+    #[doc = "Bilateral"]
+    V51440002(Option<Element>),
 }
 pub enum BundleType {
     #[doc = "Batch"]
@@ -828,164 +828,164 @@ pub enum BundleType {
     TransactionResponse(Option<Element>),
 }
 pub enum C80Facilitycodes {
-    #[doc = "Adult day care center"]
-    V413456002(Option<Element>),
-    #[doc = "Ambulance-based care"]
-    V11424001(Option<Element>),
-    #[doc = "Ambulatory care site--OTHER--NOT LISTED"]
-    V35971002(Option<Element>),
-    #[doc = "Ambulatory surgery center"]
-    V405607001(Option<Element>),
-    #[doc = "Care of the elderly day hospital"]
-    V309900005(Option<Element>),
-    #[doc = "Child day care center"]
-    V413817003(Option<Element>),
-    #[doc = "Contained casualty setting"]
-    V409519008(Option<Element>),
-    #[doc = "Dialysis unit--hospital"]
-    V418518002(Option<Element>),
-    #[doc = "Elderly assessment clinic"]
-    V275576008(Option<Element>),
-    #[doc = "Emergency department--hospital"]
-    V73770003(Option<Element>),
-    #[doc = "Fee-for-service private physicians' group office"]
-    V19602009(Option<Element>),
-    #[doc = "Free-standing ambulatory surgery facility"]
-    V10531005(Option<Element>),
-    #[doc = "Free-standing birthing center"]
-    V91154008(Option<Element>),
-    #[doc = "Free-standing geriatric health center"]
-    V41844007(Option<Element>),
-    #[doc = "Free-standing laboratory facility"]
-    V45899008(Option<Element>),
-    #[doc = "Free-standing mental health center"]
-    V51563005(Option<Element>),
-    #[doc = "Free-standing radiology facility"]
-    V1773006(Option<Element>),
-    #[doc = "Health encounter site--NOT LISTED"]
-    V394777002(Option<Element>),
-    #[doc = "Health maintenance organization"]
-    V72311000(Option<Element>),
-    #[doc = "Helicopter-based care"]
-    V901005(Option<Element>),
-    #[doc = "Hospice facility"]
-    V284546000(Option<Element>),
-    #[doc = "Hospital ambulatory surgery facility"]
-    V69362002(Option<Element>),
-    #[doc = "Hospital birthing center"]
-    V52668009(Option<Element>),
-    #[doc = "Hospital outpatient allergy clinic"]
-    V360957003(Option<Element>),
     #[doc = "Hospital outpatient dental clinic"]
     V10206005(Option<Element>),
-    #[doc = "Hospital outpatient dermatology clinic"]
-    V37550003(Option<Element>),
-    #[doc = "Hospital outpatient endocrinology clinic"]
-    V73644007(Option<Element>),
-    #[doc = "Hospital outpatient family medicine clinic"]
-    V31628002(Option<Element>),
-    #[doc = "Hospital outpatient gastroenterology clinic"]
-    V58482006(Option<Element>),
-    #[doc = "Hospital outpatient general surgery clinic"]
-    V90484001(Option<Element>),
-    #[doc = "Hospital outpatient geriatric health center"]
-    V1814000(Option<Element>),
-    #[doc = "Hospital outpatient gynecology clinic"]
-    V22549003(Option<Element>),
-    #[doc = "Hospital outpatient hematology clinic"]
-    V56293002(Option<Element>),
-    #[doc = "Hospital outpatient immunology clinic"]
-    V360966004(Option<Element>),
-    #[doc = "Hospital outpatient infectious disease clinic"]
-    V2849009(Option<Element>),
+    #[doc = "Free-standing ambulatory surgery facility"]
+    V10531005(Option<Element>),
+    #[doc = "Ambulance-based care"]
+    V11424001(Option<Element>),
     #[doc = "Hospital outpatient mental health center"]
     V14866005(Option<Element>),
-    #[doc = "Hospital outpatient neurology clinic"]
-    V38238005(Option<Element>),
-    #[doc = "Hospital outpatient obstetrical clinic"]
-    V56189001(Option<Element>),
-    #[doc = "Hospital outpatient oncology clinic"]
-    V89972002(Option<Element>),
-    #[doc = "Hospital outpatient ophthalmology clinic"]
-    V78088001(Option<Element>),
-    #[doc = "Hospital outpatient orthopedics clinic"]
-    V78001009(Option<Element>),
+    #[doc = "Free-standing radiology facility"]
+    V1773006(Option<Element>),
+    #[doc = "Hospital outpatient geriatric health center"]
+    V1814000(Option<Element>),
+    #[doc = "Fee-for-service private physicians' group office"]
+    V19602009(Option<Element>),
+    #[doc = "Substance abuse treatment center"]
+    V20078004(Option<Element>),
+    #[doc = "Hospital ship"]
+    V2081004(Option<Element>),
+    #[doc = "Hospital-prison"]
+    V224687002(Option<Element>),
+    #[doc = "Hospital outpatient gynecology clinic"]
+    V22549003(Option<Element>),
+    #[doc = "Hospital-community"]
+    V225732001(Option<Element>),
     #[doc = "Hospital outpatient otorhinolaryngology clinic"]
     V23392004(Option<Element>),
+    #[doc = "Sexually transmitted disease health center"]
+    V25681007(Option<Element>),
+    #[doc = "Sports facility"]
+    V272501009(Option<Element>),
+    #[doc = "Elderly assessment clinic"]
+    V275576008(Option<Element>),
+    #[doc = "Hospice facility"]
+    V284546000(Option<Element>),
+    #[doc = "Hospital outpatient infectious disease clinic"]
+    V2849009(Option<Element>),
+    #[doc = "Psychogeriatric day hospital"]
+    V309898008(Option<Element>),
+    #[doc = "Care of the elderly day hospital"]
+    V309900005(Option<Element>),
+    #[doc = "Private residential home"]
+    V310205006(Option<Element>),
+    #[doc = "Hospital outpatient family medicine clinic"]
+    V31628002(Option<Element>),
+    #[doc = "Hospital-long term care"]
+    V32074000(Option<Element>),
+    #[doc = "Hospital-based outpatient clinic or department--OTHER-NOT LISTED"]
+    V33022008(Option<Element>),
+    #[doc = "Hospital outpatient rheumatology clinic"]
+    V331006(Option<Element>),
+    #[doc = "Ambulatory care site--OTHER--NOT LISTED"]
+    V35971002(Option<Element>),
+    #[doc = "Hospital outpatient allergy clinic"]
+    V360957003(Option<Element>),
+    #[doc = "Hospital outpatient immunology clinic"]
+    V360966004(Option<Element>),
+    #[doc = "Hospital-trauma center"]
+    V36125001(Option<Element>),
     #[doc = "Hospital outpatient pain clinic"]
     V36293008(Option<Element>),
     #[doc = "Hospital outpatient pediatric clinic"]
     V3729002(Option<Element>),
-    #[doc = "Hospital outpatient peripheral vascular clinic"]
-    V5584006(Option<Element>),
     #[doc = "Hospital outpatient rehabilitation clinic"]
     V37546005(Option<Element>),
-    #[doc = "Hospital outpatient respiratory disease clinic"]
-    V57159002(Option<Element>),
-    #[doc = "Hospital outpatient rheumatology clinic"]
-    V331006(Option<Element>),
-    #[doc = "Hospital outpatient urology clinic"]
-    V50569004(Option<Element>),
-    #[doc = "Hospital radiology facility"]
-    V79491001(Option<Element>),
-    #[doc = "Hospital ship"]
-    V2081004(Option<Element>),
-    #[doc = "Hospital-Veterans' Administration"]
-    V48311003(Option<Element>),
-    #[doc = "Hospital-based outpatient clinic or department--OTHER-NOT LISTED"]
-    V33022008(Option<Element>),
-    #[doc = "Hospital-children's"]
-    V82242000(Option<Element>),
-    #[doc = "Hospital-community"]
-    V225732001(Option<Element>),
-    #[doc = "Hospital-government"]
-    V79993009(Option<Element>),
-    #[doc = "Hospital-long term care"]
-    V32074000(Option<Element>),
-    #[doc = "Hospital-military field"]
-    V4322002(Option<Element>),
-    #[doc = "Hospital-prison"]
-    V224687002(Option<Element>),
-    #[doc = "Hospital-psychiatric"]
-    V62480006(Option<Element>),
-    #[doc = "Hospital-rehabilitation"]
-    V80522000(Option<Element>),
-    #[doc = "Hospital-trauma center"]
-    V36125001(Option<Element>),
-    #[doc = "Independent ambulatory care provider site--OTHER--NOT LISTED"]
-    V394759007(Option<Element>),
-    #[doc = "Local community health center"]
-    V6827000(Option<Element>),
-    #[doc = "Nursing home"]
-    V42665001(Option<Element>),
+    #[doc = "Hospital outpatient dermatology clinic"]
+    V37550003(Option<Element>),
+    #[doc = "Hospital outpatient neurology clinic"]
+    V38238005(Option<Element>),
     #[doc = "Private physicians' group office"]
     V39350007(Option<Element>),
-    #[doc = "Private residential home"]
-    V310205006(Option<Element>),
-    #[doc = "Psychogeriatric day hospital"]
-    V309898008(Option<Element>),
-    #[doc = "Residential institution"]
-    V419955002(Option<Element>),
+    #[doc = "Independent ambulatory care provider site--OTHER--NOT LISTED"]
+    V394759007(Option<Element>),
+    #[doc = "Health encounter site--NOT LISTED"]
+    V394777002(Option<Element>),
     #[doc = "Residential school infirmary"]
     V39913001(Option<Element>),
-    #[doc = "Rural health center"]
-    V77931003(Option<Element>),
-    #[doc = "Sexually transmitted disease health center"]
-    V25681007(Option<Element>),
+    #[doc = "Ambulatory surgery center"]
+    V405607001(Option<Element>),
+    #[doc = "Contained casualty setting"]
+    V409519008(Option<Element>),
+    #[doc = "Adult day care center"]
+    V413456002(Option<Element>),
+    #[doc = "Child day care center"]
+    V413817003(Option<Element>),
+    #[doc = "Free-standing geriatric health center"]
+    V41844007(Option<Element>),
+    #[doc = "Dialysis unit--hospital"]
+    V418518002(Option<Element>),
+    #[doc = "Residential institution"]
+    V419955002(Option<Element>),
+    #[doc = "Nursing home"]
+    V42665001(Option<Element>),
+    #[doc = "Hospital-military field"]
+    V4322002(Option<Element>),
     #[doc = "Skilled nursing facility"]
     V45618002(Option<Element>),
-    #[doc = "Solo practice private office"]
-    V83891005(Option<Element>),
-    #[doc = "Sports facility"]
-    V272501009(Option<Element>),
-    #[doc = "Substance abuse treatment center"]
-    V20078004(Option<Element>),
-    #[doc = "Traveler's aid clinic"]
-    V59374000(Option<Element>),
+    #[doc = "Free-standing laboratory facility"]
+    V45899008(Option<Element>),
     #[doc = "Vaccination clinic"]
     V46224007(Option<Element>),
+    #[doc = "Hospital-Veterans' Administration"]
+    V48311003(Option<Element>),
+    #[doc = "Hospital outpatient urology clinic"]
+    V50569004(Option<Element>),
+    #[doc = "Free-standing mental health center"]
+    V51563005(Option<Element>),
+    #[doc = "Hospital birthing center"]
+    V52668009(Option<Element>),
+    #[doc = "Hospital outpatient peripheral vascular clinic"]
+    V5584006(Option<Element>),
+    #[doc = "Hospital outpatient obstetrical clinic"]
+    V56189001(Option<Element>),
+    #[doc = "Hospital outpatient hematology clinic"]
+    V56293002(Option<Element>),
+    #[doc = "Hospital outpatient respiratory disease clinic"]
+    V57159002(Option<Element>),
+    #[doc = "Hospital outpatient gastroenterology clinic"]
+    V58482006(Option<Element>),
+    #[doc = "Traveler's aid clinic"]
+    V59374000(Option<Element>),
+    #[doc = "Hospital-psychiatric"]
+    V62480006(Option<Element>),
+    #[doc = "Local community health center"]
+    V6827000(Option<Element>),
+    #[doc = "Hospital ambulatory surgery facility"]
+    V69362002(Option<Element>),
+    #[doc = "Health maintenance organization"]
+    V72311000(Option<Element>),
+    #[doc = "Hospital outpatient endocrinology clinic"]
+    V73644007(Option<Element>),
+    #[doc = "Emergency department--hospital"]
+    V73770003(Option<Element>),
+    #[doc = "Rural health center"]
+    V77931003(Option<Element>),
+    #[doc = "Hospital outpatient orthopedics clinic"]
+    V78001009(Option<Element>),
+    #[doc = "Hospital outpatient ophthalmology clinic"]
+    V78088001(Option<Element>),
+    #[doc = "Hospital radiology facility"]
+    V79491001(Option<Element>),
+    #[doc = "Hospital-government"]
+    V79993009(Option<Element>),
+    #[doc = "Hospital-rehabilitation"]
+    V80522000(Option<Element>),
     #[doc = "Walk-in clinic"]
     V81234003(Option<Element>),
+    #[doc = "Hospital-children's"]
+    V82242000(Option<Element>),
+    #[doc = "Solo practice private office"]
+    V83891005(Option<Element>),
+    #[doc = "Hospital outpatient oncology clinic"]
+    V89972002(Option<Element>),
+    #[doc = "Helicopter-based care"]
+    V901005(Option<Element>),
+    #[doc = "Hospital outpatient general surgery clinic"]
+    V90484001(Option<Element>),
+    #[doc = "Free-standing birthing center"]
+    V91154008(Option<Element>),
 }
 pub enum CapabilityStatementKind {
     #[doc = "Capability"]
@@ -1052,36 +1052,36 @@ pub enum CatalogType {
     Protocol(Option<Element>),
 }
 pub enum CdshooksIndicator {
-    #[doc = "The response is a warning"]
-    Warning(Option<Element>),
     #[doc = "The response is critical and indicates the workflow should not be allowed to proceed"]
     Critical(Option<Element>),
     #[doc = "The response is informational"]
     Info(Option<Element>),
+    #[doc = "The response is a warning"]
+    Warning(Option<Element>),
 }
 pub enum CertaintySubcomponentRating {
     #[doc = "absent"]
     Absent(Option<Element>),
     #[doc = "critical concern"]
     CriticalConcern(Option<Element>),
-    #[doc = "increase rating: +1"]
-    Upcode1(Option<Element>),
-    #[doc = "increase rating: +2"]
-    Upcode2(Option<Element>),
-    #[doc = "no change to rating"]
-    NoChange(Option<Element>),
-    #[doc = "no serious concern"]
-    NoConcern(Option<Element>),
-    #[doc = "present"]
-    Present(Option<Element>),
     #[doc = "reduce rating: -1"]
     Downcode1(Option<Element>),
     #[doc = "reduce rating: -2"]
     Downcode2(Option<Element>),
     #[doc = "reduce rating: -3"]
     Downcode3(Option<Element>),
+    #[doc = "no change to rating"]
+    NoChange(Option<Element>),
+    #[doc = "no serious concern"]
+    NoConcern(Option<Element>),
+    #[doc = "present"]
+    Present(Option<Element>),
     #[doc = "serious concern"]
     SeriousConcern(Option<Element>),
+    #[doc = "increase rating: +1"]
+    Upcode1(Option<Element>),
+    #[doc = "increase rating: +2"]
+    Upcode2(Option<Element>),
 }
 pub enum CertaintySubcomponentType {
     #[doc = "Dose response gradient"]
@@ -1102,12 +1102,12 @@ pub enum CertaintySubcomponentType {
     RiskOfBias(Option<Element>),
 }
 pub enum ChargeitemBillingcodes {
-    #[doc = "Grundpauschale"]
-    V1320(Option<Element>),
-    #[doc = "Notfallpauschale"]
-    V1210(Option<Element>),
     #[doc = "Unvorhergesehene Inanspruchnahme"]
     V1100(Option<Element>),
+    #[doc = "Notfallpauschale"]
+    V1210(Option<Element>),
+    #[doc = "Grundpauschale"]
+    V1320(Option<Element>),
 }
 pub enum ChargeitemStatus {
     #[doc = "Aborted"]
@@ -1228,18 +1228,18 @@ pub enum ClaimInformationcategory {
     Related(Option<Element>),
 }
 pub enum ClaimModifiers {
-    #[doc = "Implant or associated with an implant"]
-    E(Option<Element>),
-    #[doc = "None"]
-    X(Option<Element>),
     #[doc = "Repair of prior service or installation"]
     A(Option<Element>),
-    #[doc = "Rush or Outside of office hours"]
-    Rooh(Option<Element>),
-    #[doc = "TMJ treatment"]
-    C(Option<Element>),
     #[doc = "Temporary service or installation"]
     B(Option<Element>),
+    #[doc = "TMJ treatment"]
+    C(Option<Element>),
+    #[doc = "Implant or associated with an implant"]
+    E(Option<Element>),
+    #[doc = "Rush or Outside of office hours"]
+    Rooh(Option<Element>),
+    #[doc = "None"]
+    X(Option<Element>),
 }
 pub enum ClaimSubtype {
     #[doc = "Emergency Claim"]
@@ -1273,10 +1273,10 @@ pub enum ClinicalimpressionStatus {
     InProgress(Option<Element>),
 }
 pub enum CodeSearchSupport {
-    #[doc = "Explicit Codes"]
-    Explicit(Option<Element>),
     #[doc = "Implicit Codes"]
     All(Option<Element>),
+    #[doc = "Explicit Codes"]
+    Explicit(Option<Element>),
 }
 pub enum CodesystemAltcodeKind {
     #[doc = "Alternate Code"]
@@ -1542,10 +1542,10 @@ pub enum ConformanceExpectation {
 pub enum ConsentAction {
     #[doc = "Access"]
     Access(Option<Element>),
-    #[doc = "Access and Correct"]
-    Correct(Option<Element>),
     #[doc = "Collect"]
     Collect(Option<Element>),
+    #[doc = "Access and Correct"]
+    Correct(Option<Element>),
     #[doc = "Disclose"]
     Disclose(Option<Element>),
     #[doc = "Use"]
@@ -1578,8 +1578,10 @@ pub enum ConsentPolicy {
     AtElga(Option<Element>),
     #[doc = "Common Rule Informed Consent"]
     Cric(Option<Element>),
-    #[doc = "HHS NIH HIPAA Research Authorization"]
-    NihHipaa(Option<Element>),
+    #[doc = "Michigan behavior and mental health consent"]
+    Dch3927(Option<Element>),
+    #[doc = "Population origins and ancestry research consent"]
+    Ga4gh(Option<Element>),
     #[doc = "HIPAA Authorization"]
     HipaaAuth(Option<Element>),
     #[doc = "HIPAA Notice of Privacy Practices"]
@@ -1594,24 +1596,22 @@ pub enum ConsentPolicy {
     IllinoisMinorProcedure(Option<Element>),
     #[doc = "Michigan MDHHS-5515 Consent to Share Behavioral Health Information for Care Coordination Purposes"]
     Mdhhs5515(Option<Element>),
-    #[doc = "Michigan behavior and mental health consent"]
-    Dch3927(Option<Element>),
     #[doc = "NCI Cancer Clinical Trial consent"]
     Nci(Option<Element>),
     #[doc = "NIH Authorization for the Release of Medical Information"]
     Nih527(Option<Element>),
     #[doc = "NIH Global Rare Disease Patient Registry and Data Repository consent"]
     NihGrdr(Option<Element>),
+    #[doc = "HHS NIH HIPAA Research Authorization"]
+    NihHipaa(Option<Element>),
     #[doc = "NL LSP Permission"]
     NlLsp(Option<Element>),
     #[doc = "New York State Surgical and Invasive Procedure Protocol"]
     Nyssipp(Option<Element>),
-    #[doc = "Population origins and ancestry research consent"]
-    Ga4gh(Option<Element>),
-    #[doc = "SSA Authorization to Disclose"]
-    Ssa827(Option<Element>),
     #[doc = "Squaxin Indian behavioral health and HIPAA consent"]
     Squaxin(Option<Element>),
+    #[doc = "SSA Authorization to Disclose"]
+    Ssa827(Option<Element>),
     #[doc = "VA Form 10-0484"]
     Va100484(Option<Element>),
     #[doc = "VA Form 10-0485"]
@@ -1628,10 +1628,10 @@ pub enum ConsentPolicy {
     Va214142(Option<Element>),
 }
 pub enum ConsentProvisionType {
-    #[doc = "Opt In"]
-    Permit(Option<Element>),
     #[doc = "Opt Out"]
     Deny(Option<Element>),
+    #[doc = "Opt In"]
+    Permit(Option<Element>),
 }
 pub enum ConsentScope {
     #[doc = "Advanced Care Directive"]
@@ -1646,22 +1646,22 @@ pub enum ConsentScope {
 pub enum ConsentStateCodes {
     #[doc = "Active"]
     Active(Option<Element>),
+    #[doc = "Pending"]
+    Draft(Option<Element>),
     #[doc = "Entered in Error"]
     EnteredInError(Option<Element>),
     #[doc = "Inactive"]
     Inactive(Option<Element>),
-    #[doc = "Pending"]
-    Draft(Option<Element>),
     #[doc = "Proposed"]
     Proposed(Option<Element>),
     #[doc = "Rejected"]
     Rejected(Option<Element>),
 }
 pub enum ConsistencyType {
-    #[doc = "honey thick liquid"]
-    V439031000124108(Option<Element>),
     #[doc = "nectar thick liquid"]
     V439021000124105(Option<Element>),
+    #[doc = "honey thick liquid"]
+    V439031000124108(Option<Element>),
     #[doc = "spoon thick liquid"]
     V439041000124103(Option<Element>),
     #[doc = "thin liquid"]
@@ -1786,10 +1786,10 @@ pub enum ContractContentDerivative {
     Registration(Option<Element>),
     #[doc = "Content Retrieval"]
     Retrieval(Option<Element>),
-    #[doc = "Content Statement"]
-    Statement(Option<Element>),
     #[doc = "Shareable Content"]
     Shareable(Option<Element>),
+    #[doc = "Content Statement"]
+    Statement(Option<Element>),
 }
 pub enum ContractDataMeaning {
     #[doc = "AuthoredBy"]
@@ -1910,30 +1910,28 @@ pub enum ContractSignerType {
     AMENDER(Option<Element>),
     #[doc = "Assigned Entity"]
     ASSIGNED(Option<Element>),
-    #[doc = "Authenticator"]
-    AUTHN(Option<Element>),
     #[doc = "Author"]
     AUT(Option<Element>),
+    #[doc = "Authenticator"]
+    AUTHN(Option<Element>),
     #[doc = "Citizen"]
     CIT(Option<Element>),
     #[doc = "Claimant"]
     CLAIMANT(Option<Element>),
     #[doc = "Co-Author"]
     COAUTH(Option<Element>),
-    #[doc = "Co-Participant"]
-    COPART(Option<Element>),
-    #[doc = "Consent Witness"]
-    CONSWIT(Option<Element>),
     #[doc = "Consenter"]
     CONSENTER(Option<Element>),
+    #[doc = "Consent Witness"]
+    CONSWIT(Option<Element>),
     #[doc = "Contact"]
     CONT(Option<Element>),
+    #[doc = "Co-Participant"]
+    COPART(Option<Element>),
     #[doc = "Covered Party"]
     COVPTY(Option<Element>),
     #[doc = "Delegatee"]
     DELEGATEE(Option<Element>),
-    #[doc = "Delegator"]
-    Delegator(Option<Element>),
     #[doc = "Dependent"]
     DEPEND(Option<Element>),
     #[doc = "Durable Power of Attorney"]
@@ -1948,22 +1946,22 @@ pub enum ContractSignerType {
     GRANTEE(Option<Element>),
     #[doc = "Grantor"]
     GRANTOR(Option<Element>),
+    #[doc = "Guardian ad lidem"]
+    GUADLTM(Option<Element>),
     #[doc = "Guarantor"]
     GUAR(Option<Element>),
     #[doc = "Guardian"]
     GUARD(Option<Element>),
-    #[doc = "Guardian ad lidem"]
-    GUADLTM(Option<Element>),
     #[doc = "Healthcare Power of Attorney"]
     HPOWATT(Option<Element>),
     #[doc = "Healthcare Provider"]
     HPROV(Option<Element>),
     #[doc = "Informant"]
     INF(Option<Element>),
-    #[doc = "Interpreter"]
-    INTPRT(Option<Element>),
     #[doc = "Investigation Subject"]
     INSBJ(Option<Element>),
+    #[doc = "Interpreter"]
+    INTPRT(Option<Element>),
     #[doc = "Legal Authenticator"]
     LEGAUTHN(Option<Element>),
     #[doc = "Named Insured"]
@@ -1998,6 +1996,8 @@ pub enum ContractSignerType {
     VERF(Option<Element>),
     #[doc = "Witness"]
     WIT(Option<Element>),
+    #[doc = "Delegator"]
+    Delegator(Option<Element>),
 }
 pub enum ContractStatus {
     #[doc = "Amended"]
@@ -2168,6 +2168,8 @@ pub enum DataAbsentReason {
     Masked(Option<Element>),
     #[doc = "Negative Infinity (NINF)"]
     NegativeInfinity(Option<Element>),
+    #[doc = "Not a Number (NaN)"]
+    NotANumber(Option<Element>),
     #[doc = "Not Applicable"]
     NotApplicable(Option<Element>),
     #[doc = "Not Asked"]
@@ -2176,8 +2178,6 @@ pub enum DataAbsentReason {
     NotPerformed(Option<Element>),
     #[doc = "Not Permitted"]
     NotPermitted(Option<Element>),
-    #[doc = "Not a Number (NaN)"]
-    NotANumber(Option<Element>),
     #[doc = "Positive Infinity (PINF)"]
     PositiveInfinity(Option<Element>),
     #[doc = "Temporarily Unknown"]
@@ -2274,8 +2274,6 @@ pub enum DataTypes {
     TriggerDefinition(Option<Element>),
     #[doc = "UsageContext"]
     UsageContext(Option<Element>),
-    #[doc = "XHTML"]
-    Xhtml(Option<Element>),
     #[doc = "base64Binary"]
     Base64Binary(Option<Element>),
     #[doc = "boolean"]
@@ -2314,6 +2312,8 @@ pub enum DataTypes {
     Url(Option<Element>),
     #[doc = "uuid"]
     Uuid(Option<Element>),
+    #[doc = "XHTML"]
+    Xhtml(Option<Element>),
 }
 pub enum DaysOfWeek {
     #[doc = "Friday"]
@@ -2364,10 +2364,10 @@ pub enum DefinitionTopic {
     Treatment(Option<Element>),
 }
 pub enum DefinitionUse {
-    #[doc = "Custom Resource"]
-    CustomResource(Option<Element>),
     #[doc = "Domain Analysis Model"]
     Archetype(Option<Element>),
+    #[doc = "Custom Resource"]
+    CustomResource(Option<Element>),
     #[doc = "Domain Analysis Model"]
     Dam(Option<Element>),
     #[doc = "FHIR Structure"]
@@ -2392,24 +2392,24 @@ pub enum DetectedissueSeverity {
 pub enum DeviceComponentProperty {
     #[doc = "MDC_REG_CERT_DATA_CONTINUA_CERT_DEV_LIST"]
     V532353(Option<Element>),
-    #[doc = "MDC_REG_CERT_DATA_CONTINUA_PHG_CERT_LIST"]
-    V532355(Option<Element>),
     #[doc = "MDC_REG_CERT_DATA_CONTINUA_REG_STATUS"]
     V532354(Option<Element>),
+    #[doc = "MDC_REG_CERT_DATA_CONTINUA_PHG_CERT_LIST"]
+    V532355(Option<Element>),
     #[doc = "MDC_TIME_CAP_STATE"]
     V68219(Option<Element>),
+    #[doc = "MDC_TIME_SYNC_PROTOCOL"]
+    V68220(Option<Element>),
+    #[doc = "MDC_TIME_SYNC_ACCURACY"]
+    V68221(Option<Element>),
     #[doc = "MDC_TIME_RES_ABS"]
     V68222(Option<Element>),
-    #[doc = "MDC_TIME_RES_BO"]
-    V68226(Option<Element>),
     #[doc = "MDC_TIME_RES_REL"]
     V68223(Option<Element>),
     #[doc = "MDC_TIME_RES_REL_HI_RES"]
     V68224(Option<Element>),
-    #[doc = "MDC_TIME_SYNC_ACCURACY"]
-    V68221(Option<Element>),
-    #[doc = "MDC_TIME_SYNC_PROTOCOL"]
-    V68220(Option<Element>),
+    #[doc = "MDC_TIME_RES_BO"]
+    V68226(Option<Element>),
 }
 pub enum DeviceDefinitionStatus {
     #[doc = "Active"]
@@ -2426,28 +2426,28 @@ pub enum DeviceNametype {
     ManufacturerName(Option<Element>),
     #[doc = "Model name"]
     ModelName(Option<Element>),
+    #[doc = "other"]
+    Other(Option<Element>),
     #[doc = "Patient Reported name"]
     PatientReportedName(Option<Element>),
     #[doc = "UDI Label name"]
     UdiLabelName(Option<Element>),
     #[doc = "User Friendly name"]
     UserFriendlyName(Option<Element>),
-    #[doc = "other"]
-    Other(Option<Element>),
 }
 pub enum DeviceSafety {
     #[doc = "Labeled as Containing Natural Rubber Latex"]
     C101673(Option<Element>),
-    #[doc = "Labeling does not Contain MRI Safety Information"]
-    C113844(Option<Element>),
-    #[doc = "Magnetic Resonance Conditional"]
-    C106046(Option<Element>),
-    #[doc = "Magnetic Resonance Safe"]
-    C106045(Option<Element>),
-    #[doc = "Magnetic Resonance Unsafe"]
-    C106047(Option<Element>),
     #[doc = "Not Made with Natural Rubber Latex"]
     C106038(Option<Element>),
+    #[doc = "Magnetic Resonance Safe"]
+    C106045(Option<Element>),
+    #[doc = "Magnetic Resonance Conditional"]
+    C106046(Option<Element>),
+    #[doc = "Magnetic Resonance Unsafe"]
+    C106047(Option<Element>),
+    #[doc = "Labeling does not Contain MRI Safety Information"]
+    C113844(Option<Element>),
 }
 pub enum DeviceStatementStatus {
     #[doc = "Active"]
@@ -2494,14 +2494,14 @@ pub enum DeviceStatusReason {
 pub enum DiagnosisRole {
     #[doc = "Admission diagnosis"]
     AD(Option<Element>),
-    #[doc = "Billing"]
-    Billing(Option<Element>),
     #[doc = "Chief complaint"]
     CC(Option<Element>),
     #[doc = "Comorbidity diagnosis"]
     CM(Option<Element>),
     #[doc = "Discharge diagnosis"]
     DD(Option<Element>),
+    #[doc = "Billing"]
+    Billing(Option<Element>),
     #[doc = "post-op diagnosis"]
     PostOp(Option<Element>),
     #[doc = "pre-op diagnosis"]
@@ -2558,12 +2558,12 @@ pub enum DistanceUnits {
     Km(Option<Element>),
     #[doc = "meters"]
     M(Option<Element>),
-    #[doc = "micrometers"]
-    Um(Option<Element>),
     #[doc = "millimeters"]
     Mm(Option<Element>),
     #[doc = "nanometers"]
     Nm(Option<Element>),
+    #[doc = "micrometers"]
+    Um(Option<Element>),
 }
 pub enum DocSectionCodes {
     V101543(Option<Element>),
@@ -2623,96 +2623,96 @@ pub enum DocSectionCodes {
     V87163(Option<Element>),
 }
 pub enum DocumentClasscodes {
+    #[doc = "History of Immunization"]
+    V113696(Option<Element>),
     #[doc = "Anesthesia records"]
     V114850(Option<Element>),
-    #[doc = "Cardiology studies (set)"]
-    V264416(Option<Element>),
     #[doc = "Chemotherapy records"]
     V114868(Option<Element>),
     #[doc = "Consult Note"]
     V114884(Option<Element>),
-    #[doc = "Counseling note"]
-    V470427(Option<Element>),
-    #[doc = "Critical care records"]
-    V297515(Option<Element>),
-    #[doc = "Diagnostic imaging study"]
-    V187484(Option<Element>),
-    #[doc = "Dialysis records"]
-    V297499(Option<Element>),
-    #[doc = "Discharge summary"]
-    V188425(Option<Element>),
-    #[doc = "Evaluation and management note"]
-    V341099(Option<Element>),
-    #[doc = "Gastroenterology endoscopy studies (set)"]
-    V278952(Option<Element>),
-    #[doc = "General surgery Pre-operative evaluation and management note"]
-    V347757(Option<Element>),
-    #[doc = "History of Immunization"]
-    V113696(Option<Element>),
-    #[doc = "Inpatient Admission history and physical note"]
-    V470393(Option<Element>),
-    #[doc = "Interventional procedure note"]
-    V341214(Option<Element>),
-    #[doc = "Labor and delivery records"]
-    V155085(Option<Element>),
-    #[doc = "Laboratory Studies (set)"]
-    V264366(Option<Element>),
-    #[doc = "Medication Summary Document"]
-    V564450(Option<Element>),
-    #[doc = "Miscellaneous studies (set)"]
-    V286344(Option<Element>),
-    #[doc = "Neonatal intensive care records"]
-    V297507(Option<Element>),
-    #[doc = "Neuromuscular electrophysiology studies (set)"]
-    V278978(Option<Element>),
-    #[doc = "Non-patient Communication"]
-    V470492(Option<Element>),
+    #[doc = "Surgical operation note "]
+    V115048(Option<Element>),
+    #[doc = "Provider-unspecified progress note"]
+    V115063(Option<Element>),
     #[doc = "Nursery records"]
     V115436(Option<Element>),
+    #[doc = "Labor and delivery records"]
+    V155085(Option<Element>),
+    #[doc = "Radiology studies (set)"]
+    V187260(Option<Element>),
+    #[doc = "Diagnostic imaging study"]
+    V187484(Option<Element>),
+    #[doc = "Provider-unspecified transfer summary"]
+    V187617(Option<Element>),
+    #[doc = "Discharge summary"]
+    V188425(Option<Element>),
+    #[doc = "Laboratory Studies (set)"]
+    V264366(Option<Element>),
+    #[doc = "Cardiology studies (set)"]
+    V264416(Option<Element>),
     #[doc = "Obstetrical studies (set)"]
     V264424(Option<Element>),
-    #[doc = "Ophthalmology/optometry studies (set)"]
-    V286195(Option<Element>),
-    #[doc = "Pathology procedure note"]
-    V341222(Option<Element>),
+    #[doc = "Gastroenterology endoscopy studies (set)"]
+    V278952(Option<Element>),
+    #[doc = "Pulmonary studies (set)"]
+    V278960(Option<Element>),
+    #[doc = "Neuromuscular electrophysiology studies (set)"]
+    V278978(Option<Element>),
     #[doc = "Pathology studies (set)"]
     V278986(Option<Element>),
+    #[doc = "Provider-unspecified procedure note"]
+    V285700(Option<Element>),
+    #[doc = "Ophthalmology/optometry studies (set)"]
+    V286195(Option<Element>),
+    #[doc = "Miscellaneous studies (set)"]
+    V286344(Option<Element>),
+    #[doc = "Dialysis records"]
+    V297499(Option<Element>),
+    #[doc = "Neonatal intensive care records"]
+    V297507(Option<Element>),
+    #[doc = "Critical care records"]
+    V297515(Option<Element>),
     #[doc = "Perioperative records"]
     V297523(Option<Element>),
+    #[doc = "Evaluation and management note"]
+    V341099(Option<Element>),
+    #[doc = "Provider-unspecified, History and physical note"]
+    V341172(Option<Element>),
+    #[doc = "Interventional procedure note"]
+    V341214(Option<Element>),
+    #[doc = "Pathology procedure note"]
+    V341222(Option<Element>),
+    #[doc = "Summarization of episode note"]
+    V341339(Option<Element>),
+    #[doc = "Transfer of care referral note"]
+    V341404(Option<Element>),
+    #[doc = "Telephone encounter note"]
+    V347484(Option<Element>),
+    #[doc = "General surgery Pre-operative evaluation and management note"]
+    V347757(Option<Element>),
+    #[doc = "Inpatient Admission history and physical note"]
+    V470393(Option<Element>),
+    #[doc = "Counseling note"]
+    V470427(Option<Element>),
+    #[doc = "Study report Document"]
+    V470450(Option<Element>),
+    #[doc = "Summary of death"]
+    V470468(Option<Element>),
+    #[doc = "Non-patient Communication"]
+    V470492(Option<Element>),
     #[doc = "Personal health monitoring report Document"]
     V535765(Option<Element>),
+    #[doc = "Medication Summary Document"]
+    V564450(Option<Element>),
     #[doc = "Plan of care note"]
     V564476(Option<Element>),
     #[doc = "Privacy Policy Acknowledgment Document"]
     V570168(Option<Element>),
     #[doc = "Privacy Policy Organization Document"]
     V570176(Option<Element>),
-    #[doc = "Provider-unspecified procedure note"]
-    V285700(Option<Element>),
-    #[doc = "Provider-unspecified progress note"]
-    V115063(Option<Element>),
-    #[doc = "Provider-unspecified transfer summary"]
-    V187617(Option<Element>),
-    #[doc = "Provider-unspecified, History and physical note"]
-    V341172(Option<Element>),
-    #[doc = "Pulmonary studies (set)"]
-    V278960(Option<Element>),
-    #[doc = "Radiology studies (set)"]
-    V187260(Option<Element>),
     #[doc = "Referral note"]
     V571331(Option<Element>),
-    #[doc = "Study report Document"]
-    V470450(Option<Element>),
-    #[doc = "Summarization of episode note"]
-    V341339(Option<Element>),
-    #[doc = "Summary of death"]
-    V470468(Option<Element>),
-    #[doc = "Surgical operation note "]
-    V115048(Option<Element>),
-    #[doc = "Telephone encounter note"]
-    V347484(Option<Element>),
-    #[doc = "Transfer of care referral note"]
-    V341404(Option<Element>),
 }
 pub enum DocumentMode {
     #[doc = "Consumer"]
@@ -2745,80 +2745,80 @@ pub enum DoseRateType {
     Ordered(Option<Element>),
 }
 pub enum DurationUnits {
+    #[doc = "years"]
+    A(Option<Element>),
     #[doc = "days"]
     D(Option<Element>),
     #[doc = "hours"]
     H(Option<Element>),
-    #[doc = "milliseconds"]
-    Ms(Option<Element>),
     #[doc = "minutes"]
     Min(Option<Element>),
     #[doc = "months"]
     Mo(Option<Element>),
+    #[doc = "milliseconds"]
+    Ms(Option<Element>),
     #[doc = "seconds"]
     S(Option<Element>),
     #[doc = "weeks"]
     Wk(Option<Element>),
-    #[doc = "years"]
-    A(Option<Element>),
 }
 pub enum EffectEstimateType {
     #[doc = "absolute risk difference"]
     AbsoluteARD(Option<Element>),
-    #[doc = "hazard ratio"]
-    RelativeHR(Option<Element>),
     #[doc = "mean difference"]
     AbsoluteMeanDiff(Option<Element>),
     #[doc = "median difference"]
     AbsoluteMedianDiff(Option<Element>),
+    #[doc = "standardized mean difference"]
+    AbsoluteSMD(Option<Element>),
+    #[doc = "hazard ratio"]
+    RelativeHR(Option<Element>),
     #[doc = "odds ratio"]
     RelativeOR(Option<Element>),
     #[doc = "relative risk"]
     RelativeRR(Option<Element>),
-    #[doc = "standardized mean difference"]
-    AbsoluteSMD(Option<Element>),
 }
 pub enum EligibilityrequestPurpose {
-    #[doc = "Coverage Discovery"]
-    Discovery(Option<Element>),
-    #[doc = "Coverage Validation"]
-    Validation(Option<Element>),
     #[doc = "Coverage auth-requirements"]
     AuthRequirements(Option<Element>),
     #[doc = "Coverage benefits"]
     Benefits(Option<Element>),
+    #[doc = "Coverage Discovery"]
+    Discovery(Option<Element>),
+    #[doc = "Coverage Validation"]
+    Validation(Option<Element>),
 }
 pub enum EligibilityresponsePurpose {
-    #[doc = "Coverage Discovery"]
-    Discovery(Option<Element>),
-    #[doc = "Coverage Validation"]
-    Validation(Option<Element>),
     #[doc = "Coverage auth-requirements"]
     AuthRequirements(Option<Element>),
     #[doc = "Coverage benefits"]
     Benefits(Option<Element>),
+    #[doc = "Coverage Discovery"]
+    Discovery(Option<Element>),
+    #[doc = "Coverage Validation"]
+    Validation(Option<Element>),
 }
 pub enum EncounterAdmitSource {
     #[doc = "Born in hospital"]
     Born(Option<Element>),
     #[doc = "From accident/emergency department"]
     Emd(Option<Element>),
+    #[doc = "General Practitioner referral"]
+    Gp(Option<Element>),
+    #[doc = "Transferred from other hospital"]
+    HospTrans(Option<Element>),
+    #[doc = "Medical Practitioner/physician referral"]
+    Mp(Option<Element>),
     #[doc = "From nursing home"]
     Nursing(Option<Element>),
+    #[doc = "Other"]
+    Other(Option<Element>),
     #[doc = "From outpatient department"]
     Outp(Option<Element>),
     #[doc = "From psychiatric hospital"]
     Psych(Option<Element>),
     #[doc = "From rehabilitation facility"]
     Rehab(Option<Element>),
-    #[doc = "General Practitioner referral"]
-    Gp(Option<Element>),
-    #[doc = "Medical Practitioner/physician referral"]
-    Mp(Option<Element>),
-    #[doc = "Other"]
-    Other(Option<Element>),
-    #[doc = "Transferred from other hospital"]
-    HospTrans(Option<Element>),
 }
 pub enum EncounterDiet {
     #[doc = "Dairy Free"]
@@ -2837,6 +2837,8 @@ pub enum EncounterDiet {
     Vegetarian(Option<Element>),
 }
 pub enum EncounterDischargeDisposition {
+    #[doc = "Left against advice"]
+    Aadvice(Option<Element>),
     #[doc = "Alternative home"]
     AltHome(Option<Element>),
     #[doc = "Expired"]
@@ -2845,8 +2847,6 @@ pub enum EncounterDischargeDisposition {
     Home(Option<Element>),
     #[doc = "Hospice"]
     Hosp(Option<Element>),
-    #[doc = "Left against advice"]
-    Aadvice(Option<Element>),
     #[doc = "Long-term care"]
     Long(Option<Element>),
     #[doc = "Other"]
@@ -2871,65 +2871,34 @@ pub enum EncounterLocationStatus {
     Reserved(Option<Element>),
 }
 pub enum EncounterParticipantType {
-    PART(Option<Element>),
-    PPRF(Option<Element>),
-    SPRF(Option<Element>),
-    #[doc = "Emergency"]
-    Emergency(Option<Element>),
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
-    #[doc = "Translator"]
-    Translator(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -2940,10 +2909,22 @@ pub enum EncounterParticipantType {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -2958,48 +2939,61 @@ pub enum EncounterParticipantType {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
+    PART(Option<Element>),
+    PPRF(Option<Element>),
     #[doc = "primary information recipient"]
     PRCP(Option<Element>),
-    #[doc = "primary performer"]
-    PPRF(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "Emergency"]
+    Emergency(Option<Element>),
+    #[doc = "Translator"]
+    Translator(Option<Element>),
 }
 pub enum EncounterSpecialArrangements {
     #[doc = "Additional bedding"]
@@ -3062,10 +3056,10 @@ pub enum EndpointConnectionType {
     DicomWadoUri(Option<Element>),
     #[doc = "Direct Project"]
     DirectProject(Option<Element>),
-    #[doc = "HL7 FHIR"]
-    Hl7FhirRest(Option<Element>),
     #[doc = "HL7 FHIR Messaging"]
     Hl7FhirMsg(Option<Element>),
+    #[doc = "HL7 FHIR"]
+    Hl7FhirRest(Option<Element>),
     #[doc = "HL7 v2 MLLP"]
     Hl7v2Mllp(Option<Element>),
     #[doc = "IHE IID"]
@@ -3082,6 +3076,42 @@ pub enum EndpointConnectionType {
     SecureEmail(Option<Element>),
 }
 pub enum EndpointPayloadType {
+    #[doc = "Any"]
+    Any(Option<Element>),
+    #[doc = "None"]
+    None(Option<Element>),
+    #[doc = "For documents following C-CDA constraints using a non structured body. "]
+    Urn_Hl7Org_Sdwg_CcdaNonXMLBody_11(Option<Element>),
+    #[doc = "For documents following C-CDA constraints using a structured body. "]
+    Urn_Hl7Org_Sdwg_CcdaStructuredBody_11(Option<Element>),
+    #[doc = "Cardiology CRC"]
+    Urn_Ihe_Card_CRC_2012(Option<Element>),
+    #[doc = "Cardiology EPRC-IE"]
+    Urn_Ihe_Card_EPRCIE_2014(Option<Element>),
+    #[doc = "Cardiac Imaging Report"]
+    Urn_Ihe_Card_Imaging_2011(Option<Element>),
+    #[doc = "Dental CDA"]
+    Urn_Ihe_Dent_CDA_ImagingReportStructuredHeadings_2013(Option<Element>),
+    #[doc = "Dental PDF"]
+    Urn_Ihe_Dent_PDF(Option<Element>),
+    #[doc = "Dental Text"]
+    Urn_Ihe_Dent_TEXT(Option<Element>),
+    #[doc = "Basic Patient Privacy Consents with Scanned Document"]
+    Urn_Ihe_Iti_BppcSd_2007(Option<Element>),
+    #[doc = "Basic Patient Privacy Consents"]
+    Urn_Ihe_Iti_Bppc_2007(Option<Element>),
+    #[doc = "DSG Detached Document"]
+    Urn_Ihe_Iti_Dsg_Detached_2014(Option<Element>),
+    #[doc = "DSG Enveloping Document"]
+    Urn_Ihe_Iti_Dsg_Enveloping_2014(Option<Element>),
+    #[doc = "PDF embedded in CDA per XDS-SD profile"]
+    Urn_Ihe_Iti_XdsSd_Pdf_2008(Option<Element>),
+    #[doc = "Text embedded in CDA per XDS-SD profile"]
+    Urn_Ihe_Iti_XdsSd_Text_2008(Option<Element>),
+    #[doc = "XDW Workflow Document"]
+    Urn_Ihe_Iti_Xdw_2011_WorkflowDoc(Option<Element>),
+    #[doc = "CDA Laboratory Report"]
+    Urn_Ihe_Lab_XdLab_2008(Option<Element>),
     #[doc = "Anatomic Pathology Structured Report All"]
     Urn_Ihe_Pat_Apsr_All_2010(Option<Element>),
     #[doc = "Anatomic Pathology Structured Report Cancer All"]
@@ -3132,62 +3162,30 @@ pub enum EndpointPayloadType {
     Urn_Ihe_Pcc_Apr_Handp_2008(Option<Element>),
     #[doc = "Antepartum Record (APR) - Laboratory"]
     Urn_Ihe_Pcc_Apr_Lab_2008(Option<Element>),
-    #[doc = "Any"]
-    Any(Option<Element>),
-    #[doc = "Basic Patient Privacy Consents"]
-    Urn_Ihe_Iti_Bppc_2007(Option<Element>),
-    #[doc = "Basic Patient Privacy Consents with Scanned Document"]
-    Urn_Ihe_Iti_BppcSd_2007(Option<Element>),
-    #[doc = "CDA Laboratory Report"]
-    Urn_Ihe_Lab_XdLab_2008(Option<Element>),
-    #[doc = "Cancer Registry Content (CRC)"]
-    Urn_Ihe_Pcc_Crc_2008(Option<Element>),
-    #[doc = "Cardiac Imaging Report"]
-    Urn_Ihe_Card_Imaging_2011(Option<Element>),
-    #[doc = "Cardiology CRC"]
-    Urn_Ihe_Card_CRC_2012(Option<Element>),
-    #[doc = "Cardiology EPRC-IE"]
-    Urn_Ihe_Card_EPRCIE_2014(Option<Element>),
-    #[doc = "Care Management (CM)"]
-    Urn_Ihe_Pcc_Cm_2008(Option<Element>),
-    #[doc = "DSG Detached Document"]
-    Urn_Ihe_Iti_Dsg_Detached_2014(Option<Element>),
-    #[doc = "DSG Enveloping Document"]
-    Urn_Ihe_Iti_Dsg_Enveloping_2014(Option<Element>),
-    #[doc = "Dental CDA"]
-    Urn_Ihe_Dent_CDA_ImagingReportStructuredHeadings_2013(Option<Element>),
-    #[doc = "Dental PDF"]
-    Urn_Ihe_Dent_PDF(Option<Element>),
-    #[doc = "Dental Text"]
-    Urn_Ihe_Dent_TEXT(Option<Element>),
-    #[doc = "Emergency Department Encounter Summary (EDES)"]
-    Urn_Ihe_Pcc_Edes_2007(Option<Element>),
-    #[doc = "Emergency Department Referral (EDR)"]
-    Urn_Ihe_Pcc_Edr_2007(Option<Element>),
-    #[doc = "For documents following C-CDA constraints using a non structured body. "]
-    Urn_Hl7Org_Sdwg_CcdaNonXMLBody_11(Option<Element>),
-    #[doc = "For documents following C-CDA constraints using a structured body. "]
-    Urn_Hl7Org_Sdwg_CcdaStructuredBody_11(Option<Element>),
-    #[doc = "HL7 CCD Document"]
-    Urn_Ihe_Pcc_Xphr_2007(Option<Element>),
-    #[doc = "History and Physical Specification"]
-    Urn_Ihe_Pcc_Handp_2008(Option<Element>),
     #[doc = "IHE Antepartum Summary"]
     Urn_Ihe_Pcc_Aps_2007(Option<Element>),
+    #[doc = "Care Management (CM)"]
+    Urn_Ihe_Pcc_Cm_2008(Option<Element>),
+    #[doc = "Cancer Registry Content (CRC)"]
+    Urn_Ihe_Pcc_Crc_2008(Option<Element>),
+    #[doc = "PCC CTN"]
+    Urn_Ihe_Pcc_Ctn_2007(Option<Element>),
+    #[doc = "Emergency Department Encounter Summary (EDES)"]
+    Urn_Ihe_Pcc_Edes_2007(Option<Element>),
+    #[doc = "PCC EDPN"]
+    Urn_Ihe_Pcc_Edpn_2007(Option<Element>),
+    #[doc = "Emergency Department Referral (EDR)"]
+    Urn_Ihe_Pcc_Edr_2007(Option<Element>),
+    #[doc = "PCC ETS"]
+    Urn_Ihe_Pcc_Ets_2011(Option<Element>),
+    #[doc = "History and Physical Specification"]
+    Urn_Ihe_Pcc_Handp_2008(Option<Element>),
+    #[doc = "PCC HP"]
+    Urn_Ihe_Pcc_Hp_2008(Option<Element>),
     #[doc = "Immunization Content (IC)"]
     Urn_Ihe_Pcc_Ic_2009(Option<Element>),
     #[doc = "Immunization Registry Content (IRC)"]
     Urn_Ihe_Pcc_Irc_2008(Option<Element>),
-    #[doc = "None"]
-    None(Option<Element>),
-    #[doc = "PCC CTN"]
-    Urn_Ihe_Pcc_Ctn_2007(Option<Element>),
-    #[doc = "PCC EDPN"]
-    Urn_Ihe_Pcc_Edpn_2007(Option<Element>),
-    #[doc = "PCC ETS"]
-    Urn_Ihe_Pcc_Ets_2011(Option<Element>),
-    #[doc = "PCC HP"]
-    Urn_Ihe_Pcc_Hp_2008(Option<Element>),
     #[doc = "PCC ITS"]
     Urn_Ihe_Pcc_Its_2011(Option<Element>),
     #[doc = "PCC LDHP"]
@@ -3206,8 +3204,8 @@ pub enum EndpointPayloadType {
     Urn_Ihe_Pcc_Tn_2007(Option<Element>),
     #[doc = "PCC TRS"]
     Urn_Ihe_Pcc_Trs_2011(Option<Element>),
-    #[doc = "PDF embedded in CDA per XDS-SD profile"]
-    Urn_Ihe_Iti_XdsSd_Pdf_2008(Option<Element>),
+    #[doc = "XDS Medical Summaries"]
+    Urn_Ihe_Pcc_XdsMs_2007(Option<Element>),
     #[doc = "Personal Health Records"]
     Urn_Ihe_Pcc_Xphr_2007(Option<Element>),
     #[doc = "Pharmacy DIS"]
@@ -3218,18 +3216,12 @@ pub enum EndpointPayloadType {
     Urn_Ihe_Pharm_Pml_2013(Option<Element>),
     #[doc = "Pharmacy Pre"]
     Urn_Ihe_Pharm_Pre_2010(Option<Element>),
-    #[doc = "Radiology XDS-I PDF"]
-    Urn_Ihe_Rad_PDF(Option<Element>),
     #[doc = "Radiology XDS-I Structured CDA"]
     Urn_Ihe_Rad_CDA_ImagingReportStructuredHeadings_2013(Option<Element>),
+    #[doc = "Radiology XDS-I PDF"]
+    Urn_Ihe_Rad_PDF(Option<Element>),
     #[doc = "Radiology XDS-I Text"]
     Urn_Ihe_Rad_TEXT(Option<Element>),
-    #[doc = "Text embedded in CDA per XDS-SD profile"]
-    Urn_Ihe_Iti_XdsSd_Text_2008(Option<Element>),
-    #[doc = "XDS Medical Summaries"]
-    Urn_Ihe_Pcc_XdsMs_2007(Option<Element>),
-    #[doc = "XDW Workflow Document"]
-    Urn_Ihe_Iti_Xdw_2011_WorkflowDoc(Option<Element>),
 }
 pub enum EndpointStatus {
     #[doc = "Active"]
@@ -3269,78 +3261,78 @@ pub enum EntformulaAdditive {
     Water(Option<Element>),
 }
 pub enum EntformulaType {
-    #[doc = "Adult critical care formula"]
-    V443031000124106(Option<Element>),
-    #[doc = "Adult diabetes specialty formula"]
-    V443051000124104(Option<Element>),
-    #[doc = "Adult elemental formula"]
-    V442911000124109(Option<Element>),
-    #[doc = "Adult formula"]
-    V442651000124102(Option<Element>),
-    #[doc = "Adult hepatic specialty formula"]
-    V443021000124108(Option<Element>),
-    #[doc = "Adult high energy formula"]
-    V442971000124100(Option<Element>),
-    #[doc = "Adult high protein formula"]
-    V442991000124104(Option<Element>),
-    #[doc = "Adult high protein high fiber formula"]
-    V443011000124100(Option<Element>),
-    #[doc = "Adult hydrolyzed protein formula"]
-    V442981000124102(Option<Element>),
-    #[doc = "Adult low carbohydrate formula"]
-    V442961000124107(Option<Element>),
-    #[doc = "Adult pulmonary specialty formula"]
-    V442951000124105(Option<Element>),
-    #[doc = "Adult renal specialty formula"]
-    V442941000124108(Option<Element>),
-    #[doc = "Adult soy protein isolate formula"]
-    V442931000124103(Option<Element>),
-    #[doc = "Adult standard formula"]
-    V442921000124101(Option<Element>),
+    #[doc = "Standard Enteral Formula"]
+    V441531000124102(Option<Element>),
+    #[doc = "Standard enteral formula with fiber"]
+    V441561000124106(Option<Element>),
+    #[doc = "High energy enteral formula with fiber"]
+    V441571000124104(Option<Element>),
     #[doc = "Diabetic enteral formula with fiber"]
     V441591000124103(Option<Element>),
     #[doc = "Diabetic high calorie high protein enteral formula with fiber"]
     V441601000124106(Option<Element>),
-    #[doc = "Elemental Formula"]
-    V443411000124108(Option<Element>),
-    #[doc = "High Energy Formula"]
-    V443431000124102(Option<Element>),
-    #[doc = "High energy enteral formula with fiber"]
-    V441571000124104(Option<Element>),
-    #[doc = "High protein formula"]
-    V443111000124101(Option<Element>),
     #[doc = "Hydrolyzed peptide-based high protein enteral formula"]
     V441671000124100(Option<Element>),
-    #[doc = "Hydrolyzed protein formula"]
-    V443771000124106(Option<Element>),
+    #[doc = "Adult formula"]
+    V442651000124102(Option<Element>),
+    #[doc = "Adult elemental formula"]
+    V442911000124109(Option<Element>),
+    #[doc = "Adult standard formula"]
+    V442921000124101(Option<Element>),
+    #[doc = "Adult soy protein isolate formula"]
+    V442931000124103(Option<Element>),
+    #[doc = "Adult renal specialty formula"]
+    V442941000124108(Option<Element>),
+    #[doc = "Adult pulmonary specialty formula"]
+    V442951000124105(Option<Element>),
+    #[doc = "Adult low carbohydrate formula"]
+    V442961000124107(Option<Element>),
+    #[doc = "Adult high energy formula"]
+    V442971000124100(Option<Element>),
+    #[doc = "Adult hydrolyzed protein formula"]
+    V442981000124102(Option<Element>),
+    #[doc = "Adult high protein formula"]
+    V442991000124104(Option<Element>),
+    #[doc = "Adult high protein high fiber formula"]
+    V443011000124100(Option<Element>),
+    #[doc = "Adult hepatic specialty formula"]
+    V443021000124108(Option<Element>),
+    #[doc = "Adult critical care formula"]
+    V443031000124106(Option<Element>),
+    #[doc = "Adult diabetes specialty formula"]
+    V443051000124104(Option<Element>),
+    #[doc = "High protein formula"]
+    V443111000124101(Option<Element>),
     #[doc = "Increased fiber formula"]
     V443351000124102(Option<Element>),
     #[doc = "Pediatric Formula"]
     V443361000124100(Option<Element>),
     #[doc = "Pediatric elemental formula"]
     V443401000124105(Option<Element>),
+    #[doc = "Elemental Formula"]
+    V443411000124108(Option<Element>),
+    #[doc = "Pediatric hydrolyzed protein formula"]
+    V443421000124100(Option<Element>),
+    #[doc = "High Energy Formula"]
+    V443431000124102(Option<Element>),
+    #[doc = "Pediatric standard formula"]
+    V443451000124109(Option<Element>),
+    #[doc = "Standard Formula"]
+    V443461000124106(Option<Element>),
+    #[doc = "Pediatric increased fiber formula"]
+    V443471000124104(Option<Element>),
+    #[doc = "Renal Formula"]
+    V443481000124101(Option<Element>),
     #[doc = "Pediatric high energy formula"]
     V443491000124103(Option<Element>),
     #[doc = "Pediatric high energy formula with increased fiber"]
     V443501000124106(Option<Element>),
-    #[doc = "Pediatric hydrolyzed protein formula"]
-    V443421000124100(Option<Element>),
-    #[doc = "Pediatric increased fiber formula"]
-    V443471000124104(Option<Element>),
-    #[doc = "Pediatric reduced energy formula"]
-    V444431000124104(Option<Element>),
-    #[doc = "Pediatric standard formula"]
-    V443451000124109(Option<Element>),
-    #[doc = "Renal Formula"]
-    V443481000124101(Option<Element>),
     #[doc = "Soy based formula"]
     V443561000124107(Option<Element>),
-    #[doc = "Standard Enteral Formula"]
-    V441531000124102(Option<Element>),
-    #[doc = "Standard Formula"]
-    V443461000124106(Option<Element>),
-    #[doc = "Standard enteral formula with fiber"]
-    V441561000124106(Option<Element>),
+    #[doc = "Hydrolyzed protein formula"]
+    V443771000124106(Option<Element>),
+    #[doc = "Pediatric reduced energy formula"]
+    V444431000124104(Option<Element>),
 }
 pub enum EpisodeOfCareStatus {
     #[doc = "Active"]
@@ -3363,12 +3355,12 @@ pub enum EpisodeofcareType {
     Cacp(Option<Element>),
     #[doc = "Drug and alcohol rehabilitation"]
     Da(Option<Element>),
+    #[doc = "Post coordinated diabetes program"]
+    Diab(Option<Element>),
     #[doc = "Home and Community Care"]
     Hacc(Option<Element>),
     #[doc = "Post Acute Care"]
     Pac(Option<Element>),
-    #[doc = "Post coordinated diabetes program"]
-    Diab(Option<Element>),
 }
 pub enum EventCapabilityMode {
     #[doc = "Receiver"]
@@ -3567,40 +3559,40 @@ pub enum EventTiming {
     ACD(Option<Element>),
     ACM(Option<Element>),
     ACV(Option<Element>),
-    C(Option<Element>),
-    CD(Option<Element>),
-    CM(Option<Element>),
-    CV(Option<Element>),
-    HS(Option<Element>),
-    PC(Option<Element>),
-    PCD(Option<Element>),
-    PCM(Option<Element>),
-    PCV(Option<Element>),
-    WAKE(Option<Element>),
-    #[doc = "After Sleep"]
-    PHS(Option<Element>),
     #[doc = "Afternoon"]
     AFT(Option<Element>),
     #[doc = "Early Afternoon"]
     AFTEarly(Option<Element>),
-    #[doc = "Early Evening"]
-    EVEEarly(Option<Element>),
-    #[doc = "Early Morning"]
-    MORNEarly(Option<Element>),
-    #[doc = "Evening"]
-    EVE(Option<Element>),
     #[doc = "Late Afternoon"]
     AFTLate(Option<Element>),
+    C(Option<Element>),
+    CD(Option<Element>),
+    CM(Option<Element>),
+    CV(Option<Element>),
+    #[doc = "Evening"]
+    EVE(Option<Element>),
+    #[doc = "Early Evening"]
+    EVEEarly(Option<Element>),
     #[doc = "Late Evening"]
     EVELate(Option<Element>),
-    #[doc = "Late Morning"]
-    MORNLate(Option<Element>),
+    HS(Option<Element>),
     #[doc = "Morning"]
     MORN(Option<Element>),
+    #[doc = "Early Morning"]
+    MORNEarly(Option<Element>),
+    #[doc = "Late Morning"]
+    MORNLate(Option<Element>),
     #[doc = "Night"]
     NIGHT(Option<Element>),
     #[doc = "Noon"]
     NOON(Option<Element>),
+    PC(Option<Element>),
+    PCD(Option<Element>),
+    PCM(Option<Element>),
+    PCV(Option<Element>),
+    #[doc = "After Sleep"]
+    PHS(Option<Element>),
+    WAKE(Option<Element>),
 }
 pub enum EvidenceQuality {
     #[doc = "High quality"]
@@ -3621,82 +3613,82 @@ pub enum EvidenceVariantState {
     MediumRisk(Option<Element>),
 }
 pub enum ExBenefitcategory {
+    #[doc = "Medical Care"]
+    V1(Option<Element>),
+    #[doc = "Renal Supplies"]
+    V14(Option<Element>),
+    #[doc = "Surgical"]
+    V2(Option<Element>),
+    #[doc = "Diagnostic Dental"]
+    V23(Option<Element>),
+    #[doc = "Periodontics"]
+    V24(Option<Element>),
+    #[doc = "Restorative"]
+    V25(Option<Element>),
+    #[doc = "Endodontics"]
+    V26(Option<Element>),
+    #[doc = "Maxillofacial Prosthetics"]
+    V27(Option<Element>),
     #[doc = "Adjunctive Dental Services"]
     V28(Option<Element>),
     #[doc = "Consultation"]
     V3(Option<Element>),
-    #[doc = "Dental Accident"]
-    V37(Option<Element>),
-    #[doc = "Dental Care"]
-    V35(Option<Element>),
-    #[doc = "Dental Coverage"]
-    F3(Option<Element>),
-    #[doc = "Dental Crowns"]
-    V36(Option<Element>),
-    #[doc = "Diagnostic Dental"]
-    V23(Option<Element>),
-    #[doc = "Diagnostic Lab"]
-    V5(Option<Element>),
-    #[doc = "Diagnostic XRay"]
-    V4(Option<Element>),
-    #[doc = "Donor Procedures"]
-    V63(Option<Element>),
-    #[doc = "Endodontics"]
-    V26(Option<Element>),
     #[doc = "Health Benefit Plan Coverage"]
     V30(Option<Element>),
-    #[doc = "Hearing Coverage"]
-    F4(Option<Element>),
+    #[doc = "Dental Care"]
+    V35(Option<Element>),
+    #[doc = "Dental Crowns"]
+    V36(Option<Element>),
+    #[doc = "Dental Accident"]
+    V37(Option<Element>),
+    #[doc = "Diagnostic XRay"]
+    V4(Option<Element>),
     #[doc = "Hospital Room and Board"]
     V49(Option<Element>),
+    #[doc = "Diagnostic Lab"]
+    V5(Option<Element>),
+    #[doc = "Major Medical"]
+    V55(Option<Element>),
+    #[doc = "Medically Related Transportation"]
+    V56(Option<Element>),
     #[doc = "In-vitro Fertilization"]
     V61(Option<Element>),
     #[doc = "MRI Scan"]
     V62(Option<Element>),
-    #[doc = "Major Medical"]
-    V55(Option<Element>),
+    #[doc = "Donor Procedures"]
+    V63(Option<Element>),
     #[doc = "Maternity"]
     V69(Option<Element>),
-    #[doc = "Maxillofacial Prosthetics"]
-    V27(Option<Element>),
-    #[doc = "Medical Care"]
-    V1(Option<Element>),
-    #[doc = "Medical Coverage"]
-    F1(Option<Element>),
-    #[doc = "Medically Related Transportation"]
-    V56(Option<Element>),
-    #[doc = "Periodontics"]
-    V24(Option<Element>),
     #[doc = "Renal Dialysis"]
     V76(Option<Element>),
-    #[doc = "Renal Supplies"]
-    V14(Option<Element>),
-    #[doc = "Restorative"]
-    V25(Option<Element>),
-    #[doc = "Surgical"]
-    V2(Option<Element>),
+    #[doc = "Medical Coverage"]
+    F1(Option<Element>),
+    #[doc = "Dental Coverage"]
+    F3(Option<Element>),
+    #[doc = "Hearing Coverage"]
+    F4(Option<Element>),
     #[doc = "Vision Coverage"]
     F6(Option<Element>),
 }
 pub enum ExDiagnosisOnAdmission {
     #[doc = "No"]
     N(Option<Element>),
-    #[doc = "Undetermined"]
-    W(Option<Element>),
     #[doc = "Unknown"]
     U(Option<Element>),
+    #[doc = "Undetermined"]
+    W(Option<Element>),
     #[doc = "Yes"]
     Y(Option<Element>),
 }
 pub enum ExDiagnosisrelatedgroup {
-    #[doc = "Appendectomy - uncomplicated"]
-    V101(Option<Element>),
-    #[doc = "Head trauma - concussion"]
-    V400(Option<Element>),
     #[doc = "Normal Vaginal Delivery"]
     V100(Option<Element>),
+    #[doc = "Appendectomy - uncomplicated"]
+    V101(Option<Element>),
     #[doc = "Tooth abscess"]
     V300(Option<Element>),
+    #[doc = "Head trauma - concussion"]
+    V400(Option<Element>),
 }
 pub enum ExDiagnosistype {
     #[doc = "Admitting Diagnosis"]
@@ -3725,10 +3717,10 @@ pub enum ExDiagnosistype {
     _Self(Option<Element>),
 }
 pub enum ExOnsettype {
-    #[doc = "Last Exam"]
-    Lxm(Option<Element>),
     #[doc = "Last Menstruation"]
     Lmn(Option<Element>),
+    #[doc = "Last Exam"]
+    Lxm(Option<Element>),
     #[doc = "Start of Symptoms"]
     Sym(Option<Element>),
 }
@@ -3755,24 +3747,20 @@ pub enum ExProcedureType {
     Secondary(Option<Element>),
 }
 pub enum ExProgramCode {
-    #[doc = "Autism Screening"]
-    Auscr(Option<Element>),
     #[doc = "Child Asthma"]
     As(Option<Element>),
+    #[doc = "Autism Screening"]
+    Auscr(Option<Element>),
     #[doc = "Hemodialysis"]
     Hd(Option<Element>),
     #[doc = "None"]
     None(Option<Element>),
 }
 pub enum ExRevenueCenter {
+    #[doc = "Vision Clinic"]
+    V0010(Option<Element>),
     #[doc = "Anaesthesia"]
     V0370(Option<Element>),
-    #[doc = "Emergency Room"]
-    V0450(Option<Element>),
-    #[doc = "Emergency Room - EM/EMTALA"]
-    V0451(Option<Element>),
-    #[doc = "Emergency Room - beyond EMTALA"]
-    V0452(Option<Element>),
     #[doc = "Physical Therapy"]
     V0420(Option<Element>),
     #[doc = "Physical Therapy - "]
@@ -3781,16 +3769,20 @@ pub enum ExRevenueCenter {
     V0440(Option<Element>),
     #[doc = "Speech-Language Pathology - Visit"]
     V0441(Option<Element>),
-    #[doc = "Vision Clinic"]
-    V0010(Option<Element>),
+    #[doc = "Emergency Room"]
+    V0450(Option<Element>),
+    #[doc = "Emergency Room - EM/EMTALA"]
+    V0451(Option<Element>),
+    #[doc = "Emergency Room - beyond EMTALA"]
+    V0452(Option<Element>),
 }
 pub enum ExampleExtensional {
-    #[doc = "Cholesterol [Mass Or Moles/Volume]"]
-    V352005(Option<Element>),
-    #[doc = "Cholesterol [Mass/Volume]"]
-    V20933(Option<Element>),
     #[doc = "Cholesterol [Moles/Volume]"]
     V146472(Option<Element>),
+    #[doc = "Cholesterol [Mass/Volume]"]
+    V20933(Option<Element>),
+    #[doc = "Cholesterol [Mass Or Moles/Volume]"]
+    V352005(Option<Element>),
     #[doc = "Cholesterol [Percentile]"]
     V93427(Option<Element>),
 }
@@ -3818,26 +3810,26 @@ pub enum ExampleHierarchical {
     Value(Option<Element>),
 }
 pub enum ExamplescenarioActorType {
-    #[doc = "Person"]
-    Person(Option<Element>),
     #[doc = "System"]
     Entity(Option<Element>),
+    #[doc = "Person"]
+    Person(Option<Element>),
 }
 pub enum ExpansionParameterSource {
-    #[doc = "Client Input"]
-    Input(Option<Element>),
     #[doc = "Code System"]
     Codesystem(Option<Element>),
+    #[doc = "Client Input"]
+    Input(Option<Element>),
     #[doc = "Server Engine"]
     Server(Option<Element>),
 }
 pub enum ExpansionProcessingRule {
     #[doc = "All Codes"]
     AllCodes(Option<Element>),
-    #[doc = "Groups + Ungrouped codes"]
-    Ungrouped(Option<Element>),
     #[doc = "Groups Only"]
     GroupsOnly(Option<Element>),
+    #[doc = "Groups + Ungrouped codes"]
+    Ungrouped(Option<Element>),
 }
 pub enum ExplanationofbenefitStatus {
     #[doc = "Active"]
@@ -3856,10 +3848,10 @@ pub enum ExposureState {
     ExposureAlternative(Option<Element>),
 }
 pub enum ExpressionLanguage {
-    #[doc = "CQL"]
-    Text_Cql(Option<Element>),
     #[doc = "FHIR Query"]
     Application_XFhirQuery(Option<Element>),
+    #[doc = "CQL"]
+    Text_Cql(Option<Element>),
     #[doc = "FHIRPath"]
     Text_Fhirpath(Option<Element>),
 }
@@ -3872,10 +3864,10 @@ pub enum ExtensionContextType {
     Fhirpath(Option<Element>),
 }
 pub enum FilterOperator {
-    #[doc = "Descendent Of (by subsumption)"]
-    DescendentOf(Option<Element>),
     #[doc = "Equals"]
     Equal(Option<Element>),
+    #[doc = "Descendent Of (by subsumption)"]
+    DescendentOf(Option<Element>),
     #[doc = "Exists"]
     Exists(Option<Element>),
     #[doc = "Generalizes (by Subsumption)"]
@@ -3928,6 +3920,8 @@ pub enum FlagCategory {
     Behavioral(Option<Element>),
     #[doc = "Clinical"]
     Clinical(Option<Element>),
+    #[doc = "Subject Contact"]
+    Contact(Option<Element>),
     #[doc = "Diet"]
     Diet(Option<Element>),
     #[doc = "Drug"]
@@ -3938,8 +3932,6 @@ pub enum FlagCategory {
     Research(Option<Element>),
     #[doc = "Safety"]
     Safety(Option<Element>),
-    #[doc = "Subject Contact"]
-    Contact(Option<Element>),
 }
 pub enum FlagPriority {
     #[doc = "High priority"]
@@ -4004,14 +3996,14 @@ pub enum Fundsreserve {
     Provider(Option<Element>),
 }
 pub enum GenderIdentity {
-    #[doc = "does not wish to disclose"]
-    NonDisclose(Option<Element>),
     #[doc = "female"]
     Female(Option<Element>),
     #[doc = "male"]
     Male(Option<Element>),
     #[doc = "non-binary"]
     NonBinary(Option<Element>),
+    #[doc = "does not wish to disclose"]
+    NonDisclose(Option<Element>),
     #[doc = "other"]
     Other(Option<Element>),
     #[doc = "transgender female"]
@@ -4080,14 +4072,14 @@ pub enum GoalRelationshipType {
     Successor(Option<Element>),
 }
 pub enum GoalStartEvent {
+    #[doc = "Discharge from hospital"]
+    V308283009(Option<Element>),
     #[doc = "Admission to hospital"]
     V32485007(Option<Element>),
     #[doc = "Childbirth"]
     V386216000(Option<Element>),
     #[doc = "Completion time of procedure"]
     V442137000(Option<Element>),
-    #[doc = "Discharge from hospital"]
-    V308283009(Option<Element>),
 }
 pub enum GoalStatus {
     #[doc = "Accepted"]
@@ -4112,10 +4104,6 @@ pub enum GoalStatus {
 pub enum GoalStatusReason {
     #[doc = "Financial Reason"]
     FinancialBarrier(Option<Element>),
-    #[doc = "Goal Not Attainable Permanently"]
-    PermanentNotAttainable(Option<Element>),
-    #[doc = "Goal Not Attainable Temporarily"]
-    TempNotAttainable(Option<Element>),
     #[doc = "Lack Of Social Support"]
     LackOfSocialSupport(Option<Element>),
     #[doc = "Lack Of Transportation"]
@@ -4124,10 +4112,14 @@ pub enum GoalStatusReason {
     LifeEvent(Option<Element>),
     #[doc = "Patient Request"]
     PatientRequest(Option<Element>),
+    #[doc = "Goal Not Attainable Permanently"]
+    PermanentNotAttainable(Option<Element>),
     #[doc = "Replaced"]
     Replaced(Option<Element>),
     #[doc = "Surgery"]
     Surgery(Option<Element>),
+    #[doc = "Goal Not Attainable Temporarily"]
+    TempNotAttainable(Option<Element>),
 }
 pub enum GraphCompartmentRule {
     #[doc = "Custom"]
@@ -4200,8 +4192,6 @@ pub enum GuidePageGeneration {
 pub enum GuideParameterCode {
     #[doc = "Apply Metadata Value"]
     Apply(Option<Element>),
-    #[doc = "Broken Links Rule"]
-    RuleBrokenLinks(Option<Element>),
     #[doc = "Expansion Profile"]
     ExpansionParameter(Option<Element>),
     #[doc = "Generate JSON"]
@@ -4218,6 +4208,8 @@ pub enum GuideParameterCode {
     PathResource(Option<Element>),
     #[doc = "Terminology Cache Path"]
     PathTxCache(Option<Element>),
+    #[doc = "Broken Links Rule"]
+    RuleBrokenLinks(Option<Element>),
 }
 pub enum HandlingCondition {
     #[doc = "frozen"]
@@ -4230,12 +4222,12 @@ pub enum HandlingCondition {
 pub enum HistoryAbsentReason {
     #[doc = "Deferred"]
     Deferred(Option<Element>),
-    #[doc = "Information Withheld"]
-    Withheld(Option<Element>),
     #[doc = "Subject Unknown"]
     SubjectUnknown(Option<Element>),
     #[doc = "Unable To Obtain"]
     UnableToObtain(Option<Element>),
+    #[doc = "Information Withheld"]
+    Withheld(Option<Element>),
 }
 pub enum HistoryStatus {
     #[doc = "Completed"]
@@ -4252,30 +4244,30 @@ pub enum Hl7WorkGroup {
     Aid(Option<Element>),
     #[doc = "Biomedical Research and Regulation"]
     Brr(Option<Element>),
+    #[doc = "Community Based Collaborative Care"]
+    Cbcc(Option<Element>),
     #[doc = "Clinical Decision Support"]
     Cds(Option<Element>),
     #[doc = "Clinical Genomics"]
     Cg(Option<Element>),
     #[doc = "Clinical Quality Information"]
     Cqi(Option<Element>),
-    #[doc = "Community Based Collaborative Care"]
-    Cbcc(Option<Element>),
+    #[doc = "Health Care Devices"]
+    Dev(Option<Element>),
     #[doc = "Electronic Health Records"]
     Ehr(Option<Element>),
     #[doc = "FHIR Infrastructure"]
     Fhir(Option<Element>),
     #[doc = "Financial Management"]
     Fm(Option<Element>),
-    #[doc = "Health Care Devices"]
-    Dev(Option<Element>),
     #[doc = "Health Standards Integration"]
     Hsi(Option<Element>),
     #[doc = "Imaging Integration"]
     Ii(Option<Element>),
-    #[doc = "Implementable Technology Specifications"]
-    Its(Option<Element>),
     #[doc = "Infrastructure And Messaging"]
     Inm(Option<Element>),
+    #[doc = "Implementable Technology Specifications"]
+    Its(Option<Element>),
     #[doc = "Modeling and Methodology"]
     Mnm(Option<Element>),
     #[doc = "Orders and Observations"]
@@ -4284,14 +4276,14 @@ pub enum Hl7WorkGroup {
     Pa(Option<Element>),
     #[doc = "Patient Care"]
     Pc(Option<Element>),
-    #[doc = "Pharmacy"]
-    Phx(Option<Element>),
     #[doc = "Public Health and Emergency Response"]
     Pher(Option<Element>),
-    #[doc = "Security"]
-    Sec(Option<Element>),
+    #[doc = "Pharmacy"]
+    Phx(Option<Element>),
     #[doc = "Structured Documents"]
     Sd(Option<Element>),
+    #[doc = "Security"]
+    Sec(Option<Element>),
     #[doc = "US Realm Taskforce"]
     Us(Option<Element>),
     #[doc = "Vocabulary"]
@@ -4328,20 +4320,20 @@ pub enum HttpVerb {
     PUT(Option<Element>),
 }
 pub enum Icd10 {
+    #[doc = "DIAG-4"]
+    V112233(Option<Element>),
     #[doc = "DIAG-1"]
     V123456(Option<Element>),
     #[doc = "DIAG-1a"]
     V123457(Option<Element>),
-    #[doc = "DIAG-2"]
-    V987654(Option<Element>),
     #[doc = "DIAG-3"]
     V123987(Option<Element>),
-    #[doc = "DIAG-4"]
-    V112233(Option<Element>),
-    #[doc = "DIAG-5"]
-    V997755(Option<Element>),
     #[doc = "DIAG-6"]
     V321789(Option<Element>),
+    #[doc = "DIAG-2"]
+    V987654(Option<Element>),
+    #[doc = "DIAG-5"]
+    V997755(Option<Element>),
 }
 pub enum Icd10Procedures {
     #[doc = "PROC-1"]
@@ -4412,14 +4404,14 @@ pub enum ImmunizationEvaluationDoseStatus {
     Valid(Option<Element>),
 }
 pub enum ImmunizationEvaluationDoseStatusReason {
-    #[doc = "Administered outside recommended schedule"]
-    Outsidesched(Option<Element>),
     #[doc = "Adverse storage condition"]
     Advstorage(Option<Element>),
     #[doc = "Cold chain break"]
     Coldchbrk(Option<Element>),
     #[doc = "Expired lot"]
     Explot(Option<Element>),
+    #[doc = "Administered outside recommended schedule"]
+    Outsidesched(Option<Element>),
     #[doc = "Product recall"]
     Prodrecall(Option<Element>),
 }
@@ -4453,10 +4445,10 @@ pub enum ImmunizationOrigin {
     Provider(Option<Element>),
     #[doc = "Parent/Guardian/Patient Recall"]
     Recall(Option<Element>),
-    #[doc = "School Record"]
-    School(Option<Element>),
     #[doc = "Written Record"]
     Record(Option<Element>),
+    #[doc = "School Record"]
+    School(Option<Element>),
 }
 pub enum ImmunizationProgramEligibility {
     #[doc = "Not Eligible"]
@@ -4502,18 +4494,18 @@ pub enum ImmunizationRecommendationTargetDisease {
     V76902006(Option<Element>),
 }
 pub enum ImmunizationRoute {
-    #[doc = "Inhalation, nasal"]
-    NASINHLC(Option<Element>),
     #[doc = "Injection, intradermal"]
     IDINJ(Option<Element>),
     #[doc = "Injection, intramuscular"]
     IM(Option<Element>),
     #[doc = "Injection, intravenous"]
     IVINJ(Option<Element>),
-    #[doc = "Injection, subcutaneous"]
-    SQ(Option<Element>),
+    #[doc = "Inhalation, nasal"]
+    NASINHLC(Option<Element>),
     #[doc = "Swallow, oral"]
     PO(Option<Element>),
+    #[doc = "Injection, subcutaneous"]
+    SQ(Option<Element>),
     #[doc = "Transdermal"]
     TRNSDERM(Option<Element>),
 }
@@ -4531,10 +4523,10 @@ pub enum ImmunizationStatus {
 pub enum ImmunizationSubpotentReason {
     #[doc = "Cold Chain Break"]
     Coldchainbreak(Option<Element>),
-    #[doc = "Manufacturer Recall"]
-    Recall(Option<Element>),
     #[doc = "Partial Dose"]
     Partial(Option<Element>),
+    #[doc = "Manufacturer Recall"]
+    Recall(Option<Element>),
 }
 pub enum ImmunizationTargetDisease {
     V14189004(Option<Element>),
@@ -4558,14 +4550,6 @@ pub enum ImplantStatus {
     Unknown(Option<Element>),
 }
 pub enum Inactive {
-    #[doc = "ActMoodCompletionTrack"]
-    _ActMoodCompletionTrack(Option<Element>),
-    #[doc = "ActMoodPredicate"]
-    _ActMoodPredicate(Option<Element>),
-    #[doc = "Goal"]
-    GOL(Option<Element>),
-    #[doc = "act request"]
-    _ActMoodActRequest(Option<Element>),
     #[doc = "appointment"]
     APT(Option<Element>),
     #[doc = "appointment request"]
@@ -4574,14 +4558,14 @@ pub enum Inactive {
     CRT(Option<Element>),
     #[doc = "definition"]
     DEF(Option<Element>),
-    #[doc = "desire"]
-    _ActMoodDesire(Option<Element>),
     #[doc = "event (occurrence)"]
     EVN(Option<Element>),
     #[doc = "event criterion"]
     EVNCRT(Option<Element>),
     #[doc = "expectation"]
     EXPEC(Option<Element>),
+    #[doc = "Goal"]
+    GOL(Option<Element>),
     #[doc = "goal criterion"]
     GOLCRT(Option<Element>),
     #[doc = "intent"]
@@ -4594,8 +4578,6 @@ pub enum Inactive {
     PERM(Option<Element>),
     #[doc = "permission request"]
     PERMRQ(Option<Element>),
-    #[doc = "potential"]
-    _ActMoodPotential(Option<Element>),
     #[doc = "promise"]
     PRMS(Option<Element>),
     #[doc = "promise criterion"]
@@ -4608,12 +4590,22 @@ pub enum Inactive {
     RQO(Option<Element>),
     #[doc = "request criterion"]
     RQOCRT(Option<Element>),
-    #[doc = "resource slot"]
-    SLOT(Option<Element>),
     #[doc = "risk"]
     RSK(Option<Element>),
     #[doc = "risk criterion"]
     RSKCRT(Option<Element>),
+    #[doc = "resource slot"]
+    SLOT(Option<Element>),
+    #[doc = "act request"]
+    _ActMoodActRequest(Option<Element>),
+    #[doc = "ActMoodCompletionTrack"]
+    _ActMoodCompletionTrack(Option<Element>),
+    #[doc = "desire"]
+    _ActMoodDesire(Option<Element>),
+    #[doc = "potential"]
+    _ActMoodPotential(Option<Element>),
+    #[doc = "ActMoodPredicate"]
+    _ActMoodPredicate(Option<Element>),
 }
 pub enum InstanceAvailability {
     NEARLINE(Option<Element>),
@@ -4630,10 +4622,10 @@ pub enum InsuranceplanApplicability {
     OutOfNetwork(Option<Element>),
 }
 pub enum InsuranceplanType {
-    #[doc = "Dental"]
-    Dental(Option<Element>),
     #[doc = "Drug"]
     Drug(Option<Element>),
+    #[doc = "Dental"]
+    Dental(Option<Element>),
     #[doc = "Home Health"]
     Home(Option<Element>),
     #[doc = "Hospice"]
@@ -4658,10 +4650,10 @@ pub enum Intervention {
     Unknown(Option<Element>),
 }
 pub enum InvestigationSets {
-    #[doc = "Examination / signs"]
-    V271336007(Option<Element>),
     #[doc = "History/symptoms"]
     V160237006(Option<Element>),
+    #[doc = "Examination / signs"]
+    V271336007(Option<Element>),
 }
 pub enum InvoicePriceComponentType {
     #[doc = "base price"]
@@ -4702,32 +4694,30 @@ pub enum IssueSeverity {
 pub enum IssueType {
     #[doc = "Business Rule Violation"]
     BusinessRule(Option<Element>),
-    #[doc = "Content Too Long"]
-    TooLong(Option<Element>),
-    #[doc = "Content not supported"]
-    NotSupported(Option<Element>),
+    #[doc = "Invalid Code"]
+    CodeInvalid(Option<Element>),
+    #[doc = "Edit Version Conflict"]
+    Conflict(Option<Element>),
     #[doc = "Deleted"]
     Deleted(Option<Element>),
     #[doc = "Duplicate"]
     Duplicate(Option<Element>),
-    #[doc = "Edit Version Conflict"]
-    Conflict(Option<Element>),
-    #[doc = "Element value invalid"]
-    Value(Option<Element>),
     #[doc = "Exception"]
     Exception(Option<Element>),
+    #[doc = "Session Expired"]
+    Expired(Option<Element>),
+    #[doc = "Unacceptable Extension"]
+    Extension(Option<Element>),
     #[doc = "Forbidden"]
     Forbidden(Option<Element>),
     #[doc = "Incomplete Results"]
     Incomplete(Option<Element>),
-    #[doc = "Information  Suppressed"]
-    Suppressed(Option<Element>),
     #[doc = "Informational Note"]
     Informational(Option<Element>),
-    #[doc = "Invalid Code"]
-    CodeInvalid(Option<Element>),
     #[doc = "Invalid Content"]
     Invalid(Option<Element>),
+    #[doc = "Validation rule failed"]
+    Invariant(Option<Element>),
     #[doc = "Lock Error"]
     LockError(Option<Element>),
     #[doc = "Login Required"]
@@ -4738,30 +4728,32 @@ pub enum IssueType {
     NoStore(Option<Element>),
     #[doc = "Not Found"]
     NotFound(Option<Element>),
-    #[doc = "Operation Too Costly"]
-    TooCostly(Option<Element>),
+    #[doc = "Content not supported"]
+    NotSupported(Option<Element>),
     #[doc = "Processing Failure"]
     Processing(Option<Element>),
     #[doc = "Required element missing"]
     Required(Option<Element>),
     #[doc = "Security Problem"]
     Security(Option<Element>),
-    #[doc = "Session Expired"]
-    Expired(Option<Element>),
     #[doc = "Structural Issue"]
     Structure(Option<Element>),
+    #[doc = "Information  Suppressed"]
+    Suppressed(Option<Element>),
     #[doc = "Throttled"]
     Throttled(Option<Element>),
     #[doc = "Timeout"]
     Timeout(Option<Element>),
+    #[doc = "Operation Too Costly"]
+    TooCostly(Option<Element>),
+    #[doc = "Content Too Long"]
+    TooLong(Option<Element>),
     #[doc = "Transient Issue"]
     Transient(Option<Element>),
-    #[doc = "Unacceptable Extension"]
-    Extension(Option<Element>),
     #[doc = "Unknown User"]
     Unknown(Option<Element>),
-    #[doc = "Validation rule failed"]
-    Invariant(Option<Element>),
+    #[doc = "Element value invalid"]
+    Value(Option<Element>),
 }
 pub enum ItemType {
     #[doc = "Attachment"]
@@ -4830,28 +4822,20 @@ pub enum Languages {
     Ar(Option<Element>),
     #[doc = "Bengali"]
     Bn(Option<Element>),
-    #[doc = "Chinese"]
-    Zh(Option<Element>),
-    #[doc = "Chinese (China)"]
-    ZhCN(Option<Element>),
-    #[doc = "Chinese (Hong Kong)"]
-    ZhHK(Option<Element>),
-    #[doc = "Chinese (Singapore)"]
-    ZhSG(Option<Element>),
-    #[doc = "Chinese (Taiwan)"]
-    ZhTW(Option<Element>),
-    #[doc = "Croatian"]
-    Hr(Option<Element>),
     #[doc = "Czech"]
     Cs(Option<Element>),
     #[doc = "Danish"]
     Da(Option<Element>),
-    #[doc = "Dutch"]
-    Nl(Option<Element>),
-    #[doc = "Dutch (Belgium)"]
-    NlBE(Option<Element>),
-    #[doc = "Dutch (Netherlands)"]
-    NlNL(Option<Element>),
+    #[doc = "German"]
+    De(Option<Element>),
+    #[doc = "German (Austria)"]
+    DeAT(Option<Element>),
+    #[doc = "German (Switzerland)"]
+    DeCH(Option<Element>),
+    #[doc = "German (Germany)"]
+    DeDE(Option<Element>),
+    #[doc = "Greek"]
+    El(Option<Element>),
     #[doc = "English"]
     En(Option<Element>),
     #[doc = "English (Australia)"]
@@ -4868,62 +4852,6 @@ pub enum Languages {
     EnSG(Option<Element>),
     #[doc = "English (United States)"]
     EnUS(Option<Element>),
-    #[doc = "Finnish"]
-    Fi(Option<Element>),
-    #[doc = "French"]
-    Fr(Option<Element>),
-    #[doc = "French (Belgium)"]
-    FrBE(Option<Element>),
-    #[doc = "French (France)"]
-    FrFR(Option<Element>),
-    #[doc = "French (Switzerland)"]
-    FrCH(Option<Element>),
-    #[doc = "Frysian"]
-    Fy(Option<Element>),
-    #[doc = "Frysian (Netherlands)"]
-    FyNL(Option<Element>),
-    #[doc = "German"]
-    De(Option<Element>),
-    #[doc = "German (Austria)"]
-    DeAT(Option<Element>),
-    #[doc = "German (Germany)"]
-    DeDE(Option<Element>),
-    #[doc = "German (Switzerland)"]
-    DeCH(Option<Element>),
-    #[doc = "Greek"]
-    El(Option<Element>),
-    #[doc = "Hindi"]
-    Hi(Option<Element>),
-    #[doc = "Italian"]
-    It(Option<Element>),
-    #[doc = "Italian (Italy)"]
-    ItIT(Option<Element>),
-    #[doc = "Italian (Switzerland)"]
-    ItCH(Option<Element>),
-    #[doc = "Japanese"]
-    Ja(Option<Element>),
-    #[doc = "Korean"]
-    Ko(Option<Element>),
-    #[doc = "Norwegian"]
-    No(Option<Element>),
-    #[doc = "Norwegian (Norway)"]
-    NoNO(Option<Element>),
-    #[doc = "Polish"]
-    Pl(Option<Element>),
-    #[doc = "Portuguese"]
-    Pt(Option<Element>),
-    #[doc = "Portuguese (Brazil)"]
-    PtBR(Option<Element>),
-    #[doc = "Punjabi"]
-    Pa(Option<Element>),
-    #[doc = "Russian"]
-    Ru(Option<Element>),
-    #[doc = "Russian (Russia)"]
-    RuRU(Option<Element>),
-    #[doc = "Serbian"]
-    Sr(Option<Element>),
-    #[doc = "Serbian (Serbia)"]
-    SrRS(Option<Element>),
     #[doc = "Spanish"]
     Es(Option<Element>),
     #[doc = "Spanish (Argentina)"]
@@ -4932,12 +4860,76 @@ pub enum Languages {
     EsES(Option<Element>),
     #[doc = "Spanish (Uruguay)"]
     EsUY(Option<Element>),
+    #[doc = "Finnish"]
+    Fi(Option<Element>),
+    #[doc = "French"]
+    Fr(Option<Element>),
+    #[doc = "French (Belgium)"]
+    FrBE(Option<Element>),
+    #[doc = "French (Switzerland)"]
+    FrCH(Option<Element>),
+    #[doc = "French (France)"]
+    FrFR(Option<Element>),
+    #[doc = "Frysian"]
+    Fy(Option<Element>),
+    #[doc = "Frysian (Netherlands)"]
+    FyNL(Option<Element>),
+    #[doc = "Hindi"]
+    Hi(Option<Element>),
+    #[doc = "Croatian"]
+    Hr(Option<Element>),
+    #[doc = "Italian"]
+    It(Option<Element>),
+    #[doc = "Italian (Switzerland)"]
+    ItCH(Option<Element>),
+    #[doc = "Italian (Italy)"]
+    ItIT(Option<Element>),
+    #[doc = "Japanese"]
+    Ja(Option<Element>),
+    #[doc = "Korean"]
+    Ko(Option<Element>),
+    #[doc = "Dutch"]
+    Nl(Option<Element>),
+    #[doc = "Dutch (Belgium)"]
+    NlBE(Option<Element>),
+    #[doc = "Dutch (Netherlands)"]
+    NlNL(Option<Element>),
+    #[doc = "Norwegian"]
+    No(Option<Element>),
+    #[doc = "Norwegian (Norway)"]
+    NoNO(Option<Element>),
+    #[doc = "Punjabi"]
+    Pa(Option<Element>),
+    #[doc = "Polish"]
+    Pl(Option<Element>),
+    #[doc = "Portuguese"]
+    Pt(Option<Element>),
+    #[doc = "Portuguese (Brazil)"]
+    PtBR(Option<Element>),
+    #[doc = "Russian"]
+    Ru(Option<Element>),
+    #[doc = "Russian (Russia)"]
+    RuRU(Option<Element>),
+    #[doc = "Serbian"]
+    Sr(Option<Element>),
+    #[doc = "Serbian (Serbia)"]
+    SrRS(Option<Element>),
     #[doc = "Swedish"]
     Sv(Option<Element>),
     #[doc = "Swedish (Sweden)"]
     SvSE(Option<Element>),
     #[doc = "Telegu"]
     Te(Option<Element>),
+    #[doc = "Chinese"]
+    Zh(Option<Element>),
+    #[doc = "Chinese (China)"]
+    ZhCN(Option<Element>),
+    #[doc = "Chinese (Hong Kong)"]
+    ZhHK(Option<Element>),
+    #[doc = "Chinese (Singapore)"]
+    ZhSG(Option<Element>),
+    #[doc = "Chinese (Taiwan)"]
+    ZhTW(Option<Element>),
 }
 pub enum LdlcholesterolCodes {
     #[doc = "Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation"]
@@ -4976,8 +4968,6 @@ pub enum LinkageType {
 pub enum ListEmptyReason {
     #[doc = "Closed"]
     Closed(Option<Element>),
-    #[doc = "Information Withheld"]
-    Withheld(Option<Element>),
     #[doc = "Nil Known"]
     Nilknown(Option<Element>),
     #[doc = "Not Asked"]
@@ -4986,6 +4976,8 @@ pub enum ListEmptyReason {
     Notstarted(Option<Element>),
     #[doc = "Unavailable"]
     Unavailable(Option<Element>),
+    #[doc = "Information Withheld"]
+    Withheld(Option<Element>),
 }
 pub enum ListExampleCodes {
     #[doc = "Adverse Reactions"]
@@ -4994,10 +4986,10 @@ pub enum ListExampleCodes {
     Alerts(Option<Element>),
     #[doc = "Allergies"]
     Allergies(Option<Element>),
-    #[doc = "Care Plans"]
-    Plans(Option<Element>),
     #[doc = "Medication List"]
     Medications(Option<Element>),
+    #[doc = "Care Plans"]
+    Plans(Option<Element>),
     #[doc = "Problem List"]
     Problems(Option<Element>),
     #[doc = "Protocols"]
@@ -5008,18 +5000,18 @@ pub enum ListExampleCodes {
     Worklist(Option<Element>),
 }
 pub enum ListItemFlag {
-    #[doc = "Cancelled"]
-    V03(Option<Element>),
-    #[doc = "Ceased"]
-    V05(Option<Element>),
-    #[doc = "Changed"]
-    V02(Option<Element>),
-    #[doc = "Prescribed"]
-    V04(Option<Element>),
-    #[doc = "Suspended"]
-    V06(Option<Element>),
     #[doc = "Unchanged"]
     V01(Option<Element>),
+    #[doc = "Changed"]
+    V02(Option<Element>),
+    #[doc = "Cancelled"]
+    V03(Option<Element>),
+    #[doc = "Prescribed"]
+    V04(Option<Element>),
+    #[doc = "Ceased"]
+    V05(Option<Element>),
+    #[doc = "Suspended"]
+    V06(Option<Element>),
 }
 pub enum ListMode {
     #[doc = "Change List"]
@@ -5034,10 +5026,10 @@ pub enum ListOrder {
     Alphabetic(Option<Element>),
     #[doc = "Sorted by Category"]
     Category(Option<Element>),
-    #[doc = "Sorted by Event Date"]
-    EventDate(Option<Element>),
     #[doc = "Sorted by Item Date"]
     EntryDate(Option<Element>),
+    #[doc = "Sorted by Event Date"]
+    EventDate(Option<Element>),
     #[doc = "Sorted by Patient"]
     Patient(Option<Element>),
     #[doc = "Sorted by Priority"]
@@ -5106,12 +5098,12 @@ pub enum MapContextType {
     Variable(Option<Element>),
 }
 pub enum MapGroupTypeMode {
-    #[doc = "Default for Type Combination"]
-    Types(Option<Element>),
-    #[doc = "Default for type + combination"]
-    TypeAndTypes(Option<Element>),
     #[doc = "Not a Default"]
     None(Option<Element>),
+    #[doc = "Default for type + combination"]
+    TypeAndTypes(Option<Element>),
+    #[doc = "Default for Type Combination"]
+    Types(Option<Element>),
 }
 pub enum MapInputMode {
     #[doc = "Source Instance"]
@@ -5130,16 +5122,16 @@ pub enum MapModelMode {
     Target(Option<Element>),
 }
 pub enum MapSourceListMode {
+    #[doc = "First"]
+    First(Option<Element>),
+    #[doc = "Last"]
+    Last(Option<Element>),
     #[doc = "All but the first"]
     Not_first(Option<Element>),
     #[doc = "All but the last"]
     Not_last(Option<Element>),
     #[doc = "Enforce only one"]
     Only_one(Option<Element>),
-    #[doc = "First"]
-    First(Option<Element>),
-    #[doc = "Last"]
-    Last(Option<Element>),
 }
 pub enum MapTargetListMode {
     #[doc = "Collate"]
@@ -5188,27 +5180,27 @@ pub enum MapTransform {
     Uuid(Option<Element>),
 }
 pub enum MaritalStatus {
-    UNK(Option<Element>),
     #[doc = "Annulled"]
     A(Option<Element>),
     #[doc = "Divorced"]
     D(Option<Element>),
-    #[doc = "Domestic partner"]
-    T(Option<Element>),
     #[doc = "Interlocutory"]
     I(Option<Element>),
     #[doc = "Legally Separated"]
     L(Option<Element>),
     #[doc = "Married"]
     M(Option<Element>),
-    #[doc = "Never Married"]
-    S(Option<Element>),
     #[doc = "Polygamous"]
     P(Option<Element>),
-    #[doc = "Widowed"]
-    W(Option<Element>),
+    #[doc = "Never Married"]
+    S(Option<Element>),
+    #[doc = "Domestic partner"]
+    T(Option<Element>),
     #[doc = "unmarried"]
     U(Option<Element>),
+    UNK(Option<Element>),
+    #[doc = "Widowed"]
+    W(Option<Element>),
 }
 pub enum MatchGrade {
     #[doc = "Certain Match"]
@@ -5409,46 +5401,46 @@ pub enum MedicationdispenseStatus {
     Unknown(Option<Element>),
 }
 pub enum MedicationdispenseStatusReason {
-    #[doc = "Admission to hospital"]
-    Hospadm(Option<Element>),
-    #[doc = "Allergy"]
-    Saig(Option<Element>),
-    #[doc = "Drug interacts with another drug"]
-    Sddi(Option<Element>),
+    #[doc = "Try another treatment first"]
+    Altchoice(Option<Element>),
+    #[doc = "Prescription/Request requires clarification"]
+    Clarif(Option<Element>),
     #[doc = "Drug level too high"]
     Drughigh(Option<Element>),
+    #[doc = "Order Stopped"]
+    Frr01(Option<Element>),
+    #[doc = "Stale-dated Order"]
+    Frr02(Option<Element>),
+    #[doc = "Incomplete data"]
+    Frr03(Option<Element>),
+    #[doc = "Product unavailable"]
+    Frr04(Option<Element>),
+    #[doc = "Ethical/religious"]
+    Frr05(Option<Element>),
+    #[doc = "Unable to provide care"]
+    Frr06(Option<Element>),
+    #[doc = "Admission to hospital"]
+    Hospadm(Option<Element>),
+    #[doc = "Lab interference issues"]
+    Labint(Option<Element>),
+    #[doc = "Patient not available"]
+    NonAvail(Option<Element>),
     #[doc = "Drug not available - off market"]
     Offmarket(Option<Element>),
     #[doc = "Drug not available - out of stock"]
     Outofstock(Option<Element>),
-    #[doc = "Duplicate therapy"]
-    Sdupther(Option<Element>),
-    #[doc = "Ethical/religious"]
-    Frr05(Option<Element>),
-    #[doc = "Incomplete data"]
-    Frr03(Option<Element>),
-    #[doc = "Lab interference issues"]
-    Labint(Option<Element>),
-    #[doc = "Order Stopped"]
-    Frr01(Option<Element>),
     #[doc = "Patient is pregnant or breastfeeding"]
     Preg(Option<Element>),
-    #[doc = "Patient not available"]
-    NonAvail(Option<Element>),
-    #[doc = "Patient scheduled for surgery"]
-    Surg(Option<Element>),
-    #[doc = "Prescription/Request requires clarification"]
-    Clarif(Option<Element>),
-    #[doc = "Product unavailable"]
-    Frr04(Option<Element>),
-    #[doc = "Stale-dated Order"]
-    Frr02(Option<Element>),
+    #[doc = "Allergy"]
+    Saig(Option<Element>),
+    #[doc = "Drug interacts with another drug"]
+    Sddi(Option<Element>),
+    #[doc = "Duplicate therapy"]
+    Sdupther(Option<Element>),
     #[doc = "Suspected intolerance"]
     Sintol(Option<Element>),
-    #[doc = "Try another treatment first"]
-    Altchoice(Option<Element>),
-    #[doc = "Unable to provide care"]
-    Frr06(Option<Element>),
+    #[doc = "Patient scheduled for surgery"]
+    Surg(Option<Element>),
     #[doc = "Washout"]
     Washout(Option<Element>),
 }
@@ -5497,10 +5489,10 @@ pub enum MedicationknowledgePackageType {
     Nebamp(Option<Element>),
     #[doc = "Ovule"]
     Ovul(Option<Element>),
-    #[doc = "Packet"]
-    Pkt(Option<Element>),
     #[doc = "Pouch"]
     Pch(Option<Element>),
+    #[doc = "Packet"]
+    Pkt(Option<Element>),
     #[doc = "Sashet"]
     Sash(Option<Element>),
     #[doc = "Strip"]
@@ -5533,12 +5525,12 @@ pub enum MedicationrequestCategory {
     Outpatient(Option<Element>),
 }
 pub enum MedicationrequestCourseOfTherapy {
+    #[doc = "Short course (acute) therapy"]
+    Acute(Option<Element>),
     #[doc = "Continuous long term therapy"]
     Continuous(Option<Element>),
     #[doc = "Seasonal"]
     Seasonal(Option<Element>),
-    #[doc = "Short course (acute) therapy"]
-    Acute(Option<Element>),
 }
 pub enum MedicationrequestIntent {
     #[doc = "Filler Order"]
@@ -5577,30 +5569,30 @@ pub enum MedicationrequestStatus {
     Unknown(Option<Element>),
 }
 pub enum MedicationrequestStatusReason {
+    #[doc = "Try another treatment first"]
+    Altchoice(Option<Element>),
+    #[doc = "Prescription requires clarification"]
+    Clarif(Option<Element>),
+    #[doc = "Drug level too high"]
+    Drughigh(Option<Element>),
     #[doc = "Admission to hospital"]
     Hospadm(Option<Element>),
+    #[doc = "Lab interference issues"]
+    Labint(Option<Element>),
+    #[doc = "Patient not available"]
+    NonAvail(Option<Element>),
+    #[doc = "Parent is pregnant/breast feeding"]
+    Preg(Option<Element>),
     #[doc = "Allergy"]
     Salg(Option<Element>),
     #[doc = "Drug interacts with another drug"]
     Sddi(Option<Element>),
-    #[doc = "Drug level too high"]
-    Drughigh(Option<Element>),
     #[doc = "Duplicate therapy"]
     Sdupther(Option<Element>),
-    #[doc = "Lab interference issues"]
-    Labint(Option<Element>),
-    #[doc = "Parent is pregnant/breast feeding"]
-    Preg(Option<Element>),
-    #[doc = "Patient not available"]
-    NonAvail(Option<Element>),
-    #[doc = "Patient scheduled for surgery."]
-    Surg(Option<Element>),
-    #[doc = "Prescription requires clarification"]
-    Clarif(Option<Element>),
     #[doc = "Suspected intolerance"]
     Sintol(Option<Element>),
-    #[doc = "Try another treatment first"]
-    Altchoice(Option<Element>),
+    #[doc = "Patient scheduled for surgery."]
+    Surg(Option<Element>),
     #[doc = "Waiting for old drug to wash out"]
     Washout(Option<Element>),
 }
@@ -5637,10 +5629,10 @@ pub enum MessageTransport {
 pub enum MessageheaderResponseRequest {
     #[doc = "Always"]
     Always(Option<Element>),
-    #[doc = "Error/reject conditions only"]
-    OnError(Option<Element>),
     #[doc = "Never"]
     Never(Option<Element>),
+    #[doc = "Error/reject conditions only"]
+    OnError(Option<Element>),
     #[doc = "Successful completion only"]
     OnSuccess(Option<Element>),
 }
@@ -5713,48 +5705,48 @@ pub enum MissingToothReason {
     U(Option<Element>),
 }
 pub enum ModifiedFoodtype {
+    #[doc = "Eggs"]
+    V102263004(Option<Element>),
+    #[doc = "Starchy food"]
+    V226529007(Option<Element>),
     #[doc = "Dairy foods"]
     V226760005(Option<Element>),
     #[doc = "Dietary Fats and Oils"]
     V226887002(Option<Element>),
-    #[doc = "Eggs"]
-    V102263004(Option<Element>),
-    #[doc = "Food Starch"]
-    V74242007(Option<Element>),
-    #[doc = "Foods"]
-    V255620007(Option<Element>),
-    #[doc = "Fruit"]
-    V72511004(Option<Element>),
+    #[doc = "Vegetables plus herbs and spices"]
+    V227210005(Option<Element>),
     #[doc = "Fruit Nuts and Seeds"]
     V227415002(Option<Element>),
+    #[doc = "Sauce seasonings and soups"]
+    V227518002(Option<Element>),
+    #[doc = "Vegetables"]
+    V22836000(Option<Element>),
+    #[doc = "Foods"]
+    V255620007(Option<Element>),
     #[doc = "Grain"]
     V264331002(Option<Element>),
     #[doc = "Meat"]
     V28647000(Option<Element>),
-    #[doc = "Sauce seasonings and soups"]
-    V227518002(Option<Element>),
     #[doc = "Seafood"]
     V44027008(Option<Element>),
-    #[doc = "Starchy food"]
-    V226529007(Option<Element>),
-    #[doc = "Vegetables"]
-    V22836000(Option<Element>),
-    #[doc = "Vegetables plus herbs and spices"]
-    V227210005(Option<Element>),
+    #[doc = "Fruit"]
+    V72511004(Option<Element>),
+    #[doc = "Food Starch"]
+    V74242007(Option<Element>),
 }
 pub enum NameAssemblyOrder {
-    #[doc = "Own Name"]
-    NL1(Option<Element>),
-    #[doc = "Own Name followed by Partner Name"]
-    NL4(Option<Element>),
-    #[doc = "Partner Name"]
-    NL2(Option<Element>),
-    #[doc = "Partner Name followed by Maiden Name"]
-    NL3(Option<Element>),
     #[doc = "Prefix Family Given Suffix"]
     F(Option<Element>),
     #[doc = "Prefix Given Family Suffix"]
     G(Option<Element>),
+    #[doc = "Own Name"]
+    NL1(Option<Element>),
+    #[doc = "Partner Name"]
+    NL2(Option<Element>),
+    #[doc = "Partner Name followed by Maiden Name"]
+    NL3(Option<Element>),
+    #[doc = "Own Name followed by Partner Name"]
+    NL4(Option<Element>),
     #[doc = "Unknown"]
     UNK(Option<Element>),
 }
@@ -5834,14 +5826,14 @@ pub enum NarrativeStatus {
     Generated(Option<Element>),
 }
 pub enum NetworkType {
-    #[doc = "Email address"]
-    V4(Option<Element>),
-    #[doc = "IP Address"]
-    V2(Option<Element>),
     #[doc = "Machine Name"]
     V1(Option<Element>),
+    #[doc = "IP Address"]
+    V2(Option<Element>),
     #[doc = "Telephone Number"]
     V3(Option<Element>),
+    #[doc = "Email address"]
+    V4(Option<Element>),
     #[doc = "URI"]
     V5(Option<Element>),
 }
@@ -5910,140 +5902,140 @@ pub enum NoteType {
     Printoper(Option<Element>),
 }
 pub enum ObjectLifecycleEvents {
-    #[doc = "Access / Use"]
-    V6(Option<Element>),
-    #[doc = "Access/View Record Lifecycle Event"]
-    Access(Option<Element>),
-    #[doc = "Add Legal Hold Record Lifecycle Event"]
-    Hold(Option<Element>),
-    #[doc = "Aggregation / summarization / derivation"]
-    V8(Option<Element>),
-    #[doc = "Amend (Update) Record Lifecycle Event"]
-    Amend(Option<Element>),
-    #[doc = "Amendment"]
-    V3(Option<Element>),
-    #[doc = "Archive Record Lifecycle Event"]
-    Archive(Option<Element>),
+    #[doc = "Origination / Creation"]
+    V1(Option<Element>),
+    #[doc = "Export"]
+    V10(Option<Element>),
+    #[doc = "Disclosure"]
+    V11(Option<Element>),
+    #[doc = "Receipt of disclosure"]
+    V12(Option<Element>),
     #[doc = "Archiving"]
     V13(Option<Element>),
-    #[doc = "Attest Record Lifecycle Event"]
-    Attest(Option<Element>),
-    #[doc = "De-Identify (Anononymize) Record Lifecycle Event"]
-    Deidentify(Option<Element>),
+    #[doc = "Logical deletion"]
+    V14(Option<Element>),
+    #[doc = "Permanent erasure / Physical destruction"]
+    V15(Option<Element>),
+    #[doc = "Import / Copy"]
+    V2(Option<Element>),
+    #[doc = "Amendment"]
+    V3(Option<Element>),
+    #[doc = "Verification"]
+    V4(Option<Element>),
+    #[doc = "Translation"]
+    V5(Option<Element>),
+    #[doc = "Access / Use"]
+    V6(Option<Element>),
     #[doc = "De-identification"]
     V7(Option<Element>),
+    #[doc = "Aggregation / summarization / derivation"]
+    V8(Option<Element>),
+    #[doc = "Report"]
+    V9(Option<Element>),
+    #[doc = "Access/View Record Lifecycle Event"]
+    Access(Option<Element>),
+    #[doc = "Amend (Update) Record Lifecycle Event"]
+    Amend(Option<Element>),
+    #[doc = "Archive Record Lifecycle Event"]
+    Archive(Option<Element>),
+    #[doc = "Attest Record Lifecycle Event"]
+    Attest(Option<Element>),
     #[doc = "Decrypt Record Lifecycle Event"]
     Decrypt(Option<Element>),
+    #[doc = "De-Identify (Anononymize) Record Lifecycle Event"]
+    Deidentify(Option<Element>),
     #[doc = "Deprecate Record Lifecycle Event"]
     Deprecate(Option<Element>),
     #[doc = "Destroy/Delete Record Lifecycle Event"]
     Destroy(Option<Element>),
     #[doc = "Disclose Record Lifecycle Event"]
     Disclose(Option<Element>),
-    #[doc = "Disclosure"]
-    V11(Option<Element>),
     #[doc = "Encrypt Record Lifecycle Event"]
     Encrypt(Option<Element>),
-    #[doc = "Export"]
-    V10(Option<Element>),
     #[doc = "Extract Record Lifecycle Event"]
     Extract(Option<Element>),
-    #[doc = "Import / Copy"]
-    V2(Option<Element>),
+    #[doc = "Add Legal Hold Record Lifecycle Event"]
+    Hold(Option<Element>),
     #[doc = "Link Record Lifecycle Event"]
     Link(Option<Element>),
-    #[doc = "Logical deletion"]
-    V14(Option<Element>),
     #[doc = "Merge Record Lifecycle Event"]
     Merge(Option<Element>),
     #[doc = "Originate/Retain Record Lifecycle Event"]
     Originate(Option<Element>),
-    #[doc = "Origination / Creation"]
-    V1(Option<Element>),
-    #[doc = "Permanent erasure / Physical destruction"]
-    V15(Option<Element>),
     #[doc = "Pseudonymize Record Lifecycle Event"]
     Pseudonymize(Option<Element>),
     #[doc = "Re-activate Record Lifecycle Event"]
     Reactivate(Option<Element>),
-    #[doc = "Re-identify Record Lifecycle Event"]
-    Reidentify(Option<Element>),
-    #[doc = "Receipt of disclosure"]
-    V12(Option<Element>),
     #[doc = "Receive/Retain Record Lifecycle Event"]
     Receive(Option<Element>),
-    #[doc = "Remove Legal Hold Record Lifecycle Event"]
-    Unhold(Option<Element>),
-    #[doc = "Report"]
-    V9(Option<Element>),
+    #[doc = "Re-identify Record Lifecycle Event"]
+    Reidentify(Option<Element>),
     #[doc = "Report (Output) Record Lifecycle Event"]
     Report(Option<Element>),
     #[doc = "Restore Record Lifecycle Event"]
     Restore(Option<Element>),
     #[doc = "Transform/Translate Record Lifecycle Event"]
     Transform(Option<Element>),
-    #[doc = "Translation"]
-    V5(Option<Element>),
     #[doc = "Transmit Record Lifecycle Event"]
     Transmit(Option<Element>),
+    #[doc = "Remove Legal Hold Record Lifecycle Event"]
+    Unhold(Option<Element>),
     #[doc = "Unlink Record Lifecycle Event"]
     Unlink(Option<Element>),
     #[doc = "Unmerge Record Lifecycle Event"]
     Unmerge(Option<Element>),
-    #[doc = "Verification"]
-    V4(Option<Element>),
     #[doc = "Verify Record Lifecycle Event"]
     Verify(Option<Element>),
 }
 pub enum ObjectRole {
-    #[doc = "Customer"]
-    V19(Option<Element>),
-    #[doc = "Data Destination"]
-    V16(Option<Element>),
-    #[doc = "Data Repository"]
-    V17(Option<Element>),
-    #[doc = "Doctor"]
-    V8(Option<Element>),
-    #[doc = "Domain Resource"]
-    V4(Option<Element>),
-    #[doc = "Guarantor"]
-    V10(Option<Element>),
-    #[doc = "Job"]
-    V20(Option<Element>),
-    #[doc = "Job Stream"]
-    V21(Option<Element>),
-    #[doc = "List"]
-    V7(Option<Element>),
-    #[doc = "Location"]
-    V2(Option<Element>),
-    #[doc = "Master file"]
-    V5(Option<Element>),
     #[doc = "Patient"]
     V1(Option<Element>),
-    #[doc = "Practitioner"]
-    V15(Option<Element>),
-    #[doc = "Query"]
-    V24(Option<Element>),
-    #[doc = "Report"]
-    V3(Option<Element>),
-    #[doc = "Routing Criteria"]
-    V23(Option<Element>),
-    #[doc = "Schedule"]
-    V18(Option<Element>),
-    #[doc = "Security Granularity Definition"]
-    V14(Option<Element>),
-    #[doc = "Security Resource"]
-    V13(Option<Element>),
+    #[doc = "Guarantor"]
+    V10(Option<Element>),
     #[doc = "Security User Entity"]
     V11(Option<Element>),
     #[doc = "Security User Group"]
     V12(Option<Element>),
-    #[doc = "Subscriber"]
-    V9(Option<Element>),
+    #[doc = "Security Resource"]
+    V13(Option<Element>),
+    #[doc = "Security Granularity Definition"]
+    V14(Option<Element>),
+    #[doc = "Practitioner"]
+    V15(Option<Element>),
+    #[doc = "Data Destination"]
+    V16(Option<Element>),
+    #[doc = "Data Repository"]
+    V17(Option<Element>),
+    #[doc = "Schedule"]
+    V18(Option<Element>),
+    #[doc = "Customer"]
+    V19(Option<Element>),
+    #[doc = "Location"]
+    V2(Option<Element>),
+    #[doc = "Job"]
+    V20(Option<Element>),
+    #[doc = "Job Stream"]
+    V21(Option<Element>),
     #[doc = "Table"]
     V22(Option<Element>),
+    #[doc = "Routing Criteria"]
+    V23(Option<Element>),
+    #[doc = "Query"]
+    V24(Option<Element>),
+    #[doc = "Report"]
+    V3(Option<Element>),
+    #[doc = "Domain Resource"]
+    V4(Option<Element>),
+    #[doc = "Master file"]
+    V5(Option<Element>),
     #[doc = "User"]
     V6(Option<Element>),
+    #[doc = "List"]
+    V7(Option<Element>),
+    #[doc = "Doctor"]
+    V8(Option<Element>),
+    #[doc = "Subscriber"]
+    V9(Option<Element>),
 }
 pub enum ObservationCategory {
     #[doc = "Activity"]
@@ -6066,8 +6058,14 @@ pub enum ObservationCategory {
     VitalSigns(Option<Element>),
 }
 pub enum ObservationInterpretation {
+    #[doc = "Off scale low"]
+    Greater(Option<Element>),
+    #[doc = "Off scale high"]
+    Less(Option<Element>),
     #[doc = "Abnormal"]
     A(Option<Element>),
+    #[doc = "Critical abnormal"]
+    AA(Option<Element>),
     #[doc = "Anti-complementary substances present"]
     AC(Option<Element>),
     #[doc = "Better"]
@@ -6076,86 +6074,74 @@ pub enum ObservationInterpretation {
     CAR(Option<Element>),
     #[doc = "Carrier"]
     Carrier(Option<Element>),
-    #[doc = "Critical abnormal"]
-    AA(Option<Element>),
-    #[doc = "Critical high"]
-    HH(Option<Element>),
-    #[doc = "Critical low"]
-    LL(Option<Element>),
-    #[doc = "Cytotoxic substance present"]
-    TOX(Option<Element>),
+    #[doc = "Significant change down"]
+    D(Option<Element>),
     #[doc = "Detected"]
     DET(Option<Element>),
     #[doc = "Equivocal"]
     E(Option<Element>),
+    #[doc = "outside threshold"]
+    EX(Option<Element>),
     #[doc = "Expected"]
     EXP(Option<Element>),
-    #[doc = "GeneticObservationInterpretation"]
-    _GeneticObservationInterpretation(Option<Element>),
     #[doc = "High"]
     H(Option<Element>),
+    #[doc = "Significantly high"]
+    HLess(Option<Element>),
+    #[doc = "Critical high"]
+    HH(Option<Element>),
     #[doc = "Hold for Medical Review"]
     HM(Option<Element>),
-    #[doc = "Indeterminate"]
-    IND(Option<Element>),
-    #[doc = "Insufficient evidence"]
-    IE(Option<Element>),
+    #[doc = "Significantly high"]
+    HU(Option<Element>),
+    #[doc = "above high threshold"]
+    HX(Option<Element>),
     #[doc = "Intermediate"]
     I(Option<Element>),
-    #[doc = "Interpretation qualifiers in separate OBX segments"]
-    OBX(Option<Element>),
+    #[doc = "Insufficient evidence"]
+    IE(Option<Element>),
+    #[doc = "Indeterminate"]
+    IND(Option<Element>),
     #[doc = "Low"]
     L(Option<Element>),
-    #[doc = "Negative"]
-    NEG(Option<Element>),
+    #[doc = "Significantly low"]
+    LGreater(Option<Element>),
+    #[doc = "Critical low"]
+    LL(Option<Element>),
+    #[doc = "Significantly low"]
+    LU(Option<Element>),
+    #[doc = "below low threshold"]
+    LX(Option<Element>),
+    #[doc = "moderately susceptible"]
+    MS(Option<Element>),
+    #[doc = "Normal"]
+    N(Option<Element>),
     #[doc = "No CLSI defined breakpoint"]
     NCL(Option<Element>),
+    #[doc = "Not detected"]
+    ND(Option<Element>),
+    #[doc = "Negative"]
+    NEG(Option<Element>),
     #[doc = "Non-reactive"]
     NR(Option<Element>),
     #[doc = "Non-susceptible"]
     NS(Option<Element>),
-    #[doc = "Normal"]
-    N(Option<Element>),
-    #[doc = "Not detected"]
-    ND(Option<Element>),
-    #[doc = "ObservationInterpretationChange"]
-    _ObservationInterpretationChange(Option<Element>),
+    #[doc = "Interpretation qualifiers in separate OBX segments"]
+    OBX(Option<Element>),
     #[doc = "ObservationInterpretationDetection"]
     ObservationInterpretationDetection(Option<Element>),
-    #[doc = "ObservationInterpretationExceptions"]
-    _ObservationInterpretationExceptions(Option<Element>),
     #[doc = "ObservationInterpretationExpectation"]
     ObservationInterpretationExpectation(Option<Element>),
-    #[doc = "ObservationInterpretationNormality"]
-    _ObservationInterpretationNormality(Option<Element>),
-    #[doc = "ObservationInterpretationSusceptibility"]
-    _ObservationInterpretationSusceptibility(Option<Element>),
-    #[doc = "Off scale high"]
-    Less(Option<Element>),
-    #[doc = "Off scale low"]
-    Greater(Option<Element>),
     #[doc = "Positive"]
     POS(Option<Element>),
     #[doc = "Quality control failure"]
     QCF(Option<Element>),
+    #[doc = "Resistant"]
+    R(Option<Element>),
     #[doc = "Reactive"]
     RR(Option<Element>),
     #[doc = "ReactivityObservationInterpretation"]
     ReactivityObservationInterpretation(Option<Element>),
-    #[doc = "Resistant"]
-    R(Option<Element>),
-    #[doc = "Significant change down"]
-    D(Option<Element>),
-    #[doc = "Significant change up"]
-    U(Option<Element>),
-    #[doc = "Significantly high"]
-    HLess(Option<Element>),
-    #[doc = "Significantly high"]
-    HU(Option<Element>),
-    #[doc = "Significantly low"]
-    LGreater(Option<Element>),
-    #[doc = "Significantly low"]
-    LU(Option<Element>),
     #[doc = "Susceptible"]
     S(Option<Element>),
     #[doc = "Susceptible-dose dependent"]
@@ -6164,22 +6150,28 @@ pub enum ObservationInterpretation {
     SYNR(Option<Element>),
     #[doc = "Synergy - susceptible"]
     SYNS(Option<Element>),
+    #[doc = "Cytotoxic substance present"]
+    TOX(Option<Element>),
+    #[doc = "Significant change up"]
+    U(Option<Element>),
     #[doc = "Unexpected"]
     UNE(Option<Element>),
-    #[doc = "Weakly reactive"]
-    WR(Option<Element>),
-    #[doc = "Worse"]
-    W(Option<Element>),
-    #[doc = "above high threshold"]
-    HX(Option<Element>),
-    #[doc = "below low threshold"]
-    LX(Option<Element>),
-    #[doc = "moderately susceptible"]
-    MS(Option<Element>),
-    #[doc = "outside threshold"]
-    EX(Option<Element>),
     #[doc = "very susceptible"]
     VS(Option<Element>),
+    #[doc = "Worse"]
+    W(Option<Element>),
+    #[doc = "Weakly reactive"]
+    WR(Option<Element>),
+    #[doc = "GeneticObservationInterpretation"]
+    _GeneticObservationInterpretation(Option<Element>),
+    #[doc = "ObservationInterpretationChange"]
+    _ObservationInterpretationChange(Option<Element>),
+    #[doc = "ObservationInterpretationExceptions"]
+    _ObservationInterpretationExceptions(Option<Element>),
+    #[doc = "ObservationInterpretationNormality"]
+    _ObservationInterpretationNormality(Option<Element>),
+    #[doc = "ObservationInterpretationSusceptibility"]
+    _ObservationInterpretationSusceptibility(Option<Element>),
 }
 pub enum ObservationRangeCategory {
     #[doc = "absolute range"]
@@ -6190,10 +6182,16 @@ pub enum ObservationRangeCategory {
     Reference(Option<Element>),
 }
 pub enum ObservationStatistics {
-    #[doc = "1st Quintile"]
-    V51(Option<Element>),
     #[doc = "20th Percentile"]
     V20Percent(Option<Element>),
+    #[doc = "Quartile Deviation"]
+    V4Dev(Option<Element>),
+    #[doc = "Lower Quartile"]
+    V4Lower(Option<Element>),
+    #[doc = "Upper Quartile"]
+    V4Upper(Option<Element>),
+    #[doc = "1st Quintile"]
+    V51(Option<Element>),
     #[doc = "2nd Quintile"]
     V52(Option<Element>),
     #[doc = "3rd Quintile"]
@@ -6208,16 +6206,12 @@ pub enum ObservationStatistics {
     Count(Option<Element>),
     #[doc = "Kurtosis"]
     Kurtosis(Option<Element>),
-    #[doc = "Lower Quartile"]
-    V4Lower(Option<Element>),
     #[doc = "Maximum"]
     Maximum(Option<Element>),
     #[doc = "Median"]
     Median(Option<Element>),
     #[doc = "Minimum"]
     Minimum(Option<Element>),
-    #[doc = "Quartile Deviation"]
-    V4Dev(Option<Element>),
     #[doc = "Regression"]
     Regression(Option<Element>),
     #[doc = "Skew"]
@@ -6228,8 +6222,6 @@ pub enum ObservationStatistics {
     Sum(Option<Element>),
     #[doc = "Total Count"]
     TotalCount(Option<Element>),
-    #[doc = "Upper Quartile"]
-    V4Upper(Option<Element>),
     #[doc = "Variance"]
     Variance(Option<Element>),
 }
@@ -6273,26 +6265,32 @@ pub enum OperationKind {
     Query(Option<Element>),
 }
 pub enum OperationOutcome {
-    #[doc = "A resource is required"]
-    MSG_RESOURCE_REQUIRED(Option<Element>),
-    #[doc = "Bad Syntax in %s"]
-    MSG_BAD_SYNTAX(Option<Element>),
-    #[doc = "Bad Syntax: \"%s\" must be a %s'"]
-    MSG_BAD_FORMAT(Option<Element>),
-    #[doc = "Duplicate Id %s for resource type %s"]
-    MSG_DUPLICATE_ID(Option<Element>),
-    #[doc = "Duplicate Identifier in transaction: %s"]
-    MSG_TRANSACTION_DUPLICATE_ID(Option<Element>),
-    #[doc = "Error parsing resource Xml (%s)"]
-    MSG_ERROR_PARSING(Option<Element>),
-    #[doc = "Error: Multiple matches exist for %s search parameters \"%s\""]
-    SEARCH_MULTIPLE(Option<Element>),
     #[doc = "Error: Multiple matches exist for the conditional delete"]
     DELETE_MULTIPLE_MATCHES(Option<Element>),
-    #[doc = "Error: Multiple matches exist for the conditional update"]
-    UPDATE_MULTIPLE_MATCHES(Option<Element>),
-    #[doc = "Error: no processable search found for %s search parameters \"%s\""]
-    SEARCH_NONE(Option<Element>),
+    #[doc = "You must authenticate before you can use this service"]
+    MSG_AUTH_REQUIRED(Option<Element>),
+    #[doc = "Bad Syntax: \"%s\" must be a %s'"]
+    MSG_BAD_FORMAT(Option<Element>),
+    #[doc = "Bad Syntax in %s"]
+    MSG_BAD_SYNTAX(Option<Element>),
+    #[doc = "Unable to parse feed (entry content type = \"%s\")"]
+    MSG_CANT_PARSE_CONTENT(Option<Element>),
+    #[doc = "Unable to parse feed (root element name = \"%s\")"]
+    MSG_CANT_PARSE_ROOT(Option<Element>),
+    #[doc = "New resource created"]
+    MSG_CREATED(Option<Element>),
+    #[doc = "The Date value %s is not in the correct format (Xml Date Format required)"]
+    MSG_DATE_FORMAT(Option<Element>),
+    #[doc = "This resource has been deleted"]
+    MSG_DELETED(Option<Element>),
+    #[doc = "Resource deleted"]
+    MSG_DELETED_DONE(Option<Element>),
+    #[doc = "The resource \"%s\" has been deleted"]
+    MSG_DELETED_ID(Option<Element>),
+    #[doc = "Duplicate Id %s for resource type %s"]
+    MSG_DUPLICATE_ID(Option<Element>),
+    #[doc = "Error parsing resource Xml (%s)"]
+    MSG_ERROR_PARSING(Option<Element>),
     #[doc = "Id \"%s\" has an invalid character \"%s\""]
     MSG_ID_INVALID(Option<Element>),
     #[doc = "Id \"%s\" too long (length limit 36)"]
@@ -6301,78 +6299,72 @@ pub enum OperationOutcome {
     MSG_INVALID_ID(Option<Element>),
     #[doc = "Json Source for a resource should start with an object"]
     MSG_JSON_OBJECT(Option<Element>),
-    #[doc = "Missing Identifier in transaction - an entry.id must be provided"]
-    MSG_TRANSACTION_MISSING_ID(Option<Element>),
-    #[doc = "New resource created"]
-    MSG_CREATED(Option<Element>),
-    #[doc = "No Resource found matching the query \"%s\""]
-    MSG_NO_MATCH(Option<Element>),
-    #[doc = "No Summary for this resource"]
-    MSG_NO_SUMMARY(Option<Element>),
-    #[doc = "No module could be found to handle the request \"%s\""]
-    MSG_NO_MODULE(Option<Element>),
-    #[doc = "Not allowed to submit a resource for this operation"]
-    MSG_RESOURCE_NOT_ALLOWED(Option<Element>),
-    #[doc = "Operation %s not allowed for resource %s (due to local configuration)"]
-    MSG_OP_NOT_ALLOWED(Option<Element>),
-    #[doc = "Parameter \"%s\" content is invalid"]
-    MSG_PARAM_INVALID(Option<Element>),
-    #[doc = "Parameter \"%s\" is not allowed to repeat"]
-    MSG_PARAM_NO_REPEAT(Option<Element>),
-    #[doc = "Parameter \"%s\" modifier is invalid"]
-    MSG_PARAM_MODIFIER_INVALID(Option<Element>),
-    #[doc = "Parameter \"%s\" not understood"]
-    MSG_PARAM_UNKNOWN(Option<Element>),
+    #[doc = "Unable to resolve local reference to resource %s"]
+    MSG_LOCAL_FAIL(Option<Element>),
     #[doc = "Resource Id \"%s\" does not exist"]
     MSG_NO_EXIST(Option<Element>),
+    #[doc = "No Resource found matching the query \"%s\""]
+    MSG_NO_MATCH(Option<Element>),
+    #[doc = "No module could be found to handle the request \"%s\""]
+    MSG_NO_MODULE(Option<Element>),
+    #[doc = "No Summary for this resource"]
+    MSG_NO_SUMMARY(Option<Element>),
+    #[doc = "Operation %s not allowed for resource %s (due to local configuration)"]
+    MSG_OP_NOT_ALLOWED(Option<Element>),
+    #[doc = "Unknown chained parameter name \"%s\""]
+    MSG_PARAM_CHAINED(Option<Element>),
+    #[doc = "Parameter \"%s\" content is invalid"]
+    MSG_PARAM_INVALID(Option<Element>),
+    #[doc = "Parameter \"%s\" modifier is invalid"]
+    MSG_PARAM_MODIFIER_INVALID(Option<Element>),
+    #[doc = "Parameter \"%s\" is not allowed to repeat"]
+    MSG_PARAM_NO_REPEAT(Option<Element>),
+    #[doc = "Parameter \"%s\" not understood"]
+    MSG_PARAM_UNKNOWN(Option<Element>),
+    #[doc = "Resources with identity \"example\" cannot be deleted (for testing/training purposes)"]
+    MSG_RESOURCE_EXAMPLE_PROTECTED(Option<Element>),
+    #[doc = "unable to allocate resource id"]
+    MSG_RESOURCE_ID_FAIL(Option<Element>),
     #[doc = "Resource Id Mismatch"]
     MSG_RESOURCE_ID_MISMATCH(Option<Element>),
     #[doc = "Resource Id Missing"]
     MSG_RESOURCE_ID_MISSING(Option<Element>),
-    #[doc = "Resource Type \"%s\" not recognised"]
-    MSG_UNKNOWN_TYPE(Option<Element>),
+    #[doc = "Not allowed to submit a resource for this operation"]
+    MSG_RESOURCE_NOT_ALLOWED(Option<Element>),
+    #[doc = "A resource is required"]
+    MSG_RESOURCE_REQUIRED(Option<Element>),
     #[doc = "Resource Type Mismatch"]
     MSG_RESOURCE_TYPE_MISMATCH(Option<Element>),
-    #[doc = "Resource deleted"]
-    MSG_DELETED_DONE(Option<Element>),
-    #[doc = "Resources with identity \"example\" cannot be deleted (for testing/training purposes)"]
-    MSG_RESOURCE_EXAMPLE_PROTECTED(Option<Element>),
-    #[doc = "The Date value %s is not in the correct format (Xml Date Format required)"]
-    MSG_DATE_FORMAT(Option<Element>),
-    #[doc = "The resource \"%s\" has been deleted"]
-    MSG_DELETED_ID(Option<Element>),
-    #[doc = "This does not appear to be a FHIR element or resource (wrong namespace \"%s\")"]
-    MSG_WRONG_NS(Option<Element>),
-    #[doc = "This resource has been deleted"]
-    MSG_DELETED(Option<Element>),
-    #[doc = "Unable to parse feed (entry content type = \"%s\")"]
-    MSG_CANT_PARSE_CONTENT(Option<Element>),
-    #[doc = "Unable to parse feed (root element name = \"%s\")"]
-    MSG_CANT_PARSE_ROOT(Option<Element>),
-    #[doc = "Unable to resolve local reference to resource %s"]
-    MSG_LOCAL_FAIL(Option<Element>),
+    #[doc = "Unknown sort parameter name \"%s\""]
+    MSG_SORT_UNKNOWN(Option<Element>),
+    #[doc = "Duplicate Identifier in transaction: %s"]
+    MSG_TRANSACTION_DUPLICATE_ID(Option<Element>),
+    #[doc = "Missing Identifier in transaction - an entry.id must be provided"]
+    MSG_TRANSACTION_MISSING_ID(Option<Element>),
     #[doc = "Unhandled xml node type \"%s\""]
     MSG_UNHANDLED_NODE_TYPE(Option<Element>),
     #[doc = "Unknown Content (%s) at %s"]
     MSG_UNKNOWN_CONTENT(Option<Element>),
-    #[doc = "Unknown chained parameter name \"%s\""]
-    MSG_PARAM_CHAINED(Option<Element>),
-    #[doc = "Unknown sort parameter name \"%s\""]
-    MSG_SORT_UNKNOWN(Option<Element>),
-    #[doc = "Update Conflict (server current version = \"%s\", client version referenced = \"%s\")"]
-    MSG_VERSION_AWARE_CONFLICT(Option<Element>),
-    #[doc = "Version aware updates are required for this resource"]
-    MSG_VERSION_AWARE(Option<Element>),
-    #[doc = "Version specific URL not recognised"]
-    MSG_VERSION_AWARE_URL(Option<Element>),
-    #[doc = "You must authenticate before you can use this service"]
-    MSG_AUTH_REQUIRED(Option<Element>),
-    #[doc = "existing resource updated"]
-    MSG_UPDATED(Option<Element>),
-    #[doc = "unable to allocate resource id"]
-    MSG_RESOURCE_ID_FAIL(Option<Element>),
     #[doc = "unknown FHIR http operation"]
     MSG_UNKNOWN_OPERATION(Option<Element>),
+    #[doc = "Resource Type \"%s\" not recognised"]
+    MSG_UNKNOWN_TYPE(Option<Element>),
+    #[doc = "existing resource updated"]
+    MSG_UPDATED(Option<Element>),
+    #[doc = "Version aware updates are required for this resource"]
+    MSG_VERSION_AWARE(Option<Element>),
+    #[doc = "Update Conflict (server current version = \"%s\", client version referenced = \"%s\")"]
+    MSG_VERSION_AWARE_CONFLICT(Option<Element>),
+    #[doc = "Version specific URL not recognised"]
+    MSG_VERSION_AWARE_URL(Option<Element>),
+    #[doc = "This does not appear to be a FHIR element or resource (wrong namespace \"%s\")"]
+    MSG_WRONG_NS(Option<Element>),
+    #[doc = "Error: Multiple matches exist for %s search parameters \"%s\""]
+    SEARCH_MULTIPLE(Option<Element>),
+    #[doc = "Error: no processable search found for %s search parameters \"%s\""]
+    SEARCH_NONE(Option<Element>),
+    #[doc = "Error: Multiple matches exist for the conditional update"]
+    UPDATE_MULTIPLE_MATCHES(Option<Element>),
 }
 pub enum OperationParameterUse {
     #[doc = "In"]
@@ -6381,22 +6373,22 @@ pub enum OperationParameterUse {
     Out(Option<Element>),
 }
 pub enum OralProsthodonticMaterial {
-    #[doc = "Denture Acrylic"]
-    V3(Option<Element>),
-    #[doc = "Denture Chrome Cobalt"]
-    V4(Option<Element>),
     #[doc = "Fixed Bridge"]
     V1(Option<Element>),
     #[doc = "Maryland Bridge"]
     V2(Option<Element>),
+    #[doc = "Denture Acrylic"]
+    V3(Option<Element>),
+    #[doc = "Denture Chrome Cobalt"]
+    V4(Option<Element>),
 }
 pub enum OrganizationRole {
+    #[doc = "HIE/HIO"]
+    HIE_HIO(Option<Element>),
     #[doc = "Agency"]
     Agency(Option<Element>),
     #[doc = "Diagnostics"]
     Diagnostics(Option<Element>),
-    #[doc = "HIE/HIO"]
-    HIE_HIO(Option<Element>),
     #[doc = "Member"]
     Member(Option<Element>),
     #[doc = "Payer"]
@@ -6409,30 +6401,30 @@ pub enum OrganizationRole {
     Supplier(Option<Element>),
 }
 pub enum OrganizationType {
-    #[doc = "Clinical Research Sponsor"]
-    Crs(Option<Element>),
+    #[doc = "Non-Healthcare Business or Corporation"]
+    Bus(Option<Element>),
     #[doc = "Community Group"]
     Cg(Option<Element>),
+    #[doc = "Clinical Research Sponsor"]
+    Crs(Option<Element>),
+    #[doc = "Hospital Department"]
+    Dept(Option<Element>),
     #[doc = "Educational Institute"]
     Edu(Option<Element>),
     #[doc = "Government"]
     Govt(Option<Element>),
-    #[doc = "Healthcare Provider"]
-    Prov(Option<Element>),
-    #[doc = "Hospital Department"]
-    Dept(Option<Element>),
     #[doc = "Insurance Company"]
     Ins(Option<Element>),
-    #[doc = "Non-Healthcare Business or Corporation"]
-    Bus(Option<Element>),
-    #[doc = "Organizational team"]
-    Team(Option<Element>),
     #[doc = "Other"]
     Other(Option<Element>),
     #[doc = "Payer"]
     Pay(Option<Element>),
+    #[doc = "Healthcare Provider"]
+    Prov(Option<Element>),
     #[doc = "Religious Institution"]
     Reli(Option<Element>),
+    #[doc = "Organizational team"]
+    Team(Option<Element>),
 }
 pub enum OrientationType {
     #[doc = "Antisense orientation of referenceSeq"]
@@ -6487,10 +6479,10 @@ pub enum Payeetype {
     Subscriber(Option<Element>),
 }
 pub enum PaymentAdjustmentReason {
-    #[doc = "Prior Overpayment"]
-    A002(Option<Element>),
     #[doc = "Prior Payment Reversal"]
     A001(Option<Element>),
+    #[doc = "Prior Overpayment"]
+    A002(Option<Element>),
 }
 pub enum PaymentStatus {
     #[doc = "Cleared"]
@@ -6563,16 +6555,16 @@ pub enum PostalAddressUse {
     CONF(Option<Element>),
     #[doc = "direct"]
     DIR(Option<Element>),
+    #[doc = "primary home"]
+    HP(Option<Element>),
+    #[doc = "vacation home"]
+    HV(Option<Element>),
     #[doc = "physical visit address"]
     PHYS(Option<Element>),
     #[doc = "postal address"]
     PST(Option<Element>),
-    #[doc = "primary home"]
-    HP(Option<Element>),
     #[doc = "public"]
     PUB(Option<Element>),
-    #[doc = "vacation home"]
-    HV(Option<Element>),
 }
 pub enum PractitionerSpecialty {
     #[doc = "Cardiologist"]
@@ -6597,24 +6589,24 @@ pub enum PrecisionEstimateType {
     SE(Option<Element>),
 }
 pub enum ProbabilityDistributionType {
-    #[doc = "(gamma)"]
-    G(Option<Element>),
-    #[doc = "F"]
-    F(Option<Element>),
-    #[doc = "T"]
-    T(Option<Element>),
     #[doc = "beta"]
     B(Option<Element>),
-    #[doc = "chi square"]
-    X2(Option<Element>),
     #[doc = "exponential"]
     E(Option<Element>),
+    #[doc = "F"]
+    F(Option<Element>),
+    #[doc = "(gamma)"]
+    G(Option<Element>),
     #[doc = "log-normal"]
     LN(Option<Element>),
     #[doc = "normal (Gaussian)"]
     N(Option<Element>),
+    #[doc = "T"]
+    T(Option<Element>),
     #[doc = "uniform"]
     U(Option<Element>),
+    #[doc = "chi square"]
+    X2(Option<Element>),
 }
 pub enum ProcedureCategory {
     V103693007(Option<Element>),
@@ -6659,10 +6651,10 @@ pub enum ProcedureProgressStatusCodes {
 pub enum ProcessPriority {
     #[doc = "Deferred"]
     Deferred(Option<Element>),
-    #[doc = "Immediate"]
-    Stat(Option<Element>),
     #[doc = "Normal"]
     Normal(Option<Element>),
+    #[doc = "Immediate"]
+    Stat(Option<Element>),
 }
 pub enum ProductCategory {
     #[doc = "BiologicalAgent"]
@@ -6703,69 +6695,39 @@ pub enum PropertyRepresentation {
     XmlText(Option<Element>),
 }
 pub enum ProvenanceActivityType {
-    ANONY(Option<Element>),
-    APPEND(Option<Element>),
-    CREATE(Option<Element>),
-    DEID(Option<Element>),
-    DELETE(Option<Element>),
-    LA(Option<Element>),
-    LABEL(Option<Element>),
-    MASK(Option<Element>),
-    NULLIFY(Option<Element>),
-    PSEUD(Option<Element>),
-    UPDATE(Option<Element>),
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
+    ANONY(Option<Element>),
+    APPEND(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    CREATE(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
+    DEID(Option<Element>),
+    DELETE(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -6776,10 +6738,22 @@ pub enum ProvenanceActivityType {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -6792,50 +6766,67 @@ pub enum ProvenanceActivityType {
     IRCP(Option<Element>),
     #[doc = "legal authenticator"]
     LA(Option<Element>),
+    LABEL(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
-    #[doc = "non-reuseable device"]
-    NRD(Option<Element>),
-    #[doc = "origin"]
-    ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
-    #[doc = "primary performer"]
-    PPRF(Option<Element>),
-    #[doc = "product"]
-    PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
-    #[doc = "record target"]
-    RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
-    #[doc = "reusable device"]
-    RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
-    #[doc = "subject"]
-    SBJ(Option<Element>),
-    #[doc = "therapeutic agent"]
-    TPA(Option<Element>),
-    #[doc = "tracker"]
-    TRC(Option<Element>),
+    MASK(Option<Element>),
     #[doc = "ugent notification contact"]
     NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
+    #[doc = "non-reuseable device"]
+    NRD(Option<Element>),
+    NULLIFY(Option<Element>),
+    #[doc = "origin"]
+    ORG(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
+    #[doc = "primary performer"]
+    PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
+    #[doc = "product"]
+    PRD(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
+    PSEUD(Option<Element>),
+    #[doc = "record target"]
+    RCT(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
+    #[doc = "reusable device"]
+    RDV(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
+    #[doc = "subject"]
+    SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
+    #[doc = "therapeutic agent"]
+    TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
+    #[doc = "tracker"]
+    TRC(Option<Element>),
+    UPDATE(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum ProvenanceAgentRole {
     #[doc = "Assembler"]
@@ -6904,7 +6895,8 @@ pub enum ProvenanceHistoryAgentType {
     VRF(Option<Element>),
 }
 pub enum ProvenanceHistoryRecordActivity {
-    RESUME(Option<Element>),
+    #[doc = "Stopped/Ended/Aborted"]
+    ABORT(Option<Element>),
     #[doc = "Activated"]
     ACTIVATE(Option<Element>),
     #[doc = "Cancelled"]
@@ -6919,14 +6911,13 @@ pub enum ProvenanceHistoryRecordActivity {
     HOLD(Option<Element>),
     #[doc = "Mark Entered-in-error"]
     NULLIFY(Option<Element>),
+    #[doc = "Replaced"]
+    OBSOLETE(Option<Element>),
     #[doc = "Reactivated"]
     REACTIVATE(Option<Element>),
     #[doc = "Released"]
     RELEASE(Option<Element>),
-    #[doc = "Replaced"]
-    OBSOLETE(Option<Element>),
-    #[doc = "Stopped/Ended/Aborted"]
-    ABORT(Option<Element>),
+    RESUME(Option<Element>),
     #[doc = "Suspended"]
     SUSPEND(Option<Element>),
     #[doc = "Updated"]
@@ -6935,10 +6926,10 @@ pub enum ProvenanceHistoryRecordActivity {
 pub enum ProviderQualification {
     #[doc = "Dentist"]
     V311405(Option<Element>),
-    #[doc = "Ophthalmologist"]
-    V604215(Option<Element>),
     #[doc = "Optometrist"]
     V604210(Option<Element>),
+    #[doc = "Ophthalmologist"]
+    V604215(Option<Element>),
 }
 pub enum PublicationStatus {
     #[doc = "Active"]
@@ -6959,14 +6950,14 @@ pub enum QualityType {
     Unknown(Option<Element>),
 }
 pub enum QuantityComparator {
-    #[doc = "Greater or Equal to"]
-    LessEqual(Option<Element>),
-    #[doc = "Greater than"]
-    Less(Option<Element>),
-    #[doc = "Less or Equal to"]
-    GreaterEqual(Option<Element>),
     #[doc = "Less than"]
     Greater(Option<Element>),
+    #[doc = "Less or Equal to"]
+    GreaterEqual(Option<Element>),
+    #[doc = "Greater than"]
+    Less(Option<Element>),
+    #[doc = "Greater or Equal to"]
+    LessEqual(Option<Element>),
 }
 pub enum QuestionMaxOccurs {
     #[doc = "Repeating"]
@@ -6985,8 +6976,6 @@ pub enum QuestionnaireAnswersStatus {
     Stopped(Option<Element>),
 }
 pub enum QuestionnaireCategory {
-    #[doc = "Administrative form"]
-    V304784009(Option<Element>),
     #[doc = "Consumer satisfaction questionnaire"]
     V273384008(Option<Element>),
     #[doc = "General health questionnaire"]
@@ -6995,6 +6984,8 @@ pub enum QuestionnaireCategory {
     V273601006(Option<Element>),
     #[doc = "Social support questionnaire"]
     V273820006(Option<Element>),
+    #[doc = "Administrative form"]
+    V304784009(Option<Element>),
 }
 pub enum QuestionnaireDisplayCategory {
     #[doc = "Help"]
@@ -7011,25 +7002,22 @@ pub enum QuestionnaireEnableBehavior {
     Any(Option<Element>),
 }
 pub enum QuestionnaireEnableOperator {
-    #[doc = "Equals"]
-    Equal(Option<Element>),
-    #[doc = "Exists"]
-    Exists(Option<Element>),
-    #[doc = "Greater Than"]
-    Less(Option<Element>),
-    #[doc = "Greater or Equals"]
-    LessEqual(Option<Element>),
+    #[doc = "Not Equals"]
+    __Equal(Option<Element>),
     #[doc = "Less Than"]
     Greater(Option<Element>),
     #[doc = "Less or Equals"]
     GreaterEqual(Option<Element>),
-    #[doc = "Not Equals"]
-    __Equal(Option<Element>),
+    #[doc = "Equals"]
+    Equal(Option<Element>),
+    #[doc = "Greater Than"]
+    Less(Option<Element>),
+    #[doc = "Greater or Equals"]
+    LessEqual(Option<Element>),
+    #[doc = "Exists"]
+    Exists(Option<Element>),
 }
 pub enum QuestionnaireItemControl {
-    Group(Option<Element>),
-    Question(Option<Element>),
-    Text(Option<Element>),
     #[doc = "Answer Table"]
     Atable(Option<Element>),
     #[doc = "Auto-complete"]
@@ -7042,6 +7030,7 @@ pub enum QuestionnaireItemControl {
     Flyover(Option<Element>),
     #[doc = "Footer"]
     Footer(Option<Element>),
+    Group(Option<Element>),
     #[doc = "Group Table"]
     Gtable(Option<Element>),
     #[doc = "Header"]
@@ -7060,26 +7049,28 @@ pub enum QuestionnaireItemControl {
     Lower(Option<Element>),
     #[doc = "Prompt"]
     Prompt(Option<Element>),
+    Question(Option<Element>),
     #[doc = "Radio Button"]
     RadioButton(Option<Element>),
     #[doc = "Slider"]
     Slider(Option<Element>),
     #[doc = "Spinner"]
     Spinner(Option<Element>),
+    #[doc = "Vertical Answer Table"]
+    Table(Option<Element>),
+    Text(Option<Element>),
     #[doc = "Text Box"]
     TextBox(Option<Element>),
     #[doc = "Unit"]
     Unit(Option<Element>),
     #[doc = "Upper-bound"]
     Upper(Option<Element>),
-    #[doc = "Vertical Answer Table"]
-    Table(Option<Element>),
 }
 pub enum QuestionnaireUsageMode {
-    #[doc = "Capture & Display"]
-    CaptureDisplay(Option<Element>),
     #[doc = "Capture Only"]
     Capture(Option<Element>),
+    #[doc = "Capture & Display"]
+    CaptureDisplay(Option<Element>),
     #[doc = "Capture or, if answered, Display"]
     CaptureDisplayNonEmpty(Option<Element>),
     #[doc = "Display Only"]
@@ -7111,12 +7102,12 @@ pub enum ReactionEventSeverity {
     Severe(Option<Element>),
 }
 pub enum ReasonMedicationGivenCodes {
-    #[doc = "Emergency"]
-    C(Option<Element>),
-    #[doc = "Given as Ordered"]
-    B(Option<Element>),
     #[doc = "None"]
     A(Option<Element>),
+    #[doc = "Given as Ordered"]
+    B(Option<Element>),
+    #[doc = "Emergency"]
+    C(Option<Element>),
 }
 pub enum RecommendationStrength {
     #[doc = "Strong"]
@@ -7125,24 +7116,24 @@ pub enum RecommendationStrength {
     Weak(Option<Element>),
 }
 pub enum ReferenceHandlingPolicy {
+    #[doc = "Reference Integrity Enforced"]
+    Enforced(Option<Element>),
     #[doc = "Literal References"]
     Literal(Option<Element>),
     #[doc = "Local References Only"]
     Local(Option<Element>),
     #[doc = "Logical References"]
     Logical(Option<Element>),
-    #[doc = "Reference Integrity Enforced"]
-    Enforced(Option<Element>),
     #[doc = "Resolves References"]
     Resolves(Option<Element>),
 }
 pub enum ReferenceVersionRules {
     #[doc = "Either Specific or independent"]
     Either(Option<Element>),
-    #[doc = "Version Specific"]
-    Specific(Option<Element>),
     #[doc = "Version independent"]
     Independent(Option<Element>),
+    #[doc = "Version Specific"]
+    Specific(Option<Element>),
 }
 pub enum ReferencerangeMeaning {
     #[doc = "Endocrine"]
@@ -7175,12 +7166,12 @@ pub enum ReferencerangeMeaning {
 pub enum RejectionCriteria {
     #[doc = "broken specimen container"]
     Broken(Option<Element>),
+    #[doc = "specimen clotted"]
+    Clotted(Option<Element>),
     #[doc = "hemolized specimen"]
     Hemolized(Option<Element>),
     #[doc = "insufficient specimen volume"]
     Insufficient(Option<Element>),
-    #[doc = "specimen clotted"]
-    Clotted(Option<Element>),
     #[doc = "specimen temperature inappropriate"]
     WrongTemperature(Option<Element>),
 }
@@ -7215,24 +7206,24 @@ pub enum RelationType {
     Triggers(Option<Element>),
 }
 pub enum Relationship {
+    #[doc = "Self"]
+    V1(Option<Element>),
+    #[doc = "Spouse"]
+    V2(Option<Element>),
     #[doc = "Child"]
     V3(Option<Element>),
     #[doc = "Common Law Spouse"]
     V4(Option<Element>),
     #[doc = "Other"]
     V5(Option<Element>),
-    #[doc = "Self"]
-    V1(Option<Element>),
-    #[doc = "Spouse"]
-    V2(Option<Element>),
 }
 pub enum RemittanceOutcome {
+    #[doc = "Processing Complete"]
+    Complete(Option<Element>),
     #[doc = "Error"]
     Error(Option<Element>),
     #[doc = "Partial Processing"]
     Partial(Option<Element>),
-    #[doc = "Processing Complete"]
-    Complete(Option<Element>),
     #[doc = "Queued"]
     Queued(Option<Element>),
 }
@@ -7283,10 +7274,10 @@ pub enum RepositoryType {
     Login(Option<Element>),
     #[doc = "Result need to be fetched with API and need LOGIN( or cookies are required when visiting the link of resource)"]
     Oauth(Option<Element>),
-    #[doc = "Some other complicated or particular way to get resource from URL."]
-    Other(Option<Element>),
     #[doc = "The URL is the RESTful or other kind of API that can access to the result."]
     Openapi(Option<Element>),
+    #[doc = "Some other complicated or particular way to get resource from URL."]
+    Other(Option<Element>),
 }
 pub enum RequestIntent {
     #[doc = "Directive"]
@@ -7583,12 +7574,12 @@ pub enum ResourceTypeLink {
     Relatedperson(Option<Element>),
 }
 pub enum ResourceValidationMode {
-    #[doc = "Validate Against a Profile"]
-    Profile(Option<Element>),
     #[doc = "Validate for Create"]
     Create(Option<Element>),
     #[doc = "Validate for Delete"]
     Delete(Option<Element>),
+    #[doc = "Validate Against a Profile"]
+    Profile(Option<Element>),
     #[doc = "Validate for Update"]
     Update(Option<Element>),
 }
@@ -7653,14 +7644,14 @@ pub enum SearchComparator {
     Eb(Option<Element>),
     #[doc = "Equals"]
     Eq(Option<Element>),
-    #[doc = "Greater Than"]
-    Gt(Option<Element>),
     #[doc = "Greater or Equals"]
     Ge(Option<Element>),
-    #[doc = "Less Than"]
-    Lt(Option<Element>),
+    #[doc = "Greater Than"]
+    Gt(Option<Element>),
     #[doc = "Less of Equal"]
     Le(Option<Element>),
+    #[doc = "Less Than"]
+    Lt(Option<Element>),
     #[doc = "Not Equals"]
     Ne(Option<Element>),
     #[doc = "Starts After"]
@@ -7779,40 +7770,40 @@ pub enum ServicePharmacy {
     Smokecess(Option<Element>),
 }
 pub enum ServicePlace {
-    #[doc = "Ambulance—Land"]
-    V41(Option<Element>),
-    #[doc = "Assisted Living Fa"]
-    V13(Option<Element>),
-    #[doc = "Group Home"]
-    V14(Option<Element>),
-    #[doc = "Home"]
-    V12(Option<Element>),
+    #[doc = "Pharmacy"]
+    V01(Option<Element>),
+    #[doc = "School"]
+    V03(Option<Element>),
     #[doc = "Homeless Shelter"]
     V04(Option<Element>),
     #[doc = "Indian Health Service Free-standing Facility"]
     V05(Option<Element>),
     #[doc = "Indian Health Service Provider-based Facility"]
     V06(Option<Element>),
-    #[doc = "Inpatient Hospital"]
-    V21(Option<Element>),
-    #[doc = "Mobile Unit"]
-    V15(Option<Element>),
-    #[doc = "Off Campus-Outpatient Hospital"]
-    V19(Option<Element>),
-    #[doc = "Office"]
-    V11(Option<Element>),
-    #[doc = "Pharmacy"]
-    V01(Option<Element>),
-    #[doc = "Prison/Correctional Facility"]
-    V09(Option<Element>),
-    #[doc = "School"]
-    V03(Option<Element>),
     #[doc = "Tribal 638 Free-Standing Facility"]
     V07(Option<Element>),
     #[doc = "Tribal 638 Provider-Based Facility"]
     V08(Option<Element>),
+    #[doc = "Prison/Correctional Facility"]
+    V09(Option<Element>),
+    #[doc = "Office"]
+    V11(Option<Element>),
+    #[doc = "Home"]
+    V12(Option<Element>),
+    #[doc = "Assisted Living Fa"]
+    V13(Option<Element>),
+    #[doc = "Group Home"]
+    V14(Option<Element>),
+    #[doc = "Mobile Unit"]
+    V15(Option<Element>),
+    #[doc = "Off Campus-Outpatient Hospital"]
+    V19(Option<Element>),
     #[doc = "Urgent Care Facility"]
     V20(Option<Element>),
+    #[doc = "Inpatient Hospital"]
+    V21(Option<Element>),
+    #[doc = "Ambulance—Land"]
+    V41(Option<Element>),
 }
 pub enum ServiceProduct {
     #[doc = "Exam"]
@@ -7821,14 +7812,16 @@ pub enum ServiceProduct {
     Flushot(Option<Element>),
 }
 pub enum ServiceProvisionConditions {
-    #[doc = "Discounts Available"]
-    Disc(Option<Element>),
     #[doc = "Fees apply"]
     Cost(Option<Element>),
+    #[doc = "Discounts Available"]
+    Disc(Option<Element>),
     #[doc = "Free"]
     Free(Option<Element>),
 }
 pub enum ServiceReferralMethod {
+    #[doc = "Secure Messaging"]
+    Elec(Option<Element>),
     #[doc = "Fax"]
     Fax(Option<Element>),
     #[doc = "Mail"]
@@ -7837,34 +7830,14 @@ pub enum ServiceReferralMethod {
     Phone(Option<Element>),
     #[doc = "Secure Email"]
     Semail(Option<Element>),
-    #[doc = "Secure Messaging"]
-    Elec(Option<Element>),
 }
 pub enum ServiceUscls {
-    #[doc = "Amalgam, 1 surface"]
-    V21211(Option<Element>),
-    #[doc = "Amalgam, 2 surface"]
-    V21212(Option<Element>),
-    #[doc = "Crown, PFM"]
-    V27211(Option<Element>),
+    #[doc = "Exam, comp, primary"]
+    V1101(Option<Element>),
     #[doc = "Exam, comp, mixed"]
     V1102(Option<Element>),
     #[doc = "Exam, comp, permanent"]
     V1103(Option<Element>),
-    #[doc = "Exam, comp, primary"]
-    V1101(Option<Element>),
-    #[doc = "Exam, emergency"]
-    V1205(Option<Element>),
-    #[doc = "Exam, recall"]
-    V1201(Option<Element>),
-    #[doc = "Expense"]
-    V99555(Option<Element>),
-    #[doc = "Lab, commercial"]
-    V99111(Option<Element>),
-    #[doc = "Lab, in office"]
-    V99333(Option<Element>),
-    #[doc = "Maryland Bridge"]
-    V67211(Option<Element>),
     #[doc = "Polishing, 1 unit"]
     V11101(Option<Element>),
     #[doc = "Polishing, 2 unit"]
@@ -7873,76 +7846,94 @@ pub enum ServiceUscls {
     V11103(Option<Element>),
     #[doc = "Polishing, 4 unit"]
     V11104(Option<Element>),
-    #[doc = "Radiograph, bitewing"]
-    V2141(Option<Element>),
-    #[doc = "Radiograph, panoramic"]
-    V2601(Option<Element>),
+    #[doc = "Exam, recall"]
+    V1201(Option<Element>),
+    #[doc = "Exam, emergency"]
+    V1205(Option<Element>),
     #[doc = "Radiograph, series (12)"]
     V2101(Option<Element>),
     #[doc = "Radiograph, series (16)"]
     V2102(Option<Element>),
+    #[doc = "Amalgam, 1 surface"]
+    V21211(Option<Element>),
+    #[doc = "Amalgam, 2 surface"]
+    V21212(Option<Element>),
+    #[doc = "Radiograph, bitewing"]
+    V2141(Option<Element>),
+    #[doc = "Radiograph, panoramic"]
+    V2601(Option<Element>),
+    #[doc = "Crown, PFM"]
+    V27211(Option<Element>),
+    #[doc = "Maryland Bridge"]
+    V67211(Option<Element>),
+    #[doc = "Lab, commercial"]
+    V99111(Option<Element>),
+    #[doc = "Lab, in office"]
+    V99333(Option<Element>),
+    #[doc = "Expense"]
+    V99555(Option<Element>),
 }
 pub enum ServicerequestCategory {
+    #[doc = "Laboratory procedure"]
+    V108252007(Option<Element>),
+    #[doc = "Imaging"]
+    V363679005(Option<Element>),
+    #[doc = "Surgical procedure"]
+    V387713003(Option<Element>),
     #[doc = "Counselling"]
     V409063005(Option<Element>),
     #[doc = "Education"]
     V409073007(Option<Element>),
-    #[doc = "Imaging"]
-    V363679005(Option<Element>),
-    #[doc = "Laboratory procedure"]
-    V108252007(Option<Element>),
-    #[doc = "Surgical procedure"]
-    V387713003(Option<Element>),
 }
 pub enum ServicerequestOrderdetail {
-    #[doc = "Assisted controlled mandatory ventilation (procedure)"]
-    V243150007(Option<Element>),
-    #[doc = "Continuous positive airway pressure ventilation treatment (regime/therapy)"]
-    V47545007(Option<Element>),
     #[doc = "Patient triggered inspiratory assistance (procedure)"]
     V243144002(Option<Element>),
+    #[doc = "Assisted controlled mandatory ventilation (procedure)"]
+    V243150007(Option<Element>),
     #[doc = "Pressure controlled ventilation (procedure)"]
     V286812008(Option<Element>),
+    #[doc = "Continuous positive airway pressure ventilation treatment (regime/therapy)"]
+    V47545007(Option<Element>),
     #[doc = "Synchronized intermittent mandatory ventilation (procedure)"]
     V59427005(Option<Element>),
 }
 pub enum SignatureType {
-    #[doc = "Addendum Signature"]
-    V1284010065112115(Option<Element>),
-    #[doc = "Administrative (Error/Edit) Signature"]
-    V1284010065112117(Option<Element>),
     #[doc = "Author's Signature"]
     V128401006511211(Option<Element>),
-    #[doc = "Co-participant's Signature"]
-    V128401006511213(Option<Element>),
-    #[doc = "Coauthor's Signature"]
-    V128401006511212(Option<Element>),
-    #[doc = "Consent Signature"]
-    V128401006511217(Option<Element>),
-    #[doc = "Consent Witness Signature"]
-    V1284010065112111(Option<Element>),
-    #[doc = "Event Witness Signature"]
-    V128401006511219(Option<Element>),
     #[doc = "Identity Witness Signature"]
     V1284010065112110(Option<Element>),
+    #[doc = "Consent Witness Signature"]
+    V1284010065112111(Option<Element>),
     #[doc = "Interpreter Signature"]
     V1284010065112112(Option<Element>),
-    #[doc = "Modification Signature"]
-    V1284010065112116(Option<Element>),
     #[doc = "Review Signature"]
     V1284010065112113(Option<Element>),
-    #[doc = "Signature Witness Signature"]
-    V128401006511218(Option<Element>),
     #[doc = "Source Signature"]
     V1284010065112114(Option<Element>),
+    #[doc = "Addendum Signature"]
+    V1284010065112115(Option<Element>),
+    #[doc = "Modification Signature"]
+    V1284010065112116(Option<Element>),
+    #[doc = "Administrative (Error/Edit) Signature"]
+    V1284010065112117(Option<Element>),
     #[doc = "Timestamp Signature"]
     V1284010065112118(Option<Element>),
+    #[doc = "Coauthor's Signature"]
+    V128401006511212(Option<Element>),
+    #[doc = "Co-participant's Signature"]
+    V128401006511213(Option<Element>),
     #[doc = "Transcriptionist/Recorder Signature"]
     V128401006511214(Option<Element>),
-    #[doc = "Validation Signature"]
-    V128401006511216(Option<Element>),
     #[doc = "Verification Signature"]
     V128401006511215(Option<Element>),
+    #[doc = "Validation Signature"]
+    V128401006511216(Option<Element>),
+    #[doc = "Consent Signature"]
+    V128401006511217(Option<Element>),
+    #[doc = "Signature Witness Signature"]
+    V128401006511218(Option<Element>),
+    #[doc = "Event Witness Signature"]
+    V128401006511219(Option<Element>),
 }
 pub enum Slotstatus {
     #[doc = "Busy"]
@@ -7957,34 +7948,34 @@ pub enum Slotstatus {
     Free(Option<Element>),
 }
 pub enum SmartCapabilities {
-    #[doc = "Allows \"Encounter Level Launch Context (EHR)\""]
-    ContextEhrEncounter(Option<Element>),
-    #[doc = "Allows \"Encounter Level Launch Context (STANDALONE)\""]
-    ContextStandaloneEncounter(Option<Element>),
-    #[doc = "Allows \"Need Patient Banner\""]
-    ContextPassthroughBanner(Option<Element>),
-    #[doc = "Allows \"Patient Level Launch Context (EHR)\""]
-    ContextEhrPatient(Option<Element>),
-    #[doc = "Allows \"Patient Level Launch Context (STANDALONE)\""]
-    ContextStandalonePatient(Option<Element>),
-    #[doc = "Allows \"Smart Style Style\""]
-    ContextPassthroughStyle(Option<Element>),
     #[doc = "Confidential Client Profile"]
     ClientConfidentialSymmetric(Option<Element>),
-    #[doc = "EHR Launch Mode"]
-    LaunchEhr(Option<Element>),
     #[doc = "Public Client Profile"]
     ClientPublic(Option<Element>),
+    #[doc = "Allows \"Encounter Level Launch Context (EHR)\""]
+    ContextEhrEncounter(Option<Element>),
+    #[doc = "Allows \"Patient Level Launch Context (EHR)\""]
+    ContextEhrPatient(Option<Element>),
+    #[doc = "Allows \"Need Patient Banner\""]
+    ContextPassthroughBanner(Option<Element>),
+    #[doc = "Allows \"Smart Style Style\""]
+    ContextPassthroughStyle(Option<Element>),
+    #[doc = "Allows \"Encounter Level Launch Context (STANDALONE)\""]
+    ContextStandaloneEncounter(Option<Element>),
+    #[doc = "Allows \"Patient Level Launch Context (STANDALONE)\""]
+    ContextStandalonePatient(Option<Element>),
+    #[doc = "EHR Launch Mode"]
+    LaunchEhr(Option<Element>),
     #[doc = "Standalone Launch Mode"]
     LaunchStandalone(Option<Element>),
-    #[doc = "Supports OpenID Connect"]
-    SsoOpenidConnect(Option<Element>),
-    #[doc = "Supports Patient Level Scopes"]
-    PermissionPatient(Option<Element>),
     #[doc = "Supports Refresh Token"]
     PermissionOffline(Option<Element>),
+    #[doc = "Supports Patient Level Scopes"]
+    PermissionPatient(Option<Element>),
     #[doc = "Supports User Level Scopes"]
     PermissionUser(Option<Element>),
+    #[doc = "Supports OpenID Connect"]
+    SsoOpenidConnect(Option<Element>),
 }
 pub enum SortDirection {
     #[doc = "Ascending"]
@@ -7993,78 +7984,78 @@ pub enum SortDirection {
     Descending(Option<Element>),
 }
 pub enum SpecialValues {
+    #[doc = "false"]
+    False(Option<Element>),
     #[doc = "Nil Known"]
     NilKnown(Option<Element>),
     #[doc = "Sufficient Quantity"]
     Sufficient(Option<Element>),
     #[doc = "Trace Amount Detected"]
     Trace(Option<Element>),
-    #[doc = "Value Withdrawn"]
-    Withdrawn(Option<Element>),
-    #[doc = "false"]
-    False(Option<Element>),
     #[doc = "true"]
     True(Option<Element>),
+    #[doc = "Value Withdrawn"]
+    Withdrawn(Option<Element>),
 }
 pub enum SpecimenCollection {
-    #[doc = "Aspiration - action"]
-    V129316008(Option<Element>),
-    #[doc = "Biopsy - action"]
-    V129314006(Option<Element>),
-    #[doc = "Collection of coughed sputum"]
-    V386089008(Option<Element>),
-    #[doc = "Excision - action"]
-    V129304002(Option<Element>),
-    #[doc = "Finger-prick sampling"]
-    V278450005(Option<Element>),
     #[doc = "Puncture - action"]
     V129300006(Option<Element>),
+    #[doc = "Excision - action"]
+    V129304002(Option<Element>),
+    #[doc = "Biopsy - action"]
+    V129314006(Option<Element>),
+    #[doc = "Aspiration - action"]
+    V129316008(Option<Element>),
     #[doc = "Scraping - action"]
     V129323009(Option<Element>),
     #[doc = "Timed urine collection"]
     V225113003(Option<Element>),
+    #[doc = "Finger-prick sampling"]
+    V278450005(Option<Element>),
+    #[doc = "Collection of coughed sputum"]
+    V386089008(Option<Element>),
     #[doc = "Urine specimen collection, catheterized"]
     V70777001(Option<Element>),
     #[doc = "Urine specimen collection, clean catch"]
     V73416001(Option<Element>),
 }
 pub enum SpecimenCollectionMethod {
-    #[doc = "Aspiration - action"]
-    V129316008(Option<Element>),
-    #[doc = "Biopsy - action"]
-    V129314006(Option<Element>),
-    #[doc = "Collection of coughed sputum"]
-    V386089008(Option<Element>),
-    #[doc = "Excision - action"]
-    V129304002(Option<Element>),
-    #[doc = "Finger-prick sampling"]
-    V278450005(Option<Element>),
     #[doc = "Puncture - action"]
     V129300006(Option<Element>),
+    #[doc = "Excision - action"]
+    V129304002(Option<Element>),
+    #[doc = "Biopsy - action"]
+    V129314006(Option<Element>),
+    #[doc = "Aspiration - action"]
+    V129316008(Option<Element>),
     #[doc = "Scraping - action"]
     V129323009(Option<Element>),
     #[doc = "Timed urine collection"]
     V225113003(Option<Element>),
+    #[doc = "Finger-prick sampling"]
+    V278450005(Option<Element>),
+    #[doc = "Collection of coughed sputum"]
+    V386089008(Option<Element>),
     #[doc = "Urine specimen collection, catheterized"]
     V70777001(Option<Element>),
     #[doc = "Urine specimen collection, clean catch"]
     V73416001(Option<Element>),
 }
 pub enum SpecimenCollectionPriority {
-    #[doc = "AM"]
-    V4(Option<Element>),
+    #[doc = "STAT"]
+    V1(Option<Element>),
     #[doc = "ASAP"]
     V2(Option<Element>),
     #[doc = "ASAP-ED"]
     V3(Option<Element>),
-    #[doc = "CALL OR FAX"]
-    V7(Option<Element>),
-    #[doc = "NURSE COLLECT"]
-    V6(Option<Element>),
+    #[doc = "AM"]
+    V4(Option<Element>),
     #[doc = "ROUTINE"]
     V5(Option<Element>),
-    #[doc = "STAT"]
-    V1(Option<Element>),
+    #[doc = "NURSE COLLECT"]
+    V6(Option<Element>),
+    #[doc = "CALL OR FAX"]
+    V7(Option<Element>),
 }
 pub enum SpecimenContainedPreference {
     #[doc = "Alternate"]
@@ -8113,18 +8104,18 @@ pub enum StructureDefinitionKind {
     Resource(Option<Element>),
 }
 pub enum StudyType {
-    #[doc = "case report"]
-    CaseReport(Option<Element>),
-    #[doc = "case-control study"]
-    CaseControl(Option<Element>),
-    #[doc = "comparative cohort study"]
-    Cohort(Option<Element>),
     #[doc = "controlled trial (non-randomized)"]
     CCT(Option<Element>),
-    #[doc = "mixed methods"]
-    Mixed(Option<Element>),
     #[doc = "randomized trial"]
     RCT(Option<Element>),
+    #[doc = "case-control study"]
+    CaseControl(Option<Element>),
+    #[doc = "case report"]
+    CaseReport(Option<Element>),
+    #[doc = "comparative cohort study"]
+    Cohort(Option<Element>),
+    #[doc = "mixed methods"]
+    Mixed(Option<Element>),
     #[doc = "uncontrolled cohort or case series"]
     Series(Option<Element>),
 }
@@ -8188,10 +8179,10 @@ pub enum SubstanceCategory {
     Body(Option<Element>),
     #[doc = "Chemical"]
     Chemical(Option<Element>),
-    #[doc = "Dietary Substance"]
-    Food(Option<Element>),
     #[doc = "Drug or Medicament"]
     Drug(Option<Element>),
+    #[doc = "Dietary Substance"]
+    Food(Option<Element>),
     #[doc = "Material"]
     Material(Option<Element>),
 }
@@ -8204,96 +8195,96 @@ pub enum SubstanceStatus {
     Inactive(Option<Element>),
 }
 pub enum SupplementType {
-    #[doc = "Adult clear liquid supplement"]
-    V442901000124106(Option<Element>),
-    #[doc = "Adult critical care formula"]
-    V443031000124106(Option<Element>),
-    #[doc = "Adult diabetes specialty formula"]
-    V443051000124104(Option<Element>),
-    #[doc = "Adult elemental formula"]
-    V442911000124109(Option<Element>),
-    #[doc = "Adult formula"]
-    V442651000124102(Option<Element>),
-    #[doc = "Adult hepatic specialty formula"]
-    V443021000124108(Option<Element>),
-    #[doc = "Adult high energy formula"]
-    V442971000124100(Option<Element>),
-    #[doc = "Adult high protein formula"]
-    V442991000124104(Option<Element>),
-    #[doc = "Adult high protein high fiber formula"]
-    V443011000124100(Option<Element>),
-    #[doc = "Adult hydrolyzed protein formula"]
-    V442981000124102(Option<Element>),
-    #[doc = "Adult low carbohydrate formula"]
-    V442961000124107(Option<Element>),
-    #[doc = "Adult pulmonary specialty formula"]
-    V442951000124105(Option<Element>),
-    #[doc = "Adult renal specialty formula"]
-    V442941000124108(Option<Element>),
-    #[doc = "Adult soy protein isolate formula"]
-    V442931000124103(Option<Element>),
-    #[doc = "Adult standard formula"]
-    V442921000124101(Option<Element>),
-    #[doc = "Clear liquid supplement"]
-    V443441000124107(Option<Element>),
+    #[doc = "Standard Enteral Formula"]
+    V441531000124102(Option<Element>),
+    #[doc = "Standard enteral formula with fiber"]
+    V441561000124106(Option<Element>),
+    #[doc = "High energy enteral formula with fiber"]
+    V441571000124104(Option<Element>),
     #[doc = "Diabetic enteral formula with fiber"]
     V441591000124103(Option<Element>),
     #[doc = "Diabetic high calorie high protein enteral formula with fiber"]
     V441601000124106(Option<Element>),
-    #[doc = "Diabetic meal replacement bar"]
-    V444331000124106(Option<Element>),
-    #[doc = "Electrolyte replacement supplement"]
-    V444361000124102(Option<Element>),
-    #[doc = "Elemental Formula"]
-    V443411000124108(Option<Element>),
-    #[doc = "Frozen electrolyte replacement supplement"]
-    V444401000124107(Option<Element>),
-    #[doc = "High Energy Formula"]
-    V443431000124102(Option<Element>),
-    #[doc = "High energy enteral formula with fiber"]
-    V441571000124104(Option<Element>),
-    #[doc = "High protein formula"]
-    V443111000124101(Option<Element>),
     #[doc = "Hydrolyzed peptide-based high protein enteral formula"]
     V441671000124100(Option<Element>),
-    #[doc = "Hydrolyzed protein formula"]
-    V443771000124106(Option<Element>),
+    #[doc = "Adult formula"]
+    V442651000124102(Option<Element>),
+    #[doc = "Adult clear liquid supplement"]
+    V442901000124106(Option<Element>),
+    #[doc = "Adult elemental formula"]
+    V442911000124109(Option<Element>),
+    #[doc = "Adult standard formula"]
+    V442921000124101(Option<Element>),
+    #[doc = "Adult soy protein isolate formula"]
+    V442931000124103(Option<Element>),
+    #[doc = "Adult renal specialty formula"]
+    V442941000124108(Option<Element>),
+    #[doc = "Adult pulmonary specialty formula"]
+    V442951000124105(Option<Element>),
+    #[doc = "Adult low carbohydrate formula"]
+    V442961000124107(Option<Element>),
+    #[doc = "Adult high energy formula"]
+    V442971000124100(Option<Element>),
+    #[doc = "Adult hydrolyzed protein formula"]
+    V442981000124102(Option<Element>),
+    #[doc = "Adult high protein formula"]
+    V442991000124104(Option<Element>),
+    #[doc = "Adult high protein high fiber formula"]
+    V443011000124100(Option<Element>),
+    #[doc = "Adult hepatic specialty formula"]
+    V443021000124108(Option<Element>),
+    #[doc = "Adult critical care formula"]
+    V443031000124106(Option<Element>),
+    #[doc = "Adult diabetes specialty formula"]
+    V443051000124104(Option<Element>),
+    #[doc = "High protein formula"]
+    V443111000124101(Option<Element>),
     #[doc = "Increased fiber formula"]
     V443351000124102(Option<Element>),
-    #[doc = "Liquid electrolyte replacement supplement"]
-    V444381000124107(Option<Element>),
     #[doc = "Pediatric Formula"]
     V443361000124100(Option<Element>),
     #[doc = "Pediatric clear liquid supplement"]
     V443391000124108(Option<Element>),
     #[doc = "Pediatric elemental formula"]
     V443401000124105(Option<Element>),
+    #[doc = "Elemental Formula"]
+    V443411000124108(Option<Element>),
+    #[doc = "Pediatric hydrolyzed protein formula"]
+    V443421000124100(Option<Element>),
+    #[doc = "High Energy Formula"]
+    V443431000124102(Option<Element>),
+    #[doc = "Clear liquid supplement"]
+    V443441000124107(Option<Element>),
+    #[doc = "Pediatric standard formula"]
+    V443451000124109(Option<Element>),
+    #[doc = "Standard Formula"]
+    V443461000124106(Option<Element>),
+    #[doc = "Pediatric increased fiber formula"]
+    V443471000124104(Option<Element>),
+    #[doc = "Renal Formula"]
+    V443481000124101(Option<Element>),
     #[doc = "Pediatric high energy formula"]
     V443491000124103(Option<Element>),
     #[doc = "Pediatric high energy formula with increased fiber"]
     V443501000124106(Option<Element>),
-    #[doc = "Pediatric hydrolyzed protein formula"]
-    V443421000124100(Option<Element>),
-    #[doc = "Pediatric increased fiber formula"]
-    V443471000124104(Option<Element>),
-    #[doc = "Pediatric reduced energy formula"]
-    V444431000124104(Option<Element>),
-    #[doc = "Pediatric standard formula"]
-    V443451000124109(Option<Element>),
-    #[doc = "Powdered electrolyte replacement supplement"]
-    V444371000124109(Option<Element>),
-    #[doc = "Renal Formula"]
-    V443481000124101(Option<Element>),
     #[doc = "Soy based formula"]
     V443561000124107(Option<Element>),
-    #[doc = "Standard Enteral Formula"]
-    V441531000124102(Option<Element>),
-    #[doc = "Standard Formula"]
-    V443461000124106(Option<Element>),
-    #[doc = "Standard enteral formula with fiber"]
-    V441561000124106(Option<Element>),
+    #[doc = "Hydrolyzed protein formula"]
+    V443771000124106(Option<Element>),
     #[doc = "Standard pudding oral supplement"]
     V444321000124108(Option<Element>),
+    #[doc = "Diabetic meal replacement bar"]
+    V444331000124106(Option<Element>),
+    #[doc = "Electrolyte replacement supplement"]
+    V444361000124102(Option<Element>),
+    #[doc = "Powdered electrolyte replacement supplement"]
+    V444371000124109(Option<Element>),
+    #[doc = "Liquid electrolyte replacement supplement"]
+    V444381000124107(Option<Element>),
+    #[doc = "Frozen electrolyte replacement supplement"]
+    V444401000124107(Option<Element>),
+    #[doc = "Pediatric reduced energy formula"]
+    V444431000124104(Option<Element>),
 }
 pub enum SupplydeliveryStatus {
     #[doc = "Abandoned"]
@@ -8344,10 +8335,10 @@ pub enum Surface {
     B(Option<Element>),
     #[doc = "Distal"]
     D(Option<Element>),
-    #[doc = "Distoclusal"]
-    DO(Option<Element>),
     #[doc = "Distoincisal"]
     DI(Option<Element>),
+    #[doc = "Distoclusal"]
+    DO(Option<Element>),
     #[doc = "Incisal"]
     I(Option<Element>),
     #[doc = "Lingual"]
@@ -8364,14 +8355,14 @@ pub enum Surface {
     V(Option<Element>),
 }
 pub enum SynthesisType {
+    #[doc = "individual patient data meta-analysis"]
+    IPDMA(Option<Element>),
     #[doc = "classifcation of results"]
     Classification(Option<Element>),
     #[doc = "combined direct plus indirect network meta-analysis"]
     CombinedNMA(Option<Element>),
     #[doc = "indirect network meta-analysis"]
     IndirectNMA(Option<Element>),
-    #[doc = "individual patient data meta-analysis"]
-    IPDMA(Option<Element>),
     #[doc = "range of results"]
     Range(Option<Element>),
     #[doc = "summary data meta-analysis"]
@@ -8384,18 +8375,18 @@ pub enum SystemRestfulInteraction {
     Transaction(Option<Element>),
 }
 pub enum TaskCode {
+    #[doc = "Mark the focal resource as no longer active"]
+    Abort(Option<Element>),
     #[doc = "Activate/approve the focal resource"]
     Approve(Option<Element>),
     #[doc = "Change the focal resource"]
     Change(Option<Element>),
     #[doc = "Fulfill the focal request"]
     Fulfill(Option<Element>),
-    #[doc = "Mark the focal resource as no longer active"]
-    Abort(Option<Element>),
-    #[doc = "Re-activate the focal resource"]
-    Resume(Option<Element>),
     #[doc = "Replace the focal resource with the input resource"]
     Replace(Option<Element>),
+    #[doc = "Re-activate the focal resource"]
+    Resume(Option<Element>),
     #[doc = "Suspend the focal resource"]
     Suspend(Option<Element>),
 }
@@ -8510,26 +8501,38 @@ pub enum TemplateStatusCode {
     Cancelled(Option<Element>),
     #[doc = "Draft"]
     Draft(Option<Element>),
-    #[doc = "In Review"]
-    Review(Option<Element>),
+    #[doc = "Under pre-publication review"]
+    Pending(Option<Element>),
     #[doc = "Rejected"]
     Rejected(Option<Element>),
     #[doc = "Retired"]
     Retired(Option<Element>),
+    #[doc = "In Review"]
+    Review(Option<Element>),
     #[doc = "Terminated"]
     Terminated(Option<Element>),
-    #[doc = "Under pre-publication review"]
-    Pending(Option<Element>),
 }
 pub enum TestscriptOperationCodes {
     #[doc = "$apply"]
     Apply(Option<Element>),
+    #[doc = "Batch"]
+    Batch(Option<Element>),
+    #[doc = "Capabilities"]
+    Capabilities(Option<Element>),
     #[doc = "$closure"]
     Closure(Option<Element>),
     #[doc = "$conforms"]
     Conforms(Option<Element>),
+    #[doc = "Create"]
+    Create(Option<Element>),
     #[doc = "$data-requirements"]
     DataRequirements(Option<Element>),
+    #[doc = "Delete"]
+    Delete(Option<Element>),
+    #[doc = "Conditional Delete Multiple"]
+    DeleteCondMultiple(Option<Element>),
+    #[doc = "Conditional Delete Single"]
+    DeleteCondSingle(Option<Element>),
     #[doc = "$document"]
     Document(Option<Element>),
     #[doc = "$evaluate"]
@@ -8546,6 +8549,8 @@ pub enum TestscriptOperationCodes {
     FindMatches(Option<Element>),
     #[doc = "$graphql"]
     Graphql(Option<Element>),
+    #[doc = "History"]
+    History(Option<Element>),
     #[doc = "$implements"]
     Implements(Option<Element>),
     #[doc = "$lastn"]
@@ -8560,6 +8565,8 @@ pub enum TestscriptOperationCodes {
     MetaAdd(Option<Element>),
     #[doc = "$meta-delete"]
     MetaDelete(Option<Element>),
+    #[doc = "Patch"]
+    Patch(Option<Element>),
     #[doc = "$populate"]
     Populate(Option<Element>),
     #[doc = "$populatehtml"]
@@ -8570,46 +8577,30 @@ pub enum TestscriptOperationCodes {
     ProcessMessage(Option<Element>),
     #[doc = "$questionnaire"]
     Questionnaire(Option<Element>),
+    #[doc = "Read"]
+    Read(Option<Element>),
+    #[doc = "Search"]
+    Search(Option<Element>),
     #[doc = "$stats"]
     Stats(Option<Element>),
     #[doc = "$subset"]
     Subset(Option<Element>),
     #[doc = "$subsumes"]
     Subsumes(Option<Element>),
+    #[doc = "Transaction"]
+    Transaction(Option<Element>),
     #[doc = "$transform"]
     Transform(Option<Element>),
     #[doc = "$translate"]
     Translate(Option<Element>),
+    #[doc = "Update"]
+    Update(Option<Element>),
+    #[doc = "Create using Update"]
+    UpdateCreate(Option<Element>),
     #[doc = "$validate"]
     Validate(Option<Element>),
     #[doc = "$validate-code"]
     ValidateCode(Option<Element>),
-    #[doc = "Batch"]
-    Batch(Option<Element>),
-    #[doc = "Capabilities"]
-    Capabilities(Option<Element>),
-    #[doc = "Conditional Delete Multiple"]
-    DeleteCondMultiple(Option<Element>),
-    #[doc = "Conditional Delete Single"]
-    DeleteCondSingle(Option<Element>),
-    #[doc = "Create"]
-    Create(Option<Element>),
-    #[doc = "Create using Update"]
-    UpdateCreate(Option<Element>),
-    #[doc = "Delete"]
-    Delete(Option<Element>),
-    #[doc = "History"]
-    History(Option<Element>),
-    #[doc = "Patch"]
-    Patch(Option<Element>),
-    #[doc = "Read"]
-    Read(Option<Element>),
-    #[doc = "Search"]
-    Search(Option<Element>),
-    #[doc = "Transaction"]
-    Transaction(Option<Element>),
-    #[doc = "Update"]
-    Update(Option<Element>),
     #[doc = "Version Read"]
     Vread(Option<Element>),
 }
@@ -8634,20 +8625,10 @@ pub enum TextureCode {
     V228049004(Option<Element>),
     #[doc = "Cut-up food"]
     V228053002(Option<Element>),
-    #[doc = "Easy to chew food"]
-    V439091000124107(Option<Element>),
-    #[doc = "Ground food"]
-    V441881000124103(Option<Element>),
     #[doc = "Liquidized food"]
     V228055009(Option<Element>),
     #[doc = "Lumpy food"]
     V228056005(Option<Element>),
-    #[doc = "Mashed food"]
-    V441751000124100(Option<Element>),
-    #[doc = "Minced food"]
-    V441761000124103(Option<Element>),
-    #[doc = "Moist food"]
-    V441771000124105(Option<Element>),
     #[doc = "Semi-solid food"]
     V228057001(Option<Element>),
     #[doc = "Single texture food"]
@@ -8656,20 +8637,42 @@ pub enum TextureCode {
     V228059003(Option<Element>),
     #[doc = "Solid food"]
     V228060008(Option<Element>),
+    #[doc = "Easy to chew food"]
+    V439091000124107(Option<Element>),
+    #[doc = "Mashed food"]
+    V441751000124100(Option<Element>),
+    #[doc = "Minced food"]
+    V441761000124103(Option<Element>),
+    #[doc = "Moist food"]
+    V441771000124105(Option<Element>),
     #[doc = "Strained food"]
     V441791000124106(Option<Element>),
+    #[doc = "Ground food"]
+    V441881000124103(Option<Element>),
 }
 pub enum TimingAbbreviation {
     #[doc = "AM"]
     AM(Option<Element>),
+    #[doc = "at bedtime"]
+    BED(Option<Element>),
     #[doc = "BID"]
     BID(Option<Element>),
+    #[doc = "monthly"]
+    MO(Option<Element>),
     #[doc = "PM"]
     PM(Option<Element>),
+    #[doc = "every hour"]
+    Q1H(Option<Element>),
+    #[doc = "every 2 hours"]
+    Q2H(Option<Element>),
+    #[doc = "every 3 hours"]
+    Q3H(Option<Element>),
     #[doc = "Q4H"]
     Q4H(Option<Element>),
     #[doc = "Q6H"]
     Q6H(Option<Element>),
+    #[doc = "every 8 hours"]
+    Q8H(Option<Element>),
     #[doc = "QD"]
     QD(Option<Element>),
     #[doc = "QID"]
@@ -8678,22 +8681,12 @@ pub enum TimingAbbreviation {
     QOD(Option<Element>),
     #[doc = "TID"]
     TID(Option<Element>),
-    #[doc = "at bedtime"]
-    BED(Option<Element>),
-    #[doc = "every 2 hours"]
-    Q2H(Option<Element>),
-    #[doc = "every 3 hours"]
-    Q3H(Option<Element>),
-    #[doc = "every 8 hours"]
-    Q8H(Option<Element>),
-    #[doc = "every hour"]
-    Q1H(Option<Element>),
-    #[doc = "monthly"]
-    MO(Option<Element>),
     #[doc = "weekly"]
     WK(Option<Element>),
 }
 pub enum Tooth {
+    #[doc = "Oral cavity"]
+    V0(Option<Element>),
     #[doc = "1"]
     V1(Option<Element>),
     #[doc = "11"]
@@ -8774,14 +8767,12 @@ pub enum Tooth {
     V7(Option<Element>),
     #[doc = "8"]
     V8(Option<Element>),
-    #[doc = "Oral cavity"]
-    V0(Option<Element>),
 }
 pub enum TransactionMode {
-    #[doc = "Batches & Transactions"]
-    Both(Option<Element>),
     #[doc = "Batches supported"]
     Batch(Option<Element>),
+    #[doc = "Batches & Transactions"]
+    Both(Option<Element>),
     #[doc = "None"]
     NotSupported(Option<Element>),
     #[doc = "Transactions Supported"]
@@ -8796,10 +8787,10 @@ pub enum TriggerType {
     DataAdded(Option<Element>),
     #[doc = "Data Changed"]
     DataChanged(Option<Element>),
-    #[doc = "Data Removed"]
-    DataRemoved(Option<Element>),
     #[doc = "Data Updated"]
     DataModified(Option<Element>),
+    #[doc = "Data Removed"]
+    DataRemoved(Option<Element>),
     #[doc = "Named Event"]
     NamedEvent(Option<Element>),
     #[doc = "Periodic"]
@@ -8836,30 +8827,30 @@ pub enum UcumBodyweight {
     Kg(Option<Element>),
 }
 pub enum UcumVitalsCommon {
-    #[doc = "centimeter"]
-    Cm(Option<Element>),
+    #[doc = "percent"]
+    Percent(Option<Element>),
+    #[doc = "per minute"]
+    _Min(Option<Element>),
     #[doc = "degree Celsius"]
     Cel(Option<Element>),
     #[doc = "degree Fahrenheit"]
     LeftSquareBracketdegFRightSquareBracket(Option<Element>),
-    #[doc = "gram"]
-    G(Option<Element>),
     #[doc = "inch (international)"]
     LeftSquareBracketin_iRightSquareBracket(Option<Element>),
+    #[doc = "pound (US and British)"]
+    LeftSquareBracketlb_avRightSquareBracket(Option<Element>),
+    #[doc = "centimeter"]
+    Cm(Option<Element>),
+    #[doc = "gram"]
+    G(Option<Element>),
     #[doc = "kilogram"]
     Kg(Option<Element>),
     #[doc = "kilogram / (meter ^ 2)"]
     Kg_M2(Option<Element>),
-    #[doc = "millimeter of mercury"]
-    MmLeftSquareBracketHgRightSquareBracket(Option<Element>),
-    #[doc = "per minute"]
-    _Min(Option<Element>),
-    #[doc = "percent"]
-    Percent(Option<Element>),
-    #[doc = "pound (US and British)"]
-    LeftSquareBracketlb_avRightSquareBracket(Option<Element>),
     #[doc = "square meter"]
     M2(Option<Element>),
+    #[doc = "millimeter of mercury"]
+    MmLeftSquareBracketHgRightSquareBracket(Option<Element>),
 }
 pub enum Udi {
     #[doc = "GUDID (FDA)"]
@@ -8880,6 +8871,8 @@ pub enum UdiEntryType {
     Unknown(Option<Element>),
 }
 pub enum UnitsOfTime {
+    #[doc = "year"]
+    A(Option<Element>),
     #[doc = "day"]
     D(Option<Element>),
     #[doc = "hour"]
@@ -8892,38 +8885,36 @@ pub enum UnitsOfTime {
     S(Option<Element>),
     #[doc = "week"]
     Wk(Option<Element>),
-    #[doc = "year"]
-    A(Option<Element>),
 }
 pub enum UnknownContentCode {
-    #[doc = "Neither Elements or Extensions"]
-    No(Option<Element>),
-    #[doc = "Unknown Elements"]
-    Elements(Option<Element>),
     #[doc = "Unknown Elements and Extensions"]
     Both(Option<Element>),
+    #[doc = "Unknown Elements"]
+    Elements(Option<Element>),
     #[doc = "Unknown Extensions"]
     Extensions(Option<Element>),
+    #[doc = "Neither Elements or Extensions"]
+    No(Option<Element>),
 }
 pub enum UsageContextType {
     #[doc = "Age Range"]
     Age(Option<Element>),
     #[doc = "Clinical Focus"]
     Focus(Option<Element>),
-    #[doc = "Clinical Venue"]
-    Venue(Option<Element>),
     #[doc = "Gender"]
     Gender(Option<Element>),
     #[doc = "Program"]
     Program(Option<Element>),
     #[doc = "Species"]
     Species(Option<Element>),
-    #[doc = "User Type"]
-    User(Option<Element>),
-    #[doc = "Workflow Setting"]
-    Workflow(Option<Element>),
     #[doc = "Workflow Task"]
     Task(Option<Element>),
+    #[doc = "User Type"]
+    User(Option<Element>),
+    #[doc = "Clinical Venue"]
+    Venue(Option<Element>),
+    #[doc = "Workflow Setting"]
+    Workflow(Option<Element>),
 }
 pub enum VariableType {
     #[doc = "Continuous"]
@@ -9010,14 +9001,14 @@ pub enum VerificationresultStatus {
     Attested(Option<Element>),
     #[doc = "In process"]
     InProcess(Option<Element>),
-    #[doc = "Re-Validation failed"]
-    RevalFail(Option<Element>),
     #[doc = "Requires revalidation"]
     ReqRevalid(Option<Element>),
-    #[doc = "Validated"]
-    Validated(Option<Element>),
+    #[doc = "Re-Validation failed"]
+    RevalFail(Option<Element>),
     #[doc = "Validation failed"]
     ValFail(Option<Element>),
+    #[doc = "Validated"]
+    Validated(Option<Element>),
 }
 pub enum VerificationresultValidationProcess {
     #[doc = "edit check"]
@@ -9052,10 +9043,10 @@ pub enum VerificationresultValidationType {
 pub enum VersioningPolicy {
     #[doc = "No VersionId Support"]
     NoVersion(Option<Element>),
-    #[doc = "VersionId tracked fully"]
-    VersionedUpdate(Option<Element>),
     #[doc = "Versioned"]
     Versioned(Option<Element>),
+    #[doc = "VersionId tracked fully"]
+    VersionedUpdate(Option<Element>),
 }
 pub enum VisionBaseCodes {
     #[doc = "Down"]
@@ -9084,54 +9075,54 @@ pub enum WrittenLanguage {
     Ar(Option<Element>),
     #[doc = "Bengali"]
     Bn(Option<Element>),
-    #[doc = "Chinese"]
-    Zh(Option<Element>),
-    #[doc = "Croatian"]
-    Hr(Option<Element>),
     #[doc = "Czech"]
     Cs(Option<Element>),
     #[doc = "Danish"]
     Da(Option<Element>),
-    #[doc = "Dutch"]
-    Nl(Option<Element>),
+    #[doc = "German"]
+    De(Option<Element>),
+    #[doc = "Greek"]
+    El(Option<Element>),
     #[doc = "English"]
     En(Option<Element>),
+    #[doc = "Spanish"]
+    Es(Option<Element>),
     #[doc = "Finnish"]
     Fi(Option<Element>),
     #[doc = "French"]
     Fr(Option<Element>),
     #[doc = "Frysian"]
     Fy(Option<Element>),
-    #[doc = "German"]
-    De(Option<Element>),
-    #[doc = "Greek"]
-    El(Option<Element>),
     #[doc = "Hindi"]
     Hi(Option<Element>),
+    #[doc = "Croatian"]
+    Hr(Option<Element>),
     #[doc = "Italian"]
     It(Option<Element>),
     #[doc = "Japanese"]
     Ja(Option<Element>),
     #[doc = "Korean"]
     Ko(Option<Element>),
+    #[doc = "Dutch"]
+    Nl(Option<Element>),
     #[doc = "Norwegian"]
     No(Option<Element>),
+    #[doc = "Punjabi"]
+    Pa(Option<Element>),
     #[doc = "Polish"]
     Pl(Option<Element>),
     #[doc = "Portuguese"]
     Pt(Option<Element>),
-    #[doc = "Punjabi"]
-    Pa(Option<Element>),
     #[doc = "Russian"]
     Ru(Option<Element>),
     #[doc = "Serbian"]
     Sr(Option<Element>),
-    #[doc = "Spanish"]
-    Es(Option<Element>),
     #[doc = "Swedish"]
     Sv(Option<Element>),
     #[doc = "Telegu"]
     Te(Option<Element>),
+    #[doc = "Chinese"]
+    Zh(Option<Element>),
 }
 pub enum V3AcknowledgementCondition {
     #[doc = "Always"]
@@ -9144,97 +9135,97 @@ pub enum V3AcknowledgementCondition {
     SU(Option<Element>),
 }
 pub enum V3AcknowledgementDetailCode {
-    #[doc = "AcknowledgementDetailNotSupportedCode"]
-    _AcknowledgementDetailNotSupportedCode(Option<Element>),
-    #[doc = "Data type error"]
-    SYN102(Option<Element>),
-    #[doc = "Deprecated code"]
-    SYN107(Option<Element>),
-    #[doc = "Error: Message routing error, unknown destination."]
-    RTUDEST(Option<Element>),
-    #[doc = "Formal constraint violation"]
-    SYN113(Option<Element>),
-    #[doc = "Insufficient repetitions"]
-    SYN114(Option<Element>),
     #[doc = "Internal system error"]
     INTERR(Option<Element>),
-    #[doc = "Invalid code system in CNE"]
-    SYN104(Option<Element>),
-    #[doc = "Mandatory element with null value"]
-    SYN109(Option<Element>),
-    #[doc = "Message routing error, destination unreachable."]
-    RTEDEST(Option<Element>),
-    #[doc = "Message routing warning, destination unreachable."]
-    RTWDEST(Option<Element>),
     #[doc = "No storage space for message."]
     NOSTORE(Option<Element>),
-    #[doc = "Number of association repetitions exceeds limit"]
-    SYN110(Option<Element>),
-    #[doc = "Number of attribute repetitions exceeds limit"]
-    SYN112(Option<Element>),
-    #[doc = "Number of repetitions exceeds limit"]
-    SYN108(Option<Element>),
-    #[doc = "Required association missing"]
-    SYN100(Option<Element>),
-    #[doc = "Required attribute missing"]
-    SYN101(Option<Element>),
-    #[doc = "Required element missing"]
-    SYN105(Option<Element>),
-    #[doc = "Syntax error"]
-    SYN(Option<Element>),
-    #[doc = "Terminology error"]
-    SYN106(Option<Element>),
-    #[doc = "Unknown sender"]
-    NS260(Option<Element>),
-    #[doc = "Unrecognized attentionline"]
-    NS261(Option<Element>),
     #[doc = "Unsupported interaction"]
     NS200(Option<Element>),
-    #[doc = "Unsupported processing Mode"]
-    NS250(Option<Element>),
     #[doc = "Unsupported processing id"]
     NS202(Option<Element>),
     #[doc = "Unsupported version id"]
     NS203(Option<Element>),
-    #[doc = "Value does not match fixed value"]
-    SYN111(Option<Element>),
+    #[doc = "Unsupported processing Mode"]
+    NS250(Option<Element>),
+    #[doc = "Unknown sender"]
+    NS260(Option<Element>),
+    #[doc = "Unrecognized attentionline"]
+    NS261(Option<Element>),
+    #[doc = "Message routing error, destination unreachable."]
+    RTEDEST(Option<Element>),
+    #[doc = "Error: Message routing error, unknown destination."]
+    RTUDEST(Option<Element>),
+    #[doc = "Message routing warning, destination unreachable."]
+    RTWDEST(Option<Element>),
+    #[doc = "Syntax error"]
+    SYN(Option<Element>),
+    #[doc = "Required association missing"]
+    SYN100(Option<Element>),
+    #[doc = "Required attribute missing"]
+    SYN101(Option<Element>),
+    #[doc = "Data type error"]
+    SYN102(Option<Element>),
     #[doc = "Value not found in code system"]
     SYN103(Option<Element>),
+    #[doc = "Invalid code system in CNE"]
+    SYN104(Option<Element>),
+    #[doc = "Required element missing"]
+    SYN105(Option<Element>),
+    #[doc = "Terminology error"]
+    SYN106(Option<Element>),
+    #[doc = "Deprecated code"]
+    SYN107(Option<Element>),
+    #[doc = "Number of repetitions exceeds limit"]
+    SYN108(Option<Element>),
+    #[doc = "Mandatory element with null value"]
+    SYN109(Option<Element>),
+    #[doc = "Number of association repetitions exceeds limit"]
+    SYN110(Option<Element>),
+    #[doc = "Value does not match fixed value"]
+    SYN111(Option<Element>),
+    #[doc = "Number of attribute repetitions exceeds limit"]
+    SYN112(Option<Element>),
+    #[doc = "Formal constraint violation"]
+    SYN113(Option<Element>),
+    #[doc = "Insufficient repetitions"]
+    SYN114(Option<Element>),
+    #[doc = "AcknowledgementDetailNotSupportedCode"]
+    _AcknowledgementDetailNotSupportedCode(Option<Element>),
 }
 pub enum V3AcknowledgementDetailType {
-    ERR(Option<Element>),
-    INFO(Option<Element>),
-    WARN(Option<Element>),
     #[doc = "Error"]
     E(Option<Element>),
+    ERR(Option<Element>),
     #[doc = "Information"]
     I(Option<Element>),
+    INFO(Option<Element>),
     #[doc = "Warning"]
     W(Option<Element>),
+    WARN(Option<Element>),
 }
 pub enum V3AcknowledgementType {
-    #[doc = "Accept Acknowledgement Commit Accept"]
-    CA(Option<Element>),
-    #[doc = "Accept Acknowledgement Commit Error"]
-    CE(Option<Element>),
-    #[doc = "Accept Acknowledgement Commit Reject"]
-    CR(Option<Element>),
     #[doc = "Application Acknowledgement Accept"]
     AA(Option<Element>),
     #[doc = "Application Acknowledgement Error"]
     AE(Option<Element>),
     #[doc = "Application Acknowledgement Reject"]
     AR(Option<Element>),
+    #[doc = "Accept Acknowledgement Commit Accept"]
+    CA(Option<Element>),
+    #[doc = "Accept Acknowledgement Commit Error"]
+    CE(Option<Element>),
+    #[doc = "Accept Acknowledgement Commit Reject"]
+    CR(Option<Element>),
 }
 pub enum V3ActExposureLevelCode {
-    #[doc = "ActExposureLevelCode"]
-    _ActExposureLevelCode(Option<Element>),
     #[doc = "high"]
     HIGH(Option<Element>),
     #[doc = "low"]
     LOW(Option<Element>),
     #[doc = "medium"]
     MEDIUM(Option<Element>),
+    #[doc = "ActExposureLevelCode"]
+    _ActExposureLevelCode(Option<Element>),
 }
 pub enum V3ActInvoiceElementModifier {
     #[doc = "Electronic Form To Follow"]
@@ -9247,14 +9238,6 @@ pub enum V3ActInvoiceElementModifier {
     PAPER(Option<Element>),
 }
 pub enum V3ActMood {
-    #[doc = "ActMoodCompletionTrack"]
-    _ActMoodCompletionTrack(Option<Element>),
-    #[doc = "ActMoodPredicate"]
-    _ActMoodPredicate(Option<Element>),
-    #[doc = "Goal"]
-    GOL(Option<Element>),
-    #[doc = "act request"]
-    _ActMoodActRequest(Option<Element>),
     #[doc = "appointment"]
     APT(Option<Element>),
     #[doc = "appointment request"]
@@ -9263,14 +9246,14 @@ pub enum V3ActMood {
     CRT(Option<Element>),
     #[doc = "definition"]
     DEF(Option<Element>),
-    #[doc = "desire"]
-    _ActMoodDesire(Option<Element>),
     #[doc = "event (occurrence)"]
     EVN(Option<Element>),
     #[doc = "event criterion"]
     EVNCRT(Option<Element>),
     #[doc = "expectation"]
     EXPEC(Option<Element>),
+    #[doc = "Goal"]
+    GOL(Option<Element>),
     #[doc = "goal criterion"]
     GOLCRT(Option<Element>),
     #[doc = "intent"]
@@ -9283,8 +9266,6 @@ pub enum V3ActMood {
     PERM(Option<Element>),
     #[doc = "permission request"]
     PERMRQ(Option<Element>),
-    #[doc = "potential"]
-    _ActMoodPotential(Option<Element>),
     #[doc = "promise"]
     PRMS(Option<Element>),
     #[doc = "promise criterion"]
@@ -9297,22 +9278,24 @@ pub enum V3ActMood {
     RQO(Option<Element>),
     #[doc = "request criterion"]
     RQOCRT(Option<Element>),
-    #[doc = "resource slot"]
-    SLOT(Option<Element>),
     #[doc = "risk"]
     RSK(Option<Element>),
     #[doc = "risk criterion"]
     RSKCRT(Option<Element>),
+    #[doc = "resource slot"]
+    SLOT(Option<Element>),
+    #[doc = "act request"]
+    _ActMoodActRequest(Option<Element>),
+    #[doc = "ActMoodCompletionTrack"]
+    _ActMoodCompletionTrack(Option<Element>),
+    #[doc = "desire"]
+    _ActMoodDesire(Option<Element>),
+    #[doc = "potential"]
+    _ActMoodPotential(Option<Element>),
+    #[doc = "ActMoodPredicate"]
+    _ActMoodPredicate(Option<Element>),
 }
 pub enum V3ActMoodIntent {
-    #[doc = "ActMoodCompletionTrack"]
-    _ActMoodCompletionTrack(Option<Element>),
-    #[doc = "ActMoodPredicate"]
-    _ActMoodPredicate(Option<Element>),
-    #[doc = "Goal"]
-    GOL(Option<Element>),
-    #[doc = "act request"]
-    _ActMoodActRequest(Option<Element>),
     #[doc = "appointment"]
     APT(Option<Element>),
     #[doc = "appointment request"]
@@ -9321,14 +9304,14 @@ pub enum V3ActMoodIntent {
     CRT(Option<Element>),
     #[doc = "definition"]
     DEF(Option<Element>),
-    #[doc = "desire"]
-    _ActMoodDesire(Option<Element>),
     #[doc = "event (occurrence)"]
     EVN(Option<Element>),
     #[doc = "event criterion"]
     EVNCRT(Option<Element>),
     #[doc = "expectation"]
     EXPEC(Option<Element>),
+    #[doc = "Goal"]
+    GOL(Option<Element>),
     #[doc = "goal criterion"]
     GOLCRT(Option<Element>),
     #[doc = "intent"]
@@ -9341,8 +9324,6 @@ pub enum V3ActMoodIntent {
     PERM(Option<Element>),
     #[doc = "permission request"]
     PERMRQ(Option<Element>),
-    #[doc = "potential"]
-    _ActMoodPotential(Option<Element>),
     #[doc = "promise"]
     PRMS(Option<Element>),
     #[doc = "promise criterion"]
@@ -9355,22 +9336,24 @@ pub enum V3ActMoodIntent {
     RQO(Option<Element>),
     #[doc = "request criterion"]
     RQOCRT(Option<Element>),
-    #[doc = "resource slot"]
-    SLOT(Option<Element>),
     #[doc = "risk"]
     RSK(Option<Element>),
     #[doc = "risk criterion"]
     RSKCRT(Option<Element>),
+    #[doc = "resource slot"]
+    SLOT(Option<Element>),
+    #[doc = "act request"]
+    _ActMoodActRequest(Option<Element>),
+    #[doc = "ActMoodCompletionTrack"]
+    _ActMoodCompletionTrack(Option<Element>),
+    #[doc = "desire"]
+    _ActMoodDesire(Option<Element>),
+    #[doc = "potential"]
+    _ActMoodPotential(Option<Element>),
+    #[doc = "ActMoodPredicate"]
+    _ActMoodPredicate(Option<Element>),
 }
 pub enum V3ActMoodPredicate {
-    #[doc = "ActMoodCompletionTrack"]
-    _ActMoodCompletionTrack(Option<Element>),
-    #[doc = "ActMoodPredicate"]
-    _ActMoodPredicate(Option<Element>),
-    #[doc = "Goal"]
-    GOL(Option<Element>),
-    #[doc = "act request"]
-    _ActMoodActRequest(Option<Element>),
     #[doc = "appointment"]
     APT(Option<Element>),
     #[doc = "appointment request"]
@@ -9379,14 +9362,14 @@ pub enum V3ActMoodPredicate {
     CRT(Option<Element>),
     #[doc = "definition"]
     DEF(Option<Element>),
-    #[doc = "desire"]
-    _ActMoodDesire(Option<Element>),
     #[doc = "event (occurrence)"]
     EVN(Option<Element>),
     #[doc = "event criterion"]
     EVNCRT(Option<Element>),
     #[doc = "expectation"]
     EXPEC(Option<Element>),
+    #[doc = "Goal"]
+    GOL(Option<Element>),
     #[doc = "goal criterion"]
     GOLCRT(Option<Element>),
     #[doc = "intent"]
@@ -9399,8 +9382,6 @@ pub enum V3ActMoodPredicate {
     PERM(Option<Element>),
     #[doc = "permission request"]
     PERMRQ(Option<Element>),
-    #[doc = "potential"]
-    _ActMoodPotential(Option<Element>),
     #[doc = "promise"]
     PRMS(Option<Element>),
     #[doc = "promise criterion"]
@@ -9413,24 +9394,32 @@ pub enum V3ActMoodPredicate {
     RQO(Option<Element>),
     #[doc = "request criterion"]
     RQOCRT(Option<Element>),
-    #[doc = "resource slot"]
-    SLOT(Option<Element>),
     #[doc = "risk"]
     RSK(Option<Element>),
     #[doc = "risk criterion"]
     RSKCRT(Option<Element>),
+    #[doc = "resource slot"]
+    SLOT(Option<Element>),
+    #[doc = "act request"]
+    _ActMoodActRequest(Option<Element>),
+    #[doc = "ActMoodCompletionTrack"]
+    _ActMoodCompletionTrack(Option<Element>),
+    #[doc = "desire"]
+    _ActMoodDesire(Option<Element>),
+    #[doc = "potential"]
+    _ActMoodPotential(Option<Element>),
+    #[doc = "ActMoodPredicate"]
+    _ActMoodPredicate(Option<Element>),
 }
 pub enum V3ActPriority {
     #[doc = "ASAP"]
     A(Option<Element>),
-    #[doc = "as needed"]
-    PRN(Option<Element>),
+    #[doc = "callback results"]
+    CR(Option<Element>),
     #[doc = "callback for scheduling"]
     CS(Option<Element>),
     #[doc = "callback placer for scheduling"]
     CSP(Option<Element>),
-    #[doc = "callback results"]
-    CR(Option<Element>),
     #[doc = "contact recipient for scheduling"]
     CSR(Option<Element>),
     #[doc = "elective"]
@@ -9439,6 +9428,8 @@ pub enum V3ActPriority {
     EM(Option<Element>),
     #[doc = "preop"]
     P(Option<Element>),
+    #[doc = "as needed"]
+    PRN(Option<Element>),
     #[doc = "routine"]
     R(Option<Element>),
     #[doc = "rush reporting"]
@@ -9447,10 +9438,10 @@ pub enum V3ActPriority {
     S(Option<Element>),
     #[doc = "timing critical"]
     T(Option<Element>),
-    #[doc = "urgent"]
-    UR(Option<Element>),
     #[doc = "use as directed"]
     UD(Option<Element>),
+    #[doc = "urgent"]
+    UR(Option<Element>),
 }
 pub enum V3ActRelationshipCheckpoint {
     #[doc = "beginning"]
@@ -9459,20 +9450,20 @@ pub enum V3ActRelationshipCheckpoint {
     E(Option<Element>),
     #[doc = "entry"]
     S(Option<Element>),
-    #[doc = "exit"]
-    X(Option<Element>),
     #[doc = "through"]
     T(Option<Element>),
+    #[doc = "exit"]
+    X(Option<Element>),
 }
 pub enum V3ActRelationshipJoin {
     #[doc = "detached"]
     D(Option<Element>),
-    #[doc = "exclusive wait"]
-    X(Option<Element>),
     #[doc = "kill"]
     K(Option<Element>),
     #[doc = "wait"]
     W(Option<Element>),
+    #[doc = "exclusive wait"]
+    X(Option<Element>),
 }
 pub enum V3ActRelationshipSplit {
     #[doc = "exclusive try once"]
@@ -9489,58 +9480,50 @@ pub enum V3ActRelationshipSubset {
     ActRelationshipExpectedSubset(Option<Element>),
     #[doc = "ActRelationshipPastSubset"]
     ActRelationshipPastSubset(Option<Element>),
-    #[doc = "ParticipationSubset"]
-    _ParticipationSubset(Option<Element>),
-    #[doc = "expected future"]
-    FUTURE(Option<Element>),
-    #[doc = "expected last"]
-    LAST(Option<Element>),
-    #[doc = "expected next"]
-    NEXT(Option<Element>),
     #[doc = "first known"]
     FIRST(Option<Element>),
     #[doc = "future summary"]
     FUTSUM(Option<Element>),
+    #[doc = "expected future"]
+    FUTURE(Option<Element>),
+    #[doc = "expected last"]
+    LAST(Option<Element>),
     #[doc = "maximum"]
     MAX(Option<Element>),
     #[doc = "minimum"]
     MIN(Option<Element>),
-    #[doc = "most recent"]
-    RECENT(Option<Element>),
+    #[doc = "expected next"]
+    NEXT(Option<Element>),
     #[doc = "previous"]
     PAST(Option<Element>),
     #[doc = "previous summary"]
     PREVSUM(Option<Element>),
+    #[doc = "most recent"]
+    RECENT(Option<Element>),
     #[doc = "summary"]
     SUM(Option<Element>),
+    #[doc = "ParticipationSubset"]
+    _ParticipationSubset(Option<Element>),
 }
 pub enum V3ActSite {
-    #[doc = "HumanActSite"]
-    _HumanActSite(Option<Element>),
-    #[doc = "HumanSubstanceAdministrationSite"]
-    _HumanSubstanceAdministrationSite(Option<Element>),
     #[doc = "bilateral ears"]
     BE(Option<Element>),
-    #[doc = "bilateral eyes"]
-    OU(Option<Element>),
     #[doc = "bilateral nares"]
     BN(Option<Element>),
     #[doc = "buttock"]
     BU(Option<Element>),
-    #[doc = "left antecubital fossa"]
-    LACF(Option<Element>),
-    #[doc = "left anterior chest"]
-    LAC(Option<Element>),
     #[doc = "left arm"]
     LA(Option<Element>),
+    #[doc = "left anterior chest"]
+    LAC(Option<Element>),
+    #[doc = "left antecubital fossa"]
+    LACF(Option<Element>),
     #[doc = "left deltoid"]
     LD(Option<Element>),
     #[doc = "left ear"]
     LE(Option<Element>),
     #[doc = "left external jugular"]
     LEJ(Option<Element>),
-    #[doc = "left eye"]
-    OS(Option<Element>),
     #[doc = "left foot"]
     LF(Option<Element>),
     #[doc = "left gluteus medius"]
@@ -9563,34 +9546,38 @@ pub enum V3ActSite {
     LSC(Option<Element>),
     #[doc = "left thigh"]
     LT(Option<Element>),
-    #[doc = "left upper abd quadrant"]
-    LUAQ(Option<Element>),
     #[doc = "left upper arm"]
     LUA(Option<Element>),
+    #[doc = "left upper abd quadrant"]
+    LUAQ(Option<Element>),
     #[doc = "left upper forearm"]
     LUFA(Option<Element>),
-    #[doc = "left vastus lateralis"]
-    LVL(Option<Element>),
     #[doc = "left ventragluteal"]
     LVG(Option<Element>),
+    #[doc = "left vastus lateralis"]
+    LVL(Option<Element>),
+    #[doc = "right eye"]
+    OD(Option<Element>),
+    #[doc = "left eye"]
+    OS(Option<Element>),
+    #[doc = "bilateral eyes"]
+    OU(Option<Element>),
     #[doc = "perianal"]
     PA(Option<Element>),
     #[doc = "perineal"]
     PERIN(Option<Element>),
-    #[doc = "right antecubital fossa"]
-    RACF(Option<Element>),
-    #[doc = "right anterior chest"]
-    RAC(Option<Element>),
     #[doc = "right arm"]
     RA(Option<Element>),
+    #[doc = "right anterior chest"]
+    RAC(Option<Element>),
+    #[doc = "right antecubital fossa"]
+    RACF(Option<Element>),
     #[doc = "right deltoid"]
     RD(Option<Element>),
     #[doc = "right ear"]
     RE(Option<Element>),
     #[doc = "right external jugular"]
     REJ(Option<Element>),
-    #[doc = "right eye"]
-    OD(Option<Element>),
     #[doc = "right foot"]
     RF(Option<Element>),
     #[doc = "right gluteus medius"]
@@ -9613,16 +9600,20 @@ pub enum V3ActSite {
     RSC(Option<Element>),
     #[doc = "right thigh"]
     RT(Option<Element>),
-    #[doc = "right upper abd quadrant"]
-    RUAQ(Option<Element>),
     #[doc = "right upper arm"]
     RUA(Option<Element>),
+    #[doc = "right upper abd quadrant"]
+    RUAQ(Option<Element>),
     #[doc = "right upper forearm"]
     RUFA(Option<Element>),
-    #[doc = "right vastus lateralis"]
-    RVL(Option<Element>),
     #[doc = "right ventragluteal"]
     RVG(Option<Element>),
+    #[doc = "right vastus lateralis"]
+    RVL(Option<Element>),
+    #[doc = "HumanActSite"]
+    _HumanActSite(Option<Element>),
+    #[doc = "HumanSubstanceAdministrationSite"]
+    _HumanSubstanceAdministrationSite(Option<Element>),
 }
 pub enum V3ActStatus {
     #[doc = "aborted"]
@@ -9647,8 +9638,6 @@ pub enum V3ActStatus {
     Suspended(Option<Element>),
 }
 pub enum V3ActSubstanceAdminSubstitutionCode {
-    #[doc = "ActSubstanceAdminSubstitutionCode"]
-    _ActSubstanceAdminSubstitutionCode(Option<Element>),
     #[doc = "brand composition"]
     BC(Option<Element>),
     #[doc = "equivalent"]
@@ -9661,18 +9650,18 @@ pub enum V3ActSubstanceAdminSubstitutionCode {
     G(Option<Element>),
     #[doc = "none"]
     N(Option<Element>),
-    #[doc = "therapeutic alternative"]
-    TE(Option<Element>),
     #[doc = "therapeutic brand"]
     TB(Option<Element>),
+    #[doc = "therapeutic alternative"]
+    TE(Option<Element>),
     #[doc = "therapeutic generic"]
     TG(Option<Element>),
+    #[doc = "ActSubstanceAdminSubstitutionCode"]
+    _ActSubstanceAdminSubstitutionCode(Option<Element>),
 }
 pub enum V3ActUSPrivacyLaw {
     #[doc = "42 CFR Part2"]
     V42CFRPart2(Option<Element>),
-    #[doc = "ActUSPrivacyLaw"]
-    _ActUSPrivacyLaw(Option<Element>),
     #[doc = "Common Rule"]
     CommonRule(Option<Element>),
     #[doc = "HIPAA notice of privacy practices"]
@@ -9683,6 +9672,8 @@ pub enum V3ActUSPrivacyLaw {
     HIPAASelfPay(Option<Element>),
     #[doc = "Title 38 Section 7332"]
     Title38Section7332(Option<Element>),
+    #[doc = "ActUSPrivacyLaw"]
+    _ActUSPrivacyLaw(Option<Element>),
 }
 pub enum V3ActUncertainty {
     #[doc = "stated with no assertion of uncertainty"]
@@ -9695,10 +9686,10 @@ pub enum V3AddressPartType {
     ADL(Option<Element>),
     #[doc = "address line"]
     AL(Option<Element>),
-    #[doc = "building number"]
-    BNR(Option<Element>),
     #[doc = "building number numeric"]
     BNN(Option<Element>),
+    #[doc = "building number"]
+    BNR(Option<Element>),
     #[doc = "building number suffix"]
     BNS(Option<Element>),
     #[doc = "care of"]
@@ -9709,56 +9700,50 @@ pub enum V3AddressPartType {
     CNT(Option<Element>),
     #[doc = "county or parish"]
     CPA(Option<Element>),
-    #[doc = "delimiter"]
-    DEL(Option<Element>),
+    #[doc = "municipality"]
+    CTY(Option<Element>),
     #[doc = "delivery address line"]
     DAL(Option<Element>),
+    #[doc = "delimiter"]
+    DEL(Option<Element>),
+    #[doc = "delivery installation type"]
+    DINST(Option<Element>),
     #[doc = "delivery installation area"]
     DINSTA(Option<Element>),
     #[doc = "delivery installation qualifier"]
     DINSTQ(Option<Element>),
-    #[doc = "delivery installation type"]
-    DINST(Option<Element>),
+    #[doc = "direction"]
+    DIR(Option<Element>),
     #[doc = "delivery mode"]
     DMOD(Option<Element>),
     #[doc = "delivery mode identifier"]
     DMODID(Option<Element>),
     #[doc = "delivery point identifier"]
     DPID(Option<Element>),
-    #[doc = "direction"]
-    DIR(Option<Element>),
     #[doc = "intersection"]
     INT(Option<Element>),
-    #[doc = "municipality"]
-    CTY(Option<Element>),
     #[doc = "post box"]
     POB(Option<Element>),
-    #[doc = "postal code"]
-    ZIP(Option<Element>),
     #[doc = "precinct"]
     PRE(Option<Element>),
-    #[doc = "state or province"]
-    STA(Option<Element>),
     #[doc = "street address line"]
     SAL(Option<Element>),
-    #[doc = "street name"]
-    STR(Option<Element>),
+    #[doc = "state or province"]
+    STA(Option<Element>),
     #[doc = "street name base"]
     STB(Option<Element>),
+    #[doc = "street name"]
+    STR(Option<Element>),
     #[doc = "street type"]
     STTYP(Option<Element>),
-    #[doc = "unit designator"]
-    UNIT(Option<Element>),
     #[doc = "unit identifier"]
     UNID(Option<Element>),
+    #[doc = "unit designator"]
+    UNIT(Option<Element>),
+    #[doc = "postal code"]
+    ZIP(Option<Element>),
 }
 pub enum V3AddressUse {
-    #[doc = "_GeneralAddressUse"]
-    _GeneralAddressUse(Option<Element>),
-    #[doc = "_PostalAddressUse"]
-    _PostalAddressUse(Option<Element>),
-    #[doc = "_TelecommunicationAddressUse"]
-    _TelecommunicationAddressUse(Option<Element>),
     #[doc = "answering service"]
     AS(Option<Element>),
     #[doc = "bad address"]
@@ -9771,6 +9756,10 @@ pub enum V3AddressUse {
     EC(Option<Element>),
     #[doc = "home address"]
     H(Option<Element>),
+    #[doc = "primary home"]
+    HP(Option<Element>),
+    #[doc = "vacation home"]
+    HV(Option<Element>),
     #[doc = "mobile contact)"]
     MC(Option<Element>),
     #[doc = "no longer in use"]
@@ -9781,16 +9770,18 @@ pub enum V3AddressUse {
     PHYS(Option<Element>),
     #[doc = "postal address"]
     PST(Option<Element>),
-    #[doc = "primary home"]
-    HP(Option<Element>),
     #[doc = "public"]
     PUB(Option<Element>),
     #[doc = "temporary address"]
     TMP(Option<Element>),
-    #[doc = "vacation home"]
-    HV(Option<Element>),
     #[doc = "work place"]
     WP(Option<Element>),
+    #[doc = "_GeneralAddressUse"]
+    _GeneralAddressUse(Option<Element>),
+    #[doc = "_PostalAddressUse"]
+    _PostalAddressUse(Option<Element>),
+    #[doc = "_TelecommunicationAddressUse"]
+    _TelecommunicationAddressUse(Option<Element>),
 }
 pub enum V3AdministrativeGender {
     #[doc = "Female"]
@@ -9805,42 +9796,42 @@ pub enum V3Calendar {
     GREG(Option<Element>),
 }
 pub enum V3CalendarCycle {
-    #[doc = "CalendarCycleOneLetter"]
-    _CalendarCycleOneLetter(Option<Element>),
-    #[doc = "CalendarCycleTwoLetter"]
-    _CalendarCycleTwoLetter(Option<Element>),
     #[doc = "day (continuous)"]
     CD(Option<Element>),
+    #[doc = "hour (continuous)"]
+    CH(Option<Element>),
+    #[doc = "month (continuous)"]
+    CM(Option<Element>),
+    #[doc = "minute (continuous)"]
+    CN(Option<Element>),
+    #[doc = "second (continuous)"]
+    CS(Option<Element>),
+    #[doc = "week (continuous)"]
+    CW(Option<Element>),
+    #[doc = "year"]
+    CY(Option<Element>),
     #[doc = "day of the month"]
     D(Option<Element>),
     #[doc = "day of the week (begins with Monday)"]
     DW(Option<Element>),
     #[doc = "day of the year"]
     DY(Option<Element>),
-    #[doc = "hour (continuous)"]
-    CH(Option<Element>),
     #[doc = "hour of the day"]
     H(Option<Element>),
-    #[doc = "minute (continuous)"]
-    CN(Option<Element>),
-    #[doc = "minute of the hour"]
-    N(Option<Element>),
-    #[doc = "month (continuous)"]
-    CM(Option<Element>),
     #[doc = "month of the year"]
     M(Option<Element>),
-    #[doc = "second (continuous)"]
-    CS(Option<Element>),
+    #[doc = "minute of the hour"]
+    N(Option<Element>),
     #[doc = "second of the minute"]
     S(Option<Element>),
-    #[doc = "week (continuous)"]
-    CW(Option<Element>),
     #[doc = "week of the month"]
     WM(Option<Element>),
     #[doc = "week of the year"]
     WY(Option<Element>),
-    #[doc = "year"]
-    CY(Option<Element>),
+    #[doc = "CalendarCycleOneLetter"]
+    _CalendarCycleOneLetter(Option<Element>),
+    #[doc = "CalendarCycleTwoLetter"]
+    _CalendarCycleTwoLetter(Option<Element>),
 }
 pub enum V3CalendarType {
     #[doc = "Gregorian"]
@@ -9869,22 +9860,22 @@ pub enum V3Charset {
     UTF8(Option<Element>),
 }
 pub enum V3CodingRationale {
-    #[doc = "Both HL7 mandated and the original code"]
-    SH(Option<Element>),
     #[doc = "HL7 Specified or Mandated"]
     HL7(Option<Element>),
-    #[doc = "Source (or original) code"]
-    SRC(Option<Element>),
-    #[doc = "original and required"]
-    OR(Option<Element>),
     #[doc = "originally produced code"]
     O(Option<Element>),
+    #[doc = "original and required"]
+    OR(Option<Element>),
     #[doc = "post-coded"]
     P(Option<Element>),
     #[doc = "post-coded and required"]
     PR(Option<Element>),
     #[doc = "required"]
     R(Option<Element>),
+    #[doc = "Both HL7 mandated and the original code"]
+    SH(Option<Element>),
+    #[doc = "Source (or original) code"]
+    SRC(Option<Element>),
 }
 pub enum V3CommunicationFunctionType {
     #[doc = "receiver"]
@@ -9895,36 +9886,30 @@ pub enum V3CommunicationFunctionType {
     SND(Option<Element>),
 }
 pub enum V3CompressionAlgorithm {
-    #[doc = "Z7"]
-    Z7(Option<Element>),
     #[doc = "bzip"]
     BZ(Option<Element>),
-    #[doc = "compress"]
-    Z(Option<Element>),
     #[doc = "deflate"]
     DF(Option<Element>),
     #[doc = "gzip"]
     GZ(Option<Element>),
+    #[doc = "compress"]
+    Z(Option<Element>),
+    #[doc = "Z7"]
+    Z7(Option<Element>),
     #[doc = "zlib"]
     ZL(Option<Element>),
 }
 pub enum V3Confidentiality {
-    #[doc = "Confidentiality"]
-    _Confidentiality(Option<Element>),
-    #[doc = "ConfidentialityByAccessKind"]
-    _ConfidentialityByAccessKind(Option<Element>),
-    #[doc = "ConfidentialityByInfoType"]
-    _ConfidentialityByInfoType(Option<Element>),
-    #[doc = "ConfidentialityModifiers"]
-    _ConfidentialityModifiers(Option<Element>),
-    #[doc = "HIV related"]
-    HIV(Option<Element>),
     #[doc = "business"]
     B(Option<Element>),
     #[doc = "celebrity"]
     C(Option<Element>),
     #[doc = "clinician"]
     D(Option<Element>),
+    #[doc = "substance abuse related"]
+    ETH(Option<Element>),
+    #[doc = "HIV related"]
+    HIV(Option<Element>),
     #[doc = "individual"]
     I(Option<Element>),
     #[doc = "low"]
@@ -9941,14 +9926,20 @@ pub enum V3Confidentiality {
     S(Option<Element>),
     #[doc = "sexual and domestic violence related"]
     SDV(Option<Element>),
-    #[doc = "substance abuse related"]
-    ETH(Option<Element>),
     #[doc = "taboo"]
     T(Option<Element>),
     #[doc = "unrestricted"]
     U(Option<Element>),
     #[doc = "very restricted"]
     V(Option<Element>),
+    #[doc = "Confidentiality"]
+    _Confidentiality(Option<Element>),
+    #[doc = "ConfidentialityByAccessKind"]
+    _ConfidentialityByAccessKind(Option<Element>),
+    #[doc = "ConfidentialityByInfoType"]
+    _ConfidentialityByInfoType(Option<Element>),
+    #[doc = "ConfidentialityModifiers"]
+    _ConfidentialityModifiers(Option<Element>),
 }
 pub enum V3ConfidentialityClassification {
     L(Option<Element>),
@@ -9967,12 +9958,12 @@ pub enum V3ContainerCap {
     FILM(Option<Element>),
     #[doc = "Foil"]
     FOIL(Option<Element>),
-    #[doc = "MedicationCap"]
-    _MedicationCap(Option<Element>),
     #[doc = "Push Cap"]
     PUSH(Option<Element>),
     #[doc = "Screw Cap"]
     SCR(Option<Element>),
+    #[doc = "MedicationCap"]
+    _MedicationCap(Option<Element>),
 }
 pub enum V3ContainerSeparator {
     #[doc = "Gel"]
@@ -9987,14 +9978,6 @@ pub enum V3ContentProcessingMode {
     UNOR(Option<Element>),
 }
 pub enum V3ContextControl {
-    #[doc = "ContextControlAdditive"]
-    _ContextControlAdditive(Option<Element>),
-    #[doc = "ContextControlNonPropagating"]
-    _ContextControlNonPropagating(Option<Element>),
-    #[doc = "ContextControlOverriding"]
-    _ContextControlOverriding(Option<Element>),
-    #[doc = "ContextControlPropagating"]
-    _ContextControlPropagating(Option<Element>),
     #[doc = "additive, non-propagating"]
     AN(Option<Element>),
     #[doc = "additive, propagating"]
@@ -10003,6 +9986,14 @@ pub enum V3ContextControl {
     ON(Option<Element>),
     #[doc = "overriding, propagating"]
     OP(Option<Element>),
+    #[doc = "ContextControlAdditive"]
+    _ContextControlAdditive(Option<Element>),
+    #[doc = "ContextControlNonPropagating"]
+    _ContextControlNonPropagating(Option<Element>),
+    #[doc = "ContextControlOverriding"]
+    _ContextControlOverriding(Option<Element>),
+    #[doc = "ContextControlPropagating"]
+    _ContextControlPropagating(Option<Element>),
 }
 pub enum V3DataOperation {
     #[doc = "abort"]
@@ -10041,10 +10032,10 @@ pub enum V3DataOperation {
     RELEASE(Option<Element>),
     #[doc = "resume"]
     RESUME(Option<Element>),
-    #[doc = "revise"]
-    UPDATE(Option<Element>),
     #[doc = "suspend"]
     SUSPEND(Option<Element>),
+    #[doc = "revise"]
+    UPDATE(Option<Element>),
 }
 pub enum V3DeviceAlertLevel {
     #[doc = "Critical"]
@@ -10063,10 +10054,10 @@ pub enum V3DocumentCompletion {
     DI(Option<Element>),
     #[doc = "documented"]
     DO(Option<Element>),
-    #[doc = "in progress"]
-    IP(Option<Element>),
     #[doc = "incomplete"]
     IN(Option<Element>),
+    #[doc = "in progress"]
+    IP(Option<Element>),
     #[doc = "legally authenticated"]
     LA(Option<Element>),
     #[doc = "nullified document"]
@@ -10077,10 +10068,10 @@ pub enum V3DocumentCompletion {
     UC(Option<Element>),
 }
 pub enum V3DocumentStorage {
-    #[doc = "active"]
-    AC(Option<Element>),
     #[doc = "active and archived"]
     AA(Option<Element>),
+    #[doc = "active"]
+    AC(Option<Element>),
     #[doc = "archived (not active)"]
     AR(Option<Element>),
     #[doc = "purged"]
@@ -10091,18 +10082,18 @@ pub enum V3EducationLevel {
     ASSOC(Option<Element>),
     #[doc = "College or baccalaureate degree complete"]
     BD(Option<Element>),
-    #[doc = "Doctoral or post graduate education"]
-    POSTG(Option<Element>),
     #[doc = "Elementary School"]
     ELEM(Option<Element>),
     #[doc = "Graduate or professional Degree complete"]
     GD(Option<Element>),
     #[doc = "High School or secondary school degree complete"]
     HS(Option<Element>),
-    #[doc = "Some College education"]
-    SCOL(Option<Element>),
     #[doc = "Some post-baccalaureate education"]
     PB(Option<Element>),
+    #[doc = "Doctoral or post graduate education"]
+    POSTG(Option<Element>),
+    #[doc = "Some College education"]
+    SCOL(Option<Element>),
     #[doc = "Some secondary or high school education"]
     SEC(Option<Element>),
 }
@@ -10133,8 +10124,6 @@ pub enum V3EncounterSpecialCourtesy {
     VIP(Option<Element>),
 }
 pub enum V3EntityClass {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10155,42 +10144,42 @@ pub enum V3EntityClass {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityClassDevice {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10211,42 +10200,42 @@ pub enum V3EntityClassDevice {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityClassLivingSubject {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10267,42 +10256,42 @@ pub enum V3EntityClassLivingSubject {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityClassManufacturedMaterial {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10323,42 +10312,42 @@ pub enum V3EntityClassManufacturedMaterial {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityClassOrganization {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10379,42 +10368,42 @@ pub enum V3EntityClassOrganization {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityClassPlace {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10435,42 +10424,42 @@ pub enum V3EntityClassPlace {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityClassRoot {
-    #[doc = "Nation"]
-    NAT(Option<Element>),
     #[doc = "animal"]
     ANM(Option<Element>),
     #[doc = "certificate representation"]
@@ -10491,62 +10480,64 @@ pub enum V3EntityClassRoot {
     ENT(Option<Element>),
     #[doc = "food"]
     FOOD(Option<Element>),
-    #[doc = "group"]
-    RGRP(Option<Element>),
     #[doc = "health chart entity"]
     HCE(Option<Element>),
     #[doc = "holder"]
     HOLD(Option<Element>),
-    #[doc = "imaging modality"]
-    MODDV(Option<Element>),
     #[doc = "living subject"]
     LIV(Option<Element>),
-    #[doc = "manufactured material"]
-    MMAT(Option<Element>),
     #[doc = "material"]
     MAT(Option<Element>),
     #[doc = "microorganism"]
     MIC(Option<Element>),
+    #[doc = "manufactured material"]
+    MMAT(Option<Element>),
+    #[doc = "imaging modality"]
+    MODDV(Option<Element>),
+    #[doc = "Nation"]
+    NAT(Option<Element>),
     #[doc = "non-person living subject"]
     NLIV(Option<Element>),
     #[doc = "organization"]
     ORG(Option<Element>),
-    #[doc = "person"]
-    PSN(Option<Element>),
     #[doc = "place"]
     PLC(Option<Element>),
     #[doc = "plant"]
     PLNT(Option<Element>),
-    #[doc = "public institution"]
-    PUB(Option<Element>),
-    #[doc = "state"]
-    STATE(Option<Element>),
     #[doc = "state or province"]
     PROVINCE(Option<Element>),
+    #[doc = "person"]
+    PSN(Option<Element>),
+    #[doc = "public institution"]
+    PUB(Option<Element>),
+    #[doc = "group"]
+    RGRP(Option<Element>),
+    #[doc = "state"]
+    STATE(Option<Element>),
 }
 pub enum V3EntityDeterminer {
-    #[doc = "described"]
-    KIND(Option<Element>),
-    #[doc = "described group"]
-    GROUPKIND(Option<Element>),
-    #[doc = "described quantified"]
-    QUANTIFIED_KIND(Option<Element>),
-    #[doc = "specific"]
-    INSTANCE(Option<Element>),
     #[doc = "specific group"]
     GROUP(Option<Element>),
+    #[doc = "described group"]
+    GROUPKIND(Option<Element>),
+    #[doc = "specific"]
+    INSTANCE(Option<Element>),
+    #[doc = "described"]
+    KIND(Option<Element>),
+    #[doc = "described quantified"]
+    QUANTIFIED_KIND(Option<Element>),
 }
 pub enum V3EntityDeterminerDetermined {
-    #[doc = "described"]
-    KIND(Option<Element>),
-    #[doc = "described group"]
-    GROUPKIND(Option<Element>),
-    #[doc = "described quantified"]
-    QUANTIFIED_KIND(Option<Element>),
-    #[doc = "specific"]
-    INSTANCE(Option<Element>),
     #[doc = "specific group"]
     GROUP(Option<Element>),
+    #[doc = "described group"]
+    GROUPKIND(Option<Element>),
+    #[doc = "specific"]
+    INSTANCE(Option<Element>),
+    #[doc = "described"]
+    KIND(Option<Element>),
+    #[doc = "described quantified"]
+    QUANTIFIED_KIND(Option<Element>),
 }
 pub enum V3EntityHandling {
     #[doc = "Ambient Temperature"]
@@ -10555,60 +10546,38 @@ pub enum V3EntityHandling {
     C37(Option<Element>),
     #[doc = "Critical Ambient temperature"]
     CAMB(Option<Element>),
+    #[doc = "Protect from Air"]
+    CATM(Option<Element>),
     #[doc = "Critical frozen"]
     CFRZ(Option<Element>),
     #[doc = "Critical refrigerated temperature"]
     CREF(Option<Element>),
     #[doc = "Deep Frozen"]
     DFRZ(Option<Element>),
+    #[doc = "dry"]
+    DRY(Option<Element>),
+    #[doc = "frozen"]
+    FRZ(Option<Element>),
     #[doc = "Metal Free"]
     MTLF(Option<Element>),
-    #[doc = "Protect from Air"]
-    CATM(Option<Element>),
+    #[doc = "nitrogen"]
+    NTR(Option<Element>),
     #[doc = "Protect from Light"]
     PRTL(Option<Element>),
+    #[doc = "do not shake"]
+    PSA(Option<Element>),
+    #[doc = "no shock"]
+    PSO(Option<Element>),
     #[doc = "Refrigerated temperature"]
     REF(Option<Element>),
     #[doc = "Shake before use"]
     SBU(Option<Element>),
     #[doc = "Ultra frozen"]
     UFRZ(Option<Element>),
-    #[doc = "do not shake"]
-    PSA(Option<Element>),
-    #[doc = "dry"]
-    DRY(Option<Element>),
-    #[doc = "frozen"]
-    FRZ(Option<Element>),
-    #[doc = "nitrogen"]
-    NTR(Option<Element>),
-    #[doc = "no shock"]
-    PSO(Option<Element>),
     #[doc = "upright"]
     UPR(Option<Element>),
 }
 pub enum V3EntityNamePartQualifier {
-    #[doc = "FlavorName"]
-    FLAV(Option<Element>),
-    #[doc = "FormulationPartName"]
-    FORMUL(Option<Element>),
-    #[doc = "Legal status"]
-    LS(Option<Element>),
-    #[doc = "OrganizationNamePartQualifier"]
-    _OrganizationNamePartQualifier(Option<Element>),
-    #[doc = "PersonNamePartAffixTypes"]
-    _PersonNamePartAffixTypes(Option<Element>),
-    #[doc = "PersonNamePartChangeQualifier"]
-    _PersonNamePartChangeQualifier(Option<Element>),
-    #[doc = "PersonNamePartMiscQualifier"]
-    _PersonNamePartMiscQualifier(Option<Element>),
-    #[doc = "PersonNamePartQualifier"]
-    _PersonNamePartQualifier(Option<Element>),
-    #[doc = "PharmaceuticalEntityNamePartQualifiers"]
-    PharmaceuticalEntityNamePartQualifiers(Option<Element>),
-    #[doc = "TargetPopulationName"]
-    POPUL(Option<Element>),
-    #[doc = "TimeOrPeriodName"]
-    TIME(Option<Element>),
     #[doc = "academic"]
     AC(Option<Element>),
     #[doc = "adopted"]
@@ -10621,44 +10590,54 @@ pub enum V3EntityNamePartQualifier {
     CON(Option<Element>),
     #[doc = "device name"]
     DEV(Option<Element>),
+    #[doc = "FlavorName"]
+    FLAV(Option<Element>),
+    #[doc = "FormulationPartName"]
+    FORMUL(Option<Element>),
     #[doc = "form name"]
     FRM(Option<Element>),
     #[doc = "initial"]
     IN(Option<Element>),
-    #[doc = "intended use name"]
-    USE(Option<Element>),
     #[doc = "invented name"]
     INV(Option<Element>),
+    #[doc = "Legal status"]
+    LS(Option<Element>),
     #[doc = "nobility"]
     NB(Option<Element>),
+    #[doc = "TargetPopulationName"]
+    POPUL(Option<Element>),
     #[doc = "professional"]
     PR(Option<Element>),
+    #[doc = "PharmaceuticalEntityNamePartQualifiers"]
+    PharmaceuticalEntityNamePartQualifiers(Option<Element>),
     #[doc = "scientific name"]
     SCI(Option<Element>),
     #[doc = "spouse"]
     SP(Option<Element>),
     #[doc = "strength name"]
     STR(Option<Element>),
+    #[doc = "TimeOrPeriodName"]
+    TIME(Option<Element>),
     #[doc = "title"]
     TITLE(Option<Element>),
     #[doc = "trademark name"]
     TMK(Option<Element>),
+    #[doc = "intended use name"]
+    USE(Option<Element>),
     #[doc = "voorvoegsel"]
     VV(Option<Element>),
+    #[doc = "OrganizationNamePartQualifier"]
+    _OrganizationNamePartQualifier(Option<Element>),
+    #[doc = "PersonNamePartAffixTypes"]
+    _PersonNamePartAffixTypes(Option<Element>),
+    #[doc = "PersonNamePartChangeQualifier"]
+    _PersonNamePartChangeQualifier(Option<Element>),
+    #[doc = "PersonNamePartMiscQualifier"]
+    _PersonNamePartMiscQualifier(Option<Element>),
+    #[doc = "PersonNamePartQualifier"]
+    _PersonNamePartQualifier(Option<Element>),
 }
 pub enum V3EntityNamePartQualifierR2 {
-    #[doc = "FlavorName"]
-    FLAV(Option<Element>),
-    #[doc = "FormulationPartName"]
-    FORMUL(Option<Element>),
-    #[doc = "PharmaceuticalEntityNamePartQualifiers"]
-    PharmaceuticalEntityNamePartQualifiers(Option<Element>),
-    #[doc = "TargetPopulationName"]
-    POPUL(Option<Element>),
-    #[doc = "TimeOrPeriodName"]
-    TIME(Option<Element>),
-    #[doc = "TitleStyles"]
-    TitleStyles(Option<Element>),
     #[doc = "academic"]
     AC(Option<Element>),
     #[doc = "acquired"]
@@ -10671,14 +10650,16 @@ pub enum V3EntityNamePartQualifierR2 {
     CON(Option<Element>),
     #[doc = "device name"]
     DEV(Option<Element>),
+    #[doc = "FlavorName"]
+    FLAV(Option<Element>),
+    #[doc = "FormulationPartName"]
+    FORMUL(Option<Element>),
     #[doc = "form name"]
     FRM(Option<Element>),
     #[doc = "honorific"]
     HON(Option<Element>),
     #[doc = "initial"]
     IN(Option<Element>),
-    #[doc = "intended use name"]
-    USE(Option<Element>),
     #[doc = "invented name"]
     INV(Option<Element>),
     #[doc = "legal status"]
@@ -10689,18 +10670,28 @@ pub enum V3EntityNamePartQualifierR2 {
     NB(Option<Element>),
     #[doc = "prefix"]
     PFX(Option<Element>),
+    #[doc = "TargetPopulationName"]
+    POPUL(Option<Element>),
     #[doc = "professional"]
     PR(Option<Element>),
+    #[doc = "PharmaceuticalEntityNamePartQualifiers"]
+    PharmaceuticalEntityNamePartQualifiers(Option<Element>),
     #[doc = "scientific name"]
     SCI(Option<Element>),
+    #[doc = "suffix"]
+    SFX(Option<Element>),
     #[doc = "spouse"]
     SP(Option<Element>),
     #[doc = "strength name"]
     STR(Option<Element>),
-    #[doc = "suffix"]
-    SFX(Option<Element>),
+    #[doc = "TimeOrPeriodName"]
+    TIME(Option<Element>),
     #[doc = "trademark name"]
     TMK(Option<Element>),
+    #[doc = "TitleStyles"]
+    TitleStyles(Option<Element>),
+    #[doc = "intended use name"]
+    USE(Option<Element>),
 }
 pub enum V3EntityNamePartType {
     #[doc = "delimiter"]
@@ -10725,64 +10716,64 @@ pub enum V3EntityNamePartTypeR2 {
     TITLE(Option<Element>),
 }
 pub enum V3EntityNameUse {
-    #[doc = "Alphabetic"]
-    ABC(Option<Element>),
     #[doc = "Artist/Stage"]
     A(Option<Element>),
-    #[doc = "Ideographic"]
-    IDE(Option<Element>),
-    #[doc = "Indigenous/Tribal"]
-    I(Option<Element>),
-    #[doc = "Legal"]
-    L(Option<Element>),
+    #[doc = "Alphabetic"]
+    ABC(Option<Element>),
+    #[doc = "assigned"]
+    ASGN(Option<Element>),
     #[doc = "License"]
     C(Option<Element>),
-    #[doc = "NameRepresentationUse"]
-    _NameRepresentationUse(Option<Element>),
+    #[doc = "Indigenous/Tribal"]
+    I(Option<Element>),
+    #[doc = "Ideographic"]
+    IDE(Option<Element>),
+    #[doc = "Legal"]
+    L(Option<Element>),
+    #[doc = "official registry"]
+    OR(Option<Element>),
+    #[doc = "pseudonym"]
+    P(Option<Element>),
+    #[doc = "phonetic"]
+    PHON(Option<Element>),
     #[doc = "Religious"]
     R(Option<Element>),
     #[doc = "Soundex"]
     SNDX(Option<Element>),
-    #[doc = "Syllabic"]
-    SYL(Option<Element>),
-    #[doc = "assigned"]
-    ASGN(Option<Element>),
-    #[doc = "official registry"]
-    OR(Option<Element>),
-    #[doc = "phonetic"]
-    PHON(Option<Element>),
-    #[doc = "pseudonym"]
-    P(Option<Element>),
     #[doc = "search"]
     SRCH(Option<Element>),
+    #[doc = "Syllabic"]
+    SYL(Option<Element>),
+    #[doc = "NameRepresentationUse"]
+    _NameRepresentationUse(Option<Element>),
 }
 pub enum V3EntityNameUseR2 {
+    #[doc = "business name"]
+    A(Option<Element>),
+    #[doc = "alphabetic"]
+    ABC(Option<Element>),
     #[doc = "Anonymous"]
     ANON(Option<Element>),
     #[doc = "Assumed"]
     Assumed(Option<Element>),
-    #[doc = "Indigenous/Tribal"]
-    I(Option<Element>),
-    #[doc = "NameRepresentationUse"]
-    NameRepresentationUse(Option<Element>),
-    #[doc = "Other/Pseudonym/Alias"]
-    P(Option<Element>),
-    #[doc = "alphabetic"]
-    ABC(Option<Element>),
-    #[doc = "business name"]
-    A(Option<Element>),
     #[doc = "customary"]
     C(Option<Element>),
     #[doc = "do not use"]
     DN(Option<Element>),
+    #[doc = "Indigenous/Tribal"]
+    I(Option<Element>),
     #[doc = "ideographic"]
     IDE(Option<Element>),
     #[doc = "maiden name"]
     M(Option<Element>),
+    #[doc = "NameRepresentationUse"]
+    NameRepresentationUse(Option<Element>),
     #[doc = "no longer in use"]
     OLD(Option<Element>),
     #[doc = "official registry name"]
     OR(Option<Element>),
+    #[doc = "Other/Pseudonym/Alias"]
+    P(Option<Element>),
     #[doc = "phonetic"]
     PHON(Option<Element>),
     #[doc = "religious"]
@@ -10795,22 +10786,22 @@ pub enum V3EntityNameUseR2 {
     T(Option<Element>),
 }
 pub enum V3EntityRisk {
+    #[doc = "aggressive"]
+    AGG(Option<Element>),
+    #[doc = "biohazard"]
+    BHZ(Option<Element>),
     #[doc = "Biological"]
     BIO(Option<Element>),
     #[doc = "Corrosive"]
     COR(Option<Element>),
     #[doc = "Escape Risk"]
     ESC(Option<Element>),
-    #[doc = "aggressive"]
-    AGG(Option<Element>),
-    #[doc = "biohazard"]
-    BHZ(Option<Element>),
     #[doc = "explosive"]
     EXP(Option<Element>),
-    #[doc = "infectious"]
-    INF(Option<Element>),
     #[doc = "inflammable"]
     IFL(Option<Element>),
+    #[doc = "infectious"]
+    INF(Option<Element>),
     #[doc = "injury hazard"]
     INJ(Option<Element>),
     #[doc = "poison"]
@@ -10841,96 +10832,94 @@ pub enum V3EquipmentAlertLevel {
     W(Option<Element>),
 }
 pub enum V3Ethnicity {
+    #[doc = "Hispanic or Latino"]
+    V21352(Option<Element>),
+    #[doc = "Spaniard"]
+    V21378(Option<Element>),
     #[doc = "Andalusian"]
     V21386(Option<Element>),
-    #[doc = "Argentinean"]
-    V21667(Option<Element>),
     #[doc = "Asturian"]
     V21394(Option<Element>),
-    #[doc = "Belearic Islander"]
-    V21428(Option<Element>),
-    #[doc = "Bolivian"]
-    V21675(Option<Element>),
-    #[doc = "Canal Zone"]
-    V21634(Option<Element>),
-    #[doc = "Canarian"]
-    V21451(Option<Element>),
     #[doc = "Castillian"]
     V21402(Option<Element>),
     #[doc = "Catalonian"]
     V21410(Option<Element>),
-    #[doc = "Central American"]
-    V21550(Option<Element>),
-    #[doc = "Central American Indian"]
-    V21626(Option<Element>),
-    #[doc = "Chicano"]
-    V21519(Option<Element>),
-    #[doc = "Chilean"]
-    V21683(Option<Element>),
-    #[doc = "Colombian"]
-    V21691(Option<Element>),
-    #[doc = "Costa Rican"]
-    V21568(Option<Element>),
-    #[doc = "Criollo"]
-    V21766(Option<Element>),
-    #[doc = "Cuban"]
-    V21824(Option<Element>),
-    #[doc = "Dominican"]
-    V21840(Option<Element>),
-    #[doc = "Ecuadorian"]
-    V21709(Option<Element>),
+    #[doc = "Belearic Islander"]
+    V21428(Option<Element>),
     #[doc = "Gallego"]
     V21436(Option<Element>),
-    #[doc = "Guatemalan"]
-    V21576(Option<Element>),
-    #[doc = "Hispanic or Latino"]
-    V21352(Option<Element>),
-    #[doc = "Honduran"]
-    V21584(Option<Element>),
-    #[doc = "La Raza"]
-    V21527(Option<Element>),
-    #[doc = "Latin American"]
-    V21782(Option<Element>),
+    #[doc = "Valencian"]
+    V21444(Option<Element>),
+    #[doc = "Canarian"]
+    V21451(Option<Element>),
+    #[doc = "Spanish Basque"]
+    V21469(Option<Element>),
     #[doc = "Mexican"]
     V21485(Option<Element>),
     #[doc = "Mexican American"]
     V21493(Option<Element>),
-    #[doc = "Mexican American Indian"]
-    V21535(Option<Element>),
     #[doc = "Mexicano"]
     V21501(Option<Element>),
+    #[doc = "Chicano"]
+    V21519(Option<Element>),
+    #[doc = "La Raza"]
+    V21527(Option<Element>),
+    #[doc = "Mexican American Indian"]
+    V21535(Option<Element>),
+    #[doc = "Central American"]
+    V21550(Option<Element>),
+    #[doc = "Costa Rican"]
+    V21568(Option<Element>),
+    #[doc = "Guatemalan"]
+    V21576(Option<Element>),
+    #[doc = "Honduran"]
+    V21584(Option<Element>),
     #[doc = "Nicaraguan"]
     V21592(Option<Element>),
-    #[doc = "Not Hispanic or Latino"]
-    V21865(Option<Element>),
     #[doc = "Panamanian"]
     V21600(Option<Element>),
+    #[doc = "Salvadoran"]
+    V21618(Option<Element>),
+    #[doc = "Central American Indian"]
+    V21626(Option<Element>),
+    #[doc = "Canal Zone"]
+    V21634(Option<Element>),
+    #[doc = "South American"]
+    V21659(Option<Element>),
+    #[doc = "Argentinean"]
+    V21667(Option<Element>),
+    #[doc = "Bolivian"]
+    V21675(Option<Element>),
+    #[doc = "Chilean"]
+    V21683(Option<Element>),
+    #[doc = "Colombian"]
+    V21691(Option<Element>),
+    #[doc = "Ecuadorian"]
+    V21709(Option<Element>),
     #[doc = "Paraguayan"]
     V21717(Option<Element>),
     #[doc = "Peruvian"]
     V21725(Option<Element>),
-    #[doc = "Puerto Rican"]
-    V21808(Option<Element>),
-    #[doc = "Salvadoran"]
-    V21618(Option<Element>),
-    #[doc = "South American"]
-    V21659(Option<Element>),
-    #[doc = "South American Indian"]
-    V21758(Option<Element>),
-    #[doc = "Spaniard"]
-    V21378(Option<Element>),
-    #[doc = "Spanish Basque"]
-    V21469(Option<Element>),
     #[doc = "Uruguayan"]
     V21733(Option<Element>),
-    #[doc = "Valencian"]
-    V21444(Option<Element>),
     #[doc = "Venezuelan"]
     V21741(Option<Element>),
+    #[doc = "South American Indian"]
+    V21758(Option<Element>),
+    #[doc = "Criollo"]
+    V21766(Option<Element>),
+    #[doc = "Latin American"]
+    V21782(Option<Element>),
+    #[doc = "Puerto Rican"]
+    V21808(Option<Element>),
+    #[doc = "Cuban"]
+    V21824(Option<Element>),
+    #[doc = "Dominican"]
+    V21840(Option<Element>),
+    #[doc = "Not Hispanic or Latino"]
+    V21865(Option<Element>),
 }
 pub enum V3ExposureMode {
-    #[doc = "ExposureMode"]
-    _ExposureMode(Option<Element>),
     #[doc = "airborne"]
     AIRBORNE(Option<Element>),
     #[doc = "contact"]
@@ -10939,22 +10928,22 @@ pub enum V3ExposureMode {
     FOODBORNE(Option<Element>),
     #[doc = "waterborne"]
     WATERBORNE(Option<Element>),
+    #[doc = "ExposureMode"]
+    _ExposureMode(Option<Element>),
 }
 pub enum V3GTSAbbreviation {
     #[doc = "AM"]
     AM(Option<Element>),
+    #[doc = "at bedtime"]
+    BED(Option<Element>),
     #[doc = "BID"]
     BID(Option<Element>),
-    #[doc = "GTSAbbreviationHolidays"]
-    JH(Option<Element>),
-    #[doc = "GTSAbbreviationHolidaysChristianRoman"]
-    _GTSAbbreviationHolidaysChristianRoman(Option<Element>),
-    #[doc = "GTSAbbreviationHolidaysUSNational"]
-    JHNUS(Option<Element>),
     #[doc = "JB"]
     JB(Option<Element>),
     #[doc = "JE"]
     JE(Option<Element>),
+    #[doc = "GTSAbbreviationHolidays"]
+    JH(Option<Element>),
     #[doc = "JHCHREAS"]
     JHCHREAS(Option<Element>),
     #[doc = "JHCHRGFR"]
@@ -10967,6 +10956,16 @@ pub enum V3GTSAbbreviation {
     JHCHRXME(Option<Element>),
     #[doc = "JHCHRXMS"]
     JHCHRXMS(Option<Element>),
+    #[doc = "The Netherlands National Holidays"]
+    JHNNL(Option<Element>),
+    #[doc = "Liberation day (May 5 every five years)"]
+    JHNNLLD(Option<Element>),
+    #[doc = "Queen's day (April 30)"]
+    JHNNLQD(Option<Element>),
+    #[doc = "Sinterklaas (December 5)"]
+    JHNNLSK(Option<Element>),
+    #[doc = "GTSAbbreviationHolidaysUSNational"]
+    JHNUS(Option<Element>),
     #[doc = "JHNUSCLM"]
     JHNUSCLM(Option<Element>),
     #[doc = "JHNUSIND"]
@@ -10993,42 +10992,34 @@ pub enum V3GTSAbbreviation {
     JHNUSTKS5(Option<Element>),
     #[doc = "JHNUSVET"]
     JHNUSVET(Option<Element>),
-    #[doc = "Liberation day (May 5 every five years)"]
-    JHNNLLD(Option<Element>),
+    #[doc = "monthly"]
+    MO(Option<Element>),
     #[doc = "PM"]
     PM(Option<Element>),
+    #[doc = "every hour"]
+    Q1H(Option<Element>),
+    #[doc = "every 2 hours"]
+    Q2H(Option<Element>),
+    #[doc = "every 3 hours"]
+    Q3H(Option<Element>),
     #[doc = "Q4H"]
     Q4H(Option<Element>),
     #[doc = "Q6H"]
     Q6H(Option<Element>),
+    #[doc = "every 8 hours"]
+    Q8H(Option<Element>),
     #[doc = "QD"]
     QD(Option<Element>),
     #[doc = "QID"]
     QID(Option<Element>),
     #[doc = "QOD"]
     QOD(Option<Element>),
-    #[doc = "Queen's day (April 30)"]
-    JHNNLQD(Option<Element>),
-    #[doc = "Sinterklaas (December 5)"]
-    JHNNLSK(Option<Element>),
     #[doc = "TID"]
     TID(Option<Element>),
-    #[doc = "The Netherlands National Holidays"]
-    JHNNL(Option<Element>),
-    #[doc = "at bedtime"]
-    BED(Option<Element>),
-    #[doc = "every 2 hours"]
-    Q2H(Option<Element>),
-    #[doc = "every 3 hours"]
-    Q3H(Option<Element>),
-    #[doc = "every 8 hours"]
-    Q8H(Option<Element>),
-    #[doc = "every hour"]
-    Q1H(Option<Element>),
-    #[doc = "monthly"]
-    MO(Option<Element>),
     #[doc = "weekly"]
     WK(Option<Element>),
+    #[doc = "GTSAbbreviationHolidaysChristianRoman"]
+    _GTSAbbreviationHolidaysChristianRoman(Option<Element>),
 }
 pub enum V3GenderStatus {
     #[doc = "Intact"]
@@ -11056,22 +11047,6 @@ pub enum V3HL7ContextConductionStyle {
     V(Option<Element>),
 }
 pub enum V3HL7StandardVersionCode {
-    #[doc = "2005 Normative Edition"]
-    V32005N(Option<Element>),
-    #[doc = "2006 Normative Edition"]
-    V32006N(Option<Element>),
-    #[doc = "2007 Normative Edition"]
-    V32007N(Option<Element>),
-    #[doc = "2008 Normative Edition"]
-    V32008N(Option<Element>),
-    #[doc = "2009 Normative Edition"]
-    V32009N(Option<Element>),
-    #[doc = "2010 Normative Edition"]
-    V32010N(Option<Element>),
-    #[doc = "2011 Normative Edition"]
-    V32011N(Option<Element>),
-    #[doc = "2012 Normative Edition"]
-    V32012N(Option<Element>),
     #[doc = "Ballot 2008 January"]
     Ballot2008Jan(Option<Element>),
     #[doc = "Ballot 2008 May"]
@@ -11104,6 +11079,22 @@ pub enum V3HL7StandardVersionCode {
     Ballot2012Sep(Option<Element>),
     #[doc = "HL7 Version V3-2003-12"]
     V3200312(Option<Element>),
+    #[doc = "2005 Normative Edition"]
+    V32005N(Option<Element>),
+    #[doc = "2006 Normative Edition"]
+    V32006N(Option<Element>),
+    #[doc = "2007 Normative Edition"]
+    V32007N(Option<Element>),
+    #[doc = "2008 Normative Edition"]
+    V32008N(Option<Element>),
+    #[doc = "2009 Normative Edition"]
+    V32009N(Option<Element>),
+    #[doc = "2010 Normative Edition"]
+    V32010N(Option<Element>),
+    #[doc = "2011 Normative Edition"]
+    V32011N(Option<Element>),
+    #[doc = "2012 Normative Edition"]
+    V32012N(Option<Element>),
     #[doc = "Version3 Pre-release #1"]
     V3PR1(Option<Element>),
 }
@@ -11114,18 +11105,8 @@ pub enum V3HL7UpdateMode {
     AR(Option<Element>),
     #[doc = "Add or Update"]
     AU(Option<Element>),
-    #[doc = "Ignore"]
-    I(Option<Element>),
-    #[doc = "Key"]
-    K(Option<Element>),
-    #[doc = "No Change"]
-    N(Option<Element>),
-    #[doc = "Reference"]
-    REF(Option<Element>),
     #[doc = "Remove"]
     D(Option<Element>),
-    #[doc = "Replace"]
-    R(Option<Element>),
     #[doc = "Set Add"]
     ESA(Option<Element>),
     #[doc = "Set Add or Change"]
@@ -11134,12 +11115,22 @@ pub enum V3HL7UpdateMode {
     ESC(Option<Element>),
     #[doc = "Set Delete"]
     ESD(Option<Element>),
-    #[doc = "SetUpdateMode"]
-    _SetUpdateMode(Option<Element>),
+    #[doc = "Ignore"]
+    I(Option<Element>),
+    #[doc = "Key"]
+    K(Option<Element>),
+    #[doc = "No Change"]
+    N(Option<Element>),
+    #[doc = "Replace"]
+    R(Option<Element>),
+    #[doc = "Reference"]
+    REF(Option<Element>),
     #[doc = "Unknown"]
     U(Option<Element>),
     #[doc = "Verify"]
     V(Option<Element>),
+    #[doc = "SetUpdateMode"]
+    _SetUpdateMode(Option<Element>),
 }
 pub enum V3HtmlLinkType {
     #[doc = "alternate"]
@@ -11222,30 +11213,30 @@ pub enum V3LanguageAbilityProficiency {
     P(Option<Element>),
 }
 pub enum V3LivingArrangement {
-    #[doc = "Extended care facility"]
-    X(Option<Element>),
+    #[doc = "community shelter"]
+    CS(Option<Element>),
     #[doc = "Group Home"]
     G(Option<Element>),
     #[doc = "Independent Household"]
     H(Option<Element>),
+    #[doc = "homeless"]
+    HL(Option<Element>),
     #[doc = "Institution"]
     I(Option<Element>),
     #[doc = "Nomadic"]
     M(Option<Element>),
     #[doc = "Nursing Home"]
     N(Option<Element>),
-    #[doc = "Retirement Community"]
-    R(Option<Element>),
-    #[doc = "Transient"]
-    T(Option<Element>),
-    #[doc = "community shelter"]
-    CS(Option<Element>),
-    #[doc = "homeless"]
-    HL(Option<Element>),
     #[doc = "private residence"]
     PR(Option<Element>),
+    #[doc = "Retirement Community"]
+    R(Option<Element>),
     #[doc = "supported living"]
     SL(Option<Element>),
+    #[doc = "Transient"]
+    T(Option<Element>),
+    #[doc = "Extended care facility"]
+    X(Option<Element>),
 }
 pub enum V3LocalMarkupIgnore {
     #[doc = "all"]
@@ -11286,22 +11277,22 @@ pub enum V3MaritalStatus {
     A(Option<Element>),
     #[doc = "Divorced"]
     D(Option<Element>),
-    #[doc = "Domestic partner"]
-    T(Option<Element>),
     #[doc = "Interlocutory"]
     I(Option<Element>),
     #[doc = "Legally Separated"]
     L(Option<Element>),
     #[doc = "Married"]
     M(Option<Element>),
-    #[doc = "Never Married"]
-    S(Option<Element>),
     #[doc = "Polygamous"]
     P(Option<Element>),
-    #[doc = "Widowed"]
-    W(Option<Element>),
+    #[doc = "Never Married"]
+    S(Option<Element>),
+    #[doc = "Domestic partner"]
+    T(Option<Element>),
     #[doc = "unmarried"]
     U(Option<Element>),
+    #[doc = "Widowed"]
+    W(Option<Element>),
 }
 pub enum V3MessageWaitingPriority {
     #[doc = "High"]
@@ -11318,12 +11309,6 @@ pub enum V3ModifyIndicator {
     N(Option<Element>),
 }
 pub enum V3NullFlavor {
-    #[doc = "NoInformation"]
-    NI(Option<Element>),
-    #[doc = "Not available"]
-    NAVU(Option<Element>),
-    #[doc = "Sufficient Quantity"]
-    QS(Option<Element>),
     #[doc = "asked but unknown"]
     ASKU(Option<Element>),
     #[doc = "derived"]
@@ -11332,20 +11317,26 @@ pub enum V3NullFlavor {
     INV(Option<Element>),
     #[doc = "masked"]
     MSK(Option<Element>),
-    #[doc = "negative infinity"]
-    NINF(Option<Element>),
     #[doc = "not applicable"]
     NA(Option<Element>),
     #[doc = "not asked"]
     NASK(Option<Element>),
+    #[doc = "temporarily unavailable"]
+    NAV(Option<Element>),
+    #[doc = "Not available"]
+    NAVU(Option<Element>),
+    #[doc = "NoInformation"]
+    NI(Option<Element>),
+    #[doc = "negative infinity"]
+    NINF(Option<Element>),
     #[doc = "not present"]
     NP(Option<Element>),
     #[doc = "other"]
     OTH(Option<Element>),
     #[doc = "positive infinity"]
     PINF(Option<Element>),
-    #[doc = "temporarily unavailable"]
-    NAV(Option<Element>),
+    #[doc = "Sufficient Quantity"]
+    QS(Option<Element>),
     #[doc = "trace"]
     TRC(Option<Element>),
     #[doc = "un-encoded"]
@@ -11372,8 +11363,14 @@ pub enum V3ObservationCategory {
     VitalSigns(Option<Element>),
 }
 pub enum V3ObservationInterpretation {
+    #[doc = "Off scale low"]
+    Greater(Option<Element>),
+    #[doc = "Off scale high"]
+    Less(Option<Element>),
     #[doc = "Abnormal"]
     A(Option<Element>),
+    #[doc = "Critical abnormal"]
+    AA(Option<Element>),
     #[doc = "Anti-complementary substances present"]
     AC(Option<Element>),
     #[doc = "Better"]
@@ -11382,86 +11379,74 @@ pub enum V3ObservationInterpretation {
     CAR(Option<Element>),
     #[doc = "Carrier"]
     Carrier(Option<Element>),
-    #[doc = "Critical abnormal"]
-    AA(Option<Element>),
-    #[doc = "Critical high"]
-    HH(Option<Element>),
-    #[doc = "Critical low"]
-    LL(Option<Element>),
-    #[doc = "Cytotoxic substance present"]
-    TOX(Option<Element>),
+    #[doc = "Significant change down"]
+    D(Option<Element>),
     #[doc = "Detected"]
     DET(Option<Element>),
     #[doc = "Equivocal"]
     E(Option<Element>),
+    #[doc = "outside threshold"]
+    EX(Option<Element>),
     #[doc = "Expected"]
     EXP(Option<Element>),
-    #[doc = "GeneticObservationInterpretation"]
-    _GeneticObservationInterpretation(Option<Element>),
     #[doc = "High"]
     H(Option<Element>),
+    #[doc = "Significantly high"]
+    HLess(Option<Element>),
+    #[doc = "Critical high"]
+    HH(Option<Element>),
     #[doc = "Hold for Medical Review"]
     HM(Option<Element>),
-    #[doc = "Indeterminate"]
-    IND(Option<Element>),
-    #[doc = "Insufficient evidence"]
-    IE(Option<Element>),
+    #[doc = "Significantly high"]
+    HU(Option<Element>),
+    #[doc = "above high threshold"]
+    HX(Option<Element>),
     #[doc = "Intermediate"]
     I(Option<Element>),
-    #[doc = "Interpretation qualifiers in separate OBX segments"]
-    OBX(Option<Element>),
+    #[doc = "Insufficient evidence"]
+    IE(Option<Element>),
+    #[doc = "Indeterminate"]
+    IND(Option<Element>),
     #[doc = "Low"]
     L(Option<Element>),
-    #[doc = "Negative"]
-    NEG(Option<Element>),
+    #[doc = "Significantly low"]
+    LGreater(Option<Element>),
+    #[doc = "Critical low"]
+    LL(Option<Element>),
+    #[doc = "Significantly low"]
+    LU(Option<Element>),
+    #[doc = "below low threshold"]
+    LX(Option<Element>),
+    #[doc = "moderately susceptible"]
+    MS(Option<Element>),
+    #[doc = "Normal"]
+    N(Option<Element>),
     #[doc = "No CLSI defined breakpoint"]
     NCL(Option<Element>),
+    #[doc = "Not detected"]
+    ND(Option<Element>),
+    #[doc = "Negative"]
+    NEG(Option<Element>),
     #[doc = "Non-reactive"]
     NR(Option<Element>),
     #[doc = "Non-susceptible"]
     NS(Option<Element>),
-    #[doc = "Normal"]
-    N(Option<Element>),
-    #[doc = "Not detected"]
-    ND(Option<Element>),
-    #[doc = "ObservationInterpretationChange"]
-    _ObservationInterpretationChange(Option<Element>),
+    #[doc = "Interpretation qualifiers in separate OBX segments"]
+    OBX(Option<Element>),
     #[doc = "ObservationInterpretationDetection"]
     ObservationInterpretationDetection(Option<Element>),
-    #[doc = "ObservationInterpretationExceptions"]
-    _ObservationInterpretationExceptions(Option<Element>),
     #[doc = "ObservationInterpretationExpectation"]
     ObservationInterpretationExpectation(Option<Element>),
-    #[doc = "ObservationInterpretationNormality"]
-    _ObservationInterpretationNormality(Option<Element>),
-    #[doc = "ObservationInterpretationSusceptibility"]
-    _ObservationInterpretationSusceptibility(Option<Element>),
-    #[doc = "Off scale high"]
-    Less(Option<Element>),
-    #[doc = "Off scale low"]
-    Greater(Option<Element>),
     #[doc = "Positive"]
     POS(Option<Element>),
     #[doc = "Quality control failure"]
     QCF(Option<Element>),
+    #[doc = "Resistant"]
+    R(Option<Element>),
     #[doc = "Reactive"]
     RR(Option<Element>),
     #[doc = "ReactivityObservationInterpretation"]
     ReactivityObservationInterpretation(Option<Element>),
-    #[doc = "Resistant"]
-    R(Option<Element>),
-    #[doc = "Significant change down"]
-    D(Option<Element>),
-    #[doc = "Significant change up"]
-    U(Option<Element>),
-    #[doc = "Significantly high"]
-    HLess(Option<Element>),
-    #[doc = "Significantly high"]
-    HU(Option<Element>),
-    #[doc = "Significantly low"]
-    LGreater(Option<Element>),
-    #[doc = "Significantly low"]
-    LU(Option<Element>),
     #[doc = "Susceptible"]
     S(Option<Element>),
     #[doc = "Susceptible-dose dependent"]
@@ -11470,24 +11455,112 @@ pub enum V3ObservationInterpretation {
     SYNR(Option<Element>),
     #[doc = "Synergy - susceptible"]
     SYNS(Option<Element>),
+    #[doc = "Cytotoxic substance present"]
+    TOX(Option<Element>),
+    #[doc = "Significant change up"]
+    U(Option<Element>),
     #[doc = "Unexpected"]
     UNE(Option<Element>),
-    #[doc = "Weakly reactive"]
-    WR(Option<Element>),
-    #[doc = "Worse"]
-    W(Option<Element>),
-    #[doc = "above high threshold"]
-    HX(Option<Element>),
-    #[doc = "below low threshold"]
-    LX(Option<Element>),
-    #[doc = "moderately susceptible"]
-    MS(Option<Element>),
-    #[doc = "outside threshold"]
-    EX(Option<Element>),
     #[doc = "very susceptible"]
     VS(Option<Element>),
+    #[doc = "Worse"]
+    W(Option<Element>),
+    #[doc = "Weakly reactive"]
+    WR(Option<Element>),
+    #[doc = "GeneticObservationInterpretation"]
+    _GeneticObservationInterpretation(Option<Element>),
+    #[doc = "ObservationInterpretationChange"]
+    _ObservationInterpretationChange(Option<Element>),
+    #[doc = "ObservationInterpretationExceptions"]
+    _ObservationInterpretationExceptions(Option<Element>),
+    #[doc = "ObservationInterpretationNormality"]
+    _ObservationInterpretationNormality(Option<Element>),
+    #[doc = "ObservationInterpretationSusceptibility"]
+    _ObservationInterpretationSusceptibility(Option<Element>),
 }
 pub enum V3ParticipationFunction {
+    #[doc = "admitting physician"]
+    ADMPHYS(Option<Element>),
+    #[doc = "anesthesist"]
+    ANEST(Option<Element>),
+    #[doc = "anesthesia nurse"]
+    ANRS(Option<Element>),
+    #[doc = "assembly software"]
+    ASSEMBLER(Option<Element>),
+    #[doc = "attending physician"]
+    ATTPHYS(Option<Element>),
+    #[doc = "caregiver information receiver"]
+    AUCG(Option<Element>),
+    #[doc = "consent overrider"]
+    AUCOV(Option<Element>),
+    #[doc = "emergency overrider"]
+    AUEMROV(Option<Element>),
+    #[doc = "legitimate relationship information receiver"]
+    AULR(Option<Element>),
+    #[doc = "care team information receiver"]
+    AUTM(Option<Element>),
+    #[doc = "work area information receiver"]
+    AUWA(Option<Element>),
+    #[doc = "claims adjudication"]
+    CLMADJ(Option<Element>),
+    #[doc = "composer software"]
+    COMPOSER(Option<Element>),
+    #[doc = "discharging physician"]
+    DISPHYS(Option<Element>),
+    #[doc = "enrollment broker"]
+    ENROLL(Option<Element>),
+    #[doc = "first assistant surgeon"]
+    FASST(Option<Element>),
+    #[doc = "ffs management"]
+    FFSMGT(Option<Element>),
+    #[doc = "fully insured"]
+    FULINRD(Option<Element>),
+    #[doc = "legal guardian consent author"]
+    GRDCON(Option<Element>),
+    #[doc = "managed care management"]
+    MCMGT(Option<Element>),
+    #[doc = "midwife"]
+    MDWF(Option<Element>),
+    #[doc = "nurse assistant"]
+    NASST(Option<Element>),
+    #[doc = "payor contracting"]
+    PAYORCNTR(Option<Element>),
+    #[doc = "primary care physician"]
+    PCP(Option<Element>),
+    #[doc = "healthcare power of attorney consent author"]
+    POACON(Option<Element>),
+    #[doc = "personal representative consent author"]
+    PRCON(Option<Element>),
+    #[doc = "primary surgeon"]
+    PRISURG(Option<Element>),
+    #[doc = "authorized provider masking author"]
+    PROMSK(Option<Element>),
+    #[doc = "provider management"]
+    PROVMGT(Option<Element>),
+    #[doc = "reinsures"]
+    REINS(Option<Element>),
+    #[doc = "retrocessionaires"]
+    RETROCES(Option<Element>),
+    #[doc = "reviewer"]
+    REVIEWER(Option<Element>),
+    #[doc = "rounding physician"]
+    RNDPHYS(Option<Element>),
+    #[doc = "second assistant surgeon"]
+    SASST(Option<Element>),
+    #[doc = "self insured"]
+    SELFINRD(Option<Element>),
+    #[doc = "scrub nurse"]
+    SNRS(Option<Element>),
+    #[doc = "subject of consent author"]
+    SUBCON(Option<Element>),
+    #[doc = "subcontracting risk"]
+    SUBCTRT(Option<Element>),
+    #[doc = "third assistant"]
+    TASST(Option<Element>),
+    #[doc = "utilization management"]
+    UMGT(Option<Element>),
+    #[doc = "underwriting"]
+    UNDERWRTNG(Option<Element>),
     #[doc = "AuthorizedParticipationFunction"]
     _AuthorizedParticipationFunction(Option<Element>),
     #[doc = "AuthorizedReceiverParticipationFunction"]
@@ -11504,142 +11577,36 @@ pub enum V3ParticipationFunction {
     _SponsorParticipationFunction(Option<Element>),
     #[doc = "UnderwriterParticipationFunction"]
     _UnderwriterParticipationFunction(Option<Element>),
-    #[doc = "admitting physician"]
-    ADMPHYS(Option<Element>),
-    #[doc = "anesthesia nurse"]
-    ANRS(Option<Element>),
-    #[doc = "anesthesist"]
-    ANEST(Option<Element>),
-    #[doc = "assembly software"]
-    ASSEMBLER(Option<Element>),
-    #[doc = "attending physician"]
-    ATTPHYS(Option<Element>),
-    #[doc = "authorized provider masking author"]
-    PROMSK(Option<Element>),
-    #[doc = "care team information receiver"]
-    AUTM(Option<Element>),
-    #[doc = "caregiver information receiver"]
-    AUCG(Option<Element>),
-    #[doc = "claims adjudication"]
-    CLMADJ(Option<Element>),
-    #[doc = "composer software"]
-    COMPOSER(Option<Element>),
-    #[doc = "consent overrider"]
-    AUCOV(Option<Element>),
-    #[doc = "discharging physician"]
-    DISPHYS(Option<Element>),
-    #[doc = "emergency overrider"]
-    AUEMROV(Option<Element>),
-    #[doc = "enrollment broker"]
-    ENROLL(Option<Element>),
-    #[doc = "ffs management"]
-    FFSMGT(Option<Element>),
-    #[doc = "first assistant surgeon"]
-    FASST(Option<Element>),
-    #[doc = "fully insured"]
-    FULINRD(Option<Element>),
-    #[doc = "healthcare power of attorney consent author"]
-    POACON(Option<Element>),
-    #[doc = "legal guardian consent author"]
-    GRDCON(Option<Element>),
-    #[doc = "legitimate relationship information receiver"]
-    AULR(Option<Element>),
-    #[doc = "managed care management"]
-    MCMGT(Option<Element>),
-    #[doc = "midwife"]
-    MDWF(Option<Element>),
-    #[doc = "nurse assistant"]
-    NASST(Option<Element>),
-    #[doc = "payor contracting"]
-    PAYORCNTR(Option<Element>),
-    #[doc = "personal representative consent author"]
-    PRCON(Option<Element>),
-    #[doc = "primary care physician"]
-    PCP(Option<Element>),
-    #[doc = "primary surgeon"]
-    PRISURG(Option<Element>),
-    #[doc = "provider management"]
-    PROVMGT(Option<Element>),
-    #[doc = "reinsures"]
-    REINS(Option<Element>),
-    #[doc = "retrocessionaires"]
-    RETROCES(Option<Element>),
-    #[doc = "reviewer"]
-    REVIEWER(Option<Element>),
-    #[doc = "rounding physician"]
-    RNDPHYS(Option<Element>),
-    #[doc = "scrub nurse"]
-    SNRS(Option<Element>),
-    #[doc = "second assistant surgeon"]
-    SASST(Option<Element>),
-    #[doc = "self insured"]
-    SELFINRD(Option<Element>),
-    #[doc = "subcontracting risk"]
-    SUBCTRT(Option<Element>),
-    #[doc = "subject of consent author"]
-    SUBCON(Option<Element>),
-    #[doc = "third assistant"]
-    TASST(Option<Element>),
-    #[doc = "underwriting"]
-    UNDERWRTNG(Option<Element>),
-    #[doc = "utilization management"]
-    UMGT(Option<Element>),
-    #[doc = "work area information receiver"]
-    AUWA(Option<Element>),
 }
 pub enum V3ParticipationIndirectTarget {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -11650,10 +11617,22 @@ pub enum V3ParticipationIndirectTarget {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -11668,102 +11647,90 @@ pub enum V3ParticipationIndirectTarget {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationInformationGenerator {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -11774,10 +11741,22 @@ pub enum V3ParticipationInformationGenerator {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -11792,102 +11771,90 @@ pub enum V3ParticipationInformationGenerator {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationInformationTranscriber {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -11898,10 +11865,22 @@ pub enum V3ParticipationInformationTranscriber {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -11916,48 +11895,60 @@ pub enum V3ParticipationInformationTranscriber {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationMode {
     #[doc = "dictated"]
@@ -11968,20 +11959,20 @@ pub enum V3ParticipationMode {
     EMAILWRIT(Option<Element>),
     #[doc = "face-to-face"]
     FACE(Option<Element>),
+    #[doc = "telefax"]
+    FAXWRIT(Option<Element>),
     #[doc = "handwritten"]
     HANDWRIT(Option<Element>),
     #[doc = "mail"]
     MAILWRIT(Option<Element>),
     #[doc = "online written"]
     ONLINEWRIT(Option<Element>),
+    #[doc = "telephone"]
+    PHONE(Option<Element>),
     #[doc = "physical presence"]
     PHYSICAL(Option<Element>),
     #[doc = "remote presence"]
     REMOTE(Option<Element>),
-    #[doc = "telefax"]
-    FAXWRIT(Option<Element>),
-    #[doc = "telephone"]
-    PHONE(Option<Element>),
     #[doc = "typewritten"]
     TYPEWRIT(Option<Element>),
     #[doc = "verbal"]
@@ -11992,58 +11983,34 @@ pub enum V3ParticipationMode {
     WRITTEN(Option<Element>),
 }
 pub enum V3ParticipationPhysicalPerformer {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -12054,10 +12021,22 @@ pub enum V3ParticipationPhysicalPerformer {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -12072,110 +12051,98 @@ pub enum V3ParticipationPhysicalPerformer {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationSignature {
     #[doc = "intended"]
     I(Option<Element>),
-    #[doc = "required"]
-    X(Option<Element>),
     #[doc = "signed"]
     S(Option<Element>),
+    #[doc = "required"]
+    X(Option<Element>),
 }
 pub enum V3ParticipationTargetDirect {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -12186,10 +12153,22 @@ pub enum V3ParticipationTargetDirect {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -12204,102 +12183,90 @@ pub enum V3ParticipationTargetDirect {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationTargetLocation {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -12310,10 +12277,22 @@ pub enum V3ParticipationTargetLocation {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -12328,102 +12307,90 @@ pub enum V3ParticipationTargetLocation {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationTargetSubject {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -12434,10 +12401,22 @@ pub enum V3ParticipationTargetSubject {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -12452,102 +12431,90 @@ pub enum V3ParticipationTargetSubject {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationType {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -12558,10 +12525,22 @@ pub enum V3ParticipationType {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -12576,102 +12555,90 @@ pub enum V3ParticipationType {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3ParticipationVerifier {
-    #[doc = "ExposureAgent"]
-    EXPAGNT(Option<Element>),
-    #[doc = "ExposureParticipation"]
-    EXPART(Option<Element>),
-    #[doc = "ExposureSource"]
-    EXSRC(Option<Element>),
-    #[doc = "ExposureTarget"]
-    EXPTRGT(Option<Element>),
-    #[doc = "Participation"]
-    PART(Option<Element>),
-    #[doc = "ParticipationAncillary"]
-    _ParticipationAncillary(Option<Element>),
-    #[doc = "ParticipationInformationGenerator"]
-    _ParticipationInformationGenerator(Option<Element>),
-    #[doc = "Referred By"]
-    REFB(Option<Element>),
-    #[doc = "Referred to"]
-    REFT(Option<Element>),
-    #[doc = "Transcriber"]
-    TRANS(Option<Element>),
     #[doc = "admitter"]
     ADM(Option<Element>),
     #[doc = "analyte"]
     ALY(Option<Element>),
     #[doc = "attender"]
     ATND(Option<Element>),
-    #[doc = "authenticator"]
-    AUTHEN(Option<Element>),
     #[doc = "author (originator)"]
     AUT(Option<Element>),
+    #[doc = "authenticator"]
+    AUTHEN(Option<Element>),
     #[doc = "baby"]
     BBY(Option<Element>),
     #[doc = "beneficiary"]
     BEN(Option<Element>),
+    #[doc = "causative agent"]
+    CAGNT(Option<Element>),
     #[doc = "callback contact"]
     CALLBCK(Option<Element>),
     #[doc = "catalyst"]
     CAT(Option<Element>),
-    #[doc = "causative agent"]
-    CAGNT(Option<Element>),
     #[doc = "consultant"]
     CON(Option<Element>),
-    #[doc = "consumable"]
-    CSM(Option<Element>),
     #[doc = "coverage target"]
     COV(Option<Element>),
+    #[doc = "consumable"]
+    CSM(Option<Element>),
     #[doc = "custodian"]
     CST(Option<Element>),
-    #[doc = "data entry person"]
-    ENT(Option<Element>),
-    #[doc = "destination"]
-    DST(Option<Element>),
     #[doc = "device"]
     DEV(Option<Element>),
     #[doc = "direct target"]
@@ -12682,10 +12649,22 @@ pub enum V3ParticipationVerifier {
     DIST(Option<Element>),
     #[doc = "donor"]
     DON(Option<Element>),
+    #[doc = "destination"]
+    DST(Option<Element>),
     #[doc = "entry location"]
     ELOC(Option<Element>),
+    #[doc = "data entry person"]
+    ENT(Option<Element>),
     #[doc = "escort"]
     ESC(Option<Element>),
+    #[doc = "ExposureAgent"]
+    EXPAGNT(Option<Element>),
+    #[doc = "ExposureParticipation"]
+    EXPART(Option<Element>),
+    #[doc = "ExposureTarget"]
+    EXPTRGT(Option<Element>),
+    #[doc = "ExposureSource"]
+    EXSRC(Option<Element>),
     #[doc = "guarantor party"]
     GUAR(Option<Element>),
     #[doc = "holder"]
@@ -12700,66 +12679,78 @@ pub enum V3ParticipationVerifier {
     LA(Option<Element>),
     #[doc = "location"]
     LOC(Option<Element>),
+    #[doc = "ugent notification contact"]
+    NOT(Option<Element>),
     #[doc = "non-reuseable device"]
     NRD(Option<Element>),
     #[doc = "origin"]
     ORG(Option<Element>),
-    #[doc = "performer"]
-    PRF(Option<Element>),
-    #[doc = "primary information recipient"]
-    PRCP(Option<Element>),
+    #[doc = "Participation"]
+    PART(Option<Element>),
     #[doc = "primary performer"]
     PPRF(Option<Element>),
+    #[doc = "primary information recipient"]
+    PRCP(Option<Element>),
     #[doc = "product"]
     PRD(Option<Element>),
-    #[doc = "receiver"]
-    RCV(Option<Element>),
+    #[doc = "performer"]
+    PRF(Option<Element>),
     #[doc = "record target"]
     RCT(Option<Element>),
-    #[doc = "referrer"]
-    REF(Option<Element>),
-    #[doc = "remote"]
-    RML(Option<Element>),
-    #[doc = "responsible party"]
-    RESP(Option<Element>),
+    #[doc = "receiver"]
+    RCV(Option<Element>),
     #[doc = "reusable device"]
     RDV(Option<Element>),
-    #[doc = "secondary performer"]
-    SPRF(Option<Element>),
-    #[doc = "specimen"]
-    SPC(Option<Element>),
+    #[doc = "referrer"]
+    REF(Option<Element>),
+    #[doc = "Referred By"]
+    REFB(Option<Element>),
+    #[doc = "Referred to"]
+    REFT(Option<Element>),
+    #[doc = "responsible party"]
+    RESP(Option<Element>),
+    #[doc = "remote"]
+    RML(Option<Element>),
     #[doc = "subject"]
     SBJ(Option<Element>),
+    #[doc = "specimen"]
+    SPC(Option<Element>),
+    #[doc = "secondary performer"]
+    SPRF(Option<Element>),
     #[doc = "therapeutic agent"]
     TPA(Option<Element>),
+    #[doc = "Transcriber"]
+    TRANS(Option<Element>),
     #[doc = "tracker"]
     TRC(Option<Element>),
-    #[doc = "ugent notification contact"]
-    NOT(Option<Element>),
-    #[doc = "verifier"]
-    VRF(Option<Element>),
     #[doc = "via"]
     VIA(Option<Element>),
+    #[doc = "verifier"]
+    VRF(Option<Element>),
     #[doc = "witness"]
     WIT(Option<Element>),
+    #[doc = "ParticipationAncillary"]
+    _ParticipationAncillary(Option<Element>),
+    #[doc = "ParticipationInformationGenerator"]
+    _ParticipationInformationGenerator(Option<Element>),
 }
 pub enum V3PatientImportance {
     #[doc = "Board Member"]
     BM(Option<Element>),
+    #[doc = "Physician Family Member"]
+    DFM(Option<Element>),
+    #[doc = "Staff Physician"]
+    DR(Option<Element>),
     #[doc = "Financial Donor"]
     FD(Option<Element>),
     #[doc = "Foreign Dignitary"]
     FOR(Option<Element>),
     #[doc = "Government Dignitary"]
     GOVT(Option<Element>),
-    #[doc = "Physician Family Member"]
-    DFM(Option<Element>),
     #[doc = "Staff Family Member"]
     SFM(Option<Element>),
     #[doc = "Staff Member"]
     STF(Option<Element>),
-    #[doc = "Staff Physician"]
-    DR(Option<Element>),
     #[doc = "Very Important Person"]
     VIP(Option<Element>),
 }
@@ -12774,8 +12765,12 @@ pub enum V3PaymentTerms {
     N90(Option<Element>),
 }
 pub enum V3PersonDisabilityType {
+    #[doc = "Vision impaired"]
+    V1(Option<Element>),
     #[doc = "Hearing impaired"]
     V2(Option<Element>),
+    #[doc = "Speech impaired"]
+    V3(Option<Element>),
     #[doc = "Mentally impaired"]
     V4(Option<Element>),
     #[doc = "Mobility impaired"]
@@ -12786,34 +12781,30 @@ pub enum V3PersonDisabilityType {
     CR(Option<Element>),
     #[doc = "Requires gurney"]
     G(Option<Element>),
-    #[doc = "Requires walker"]
-    WK(Option<Element>),
     #[doc = "Requires wheelchair"]
     WC(Option<Element>),
-    #[doc = "Speech impaired"]
-    V3(Option<Element>),
-    #[doc = "Vision impaired"]
-    V1(Option<Element>),
+    #[doc = "Requires walker"]
+    WK(Option<Element>),
 }
 pub enum V3ProbabilityDistributionType {
-    #[doc = "(gamma)"]
-    G(Option<Element>),
-    #[doc = "F"]
-    F(Option<Element>),
-    #[doc = "T"]
-    T(Option<Element>),
     #[doc = "beta"]
     B(Option<Element>),
-    #[doc = "chi square"]
-    X2(Option<Element>),
     #[doc = "exponential"]
     E(Option<Element>),
+    #[doc = "F"]
+    F(Option<Element>),
+    #[doc = "(gamma)"]
+    G(Option<Element>),
     #[doc = "log-normal"]
     LN(Option<Element>),
     #[doc = "normal (Gaussian)"]
     N(Option<Element>),
+    #[doc = "T"]
+    T(Option<Element>),
     #[doc = "uniform"]
     U(Option<Element>),
+    #[doc = "chi square"]
+    X2(Option<Element>),
 }
 pub enum V3ProcessingID {
     #[doc = "Debugging"]
@@ -12826,12 +12817,12 @@ pub enum V3ProcessingID {
 pub enum V3ProcessingMode {
     #[doc = "Archive"]
     A(Option<Element>),
-    #[doc = "Current processing"]
-    T(Option<Element>),
     #[doc = "Initial load"]
     I(Option<Element>),
     #[doc = "Restore from archive"]
     R(Option<Element>),
+    #[doc = "Current processing"]
+    T(Option<Element>),
 }
 pub enum V3ProvenanceEventCurrentState {
     AU(Option<Element>),
@@ -12862,38 +12853,38 @@ pub enum V3ProvenanceEventCurrentStateDC {
     UC(Option<Element>),
 }
 pub enum V3QueryParameterValue {
-    #[doc = "Completely dispensed"]
-    C(Option<Element>),
-    #[doc = "Dispensed with remaining fills"]
-    R(Option<Element>),
-    #[doc = "Never Dispensed"]
-    N(Option<Element>),
-    #[doc = "Prescription Dispense Filter Code"]
-    _PrescriptionDispenseFilterCode(Option<Element>),
-    #[doc = "QueryParameterValue"]
-    _QueryParameterValue(Option<Element>),
-    #[doc = "_OrderFilterCode"]
-    _OrderFilterCode(Option<Element>),
-    #[doc = "all"]
-    ISSFA(Option<Element>),
     #[doc = "all dispenses"]
     ALLDISP(Option<Element>),
     #[doc = "all orders"]
     AO(Option<Element>),
-    #[doc = "dispense query filter code"]
-    _DispenseQueryFilterCode(Option<Element>),
-    #[doc = "last dispense"]
-    LASTDISP(Option<Element>),
-    #[doc = "no dispense"]
-    NODISP(Option<Element>),
-    #[doc = "orders with results"]
-    OWR(Option<Element>),
-    #[doc = "orders without results"]
-    ONR(Option<Element>),
+    #[doc = "Completely dispensed"]
+    C(Option<Element>),
+    #[doc = "all"]
+    ISSFA(Option<Element>),
     #[doc = "with issues"]
     ISSFI(Option<Element>),
     #[doc = "with unmanaged issues"]
     ISSFU(Option<Element>),
+    #[doc = "last dispense"]
+    LASTDISP(Option<Element>),
+    #[doc = "Never Dispensed"]
+    N(Option<Element>),
+    #[doc = "no dispense"]
+    NODISP(Option<Element>),
+    #[doc = "orders without results"]
+    ONR(Option<Element>),
+    #[doc = "orders with results"]
+    OWR(Option<Element>),
+    #[doc = "Dispensed with remaining fills"]
+    R(Option<Element>),
+    #[doc = "dispense query filter code"]
+    _DispenseQueryFilterCode(Option<Element>),
+    #[doc = "_OrderFilterCode"]
+    _OrderFilterCode(Option<Element>),
+    #[doc = "Prescription Dispense Filter Code"]
+    _PrescriptionDispenseFilterCode(Option<Element>),
+    #[doc = "QueryParameterValue"]
+    _QueryParameterValue(Option<Element>),
 }
 pub enum V3QueryPriority {
     #[doc = "Deferred"]
@@ -12902,18 +12893,18 @@ pub enum V3QueryPriority {
     I(Option<Element>),
 }
 pub enum V3QueryRequestLimit {
-    #[doc = "QueryRequestLimit"]
-    _QueryRequestLimit(Option<Element>),
     #[doc = "record"]
     RD(Option<Element>),
+    #[doc = "QueryRequestLimit"]
+    _QueryRequestLimit(Option<Element>),
 }
 pub enum V3QueryResponse {
     #[doc = "ApplicationError"]
     AE(Option<Element>),
-    #[doc = "Data found"]
-    OK(Option<Element>),
     #[doc = "No data found"]
     NF(Option<Element>),
+    #[doc = "Data found"]
+    OK(Option<Element>),
     #[doc = "QueryParameterError"]
     QE(Option<Element>),
 }
@@ -12934,26 +12925,26 @@ pub enum V3RelationalOperator {
     CT(Option<Element>),
     #[doc = "Equal"]
     EQ(Option<Element>),
+    #[doc = "Greater than or equal"]
+    GE(Option<Element>),
     #[doc = "Generic"]
     GN(Option<Element>),
     #[doc = "Greater than"]
     GT(Option<Element>),
-    #[doc = "Greater than or equal"]
-    GE(Option<Element>),
-    #[doc = "Less than"]
-    LT(Option<Element>),
     #[doc = "Less than or equal"]
     LE(Option<Element>),
+    #[doc = "Less than"]
+    LT(Option<Element>),
     #[doc = "Not Equal"]
     NE(Option<Element>),
 }
 pub enum V3RelationshipConjunction {
     #[doc = "and"]
     AND(Option<Element>),
-    #[doc = "exclusive or"]
-    XOR(Option<Element>),
     #[doc = "or"]
     OR(Option<Element>),
+    #[doc = "exclusive or"]
+    XOR(Option<Element>),
 }
 pub enum V3ReligiousAffiliation {
     #[doc = "Adventist"]
@@ -12968,8 +12959,6 @@ pub enum V3ReligiousAffiliation {
     V1005(Option<Element>),
     #[doc = "Animism"]
     V1006(Option<Element>),
-    #[doc = "Assembly of God"]
-    V1061(Option<Element>),
     #[doc = "Atheism"]
     V1007(Option<Element>),
     #[doc = "Babi & Baha'I faiths"]
@@ -12978,44 +12967,22 @@ pub enum V3ReligiousAffiliation {
     V1009(Option<Element>),
     #[doc = "Bon"]
     V1010(Option<Element>),
-    #[doc = "Brethren"]
-    V1062(Option<Element>),
     #[doc = "Cao Dai"]
     V1011(Option<Element>),
     #[doc = "Celticism"]
     V1012(Option<Element>),
     #[doc = "Christian (non-Catholic, non-specific)"]
     V1013(Option<Element>),
-    #[doc = "Christian Scientist"]
-    V1063(Option<Element>),
-    #[doc = "Church of Christ"]
-    V1064(Option<Element>),
-    #[doc = "Church of God"]
-    V1065(Option<Element>),
     #[doc = "Confucianism"]
     V1014(Option<Element>),
-    #[doc = "Congregational"]
-    V1066(Option<Element>),
     #[doc = "Cyberculture Religions"]
     V1015(Option<Element>),
-    #[doc = "Disciples of Christ"]
-    V1067(Option<Element>),
     #[doc = "Divination"]
     V1016(Option<Element>),
-    #[doc = "Eastern Orthodox"]
-    V1068(Option<Element>),
-    #[doc = "Episcopalian"]
-    V1069(Option<Element>),
-    #[doc = "Evangelical Covenant"]
-    V1070(Option<Element>),
     #[doc = "Fourth Way"]
     V1017(Option<Element>),
     #[doc = "Free Daism"]
     V1018(Option<Element>),
-    #[doc = "Friends"]
-    V1071(Option<Element>),
-    #[doc = "Full Gospel"]
-    V1072(Option<Element>),
     #[doc = "Gnosis"]
     V1019(Option<Element>),
     #[doc = "Hinduism"]
@@ -13042,16 +13009,12 @@ pub enum V3ReligiousAffiliation {
     V1030(Option<Element>),
     #[doc = "Messianic Judaism"]
     V1031(Option<Element>),
-    #[doc = "Methodist"]
-    V1073(Option<Element>),
     #[doc = "Mitraism"]
     V1032(Option<Element>),
-    #[doc = "Native American"]
-    V1074(Option<Element>),
-    #[doc = "Nazarene"]
-    V1075(Option<Element>),
     #[doc = "New Age"]
     V1033(Option<Element>),
+    #[doc = "non-Roman Catholic"]
+    V1034(Option<Element>),
     #[doc = "Occult"]
     V1035(Option<Element>),
     #[doc = "Orthodox"]
@@ -13060,22 +13023,12 @@ pub enum V3ReligiousAffiliation {
     V1037(Option<Element>),
     #[doc = "Pentecostal"]
     V1038(Option<Element>),
-    #[doc = "Presbyterian"]
-    V1076(Option<Element>),
     #[doc = "Process, The"]
     V1039(Option<Element>),
-    #[doc = "Protestant"]
-    V1077(Option<Element>),
-    #[doc = "Protestant, No Denomination"]
-    V1078(Option<Element>),
-    #[doc = "Reformed"]
-    V1079(Option<Element>),
     #[doc = "Reformed/Presbyterian"]
     V1040(Option<Element>),
     #[doc = "Roman Catholic Church"]
     V1041(Option<Element>),
-    #[doc = "Salvation Army"]
-    V1080(Option<Element>),
     #[doc = "Satanism"]
     V1042(Option<Element>),
     #[doc = "Scientology"]
@@ -13096,12 +13049,8 @@ pub enum V3ReligiousAffiliation {
     V1050(Option<Element>),
     #[doc = "Theravada"]
     V1051(Option<Element>),
-    #[doc = "Unitarian Universalist"]
-    V1081(Option<Element>),
     #[doc = "Unitarian-Universalism"]
     V1052(Option<Element>),
-    #[doc = "United Church of Christ"]
-    V1082(Option<Element>),
     #[doc = "Universal Life Church"]
     V1053(Option<Element>),
     #[doc = "Vajrayana (Tibetan)"]
@@ -13118,18 +13067,60 @@ pub enum V3ReligiousAffiliation {
     V1059(Option<Element>),
     #[doc = "Zoroastrianism"]
     V1060(Option<Element>),
-    #[doc = "non-Roman Catholic"]
-    V1034(Option<Element>),
+    #[doc = "Assembly of God"]
+    V1061(Option<Element>),
+    #[doc = "Brethren"]
+    V1062(Option<Element>),
+    #[doc = "Christian Scientist"]
+    V1063(Option<Element>),
+    #[doc = "Church of Christ"]
+    V1064(Option<Element>),
+    #[doc = "Church of God"]
+    V1065(Option<Element>),
+    #[doc = "Congregational"]
+    V1066(Option<Element>),
+    #[doc = "Disciples of Christ"]
+    V1067(Option<Element>),
+    #[doc = "Eastern Orthodox"]
+    V1068(Option<Element>),
+    #[doc = "Episcopalian"]
+    V1069(Option<Element>),
+    #[doc = "Evangelical Covenant"]
+    V1070(Option<Element>),
+    #[doc = "Friends"]
+    V1071(Option<Element>),
+    #[doc = "Full Gospel"]
+    V1072(Option<Element>),
+    #[doc = "Methodist"]
+    V1073(Option<Element>),
+    #[doc = "Native American"]
+    V1074(Option<Element>),
+    #[doc = "Nazarene"]
+    V1075(Option<Element>),
+    #[doc = "Presbyterian"]
+    V1076(Option<Element>),
+    #[doc = "Protestant"]
+    V1077(Option<Element>),
+    #[doc = "Protestant, No Denomination"]
+    V1078(Option<Element>),
+    #[doc = "Reformed"]
+    V1079(Option<Element>),
+    #[doc = "Salvation Army"]
+    V1080(Option<Element>),
+    #[doc = "Unitarian Universalist"]
+    V1081(Option<Element>),
+    #[doc = "United Church of Christ"]
+    V1082(Option<Element>),
 }
 pub enum V3ResponseLevel {
     #[doc = "completion"]
     C(Option<Element>),
-    #[doc = "confirmation"]
-    F(Option<Element>),
     #[doc = "detail"]
     D(Option<Element>),
     #[doc = "exception"]
     E(Option<Element>),
+    #[doc = "confirmation"]
+    F(Option<Element>),
     #[doc = "message-control"]
     N(Option<Element>),
     #[doc = "modification"]
@@ -13140,10 +13131,10 @@ pub enum V3ResponseLevel {
 pub enum V3ResponseModality {
     #[doc = "Batch"]
     B(Option<Element>),
-    #[doc = "Bolus"]
-    T(Option<Element>),
     #[doc = "Real Time"]
     R(Option<Element>),
+    #[doc = "Bolus"]
+    T(Option<Element>),
 }
 pub enum V3ResponseMode {
     #[doc = "deferred"]
@@ -13168,18 +13159,18 @@ pub enum V3RoleLinkStatus {
     PENDING(Option<Element>),
 }
 pub enum V3RoleLinkType {
-    #[doc = "Identification"]
-    IDENT(Option<Element>),
+    #[doc = "is backup for"]
+    BACKUP(Option<Element>),
     #[doc = "has contact"]
     CONT(Option<Element>),
     #[doc = "has direct authority over"]
     DIRAUTH(Option<Element>),
+    #[doc = "Identification"]
+    IDENT(Option<Element>),
     #[doc = "has indirect authority over"]
     INDAUTH(Option<Element>),
     #[doc = "has part"]
     PART(Option<Element>),
-    #[doc = "is backup for"]
-    BACKUP(Option<Element>),
     #[doc = "related"]
     REL(Option<Element>),
     #[doc = "replaces"]
@@ -13210,22 +13201,20 @@ pub enum V3Sequencing {
     N(Option<Element>),
 }
 pub enum V3SetOperator {
-    #[doc = "ValueSetOperator"]
-    _ValueSetOperator(Option<Element>),
-    #[doc = "convex hull"]
-    H(Option<Element>),
-    #[doc = "exclude"]
-    E(Option<Element>),
-    #[doc = "include"]
-    I(Option<Element>),
     #[doc = "intersect"]
     A(Option<Element>),
+    #[doc = "exclude"]
+    E(Option<Element>),
+    #[doc = "convex hull"]
+    H(Option<Element>),
+    #[doc = "include"]
+    I(Option<Element>),
     #[doc = "periodic hull"]
     P(Option<Element>),
+    #[doc = "ValueSetOperator"]
+    _ValueSetOperator(Option<Element>),
 }
 pub enum V3SubstitutionCondition {
-    #[doc = "Conditional"]
-    _Conditional(Option<Element>),
     #[doc = "Confirm first"]
     CONFIRM(Option<Element>),
     #[doc = "No substitution"]
@@ -13234,6 +13223,8 @@ pub enum V3SubstitutionCondition {
     NOTIFY(Option<Element>),
     #[doc = "Unconditional"]
     UNCOND(Option<Element>),
+    #[doc = "Conditional"]
+    _Conditional(Option<Element>),
 }
 pub enum V3TableCellHorizontalAlign {
     #[doc = "center"]
@@ -13376,20 +13367,16 @@ pub enum V3VaccineManufacturer {
     ALP(Option<Element>),
     #[doc = "Armour [Inactive - use CEN]"]
     AR(Option<Element>),
-    #[doc = "Aventis Pasteur Inc. (formerly Pasteur Merieux Connaught; includes Connaught Laboratories and Pasteur Merieux)"]
-    PMC(Option<Element>),
     #[doc = "Aviron"]
     AVI(Option<Element>),
     #[doc = "Baxter Healthcare Corporation"]
     BA(Option<Element>),
     #[doc = "Bayer Corporation (includes Miles, Inc. and Cutter Laboratories)"]
     BAY(Option<Element>),
-    #[doc = "Berna Products Corporation (includes Swiss Serum and Vaccine Institute Berne)"]
-    BPC(Option<Element>),
     #[doc = "Berna Products [Inactive - use BPC]"]
     BP(Option<Element>),
-    #[doc = "Bioport Corporation (formerly Michigan Biologic Products Institute)"]
-    MIP(Option<Element>),
+    #[doc = "Berna Products Corporation (includes Swiss Serum and Vaccine Institute Berne)"]
+    BPC(Option<Element>),
     #[doc = "Centeon L.L.C. (includes Armour Pharmaceutical Company)"]
     CEN(Option<Element>),
     #[doc = "Chiron Corporation"]
@@ -13402,8 +13389,12 @@ pub enum V3VaccineManufacturer {
     GRE(Option<Element>),
     #[doc = "Immuno International AG"]
     IAG(Option<Element>),
+    #[doc = "Merieux [Inactive - use PMC]"]
+    IM(Option<Element>),
     #[doc = "Immuno-U.S., Inc."]
     IUS(Option<Element>),
+    #[doc = "The Research Foundation for Microbial Diseases of Osaka University (BIKEN)"]
+    JPN(Option<Element>),
     #[doc = "Korea Green Cross Corporation"]
     KGC(Option<Element>),
     #[doc = "Lederle [Inactive - use WAL]"]
@@ -13412,52 +13403,52 @@ pub enum V3VaccineManufacturer {
     MA(Option<Element>),
     #[doc = "MedImmune, Inc."]
     MED(Option<Element>),
-    #[doc = "Merck and Co., Inc."]
-    MSD(Option<Element>),
-    #[doc = "Merieux [Inactive - use PMC]"]
-    IM(Option<Element>),
     #[doc = "Miles [Inactive - use BAY]"]
     MIL(Option<Element>),
+    #[doc = "Bioport Corporation (formerly Michigan Biologic Products Institute)"]
+    MIP(Option<Element>),
+    #[doc = "Merck and Co., Inc."]
+    MSD(Option<Element>),
     #[doc = "NABI (formerly North American Biologicals, Inc.)"]
     NAB(Option<Element>),
-    #[doc = "New York Blood Center"]
-    NYB(Option<Element>),
     #[doc = "North American Vaccine, Inc."]
     NAV(Option<Element>),
     #[doc = "Novartis Pharmaceutical Corporation (includes Ciba-Geigy Limited and Sandoz Limited)"]
     NOV(Option<Element>),
-    #[doc = "Organon Teknika Corporation"]
-    OTC(Option<Element>),
+    #[doc = "New York Blood Center"]
+    NYB(Option<Element>),
     #[doc = "Ortho Diagnostic Systems, Inc."]
     ORT(Option<Element>),
+    #[doc = "Organon Teknika Corporation"]
+    OTC(Option<Element>),
     #[doc = "Parkedale Pharmaceuticals (formerly Parke-Davis)"]
     PD(Option<Element>),
+    #[doc = "Aventis Pasteur Inc. (formerly Pasteur Merieux Connaught; includes Connaught Laboratories and Pasteur Merieux)"]
+    PMC(Option<Element>),
     #[doc = "Praxis Biologics [Inactive - use WAL]"]
     PRX(Option<Element>),
     #[doc = "Sclavo, Inc."]
     SCL(Option<Element>),
-    #[doc = "SmithKline Beecham"]
-    SKB(Option<Element>),
     #[doc = "Swiss Serum and Vaccine Inst. [Inactive - use BPC]"]
     SI(Option<Element>),
-    #[doc = "The Research Foundation for Microbial Diseases of Osaka University (BIKEN)"]
-    JPN(Option<Element>),
+    #[doc = "SmithKline Beecham"]
+    SKB(Option<Element>),
     #[doc = "United States Army Medical Research and Materiel Command"]
     USA(Option<Element>),
-    #[doc = "Wyeth-Ayerst (includes Wyeth-Lederle Vaccines and Pediatrics, Wyeth Laboratories, Lederle Laboratories, and Praxis Biologics)"]
-    WAL(Option<Element>),
     #[doc = "Wyeth-Ayerst [Inactive - use WAL]"]
     WA(Option<Element>),
+    #[doc = "Wyeth-Ayerst (includes Wyeth-Lederle Vaccines and Pediatrics, Wyeth Laboratories, Lederle Laboratories, and Praxis Biologics)"]
+    WAL(Option<Element>),
 }
 pub enum V3WorkClassificationODH {
-    #[doc = "Paid non-governmental work, not self-employed"]
-    PWNSE(Option<Element>),
     #[doc = "Paid work, Armed Forces"]
     PWAF(Option<Element>),
-    #[doc = "Paid work, local government, not armed forces"]
-    PWLG(Option<Element>),
     #[doc = "Paid work, national government, not armed forces"]
     PWFG(Option<Element>),
+    #[doc = "Paid work, local government, not armed forces"]
+    PWLG(Option<Element>),
+    #[doc = "Paid non-governmental work, not self-employed"]
+    PWNSE(Option<Element>),
     #[doc = "Paid work, self-employed"]
     PWSE(Option<Element>),
     #[doc = "Paid work, state government, not armed forces"]
@@ -13476,14 +13467,14 @@ pub enum V3Hl7ApprovalStatus {
     Affi(Option<Element>),
     #[doc = "affiliate ballot - normative"]
     Affn(Option<Element>),
-    #[doc = "approved DSTU"]
-    Appd(Option<Element>),
     #[doc = "approved affiliate DSTU"]
     Appad(Option<Element>),
     #[doc = "approved affiliate informative"]
     Appai(Option<Element>),
     #[doc = "approved affiliate normative"]
     Appan(Option<Element>),
+    #[doc = "approved DSTU"]
+    Appd(Option<Element>),
     #[doc = "approved informative"]
     Appi(Option<Element>),
     #[doc = "approved normative"]
@@ -13528,10 +13519,10 @@ pub enum V3Hl7CMETAttribution {
     Universal(Option<Element>),
 }
 pub enum V3Hl7ITSType {
-    #[doc = "extensible markup language"]
-    XML(Option<Element>),
     #[doc = "universal modeling language"]
     UML(Option<Element>),
+    #[doc = "extensible markup language"]
+    XML(Option<Element>),
 }
 pub enum V3Hl7ITSVersionCode {
     #[doc = "XMLV1PR1"]
@@ -13540,88 +13531,88 @@ pub enum V3Hl7ITSVersionCode {
 pub enum V3Hl7PublishingDomain {
     #[doc = "accounting & billing"]
     AB(Option<Element>),
+    #[doc = "trigger event control act infrastructure"]
+    AI(Option<Element>),
     #[doc = "artificial listing for test purposes - faux Domain for testing"]
     AL(Option<Element>),
     #[doc = "blood tissue and organ"]
     BB(Option<Element>),
-    #[doc = "care provision"]
-    PC(Option<Element>),
-    #[doc = "claims and reimbursement"]
-    CR(Option<Element>),
     #[doc = "clinical document architecture"]
     CD(Option<Element>),
     #[doc = "clinical genomics"]
     CG(Option<Element>),
-    #[doc = "clinical statement"]
-    CS(Option<Element>),
-    #[doc = "common product model"]
-    CP(Option<Element>),
-    #[doc = "common types"]
-    CT(Option<Element>),
+    #[doc = "transmission infrastructure"]
+    CI(Option<Element>),
     #[doc = "coverage"]
     CO(Option<Element>),
-    #[doc = "decision support"]
-    DS(Option<Element>),
-    #[doc = "diagnostic imaging"]
-    DI(Option<Element>),
+    #[doc = "common product model"]
+    CP(Option<Element>),
+    #[doc = "claims and reimbursement"]
+    CR(Option<Element>),
+    #[doc = "clinical statement"]
+    CS(Option<Element>),
+    #[doc = "common types"]
+    CT(Option<Element>),
     #[doc = "dummy domain"]
     DD(Option<Element>),
+    #[doc = "diagnostic imaging"]
+    DI(Option<Element>),
+    #[doc = "decision support"]
+    DS(Option<Element>),
     #[doc = "emergency medical services"]
     EM(Option<Element>),
     #[doc = "imaging integration"]
     II(Option<Element>),
     #[doc = "immunization"]
     IZ(Option<Element>),
-    #[doc = "informative public health"]
-    RI(Option<Element>),
     #[doc = "laboratory"]
     LB(Option<Element>),
+    #[doc = "medication"]
+    ME(Option<Element>),
     #[doc = "masterfile infrastructure"]
     MI(Option<Element>),
     #[doc = "materials management"]
     MM(Option<Element>),
     #[doc = "medical records"]
     MR(Option<Element>),
-    #[doc = "medication"]
-    ME(Option<Element>),
-    #[doc = "observations"]
-    OB(Option<Element>),
-    #[doc = "orders"]
-    OR(Option<Element>),
-    #[doc = "orders & observations"]
-    OO(Option<Element>),
-    #[doc = "patient administration"]
-    PA(Option<Element>),
-    #[doc = "personnel management"]
-    PM(Option<Element>),
-    #[doc = "pharmacy"]
-    RX(Option<Element>),
-    #[doc = "public health"]
-    PH(Option<Element>),
-    #[doc = "public health reporting"]
-    RR(Option<Element>),
-    #[doc = "quality measures"]
-    QM(Option<Element>),
-    #[doc = "query infrastructure"]
-    QI(Option<Element>),
-    #[doc = "registries"]
-    RG(Option<Element>),
-    #[doc = "regulated products"]
-    RP(Option<Element>),
-    #[doc = "regulated studies"]
-    RT(Option<Element>),
-    #[doc = "scheduling"]
-    SC(Option<Element>),
     #[doc = "shared messages"]
     MT(Option<Element>),
+    #[doc = "observations"]
+    OB(Option<Element>),
+    #[doc = "orders & observations"]
+    OO(Option<Element>),
+    #[doc = "orders"]
+    OR(Option<Element>),
+    #[doc = "patient administration"]
+    PA(Option<Element>),
+    #[doc = "care provision"]
+    PC(Option<Element>),
+    #[doc = "public health"]
+    PH(Option<Element>),
+    #[doc = "personnel management"]
+    PM(Option<Element>),
+    #[doc = "query infrastructure"]
+    QI(Option<Element>),
+    #[doc = "quality measures"]
+    QM(Option<Element>),
+    #[doc = "registries"]
+    RG(Option<Element>),
+    #[doc = "informative public health"]
+    RI(Option<Element>),
+    #[doc = "regulated products"]
+    RP(Option<Element>),
+    #[doc = "public health reporting"]
+    RR(Option<Element>),
+    #[doc = "regulated studies"]
+    RT(Option<Element>),
+    #[doc = "pharmacy"]
+    RX(Option<Element>),
+    #[doc = "scheduling"]
+    SC(Option<Element>),
     #[doc = "specimen"]
     SP(Option<Element>),
     #[doc = "therapeutic devices"]
     TD(Option<Element>),
-    #[doc = "transmission infrastructure"]
-    CI(Option<Element>),
-    #[doc = "trigger event control act infrastructure"]
-    AI(Option<Element>),
 }
 pub enum V3Hl7PublishingSection {
     #[doc = "administrative management"]
@@ -13638,64 +13629,70 @@ pub enum V3Hl7PublishingSubSection {
     CO(Option<Element>),
     #[doc = "financial information"]
     FI(Option<Element>),
-    #[doc = "master file"]
-    MF(Option<Element>),
     #[doc = "message control"]
     MC(Option<Element>),
+    #[doc = "master file"]
+    MF(Option<Element>),
     #[doc = "operations"]
     PO(Option<Element>),
     #[doc = "practice"]
     PR(Option<Element>),
     #[doc = "query"]
     QU(Option<Element>),
-    #[doc = "reasoning"]
-    RE(Option<Element>),
     #[doc = "records"]
     RC(Option<Element>),
+    #[doc = "reasoning"]
+    RE(Option<Element>),
     #[doc = "unknown"]
     UU(Option<Element>),
 }
 pub enum V3Hl7Realm {
-    #[doc = "Affiliate Realms"]
-    AffiliateRealms(Option<Element>),
     #[doc = "Argentina"]
     AR(Option<Element>),
-    #[doc = "Australia"]
-    AU(Option<Element>),
     #[doc = "Austria"]
     AT(Option<Element>),
+    #[doc = "Australia"]
+    AU(Option<Element>),
+    #[doc = "Affiliate Realms"]
+    AffiliateRealms(Option<Element>),
     #[doc = "Brazil"]
     BR(Option<Element>),
+    #[doc = "binding realms"]
+    BindingRealms(Option<Element>),
+    #[doc = "Unclassified Realm"]
+    C1(Option<Element>),
     #[doc = "Canada"]
     CA(Option<Element>),
+    #[doc = "Switzerland"]
+    CH(Option<Element>),
     #[doc = "Chile"]
     CL(Option<Element>),
     #[doc = "China"]
     CN(Option<Element>),
     #[doc = "Columbia"]
     CO(Option<Element>),
-    #[doc = "Croatia"]
-    HR(Option<Element>),
     #[doc = "Czech Republic"]
     CZ(Option<Element>),
+    #[doc = "Germany"]
+    DE(Option<Element>),
     #[doc = "Denmark"]
     DK(Option<Element>),
-    #[doc = "Example Realm"]
-    X1(Option<Element>),
+    #[doc = "Spain"]
+    ES(Option<Element>),
     #[doc = "Finland"]
     FI(Option<Element>),
     #[doc = "France"]
     FR(Option<Element>),
-    #[doc = "Germany"]
-    DE(Option<Element>),
     #[doc = "Great Britain"]
     GB(Option<Element>),
     #[doc = "Greece"]
     GR(Option<Element>),
-    #[doc = "India"]
-    IN(Option<Element>),
+    #[doc = "Croatia"]
+    HR(Option<Element>),
     #[doc = "Ireland"]
     IE(Option<Element>),
+    #[doc = "India"]
+    IN(Option<Element>),
     #[doc = "Italy"]
     IT(Option<Element>),
     #[doc = "Japan"]
@@ -13704,36 +13701,30 @@ pub enum V3Hl7Realm {
     KR(Option<Element>),
     #[doc = "Lithuania"]
     LT(Option<Element>),
-    #[doc = "Localized Version"]
-    ZZ(Option<Element>),
     #[doc = "Mexico"]
     MX(Option<Element>),
+    #[doc = "The Netherlands"]
+    NL(Option<Element>),
     #[doc = "New Zealand"]
     NZ(Option<Element>),
+    #[doc = "namespace realms"]
+    NamespaceRealms(Option<Element>),
     #[doc = "Representative Realm"]
     R1(Option<Element>),
     #[doc = "Romania"]
     RO(Option<Element>),
     #[doc = "Russian Federation"]
     RU(Option<Element>),
+    #[doc = "Sweden"]
+    SE(Option<Element>),
     #[doc = "Singapore"]
     SG(Option<Element>),
     #[doc = "Southern Africa"]
     SOA(Option<Element>),
-    #[doc = "Spain"]
-    ES(Option<Element>),
-    #[doc = "Sweden"]
-    SE(Option<Element>),
-    #[doc = "Switzerland"]
-    CH(Option<Element>),
-    #[doc = "Taiwan"]
-    TW(Option<Element>),
-    #[doc = "The Netherlands"]
-    NL(Option<Element>),
     #[doc = "Turkey"]
     TR(Option<Element>),
-    #[doc = "Unclassified Realm"]
-    C1(Option<Element>),
+    #[doc = "Taiwan"]
+    TW(Option<Element>),
     #[doc = "United Kingdom"]
     UK(Option<Element>),
     #[doc = "United States of America"]
@@ -13742,10 +13733,10 @@ pub enum V3Hl7Realm {
     UV(Option<Element>),
     #[doc = "Uruguay"]
     UY(Option<Element>),
-    #[doc = "binding realms"]
-    BindingRealms(Option<Element>),
-    #[doc = "namespace realms"]
-    NamespaceRealms(Option<Element>),
+    #[doc = "Example Realm"]
+    X1(Option<Element>),
+    #[doc = "Localized Version"]
+    ZZ(Option<Element>),
 }
 pub enum V3Hl7V3Conformance {
     #[doc = "ignored"]
@@ -13762,12 +13753,12 @@ pub enum V3Hl7V3Conformance {
     U(Option<Element>),
 }
 pub enum V3Hl7VoteResolution {
-    #[doc = "affirmative resolution"]
-    AffirmativeResolution(Option<Element>),
     #[doc = "affirmative-deferred"]
     Affdef(Option<Element>),
     #[doc = "affirmative-incorporated"]
     Affi(Option<Element>),
+    #[doc = "affirmative resolution"]
+    AffirmativeResolution(Option<Element>),
     #[doc = "affirmative-rejected"]
     Affr(Option<Element>),
     #[doc = "negative resolution"]
@@ -13796,46 +13787,44 @@ pub enum V3StyleType {
     BigAlpha(Option<Element>),
     #[doc = "Big Roman"]
     BigRoman(Option<Element>),
-    #[doc = "Bold Font"]
-    Bold(Option<Element>),
     #[doc = "Bottom Rule"]
     Botrule(Option<Element>),
     #[doc = "Circle"]
     Circle(Option<Element>),
     #[doc = "Disc"]
     Disc(Option<Element>),
-    #[doc = "Emphasised Font"]
-    Emphasis(Option<Element>),
-    #[doc = "Font Style"]
-    _FontStyle(Option<Element>),
-    #[doc = "Italics Font"]
-    Italics(Option<Element>),
-    #[doc = "Left-sided rule"]
-    Lrule(Option<Element>),
-    #[doc = "List Style"]
-    _ListStyle(Option<Element>),
     #[doc = "Little Alpha"]
     LittleAlpha(Option<Element>),
     #[doc = "Little Roman"]
     LittleRoman(Option<Element>),
-    #[doc = "Ordered List Style"]
-    _OrderedListStyle(Option<Element>),
+    #[doc = "Left-sided rule"]
+    Lrule(Option<Element>),
     #[doc = "Right-sided rule"]
     Rrule(Option<Element>),
     #[doc = "Square"]
     Square(Option<Element>),
-    #[doc = "Table Rule Style"]
-    _TableRuleStyle(Option<Element>),
     #[doc = "Top Rule"]
     Toprule(Option<Element>),
-    #[doc = "Underline Font"]
-    Underline(Option<Element>),
+    #[doc = "Font Style"]
+    _FontStyle(Option<Element>),
+    #[doc = "List Style"]
+    _ListStyle(Option<Element>),
+    #[doc = "Ordered List Style"]
+    _OrderedListStyle(Option<Element>),
+    #[doc = "Table Rule Style"]
+    _TableRuleStyle(Option<Element>),
     #[doc = "Unordered List Style"]
     _UnorderedListStyle(Option<Element>),
+    #[doc = "Bold Font"]
+    Bold(Option<Element>),
+    #[doc = "Emphasised Font"]
+    Emphasis(Option<Element>),
+    #[doc = "Italics Font"]
+    Italics(Option<Element>),
+    #[doc = "Underline Font"]
+    Underline(Option<Element>),
 }
 pub enum V3SubstanceAdminSubstitution {
-    #[doc = "ActSubstanceAdminSubstitutionCode"]
-    _ActSubstanceAdminSubstitutionCode(Option<Element>),
     #[doc = "brand composition"]
     BC(Option<Element>),
     #[doc = "equivalent"]
@@ -13848,36 +13837,38 @@ pub enum V3SubstanceAdminSubstitution {
     G(Option<Element>),
     #[doc = "none"]
     N(Option<Element>),
-    #[doc = "therapeutic alternative"]
-    TE(Option<Element>),
     #[doc = "therapeutic brand"]
     TB(Option<Element>),
+    #[doc = "therapeutic alternative"]
+    TE(Option<Element>),
     #[doc = "therapeutic generic"]
     TG(Option<Element>),
+    #[doc = "ActSubstanceAdminSubstitutionCode"]
+    _ActSubstanceAdminSubstitutionCode(Option<Element>),
 }
 pub enum V3TriggerEventID {
-    #[doc = "Result Abort"]
-    POLB_TE004301UV(Option<Element>),
-    #[doc = "Result Activate"]
-    POLB_TE004102UV(Option<Element>),
-    #[doc = "Result Complete"]
-    POLB_TE004202UV(Option<Element>),
-    #[doc = "Result Complete with Fulfillment"]
-    POLB_TE004200UV(Option<Element>),
-    #[doc = "Result Confirm"]
-    POLB_TE004001UV(Option<Element>),
-    #[doc = "Result Corrected"]
-    POLB_TE004201UV(Option<Element>),
-    #[doc = "Result Nullify"]
-    POLB_TE004500UV(Option<Element>),
-    #[doc = "Result Reject"]
-    POLB_TE004002UV(Option<Element>),
     #[doc = "Result Status"]
     POLB_TE004000UV(Option<Element>),
+    #[doc = "Result Confirm"]
+    POLB_TE004001UV(Option<Element>),
+    #[doc = "Result Reject"]
+    POLB_TE004002UV(Option<Element>),
     #[doc = "Result Tracking"]
     POLB_TE004007UV(Option<Element>),
     #[doc = "Result in Progress"]
     POLB_TE004100UV(Option<Element>),
+    #[doc = "Result Activate"]
+    POLB_TE004102UV(Option<Element>),
+    #[doc = "Result Complete with Fulfillment"]
+    POLB_TE004200UV(Option<Element>),
+    #[doc = "Result Corrected"]
+    POLB_TE004201UV(Option<Element>),
+    #[doc = "Result Complete"]
+    POLB_TE004202UV(Option<Element>),
+    #[doc = "Result Abort"]
+    POLB_TE004301UV(Option<Element>),
+    #[doc = "Result Nullify"]
+    POLB_TE004500UV(Option<Element>),
 }
 pub enum V3XBasicConfidentialityKind {
     N(Option<Element>),
