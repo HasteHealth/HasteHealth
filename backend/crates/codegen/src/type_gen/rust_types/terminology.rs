@@ -120,7 +120,9 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
 
             return Some(quote! {
                 pub enum #terminology_enum_name {
-                    #(#enum_variants),*
+                    #(#enum_variants),*,
+                    #[doc = "If value is missing and just the element is present."]
+                    Null(Option<Element>),
                 }
             });
         }

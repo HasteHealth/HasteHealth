@@ -46,12 +46,16 @@ pub enum FHIRVersion {
     V400(Option<Element>),
     #[doc = "4.0.1"]
     V401(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AbstractTypes {
     #[doc = "Any"]
     Any(Option<Element>),
     #[doc = "Type"]
     Type(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AccountStatus {
     #[doc = "Active"]
@@ -64,12 +68,16 @@ pub enum AccountStatus {
     OnHold(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionCardinalityBehavior {
     #[doc = "Multiple"]
     Multiple(Option<Element>),
     #[doc = "Single"]
     Single(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionConditionKind {
     #[doc = "Applicability"]
@@ -78,6 +86,8 @@ pub enum ActionConditionKind {
     Start(Option<Element>),
     #[doc = "Stop"]
     Stop(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionGroupingBehavior {
     #[doc = "Logical Group"]
@@ -86,6 +96,8 @@ pub enum ActionGroupingBehavior {
     SentenceGroup(Option<Element>),
     #[doc = "Visual Group"]
     VisualGroup(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionParticipantType {
     #[doc = "Device"]
@@ -96,12 +108,16 @@ pub enum ActionParticipantType {
     Practitioner(Option<Element>),
     #[doc = "Related Person"]
     RelatedPerson(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionPrecheckBehavior {
     #[doc = "No"]
     No(Option<Element>),
     #[doc = "Yes"]
     Yes(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionRelationshipType {
     #[doc = "After"]
@@ -122,6 +138,8 @@ pub enum ActionRelationshipType {
     ConcurrentWithEnd(Option<Element>),
     #[doc = "Concurrent With Start"]
     ConcurrentWithStart(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionRequiredBehavior {
     #[doc = "Could"]
@@ -130,6 +148,8 @@ pub enum ActionRequiredBehavior {
     Must(Option<Element>),
     #[doc = "Must Unless Documented"]
     MustUnlessDocumented(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionSelectionBehavior {
     #[doc = "All"]
@@ -144,6 +164,8 @@ pub enum ActionSelectionBehavior {
     ExactlyOne(Option<Element>),
     #[doc = "One Or More"]
     OneOrMore(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActionType {
     #[doc = "Create"]
@@ -154,6 +176,8 @@ pub enum ActionType {
     Remove(Option<Element>),
     #[doc = "Update"]
     Update(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ActivityDefinitionCategory {
     #[doc = "Assessment"]
@@ -162,6 +186,8 @@ pub enum ActivityDefinitionCategory {
     Education(Option<Element>),
     #[doc = "Treatment"]
     Treatment(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Additionalmaterials {
     #[doc = "Document"]
@@ -176,6 +202,8 @@ pub enum Additionalmaterials {
     Other(Option<Element>),
     #[doc = "XRay"]
     Xray(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AddressType {
     #[doc = "Postal & Physical"]
@@ -184,6 +212,8 @@ pub enum AddressType {
     Physical(Option<Element>),
     #[doc = "Postal"]
     Postal(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AddressUse {
     #[doc = "Billing"]
@@ -196,6 +226,8 @@ pub enum AddressUse {
     Temp(Option<Element>),
     #[doc = "Work"]
     Work(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Adjudication {
     #[doc = "Benefit Amount"]
@@ -214,18 +246,24 @@ pub enum Adjudication {
     Tax(Option<Element>),
     #[doc = "Unallocated Deductible"]
     Unallocdeduct(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdjudicationError {
     #[doc = "Missing Identifier"]
     A001(Option<Element>),
     #[doc = "Missing Creation Date"]
     A002(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdjudicationReason {
     #[doc = "Not covered"]
     Ar001(Option<Element>),
     #[doc = "Plan Limit Reached"]
     Ar002(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdministrativeGender {
     #[doc = "Female"]
@@ -236,12 +274,16 @@ pub enum AdministrativeGender {
     Other(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventActuality {
     #[doc = "Adverse Event"]
     Actual(Option<Element>),
     #[doc = "Potential Adverse Event"]
     Potential(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventCategory {
     #[doc = "Expired Drug"]
@@ -272,6 +314,8 @@ pub enum AdverseEventCategory {
     WrongTechnique(Option<Element>),
     #[doc = "Wrong Time"]
     WrongTime(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventCausalityAssess {
     #[doc = "Certain"]
@@ -286,6 +330,8 @@ pub enum AdverseEventCausalityAssess {
     UnassessableUnclassifiable(Option<Element>),
     #[doc = "Unlikely"]
     Unlikely(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventCausalityMethod {
     #[doc = "Bayesian"]
@@ -294,6 +340,8 @@ pub enum AdverseEventCausalityMethod {
     Checklist(Option<Element>),
     #[doc = "Probability Scale"]
     ProbabilityScale(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventOutcome {
     #[doc = "Fatal"]
@@ -308,6 +356,8 @@ pub enum AdverseEventOutcome {
     ResolvedWithSequelae(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventSeriousness {
     #[doc = "Non-serious"]
@@ -326,6 +376,8 @@ pub enum AdverseEventSeriousness {
     SeriousResultsInDisability(Option<Element>),
     #[doc = "Requires or prolongs inpatient hospitalization"]
     SeriousResultsInHospitalization(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AdverseEventSeverity {
     #[doc = "Mild"]
@@ -334,6 +386,8 @@ pub enum AdverseEventSeverity {
     Moderate(Option<Element>),
     #[doc = "Severe"]
     Severe(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AgeUnits {
     #[doc = "years"]
@@ -348,12 +402,16 @@ pub enum AgeUnits {
     Mo(Option<Element>),
     #[doc = "weeks"]
     Wk(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AllergIntolSubstanceExpRisk {
     #[doc = "Known Reaction Risk"]
     KnownReactionRisk(Option<Element>),
     #[doc = "No Known Reaction Risk"]
     NoKnownReactionRisk(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AllergyIntoleranceCategory {
     #[doc = "Biologic"]
@@ -364,6 +422,8 @@ pub enum AllergyIntoleranceCategory {
     Food(Option<Element>),
     #[doc = "Medication"]
     Medication(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AllergyIntoleranceCriticality {
     #[doc = "High Risk"]
@@ -372,12 +432,16 @@ pub enum AllergyIntoleranceCriticality {
     Low(Option<Element>),
     #[doc = "Unable to Assess Risk"]
     UnableToAssess(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AllergyIntoleranceType {
     #[doc = "Allergy"]
     Allergy(Option<Element>),
     #[doc = "Intolerance"]
     Intolerance(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AllergyintoleranceClinical {
     #[doc = "Active"]
@@ -386,6 +450,8 @@ pub enum AllergyintoleranceClinical {
     Inactive(Option<Element>),
     #[doc = "Resolved"]
     Resolved(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AllergyintoleranceVerification {
     #[doc = "Confirmed"]
@@ -396,6 +462,8 @@ pub enum AllergyintoleranceVerification {
     Refuted(Option<Element>),
     #[doc = "Unconfirmed"]
     Unconfirmed(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AnimalGenderstatus {
     #[doc = "Intact"]
@@ -404,6 +472,8 @@ pub enum AnimalGenderstatus {
     Neutered(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AnimalSpecies {
     #[doc = "goat"]
@@ -426,6 +496,8 @@ pub enum AnimalSpecies {
     V47290002(Option<Element>),
     #[doc = "donkey"]
     V85626006(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Appointmentstatus {
     #[doc = "Arrived"]
@@ -448,12 +520,16 @@ pub enum Appointmentstatus {
     Proposed(Option<Element>),
     #[doc = "Waitlisted"]
     Waitlist(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AssertDirectionCodes {
     #[doc = "request"]
     Request(Option<Element>),
     #[doc = "response"]
     Response(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AssertOperatorCodes {
     #[doc = "contains"]
@@ -478,6 +554,8 @@ pub enum AssertOperatorCodes {
     NotEquals(Option<Element>),
     #[doc = "notIn"]
     NotIn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AssertResponseCodeTypes {
     #[doc = "bad"]
@@ -504,10 +582,14 @@ pub enum AssertResponseCodeTypes {
     PreconditionFailed(Option<Element>),
     #[doc = "unprocessable"]
     Unprocessable(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AssetAvailability {
     #[doc = "Lease"]
     Lease(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AuditEventAction {
     #[doc = "Create"]
@@ -520,6 +602,8 @@ pub enum AuditEventAction {
     R(Option<Element>),
     #[doc = "Update"]
     U(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AuditEventOutcome {
     #[doc = "Success"]
@@ -530,6 +614,8 @@ pub enum AuditEventOutcome {
     V4(Option<Element>),
     #[doc = "Serious failure"]
     V8(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AuditEventSubType {
     V110120(Option<Element>),
@@ -589,6 +675,8 @@ pub enum AuditEventSubType {
     Update(Option<Element>),
     #[doc = "vread"]
     Vread(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AuditEventType {
     V110100(Option<Element>),
@@ -662,6 +750,8 @@ pub enum AuditEventType {
     Unmerge(Option<Element>),
     #[doc = "Verify Record Lifecycle Event"]
     Verify(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum AuditSourceType {
     #[doc = "User Device"]
@@ -682,6 +772,8 @@ pub enum AuditSourceType {
     V8(Option<Element>),
     #[doc = "Other"]
     V9(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BasicResourceType {
     #[doc = "Account"]
@@ -716,12 +808,16 @@ pub enum BasicResourceType {
     Study(Option<Element>),
     #[doc = "Transfer"]
     Transfer(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BenefitNetwork {
     #[doc = "In Network"]
     In(Option<Element>),
     #[doc = "Out of Network"]
     Out(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BenefitTerm {
     #[doc = "Annual"]
@@ -730,6 +826,8 @@ pub enum BenefitTerm {
     Day(Option<Element>),
     #[doc = "Lifetime"]
     Lifetime(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BenefitType {
     #[doc = "Benefit"]
@@ -756,12 +854,16 @@ pub enum BenefitType {
     VisionGlasses(Option<Element>),
     #[doc = "Visit"]
     Visit(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BenefitUnit {
     #[doc = "Family"]
     Family(Option<Element>),
     #[doc = "Individual"]
     Individual(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BindingStrength {
     #[doc = "Example"]
@@ -772,6 +874,8 @@ pub enum BindingStrength {
     Preferred(Option<Element>),
     #[doc = "Required"]
     Required(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BodysiteLaterality {
     #[doc = "Unilateral left"]
@@ -780,6 +884,8 @@ pub enum BodysiteLaterality {
     V419465000(Option<Element>),
     #[doc = "Bilateral"]
     V51440002(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BodystructureRelativeLocation {
     #[doc = "Posterior"]
@@ -806,6 +912,8 @@ pub enum BodystructureRelativeLocation {
     V49370004(Option<Element>),
     #[doc = "Bilateral"]
     V51440002(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum BundleType {
     #[doc = "Batch"]
@@ -826,6 +934,8 @@ pub enum BundleType {
     Transaction(Option<Element>),
     #[doc = "Transaction Response"]
     TransactionResponse(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum C80Facilitycodes {
     #[doc = "Hospital outpatient dental clinic"]
@@ -986,6 +1096,8 @@ pub enum C80Facilitycodes {
     V90484001(Option<Element>),
     #[doc = "Free-standing birthing center"]
     V91154008(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CapabilityStatementKind {
     #[doc = "Capability"]
@@ -994,6 +1106,8 @@ pub enum CapabilityStatementKind {
     Instance(Option<Element>),
     #[doc = "Requirements"]
     Requirements(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CarePlanActivityKind {
     Appointment(Option<Element>),
@@ -1004,6 +1118,8 @@ pub enum CarePlanActivityKind {
     ServiceRequest(Option<Element>),
     Task(Option<Element>),
     VisionPrescription(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CarePlanActivityStatus {
     #[doc = "Cancelled"]
@@ -1024,12 +1140,16 @@ pub enum CarePlanActivityStatus {
     Stopped(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CarePlanIntent {
     Option(Option<Element>),
     Order(Option<Element>),
     Plan(Option<Element>),
     Proposal(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CareTeamStatus {
     #[doc = "Active"]
@@ -1042,6 +1162,8 @@ pub enum CareTeamStatus {
     Proposed(Option<Element>),
     #[doc = "Suspended"]
     Suspended(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CatalogType {
     #[doc = "Device Catalog"]
@@ -1050,6 +1172,8 @@ pub enum CatalogType {
     Medication(Option<Element>),
     #[doc = "Protocol List"]
     Protocol(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CdshooksIndicator {
     #[doc = "The response is critical and indicates the workflow should not be allowed to proceed"]
@@ -1058,6 +1182,8 @@ pub enum CdshooksIndicator {
     Info(Option<Element>),
     #[doc = "The response is a warning"]
     Warning(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CertaintySubcomponentRating {
     #[doc = "absent"]
@@ -1082,6 +1208,8 @@ pub enum CertaintySubcomponentRating {
     Upcode1(Option<Element>),
     #[doc = "increase rating: +2"]
     Upcode2(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CertaintySubcomponentType {
     #[doc = "Dose response gradient"]
@@ -1100,6 +1228,8 @@ pub enum CertaintySubcomponentType {
     PublicationBias(Option<Element>),
     #[doc = "Risk of bias"]
     RiskOfBias(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ChargeitemBillingcodes {
     #[doc = "Unvorhergesehene Inanspruchnahme"]
@@ -1108,6 +1238,8 @@ pub enum ChargeitemBillingcodes {
     V1210(Option<Element>),
     #[doc = "Grundpauschale"]
     V1320(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ChargeitemStatus {
     #[doc = "Aborted"]
@@ -1124,12 +1256,16 @@ pub enum ChargeitemStatus {
     Planned(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ChoiceListOrientation {
     #[doc = "Horizontal"]
     Horizontal(Option<Element>),
     #[doc = "Vertical"]
     Vertical(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ChromosomeHuman {
     #[doc = "chromosome 1"]
@@ -1180,6 +1316,8 @@ pub enum ChromosomeHuman {
     X(Option<Element>),
     #[doc = "chromosome Y"]
     Y(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimCareteamrole {
     #[doc = "Assisting Provider"]
@@ -1190,12 +1328,16 @@ pub enum ClaimCareteamrole {
     Primary(Option<Element>),
     #[doc = "Supervising Provider"]
     Supervisor(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimException {
     #[doc = "Disabled"]
     Disabled(Option<Element>),
     #[doc = "Student (Fulltime)"]
     Student(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimInformationcategory {
     #[doc = "Attachment"]
@@ -1226,6 +1368,8 @@ pub enum ClaimInformationcategory {
     Prosthesis(Option<Element>),
     #[doc = "Related Services"]
     Related(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimModifiers {
     #[doc = "Repair of prior service or installation"]
@@ -1240,12 +1384,16 @@ pub enum ClaimModifiers {
     Rooh(Option<Element>),
     #[doc = "None"]
     X(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimSubtype {
     #[doc = "Emergency Claim"]
     Emergency(Option<Element>),
     #[doc = "Orthodontic Claim"]
     Ortho(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimType {
     #[doc = "Institutional"]
@@ -1258,6 +1406,8 @@ pub enum ClaimType {
     Professional(Option<Element>),
     #[doc = "Vision"]
     Vision(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClaimUse {
     #[doc = "Claim"]
@@ -1266,17 +1416,23 @@ pub enum ClaimUse {
     Preauthorization(Option<Element>),
     #[doc = "Predetermination"]
     Predetermination(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ClinicalimpressionStatus {
     Completed(Option<Element>),
     EnteredInError(Option<Element>),
     InProgress(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CodeSearchSupport {
     #[doc = "Implicit Codes"]
     All(Option<Element>),
     #[doc = "Explicit Codes"]
     Explicit(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CodesystemAltcodeKind {
     #[doc = "Alternate Code"]
@@ -1289,6 +1445,8 @@ pub enum CodesystemAltcodeKind {
     Deprecated(Option<Element>),
     #[doc = "Expression"]
     Expression(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CodesystemContentMode {
     #[doc = "Complete"]
@@ -1301,6 +1459,8 @@ pub enum CodesystemContentMode {
     NotPresent(Option<Element>),
     #[doc = "Supplement"]
     Supplement(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CodesystemHierarchyMeaning {
     #[doc = "Classified With"]
@@ -1311,10 +1471,14 @@ pub enum CodesystemHierarchyMeaning {
     IsA(Option<Element>),
     #[doc = "Part Of"]
     PartOf(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CommonTags {
     #[doc = "Actionable"]
     Actionable(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CommunicationCategory {
     #[doc = "Alert"]
@@ -1325,6 +1489,8 @@ pub enum CommunicationCategory {
     Notification(Option<Element>),
     #[doc = "Reminder"]
     Reminder(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CommunicationNotDoneReason {
     #[doc = "Family Objection"]
@@ -1339,6 +1505,8 @@ pub enum CommunicationNotDoneReason {
     SystemError(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CommunicationTopic {
     #[doc = "Appointment Reminder"]
@@ -1353,6 +1521,8 @@ pub enum CommunicationTopic {
     ReportLabs(Option<Element>),
     #[doc = "Summary Report"]
     SummaryReport(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CompartmentType {
     #[doc = "Device"]
@@ -1365,6 +1535,8 @@ pub enum CompartmentType {
     Practitioner(Option<Element>),
     #[doc = "RelatedPerson"]
     RelatedPerson(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CompositeMeasureScoring {
     #[doc = "All-or-nothing"]
@@ -1375,6 +1547,8 @@ pub enum CompositeMeasureScoring {
     Opportunity(Option<Element>),
     #[doc = "Weighted"]
     Weighted(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CompositionAltcodeKind {
     #[doc = "Alternate Code"]
@@ -1387,6 +1561,8 @@ pub enum CompositionAltcodeKind {
     Deprecated(Option<Element>),
     #[doc = "Expression"]
     Expression(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CompositionAttestationMode {
     #[doc = "Legal"]
@@ -1397,6 +1573,8 @@ pub enum CompositionAttestationMode {
     Personal(Option<Element>),
     #[doc = "Professional"]
     Professional(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CompositionStatus {
     #[doc = "Amended"]
@@ -1407,6 +1585,8 @@ pub enum CompositionStatus {
     Final(Option<Element>),
     #[doc = "Preliminary"]
     Preliminary(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConceptMapEquivalence {
     #[doc = "Disjoint"]
@@ -1429,6 +1609,8 @@ pub enum ConceptMapEquivalence {
     Unmatched(Option<Element>),
     #[doc = "Wider"]
     Wider(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConceptPropertyType {
     #[doc = "Coding (external reference)"]
@@ -1445,6 +1627,8 @@ pub enum ConceptPropertyType {
     Integer(Option<Element>),
     #[doc = "string"]
     String(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConceptSubsumptionOutcome {
     #[doc = "Equivalent"]
@@ -1455,6 +1639,8 @@ pub enum ConceptSubsumptionOutcome {
     SubsumedBy(Option<Element>),
     #[doc = "Subsumes"]
     Subsumes(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConceptmapUnmappedMode {
     #[doc = "Fixed Code"]
@@ -1463,12 +1649,16 @@ pub enum ConceptmapUnmappedMode {
     OtherMap(Option<Element>),
     #[doc = "Provided Code"]
     Provided(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionCategory {
     #[doc = "Encounter Diagnosis"]
     EncounterDiagnosis(Option<Element>),
     #[doc = "Problem List Item"]
     ProblemListItem(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionClinical {
     #[doc = "Active"]
@@ -1483,11 +1673,15 @@ pub enum ConditionClinical {
     Remission(Option<Element>),
     #[doc = "Resolved"]
     Resolved(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionSeverity {
     V24484000(Option<Element>),
     V255604002(Option<Element>),
     V6736007(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionState {
     #[doc = "Active"]
@@ -1496,6 +1690,8 @@ pub enum ConditionState {
     Inactive(Option<Element>),
     #[doc = "Resolved"]
     Resolved(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionVerStatus {
     #[doc = "Confirmed"]
@@ -1510,6 +1706,8 @@ pub enum ConditionVerStatus {
     Refuted(Option<Element>),
     #[doc = "Unconfirmed"]
     Unconfirmed(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionalDeleteStatus {
     #[doc = "Multiple Deletes Supported"]
@@ -1518,6 +1716,8 @@ pub enum ConditionalDeleteStatus {
     NotSupported(Option<Element>),
     #[doc = "Single Deletes Supported"]
     Single(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConditionalReadStatus {
     #[doc = "Full Support"]
@@ -1528,6 +1728,8 @@ pub enum ConditionalReadStatus {
     NotMatch(Option<Element>),
     #[doc = "Not Supported"]
     NotSupported(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConformanceExpectation {
     #[doc = "MAY"]
@@ -1538,6 +1740,8 @@ pub enum ConformanceExpectation {
     SHOULD(Option<Element>),
     #[doc = "SHOULD-NOT"]
     SHOULDNOT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentAction {
     #[doc = "Access"]
@@ -1550,6 +1754,8 @@ pub enum ConsentAction {
     Disclose(Option<Element>),
     #[doc = "Use"]
     Use(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentDataMeaning {
     #[doc = "AuthoredBy"]
@@ -1560,6 +1766,8 @@ pub enum ConsentDataMeaning {
     Instance(Option<Element>),
     #[doc = "Related"]
     Related(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentPerformer {
     #[doc = "Consenter"]
@@ -1572,6 +1780,8 @@ pub enum ConsentPerformer {
     Grantee(Option<Element>),
     #[doc = "Grantor"]
     Grantor(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentPolicy {
     #[doc = "AT ELGA Opt-in Consent"]
@@ -1626,12 +1836,16 @@ pub enum ConsentPolicy {
     Va105345aMhv(Option<Element>),
     #[doc = "VA Form 21-4142"]
     Va214142(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentProvisionType {
     #[doc = "Opt Out"]
     Deny(Option<Element>),
     #[doc = "Opt In"]
     Permit(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentScope {
     #[doc = "Advanced Care Directive"]
@@ -1642,6 +1856,8 @@ pub enum ConsentScope {
     Research(Option<Element>),
     #[doc = "Treatment"]
     Treatment(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsentStateCodes {
     #[doc = "Active"]
@@ -1656,6 +1872,8 @@ pub enum ConsentStateCodes {
     Proposed(Option<Element>),
     #[doc = "Rejected"]
     Rejected(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConsistencyType {
     #[doc = "nectar thick liquid"]
@@ -1666,12 +1884,16 @@ pub enum ConsistencyType {
     V439041000124103(Option<Element>),
     #[doc = "thin liquid"]
     V439081000124109(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ConstraintSeverity {
     #[doc = "Error"]
     Error(Option<Element>),
     #[doc = "Warning"]
     Warning(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContactPointSystem {
     #[doc = "Email"]
@@ -1688,6 +1910,8 @@ pub enum ContactPointSystem {
     Sms(Option<Element>),
     #[doc = "URL"]
     Url(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContactPointUse {
     #[doc = "Home"]
@@ -1700,6 +1924,8 @@ pub enum ContactPointUse {
     Temp(Option<Element>),
     #[doc = "Work"]
     Work(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContactentityType {
     #[doc = "Administrative"]
@@ -1714,6 +1940,8 @@ pub enum ContactentityType {
     PAYOR(Option<Element>),
     #[doc = "Press"]
     PRESS(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContainerCap {
     #[doc = "black cap"]
@@ -1740,6 +1968,8 @@ pub enum ContainerCap {
     White(Option<Element>),
     #[doc = "yellow cap"]
     Yellow(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContainerMaterial {
     #[doc = "glass"]
@@ -1748,38 +1978,54 @@ pub enum ContainerMaterial {
     V425620007(Option<Element>),
     #[doc = "plastic"]
     V61088005(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractAction {
     #[doc = "Action A"]
     ActionA(Option<Element>),
     #[doc = "Action B"]
     ActionB(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractActionstatus {
     #[doc = "Complete"]
     Complete(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractActorrole {
     #[doc = "Patient"]
     Patient(Option<Element>),
     #[doc = "Practitioner"]
     Practitioner(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractAssetcontext {
     #[doc = "Custodian"]
     Custodian(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractAssetscope {
     #[doc = "Thing"]
     Thing(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractAssetsubtype {
     #[doc = "Participation"]
     Participation(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractAssettype {
     #[doc = "Participation"]
     Participation(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractContentDerivative {
     #[doc = "Content Registration"]
@@ -1790,6 +2036,8 @@ pub enum ContractContentDerivative {
     Shareable(Option<Element>),
     #[doc = "Content Statement"]
     Statement(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractDataMeaning {
     #[doc = "AuthoredBy"]
@@ -1800,22 +2048,32 @@ pub enum ContractDataMeaning {
     Instance(Option<Element>),
     #[doc = "Related"]
     Related(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractDecisionMode {
     #[doc = "Policy"]
     Policy(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractDefinitionSubtype {
     #[doc = "Temporary Value"]
     Temp(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractDefinitionType {
     #[doc = "Temporary Value"]
     Temp(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractExpirationType {
     #[doc = "Breach"]
     Breach(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractLegalstate {
     #[doc = "Amended"]
@@ -1848,10 +2106,14 @@ pub enum ContractLegalstate {
     Revoked(Option<Element>),
     #[doc = "Terminated"]
     Terminated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractPartyRole {
     #[doc = "FLunky"]
     Flunky(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractPublicationstatus {
     #[doc = "Amended"]
@@ -1884,22 +2146,32 @@ pub enum ContractPublicationstatus {
     Revoked(Option<Element>),
     #[doc = "Terminated"]
     Terminated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractScope {
     #[doc = "Policy"]
     Policy(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractSecurityCategory {
     #[doc = "Policy"]
     Policy(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractSecurityClassification {
     #[doc = "Policy"]
     Policy(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractSecurityControl {
     #[doc = "Policy"]
     Policy(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractSignerType {
     #[doc = "Affiliate"]
@@ -1998,6 +2270,8 @@ pub enum ContractSignerType {
     WIT(Option<Element>),
     #[doc = "Delegator"]
     Delegator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractStatus {
     #[doc = "Amended"]
@@ -2030,12 +2304,16 @@ pub enum ContractStatus {
     Revoked(Option<Element>),
     #[doc = "Terminated"]
     Terminated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractSubtype {
     #[doc = "Disclosure-CA"]
     DisclosureCa(Option<Element>),
     #[doc = "Disclosure-US"]
     DisclosureUs(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractTermSubtype {
     #[doc = "Condition"]
@@ -2044,12 +2322,16 @@ pub enum ContractTermSubtype {
     Innominate(Option<Element>),
     #[doc = "Warranty"]
     Warranty(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractTermType {
     #[doc = "Statutory"]
     Statutory(Option<Element>),
     #[doc = "Subject To"]
     SubjectTo(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContractType {
     #[doc = "Consent"]
@@ -2062,6 +2344,8 @@ pub enum ContractType {
     Privacy(Option<Element>),
     #[doc = "Supply Contract"]
     Supply(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ContributorType {
     #[doc = "Author"]
@@ -2072,6 +2356,8 @@ pub enum ContributorType {
     Endorser(Option<Element>),
     #[doc = "Reviewer"]
     Reviewer(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CopyNumberEvent {
     #[doc = "amplification"]
@@ -2080,6 +2366,8 @@ pub enum CopyNumberEvent {
     Del(Option<Element>),
     #[doc = "loss of function"]
     Lof(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CoverageClass {
     #[doc = "Class"]
@@ -2104,6 +2392,8 @@ pub enum CoverageClass {
     Subgroup(Option<Element>),
     #[doc = "SubPlan"]
     Subplan(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CoverageCopayType {
     #[doc = "Copay Amount"]
@@ -2126,16 +2416,22 @@ pub enum CoverageCopayType {
     Televisit(Option<Element>),
     #[doc = "Urgent Care"]
     Urgentcare(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CoverageFinancialException {
     #[doc = "Foster child"]
     Foster(Option<Element>),
     #[doc = "Retired"]
     Retired(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CoverageSelfpay {
     #[doc = "Pay"]
     Pay(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum CoverageeligibilityresponseExAuthSupport {
     #[doc = "Accident Report"]
@@ -2154,6 +2450,8 @@ pub enum CoverageeligibilityresponseExAuthSupport {
     Picture(Option<Element>),
     #[doc = "Professional Report"]
     Professionalreport(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DataAbsentReason {
     #[doc = "As Text"]
@@ -2186,6 +2484,8 @@ pub enum DataAbsentReason {
     Unknown(Option<Element>),
     #[doc = "Unsupported"]
     Unsupported(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DataTypes {
     #[doc = "Address"]
@@ -2314,6 +2614,8 @@ pub enum DataTypes {
     Uuid(Option<Element>),
     #[doc = "XHTML"]
     Xhtml(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DaysOfWeek {
     #[doc = "Friday"]
@@ -2330,6 +2632,8 @@ pub enum DaysOfWeek {
     Tue(Option<Element>),
     #[doc = "Wednesday"]
     Wed(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DefinitionResourceTypes {
     #[doc = "ActivityDefinition"]
@@ -2344,6 +2648,8 @@ pub enum DefinitionResourceTypes {
     PlanDefinition(Option<Element>),
     #[doc = "Questionnaire"]
     Questionnaire(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DefinitionStatus {
     #[doc = "Active"]
@@ -2354,6 +2660,8 @@ pub enum DefinitionStatus {
     Unknown(Option<Element>),
     #[doc = "Withdrawn"]
     Withdrawn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DefinitionTopic {
     #[doc = "Assessment"]
@@ -2362,6 +2670,8 @@ pub enum DefinitionTopic {
     Education(Option<Element>),
     #[doc = "Treatment"]
     Treatment(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DefinitionUse {
     #[doc = "Domain Analysis Model"]
@@ -2376,10 +2686,14 @@ pub enum DefinitionUse {
     Template(Option<Element>),
     #[doc = "Wire Format"]
     WireFormat(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DesignationUse {
     V900000000000003001(Option<Element>),
     V900000000000013009(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DetectedissueSeverity {
     #[doc = "High"]
@@ -2388,6 +2702,8 @@ pub enum DetectedissueSeverity {
     Low(Option<Element>),
     #[doc = "Moderate"]
     Moderate(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceComponentProperty {
     #[doc = "MDC_REG_CERT_DATA_CONTINUA_CERT_DEV_LIST"]
@@ -2410,6 +2726,8 @@ pub enum DeviceComponentProperty {
     V68224(Option<Element>),
     #[doc = "MDC_TIME_RES_BO"]
     V68226(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceDefinitionStatus {
     #[doc = "Active"]
@@ -2420,6 +2738,8 @@ pub enum DeviceDefinitionStatus {
     Inactive(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceNametype {
     #[doc = "Manufacturer name"]
@@ -2434,6 +2754,8 @@ pub enum DeviceNametype {
     UdiLabelName(Option<Element>),
     #[doc = "User Friendly name"]
     UserFriendlyName(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceSafety {
     #[doc = "Labeled as Containing Natural Rubber Latex"]
@@ -2448,6 +2770,8 @@ pub enum DeviceSafety {
     C106047(Option<Element>),
     #[doc = "Labeling does not Contain MRI Safety Information"]
     C113844(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceStatementStatus {
     #[doc = "Active"]
@@ -2462,6 +2786,8 @@ pub enum DeviceStatementStatus {
     OnHold(Option<Element>),
     #[doc = "Stopped"]
     Stopped(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceStatus {
     #[doc = "Active"]
@@ -2472,6 +2798,8 @@ pub enum DeviceStatus {
     Inactive(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DeviceStatusReason {
     #[doc = "Hardware Disconnected"]
@@ -2490,6 +2818,8 @@ pub enum DeviceStatusReason {
     Standby(Option<Element>),
     #[doc = "Transducer Disconnected"]
     TransducDiscon(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DiagnosisRole {
     #[doc = "Admission diagnosis"]
@@ -2506,6 +2836,8 @@ pub enum DiagnosisRole {
     PostOp(Option<Element>),
     #[doc = "pre-op diagnosis"]
     PreOp(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DiagnosticReportStatus {
     #[doc = "Amended"]
@@ -2528,6 +2860,8 @@ pub enum DiagnosticReportStatus {
     Registered(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Dicm405Mediatype {
     V110010(Option<Element>),
@@ -2540,6 +2874,8 @@ pub enum Dicm405Mediatype {
     V110036(Option<Element>),
     V110037(Option<Element>),
     V110038(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DiscriminatorType {
     #[doc = "Exists"]
@@ -2552,6 +2888,8 @@ pub enum DiscriminatorType {
     Type(Option<Element>),
     #[doc = "Value"]
     Value(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DistanceUnits {
     #[doc = "kilometers"]
@@ -2564,6 +2902,8 @@ pub enum DistanceUnits {
     Nm(Option<Element>),
     #[doc = "micrometers"]
     Um(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DocSectionCodes {
     V101543(Option<Element>),
@@ -2621,6 +2961,8 @@ pub enum DocSectionCodes {
     V86488(Option<Element>),
     V86538(Option<Element>),
     V87163(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DocumentClasscodes {
     #[doc = "History of Immunization"]
@@ -2713,12 +3055,16 @@ pub enum DocumentClasscodes {
     V570176(Option<Element>),
     #[doc = "Referral note"]
     V571331(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DocumentMode {
     #[doc = "Consumer"]
     Consumer(Option<Element>),
     #[doc = "Producer"]
     Producer(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DocumentReferenceStatus {
     #[doc = "Current"]
@@ -2727,6 +3073,8 @@ pub enum DocumentReferenceStatus {
     EnteredInError(Option<Element>),
     #[doc = "Superseded"]
     Superseded(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DocumentRelationshipType {
     #[doc = "Appends"]
@@ -2737,12 +3085,16 @@ pub enum DocumentRelationshipType {
     Signs(Option<Element>),
     #[doc = "Transforms"]
     Transforms(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DoseRateType {
     #[doc = "Calculated"]
     Calculated(Option<Element>),
     #[doc = "Ordered"]
     Ordered(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum DurationUnits {
     #[doc = "years"]
@@ -2761,6 +3113,8 @@ pub enum DurationUnits {
     S(Option<Element>),
     #[doc = "weeks"]
     Wk(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EffectEstimateType {
     #[doc = "absolute risk difference"]
@@ -2777,6 +3131,8 @@ pub enum EffectEstimateType {
     RelativeOR(Option<Element>),
     #[doc = "relative risk"]
     RelativeRR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EligibilityrequestPurpose {
     #[doc = "Coverage auth-requirements"]
@@ -2787,6 +3143,8 @@ pub enum EligibilityrequestPurpose {
     Discovery(Option<Element>),
     #[doc = "Coverage Validation"]
     Validation(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EligibilityresponsePurpose {
     #[doc = "Coverage auth-requirements"]
@@ -2797,6 +3155,8 @@ pub enum EligibilityresponsePurpose {
     Discovery(Option<Element>),
     #[doc = "Coverage Validation"]
     Validation(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterAdmitSource {
     #[doc = "Born in hospital"]
@@ -2819,6 +3179,8 @@ pub enum EncounterAdmitSource {
     Psych(Option<Element>),
     #[doc = "From rehabilitation facility"]
     Rehab(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterDiet {
     #[doc = "Dairy Free"]
@@ -2835,6 +3197,8 @@ pub enum EncounterDiet {
     Vegan(Option<Element>),
     #[doc = "Vegetarian"]
     Vegetarian(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterDischargeDisposition {
     #[doc = "Left against advice"]
@@ -2859,6 +3223,8 @@ pub enum EncounterDischargeDisposition {
     Rehab(Option<Element>),
     #[doc = "Skilled nursing facility"]
     Snf(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterLocationStatus {
     #[doc = "Active"]
@@ -2869,6 +3235,8 @@ pub enum EncounterLocationStatus {
     Planned(Option<Element>),
     #[doc = "Reserved"]
     Reserved(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterParticipantType {
     #[doc = "admitter"]
@@ -2994,6 +3362,8 @@ pub enum EncounterParticipantType {
     Emergency(Option<Element>),
     #[doc = "Translator"]
     Translator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterSpecialArrangements {
     #[doc = "Additional bedding"]
@@ -3006,6 +3376,8 @@ pub enum EncounterSpecialArrangements {
     Int(Option<Element>),
     #[doc = "Wheelchair"]
     Wheel(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterSpecialCourtesy {
     EXT(Option<Element>),
@@ -3014,6 +3386,8 @@ pub enum EncounterSpecialCourtesy {
     STF(Option<Element>),
     UNK(Option<Element>),
     VIP(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterStatus {
     #[doc = "Arrived"]
@@ -3034,6 +3408,8 @@ pub enum EncounterStatus {
     Triaged(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EncounterType {
     #[doc = "Annual diabetes mellitus screening"]
@@ -3044,6 +3420,8 @@ pub enum EncounterType {
     CCS60(Option<Element>),
     #[doc = "Outpatient Kenacort injection"]
     OKI(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EndpointConnectionType {
     #[doc = "DICOM QIDO-RS"]
@@ -3074,6 +3452,8 @@ pub enum EndpointConnectionType {
     IheXds(Option<Element>),
     #[doc = "Secure email"]
     SecureEmail(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EndpointPayloadType {
     #[doc = "Any"]
@@ -3222,6 +3602,8 @@ pub enum EndpointPayloadType {
     Urn_Ihe_Rad_PDF(Option<Element>),
     #[doc = "Radiology XDS-I Text"]
     Urn_Ihe_Rad_TEXT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EndpointStatus {
     #[doc = "Active"]
@@ -3236,6 +3618,8 @@ pub enum EndpointStatus {
     Suspended(Option<Element>),
     #[doc = "Test"]
     Test(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EnteralRoute {
     EFT(Option<Element>),
@@ -3247,6 +3631,8 @@ pub enum EnteralRoute {
     OGT(Option<Element>),
     OJJ(Option<Element>),
     PO(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EntformulaAdditive {
     #[doc = "Carbohydrate"]
@@ -3259,6 +3645,8 @@ pub enum EntformulaAdditive {
     Protein(Option<Element>),
     #[doc = "Water"]
     Water(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EntformulaType {
     #[doc = "Standard Enteral Formula"]
@@ -3333,6 +3721,8 @@ pub enum EntformulaType {
     V443771000124106(Option<Element>),
     #[doc = "Pediatric reduced energy formula"]
     V444431000124104(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EpisodeOfCareStatus {
     #[doc = "Active"]
@@ -3349,6 +3739,8 @@ pub enum EpisodeOfCareStatus {
     Planned(Option<Element>),
     #[doc = "Waitlist"]
     Waitlist(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EpisodeofcareType {
     #[doc = "Community-based aged care"]
@@ -3361,12 +3753,16 @@ pub enum EpisodeofcareType {
     Hacc(Option<Element>),
     #[doc = "Post Acute Care"]
     Pac(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EventCapabilityMode {
     #[doc = "Receiver"]
     Receiver(Option<Element>),
     #[doc = "Sender"]
     Sender(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EventOrRequestResourceTypes {
     #[doc = "Appointment"]
@@ -3465,6 +3861,8 @@ pub enum EventOrRequestResourceTypes {
     Task(Option<Element>),
     #[doc = "VisionPrescription"]
     VisionPrescription(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EventResourceTypes {
     #[doc = "ChargeItem"]
@@ -3535,6 +3933,8 @@ pub enum EventResourceTypes {
     SupplyDelivery(Option<Element>),
     #[doc = "Task"]
     Task(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EventStatus {
     #[doc = "Completed"]
@@ -3553,6 +3953,8 @@ pub enum EventStatus {
     Stopped(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EventTiming {
     AC(Option<Element>),
@@ -3593,6 +3995,8 @@ pub enum EventTiming {
     #[doc = "After Sleep"]
     PHS(Option<Element>),
     WAKE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EvidenceQuality {
     #[doc = "High quality"]
@@ -3603,6 +4007,8 @@ pub enum EvidenceQuality {
     Moderate(Option<Element>),
     #[doc = "Very low quality"]
     VeryLow(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum EvidenceVariantState {
     #[doc = "high risk"]
@@ -3611,6 +4017,8 @@ pub enum EvidenceVariantState {
     LowRisk(Option<Element>),
     #[doc = "medium risk"]
     MediumRisk(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExBenefitcategory {
     #[doc = "Medical Care"]
@@ -3669,6 +4077,8 @@ pub enum ExBenefitcategory {
     F4(Option<Element>),
     #[doc = "Vision Coverage"]
     F6(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExDiagnosisOnAdmission {
     #[doc = "No"]
@@ -3679,6 +4089,8 @@ pub enum ExDiagnosisOnAdmission {
     W(Option<Element>),
     #[doc = "Yes"]
     Y(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExDiagnosisrelatedgroup {
     #[doc = "Normal Vaginal Delivery"]
@@ -3689,6 +4101,8 @@ pub enum ExDiagnosisrelatedgroup {
     V300(Option<Element>),
     #[doc = "Head trauma - concussion"]
     V400(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExDiagnosistype {
     #[doc = "Admitting Diagnosis"]
@@ -3715,6 +4129,8 @@ pub enum ExDiagnosistype {
     Retrospective(Option<Element>),
     #[doc = "Self Diagnosis"]
     _Self(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExOnsettype {
     #[doc = "Last Menstruation"]
@@ -3723,6 +4139,8 @@ pub enum ExOnsettype {
     Lxm(Option<Element>),
     #[doc = "Start of Symptoms"]
     Sym(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExPayeeResourceType {
     #[doc = "Organization"]
@@ -3733,18 +4151,24 @@ pub enum ExPayeeResourceType {
     Practitioner(Option<Element>),
     #[doc = "RelatedPerson"]
     Relatedperson(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExPaymenttype {
     #[doc = "Complete"]
     Complete(Option<Element>),
     #[doc = "Partial"]
     Partial(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExProcedureType {
     #[doc = "Primary procedure"]
     Primary(Option<Element>),
     #[doc = "Secondary procedure"]
     Secondary(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExProgramCode {
     #[doc = "Child Asthma"]
@@ -3755,6 +4179,8 @@ pub enum ExProgramCode {
     Hd(Option<Element>),
     #[doc = "None"]
     None(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExRevenueCenter {
     #[doc = "Vision Clinic"]
@@ -3775,6 +4201,8 @@ pub enum ExRevenueCenter {
     V0451(Option<Element>),
     #[doc = "Emergency Room - beyond EMTALA"]
     V0452(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExampleExtensional {
     #[doc = "Cholesterol [Moles/Volume]"]
@@ -3785,6 +4213,8 @@ pub enum ExampleExtensional {
     V352005(Option<Element>),
     #[doc = "Cholesterol [Percentile]"]
     V93427(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExampleFilter {
     #[doc = "SChol"]
@@ -3793,6 +4223,8 @@ pub enum ExampleFilter {
     CholMass(Option<Element>),
     #[doc = "SChol (mmol/L)"]
     CholMmol(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExampleHierarchical {
     Conflict(Option<Element>),
@@ -3808,12 +4240,16 @@ pub enum ExampleHierarchical {
     Tbrottled(Option<Element>),
     Unknown(Option<Element>),
     Value(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExamplescenarioActorType {
     #[doc = "System"]
     Entity(Option<Element>),
     #[doc = "Person"]
     Person(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExpansionParameterSource {
     #[doc = "Code System"]
@@ -3822,6 +4258,8 @@ pub enum ExpansionParameterSource {
     Input(Option<Element>),
     #[doc = "Server Engine"]
     Server(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExpansionProcessingRule {
     #[doc = "All Codes"]
@@ -3830,6 +4268,8 @@ pub enum ExpansionProcessingRule {
     GroupsOnly(Option<Element>),
     #[doc = "Groups + Ungrouped codes"]
     Ungrouped(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExplanationofbenefitStatus {
     #[doc = "Active"]
@@ -3840,12 +4280,16 @@ pub enum ExplanationofbenefitStatus {
     Draft(Option<Element>),
     #[doc = "Entered In Error"]
     EnteredInError(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExposureState {
     #[doc = "Exposure"]
     Exposure(Option<Element>),
     #[doc = "Exposure Alternative"]
     ExposureAlternative(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExpressionLanguage {
     #[doc = "FHIR Query"]
@@ -3854,6 +4298,8 @@ pub enum ExpressionLanguage {
     Text_Cql(Option<Element>),
     #[doc = "FHIRPath"]
     Text_Fhirpath(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ExtensionContextType {
     #[doc = "Element ID"]
@@ -3862,6 +4308,8 @@ pub enum ExtensionContextType {
     Extension(Option<Element>),
     #[doc = "FHIRPath"]
     Fhirpath(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FilterOperator {
     #[doc = "Equals"]
@@ -3882,6 +4330,8 @@ pub enum FilterOperator {
     NotIn(Option<Element>),
     #[doc = "Regular Expression"]
     Regex(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FinancialTaskcode {
     #[doc = "Cancel"]
@@ -3894,6 +4344,8 @@ pub enum FinancialTaskcode {
     Reprocess(Option<Element>),
     #[doc = "Status check"]
     Status(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FinancialTaskinputtype {
     #[doc = "Exclude"]
@@ -3910,6 +4362,8 @@ pub enum FinancialTaskinputtype {
     Reference(Option<Element>),
     #[doc = "Status code"]
     Status(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FlagCategory {
     #[doc = "Administrative"]
@@ -3932,6 +4386,8 @@ pub enum FlagCategory {
     Research(Option<Element>),
     #[doc = "Safety"]
     Safety(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FlagPriority {
     #[doc = "High priority"]
@@ -3942,6 +4398,8 @@ pub enum FlagPriority {
     PM(Option<Element>),
     #[doc = "No alarm"]
     PN(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FlagStatus {
     #[doc = "Active"]
@@ -3950,10 +4408,14 @@ pub enum FlagStatus {
     EnteredInError(Option<Element>),
     #[doc = "Inactive"]
     Inactive(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FmConditions {
     #[doc = "Headache"]
     V123987(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FmItemtype {
     #[doc = "Group"]
@@ -3962,6 +4424,8 @@ pub enum FmItemtype {
     Product(Option<Element>),
     #[doc = "Service"]
     Service(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FmStatus {
     #[doc = "Active"]
@@ -3972,6 +4436,8 @@ pub enum FmStatus {
     Draft(Option<Element>),
     #[doc = "Entered in Error"]
     EnteredInError(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum FocalSubject {
     #[doc = "Fetus"]
@@ -3980,12 +4446,16 @@ pub enum FocalSubject {
     DON(Option<Element>),
     #[doc = "spouse"]
     SPS(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Forms {
     #[doc = "Form #1"]
     V1(Option<Element>),
     #[doc = "Form #1"]
     V2(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Fundsreserve {
     #[doc = "None"]
@@ -3994,6 +4464,8 @@ pub enum Fundsreserve {
     Patient(Option<Element>),
     #[doc = "Provider"]
     Provider(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GenderIdentity {
     #[doc = "female"]
@@ -4010,6 +4482,8 @@ pub enum GenderIdentity {
     TransgenderFemale(Option<Element>),
     #[doc = "transgender male"]
     TransgenderMale(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalAcceptanceStatus {
     #[doc = "Agree"]
@@ -4018,6 +4492,8 @@ pub enum GoalAcceptanceStatus {
     Disagree(Option<Element>),
     #[doc = "Pending"]
     Pending(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalAchievement {
     #[doc = "Achieved"]
@@ -4038,6 +4514,8 @@ pub enum GoalAchievement {
     Sustaining(Option<Element>),
     #[doc = "Worsening"]
     Worsening(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalCategory {
     #[doc = "Behavioral"]
@@ -4050,6 +4528,8 @@ pub enum GoalCategory {
     Physiotherapy(Option<Element>),
     #[doc = "Safety"]
     Safety(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalPriority {
     #[doc = "High Priority"]
@@ -4058,6 +4538,8 @@ pub enum GoalPriority {
     LowPriority(Option<Element>),
     #[doc = "Medium Priority"]
     MediumPriority(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalRelationshipType {
     #[doc = "Milestone"]
@@ -4070,6 +4552,8 @@ pub enum GoalRelationshipType {
     Replacement(Option<Element>),
     #[doc = "Successor"]
     Successor(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalStartEvent {
     #[doc = "Discharge from hospital"]
@@ -4080,6 +4564,8 @@ pub enum GoalStartEvent {
     V386216000(Option<Element>),
     #[doc = "Completion time of procedure"]
     V442137000(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalStatus {
     #[doc = "Accepted"]
@@ -4100,6 +4586,8 @@ pub enum GoalStatus {
     Proposed(Option<Element>),
     #[doc = "Rejected"]
     Rejected(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GoalStatusReason {
     #[doc = "Financial Reason"]
@@ -4120,6 +4608,8 @@ pub enum GoalStatusReason {
     Surgery(Option<Element>),
     #[doc = "Goal Not Attainable Temporarily"]
     TempNotAttainable(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GraphCompartmentRule {
     #[doc = "Custom"]
@@ -4130,12 +4620,16 @@ pub enum GraphCompartmentRule {
     Identical(Option<Element>),
     #[doc = "Matching"]
     Matching(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GraphCompartmentUse {
     #[doc = "Condition"]
     Condition(Option<Element>),
     #[doc = "Requirement"]
     Requirement(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GroupMeasure {
     #[doc = "Mean"]
@@ -4150,6 +4644,8 @@ pub enum GroupMeasure {
     MedianOfMean(Option<Element>),
     #[doc = "Median of Study Medians"]
     MedianOfMedian(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GroupType {
     #[doc = "Animal"]
@@ -4164,6 +4660,8 @@ pub enum GroupType {
     Practitioner(Option<Element>),
     #[doc = "Substance"]
     Substance(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GuidanceResponseStatus {
     #[doc = "Data Requested"]
@@ -4178,6 +4676,8 @@ pub enum GuidanceResponseStatus {
     InProgress(Option<Element>),
     #[doc = "Success"]
     Success(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GuidePageGeneration {
     #[doc = "Generated"]
@@ -4188,6 +4688,8 @@ pub enum GuidePageGeneration {
     Markdown(Option<Element>),
     #[doc = "XML"]
     Xml(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum GuideParameterCode {
     #[doc = "Apply Metadata Value"]
@@ -4210,6 +4712,8 @@ pub enum GuideParameterCode {
     PathTxCache(Option<Element>),
     #[doc = "Broken Links Rule"]
     RuleBrokenLinks(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum HandlingCondition {
     #[doc = "frozen"]
@@ -4218,6 +4722,8 @@ pub enum HandlingCondition {
     Refrigerated(Option<Element>),
     #[doc = "room temperature"]
     Room(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum HistoryAbsentReason {
     #[doc = "Deferred"]
@@ -4228,6 +4734,8 @@ pub enum HistoryAbsentReason {
     UnableToObtain(Option<Element>),
     #[doc = "Information Withheld"]
     Withheld(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum HistoryStatus {
     #[doc = "Completed"]
@@ -4238,6 +4746,8 @@ pub enum HistoryStatus {
     HealthUnknown(Option<Element>),
     #[doc = "Partial"]
     Partial(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Hl7WorkGroup {
     #[doc = "Application Implementation and Design"]
@@ -4288,6 +4798,8 @@ pub enum Hl7WorkGroup {
     Us(Option<Element>),
     #[doc = "Vocabulary"]
     Vocab(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum HttpOperations {
     #[doc = "DELETE"]
@@ -4304,6 +4816,8 @@ pub enum HttpOperations {
     Post(Option<Element>),
     #[doc = "PUT"]
     Put(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum HttpVerb {
     #[doc = "DELETE"]
@@ -4318,6 +4832,8 @@ pub enum HttpVerb {
     POST(Option<Element>),
     #[doc = "PUT"]
     PUT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Icd10 {
     #[doc = "DIAG-4"]
@@ -4334,6 +4850,8 @@ pub enum Icd10 {
     V987654(Option<Element>),
     #[doc = "DIAG-5"]
     V997755(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Icd10Procedures {
     #[doc = "PROC-1"]
@@ -4342,6 +4860,8 @@ pub enum Icd10Procedures {
     V123002(Option<Element>),
     #[doc = "PROC-3"]
     V123003(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum IdentifierType {
     ACSN(Option<Element>),
@@ -4362,6 +4882,8 @@ pub enum IdentifierType {
     SNO(Option<Element>),
     TAX(Option<Element>),
     UDI(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum IdentifierUse {
     #[doc = "Official"]
@@ -4374,6 +4896,8 @@ pub enum IdentifierUse {
     Temp(Option<Element>),
     #[doc = "Usual"]
     Usual(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum IdentityAssuranceLevel {
     #[doc = "Level 1"]
@@ -4384,6 +4908,8 @@ pub enum IdentityAssuranceLevel {
     Level3(Option<Element>),
     #[doc = "Level 4"]
     Level4(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImagingstudyStatus {
     #[doc = "Available"]
@@ -4396,12 +4922,16 @@ pub enum ImagingstudyStatus {
     Registered(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationEvaluationDoseStatus {
     #[doc = "Not valid"]
     Notvalid(Option<Element>),
     #[doc = "Valid"]
     Valid(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationEvaluationDoseStatusReason {
     #[doc = "Adverse storage condition"]
@@ -4414,10 +4944,14 @@ pub enum ImmunizationEvaluationDoseStatusReason {
     Outsidesched(Option<Element>),
     #[doc = "Product recall"]
     Prodrecall(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationEvaluationStatus {
     Completed(Option<Element>),
     EnteredInError(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationEvaluationTargetDisease {
     V14189004(Option<Element>),
@@ -4429,16 +4963,22 @@ pub enum ImmunizationEvaluationTargetDisease {
     V398102009(Option<Element>),
     V709410003(Option<Element>),
     V76902006(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationFunction {
     AP(Option<Element>),
     OP(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationFundingSource {
     #[doc = "Private"]
     Private(Option<Element>),
     #[doc = "Public"]
     Public(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationOrigin {
     #[doc = "Other Provider"]
@@ -4449,26 +4989,36 @@ pub enum ImmunizationOrigin {
     Record(Option<Element>),
     #[doc = "School Record"]
     School(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationProgramEligibility {
     #[doc = "Not Eligible"]
     Ineligible(Option<Element>),
     #[doc = "Uninsured"]
     Uninsured(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationReason {
     V281657000(Option<Element>),
     V429060002(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationRecommendationDateCriterion {
     V309807(Option<Element>),
     V309815(Option<Element>),
     V597773(Option<Element>),
     V597781(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationRecommendationReason {
     V77176002(Option<Element>),
     V77386006(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationRecommendationStatus {
     #[doc = "Complete"]
@@ -4481,6 +5031,8 @@ pub enum ImmunizationRecommendationStatus {
     Immune(Option<Element>),
     #[doc = "Overdue"]
     Overdue(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationRecommendationTargetDisease {
     V14189004(Option<Element>),
@@ -4492,6 +5044,8 @@ pub enum ImmunizationRecommendationTargetDisease {
     V398102009(Option<Element>),
     V709410003(Option<Element>),
     V76902006(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationRoute {
     #[doc = "Injection, intradermal"]
@@ -4508,17 +5062,23 @@ pub enum ImmunizationRoute {
     SQ(Option<Element>),
     #[doc = "Transdermal"]
     TRNSDERM(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationSite {
     #[doc = "Left arm"]
     LA(Option<Element>),
     #[doc = "Right arm"]
     RA(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationStatus {
     Completed(Option<Element>),
     EnteredInError(Option<Element>),
     NotDone(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationSubpotentReason {
     #[doc = "Cold Chain Break"]
@@ -4527,6 +5087,8 @@ pub enum ImmunizationSubpotentReason {
     Partial(Option<Element>),
     #[doc = "Manufacturer Recall"]
     Recall(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImmunizationTargetDisease {
     V14189004(Option<Element>),
@@ -4538,6 +5100,8 @@ pub enum ImmunizationTargetDisease {
     V398102009(Option<Element>),
     V709410003(Option<Element>),
     V76902006(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ImplantStatus {
     #[doc = "Disabled"]
@@ -4548,6 +5112,8 @@ pub enum ImplantStatus {
     NonFunctional(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Inactive {
     #[doc = "appointment"]
@@ -4606,12 +5172,16 @@ pub enum Inactive {
     _ActMoodPotential(Option<Element>),
     #[doc = "ActMoodPredicate"]
     _ActMoodPredicate(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum InstanceAvailability {
     NEARLINE(Option<Element>),
     OFFLINE(Option<Element>),
     ONLINE(Option<Element>),
     UNAVAILABLE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum InsuranceplanApplicability {
     #[doc = "In Network"]
@@ -4620,6 +5190,8 @@ pub enum InsuranceplanApplicability {
     Other(Option<Element>),
     #[doc = "Out of Network"]
     OutOfNetwork(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum InsuranceplanType {
     #[doc = "Drug"]
@@ -4642,18 +5214,24 @@ pub enum InsuranceplanType {
     SubstAb(Option<Element>),
     #[doc = "Vision"]
     Vision(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Intervention {
     #[doc = "Other"]
     Other(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum InvestigationSets {
     #[doc = "History/symptoms"]
     V160237006(Option<Element>),
     #[doc = "Examination / signs"]
     V271336007(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum InvoicePriceComponentType {
     #[doc = "base price"]
@@ -4668,6 +5246,8 @@ pub enum InvoicePriceComponentType {
     Surcharge(Option<Element>),
     #[doc = "tax"]
     Tax(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum InvoiceStatus {
     #[doc = "balanced"]
@@ -4680,6 +5260,8 @@ pub enum InvoiceStatus {
     EnteredInError(Option<Element>),
     #[doc = "issued"]
     Issued(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum IssueSeverity {
     #[doc = "Error"]
@@ -4690,6 +5272,8 @@ pub enum IssueSeverity {
     Information(Option<Element>),
     #[doc = "Warning"]
     Warning(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum IssueType {
     #[doc = "Business Rule Violation"]
@@ -4754,6 +5338,8 @@ pub enum IssueType {
     Unknown(Option<Element>),
     #[doc = "Element value invalid"]
     Value(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ItemType {
     #[doc = "Attachment"]
@@ -4790,6 +5376,8 @@ pub enum ItemType {
     Time(Option<Element>),
     #[doc = "Url"]
     Url(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum KnowledgeResourceTypes {
     #[doc = "ActivityDefinition"]
@@ -4810,12 +5398,16 @@ pub enum KnowledgeResourceTypes {
     StructureMap(Option<Element>),
     #[doc = "ValueSet"]
     ValueSet(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LanguagePreferenceType {
     #[doc = "verbal"]
     Verbal(Option<Element>),
     #[doc = "written"]
     Written(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Languages {
     #[doc = "Arabic"]
@@ -4930,12 +5522,16 @@ pub enum Languages {
     ZhSG(Option<Element>),
     #[doc = "Chinese (Taiwan)"]
     ZhTW(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LdlcholesterolCodes {
     #[doc = "Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation"]
     V134577(Option<Element>),
     #[doc = "LDL Cholesterol (Assay)"]
     V182626(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LibraryType {
     #[doc = "Asset Collection"]
@@ -4946,6 +5542,8 @@ pub enum LibraryType {
     ModelDefinition(Option<Element>),
     #[doc = "Module Definition"]
     ModuleDefinition(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LinkType {
     #[doc = "Refer"]
@@ -4956,6 +5554,8 @@ pub enum LinkType {
     Replaces(Option<Element>),
     #[doc = "See also"]
     Seealso(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LinkageType {
     #[doc = "Alternate Record"]
@@ -4964,6 +5564,8 @@ pub enum LinkageType {
     Historical(Option<Element>),
     #[doc = "Source of Truth"]
     Source(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ListEmptyReason {
     #[doc = "Closed"]
@@ -4978,6 +5580,8 @@ pub enum ListEmptyReason {
     Unavailable(Option<Element>),
     #[doc = "Information Withheld"]
     Withheld(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ListExampleCodes {
     #[doc = "Adverse Reactions"]
@@ -4998,6 +5602,8 @@ pub enum ListExampleCodes {
     Waiting(Option<Element>),
     #[doc = "Worklist"]
     Worklist(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ListItemFlag {
     #[doc = "Unchanged"]
@@ -5012,6 +5618,8 @@ pub enum ListItemFlag {
     V05(Option<Element>),
     #[doc = "Suspended"]
     V06(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ListMode {
     #[doc = "Change List"]
@@ -5020,6 +5628,8 @@ pub enum ListMode {
     Snapshot(Option<Element>),
     #[doc = "Working List"]
     Working(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ListOrder {
     #[doc = "Sorted Alphabetically"]
@@ -5038,6 +5648,8 @@ pub enum ListOrder {
     System(Option<Element>),
     #[doc = "Sorted by User"]
     User(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ListStatus {
     #[doc = "Current"]
@@ -5046,12 +5658,16 @@ pub enum ListStatus {
     EnteredInError(Option<Element>),
     #[doc = "Retired"]
     Retired(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LocationMode {
     #[doc = "Instance"]
     Instance(Option<Element>),
     #[doc = "Kind"]
     Kind(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LocationPhysicalType {
     #[doc = "Area"]
@@ -5082,6 +5698,8 @@ pub enum LocationPhysicalType {
     Wa(Option<Element>),
     #[doc = "Wing"]
     Wi(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum LocationStatus {
     #[doc = "Active"]
@@ -5090,12 +5708,16 @@ pub enum LocationStatus {
     Inactive(Option<Element>),
     #[doc = "Suspended"]
     Suspended(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapContextType {
     #[doc = "Type"]
     Type(Option<Element>),
     #[doc = "Variable"]
     Variable(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapGroupTypeMode {
     #[doc = "Not a Default"]
@@ -5104,12 +5726,16 @@ pub enum MapGroupTypeMode {
     TypeAndTypes(Option<Element>),
     #[doc = "Default for Type Combination"]
     Types(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapInputMode {
     #[doc = "Source Instance"]
     Source(Option<Element>),
     #[doc = "Target Instance"]
     Target(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapModelMode {
     #[doc = "Produced Structure Definition"]
@@ -5120,6 +5746,8 @@ pub enum MapModelMode {
     Source(Option<Element>),
     #[doc = "Target Structure Definition"]
     Target(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapSourceListMode {
     #[doc = "First"]
@@ -5132,6 +5760,8 @@ pub enum MapSourceListMode {
     Not_last(Option<Element>),
     #[doc = "Enforce only one"]
     Only_one(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapTargetListMode {
     #[doc = "Collate"]
@@ -5142,6 +5772,8 @@ pub enum MapTargetListMode {
     Last(Option<Element>),
     #[doc = "Share"]
     Share(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MapTransform {
     #[doc = "append"]
@@ -5178,6 +5810,8 @@ pub enum MapTransform {
     Truncate(Option<Element>),
     #[doc = "uuid"]
     Uuid(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MaritalStatus {
     #[doc = "Annulled"]
@@ -5201,6 +5835,8 @@ pub enum MaritalStatus {
     UNK(Option<Element>),
     #[doc = "Widowed"]
     W(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MatchGrade {
     #[doc = "Certain Match"]
@@ -5211,18 +5847,24 @@ pub enum MatchGrade {
     Possible(Option<Element>),
     #[doc = "Probable Match"]
     Probable(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasureDataUsage {
     #[doc = "Risk Adjustment Factor"]
     RiskAdjustmentFactor(Option<Element>),
     #[doc = "Supplemental Data"]
     SupplementalData(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasureImprovementNotation {
     #[doc = "Decreased score indicates improvement"]
     Decrease(Option<Element>),
     #[doc = "Increased score indicates improvement"]
     Increase(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasurePopulation {
     #[doc = "Denominator"]
@@ -5243,6 +5885,8 @@ pub enum MeasurePopulation {
     Numerator(Option<Element>),
     #[doc = "Numerator Exclusion"]
     NumeratorExclusion(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasureReportStatus {
     #[doc = "Complete"]
@@ -5251,6 +5895,8 @@ pub enum MeasureReportStatus {
     Error(Option<Element>),
     #[doc = "Pending"]
     Pending(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasureReportType {
     #[doc = "Data Collection"]
@@ -5261,6 +5907,8 @@ pub enum MeasureReportType {
     SubjectList(Option<Element>),
     #[doc = "Summary"]
     Summary(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasureScoring {
     #[doc = "Cohort"]
@@ -5271,6 +5919,8 @@ pub enum MeasureScoring {
     Proportion(Option<Element>),
     #[doc = "Ratio"]
     Ratio(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MeasureType {
     #[doc = "Composite"]
@@ -5283,6 +5933,8 @@ pub enum MeasureType {
     Process(Option<Element>),
     #[doc = "Structure"]
     Structure(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedAdminPerformFunction {
     #[doc = "Performer"]
@@ -5291,6 +5943,8 @@ pub enum MedAdminPerformFunction {
     Verifier(Option<Element>),
     #[doc = "Witness"]
     Witness(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MediaType {
     #[doc = "Audio"]
@@ -5299,6 +5953,8 @@ pub enum MediaType {
     Image(Option<Element>),
     #[doc = "Video"]
     Video(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationAdminCategory {
     #[doc = "Community"]
@@ -5307,6 +5963,8 @@ pub enum MedicationAdminCategory {
     Inpatient(Option<Element>),
     #[doc = "Outpatient"]
     Outpatient(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationAdminStatus {
     #[doc = "Completed"]
@@ -5323,6 +5981,8 @@ pub enum MedicationAdminStatus {
     Stopped(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationStatementCategory {
     #[doc = "Community"]
@@ -5333,6 +5993,8 @@ pub enum MedicationStatementCategory {
     Outpatient(Option<Element>),
     #[doc = "Patient Specified"]
     Patientspecified(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationStatementStatus {
     #[doc = "Active"]
@@ -5351,6 +6013,8 @@ pub enum MedicationStatementStatus {
     Stopped(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationStatus {
     #[doc = "Active"]
@@ -5359,6 +6023,8 @@ pub enum MedicationStatus {
     EnteredInError(Option<Element>),
     #[doc = "Inactive"]
     Inactive(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationdispenseCategory {
     #[doc = "Community"]
@@ -5369,6 +6035,8 @@ pub enum MedicationdispenseCategory {
     Inpatient(Option<Element>),
     #[doc = "Outpatient"]
     Outpatient(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationdispensePerformerFunction {
     #[doc = "Checker"]
@@ -5379,6 +6047,8 @@ pub enum MedicationdispensePerformerFunction {
     Finalchecker(Option<Element>),
     #[doc = "Packager"]
     Packager(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationdispenseStatus {
     #[doc = "Cancelled"]
@@ -5399,6 +6069,8 @@ pub enum MedicationdispenseStatus {
     Stopped(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationdispenseStatusReason {
     #[doc = "Try another treatment first"]
@@ -5443,6 +6115,8 @@ pub enum MedicationdispenseStatusReason {
     Surg(Option<Element>),
     #[doc = "Washout"]
     Washout(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationknowledgeCharacteristic {
     #[doc = "Coating"]
@@ -5459,6 +6133,8 @@ pub enum MedicationknowledgeCharacteristic {
     Shape(Option<Element>),
     #[doc = "Size"]
     Size(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationknowledgePackageType {
     #[doc = "Ampule"]
@@ -5505,6 +6181,8 @@ pub enum MedicationknowledgePackageType {
     Tube(Option<Element>),
     #[doc = "Vial"]
     Vial(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationknowledgeStatus {
     #[doc = "Active"]
@@ -5513,6 +6191,8 @@ pub enum MedicationknowledgeStatus {
     EnteredInError(Option<Element>),
     #[doc = "Inactive"]
     Inactive(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationrequestCategory {
     #[doc = "Community"]
@@ -5523,6 +6203,8 @@ pub enum MedicationrequestCategory {
     Inpatient(Option<Element>),
     #[doc = "Outpatient"]
     Outpatient(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationrequestCourseOfTherapy {
     #[doc = "Short course (acute) therapy"]
@@ -5531,6 +6213,8 @@ pub enum MedicationrequestCourseOfTherapy {
     Continuous(Option<Element>),
     #[doc = "Seasonal"]
     Seasonal(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationrequestIntent {
     #[doc = "Filler Order"]
@@ -5549,6 +6233,8 @@ pub enum MedicationrequestIntent {
     Proposal(Option<Element>),
     #[doc = "Reflex Order"]
     ReflexOrder(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationrequestStatus {
     #[doc = "Active"]
@@ -5567,6 +6253,8 @@ pub enum MedicationrequestStatus {
     Stopped(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MedicationrequestStatusReason {
     #[doc = "Try another treatment first"]
@@ -5595,6 +6283,8 @@ pub enum MedicationrequestStatusReason {
     Surg(Option<Element>),
     #[doc = "Waiting for old drug to wash out"]
     Washout(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MessageReasonEncounter {
     #[doc = "Absent"]
@@ -5609,6 +6299,8 @@ pub enum MessageReasonEncounter {
     Moved(Option<Element>),
     #[doc = "Returned"]
     Return(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MessageSignificanceCategory {
     #[doc = "Consequence"]
@@ -5617,6 +6309,8 @@ pub enum MessageSignificanceCategory {
     Currency(Option<Element>),
     #[doc = "Notification"]
     Notification(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MessageTransport {
     #[doc = "FTP"]
@@ -5625,6 +6319,8 @@ pub enum MessageTransport {
     Http(Option<Element>),
     #[doc = "MLLP"]
     Mllp(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MessageheaderResponseRequest {
     #[doc = "Always"]
@@ -5635,6 +6331,8 @@ pub enum MessageheaderResponseRequest {
     OnError(Option<Element>),
     #[doc = "Successful completion only"]
     OnSuccess(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MetricCalibrationState {
     #[doc = "Calibrated"]
@@ -5645,6 +6343,8 @@ pub enum MetricCalibrationState {
     NotCalibrated(Option<Element>),
     #[doc = "Unspecified"]
     Unspecified(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MetricCalibrationType {
     #[doc = "Gain"]
@@ -5655,6 +6355,8 @@ pub enum MetricCalibrationType {
     TwoPoint(Option<Element>),
     #[doc = "Unspecified"]
     Unspecified(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MetricCategory {
     #[doc = "Calculation"]
@@ -5665,6 +6367,8 @@ pub enum MetricCategory {
     Setting(Option<Element>),
     #[doc = "Unspecified"]
     Unspecified(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MetricColor {
     #[doc = "Color Black"]
@@ -5683,6 +6387,8 @@ pub enum MetricColor {
     White(Option<Element>),
     #[doc = "Color Yellow"]
     Yellow(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MetricOperationalStatus {
     #[doc = "Entered In Error"]
@@ -5693,6 +6399,8 @@ pub enum MetricOperationalStatus {
     On(Option<Element>),
     #[doc = "Standby"]
     Standby(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum MissingToothReason {
     #[doc = "C"]
@@ -5703,6 +6411,8 @@ pub enum MissingToothReason {
     O(Option<Element>),
     #[doc = "U"]
     U(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ModifiedFoodtype {
     #[doc = "Eggs"]
@@ -5733,6 +6443,8 @@ pub enum ModifiedFoodtype {
     V72511004(Option<Element>),
     #[doc = "Food Starch"]
     V74242007(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NameAssemblyOrder {
     #[doc = "Prefix Family Given Suffix"]
@@ -5749,6 +6461,8 @@ pub enum NameAssemblyOrder {
     NL4(Option<Element>),
     #[doc = "Unknown"]
     UNK(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NamePartQualifier {
     #[doc = "Academic"]
@@ -5775,6 +6489,8 @@ pub enum NamePartQualifier {
     SP(Option<Element>),
     #[doc = "Voorvoegsel"]
     VV(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NameUse {
     #[doc = "Anonymous"]
@@ -5791,11 +6507,15 @@ pub enum NameUse {
     Temp(Option<Element>),
     #[doc = "Usual"]
     Usual(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NameV3Representation {
     ABC(Option<Element>),
     IDE(Option<Element>),
     SYL(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NamingsystemIdentifierType {
     #[doc = "OID"]
@@ -5806,6 +6526,8 @@ pub enum NamingsystemIdentifierType {
     Uri(Option<Element>),
     #[doc = "UUID"]
     Uuid(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NamingsystemType {
     #[doc = "Code System"]
@@ -5814,6 +6536,8 @@ pub enum NamingsystemType {
     Identifier(Option<Element>),
     #[doc = "Root"]
     Root(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NarrativeStatus {
     #[doc = "Additional"]
@@ -5824,6 +6548,8 @@ pub enum NarrativeStatus {
     Extensions(Option<Element>),
     #[doc = "Generated"]
     Generated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NetworkType {
     #[doc = "Machine Name"]
@@ -5836,6 +6562,8 @@ pub enum NetworkType {
     V4(Option<Element>),
     #[doc = "URI"]
     V5(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NhinPurposeofuse {
     #[doc = "Abuse"]
@@ -5892,6 +6620,8 @@ pub enum NhinPurposeofuse {
     TREATMENT(Option<Element>),
     #[doc = "Worker's Comp"]
     WORKERSCOMP(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum NoteType {
     #[doc = "Display"]
@@ -5900,6 +6630,8 @@ pub enum NoteType {
     Print(Option<Element>),
     #[doc = "Print (Operator)"]
     Printoper(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObjectLifecycleEvents {
     #[doc = "Origination / Creation"]
@@ -5986,6 +6718,8 @@ pub enum ObjectLifecycleEvents {
     Unmerge(Option<Element>),
     #[doc = "Verify Record Lifecycle Event"]
     Verify(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObjectRole {
     #[doc = "Patient"]
@@ -6036,6 +6770,8 @@ pub enum ObjectRole {
     V8(Option<Element>),
     #[doc = "Subscriber"]
     V9(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObservationCategory {
     #[doc = "Activity"]
@@ -6056,6 +6792,8 @@ pub enum ObservationCategory {
     Therapy(Option<Element>),
     #[doc = "Vital Signs"]
     VitalSigns(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObservationInterpretation {
     #[doc = "Off scale low"]
@@ -6172,6 +6910,8 @@ pub enum ObservationInterpretation {
     _ObservationInterpretationNormality(Option<Element>),
     #[doc = "ObservationInterpretationSusceptibility"]
     _ObservationInterpretationSusceptibility(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObservationRangeCategory {
     #[doc = "absolute range"]
@@ -6180,6 +6920,8 @@ pub enum ObservationRangeCategory {
     Critical(Option<Element>),
     #[doc = "reference range"]
     Reference(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObservationStatistics {
     #[doc = "20th Percentile"]
@@ -6224,6 +6966,8 @@ pub enum ObservationStatistics {
     TotalCount(Option<Element>),
     #[doc = "Variance"]
     Variance(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObservationStatus {
     #[doc = "Amended"]
@@ -6242,6 +6986,8 @@ pub enum ObservationStatus {
     Registered(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ObservationVitalsignresult {
     V27086(Option<Element>),
@@ -6257,12 +7003,16 @@ pub enum ObservationVitalsignresult {
     V88674(Option<Element>),
     V92791(Option<Element>),
     V98434(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OperationKind {
     #[doc = "Operation"]
     Operation(Option<Element>),
     #[doc = "Query"]
     Query(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OperationOutcome {
     #[doc = "Error: Multiple matches exist for the conditional delete"]
@@ -6365,12 +7115,16 @@ pub enum OperationOutcome {
     SEARCH_NONE(Option<Element>),
     #[doc = "Error: Multiple matches exist for the conditional update"]
     UPDATE_MULTIPLE_MATCHES(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OperationParameterUse {
     #[doc = "In"]
     In(Option<Element>),
     #[doc = "Out"]
     Out(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OralProsthodonticMaterial {
     #[doc = "Fixed Bridge"]
@@ -6381,6 +7135,8 @@ pub enum OralProsthodonticMaterial {
     V3(Option<Element>),
     #[doc = "Denture Chrome Cobalt"]
     V4(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OrganizationRole {
     #[doc = "HIE/HIO"]
@@ -6399,6 +7155,8 @@ pub enum OrganizationRole {
     Research(Option<Element>),
     #[doc = "Supplier"]
     Supplier(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OrganizationType {
     #[doc = "Non-Healthcare Business or Corporation"]
@@ -6425,12 +7183,16 @@ pub enum OrganizationType {
     Reli(Option<Element>),
     #[doc = "Organizational team"]
     Team(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum OrientationType {
     #[doc = "Antisense orientation of referenceSeq"]
     Antisense(Option<Element>),
     #[doc = "Sense orientation of referenceSeq"]
     Sense(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ParameterGroup {
     #[doc = "Blood Chemistry Parameter Group"]
@@ -6451,6 +7213,8 @@ pub enum ParameterGroup {
     Respiratory(Option<Element>),
     #[doc = "Ventilation Parameter Group"]
     Ventilation(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Participantrequired {
     #[doc = "Information Only"]
@@ -6459,6 +7223,8 @@ pub enum Participantrequired {
     Optional(Option<Element>),
     #[doc = "Required"]
     Required(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Participationstatus {
     #[doc = "Accepted"]
@@ -6469,6 +7235,8 @@ pub enum Participationstatus {
     NeedsAction(Option<Element>),
     #[doc = "Tentative"]
     Tentative(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Payeetype {
     #[doc = "Provider"]
@@ -6477,18 +7245,24 @@ pub enum Payeetype {
     Provider(Option<Element>),
     #[doc = "Subscriber"]
     Subscriber(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PaymentAdjustmentReason {
     #[doc = "Prior Payment Reversal"]
     A001(Option<Element>),
     #[doc = "Prior Overpayment"]
     A002(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PaymentStatus {
     #[doc = "Cleared"]
     Cleared(Option<Element>),
     #[doc = "Paid"]
     Paid(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PaymentType {
     #[doc = "Adjustment"]
@@ -6497,6 +7271,8 @@ pub enum PaymentType {
     Advance(Option<Element>),
     #[doc = "Payment"]
     Payment(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PerformerFunction {
     ATND(Option<Element>),
@@ -6513,6 +7289,8 @@ pub enum PerformerFunction {
     TRANS(Option<Element>),
     VRF(Option<Element>),
     WIT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PermittedDataType {
     #[doc = "CodeableConcept"]
@@ -6537,6 +7315,8 @@ pub enum PermittedDataType {
     String(Option<Element>),
     #[doc = "time"]
     Time(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PlanDefinitionType {
     #[doc = "Clinical Protocol"]
@@ -6547,6 +7327,8 @@ pub enum PlanDefinitionType {
     OrderSet(Option<Element>),
     #[doc = "Workflow Definition"]
     WorkflowDefinition(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PostalAddressUse {
     #[doc = "bad address"]
@@ -6565,6 +7347,8 @@ pub enum PostalAddressUse {
     PST(Option<Element>),
     #[doc = "public"]
     PUB(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PractitionerSpecialty {
     #[doc = "Cardiologist"]
@@ -6577,6 +7361,8 @@ pub enum PractitionerSpecialty {
     Midw(Option<Element>),
     #[doc = "Systems architect"]
     Sysarch(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PrecisionEstimateType {
     #[doc = "confidence interval"]
@@ -6587,6 +7373,8 @@ pub enum PrecisionEstimateType {
     SD(Option<Element>),
     #[doc = "standard error"]
     SE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProbabilityDistributionType {
     #[doc = "beta"]
@@ -6607,6 +7395,8 @@ pub enum ProbabilityDistributionType {
     U(Option<Element>),
     #[doc = "chi square"]
     X2(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProcedureCategory {
     V103693007(Option<Element>),
@@ -6616,6 +7406,8 @@ pub enum ProcedureCategory {
     V409073007(Option<Element>),
     V410606002(Option<Element>),
     V46947000(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProcedureFollowup {
     V18949003(Option<Element>),
@@ -6628,11 +7420,15 @@ pub enum ProcedureFollowup {
     V359825008(Option<Element>),
     V394725008(Option<Element>),
     V447346005(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProcedureOutcome {
     V385669000(Option<Element>),
     V385670004(Option<Element>),
     V385671000(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProcedureProgressStatusCodes {
     #[doc = "Anesthesia Induced"]
@@ -6647,6 +7443,8 @@ pub enum ProcedureProgressStatusCodes {
     OpenIncision(Option<Element>),
     #[doc = "Prepared"]
     Prepared(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProcessPriority {
     #[doc = "Deferred"]
@@ -6655,6 +7453,8 @@ pub enum ProcessPriority {
     Normal(Option<Element>),
     #[doc = "Immediate"]
     Stat(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProductCategory {
     #[doc = "BiologicalAgent"]
@@ -6667,12 +7467,16 @@ pub enum ProductCategory {
     Organ(Option<Element>),
     #[doc = "Tissue"]
     Tissue(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProductStatus {
     #[doc = "Available"]
     Available(Option<Element>),
     #[doc = "Unavailable"]
     Unavailable(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProductStorageScale {
     #[doc = "Celsius"]
@@ -6681,6 +7485,8 @@ pub enum ProductStorageScale {
     Farenheit(Option<Element>),
     #[doc = "Kelvin"]
     Kelvin(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PropertyRepresentation {
     #[doc = "CDA Text Format"]
@@ -6693,6 +7499,8 @@ pub enum PropertyRepresentation {
     XmlAttr(Option<Element>),
     #[doc = "XML Text"]
     XmlText(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProvenanceActivityType {
     #[doc = "admitter"]
@@ -6827,6 +7635,8 @@ pub enum ProvenanceActivityType {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProvenanceAgentRole {
     #[doc = "Assembler"]
@@ -6849,6 +7659,8 @@ pub enum ProvenanceAgentRole {
     Performer(Option<Element>),
     #[doc = "Verifier"]
     Verifier(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProvenanceAgentType {
     #[doc = "Assembler"]
@@ -6871,6 +7683,8 @@ pub enum ProvenanceAgentType {
     Performer(Option<Element>),
     #[doc = "Verifier"]
     Verifier(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProvenanceEntityRole {
     #[doc = "Derivation"]
@@ -6883,6 +7697,8 @@ pub enum ProvenanceEntityRole {
     Revision(Option<Element>),
     #[doc = "Source"]
     Source(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProvenanceHistoryAgentType {
     #[doc = "Author"]
@@ -6893,6 +7709,8 @@ pub enum ProvenanceHistoryAgentType {
     INF(Option<Element>),
     #[doc = "Verifier"]
     VRF(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProvenanceHistoryRecordActivity {
     #[doc = "Stopped/Ended/Aborted"]
@@ -6922,6 +7740,8 @@ pub enum ProvenanceHistoryRecordActivity {
     SUSPEND(Option<Element>),
     #[doc = "Updated"]
     UPDATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ProviderQualification {
     #[doc = "Dentist"]
@@ -6930,6 +7750,8 @@ pub enum ProviderQualification {
     V604210(Option<Element>),
     #[doc = "Ophthalmologist"]
     V604215(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum PublicationStatus {
     #[doc = "Active"]
@@ -6940,6 +7762,8 @@ pub enum PublicationStatus {
     Retired(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QualityType {
     #[doc = "INDEL Comparison"]
@@ -6948,6 +7772,8 @@ pub enum QualityType {
     Snp(Option<Element>),
     #[doc = "UNKNOWN Comparison"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuantityComparator {
     #[doc = "Less than"]
@@ -6958,10 +7784,14 @@ pub enum QuantityComparator {
     Less(Option<Element>),
     #[doc = "Greater or Equal to"]
     LessEqual(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionMaxOccurs {
     #[doc = "Repeating"]
     Star(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireAnswersStatus {
     #[doc = "Amended"]
@@ -6974,6 +7804,8 @@ pub enum QuestionnaireAnswersStatus {
     InProgress(Option<Element>),
     #[doc = "Stopped"]
     Stopped(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireCategory {
     #[doc = "Consumer satisfaction questionnaire"]
@@ -6986,6 +7818,8 @@ pub enum QuestionnaireCategory {
     V273820006(Option<Element>),
     #[doc = "Administrative form"]
     V304784009(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireDisplayCategory {
     #[doc = "Help"]
@@ -6994,12 +7828,16 @@ pub enum QuestionnaireDisplayCategory {
     Instructions(Option<Element>),
     #[doc = "Security"]
     Security(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireEnableBehavior {
     #[doc = "All"]
     All(Option<Element>),
     #[doc = "Any"]
     Any(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireEnableOperator {
     #[doc = "Not Equals"]
@@ -7016,6 +7854,8 @@ pub enum QuestionnaireEnableOperator {
     LessEqual(Option<Element>),
     #[doc = "Exists"]
     Exists(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireItemControl {
     #[doc = "Answer Table"]
@@ -7065,6 +7905,8 @@ pub enum QuestionnaireItemControl {
     Unit(Option<Element>),
     #[doc = "Upper-bound"]
     Upper(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireUsageMode {
     #[doc = "Capture Only"]
@@ -7077,11 +7919,15 @@ pub enum QuestionnaireUsageMode {
     Display(Option<Element>),
     #[doc = "Display when Answered"]
     DisplayNonEmpty(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum QuestionnaireresponseMode {
     ELECTRONIC(Option<Element>),
     VERBAL(Option<Element>),
     WRITTEN(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReactionEventCertainty {
     #[doc = "Confirmed"]
@@ -7092,6 +7938,8 @@ pub enum ReactionEventCertainty {
     Unknown(Option<Element>),
     #[doc = "Unlikely"]
     Unlikely(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReactionEventSeverity {
     #[doc = "Mild"]
@@ -7100,6 +7948,8 @@ pub enum ReactionEventSeverity {
     Moderate(Option<Element>),
     #[doc = "Severe"]
     Severe(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReasonMedicationGivenCodes {
     #[doc = "None"]
@@ -7108,12 +7958,16 @@ pub enum ReasonMedicationGivenCodes {
     B(Option<Element>),
     #[doc = "Emergency"]
     C(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RecommendationStrength {
     #[doc = "Strong"]
     Strong(Option<Element>),
     #[doc = "Weak"]
     Weak(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReferenceHandlingPolicy {
     #[doc = "Reference Integrity Enforced"]
@@ -7126,6 +7980,8 @@ pub enum ReferenceHandlingPolicy {
     Logical(Option<Element>),
     #[doc = "Resolves References"]
     Resolves(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReferenceVersionRules {
     #[doc = "Either Specific or independent"]
@@ -7134,6 +7990,8 @@ pub enum ReferenceVersionRules {
     Independent(Option<Element>),
     #[doc = "Version Specific"]
     Specific(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReferencerangeMeaning {
     #[doc = "Endocrine"]
@@ -7162,6 +8020,8 @@ pub enum ReferencerangeMeaning {
     Treatment(Option<Element>),
     #[doc = "Type"]
     Type(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RejectionCriteria {
     #[doc = "broken specimen container"]
@@ -7174,6 +8034,8 @@ pub enum RejectionCriteria {
     Insufficient(Option<Element>),
     #[doc = "specimen temperature inappropriate"]
     WrongTemperature(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RelatedArtifactType {
     #[doc = "Citation"]
@@ -7192,18 +8054,24 @@ pub enum RelatedArtifactType {
     Predecessor(Option<Element>),
     #[doc = "Successor"]
     Successor(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RelatedClaimRelationship {
     #[doc = "Associated Claim"]
     Associated(Option<Element>),
     #[doc = "Prior Claim"]
     Prior(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RelationType {
     #[doc = "Replaced By"]
     IsReplacedBy(Option<Element>),
     #[doc = "Triggers"]
     Triggers(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Relationship {
     #[doc = "Self"]
@@ -7216,6 +8084,8 @@ pub enum Relationship {
     V4(Option<Element>),
     #[doc = "Other"]
     V5(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RemittanceOutcome {
     #[doc = "Processing Complete"]
@@ -7226,6 +8096,8 @@ pub enum RemittanceOutcome {
     Partial(Option<Element>),
     #[doc = "Queued"]
     Queued(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReportActionResultCodes {
     #[doc = "Error"]
@@ -7238,6 +8110,8 @@ pub enum ReportActionResultCodes {
     Skip(Option<Element>),
     #[doc = "Warning"]
     Warning(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReportParticipantType {
     #[doc = "Client"]
@@ -7246,6 +8120,8 @@ pub enum ReportParticipantType {
     Server(Option<Element>),
     #[doc = "Test Engine"]
     TestEngine(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReportResultCodes {
     #[doc = "Fail"]
@@ -7254,6 +8130,8 @@ pub enum ReportResultCodes {
     Pass(Option<Element>),
     #[doc = "Pending"]
     Pending(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ReportStatusCodes {
     #[doc = "Completed"]
@@ -7266,6 +8144,8 @@ pub enum ReportStatusCodes {
     Stopped(Option<Element>),
     #[doc = "Waiting"]
     Waiting(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RepositoryType {
     #[doc = "Click and see"]
@@ -7278,6 +8158,8 @@ pub enum RepositoryType {
     Openapi(Option<Element>),
     #[doc = "Some other complicated or particular way to get resource from URL."]
     Other(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RequestIntent {
     #[doc = "Directive"]
@@ -7298,6 +8180,8 @@ pub enum RequestIntent {
     Proposal(Option<Element>),
     #[doc = "Reflex Order"]
     ReflexOrder(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RequestPriority {
     #[doc = "ASAP"]
@@ -7308,6 +8192,8 @@ pub enum RequestPriority {
     Stat(Option<Element>),
     #[doc = "Urgent"]
     Urgent(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RequestResourceTypes {
     #[doc = "Appointment"]
@@ -7340,6 +8226,8 @@ pub enum RequestResourceTypes {
     Task(Option<Element>),
     #[doc = "VisionPrescription"]
     VisionPrescription(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RequestStatus {
     #[doc = "Active"]
@@ -7356,6 +8244,8 @@ pub enum RequestStatus {
     Revoked(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchElementType {
     #[doc = "Exposure"]
@@ -7364,6 +8254,8 @@ pub enum ResearchElementType {
     Outcome(Option<Element>),
     #[doc = "Population"]
     Population(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchStudyObjectiveType {
     #[doc = "Exploratory"]
@@ -7372,6 +8264,8 @@ pub enum ResearchStudyObjectiveType {
     Primary(Option<Element>),
     #[doc = "Secondary"]
     Secondary(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchStudyPhase {
     #[doc = "Early Phase 1"]
@@ -7390,6 +8284,8 @@ pub enum ResearchStudyPhase {
     Phase3(Option<Element>),
     #[doc = "Phase 4"]
     Phase4(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchStudyPrimPurpType {
     #[doc = "Basic Science"]
@@ -7408,6 +8304,8 @@ pub enum ResearchStudyPrimPurpType {
     SupportiveCare(Option<Element>),
     #[doc = "Treatment"]
     Treatment(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchStudyReasonStopped {
     #[doc = "Accrual Goal Met"]
@@ -7418,6 +8316,8 @@ pub enum ResearchStudyReasonStopped {
     ClosedDueToToxicity(Option<Element>),
     #[doc = "Temporarily closed per study design"]
     TemporarilyClosedPerStudyDesign(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchStudyStatus {
     #[doc = "Active"]
@@ -7442,6 +8342,8 @@ pub enum ResearchStudyStatus {
     TemporarilyClosedToAccrualAndIntervention(Option<Element>),
     #[doc = "Withdrawn"]
     Withdrawn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResearchSubjectStatus {
     #[doc = "Candidate"]
@@ -7470,6 +8372,8 @@ pub enum ResearchSubjectStatus {
     Screening(Option<Element>),
     #[doc = "Withdrawn"]
     Withdrawn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResourceAggregationMode {
     #[doc = "Bundled"]
@@ -7478,6 +8382,8 @@ pub enum ResourceAggregationMode {
     Contained(Option<Element>),
     #[doc = "Referenced"]
     Referenced(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResourceSecurityCategory {
     #[doc = "Anonymous READ Access Resource"]
@@ -7490,6 +8396,8 @@ pub enum ResourceSecurityCategory {
     NotClassified(Option<Element>),
     #[doc = "Patient Sensitive"]
     Patient(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResourceSlicingRules {
     #[doc = "Closed"]
@@ -7498,6 +8406,8 @@ pub enum ResourceSlicingRules {
     Open(Option<Element>),
     #[doc = "Open at End"]
     OpenAtEnd(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResourceStatus {
     #[doc = "abandoned"]
@@ -7562,6 +8472,8 @@ pub enum ResourceStatus {
     Unconfirmed(Option<Element>),
     #[doc = "unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResourceTypeLink {
     #[doc = "Organization"]
@@ -7572,6 +8484,8 @@ pub enum ResourceTypeLink {
     Practitioner(Option<Element>),
     #[doc = "RelatedPerson"]
     Relatedperson(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResourceValidationMode {
     #[doc = "Validate for Create"]
@@ -7582,6 +8496,8 @@ pub enum ResourceValidationMode {
     Profile(Option<Element>),
     #[doc = "Validate for Update"]
     Update(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ResponseCode {
     #[doc = "Fatal Error"]
@@ -7590,12 +8506,16 @@ pub enum ResponseCode {
     Ok(Option<Element>),
     #[doc = "Transient Error"]
     TransientError(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RestfulCapabilityMode {
     #[doc = "Client"]
     Client(Option<Element>),
     #[doc = "Server"]
     Server(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RestfulSecurityService {
     #[doc = "Basic"]
@@ -7610,6 +8530,8 @@ pub enum RestfulSecurityService {
     OAuth(Option<Element>),
     #[doc = "SMART-on-FHIR"]
     SMARTOnFHIR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RiskEstimateType {
     #[doc = "count"]
@@ -7624,6 +8546,8 @@ pub enum RiskEstimateType {
     Median(Option<Element>),
     #[doc = "proportion"]
     Proportion(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum RiskProbability {
     #[doc = "Certain"]
@@ -7636,6 +8560,8 @@ pub enum RiskProbability {
     Moderate(Option<Element>),
     #[doc = "Negligible likelihood"]
     Negligible(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SearchComparator {
     #[doc = "Approximately"]
@@ -7656,6 +8582,8 @@ pub enum SearchComparator {
     Ne(Option<Element>),
     #[doc = "Starts After"]
     Sa(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SearchEntryMode {
     #[doc = "Include"]
@@ -7664,6 +8592,8 @@ pub enum SearchEntryMode {
     Match(Option<Element>),
     #[doc = "Outcome"]
     Outcome(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SearchModifierCode {
     #[doc = "Above"]
@@ -7690,6 +8620,8 @@ pub enum SearchModifierCode {
     Text(Option<Element>),
     #[doc = "Type"]
     Type(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SearchParamType {
     #[doc = "Composite"]
@@ -7710,6 +8642,8 @@ pub enum SearchParamType {
     Token(Option<Element>),
     #[doc = "URI"]
     Uri(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SearchXpathUsage {
     #[doc = "Distance"]
@@ -7722,12 +8656,16 @@ pub enum SearchXpathUsage {
     Other(Option<Element>),
     #[doc = "Phonetic"]
     Phonetic(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SecondaryFinding {
     #[doc = "ACMG Version 1"]
     AcmgVersion1(Option<Element>),
     #[doc = "ACMG Version 2"]
     AcmgVersion2(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SequenceType {
     #[doc = "AA Sequence"]
@@ -7736,6 +8674,8 @@ pub enum SequenceType {
     Dna(Option<Element>),
     #[doc = "RNA Sequence"]
     Rna(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SeriesPerformerFunction {
     #[doc = "consultant"]
@@ -7748,12 +8688,16 @@ pub enum SeriesPerformerFunction {
     SPRF(Option<Element>),
     #[doc = "verifier"]
     VRF(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServiceModifiers {
     #[doc = "After hours"]
     Ah(Option<Element>),
     #[doc = "Side of the Road"]
     Sr(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServicePharmacy {
     #[doc = "Compounding Fee"]
@@ -7768,6 +8712,8 @@ pub enum ServicePharmacy {
     Markup(Option<Element>),
     #[doc = "Smoking cessation"]
     Smokecess(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServicePlace {
     #[doc = "Pharmacy"]
@@ -7804,12 +8750,16 @@ pub enum ServicePlace {
     V21(Option<Element>),
     #[doc = "Ambulance—Land"]
     V41(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServiceProduct {
     #[doc = "Exam"]
     Exam(Option<Element>),
     #[doc = "Flu shot"]
     Flushot(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServiceProvisionConditions {
     #[doc = "Fees apply"]
@@ -7818,6 +8768,8 @@ pub enum ServiceProvisionConditions {
     Disc(Option<Element>),
     #[doc = "Free"]
     Free(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServiceReferralMethod {
     #[doc = "Secure Messaging"]
@@ -7830,6 +8782,8 @@ pub enum ServiceReferralMethod {
     Phone(Option<Element>),
     #[doc = "Secure Email"]
     Semail(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServiceUscls {
     #[doc = "Exam, comp, primary"]
@@ -7872,6 +8826,8 @@ pub enum ServiceUscls {
     V99333(Option<Element>),
     #[doc = "Expense"]
     V99555(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServicerequestCategory {
     #[doc = "Laboratory procedure"]
@@ -7884,6 +8840,8 @@ pub enum ServicerequestCategory {
     V409063005(Option<Element>),
     #[doc = "Education"]
     V409073007(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum ServicerequestOrderdetail {
     #[doc = "Patient triggered inspiratory assistance (procedure)"]
@@ -7896,6 +8854,8 @@ pub enum ServicerequestOrderdetail {
     V47545007(Option<Element>),
     #[doc = "Synchronized intermittent mandatory ventilation (procedure)"]
     V59427005(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SignatureType {
     #[doc = "Author's Signature"]
@@ -7934,6 +8894,8 @@ pub enum SignatureType {
     V128401006511218(Option<Element>),
     #[doc = "Event Witness Signature"]
     V128401006511219(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Slotstatus {
     #[doc = "Busy"]
@@ -7946,6 +8908,8 @@ pub enum Slotstatus {
     EnteredInError(Option<Element>),
     #[doc = "Free"]
     Free(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SmartCapabilities {
     #[doc = "Confidential Client Profile"]
@@ -7976,12 +8940,16 @@ pub enum SmartCapabilities {
     PermissionUser(Option<Element>),
     #[doc = "Supports OpenID Connect"]
     SsoOpenidConnect(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SortDirection {
     #[doc = "Ascending"]
     Ascending(Option<Element>),
     #[doc = "Descending"]
     Descending(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SpecialValues {
     #[doc = "false"]
@@ -7996,6 +8964,8 @@ pub enum SpecialValues {
     True(Option<Element>),
     #[doc = "Value Withdrawn"]
     Withdrawn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SpecimenCollection {
     #[doc = "Puncture - action"]
@@ -8018,6 +8988,8 @@ pub enum SpecimenCollection {
     V70777001(Option<Element>),
     #[doc = "Urine specimen collection, clean catch"]
     V73416001(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SpecimenCollectionMethod {
     #[doc = "Puncture - action"]
@@ -8040,6 +9012,8 @@ pub enum SpecimenCollectionMethod {
     V70777001(Option<Element>),
     #[doc = "Urine specimen collection, clean catch"]
     V73416001(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SpecimenCollectionPriority {
     #[doc = "STAT"]
@@ -8056,12 +9030,16 @@ pub enum SpecimenCollectionPriority {
     V6(Option<Element>),
     #[doc = "CALL OR FAX"]
     V7(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SpecimenContainedPreference {
     #[doc = "Alternate"]
     Alternate(Option<Element>),
     #[doc = "Preferred"]
     Preferred(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SpecimenStatus {
     #[doc = "Available"]
@@ -8072,6 +9050,8 @@ pub enum SpecimenStatus {
     Unavailable(Option<Element>),
     #[doc = "Unsatisfactory"]
     Unsatisfactory(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum StandardsStatus {
     #[doc = "Deprecated"]
@@ -8086,12 +9066,16 @@ pub enum StandardsStatus {
     Normative(Option<Element>),
     #[doc = "Trial-Use"]
     TrialUse(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum StrandType {
     #[doc = "Crick strand of referenceSeq"]
     Crick(Option<Element>),
     #[doc = "Watson strand of referenceSeq"]
     Watson(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum StructureDefinitionKind {
     #[doc = "Complex Data Type"]
@@ -8102,6 +9086,8 @@ pub enum StructureDefinitionKind {
     PrimitiveType(Option<Element>),
     #[doc = "Resource"]
     Resource(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum StudyType {
     #[doc = "controlled trial (non-randomized)"]
@@ -8118,6 +9104,8 @@ pub enum StudyType {
     Mixed(Option<Element>),
     #[doc = "uncontrolled cohort or case series"]
     Series(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubjectType {
     Device(Option<Element>),
@@ -8125,6 +9113,8 @@ pub enum SubjectType {
     Organization(Option<Element>),
     Patient(Option<Element>),
     Practitioner(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubscriberRelationship {
     #[doc = "Child"]
@@ -8141,6 +9131,8 @@ pub enum SubscriberRelationship {
     _Self(Option<Element>),
     #[doc = "Spouse"]
     Spouse(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubscriptionChannelType {
     #[doc = "Email"]
@@ -8153,6 +9145,8 @@ pub enum SubscriptionChannelType {
     Sms(Option<Element>),
     #[doc = "Websocket"]
     Websocket(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubscriptionStatus {
     #[doc = "Active"]
@@ -8163,12 +9157,16 @@ pub enum SubscriptionStatus {
     Off(Option<Element>),
     #[doc = "Requested"]
     Requested(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubscriptionTag {
     #[doc = "Delivered"]
     Delivered(Option<Element>),
     #[doc = "Queued"]
     Queued(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubstanceCategory {
     #[doc = "Allergen"]
@@ -8185,6 +9183,8 @@ pub enum SubstanceCategory {
     Food(Option<Element>),
     #[doc = "Material"]
     Material(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SubstanceStatus {
     #[doc = "Active"]
@@ -8193,6 +9193,8 @@ pub enum SubstanceStatus {
     EnteredInError(Option<Element>),
     #[doc = "Inactive"]
     Inactive(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SupplementType {
     #[doc = "Standard Enteral Formula"]
@@ -8285,6 +9287,8 @@ pub enum SupplementType {
     V444401000124107(Option<Element>),
     #[doc = "Pediatric reduced energy formula"]
     V444431000124104(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SupplydeliveryStatus {
     #[doc = "Abandoned"]
@@ -8295,24 +9299,32 @@ pub enum SupplydeliveryStatus {
     EnteredInError(Option<Element>),
     #[doc = "In Progress"]
     InProgress(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SupplydeliveryType {
     #[doc = "Device"]
     Device(Option<Element>),
     #[doc = "Medication"]
     Medication(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SupplyrequestKind {
     #[doc = "Central Supply"]
     Central(Option<Element>),
     #[doc = "Non-Stock"]
     Nonstock(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SupplyrequestReason {
     #[doc = "Patient Care"]
     PatientCare(Option<Element>),
     #[doc = "Ward Stock"]
     WardStock(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SupplyrequestStatus {
     #[doc = "Active"]
@@ -8329,6 +9341,8 @@ pub enum SupplyrequestStatus {
     Suspended(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Surface {
     #[doc = "Buccal"]
@@ -8353,6 +9367,8 @@ pub enum Surface {
     O(Option<Element>),
     #[doc = "Ventral"]
     V(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SynthesisType {
     #[doc = "individual patient data meta-analysis"]
@@ -8367,12 +9383,16 @@ pub enum SynthesisType {
     Range(Option<Element>),
     #[doc = "summary data meta-analysis"]
     StdMA(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum SystemRestfulInteraction {
     Batch(Option<Element>),
     HistorySystem(Option<Element>),
     SearchSystem(Option<Element>),
     Transaction(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TaskCode {
     #[doc = "Mark the focal resource as no longer active"]
@@ -8389,6 +9409,8 @@ pub enum TaskCode {
     Resume(Option<Element>),
     #[doc = "Suspend the focal resource"]
     Suspend(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TaskIntent {
     FillerOrder(Option<Element>),
@@ -8401,6 +9423,8 @@ pub enum TaskIntent {
     ReflexOrder(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TaskStatus {
     #[doc = "Accepted"]
@@ -8427,6 +9451,8 @@ pub enum TaskStatus {
     Rejected(Option<Element>),
     #[doc = "Requested"]
     Requested(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Teeth {
     #[doc = "11"]
@@ -8493,6 +9519,8 @@ pub enum Teeth {
     V47(Option<Element>),
     #[doc = "48"]
     V48(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TemplateStatusCode {
     #[doc = "Active"]
@@ -8511,6 +9539,8 @@ pub enum TemplateStatusCode {
     Review(Option<Element>),
     #[doc = "Terminated"]
     Terminated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TestscriptOperationCodes {
     #[doc = "$apply"]
@@ -8603,6 +9633,8 @@ pub enum TestscriptOperationCodes {
     ValidateCode(Option<Element>),
     #[doc = "Version Read"]
     Vread(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TestscriptProfileDestinationTypes {
     #[doc = "FHIR SDC FormManager"]
@@ -8613,12 +9645,16 @@ pub enum TestscriptProfileDestinationTypes {
     FHIRSDCFormReceiver(Option<Element>),
     #[doc = "FHIR Server"]
     FHIRServer(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TestscriptProfileOriginTypes {
     #[doc = "FHIR Client"]
     FHIRClient(Option<Element>),
     #[doc = "FHIR SDC FormFiller"]
     FHIRSDCFormFiller(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TextureCode {
     #[doc = "Chopped food"]
@@ -8649,6 +9685,8 @@ pub enum TextureCode {
     V441791000124106(Option<Element>),
     #[doc = "Ground food"]
     V441881000124103(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TimingAbbreviation {
     #[doc = "AM"]
@@ -8683,6 +9721,8 @@ pub enum TimingAbbreviation {
     TID(Option<Element>),
     #[doc = "weekly"]
     WK(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Tooth {
     #[doc = "Oral cavity"]
@@ -8767,6 +9807,8 @@ pub enum Tooth {
     V7(Option<Element>),
     #[doc = "8"]
     V8(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TransactionMode {
     #[doc = "Batches supported"]
@@ -8777,6 +9819,8 @@ pub enum TransactionMode {
     NotSupported(Option<Element>),
     #[doc = "Transactions Supported"]
     Transaction(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TriggerType {
     #[doc = "Data Access Ended"]
@@ -8795,12 +9839,16 @@ pub enum TriggerType {
     NamedEvent(Option<Element>),
     #[doc = "Periodic"]
     Periodic(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TypeDerivationRule {
     #[doc = "Constraint"]
     Constraint(Option<Element>),
     #[doc = "Specialization"]
     Specialization(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum TypeRestfulInteraction {
     Create(Option<Element>),
@@ -8812,19 +9860,27 @@ pub enum TypeRestfulInteraction {
     SearchType(Option<Element>),
     Update(Option<Element>),
     Vread(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UcumBodylength {
     LeftSquareBracketin_iRightSquareBracket(Option<Element>),
     Cm(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UcumBodytemp {
     Cel(Option<Element>),
     LeftSquareBracketdegFRightSquareBracket(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UcumBodyweight {
     LeftSquareBracketlb_avRightSquareBracket(Option<Element>),
     G(Option<Element>),
     Kg(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UcumVitalsCommon {
     #[doc = "percent"]
@@ -8851,10 +9907,14 @@ pub enum UcumVitalsCommon {
     M2(Option<Element>),
     #[doc = "millimeter of mercury"]
     MmLeftSquareBracketHgRightSquareBracket(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum Udi {
     #[doc = "GUDID (FDA)"]
     Gudid(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UdiEntryType {
     #[doc = "Barcode"]
@@ -8869,6 +9929,8 @@ pub enum UdiEntryType {
     SelfReported(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UnitsOfTime {
     #[doc = "year"]
@@ -8885,6 +9947,8 @@ pub enum UnitsOfTime {
     S(Option<Element>),
     #[doc = "week"]
     Wk(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UnknownContentCode {
     #[doc = "Unknown Elements and Extensions"]
@@ -8895,6 +9959,8 @@ pub enum UnknownContentCode {
     Extensions(Option<Element>),
     #[doc = "Neither Elements or Extensions"]
     No(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum UsageContextType {
     #[doc = "Age Range"]
@@ -8915,6 +9981,8 @@ pub enum UsageContextType {
     Venue(Option<Element>),
     #[doc = "Workflow Setting"]
     Workflow(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VariableType {
     #[doc = "Continuous"]
@@ -8923,6 +9991,8 @@ pub enum VariableType {
     Descriptive(Option<Element>),
     #[doc = "Dichotomous"]
     Dichotomous(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VariantState {
     #[doc = "absent"]
@@ -8931,6 +10001,8 @@ pub enum VariantState {
     Negative(Option<Element>),
     #[doc = "positive"]
     Positive(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultCanPushUpdates {
     #[doc = "No"]
@@ -8939,6 +10011,8 @@ pub enum VerificationresultCanPushUpdates {
     Undetermined(Option<Element>),
     #[doc = "Yes"]
     Yes(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultCommunicationMethod {
     #[doc = "Manual"]
@@ -8949,6 +10023,8 @@ pub enum VerificationresultCommunicationMethod {
     Pull(Option<Element>),
     #[doc = "Push"]
     Push(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultFailureAction {
     #[doc = "Fatal"]
@@ -8959,6 +10035,8 @@ pub enum VerificationresultFailureAction {
     RecOnly(Option<Element>),
     #[doc = "Warning"]
     Warn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultNeed {
     #[doc = "Initial"]
@@ -8967,6 +10045,8 @@ pub enum VerificationresultNeed {
     None(Option<Element>),
     #[doc = "Periodic"]
     Periodic(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultPrimarySourceType {
     #[doc = "Authoritative source"]
@@ -8987,6 +10067,8 @@ pub enum VerificationresultPrimarySourceType {
     RegAuth(Option<Element>),
     #[doc = "Relationship owner"]
     RelOwn(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultPushTypeAvailable {
     #[doc = "Any changes"]
@@ -8995,6 +10077,8 @@ pub enum VerificationresultPushTypeAvailable {
     Source(Option<Element>),
     #[doc = "Specific requested changes"]
     Specific(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultStatus {
     #[doc = "Attested"]
@@ -9009,6 +10093,8 @@ pub enum VerificationresultStatus {
     ValFail(Option<Element>),
     #[doc = "Validated"]
     Validated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultValidationProcess {
     #[doc = "edit check"]
@@ -9023,6 +10109,8 @@ pub enum VerificationresultValidationProcess {
     Standalone(Option<Element>),
     #[doc = "value set"]
     Valueset(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultValidationStatus {
     #[doc = "Failed"]
@@ -9031,6 +10119,8 @@ pub enum VerificationresultValidationStatus {
     Successful(Option<Element>),
     #[doc = "Unknown"]
     Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VerificationresultValidationType {
     #[doc = "Multiple Sources"]
@@ -9039,6 +10129,8 @@ pub enum VerificationresultValidationType {
     Nothing(Option<Element>),
     #[doc = "Primary Source"]
     Primary(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VersioningPolicy {
     #[doc = "No VersionId Support"]
@@ -9047,6 +10139,8 @@ pub enum VersioningPolicy {
     Versioned(Option<Element>),
     #[doc = "VersionId tracked fully"]
     VersionedUpdate(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VisionBaseCodes {
     #[doc = "Down"]
@@ -9057,18 +10151,24 @@ pub enum VisionBaseCodes {
     Out(Option<Element>),
     #[doc = "Up"]
     Up(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VisionEyeCodes {
     #[doc = "Left Eye"]
     Left(Option<Element>),
     #[doc = "Right Eye"]
     Right(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum VisionProduct {
     #[doc = "Contact Lens"]
     Contact(Option<Element>),
     #[doc = "Lens"]
     Lens(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum WrittenLanguage {
     #[doc = "Arabic"]
@@ -9123,6 +10223,8 @@ pub enum WrittenLanguage {
     Te(Option<Element>),
     #[doc = "Chinese"]
     Zh(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AcknowledgementCondition {
     #[doc = "Always"]
@@ -9133,6 +10235,8 @@ pub enum V3AcknowledgementCondition {
     NE(Option<Element>),
     #[doc = "Successful only"]
     SU(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AcknowledgementDetailCode {
     #[doc = "Internal system error"]
@@ -9191,6 +10295,8 @@ pub enum V3AcknowledgementDetailCode {
     SYN114(Option<Element>),
     #[doc = "AcknowledgementDetailNotSupportedCode"]
     _AcknowledgementDetailNotSupportedCode(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AcknowledgementDetailType {
     #[doc = "Error"]
@@ -9202,6 +10308,8 @@ pub enum V3AcknowledgementDetailType {
     #[doc = "Warning"]
     W(Option<Element>),
     WARN(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AcknowledgementType {
     #[doc = "Application Acknowledgement Accept"]
@@ -9216,6 +10324,8 @@ pub enum V3AcknowledgementType {
     CE(Option<Element>),
     #[doc = "Accept Acknowledgement Commit Reject"]
     CR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActExposureLevelCode {
     #[doc = "high"]
@@ -9226,6 +10336,8 @@ pub enum V3ActExposureLevelCode {
     MEDIUM(Option<Element>),
     #[doc = "ActExposureLevelCode"]
     _ActExposureLevelCode(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActInvoiceElementModifier {
     #[doc = "Electronic Form To Follow"]
@@ -9236,6 +10348,8 @@ pub enum V3ActInvoiceElementModifier {
     LINV(Option<Element>),
     #[doc = "Paper Documentation To Follow"]
     PAPER(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActMood {
     #[doc = "appointment"]
@@ -9294,6 +10408,8 @@ pub enum V3ActMood {
     _ActMoodPotential(Option<Element>),
     #[doc = "ActMoodPredicate"]
     _ActMoodPredicate(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActMoodIntent {
     #[doc = "appointment"]
@@ -9352,6 +10468,8 @@ pub enum V3ActMoodIntent {
     _ActMoodPotential(Option<Element>),
     #[doc = "ActMoodPredicate"]
     _ActMoodPredicate(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActMoodPredicate {
     #[doc = "appointment"]
@@ -9410,6 +10528,8 @@ pub enum V3ActMoodPredicate {
     _ActMoodPotential(Option<Element>),
     #[doc = "ActMoodPredicate"]
     _ActMoodPredicate(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActPriority {
     #[doc = "ASAP"]
@@ -9442,6 +10562,8 @@ pub enum V3ActPriority {
     UD(Option<Element>),
     #[doc = "urgent"]
     UR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActRelationshipCheckpoint {
     #[doc = "beginning"]
@@ -9454,6 +10576,8 @@ pub enum V3ActRelationshipCheckpoint {
     T(Option<Element>),
     #[doc = "exit"]
     X(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActRelationshipJoin {
     #[doc = "detached"]
@@ -9464,6 +10588,8 @@ pub enum V3ActRelationshipJoin {
     W(Option<Element>),
     #[doc = "exclusive wait"]
     X(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActRelationshipSplit {
     #[doc = "exclusive try once"]
@@ -9474,6 +10600,8 @@ pub enum V3ActRelationshipSplit {
     I1(Option<Element>),
     #[doc = "inclusive wait"]
     IW(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActRelationshipSubset {
     #[doc = "ActRelationshipExpectedSubset"]
@@ -9504,6 +10632,8 @@ pub enum V3ActRelationshipSubset {
     SUM(Option<Element>),
     #[doc = "ParticipationSubset"]
     _ParticipationSubset(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActSite {
     #[doc = "bilateral ears"]
@@ -9614,6 +10744,8 @@ pub enum V3ActSite {
     _HumanActSite(Option<Element>),
     #[doc = "HumanSubstanceAdministrationSite"]
     _HumanSubstanceAdministrationSite(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActStatus {
     #[doc = "aborted"]
@@ -9636,6 +10768,8 @@ pub enum V3ActStatus {
     Obsolete(Option<Element>),
     #[doc = "suspended"]
     Suspended(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActSubstanceAdminSubstitutionCode {
     #[doc = "brand composition"]
@@ -9658,6 +10792,8 @@ pub enum V3ActSubstanceAdminSubstitutionCode {
     TG(Option<Element>),
     #[doc = "ActSubstanceAdminSubstitutionCode"]
     _ActSubstanceAdminSubstitutionCode(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActUSPrivacyLaw {
     #[doc = "42 CFR Part2"]
@@ -9674,12 +10810,16 @@ pub enum V3ActUSPrivacyLaw {
     Title38Section7332(Option<Element>),
     #[doc = "ActUSPrivacyLaw"]
     _ActUSPrivacyLaw(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ActUncertainty {
     #[doc = "stated with no assertion of uncertainty"]
     N(Option<Element>),
     #[doc = "stated with uncertainty"]
     U(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AddressPartType {
     #[doc = "additional locator"]
@@ -9742,6 +10882,8 @@ pub enum V3AddressPartType {
     UNIT(Option<Element>),
     #[doc = "postal code"]
     ZIP(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AddressUse {
     #[doc = "answering service"]
@@ -9782,6 +10924,8 @@ pub enum V3AddressUse {
     _PostalAddressUse(Option<Element>),
     #[doc = "_TelecommunicationAddressUse"]
     _TelecommunicationAddressUse(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3AdministrativeGender {
     #[doc = "Female"]
@@ -9790,10 +10934,14 @@ pub enum V3AdministrativeGender {
     M(Option<Element>),
     #[doc = "Undifferentiated"]
     UN(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Calendar {
     #[doc = "Gregorian"]
     GREG(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3CalendarCycle {
     #[doc = "day (continuous)"]
@@ -9832,10 +10980,14 @@ pub enum V3CalendarCycle {
     _CalendarCycleOneLetter(Option<Element>),
     #[doc = "CalendarCycleTwoLetter"]
     _CalendarCycleTwoLetter(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3CalendarType {
     #[doc = "Gregorian"]
     GREG(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Charset {
     #[doc = "EBCDIC"]
@@ -9858,6 +11010,8 @@ pub enum V3Charset {
     UTF7(Option<Element>),
     #[doc = "UTF-8"]
     UTF8(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3CodingRationale {
     #[doc = "HL7 Specified or Mandated"]
@@ -9876,6 +11030,8 @@ pub enum V3CodingRationale {
     SH(Option<Element>),
     #[doc = "Source (or original) code"]
     SRC(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3CommunicationFunctionType {
     #[doc = "receiver"]
@@ -9884,6 +11040,8 @@ pub enum V3CommunicationFunctionType {
     RSP(Option<Element>),
     #[doc = "sender"]
     SND(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3CompressionAlgorithm {
     #[doc = "bzip"]
@@ -9898,6 +11056,8 @@ pub enum V3CompressionAlgorithm {
     Z7(Option<Element>),
     #[doc = "zlib"]
     ZL(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Confidentiality {
     #[doc = "business"]
@@ -9940,6 +11100,8 @@ pub enum V3Confidentiality {
     _ConfidentialityByInfoType(Option<Element>),
     #[doc = "ConfidentialityModifiers"]
     _ConfidentialityModifiers(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ConfidentialityClassification {
     L(Option<Element>),
@@ -9948,6 +11110,8 @@ pub enum V3ConfidentialityClassification {
     R(Option<Element>),
     U(Option<Element>),
     V(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ContainerCap {
     #[doc = "ChildProof"]
@@ -9964,18 +11128,24 @@ pub enum V3ContainerCap {
     SCR(Option<Element>),
     #[doc = "MedicationCap"]
     _MedicationCap(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ContainerSeparator {
     #[doc = "Gel"]
     GEL(Option<Element>),
     #[doc = "None"]
     NONE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ContentProcessingMode {
     #[doc = "Sequential"]
     SEQL(Option<Element>),
     #[doc = "Unordered"]
     UNOR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ContextControl {
     #[doc = "additive, non-propagating"]
@@ -9994,6 +11164,8 @@ pub enum V3ContextControl {
     _ContextControlOverriding(Option<Element>),
     #[doc = "ContextControlPropagating"]
     _ContextControlPropagating(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3DataOperation {
     #[doc = "abort"]
@@ -10036,6 +11208,8 @@ pub enum V3DataOperation {
     SUSPEND(Option<Element>),
     #[doc = "revise"]
     UPDATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3DeviceAlertLevel {
     #[doc = "Critical"]
@@ -10046,6 +11220,8 @@ pub enum V3DeviceAlertLevel {
     S(Option<Element>),
     #[doc = "Warning"]
     W(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3DocumentCompletion {
     #[doc = "authenticated"]
@@ -10066,6 +11242,8 @@ pub enum V3DocumentCompletion {
     PA(Option<Element>),
     #[doc = "unsigned completed document"]
     UC(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3DocumentStorage {
     #[doc = "active and archived"]
@@ -10076,6 +11254,8 @@ pub enum V3DocumentStorage {
     AR(Option<Element>),
     #[doc = "purged"]
     PU(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EducationLevel {
     #[doc = "Associate's or technical degree complete"]
@@ -10096,12 +11276,16 @@ pub enum V3EducationLevel {
     SCOL(Option<Element>),
     #[doc = "Some secondary or high school education"]
     SEC(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EmployeeJobClass {
     #[doc = "full-time"]
     FT(Option<Element>),
     #[doc = "part-time"]
     PT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EncounterAdmissionSource {
     #[doc = "emergency"]
@@ -10110,6 +11294,8 @@ pub enum V3EncounterAdmissionSource {
     LD(Option<Element>),
     #[doc = "newborn"]
     NB(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EncounterSpecialCourtesy {
     #[doc = "extended courtesy"]
@@ -10122,6 +11308,8 @@ pub enum V3EncounterSpecialCourtesy {
     STF(Option<Element>),
     #[doc = "very important person"]
     VIP(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClass {
     #[doc = "animal"]
@@ -10178,6 +11366,8 @@ pub enum V3EntityClass {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClassDevice {
     #[doc = "animal"]
@@ -10234,6 +11424,8 @@ pub enum V3EntityClassDevice {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClassLivingSubject {
     #[doc = "animal"]
@@ -10290,6 +11482,8 @@ pub enum V3EntityClassLivingSubject {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClassManufacturedMaterial {
     #[doc = "animal"]
@@ -10346,6 +11540,8 @@ pub enum V3EntityClassManufacturedMaterial {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClassOrganization {
     #[doc = "animal"]
@@ -10402,6 +11598,8 @@ pub enum V3EntityClassOrganization {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClassPlace {
     #[doc = "animal"]
@@ -10458,6 +11656,8 @@ pub enum V3EntityClassPlace {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityClassRoot {
     #[doc = "animal"]
@@ -10514,6 +11714,8 @@ pub enum V3EntityClassRoot {
     RGRP(Option<Element>),
     #[doc = "state"]
     STATE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityDeterminer {
     #[doc = "specific group"]
@@ -10526,6 +11728,8 @@ pub enum V3EntityDeterminer {
     KIND(Option<Element>),
     #[doc = "described quantified"]
     QUANTIFIED_KIND(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityDeterminerDetermined {
     #[doc = "specific group"]
@@ -10538,6 +11742,8 @@ pub enum V3EntityDeterminerDetermined {
     KIND(Option<Element>),
     #[doc = "described quantified"]
     QUANTIFIED_KIND(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityHandling {
     #[doc = "Ambient Temperature"]
@@ -10576,6 +11782,8 @@ pub enum V3EntityHandling {
     UFRZ(Option<Element>),
     #[doc = "upright"]
     UPR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityNamePartQualifier {
     #[doc = "academic"]
@@ -10636,6 +11844,8 @@ pub enum V3EntityNamePartQualifier {
     _PersonNamePartMiscQualifier(Option<Element>),
     #[doc = "PersonNamePartQualifier"]
     _PersonNamePartQualifier(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityNamePartQualifierR2 {
     #[doc = "academic"]
@@ -10692,6 +11902,8 @@ pub enum V3EntityNamePartQualifierR2 {
     TitleStyles(Option<Element>),
     #[doc = "intended use name"]
     USE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityNamePartType {
     #[doc = "delimiter"]
@@ -10704,6 +11916,8 @@ pub enum V3EntityNamePartType {
     PFX(Option<Element>),
     #[doc = "suffix"]
     SFX(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityNamePartTypeR2 {
     #[doc = "delimiter"]
@@ -10714,6 +11928,8 @@ pub enum V3EntityNamePartTypeR2 {
     GIV(Option<Element>),
     #[doc = "title"]
     TITLE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityNameUse {
     #[doc = "Artist/Stage"]
@@ -10746,6 +11962,8 @@ pub enum V3EntityNameUse {
     SYL(Option<Element>),
     #[doc = "NameRepresentationUse"]
     _NameRepresentationUse(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityNameUseR2 {
     #[doc = "business name"]
@@ -10784,6 +12002,8 @@ pub enum V3EntityNameUseR2 {
     SYL(Option<Element>),
     #[doc = "temporary"]
     T(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityRisk {
     #[doc = "aggressive"]
@@ -10808,6 +12028,8 @@ pub enum V3EntityRisk {
     POI(Option<Element>),
     #[doc = "radioactive"]
     RAD(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EntityStatus {
     #[doc = "active"]
@@ -10820,6 +12042,8 @@ pub enum V3EntityStatus {
     Nullified(Option<Element>),
     #[doc = "terminated"]
     Terminated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3EquipmentAlertLevel {
     #[doc = "Critical"]
@@ -10830,6 +12054,8 @@ pub enum V3EquipmentAlertLevel {
     S(Option<Element>),
     #[doc = "Warning"]
     W(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Ethnicity {
     #[doc = "Hispanic or Latino"]
@@ -10918,6 +12144,8 @@ pub enum V3Ethnicity {
     V21840(Option<Element>),
     #[doc = "Not Hispanic or Latino"]
     V21865(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ExposureMode {
     #[doc = "airborne"]
@@ -10930,6 +12158,8 @@ pub enum V3ExposureMode {
     WATERBORNE(Option<Element>),
     #[doc = "ExposureMode"]
     _ExposureMode(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3GTSAbbreviation {
     #[doc = "AM"]
@@ -11020,12 +12250,16 @@ pub enum V3GTSAbbreviation {
     WK(Option<Element>),
     #[doc = "GTSAbbreviationHolidaysChristianRoman"]
     _GTSAbbreviationHolidaysChristianRoman(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3GenderStatus {
     #[doc = "Intact"]
     I(Option<Element>),
     #[doc = "Neutered"]
     N(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3GeneralPurposeOfUse {
     COVERAGE(Option<Element>),
@@ -11037,6 +12271,8 @@ pub enum V3GeneralPurposeOfUse {
     PATRQT(Option<Element>),
     PUBHLTH(Option<Element>),
     TREAT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3HL7ContextConductionStyle {
     #[doc = "conduction-indicator-based"]
@@ -11045,6 +12281,8 @@ pub enum V3HL7ContextConductionStyle {
     I(Option<Element>),
     #[doc = "vocabulary-based"]
     V(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3HL7StandardVersionCode {
     #[doc = "Ballot 2008 January"]
@@ -11097,6 +12335,8 @@ pub enum V3HL7StandardVersionCode {
     V32012N(Option<Element>),
     #[doc = "Version3 Pre-release #1"]
     V3PR1(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3HL7UpdateMode {
     #[doc = "Add"]
@@ -11131,6 +12371,8 @@ pub enum V3HL7UpdateMode {
     V(Option<Element>),
     #[doc = "SetUpdateMode"]
     _SetUpdateMode(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3HtmlLinkType {
     #[doc = "alternate"]
@@ -11163,6 +12405,8 @@ pub enum V3HtmlLinkType {
     Stylesheet(Option<Element>),
     #[doc = "subsection"]
     Subsection(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3IdentifierReliability {
     #[doc = "Issued by System"]
@@ -11171,6 +12415,8 @@ pub enum V3IdentifierReliability {
     UNV(Option<Element>),
     #[doc = "Verified by system"]
     VRF(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3IdentifierScope {
     #[doc = "Business Identifier"]
@@ -11181,12 +12427,16 @@ pub enum V3IdentifierScope {
     VER(Option<Element>),
     #[doc = "View Specific Identifier"]
     VW(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3IntegrityCheckAlgorithm {
     #[doc = "secure hash algorithm - 1"]
     SHA1(Option<Element>),
     #[doc = "secure hash algorithm - 256"]
     SHA256(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3LanguageAbilityMode {
     #[doc = "Expressed signed"]
@@ -11201,6 +12451,8 @@ pub enum V3LanguageAbilityMode {
     RSP(Option<Element>),
     #[doc = "Received written"]
     RWR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3LanguageAbilityProficiency {
     #[doc = "Excellent"]
@@ -11211,6 +12463,8 @@ pub enum V3LanguageAbilityProficiency {
     G(Option<Element>),
     #[doc = "Poor"]
     P(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3LivingArrangement {
     #[doc = "community shelter"]
@@ -11237,18 +12491,24 @@ pub enum V3LivingArrangement {
     T(Option<Element>),
     #[doc = "Extended care facility"]
     X(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3LocalMarkupIgnore {
     #[doc = "all"]
     All(Option<Element>),
     #[doc = "markup"]
     Markup(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3LocalRemoteControlState {
     #[doc = "Local"]
     L(Option<Element>),
     #[doc = "Remote"]
     R(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ManagedParticipationStatus {
     #[doc = "active"]
@@ -11263,6 +12523,8 @@ pub enum V3ManagedParticipationStatus {
     Nullified(Option<Element>),
     #[doc = "pending"]
     Pending(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3MapRelationship {
     #[doc = "Broader Than"]
@@ -11271,6 +12533,8 @@ pub enum V3MapRelationship {
     E(Option<Element>),
     #[doc = "Narrower Than"]
     NT(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3MaritalStatus {
     #[doc = "Annulled"]
@@ -11293,6 +12557,8 @@ pub enum V3MaritalStatus {
     U(Option<Element>),
     #[doc = "Widowed"]
     W(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3MessageWaitingPriority {
     #[doc = "High"]
@@ -11301,12 +12567,16 @@ pub enum V3MessageWaitingPriority {
     L(Option<Element>),
     #[doc = "Medium"]
     M(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ModifyIndicator {
     #[doc = "Modified subscription"]
     M(Option<Element>),
     #[doc = "New subscription"]
     N(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3NullFlavor {
     #[doc = "asked but unknown"]
@@ -11343,6 +12613,8 @@ pub enum V3NullFlavor {
     UNC(Option<Element>),
     #[doc = "unknown"]
     UNK(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ObservationCategory {
     #[doc = "Exam"]
@@ -11361,6 +12633,8 @@ pub enum V3ObservationCategory {
     Therapy(Option<Element>),
     #[doc = "Vital Signs"]
     VitalSigns(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ObservationInterpretation {
     #[doc = "Off scale low"]
@@ -11477,6 +12751,8 @@ pub enum V3ObservationInterpretation {
     _ObservationInterpretationNormality(Option<Element>),
     #[doc = "ObservationInterpretationSusceptibility"]
     _ObservationInterpretationSusceptibility(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationFunction {
     #[doc = "admitting physician"]
@@ -11577,6 +12853,8 @@ pub enum V3ParticipationFunction {
     _SponsorParticipationFunction(Option<Element>),
     #[doc = "UnderwriterParticipationFunction"]
     _UnderwriterParticipationFunction(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationIndirectTarget {
     #[doc = "admitter"]
@@ -11701,6 +12979,8 @@ pub enum V3ParticipationIndirectTarget {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationInformationGenerator {
     #[doc = "admitter"]
@@ -11825,6 +13105,8 @@ pub enum V3ParticipationInformationGenerator {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationInformationTranscriber {
     #[doc = "admitter"]
@@ -11949,6 +13231,8 @@ pub enum V3ParticipationInformationTranscriber {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationMode {
     #[doc = "dictated"]
@@ -11981,6 +13265,8 @@ pub enum V3ParticipationMode {
     VIDEOCONF(Option<Element>),
     #[doc = "written"]
     WRITTEN(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationPhysicalPerformer {
     #[doc = "admitter"]
@@ -12105,6 +13391,8 @@ pub enum V3ParticipationPhysicalPerformer {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationSignature {
     #[doc = "intended"]
@@ -12113,6 +13401,8 @@ pub enum V3ParticipationSignature {
     S(Option<Element>),
     #[doc = "required"]
     X(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationTargetDirect {
     #[doc = "admitter"]
@@ -12237,6 +13527,8 @@ pub enum V3ParticipationTargetDirect {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationTargetLocation {
     #[doc = "admitter"]
@@ -12361,6 +13653,8 @@ pub enum V3ParticipationTargetLocation {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationTargetSubject {
     #[doc = "admitter"]
@@ -12485,6 +13779,8 @@ pub enum V3ParticipationTargetSubject {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationType {
     #[doc = "admitter"]
@@ -12609,6 +13905,8 @@ pub enum V3ParticipationType {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ParticipationVerifier {
     #[doc = "admitter"]
@@ -12733,6 +14031,8 @@ pub enum V3ParticipationVerifier {
     _ParticipationAncillary(Option<Element>),
     #[doc = "ParticipationInformationGenerator"]
     _ParticipationInformationGenerator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3PatientImportance {
     #[doc = "Board Member"]
@@ -12753,6 +14053,8 @@ pub enum V3PatientImportance {
     STF(Option<Element>),
     #[doc = "Very Important Person"]
     VIP(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3PaymentTerms {
     #[doc = "Cash on Delivery"]
@@ -12763,6 +14065,8 @@ pub enum V3PaymentTerms {
     N60(Option<Element>),
     #[doc = "Net 90 days"]
     N90(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3PersonDisabilityType {
     #[doc = "Vision impaired"]
@@ -12785,6 +14089,8 @@ pub enum V3PersonDisabilityType {
     WC(Option<Element>),
     #[doc = "Requires walker"]
     WK(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ProbabilityDistributionType {
     #[doc = "beta"]
@@ -12805,6 +14111,8 @@ pub enum V3ProbabilityDistributionType {
     U(Option<Element>),
     #[doc = "chi square"]
     X2(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ProcessingID {
     #[doc = "Debugging"]
@@ -12813,6 +14121,8 @@ pub enum V3ProcessingID {
     P(Option<Element>),
     #[doc = "Training"]
     T(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ProcessingMode {
     #[doc = "Archive"]
@@ -12823,6 +14133,8 @@ pub enum V3ProcessingMode {
     R(Option<Element>),
     #[doc = "Current processing"]
     T(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ProvenanceEventCurrentState {
     AU(Option<Element>),
@@ -12836,6 +14148,8 @@ pub enum V3ProvenanceEventCurrentState {
     New(Option<Element>),
     Nullified(Option<Element>),
     Obsolete(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ProvenanceEventCurrentStateAS {
     Aborted(Option<Element>),
@@ -12844,6 +14158,8 @@ pub enum V3ProvenanceEventCurrentStateAS {
     New(Option<Element>),
     Nullified(Option<Element>),
     Obsolete(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ProvenanceEventCurrentStateDC {
     AU(Option<Element>),
@@ -12851,6 +14167,8 @@ pub enum V3ProvenanceEventCurrentStateDC {
     DO(Option<Element>),
     LA(Option<Element>),
     UC(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3QueryParameterValue {
     #[doc = "all dispenses"]
@@ -12885,18 +14203,24 @@ pub enum V3QueryParameterValue {
     _PrescriptionDispenseFilterCode(Option<Element>),
     #[doc = "QueryParameterValue"]
     _QueryParameterValue(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3QueryPriority {
     #[doc = "Deferred"]
     D(Option<Element>),
     #[doc = "Immediate"]
     I(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3QueryRequestLimit {
     #[doc = "record"]
     RD(Option<Element>),
     #[doc = "QueryRequestLimit"]
     _QueryRequestLimit(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3QueryResponse {
     #[doc = "ApplicationError"]
@@ -12907,6 +14231,8 @@ pub enum V3QueryResponse {
     OK(Option<Element>),
     #[doc = "QueryParameterError"]
     QE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3QueryStatusCode {
     #[doc = "aborted"]
@@ -12919,6 +14245,8 @@ pub enum V3QueryStatusCode {
     New(Option<Element>),
     #[doc = "waitContinuedQueryResponse"]
     WaitContinuedQueryResponse(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3RelationalOperator {
     #[doc = "Contains"]
@@ -12937,6 +14265,8 @@ pub enum V3RelationalOperator {
     LT(Option<Element>),
     #[doc = "Not Equal"]
     NE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3RelationshipConjunction {
     #[doc = "and"]
@@ -12945,6 +14275,8 @@ pub enum V3RelationshipConjunction {
     OR(Option<Element>),
     #[doc = "exclusive or"]
     XOR(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ReligiousAffiliation {
     #[doc = "Adventist"]
@@ -13111,6 +14443,8 @@ pub enum V3ReligiousAffiliation {
     V1081(Option<Element>),
     #[doc = "United Church of Christ"]
     V1082(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ResponseLevel {
     #[doc = "completion"]
@@ -13127,6 +14461,8 @@ pub enum V3ResponseLevel {
     R(Option<Element>),
     #[doc = "none"]
     X(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ResponseModality {
     #[doc = "Batch"]
@@ -13135,6 +14471,8 @@ pub enum V3ResponseModality {
     R(Option<Element>),
     #[doc = "Bolus"]
     T(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3ResponseMode {
     #[doc = "deferred"]
@@ -13143,6 +14481,8 @@ pub enum V3ResponseMode {
     I(Option<Element>),
     #[doc = "queue"]
     Q(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3RoleLinkStatus {
     #[doc = "active"]
@@ -13157,6 +14497,8 @@ pub enum V3RoleLinkStatus {
     NULLIFIED(Option<Element>),
     #[doc = "pending"]
     PENDING(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3RoleLinkType {
     #[doc = "is backup for"]
@@ -13175,6 +14517,8 @@ pub enum V3RoleLinkType {
     REL(Option<Element>),
     #[doc = "replaces"]
     REPL(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3RoleStatus {
     #[doc = "active"]
@@ -13191,6 +14535,8 @@ pub enum V3RoleStatus {
     Suspended(Option<Element>),
     #[doc = "terminated"]
     Terminated(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Sequencing {
     #[doc = "Ascending"]
@@ -13199,6 +14545,8 @@ pub enum V3Sequencing {
     D(Option<Element>),
     #[doc = "None"]
     N(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3SetOperator {
     #[doc = "intersect"]
@@ -13213,6 +14561,8 @@ pub enum V3SetOperator {
     P(Option<Element>),
     #[doc = "ValueSetOperator"]
     _ValueSetOperator(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3SubstitutionCondition {
     #[doc = "Confirm first"]
@@ -13225,6 +14575,8 @@ pub enum V3SubstitutionCondition {
     UNCOND(Option<Element>),
     #[doc = "Conditional"]
     _Conditional(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TableCellHorizontalAlign {
     #[doc = "center"]
@@ -13237,6 +14589,8 @@ pub enum V3TableCellHorizontalAlign {
     Left(Option<Element>),
     #[doc = "right"]
     Right(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TableCellScope {
     #[doc = "col"]
@@ -13247,6 +14601,8 @@ pub enum V3TableCellScope {
     Row(Option<Element>),
     #[doc = "rowgroup"]
     Rowgroup(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TableCellVerticalAlign {
     #[doc = "baseline"]
@@ -13257,6 +14613,8 @@ pub enum V3TableCellVerticalAlign {
     Middle(Option<Element>),
     #[doc = "top"]
     Top(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TableFrame {
     #[doc = "above"]
@@ -13277,6 +14635,8 @@ pub enum V3TableFrame {
     Void(Option<Element>),
     #[doc = "vsides"]
     Vsides(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TableRules {
     #[doc = "all"]
@@ -13289,6 +14649,8 @@ pub enum V3TableRules {
     None(Option<Element>),
     #[doc = "rows"]
     Rows(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TargetAwareness {
     #[doc = "denying"]
@@ -13303,6 +14665,8 @@ pub enum V3TargetAwareness {
     P(Option<Element>),
     #[doc = "uninformed"]
     U(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TelecommunicationCapabilities {
     #[doc = "data"]
@@ -13315,6 +14679,8 @@ pub enum V3TelecommunicationCapabilities {
     Tty(Option<Element>),
     #[doc = "voice"]
     Voice(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TimingEvent {
     #[doc = "AC"]
@@ -13353,10 +14719,14 @@ pub enum V3TimingEvent {
     PCV(Option<Element>),
     #[doc = "WAKE"]
     WAKE(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TransmissionRelationshipTypeCode {
     #[doc = "sequence"]
     SEQL(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3VaccineManufacturer {
     #[doc = "Abbott Laboratories (includes Ross Products Division)"]
@@ -13439,6 +14809,8 @@ pub enum V3VaccineManufacturer {
     WA(Option<Element>),
     #[doc = "Wyeth-Ayerst (includes Wyeth-Lederle Vaccines and Pediatrics, Wyeth Laboratories, Lederle Laboratories, and Praxis Biologics)"]
     WAL(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3WorkClassificationODH {
     #[doc = "Paid work, Armed Forces"]
@@ -13459,6 +14831,8 @@ pub enum V3WorkClassificationODH {
     UWSE(Option<Element>),
     #[doc = "Voluntary work"]
     VW(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7ApprovalStatus {
     #[doc = "affiliate ballot - DSTU"]
@@ -13501,6 +14875,8 @@ pub enum V3Hl7ApprovalStatus {
     Ref(Option<Element>),
     #[doc = "withdrawn"]
     Wd(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7CMETAttribution {
     #[doc = "contact"]
@@ -13517,16 +14893,22 @@ pub enum V3Hl7CMETAttribution {
     Minimal(Option<Element>),
     #[doc = "universal"]
     Universal(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7ITSType {
     #[doc = "universal modeling language"]
     UML(Option<Element>),
     #[doc = "extensible markup language"]
     XML(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7ITSVersionCode {
     #[doc = "XMLV1PR1"]
     XMLV1PR1(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7PublishingDomain {
     #[doc = "accounting & billing"]
@@ -13613,6 +14995,8 @@ pub enum V3Hl7PublishingDomain {
     SP(Option<Element>),
     #[doc = "therapeutic devices"]
     TD(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7PublishingSection {
     #[doc = "administrative management"]
@@ -13623,6 +15007,8 @@ pub enum V3Hl7PublishingSection {
     IM(Option<Element>),
     #[doc = "unknown"]
     UU(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7PublishingSubSection {
     #[doc = "common"]
@@ -13645,6 +15031,8 @@ pub enum V3Hl7PublishingSubSection {
     RE(Option<Element>),
     #[doc = "unknown"]
     UU(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7Realm {
     #[doc = "Argentina"]
@@ -13737,6 +15125,8 @@ pub enum V3Hl7Realm {
     X1(Option<Element>),
     #[doc = "Localized Version"]
     ZZ(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7V3Conformance {
     #[doc = "ignored"]
@@ -13751,6 +15141,8 @@ pub enum V3Hl7V3Conformance {
     RI(Option<Element>),
     #[doc = "undetermined"]
     U(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3Hl7VoteResolution {
     #[doc = "affirmative-deferred"]
@@ -13779,6 +15171,8 @@ pub enum V3Hl7VoteResolution {
     Unresolved(Option<Element>),
     #[doc = "withdrawn"]
     Withdraw(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3StyleType {
     #[doc = "Arabic"]
@@ -13823,6 +15217,8 @@ pub enum V3StyleType {
     Italics(Option<Element>),
     #[doc = "Underline Font"]
     Underline(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3SubstanceAdminSubstitution {
     #[doc = "brand composition"]
@@ -13845,6 +15241,8 @@ pub enum V3SubstanceAdminSubstitution {
     TG(Option<Element>),
     #[doc = "ActSubstanceAdminSubstitutionCode"]
     _ActSubstanceAdminSubstitutionCode(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3TriggerEventID {
     #[doc = "Result Status"]
@@ -13869,9 +15267,13 @@ pub enum V3TriggerEventID {
     POLB_TE004301UV(Option<Element>),
     #[doc = "Result Nullify"]
     POLB_TE004500UV(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
 pub enum V3XBasicConfidentialityKind {
     N(Option<Element>),
     R(Option<Element>),
     V(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
 }
