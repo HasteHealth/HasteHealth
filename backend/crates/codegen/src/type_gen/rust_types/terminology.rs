@@ -29,7 +29,7 @@ fn flatten_concepts(contains: ValueSetExpansionContains) -> BTreeSet<Code> {
         && let Some(code_string) = code.value.as_ref()
     {
         codes.insert(Code {
-            description: Some(code_string.to_string()),
+            description: contains.display.and_then(|d| d.value),
             code: code_string.to_string(),
         });
     }
@@ -106,7 +106,8 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             let enum_variants = codes.into_iter().map(|code| {
                 let code_ident = format_ident!("{}", format_string(&code.code));
                 let description = code.description.map_or(quote! {}, |d| {
-                    quote! {#[code = #d]}
+                    quote! {#[doc = #d]
+                    }
                 });
                 quote! {
                     #description
