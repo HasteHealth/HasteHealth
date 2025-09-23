@@ -7003,7 +7003,7 @@ pub enum QuestionnaireEnableBehavior {
 }
 pub enum QuestionnaireEnableOperator {
     #[doc = "Not Equals"]
-    __Equal(Option<Element>),
+    NotEqual(Option<Element>),
     #[doc = "Less Than"]
     Greater(Option<Element>),
     #[doc = "Less or Equals"]

@@ -66,7 +66,7 @@ fn format_string(id: &str) -> String {
         .replace("]", "RightSquareBracket")
         .replace("*", "Star")
         .replace("%", "Percent")
-        .replace("!", "__")
+        .replace("!", "Not")
         .split('.')
         .map(|id| capitalize(id))
         .collect::<Vec<_>>()

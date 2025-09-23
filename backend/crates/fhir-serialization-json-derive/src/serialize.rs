@@ -266,9 +266,68 @@ pub fn complex_serialization(
 }
 
 pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
+    let enum_name = input.ident;
     match input.data {
-        Data::Enum(_data) => {
-            todo!("Fail");
+        Data::Enum(data) => {
+            let variants_serialize_value = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                let code = get_attribute_value(&variant.attrs, "code").unwrap();
+                quote! {
+                    Self::#name(_e) => #code.serialize_value(writer)
+                }
+            });
+
+            let variants_serialize_extension = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                quote! {
+                    Self::#name(e) => e.serialize_value(writer)
+                }
+            });
+
+            let variants_serialize_fields = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                let code = get_attribute_value(&variant.attrs, "code").unwrap();
+                quote! {
+                    Self::#name(e) => #code.serialize_field(field, writer)
+                }
+            });
+
+            let variants_is_fp_primitive = data.variants.iter().map(|variant| {
+                let name = variant.ident.to_owned();
+                quote! {
+                    Self::#name(k) => k.is_fp_primitive()
+                }
+            });
+
+            let expanded = quote! {
+                impl oxidized_fhir_serialization_json::FHIRJSONSerializer for #enum_name {
+                    fn serialize_value(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
+                        match self {
+                            #(#variants_serialize_value),*
+                        }
+                    }
+
+                    fn serialize_extension(&self, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
+                        match self {
+                            #(#variants_serialize_extension),*
+                        }
+                    }
+
+                    fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
+                        match self {
+                            #(#variants_serialize_fields),*
+                        }
+                    }
+
+                    fn is_fp_primitive(&self) -> bool {
+                        match self {
+                            #(#variants_is_fp_primitive),*
+                        }
+                    }
+                }
+            };
+
+            expanded.into()
         }
         _ => panic!("Value set serialization only works for enums"),
     }
