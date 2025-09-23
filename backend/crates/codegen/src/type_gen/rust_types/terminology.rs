@@ -126,6 +126,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     #[doc = "If value is missing and just the element is present."]
                     Null(Option<Element>),
                 }
+                impl Default for #terminology_enum_name {
+                    fn default() -> Self {
+                        #terminology_enum_name::Null(None)
+                    }
+                }
             });
         }
     }
