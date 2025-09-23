@@ -66,7 +66,7 @@ fn format_string(id: &str) -> String {
         .replace("]", "RightSquareBracket")
         .replace("*", "Star")
         .replace("%", "Percent")
-        .replace("!", "__")
+        .replace("!", "Not")
         .split('.')
         .map(|id| capitalize(id))
         .collect::<Vec<_>>()
@@ -81,6 +81,8 @@ fn format_string(id: &str) -> String {
         format!("V{}", safe_string)
     } else if safe_string == "Self" {
         format!("_Self")
+    } else if safe_string == "Null" {
+        format!("_Null")
     } else {
         safe_string
     }
@@ -120,7 +122,14 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
 
             return Some(quote! {
                 pub enum #terminology_enum_name {
-                    #(#enum_variants),*
+                    #(#enum_variants),*,
+                    #[doc = "If value is missing and just the element is present."]
+                    Null(Option<Element>),
+                }
+                impl Default for #terminology_enum_name {
+                    fn default() -> Self {
+                        #terminology_enum_name::Null(None)
+                    }
                 }
             });
         }
