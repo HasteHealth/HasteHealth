@@ -247,6 +247,7 @@ fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
 
 pub struct GeneratedTerminologies {
     pub tokens: TokenStream,
+    #[allow(dead_code)]
     pub inlined_terminologies: HashSet<String>,
 }
 
