@@ -111,7 +111,99 @@ pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
     }
 }
 
+pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
+   let name = input.ident;
+   match input.data {
+        Data::Enum(data) => {
+            let variants_deserialize_value = data.variants.iter().filter_map(|variant| {
+                let variant_name = variant.ident.to_owned();
+                let code = get_attribute_value(&variant.attrs, "code");
+                if let Some(code) = code {
+                    Some(quote! {
+                        #code =>  Ok(#name::#variant_name(None))
+                    })
+                } else {
+                    None
+                }
+            });
 
+            let variants_deserialize_value_with_element = data.variants.iter().filter_map(|variant| {
+                let variant_name = variant.ident.to_owned();
+                let code = get_attribute_value(&variant.attrs, "code");
+                if let Some(code) = code {
+                    Some(quote! {
+                        #code =>  Ok(#name::#variant_name(element))
+                    })
+                } else {
+                    None
+                }
+            });
+
+            let expanded: TokenStream = quote! {
+                impl oxidized_fhir_serialization_json::FHIRJSONDeserializer for #name {
+                    fn from_json_str(s: &str) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
+                        let json = serde_json::from_str(s)?;
+                        Self::from_serde_value(&json, oxidized_fhir_serialization_json::Context::AsValue)
+                    }
+
+                    fn from_serde_value(json: &serde_json::Value, context: oxidized_fhir_serialization_json::Context) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
+                        match context {
+                            oxidized_fhir_serialization_json::Context::AsField(context) => {
+                                let mut element = None;
+
+                                if let Some(json_element_fields) = json.get(&("_".to_string() + context.field)) {
+                                    if !json_element_fields.is_object() {
+                                        return Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                            "Expected an object for element fields".to_string(),
+                                        ));
+                                    }
+                                    element = Some(Element::from_serde_value(json_element_fields, oxidized_fhir_serialization_json::Context::AsValue)?);
+                                }
+                                match json.get(context.field) {
+                                    Some(serde_json::Value::String(s)) => {
+                                        match s.as_str(){
+                                            #(#variants_deserialize_value_with_element),*,
+                                            _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                                "Expected a string for value set enum".to_string(),
+                                            )),
+                                        }
+                                    },
+                                    None => {
+                                        Ok(Self::Null(element))
+                                    },
+                                    _ => return Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                        "Expected a string for value set enum".to_string(),
+                                    )),
+                                }
+                            }
+                            oxidized_fhir_serialization_json::Context::AsValue => {
+                                match json {
+                                    serde_json::Value::String(s) => {
+                                        match s.as_str() {
+                                            #(#variants_deserialize_value),*,
+                                            _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                                "Expected a string for value set enum".to_string(),
+                                            )),
+                                        }
+                                    },
+                                    _ => return Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                        "Expected a string for value set enum".to_string(),
+                                    )),
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            //println!("{}", expanded.to_string());
+
+            expanded.into()
+        }
+         _ => panic!("Value set serialization only works for enums"),
+    }
+
+}
 
 pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
     let name = input.ident;
