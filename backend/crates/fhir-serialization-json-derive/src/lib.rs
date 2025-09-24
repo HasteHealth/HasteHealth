@@ -100,6 +100,7 @@ pub fn deserialize(input: TokenStream) -> TokenStream {
         "resource" => deserialize_complex(input, DeserializeComplexType::Resource),
         "complex" => deserialize_complex(input, DeserializeComplexType::Complex),
         "enum-variant" => deserialize::enum_variant_deserialization(input),
+        "valueset" => deserialize::deserialize_valueset(input),
         _ => panic!("Must be one of primitive, typechoice, complex or resource."),
     };
 
