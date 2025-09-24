@@ -117,8 +117,15 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     }
                 });
 
+                let code_attribute = code.description.as_ref().map_or(quote! {}, |d| {
+                    quote! {
+                        #[code = #code_string]
+                    }
+                });
+
                 quote! {
                     #doc_attribute
+                    #code_attribute
                     #code_ident(Option<Element>)
                 }
             });
@@ -157,7 +164,8 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             let extension_variant_mut = id_variant_mut.clone();
 
             return Some(quote! {
-                #[derive(Debug, Clone)]
+                #[derive(Debug, Clone, FHIRJSONSerialize)]
+                #[fhir_serialize_type = "valueset"]
                 pub enum #terminology_enum_name {
                     #(#enum_variants),*,
                     #[doc = "If value is missing and just the element is present."]
@@ -413,6 +421,7 @@ pub async fn generate(
             use self::super::types::Element;
             use std::any::Any;
             use oxidized_reflect::MetaValue;
+            use oxidized_fhir_serialization_json::derive::FHIRJSONSerialize;
             #(#codes)*
         },
     })
