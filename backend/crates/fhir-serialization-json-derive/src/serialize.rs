@@ -271,10 +271,16 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
-                let code = get_attribute_value(&variant.attrs, "code")
-                    .expect("Value set enum variants must have a code attribute");
-                quote! {
-                    Self::#name(k) => #code.to_string().serialize_value(writer)
+                let code = get_attribute_value(&variant.attrs, "code");
+                if let Some(code) = code {
+                    quote! {
+                        Self::#name(k) => #code.to_string().serialize_value(writer)
+                    }
+                } else {
+                    // Because Null exists which is variant where you only have extensions.
+                    quote! {
+                        Self::#name(k) => Ok(false)
+                    }
                 }
             });
 

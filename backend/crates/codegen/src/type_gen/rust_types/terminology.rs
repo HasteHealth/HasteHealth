@@ -422,6 +422,7 @@ pub async fn generate(
             use std::any::Any;
             use oxidized_reflect::MetaValue;
             use oxidized_fhir_serialization_json::derive::FHIRJSONSerialize;
+            use std::io::Write;
             #(#codes)*
         },
     })
