@@ -108,19 +108,52 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             .unwrap_or_default();
 
         if codes.len() > 0 && codes.len() < 100 {
-            let enum_variants = codes.into_iter().map(|(_code, code)| {
-                let code_ident = format_ident!("{}", format_string(&code.code));
-                let description = code.description.map_or(quote! {}, |d| {
-                    quote! {#[doc = #d]
+            let enum_variants = codes.iter().map(|(_code, code)| {
+                let code_string = &code.code;
+                let code_ident = format_ident!("{}", format_string(code_string));
+                let doc_attribute = code.description.as_ref().map_or(quote! {}, |d| {
+                    quote! {
+                        #[doc = #d]
                     }
                 });
+
                 quote! {
-                    #description
+                    #doc_attribute
                     #code_ident(Option<Element>)
                 }
             });
 
+            let value_variants = codes.iter().map(|(_code, code)| {
+                let code_string = &code.code;
+                let code_ident = format_ident!("{}", format_string(code_string));
+
+                quote! {
+                    #terminology_enum_name::#code_ident(_) => #code_string,
+                }
+            });
+
+            let id_variant = codes.iter().map(|(_code, code)| {
+                let code_string = &code.code;
+                let code_ident = format_ident!("{}", format_string(code_string));
+
+                quote! {
+                    #terminology_enum_name::#code_ident(e) => e.get_field(field),
+                }
+            });
+            let extension_variant = id_variant.clone();
+
+            let id_variant_mut = codes.iter().map(|(_code, code)| {
+                let code_string = &code.code;
+                let code_ident = format_ident!("{}", format_string(code_string));
+
+                quote! {
+                    #terminology_enum_name::#code_ident(e) => e.get_field_mut(field),
+                }
+            });
+            let extension_variant_mut = id_variant.clone();
+
             return Some(quote! {
+                #[derive(Debug, Clone, PartialEq)]
                 pub enum #terminology_enum_name {
                     #(#enum_variants),*,
                     #[doc = "If value is missing and just the element is present."]
@@ -129,6 +162,63 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 impl Default for #terminology_enum_name {
                     fn default() -> Self {
                         #terminology_enum_name::Null(None)
+                    }
+                }
+                impl Reflect for #terminology_enum_name {
+                    fn fields(&self) -> Vec<&'static str> {
+                        vec!["value", "id", "extension"]
+                    }
+
+                    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+                        match field {
+                            "value" => match self {
+                                #(#value_variants)*
+                                #terminology_enum_name::Null(_) => None,
+                            },
+                            "id" => match self {
+                                #(#id_variant)*
+                                #terminology_enum_name::Null(e) => e.get_field(field),
+                            },
+                            "extension" => match self {
+                                #(#extension_variant)*
+                                #terminology_enum_name::Null(e) => e.get_field(field),
+                            },
+                            _ => None,
+                        }
+                    }
+
+                    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+                        match field {
+                            "id" => match self {
+                                #(#id_variant_mut)*
+                                #terminology_enum_name::Null(e) => e.get_field_mut(field),
+                            },
+                            "extension" => match self {
+                                #(#extension_variant_mut)*
+                                #terminology_enum_name::Null(e) => e.get_field_mut(field),
+                            },
+                            _ => None,
+                        }
+                    }
+
+                    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+                        None
+                    }
+
+                    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+                        None
+                    }
+
+                    fn flatten(&self) -> Vec<&dyn MetaValue> {
+                        vec![self]
+                    }
+
+                    fn as_any(&self) -> &dyn Any {
+                        self
+                    }
+
+                    fn typename(&self) -> &'static str {
+                        "FHIRCode"
                     }
                 }
             });
@@ -317,6 +407,7 @@ pub async fn generate(
             #![allow(non_camel_case_types)]
             /// DO NOT EDIT THIS FILE. It is auto-generated by the FHIR Rust code generator.
             use self::super::types::Element;
+            use oxidized_reflect::{derive::Reflect, MetaValue};
             #(#codes)*
         },
     })
