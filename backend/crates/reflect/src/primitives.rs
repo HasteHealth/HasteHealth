@@ -181,6 +181,40 @@ impl MetaValue for String {
     }
 }
 
+impl MetaValue for &'static str {
+    fn fields(&self) -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn get_field<'a>(&'a self, _field: &str) -> Option<&'a dyn MetaValue> {
+        None
+    }
+
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+
+    fn get_field_mut<'a>(&'a mut self, _field: &str) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+
+    fn typename(&self) -> &'static str {
+        "http://hl7.org/fhirpath/System.String"
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![self]
+    }
+}
+
 impl<T> MetaValue for Vec<T>
 where
     T: MetaValue,
@@ -259,7 +293,10 @@ where
     }
 
     fn as_any(&self) -> &dyn Any {
-        self
+        match self {
+            Some(value) => value.as_any(),
+            None => self,
+        }
     }
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {

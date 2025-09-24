@@ -238,70 +238,9 @@ fn downcast_bool(value: &dyn MetaValue) -> Result<bool, FHIRPathError> {
 
 fn downcast_string(value: &dyn MetaValue) -> Result<String, FHIRPathError> {
     match value.typename() {
-        "FHIRBase64Binary" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRBase64Binary>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-        "FHIRCanonical" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRCanonical>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-
-        "FHIRCode" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRCode>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-        "FHIRString" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRString>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-        "FHIROid" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIROid>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-        "FHIRUri" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRUri>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-        "FHIRUrl" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRUrl>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-        "FHIRUuid" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRUuid>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(fp_string.value.as_ref().unwrap_or(&"".to_string()))
-        }
-
-        "FHIRXhtml" => {
-            let fp_string = value
-                .as_any()
-                .downcast_ref::<FHIRXhtml>()
-                .ok_or_else(|| FHIRPathError::FailedDowncast(value.typename().to_string()))?;
-            downcast_string(&fp_string.value)
+        "FHIRCanonical" | "FHIRBase64Binary" | "FHIRCode" | "FHIRString" | "FHIROid"
+        | "FHIRUri" | "FHIRUrl" | "FHIRUuid" | "FHIRXhtml" => {
+            downcast_string(value.get_field("value").unwrap_or(&"".to_string()))
         }
 
         "http://hl7.org/fhirpath/System.String" => value
