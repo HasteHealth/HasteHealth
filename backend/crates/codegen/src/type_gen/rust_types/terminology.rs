@@ -128,7 +128,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(_) => Some(&#code_string),
+                    #terminology_enum_name::#code_ident(_) => {
+                        let v = Box::new(#code_string.to_string());
+                        let code_ref: &'a String = Box::leak(v);
+                        Some(code_ref)
+                    },
                 }
             });
 

@@ -22,7 +22,7 @@ mod tests {
             .get_field("value")
             .unwrap()
             .as_any()
-            .downcast_ref::<&'static str>()
+            .downcast_ref::<String>()
             .unwrap();
         assert_eq!(k, &"male");
     }
