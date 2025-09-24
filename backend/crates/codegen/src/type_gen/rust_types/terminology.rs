@@ -162,7 +162,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             let extension_variant_mut = id_variant_mut.clone();
 
             return Some(quote! {
-                #[derive(Debug, Clone, FHIRJSONSerialize)]
+                #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
                 #[fhir_serialize_type = "valueset"]
                 pub enum #terminology_enum_name {
                     #(#enum_variants),*,
@@ -419,7 +419,7 @@ pub async fn generate(
             use self::super::types::Element;
             use std::any::Any;
             use oxidized_reflect::MetaValue;
-            use oxidized_fhir_serialization_json::derive::FHIRJSONSerialize;
+            use oxidized_fhir_serialization_json::derive::{FHIRJSONSerialize, FHIRJSONDeserialize};
             use std::io::Write;
             #(#codes)*
         },

@@ -116,11 +116,11 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
    match input.data {
         Data::Enum(data) => {
             let variants_deserialize_value = data.variants.iter().filter_map(|variant| {
-                let name = variant.ident.to_owned();
+                let variant_name = variant.ident.to_owned();
                 let code = get_attribute_value(&variant.attrs, "code");
                 if let Some(code) = code {
                     Some(quote! {
-                        #code =>  Ok(Self::#name(None))
+                        #code =>  Ok(#name::#variant_name(None))
                     })
                 } else {
                     None
@@ -128,11 +128,11 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
             });
 
             let variants_deserialize_value_with_element = data.variants.iter().filter_map(|variant| {
-                let name = variant.ident.to_owned();
+                let variant_name = variant.ident.to_owned();
                 let code = get_attribute_value(&variant.attrs, "code");
                 if let Some(code) = code {
                     Some(quote! {
-                        #code =>  Ok(Self::#name(element))
+                        #code =>  Ok(#name::#variant_name(element))
                     })
                 } else {
                     None
@@ -140,7 +140,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
             });
 
             let expanded: TokenStream = quote! {
-                impl FHIRJSONDeserializer for #name {
+                impl oxidized_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         let json = serde_json::from_str(s)?;
                         Self::from_serde_value(&json, oxidized_fhir_serialization_json::Context::AsValue)
@@ -149,7 +149,6 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                     fn from_serde_value(json: &serde_json::Value, context: oxidized_fhir_serialization_json::Context) -> Result<Self, oxidized_fhir_serialization_json::errors::DeserializeError> {
                         match context {
                             oxidized_fhir_serialization_json::Context::AsField(context) => {
-                                let mut value = None;
                                 let mut element = None;
 
                                 if let Some(json_element_fields) = json.get(&("_".to_string() + context.field)) {
@@ -163,7 +162,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                                 match json.get(context.field) {
                                     Some(serde_json::Value::String(s)) => {
                                         match s.as_str(){
-                                            #(#variants_deserialize_value_with_element),*
+                                            #(#variants_deserialize_value_with_element),*,
                                             _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                                 "Expected a string for value set enum".to_string(),
                                             )),
@@ -181,7 +180,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                                 match json {
                                     serde_json::Value::String(s) => {
                                         match s.as_str() {
-                                            #(#variants_deserialize_value),*
+                                            #(#variants_deserialize_value),*,
                                             _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                                 "Expected a string for value set enum".to_string(),
                                             )),
@@ -197,7 +196,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                 }
             };
 
-            // println!("{}", expanded.to_string());
+            //println!("{}", expanded.to_string());
 
             expanded.into()
         }
