@@ -10,6 +10,24 @@ mod tests {
     use serde_json;
 
     #[test]
+    fn test_enum_with_extension() {
+        let term_ = r4::generated::terminology::AdministrativeGender::Male(Some(
+            r4::generated::types::Element {
+                id: Some("test".to_string()),
+                ..r4::generated::types::Element::default()
+            },
+        ));
+        assert_eq!(term_.typename(), "FHIRCode");
+        let k = term_
+            .get_field("value")
+            .unwrap()
+            .as_any()
+            .downcast_ref::<&'static str>()
+            .unwrap();
+        assert_eq!(k, &"male");
+    }
+
+    #[test]
     fn test_serializing_string_html() {
         let k = r#""<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Dr Adam Careful is a Referring Practitioner for Acme Hospital from 1-Jan 2012 to 31-Mar\n        2012</p>\n    </div>""#;
         let parsed_str_serde =
