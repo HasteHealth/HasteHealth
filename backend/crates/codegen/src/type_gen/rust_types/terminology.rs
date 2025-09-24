@@ -117,11 +117,9 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     }
                 });
 
-                let code_attribute = code.description.as_ref().map_or(quote! {}, |d| {
-                    quote! {
-                        #[code = #code_string]
-                    }
-                });
+                let code_attribute = quote! {
+                    #[code = #code_string]
+                };
 
                 quote! {
                     #doc_attribute
