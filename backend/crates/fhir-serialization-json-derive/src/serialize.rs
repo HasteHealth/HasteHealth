@@ -309,12 +309,15 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
                         let mut value_buffer = std::io::BufWriter::new(Vec::new());
                         let mut extension_buffer = std::io::BufWriter::new(Vec::new());
 
-                        let has_value = self.value.serialize_field(field, &mut value_buffer)?;
+                        let has_value = self.serialize_value(&mut value_buffer)?;
                         let has_extension = self.serialize_extension(&mut extension_buffer)?;
 
                         if has_value {
-                             value_buffer.flush()?;
+                            value_buffer.flush()?;
                             let value = value_buffer.into_inner()?;
+                            writer.write_all(&[b'"'])?;
+                            writer.write_all(field.as_bytes())?;
+                            writer.write_all(&[b'"', b':'])?;
                             writer.write_all(&value)?;
                             if has_extension {
                                 writer.write_all(&[b','])?;
