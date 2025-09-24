@@ -54,7 +54,7 @@ pub fn serialize(input: TokenStream) -> TokenStream {
         "resource" => {
             serialize::complex_serialization(input, serialize::ComplexSerializeType::Resource)
         }
-        "value-set" => {
+        "valueset" => {
             serialize::value_set_serialization(input)
         }
         "enum-variant" => serialize::enum_variant_serialization(input),

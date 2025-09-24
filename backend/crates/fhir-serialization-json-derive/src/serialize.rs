@@ -271,31 +271,23 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
         Data::Enum(data) => {
             let variants_serialize_value = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
-                let code = get_attribute_value(&variant.attrs, "code").unwrap();
-                quote! {
-                    Self::#name(_e) => #code.serialize_value(writer)
+                let code = get_attribute_value(&variant.attrs, "code");
+                if let Some(code) = code {
+                    quote! {
+                        Self::#name(k) => #code.to_string().serialize_value(writer)
+                    }
+                } else {
+                    // Because Null exists which is variant where you only have extensions.
+                    quote! {
+                        Self::#name(k) => Ok(false)
+                    }
                 }
             });
 
             let variants_serialize_extension = data.variants.iter().map(|variant| {
                 let name = variant.ident.to_owned();
                 quote! {
-                    Self::#name(e) => e.serialize_value(writer)
-                }
-            });
-
-            let variants_serialize_fields = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                let code = get_attribute_value(&variant.attrs, "code").unwrap();
-                quote! {
-                    Self::#name(e) => #code.serialize_field(field, writer)
-                }
-            });
-
-            let variants_is_fp_primitive = data.variants.iter().map(|variant| {
-                let name = variant.ident.to_owned();
-                quote! {
-                    Self::#name(k) => k.is_fp_primitive()
+                    Self::#name(k) => k.serialize_value(writer)
                 }
             });
 
@@ -314,19 +306,41 @@ pub fn value_set_serialization(input: DeriveInput) -> TokenStream {
                     }
 
                     fn serialize_field(&self, field: &str, writer: &mut dyn std::io::Write) -> Result<bool, oxidized_fhir_serialization_json::SerializeError> {
-                        match self {
-                            #(#variants_serialize_fields),*
+                        let mut value_buffer = std::io::BufWriter::new(Vec::new());
+                        let mut extension_buffer = std::io::BufWriter::new(Vec::new());
+
+                        let has_value = self.serialize_value(&mut value_buffer)?;
+                        let has_extension = self.serialize_extension(&mut extension_buffer)?;
+
+                        if has_value {
+                            value_buffer.flush()?;
+                            let value = value_buffer.into_inner()?;
+                            writer.write_all(&[b'"'])?;
+                            writer.write_all(field.as_bytes())?;
+                            writer.write_all(&[b'"', b':'])?;
+                            writer.write_all(&value)?;
+                            if has_extension {
+                                writer.write_all(&[b','])?;
+                            }
                         }
+                        if has_extension {
+                            extension_buffer.flush()?;
+                            let extension = extension_buffer.into_inner()?;
+                            writer.write_all(&[b'"', b'_'])?;
+                            writer.write_all(field.as_bytes())?;
+                            writer.write_all(&[b'"', b':'])?;
+                            writer.write_all(&extension)?;
+                        }
+                        Ok(has_value || has_extension)
                     }
 
                     fn is_fp_primitive(&self) -> bool {
-                        match self {
-                            #(#variants_is_fp_primitive),*
-                        }
+                        true
                     }
                 }
             };
 
+            // println!("{}", expanded.to_string());
             expanded.into()
         }
         _ => panic!("Value set serialization only works for enums"),
