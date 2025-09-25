@@ -181,10 +181,22 @@ pub mod conversion {
                     }
                 } else if let Some(primitive) = FHIR_PRIMITIVES.get(fhir_type) {
                     // Support for inlined types.
-                    if let Some(binding) = element.binding.as_ref()
-                        && let Some(value_set) = binding.valueSet.as_ref()
-                        && let Some(value_set_value) = value_set.value.as_ref()
-                        && let Some(inlined) = inlined_terminology.get(value_set_value)
+                    // inlined could be a url | version for canonical.
+                    // Only do inlined if the binding is required and exists as inlined terminology.
+                    if let Some("required") = element
+                        .binding
+                        .as_ref()
+                        .map(|b| &b.strength)
+                        .and_then(|b| b.value.as_ref())
+                        .map(|s| s.as_str())
+                        && let Some(canonical_string) = element
+                            .binding
+                            .as_ref()
+                            .and_then(|b| b.valueSet.as_ref())
+                            .and_then(|b| b.value.as_ref())
+                            .map(|u| u.as_str())
+                        && let Some(url) = canonical_string.split('|').next()
+                        && let Some(inlined) = inlined_terminology.get(url)
                     {
                         let inline_type = format_ident!("{}", inlined);
                         quote! {
