@@ -1,5 +1,5 @@
 use axum::{Extension, extract::Request, middleware::Next, response::Response};
-use oxidized_fhir_model::r4::generated::terminology::IssueSeverity;
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 use crate::{
@@ -20,21 +20,21 @@ pub async fn project_access(
 ) -> Result<Response, OperationOutcomeError> {
     if claims.tenant != tenant {
         return Err(OperationOutcomeError::error(
-            IssueSeverity::Forbidden(None),
+            IssueType::Forbidden(None),
             "User does not have access to project".to_string(),
         ));
     }
 
     let Some(user_project) = &claims.project else {
         return Err(OperationOutcomeError::error(
-            IssueSeverity::Forbidden(None),
+            IssueType::Forbidden(None),
             "User does not have access to project".to_string(),
         ));
     };
 
     if user_project != &project {
         return Err(OperationOutcomeError::error(
-            IssueSeverity::Forbidden(None),
+            IssueType::Forbidden(None),
             "User does not have access to project".to_string(),
         ));
     }

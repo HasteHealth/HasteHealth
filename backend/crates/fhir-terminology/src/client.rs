@@ -7,7 +7,7 @@ use oxidized_fhir_model::r4::generated::{
         CodeSystem, CodeSystemConcept, Resource, ResourceType, ValueSet, ValueSetComposeInclude,
         ValueSetComposeIncludeConceptDesignation, ValueSetExpansion, ValueSetExpansionContains,
     },
-    terminology::IssueType,
+    terminology::{CodesystemContentMode, IssueType},
     types::{FHIRString, FHIRUri},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -77,15 +77,17 @@ async fn resolve_codesystem(
 async fn get_concepts(
     codesystem: CodeSystem,
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
-    match codesystem.content.value.as_ref().map(|s| s.as_str()) {
-        Some("not-present") => Err(OperationOutcomeError::error(
+    match codesystem.content.as_ref() {
+        CodesystemContentMode::NotPresent(_) => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
             "CodeSystem content is 'not-present'".to_string(),
         )),
-        Some("fragment") | Some("complete") | Some("supplement") => {
+        CodesystemContentMode::Fragment(_)
+        | CodesystemContentMode::Complete(_)
+        | CodesystemContentMode::Supplement(_) => {
             Ok(codesystem.concept.clone().unwrap_or_default())
         }
-        Some(_) | None => Err(OperationOutcomeError::error(
+        _ => Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
             "CodeSystem content has invalid value".to_string(),
         )),

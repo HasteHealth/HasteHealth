@@ -1,5 +1,5 @@
 use axum::{extract::FromRequestParts, http::request::Parts};
-use oxidized_fhir_model::r4::generated::terminology::IssueSeverity;
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 static AUTHORIZATION_HEADER: &str = "Authorization";
@@ -25,13 +25,13 @@ where
             .headers
             .get(AUTHORIZATION_HEADER)
             .ok_or(OperationOutcomeError::error(
-                IssueSeverity::Invalid(None),
+                IssueType::Invalid(None),
                 "Missing Authorization Header".to_string(),
             ))?
             .to_str()
             .map_err(|_| {
                 OperationOutcomeError::error(
-                    IssueSeverity::Invalid(None),
+                    IssueType::Invalid(None),
                     "Invalid Authorization Header".to_string(),
                 )
             })?;
@@ -45,7 +45,7 @@ where
             _ if authorization == "Bearer" => Ok(Self::from_header("")),
             // Found nothing
             _ => Err(OperationOutcomeError::error(
-                IssueSeverity::Invalid(None),
+                IssueType::Invalid(None),
                 "Invalid Authorization Header".to_string(),
             )),
         }

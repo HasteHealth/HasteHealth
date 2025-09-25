@@ -5,7 +5,7 @@ use crate::fhir_client::{
         ServerMiddlewareState,
     },
 };
-use oxidized_fhir_model::r4::generated::terminology::IssueSeverity;
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
@@ -40,7 +40,7 @@ pub fn set_artifact_tenant<
             next(state, context).await
         } else {
             Err(OperationOutcomeError::fatal(
-                IssueSeverity::Exception(None),
+                IssueType::Exception(None),
                 "No next middleware found".to_string(),
             ))
         }

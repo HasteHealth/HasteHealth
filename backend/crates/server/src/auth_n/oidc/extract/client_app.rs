@@ -15,7 +15,7 @@ use axum::{
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{ClientApplication, Resource, ResourceType},
-    terminology::IssueSeverity,
+    terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -57,7 +57,7 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
             Ok(client_app)
         } else {
             Err(OperationOutcomeError::error(
-                IssueSeverity::NotFound(None),
+                IssueType::NotFound(None),
                 "Client application not found".to_string(),
             ))
         }

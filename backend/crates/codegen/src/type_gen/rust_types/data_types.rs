@@ -12,7 +12,9 @@ use crate::{
 };
 use indexmap::IndexMap;
 use oxidized_fhir_model::r4::generated::{
-    resources::StructureDefinition, types::ElementDefinition,
+    resources::StructureDefinition,
+    terminology::{StructureDefinitionKind, TypeDerivationRule},
+    types::ElementDefinition,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -301,13 +303,20 @@ pub fn generate_fhir_types_from_file(
     let mut resource_types: Vec<String> = vec![];
 
     for sd in structure_definitions.iter().filter(|sd| {
-        sd.derivation
-            .as_ref()
-            .and_then(|d| d.value.clone())
-            .unwrap_or_else(|| "specialization".to_string())
-            == "specialization"
-            // excludes Resource, DomainResource which are abstract + resource types.
-            && !(extract::is_abstract(sd) && sd.kind.value == Some("resource".to_string()))
+        match sd.derivation.as_ref().map(|d| d.as_ref()) {
+            Some(TypeDerivationRule::Specialization(_)) | None => match sd.kind.as_ref() {
+                StructureDefinitionKind::Resource(_) => !extract::is_abstract(sd),
+                _ => true,
+            },
+            _ => false,
+        }
+        // sd.derivation
+        //     .as_ref()
+        //     .and_then(|d| d.value.clone())
+        //     .unwrap_or_else(|| "specialization".to_string())
+        //     == "specialization"
+        //     // excludes Resource, DomainResource which are abstract + resource types.
+        //     && !(extract::is_abstract(sd) && sd.kind.value == Some("resource".to_string()))
     }) {
         if conditionals::is_resource_sd(&sd) {
             resource_types.push(sd.id.as_ref().unwrap().to_string());

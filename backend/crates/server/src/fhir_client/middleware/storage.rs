@@ -10,7 +10,7 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
-    terminology::IssueSeverity,
+    terminology::IssueType,
     types::FHIRCode,
 };
 
@@ -365,7 +365,7 @@ pub fn storage<
 
                             if latest.is_some() {
                                 return Err(OperationOutcomeError::error(
-                                    IssueSeverity::NotFound(None),
+                                    IssueType::NotFound(None),
                                     "Resource exists but not found in conditional criteria."
                                         .to_string(),
                                 ));
@@ -402,7 +402,7 @@ pub fn storage<
 
                         if update_request.resource_type != search_result.resource_type {
                             return Err(OperationOutcomeError::error(
-                                IssueSeverity::Conflict(None),
+                                IssueType::Conflict(None),
                                 "Resource type mismatch".to_string(),
                             ));
                         }
@@ -412,7 +412,7 @@ pub fn storage<
                             .get_field("id")
                             .ok_or_else(|| {
                                 OperationOutcomeError::error(
-                                    IssueSeverity::Invalid(None),
+                                    IssueType::Invalid(None),
                                     "Missing resource ID".to_string(),
                                 )
                             })?
@@ -425,7 +425,7 @@ pub fn storage<
                                 != Some(search_result.id.as_ref())
                         {
                             return Err(OperationOutcomeError::error(
-                                IssueSeverity::Conflict(None),
+                                IssueType::Conflict(None),
                                 "Resource ID mismatch".to_string(),
                             ));
                         }
@@ -444,7 +444,7 @@ pub fn storage<
                         })))
                     }
                     _ => Err(OperationOutcomeError::error(
-                        IssueSeverity::Conflict(None),
+                        IssueType::Conflict(None),
                         "Multiple resources found for conditional update.".to_string(),
                     )),
                 }
@@ -484,7 +484,7 @@ pub fn storage<
                                     .unwrap_or_default(),
                             ) else {
                                 return Err(OperationOutcomeError::error(
-                                    IssueSeverity::Invalid(None),
+                                    IssueType::Invalid(None),
                                     "Invalid HTTP Method".to_string(),
                                 ));
                             };
@@ -505,7 +505,7 @@ pub fn storage<
                                 http_request,
                             ) else {
                                 return Err(OperationOutcomeError::error(
-                                    IssueSeverity::Invalid(None),
+                                    IssueType::Invalid(None),
                                     "Invalid Bundle entry".to_string(),
                                 ));
                             };

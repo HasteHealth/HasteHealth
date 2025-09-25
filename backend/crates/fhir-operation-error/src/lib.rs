@@ -3,7 +3,7 @@ use std::{error::Error, fmt::Display};
 use oxidized_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue},
     terminology::{IssueSeverity, IssueType},
-    types::{FHIRCode, FHIRString},
+    types::FHIRString,
 };
 
 #[cfg(feature = "derive")]

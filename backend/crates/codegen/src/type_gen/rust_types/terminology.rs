@@ -128,17 +128,18 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     #code_ident(Option<Element>)
                 }
             });
-
-            let value_variants = codes.iter().map(|(_code, code)| {
+            let try_from_value_variants = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
-
                 quote! {
-                    #terminology_enum_name::#code_ident(_) => {
-                        let v = Box::new(#code_string.to_string());
-                        let code_ref: &'a String = Box::leak(v);
-                        Some(code_ref)
-                    },
+                    #code_string => Ok(#terminology_enum_name::#code_ident(None)),
+                }
+            });
+            let into_string_variants = codes.iter().map(|(_code, code)| {
+                let code_string = &code.code;
+                let code_ident = format_ident!("{}", format_string(code_string));
+                quote! {
+                    #terminology_enum_name::#code_ident => Some(#code_string.to_string()),
                 }
             });
 
@@ -170,11 +171,32 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     #[doc = "If value is missing and just the element is present."]
                     Null(Option<Element>),
                 }
+
                 impl Default for #terminology_enum_name {
                     fn default() -> Self {
                         #terminology_enum_name::Null(None)
                     }
                 }
+
+                impl TryFrom<String> for OperationOutcomeCodes {
+                    type Error = String;
+                    fn try_from(value: String) -> Result<Self, Self::Error> {
+                        match value.as_str() {
+                            #(#try_from_value_variants),*,
+                            _ => Err(format!("Unknown code '{}'", value)),
+                        }
+                    }
+                }
+
+                impl Into<Option<String>> for OperationOutcomeCodes {
+                     fn into(self) -> String {
+                        match self {
+                            #(#into_string_variants),*,
+                            #terminology_enum_name::Null(_) => None,
+                        }
+                    }
+                }
+
                 impl MetaValue for #terminology_enum_name {
                     fn fields(&self) -> Vec<&'static str> {
                         vec!["value", "id", "extension"]
@@ -182,9 +204,15 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
 
                     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
                         match field {
-                            "value" => match self {
-                                #(#value_variants)*
-                                #terminology_enum_name::Null(_) => None,
+                            "value" => {
+                                let code_value: Option<String> = self.into();
+                                if let Some(code_value) = code_value {
+                                    let v = Box::new(code_value);
+                                    let code_ref: &'a String = Box::leak(v);
+                                    Some(code_ref)
+                                } else {
+                                    None
+                                }
                             },
                             "id" => match self {
                                 #(#id_variant)*

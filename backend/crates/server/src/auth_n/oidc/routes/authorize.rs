@@ -16,7 +16,7 @@ use axum::{
     response::Redirect,
 };
 use axum_extra::routing::TypedPath;
-use oxidized_fhir_model::r4::generated::terminology::IssueSeverity;
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
@@ -45,21 +45,21 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     let user = session::user::get_user(current_session).await?.unwrap();
     let state = oidc_params.parameters.get("state").ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
+            IssueType::Invalid(None),
             "state parameter is required.".to_string(),
         )
     })?;
 
     let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
+            IssueType::Invalid(None),
             "redirect_uri parameter is required.".to_string(),
         )
     })?;
 
     let Some(code_challenge) = oidc_params.parameters.get("code_challenge") else {
         return Err(OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
+            IssueType::Invalid(None),
             "code_challenge parameter is required.".to_string(),
         ));
     };
@@ -72,21 +72,21 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
         })
     else {
         return Err(OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
+            IssueType::Invalid(None),
             "code_challenge_method must be a valid PKCE code challenge method.".to_string(),
         ));
     };
 
     if !is_valid_redirect_url(&redirect_uri, &client_app) {
         return Err(OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
+            IssueType::Invalid(None),
             "Invalid redirect URI.".to_string(),
         ));
     }
 
     let client_id = client_app.id.ok_or_else(|| {
         OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
+            IssueType::Invalid(None),
             "Client ID is required.".to_string(),
         )
     })?;
@@ -109,10 +109,7 @@ pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Se
     .await?;
 
     let uri = Uri::try_from(redirect_uri).map_err(|_| {
-        OperationOutcomeError::error(
-            IssueSeverity::Invalid(None),
-            "Invalid redirect uri".to_string(),
-        )
+        OperationOutcomeError::error(IssueType::Invalid(None), "Invalid redirect uri".to_string())
     })?;
 
     let redirection = Uri::builder()
