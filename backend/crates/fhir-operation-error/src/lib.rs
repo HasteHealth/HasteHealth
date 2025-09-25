@@ -2,6 +2,7 @@ use std::{error::Error, fmt::Display};
 
 use oxidized_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue},
+    terminology::{IssueSeverity, IssueType},
     types::{FHIRCode, FHIRString},
 };
 
@@ -18,20 +19,14 @@ pub struct OperationOutcomeError {
 }
 
 fn create_operation_outcome(
-    severity: String,
-    code: String,
+    severity: IssueSeverity,
+    code: IssueType,
     diagnostic: String,
 ) -> OperationOutcome {
     OperationOutcome {
         issue: vec![OperationOutcomeIssue {
-            severity: Box::new(FHIRCode {
-                value: Some(severity),
-                ..Default::default()
-            }),
-            code: Box::new(FHIRCode {
-                value: Some(code),
-                ..Default::default()
-            }),
+            severity: Box::new(severity),
+            code: Box::new(code),
             diagnostics: Some(Box::new(FHIRString {
                 value: Some(diagnostic),
                 ..Default::default()
@@ -181,25 +176,25 @@ impl OperationOutcomeError {
     pub fn fatal(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("fatal".to_string(), code.into(), diagnostic),
+            create_operation_outcome(IssueSeverity::Fatal(None), code.into(), diagnostic),
         )
     }
     pub fn error(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("error".to_string(), code.into(), diagnostic),
+            create_operation_outcome(IssueSeverity::Error(None), code.into(), diagnostic),
         )
     }
     pub fn warning(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("warning".to_string(), code.into(), diagnostic),
+            create_operation_outcome(IssueSeverity::Warning(None), code.into(), diagnostic),
         )
     }
     pub fn information(code: OperationOutcomeCodes, diagnostic: String) -> Self {
         OperationOutcomeError::new(
             None,
-            create_operation_outcome("information".to_string(), code.into(), diagnostic),
+            create_operation_outcome(IssueSeverity::Information(None), code.into(), diagnostic),
         )
     }
 }
