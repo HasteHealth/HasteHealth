@@ -140,7 +140,9 @@ pub mod conversion {
     use std::collections::HashMap;
 
     use super::{FHIR_PRIMITIVES, RUST_PRIMITIVES};
-    use oxidized_fhir_model::r4::generated::types::ElementDefinition;
+    use oxidized_fhir_model::r4::generated::{
+        terminology::BindingStrength, types::ElementDefinition,
+    };
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
@@ -183,12 +185,9 @@ pub mod conversion {
                     // Support for inlined types.
                     // inlined could be a url | version for canonical.
                     // Only do inlined if the binding is required and exists as inlined terminology.
-                    if let Some("required") = element
-                        .binding
-                        .as_ref()
-                        .map(|b| &b.strength)
-                        .and_then(|b| b.value.as_ref())
-                        .map(|s| s.as_str())
+
+                    if let Some(BindingStrength::Required(_)) =
+                        element.binding.as_ref().map(|b| b.strength.as_ref())
                         && let Some(canonical_string) = element
                             .binding
                             .as_ref()
@@ -395,7 +394,8 @@ pub mod generate {
 
 pub mod conditionals {
     use oxidized_fhir_model::r4::generated::{
-        resources::StructureDefinition, types::ElementDefinition,
+        resources::StructureDefinition, terminology::StructureDefinitionKind,
+        types::ElementDefinition,
     };
 
     use crate::utilities::{FHIR_PRIMITIVES, RUST_PRIMITIVES, extract};
@@ -405,7 +405,11 @@ pub mod conditionals {
     }
 
     pub fn is_resource_sd(sd: &StructureDefinition) -> bool {
-        sd.kind.value == Some("resource".to_string())
+        if let StructureDefinitionKind::Resource(_) = sd.kind.as_ref() {
+            true
+        } else {
+            false
+        }
     }
 
     pub fn is_primitive(element: &ElementDefinition) -> bool {
@@ -425,7 +429,11 @@ pub mod conditionals {
     }
 
     pub fn is_primitive_sd(sd: &StructureDefinition) -> bool {
-        sd.kind.value == Some("primitive-type".to_string())
+        if let StructureDefinitionKind::PrimitiveType(_) = sd.kind.as_ref() {
+            true
+        } else {
+            false
+        }
     }
 
     pub fn is_typechoice(element: &ElementDefinition) -> bool {
@@ -436,7 +444,10 @@ pub mod conditionals {
 pub mod load {
     use std::path::Path;
 
-    use oxidized_fhir_model::r4::generated::resources::{Resource, StructureDefinition};
+    use oxidized_fhir_model::r4::generated::{
+        resources::{Resource, StructureDefinition},
+        terminology::StructureDefinitionKind,
+    };
 
     use crate::utilities::extract;
 
@@ -467,14 +478,15 @@ pub mod load {
 
                     let filtered_sds = sds.filter(move |sd| {
                         if let Some(level) = level {
-                            let kind = sd
-                                .kind
-                                .as_ref()
-                                .value
-                                .as_ref()
-                                .map(|v| v.as_str())
-                                .unwrap_or("resource");
-                            kind == level
+                            match sd.kind.as_ref() {
+                                StructureDefinitionKind::Resource(_)
+                                | StructureDefinitionKind::Null(_) => level == "resource",
+                                StructureDefinitionKind::ComplexType(_) => level == "complex-type",
+                                StructureDefinitionKind::PrimitiveType(_) => {
+                                    level == "primitive-type"
+                                }
+                                _ => false,
+                            }
                         } else {
                             true
                         }
@@ -489,14 +501,13 @@ pub mod load {
                 let resources = std::iter::once(sd);
                 let filtered_resources = resources.filter(|sd| {
                     if let Some(level) = level {
-                        let kind = sd
-                            .kind
-                            .as_ref()
-                            .value
-                            .as_ref()
-                            .map(|v| v.as_str())
-                            .unwrap_or("resource");
-                        kind == level
+                        match sd.kind.as_ref() {
+                            StructureDefinitionKind::Resource(_)
+                            | StructureDefinitionKind::Null(_) => level == "resource",
+                            StructureDefinitionKind::ComplexType(_) => level == "complex-type",
+                            StructureDefinitionKind::PrimitiveType(_) => level == "primitive-type",
+                            _ => false,
+                        }
                     } else {
                         true
                     }
