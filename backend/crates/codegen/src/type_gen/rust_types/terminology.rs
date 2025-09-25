@@ -139,7 +139,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
                 quote! {
-                    #terminology_enum_name::#code_ident => Some(#code_string.to_string())
+                    #terminology_enum_name::#code_ident(_) => Some(#code_string.to_string())
                 }
             });
 
@@ -178,7 +178,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     }
                 }
 
-                impl TryFrom<String> for OperationOutcomeCodes {
+                impl TryFrom<String> for #terminology_enum_name {
                     type Error = String;
                     fn try_from(value: String) -> Result<Self, Self::Error> {
                         match value.as_str() {
@@ -188,7 +188,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     }
                 }
 
-                impl Into<Option<String>> for OperationOutcomeCodes {
+                impl Into<Option<String>> for #terminology_enum_name {
                      fn into(self) -> String {
                         match self {
                             #(#into_string_variants),*,
