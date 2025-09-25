@@ -1,9 +1,10 @@
 use crate::utilities::{generate::capitalize, load};
 use oxidized_fhir_generated_ops::generated::ValueSetExpand;
-use oxidized_fhir_model::r4::generated::resources::{
-    Resource, ResourceType, ValueSet, ValueSetExpansionContains,
+use oxidized_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType, ValueSet, ValueSetExpansionContains},
+    terminology::IssueType,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_terminology::{
     CanonicalResolution, FHIRTerminology, client::FHIRCanonicalTerminology,
 };
@@ -254,7 +255,7 @@ fn load_terminologies(
             .filter(|e| e.metadata().unwrap().is_file())
         {
             let resource = load::load_from_file(entry.path())
-                .map_err(|f| OperationOutcomeError::error(OperationOutcomeCodes::Exception, f))?;
+                .map_err(|f| OperationOutcomeError::error(IssueType::Exception(None), f))?;
 
             match resource {
                 Resource::Bundle(bundle) => {
@@ -345,7 +346,7 @@ fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
                     Ok(resource.clone())
                 } else {
                     Err(OperationOutcomeError::error(
-                        OperationOutcomeCodes::NotFound,
+                        IssueType::NotFound(None),
                         format!("Could not resolve canonical url: {}", url),
                     ))
                 }

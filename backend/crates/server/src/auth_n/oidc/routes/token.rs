@@ -18,7 +18,8 @@ use axum::{
 use axum_extra::routing::TypedPath;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 use jsonwebtoken::{Algorithm, Header};
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_model::r4::generated::terminology::IssueSeverity;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
@@ -72,7 +73,7 @@ pub fn verify_code_verifier(
                 != code.pkce_code_challenge.as_ref().map(|v| v.as_str())
             {
                 return Err(OperationOutcomeError::error(
-                    OperationOutcomeCodes::Invalid,
+                    IssueSeverity::Invalid(None),
                     "PKCE code verifier does not match the code challenge.".to_string(),
                 ));
             }
@@ -82,14 +83,14 @@ pub fn verify_code_verifier(
         Some(PKCECodeChallengeMethod::Plain) => {
             if code_verifier != code.pkce_code_challenge.as_deref().unwrap_or("") {
                 return Err(OperationOutcomeError::error(
-                    OperationOutcomeCodes::Invalid,
+                    IssueSeverity::Invalid(None),
                     "PKCE code verifier does not match the code challenge.".to_string(),
                 ));
             }
             Ok(())
         }
         _ => Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::Invalid,
+            IssueSeverity::Invalid(None),
             "PKCE code challenge method not supported.".to_string(),
         )),
     }
@@ -115,7 +116,7 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
 
             if client_secret != client_app.secret.and_then(|v| v.value) {
                 return Err(OperationOutcomeError::error(
-                    OperationOutcomeCodes::Security,
+                    IssueSeverity::Security(None),
                     "Invalid client secret".to_string(),
                 ));
             }
@@ -135,21 +136,21 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
             if let Some(code) = code.get(0) {
                 if code.is_expired.unwrap_or(false) {
                     return Err(OperationOutcomeError::fatal(
-                        OperationOutcomeCodes::Security,
+                        IssueSeverity::Security(None),
                         "Authorization code has expired.".to_string(),
                     ));
                 }
 
                 if let Err(_e) = verify_code_verifier(&code, &code_verifier) {
                     return Err(OperationOutcomeError::fatal(
-                        OperationOutcomeCodes::Invalid,
+                        IssueSeverity::Invalid(None),
                         "Failed to verify PKCE code verifier.".to_string(),
                     ));
                 }
 
                 if code.redirect_uri != Some(redirect_uri) {
                     return Err(OperationOutcomeError::fatal(
-                        OperationOutcomeCodes::Invalid,
+                        IssueSeverity::Invalid(None),
                         "Redirect URI does not match the one used to create the authorization code.".to_string(),
                     ));
                 }
@@ -177,7 +178,7 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                 )
                 .map_err(|_| {
                     OperationOutcomeError::error(
-                        OperationOutcomeCodes::Exception,
+                        IssueSeverity::Exception(None),
                         "Failed to create access token.".to_string(),
                     )
                 })?;
@@ -191,14 +192,14 @@ pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send +
                 .into_response())
             } else {
                 Err(OperationOutcomeError::fatal(
-                    OperationOutcomeCodes::Invalid,
+                    IssueSeverity::Invalid(None),
                     "The provided authorization code is invalid.".to_string(),
                 ))
             }
         }
 
         _ => Err(OperationOutcomeError::fatal(
-            OperationOutcomeCodes::NotSupported,
+            IssueSeverity::NotSupported(None),
             "The provided grant type is not supported.".to_string(),
         )),
     }

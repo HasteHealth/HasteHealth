@@ -7,9 +7,10 @@ use oxidized_fhir_model::r4::generated::{
         CodeSystem, CodeSystemConcept, Resource, ResourceType, ValueSet, ValueSetComposeInclude,
         ValueSetComposeIncludeConceptDesignation, ValueSetExpansion, ValueSetExpansionContains,
     },
+    terminology::IssueType,
     types::{FHIRString, FHIRUri},
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::{borrow::Cow, pin::Pin};
 
 pub struct FHIRCanonicalTerminology {
@@ -78,14 +79,14 @@ async fn get_concepts(
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
     match codesystem.content.value.as_ref().map(|s| s.as_str()) {
         Some("not-present") => Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::NotSupported,
+            IssueType::NotSupported(None),
             "CodeSystem content is 'not-present'".to_string(),
         )),
         Some("fragment") | Some("complete") | Some("supplement") => {
             Ok(codesystem.concept.clone().unwrap_or_default())
         }
         Some(_) | None => Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::Invalid,
+            IssueType::Invalid(None),
             "CodeSystem content has invalid value".to_string(),
         )),
     }
@@ -241,7 +242,7 @@ fn expand_valueset(
             Ok(ValueSetExpand::Output { return_: value_set })
         } else {
             return Err(OperationOutcomeError::error(
-                OperationOutcomeCodes::NotFound,
+                IssueType::NotFound(None),
                 "ValueSet could not be resolved".to_string(),
             ));
         }

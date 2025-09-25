@@ -95,7 +95,7 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
             quote!{
                 #field: #field.ok_or_else(|| 
                     OperationOutcomeError::error(
-                        OperationOutcomeCodes::Invalid, format!("Field '{}' is required.", stringify!(#field_name))))?
+                        oxidized_fhir_model::r4::generated::terminology::IssueSeverity::Invalid(None), format!("Field '{}' is required.", stringify!(#field_name))))?
              }
         }
         
@@ -154,7 +154,7 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                         if let Some(Resource::#value_type(resource)) = #current_parameter.resource.map(|r| *r) {
                             Ok(Some(resource))
                         } else {
-                            return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueSeverity::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 } else {
@@ -166,7 +166,7 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                         if let Some(oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
                             Ok(Some(*value))
                         } else {
-                            return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueSeverity::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 };
@@ -185,7 +185,7 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                 } else {
                     quote! {
                         if #field_name.is_some(){
-                            return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueSeverity::Invalid(None), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
                         }
                         let tmp_value = #get_value_from_param;
                         #field_name = tmp_value?;
@@ -211,10 +211,10 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                             match #current_parameter.name.value.as_ref().map(|v| v.as_str()) {
                                 #(#set_fields),*
                                 Some(k) => {
-                                    return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter '{}' is not allowed.", k)));
+                                    return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueSeverity::Invalid(None), format!("Parameter '{}' is not allowed.", k)));
                                 },
                                 None => {
-                                    return Err(OperationOutcomeError::error(OperationOutcomeCodes::Invalid, format!("Parameter must have a name on it")));
+                                    return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueSeverity::Invalid(None), format!("Parameter must have a name on it")));
                                 }
                             }
                         }

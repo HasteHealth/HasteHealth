@@ -12,7 +12,8 @@ use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
     TypedPath,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_model::r4::generated::terminology::IssueSeverity;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::Repository;
 use serde::{Deserialize, Serialize};
@@ -53,14 +54,14 @@ async fn openid_configuration<
 
     if api_url_string.is_empty() {
         return Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::Exception,
+            IssueSeverity::Exception(None),
             "API_URL is not set in the configuration".to_string(),
         ));
     }
 
     let Ok(api_url) = Url::parse(&api_url_string) else {
         return Err(OperationOutcomeError::error(
-            OperationOutcomeCodes::Exception,
+            IssueSeverity::Exception(None),
             "Invalid API_URL format".to_string(),
         ));
     };

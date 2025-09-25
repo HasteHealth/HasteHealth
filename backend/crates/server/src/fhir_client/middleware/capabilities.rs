@@ -11,9 +11,10 @@ use oxidized_fhir_model::r4::generated::{
         CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
         ResourceType,
     },
+    terminology::IssueSeverity,
     types::{FHIRBoolean, FHIRCode, FHIRString},
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
 use oxidized_repository::{
     Repository,
@@ -179,7 +180,7 @@ pub fn capabilities<
                     next(state, context).await
                 } else {
                     Err(OperationOutcomeError::fatal(
-                        OperationOutcomeCodes::Exception,
+                        IssueSeverity::Exception(None),
                         "No next middleware found".to_string(),
                     ))
                 }

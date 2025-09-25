@@ -187,6 +187,8 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
             })
         };
 
+
+
         let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
             quote! {
                 Some(Box::new(oxidized_fhir_model::r4::generated::types::FHIRString{
