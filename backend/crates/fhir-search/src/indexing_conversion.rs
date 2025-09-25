@@ -3,6 +3,7 @@ use oxidized_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
     generated::{
         resources::{ResourceType, ResourceTypeError, SearchParameter},
+        terminology::SearchParamType,
         types::{
             Address, Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean,
             FHIRCanonical, FHIRCode, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRId, FHIRInstant,
@@ -817,8 +818,8 @@ pub fn to_insertable_index(
     parameter: &SearchParameter,
     result: Vec<&dyn MetaValue>,
 ) -> Result<InsertableIndex, OperationOutcomeError> {
-    match parameter.type_.value.as_ref().map(|v| v.as_str()) {
-        Some("number") => {
+    match parameter.type_.as_ref() {
+        SearchParamType::Number(_) => {
             let numbers = result
                 .iter()
                 .filter_map(|v| index_number(*v).ok())
@@ -826,7 +827,7 @@ pub fn to_insertable_index(
                 .collect::<Vec<_>>();
             Ok(InsertableIndex::Number(numbers))
         }
-        Some("string") => {
+        SearchParamType::String(_) => {
             let strings = result
                 .iter()
                 .filter_map(|v| index_string(*v).ok())
@@ -834,7 +835,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::String(strings))
         }
-        Some("uri") => {
+        SearchParamType::Uri(_) => {
             let uris = result
                 .iter()
                 .filter_map(|v| index_uri(*v).ok())
@@ -842,7 +843,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::URI(uris))
         }
-        Some("token") => {
+        SearchParamType::Token(_) => {
             let tokens = result
                 .iter()
                 .filter_map(|v| index_token(*v).ok())
@@ -850,7 +851,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Token(tokens))
         }
-        Some("date") => {
+        SearchParamType::Date(_) => {
             let dates = result
                 .iter()
                 .filter_map(|v| index_date(*v).ok())
@@ -858,7 +859,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Date(dates))
         }
-        Some("reference") => {
+        SearchParamType::Reference(_) => {
             let references = result
                 .iter()
                 .filter_map(|v: &&dyn MetaValue| index_reference(*v).ok())
@@ -866,7 +867,7 @@ pub fn to_insertable_index(
                 .collect();
             Ok(InsertableIndex::Reference(references))
         }
-        Some("quantity") => {
+        SearchParamType::Quantity(_) => {
             let quantities = result
                 .iter()
                 .filter_map(|v| index_quantity(*v).ok())
@@ -875,17 +876,14 @@ pub fn to_insertable_index(
             Ok(InsertableIndex::Quantity(quantities))
         }
         // Not Supported yet
-        Some("composite") => Ok(InsertableIndex::Composite(vec![])),
-        Some(_) | None => Err(InsertableIndexError::InvalidType(
-            parameter
-                .type_
-                .value
-                .as_ref()
-                .map(|v| v.as_str())
-                .unwrap_or_else(|| "<unknown>")
-                .to_string(),
-        )
-        .into()),
+        SearchParamType::Composite(_) => Ok(InsertableIndex::Composite(vec![])),
+        _ => {
+            let type_name: Option<String> = parameter.type_.as_ref().into();
+            Err(
+                InsertableIndexError::InvalidType(type_name.unwrap_or("unknown".to_string()))
+                    .into(),
+            )
+        }
     }
 }
 

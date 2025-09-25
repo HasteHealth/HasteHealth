@@ -10,6 +10,7 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
+    terminology::IssueType,
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -95,7 +96,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 if let Ok(_res) = res {
                     println!("Updated StructureDefinition");
                 } else if let Err(err) = res {
-                    if err.outcome().issue[0].code.value == Some("invalid".to_string()) {
+                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
                         println!("BACKTRACE: {}", err.backtrace().unwrap());
                         panic!("INVALID");
                     }
@@ -125,7 +126,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 if let Ok(_res) = res {
                     println!("Updated ValueSet");
                 } else if let Err(err) = res {
-                    if err.outcome().issue[0].code.value == Some("invalid".to_string()) {
+                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
                         println!("BACKTRACE: {}", err.backtrace().unwrap());
                         panic!("INVALID");
                     }
@@ -155,7 +156,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 if let Ok(_res) = res {
                     println!("Updated CodeSystem");
                 } else if let Err(err) = res {
-                    if err.outcome().issue[0].code.value == Some("invalid".to_string()) {
+                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
                         println!("BACKTRACE: {}", err.backtrace().unwrap());
                         panic!("INVALID");
                     }
@@ -185,7 +186,7 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 if let Ok(_res) = res {
                     println!("Updated SearchParameter");
                 } else if let Err(err) = res {
-                    if err.outcome().issue[0].code.value == Some("invalid".to_string()) {
+                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
                         println!("BACKTRACE: {}", err.backtrace().unwrap());
                         panic!("INVALID");
                     }

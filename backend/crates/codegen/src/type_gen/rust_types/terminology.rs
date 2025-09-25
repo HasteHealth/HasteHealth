@@ -180,7 +180,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
 
                 impl TryFrom<String> for #terminology_enum_name {
                     type Error = String;
-                    fn try_from(value: String) -> Result<Self, Self::Error> {
+                    fn try_from(value: String) -> Result<Self, String> {
                         match value.as_str() {
                             #(#try_from_value_variants),*,
                             _ => Err(format!("Unknown code '{}'", value)),
@@ -188,8 +188,8 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     }
                 }
 
-                impl Into<Option<String>> for #terminology_enum_name {
-                     fn into(self) -> String {
+                impl Into<Option<String>> for &#terminology_enum_name {
+                     fn into(self) -> Option<String> {
                         match self {
                             #(#into_string_variants),*,
                             #terminology_enum_name::Null(_) => None,

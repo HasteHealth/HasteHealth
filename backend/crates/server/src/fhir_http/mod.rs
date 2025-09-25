@@ -12,6 +12,7 @@ use oxidized_fhir_client::url::{ParseError, parse_query};
 use oxidized_fhir_model::r4::generated::resources::{
     Bundle, Parameters, Resource, ResourceType, ResourceTypeError,
 };
+use oxidized_fhir_model::r4::generated::terminology::BundleType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_serialization_json::errors::DeserializeError;
@@ -223,14 +224,14 @@ fn parse_request_1_empty(
         Method::POST => {
             let bundle = get_bundle(req)?;
 
-            match bundle.type_.value.as_ref().map(|s| s.as_str()) {
-                Some("transaction") => {
+            match bundle.type_.as_ref() {
+                BundleType::Transaction(_) => {
                     // Handle transaction request
                     Ok(FHIRRequest::Transaction(FHIRTransactionRequest {
                         resource: bundle,
                     }))
                 }
-                Some("batch") => {
+                BundleType::Batch(_) => {
                     // Handle batch request
                     Ok(FHIRRequest::Batch(FHIRBatchRequest { resource: bundle }))
                 }

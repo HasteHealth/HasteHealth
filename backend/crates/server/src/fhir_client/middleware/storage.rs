@@ -10,8 +10,7 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
-    terminology::IssueType,
-    types::FHIRCode,
+    terminology::{BundleType, IssueType},
 };
 
 use crate::{
@@ -46,7 +45,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             FHIRResponse::DeleteSystem(_res) => None,
             FHIRResponse::HistoryInstance(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::History(None),
                     None,
                     res.resources,
                 );
@@ -54,7 +53,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::HistoryType(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::History(None),
                     None,
                     res.resources,
                 );
@@ -62,7 +61,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::HistorySystem(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::History(None),
                     None,
                     res.resources,
                 );
@@ -70,7 +69,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::SearchSystem(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::Searchset(None),
                     res.total,
                     res.resources,
                 );
@@ -78,7 +77,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::SearchType(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::Searchset(None),
                     res.total,
                     res.resources,
                 );
@@ -456,10 +455,7 @@ pub fn storage<
                 let batch_client = FHIRServerClient::new(state.repo.clone(), state.search.clone());
 
                 let mut bundle_response = Bundle {
-                    type_: Box::new(FHIRCode {
-                        value: Some("batch-response".to_string()),
-                        ..Default::default()
-                    }),
+                    type_: Box::new(BundleType::BatchResponse(None)),
                     ..Default::default()
                 };
                 if let Some(bundle_entries) = bundle_entries {
@@ -474,15 +470,11 @@ pub fn storage<
                                 .unwrap_or_default();
 
                             let (path, query) = url.split_once("?").unwrap_or((url, ""));
-
-                            let Ok(method) = Method::from_str(
-                                request
-                                    .method
-                                    .value
-                                    .as_ref()
-                                    .map(|s| s.as_str())
-                                    .unwrap_or_default(),
-                            ) else {
+                            let request_method_string: Option<String> =
+                                request.method.as_ref().into();
+                            let Ok(method) =
+                                Method::from_str(&request_method_string.unwrap_or_default())
+                            else {
                                 return Err(OperationOutcomeError::error(
                                     IssueType::Invalid(None),
                                     "Invalid HTTP Method".to_string(),

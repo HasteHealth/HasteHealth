@@ -1,6 +1,9 @@
 use crate::{SearchOptions, SearchRequest};
 use oxidized_fhir_client::url::{Parameter, ParsedParameter};
-use oxidized_fhir_model::r4::generated::resources::{ResourceType, SearchParameter};
+use oxidized_fhir_model::r4::generated::{
+    resources::{ResourceType, SearchParameter},
+    terminology::SearchParamType,
+};
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_repository::types::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
@@ -53,8 +56,8 @@ fn sort_build(
         QueryBuildError::UnsupportedParameter(search_param.name.value.clone().unwrap_or_default())
     })?;
 
-    match search_param.type_.value.as_ref().map(|s| s.as_str()) {
-        Some("date") => match direction {
+    match search_param.type_.as_ref() {
+        SearchParamType::Date(_) => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone() + ".start";
                 Ok(json!({
@@ -78,7 +81,7 @@ fn sort_build(
                 }))
             }
         },
-        Some("string") => match direction {
+        SearchParamType::String(_) => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone();
                 Ok(json!({
@@ -96,7 +99,7 @@ fn sort_build(
                 }))
             }
         },
-        Some("token") => match direction {
+        SearchParamType::Token(_) => match direction {
             SortDirection::Asc => {
                 let sort_col = url.clone() + ".code";
                 Ok(json!({
@@ -132,14 +135,14 @@ fn parameter_to_elasticsearch_clauses(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    match search_param.type_.value.as_ref().map(|s| s.as_str()) {
-        Some("uri") => clauses::uri(parsed_parameter, search_param),
-        Some("quantity") => clauses::quantity(parsed_parameter, search_param),
-        Some("reference") => clauses::reference(parsed_parameter, search_param),
-        Some("date") => clauses::date(parsed_parameter, search_param),
-        Some("token") => clauses::token(parsed_parameter, search_param),
-        Some("number") => clauses::number(parsed_parameter, search_param),
-        Some("string") => clauses::string(parsed_parameter, search_param),
+    match search_param.type_.as_ref() {
+        SearchParamType::Uri(_) => clauses::uri(parsed_parameter, search_param),
+        SearchParamType::Quantity(_) => clauses::quantity(parsed_parameter, search_param),
+        SearchParamType::Reference(_) => clauses::reference(parsed_parameter, search_param),
+        SearchParamType::Date(_) => clauses::date(parsed_parameter, search_param),
+        SearchParamType::Token(_) => clauses::token(parsed_parameter, search_param),
+        SearchParamType::Number(_) => clauses::number(parsed_parameter, search_param),
+        SearchParamType::String(_) => clauses::string(parsed_parameter, search_param),
         _ => todo!(),
     }
 }
