@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"] }
+oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhirpath = { path = "../fhirpath" }
 oxidized-codegen = { path = "../codegen" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error" }

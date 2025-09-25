@@ -1,4 +1,5 @@
 use elasticsearch::{Elasticsearch, indices::IndicesCreateParts};
+use oxidized_fhir_model::r4::generated::terminology::SearchParamType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
@@ -77,30 +78,32 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     let mut property_mapping: HashMap<String, Value> = HashMap::new();
     for parameter in search_parameters.iter() {
         if let Some(parameter_url) = parameter.url.value.as_ref() {
-            match parameter.type_.value.as_ref().map(|v| v.as_str()) {
-                Some("number") => {
+            match parameter.type_.as_ref() {
+                SearchParamType::Number(_) => {
                     property_mapping.insert(parameter_url.to_string(), number_index_mapping());
                 }
-                Some("string") => {
+                SearchParamType::String(_) => {
                     property_mapping.insert(parameter_url.to_string(), string_index_mapping());
                 }
-                Some("uri") => {
+                SearchParamType::Uri(_) => {
                     property_mapping.insert(parameter_url.to_string(), uri_index_mapping());
                 }
-                Some("token") => {
+                SearchParamType::Token(_) => {
                     property_mapping.insert(parameter_url.to_string(), token_index_mapping());
                 }
-                Some("date") => {
+                SearchParamType::Date(_) => {
                     property_mapping.insert(parameter_url.to_string(), date_index_mapping());
                 }
-                Some("reference") => {
+                SearchParamType::Reference(_) => {
                     property_mapping.insert(parameter_url.to_string(), reference_index_mapping());
                 }
-                Some("quantity") => {
+                SearchParamType::Quantity(_) => {
                     property_mapping.insert(parameter_url.to_string(), quantity_index_mapping());
                 }
                 // Not Supported yet
-                Some("composite") | Some(_) | None => {
+                SearchParamType::Composite(_)
+                | SearchParamType::Special(_)
+                | SearchParamType::Null(_) => {
                     tracing::warn!("Unsupported search parameter type");
                 }
             }

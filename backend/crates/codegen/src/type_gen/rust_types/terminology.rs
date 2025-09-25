@@ -1,16 +1,17 @@
 use crate::utilities::{generate::capitalize, load};
 use oxidized_fhir_generated_ops::generated::ValueSetExpand;
-use oxidized_fhir_model::r4::generated::resources::{
-    Resource, ResourceType, ValueSet, ValueSetExpansionContains,
+use oxidized_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType, ValueSet, ValueSetExpansionContains},
+    terminology::IssueType,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_terminology::{
     CanonicalResolution, FHIRTerminology, client::FHIRCanonicalTerminology,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap},
     pin::Pin,
     sync::Arc,
 };
@@ -127,17 +128,18 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     #code_ident(Option<Element>)
                 }
             });
-
-            let value_variants = codes.iter().map(|(_code, code)| {
+            let try_from_value_variants = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
-
                 quote! {
-                    #terminology_enum_name::#code_ident(_) => {
-                        let v = Box::new(#code_string.to_string());
-                        let code_ref: &'a String = Box::leak(v);
-                        Some(code_ref)
-                    },
+                    #code_string => Ok(#terminology_enum_name::#code_ident(None))
+                }
+            });
+            let into_string_variants = codes.iter().map(|(_code, code)| {
+                let code_string = &code.code;
+                let code_ident = format_ident!("{}", format_string(code_string));
+                quote! {
+                    #terminology_enum_name::#code_ident(_) => Some(#code_string.to_string())
                 }
             });
 
@@ -146,7 +148,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_field(field),
+                    #terminology_enum_name::#code_ident(e) => e.get_field(field)
                 }
             });
             let extension_variant = id_variant.clone();
@@ -156,7 +158,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_field_mut(field),
+                    #terminology_enum_name::#code_ident(e) => e.get_field_mut(field)
                 }
             });
             let extension_variant_mut = id_variant_mut.clone();
@@ -169,11 +171,32 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     #[doc = "If value is missing and just the element is present."]
                     Null(Option<Element>),
                 }
+
                 impl Default for #terminology_enum_name {
                     fn default() -> Self {
                         #terminology_enum_name::Null(None)
                     }
                 }
+
+                impl TryFrom<String> for #terminology_enum_name {
+                    type Error = String;
+                    fn try_from(value: String) -> Result<Self, String> {
+                        match value.as_str() {
+                            #(#try_from_value_variants),*,
+                            _ => Err(format!("Unknown code '{}'", value)),
+                        }
+                    }
+                }
+
+                impl Into<Option<String>> for &#terminology_enum_name {
+                     fn into(self) -> Option<String> {
+                        match self {
+                            #(#into_string_variants),*,
+                            #terminology_enum_name::Null(_) => None,
+                        }
+                    }
+                }
+
                 impl MetaValue for #terminology_enum_name {
                     fn fields(&self) -> Vec<&'static str> {
                         vec!["value", "id", "extension"]
@@ -181,16 +204,22 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
 
                     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
                         match field {
-                            "value" => match self {
-                                #(#value_variants)*
-                                #terminology_enum_name::Null(_) => None,
+                            "value" => {
+                                let code_value: Option<String> = self.into();
+                                if let Some(code_value) = code_value {
+                                    let v = Box::new(code_value);
+                                    let code_ref: &'a String = Box::leak(v);
+                                    Some(code_ref)
+                                } else {
+                                    None
+                                }
                             },
                             "id" => match self {
-                                #(#id_variant)*
+                                #(#id_variant),*,
                                 #terminology_enum_name::Null(e) => e.get_field(field),
                             },
                             "extension" => match self {
-                                #(#extension_variant)*
+                                #(#extension_variant),*,
                                 #terminology_enum_name::Null(e) => e.get_field(field),
                             },
                             _ => None,
@@ -200,11 +229,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
                         match field {
                             "id" => match self {
-                                #(#id_variant_mut)*
+                                #(#id_variant_mut),*,
                                 #terminology_enum_name::Null(e) => e.get_field_mut(field),
                             },
                             "extension" => match self {
-                                #(#extension_variant_mut)*
+                                #(#extension_variant_mut),*,
                                 #terminology_enum_name::Null(e) => e.get_field_mut(field),
                             },
                             _ => None,
@@ -254,7 +283,7 @@ fn load_terminologies(
             .filter(|e| e.metadata().unwrap().is_file())
         {
             let resource = load::load_from_file(entry.path())
-                .map_err(|f| OperationOutcomeError::error(OperationOutcomeCodes::Exception, f))?;
+                .map_err(|f| OperationOutcomeError::error(IssueType::Exception(None), f))?;
 
             match resource {
                 Resource::Bundle(bundle) => {
@@ -345,7 +374,7 @@ fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
                     Ok(resource.clone())
                 } else {
                     Err(OperationOutcomeError::error(
-                        OperationOutcomeCodes::NotFound,
+                        IssueType::NotFound(None),
                         format!("Could not resolve canonical url: {}", url),
                     ))
                 }
@@ -357,7 +386,7 @@ fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
 pub struct GeneratedTerminologies {
     pub tokens: TokenStream,
     #[allow(dead_code)]
-    pub inlined_terminologies: HashSet<String>,
+    pub inlined_terminologies: HashMap<String, String>,
 }
 
 pub async fn generate(
@@ -369,7 +398,7 @@ pub async fn generate(
 
     let mut codes = Vec::new();
 
-    let mut inlined_terminologies = HashSet::new();
+    let mut inlined_terminologies = HashMap::new();
 
     for resource in data.get(&ResourceType::ValueSet).unwrap().values() {
         match resource {
@@ -402,8 +431,16 @@ pub async fn generate(
                 if let Ok(expanded_valueset) = expanded_valueset
                     && let Some(code_enum_code) = generate_enum_variants(expanded_valueset.return_)
                 {
-                    inlined_terminologies
-                        .insert(valueset.id.clone().expect("ValueSet must have an id"));
+                    inlined_terminologies.insert(
+                        valueset
+                            .url
+                            .clone()
+                            .expect("VS must have url")
+                            .value
+                            .clone()
+                            .expect("VS must have url"),
+                        format_string(&valueset.id.clone().expect("ValueSet must have an id")),
+                    );
                     codes.push(code_enum_code);
                 }
             }

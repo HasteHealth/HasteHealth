@@ -2006,6 +2006,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "oxidized-codegen",
+ "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
  "oxidized-fhirpath",
  "quote",

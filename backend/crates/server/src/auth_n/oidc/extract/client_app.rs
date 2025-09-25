@@ -13,8 +13,11 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::generated::resources::{ClientApplication, Resource, ResourceType};
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_model::r4::generated::{
+    resources::{ClientApplication, Resource, ResourceType},
+    terminology::IssueType,
+};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     Repository,
@@ -54,7 +57,7 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
             Ok(client_app)
         } else {
             Err(OperationOutcomeError::error(
-                OperationOutcomeCodes::NotFound,
+                IssueType::NotFound(None),
                 "Client application not found".to_string(),
             ))
         }

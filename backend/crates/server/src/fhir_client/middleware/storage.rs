@@ -10,7 +10,7 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
-    types::FHIRCode,
+    terminology::{BundleType, IssueType},
 };
 
 use crate::{
@@ -23,7 +23,7 @@ use crate::{
     },
     fhir_http::{self, HTTPRequest},
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_reflect::MetaValue;
 use oxidized_repository::{
@@ -45,7 +45,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             FHIRResponse::DeleteSystem(_res) => None,
             FHIRResponse::HistoryInstance(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::History(None),
                     None,
                     res.resources,
                 );
@@ -53,7 +53,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::HistoryType(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::History(None),
                     None,
                     res.resources,
                 );
@@ -61,7 +61,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::HistorySystem(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::History(None),
                     None,
                     res.resources,
                 );
@@ -69,7 +69,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::SearchSystem(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::Searchset(None),
                     res.total,
                     res.resources,
                 );
@@ -77,7 +77,7 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
             }
             FHIRResponse::SearchType(res) => {
                 let bundle = oxidized_fhir_client::axum::to_bundle(
-                    "searchset".to_string(),
+                    BundleType::Searchset(None),
                     res.total,
                     res.resources,
                 );
@@ -364,7 +364,7 @@ pub fn storage<
 
                             if latest.is_some() {
                                 return Err(OperationOutcomeError::error(
-                                    OperationOutcomeCodes::NotFound,
+                                    IssueType::NotFound(None),
                                     "Resource exists but not found in conditional criteria."
                                         .to_string(),
                                 ));
@@ -401,7 +401,7 @@ pub fn storage<
 
                         if update_request.resource_type != search_result.resource_type {
                             return Err(OperationOutcomeError::error(
-                                OperationOutcomeCodes::Conflict,
+                                IssueType::Conflict(None),
                                 "Resource type mismatch".to_string(),
                             ));
                         }
@@ -411,7 +411,7 @@ pub fn storage<
                             .get_field("id")
                             .ok_or_else(|| {
                                 OperationOutcomeError::error(
-                                    OperationOutcomeCodes::Invalid,
+                                    IssueType::Invalid(None),
                                     "Missing resource ID".to_string(),
                                 )
                             })?
@@ -424,7 +424,7 @@ pub fn storage<
                                 != Some(search_result.id.as_ref())
                         {
                             return Err(OperationOutcomeError::error(
-                                OperationOutcomeCodes::Conflict,
+                                IssueType::Conflict(None),
                                 "Resource ID mismatch".to_string(),
                             ));
                         }
@@ -443,7 +443,7 @@ pub fn storage<
                         })))
                     }
                     _ => Err(OperationOutcomeError::error(
-                        OperationOutcomeCodes::Conflict,
+                        IssueType::Conflict(None),
                         "Multiple resources found for conditional update.".to_string(),
                     )),
                 }
@@ -455,10 +455,7 @@ pub fn storage<
                 let batch_client = FHIRServerClient::new(state.repo.clone(), state.search.clone());
 
                 let mut bundle_response = Bundle {
-                    type_: Box::new(FHIRCode {
-                        value: Some("batch-response".to_string()),
-                        ..Default::default()
-                    }),
+                    type_: Box::new(BundleType::BatchResponse(None)),
                     ..Default::default()
                 };
                 if let Some(bundle_entries) = bundle_entries {
@@ -473,17 +470,13 @@ pub fn storage<
                                 .unwrap_or_default();
 
                             let (path, query) = url.split_once("?").unwrap_or((url, ""));
-
-                            let Ok(method) = Method::from_str(
-                                request
-                                    .method
-                                    .value
-                                    .as_ref()
-                                    .map(|s| s.as_str())
-                                    .unwrap_or_default(),
-                            ) else {
+                            let request_method_string: Option<String> =
+                                request.method.as_ref().into();
+                            let Ok(method) =
+                                Method::from_str(&request_method_string.unwrap_or_default())
+                            else {
                                 return Err(OperationOutcomeError::error(
-                                    OperationOutcomeCodes::Invalid,
+                                    IssueType::Invalid(None),
                                     "Invalid HTTP Method".to_string(),
                                 ));
                             };
@@ -504,7 +497,7 @@ pub fn storage<
                                 http_request,
                             ) else {
                                 return Err(OperationOutcomeError::error(
-                                    OperationOutcomeCodes::Invalid,
+                                    IssueType::Invalid(None),
                                     "Invalid Bundle entry".to_string(),
                                 ));
                             };

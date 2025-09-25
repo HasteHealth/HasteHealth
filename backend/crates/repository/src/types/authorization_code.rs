@@ -1,6 +1,5 @@
-use oxidized_fhir_operation_error::{
-    OperationOutcomeCodes, OperationOutcomeError, derive::OperationOutcomeError,
-};
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use sqlx::types::Json;
 use std::time::Duration;
 
@@ -31,7 +30,7 @@ impl<'a> TryFrom<&'a str> for PKCECodeChallengeMethod {
             "S256" => Ok(PKCECodeChallengeMethod::S256),
             "plain" => Ok(PKCECodeChallengeMethod::Plain),
             _ => Err(OperationOutcomeError::error(
-                OperationOutcomeCodes::Invalid,
+                IssueType::Invalid(None),
                 "Invalid PKCE code challenge method.".to_string(),
             )),
         }

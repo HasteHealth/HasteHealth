@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 use crate::{
     traversal,
@@ -12,7 +12,9 @@ use crate::{
 };
 use indexmap::IndexMap;
 use oxidized_fhir_model::r4::generated::{
-    resources::StructureDefinition, types::ElementDefinition,
+    resources::StructureDefinition,
+    terminology::{StructureDefinitionKind, TypeDerivationRule},
+    types::ElementDefinition,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -136,7 +138,11 @@ fn resolve_content_reference<'a>(
     content_reference_element
 }
 
-fn create_type_choice(sd: &StructureDefinition, element: &ElementDefinition) -> TokenStream {
+fn create_type_choice(
+    sd: &StructureDefinition,
+    element: &ElementDefinition,
+    inlined_terminology: &HashMap<String, String>,
+) -> TokenStream {
     let field_name = extract::field_name(&extract::path(element));
     let type_name = format_ident!("{}", generate::type_choice_name(sd, element));
     let types = extract::field_types(element);
@@ -145,7 +151,7 @@ fn create_type_choice(sd: &StructureDefinition, element: &ElementDefinition) -> 
         .iter()
         .map(|fhir_type| {
             let enum_name = format_ident!("{}", generate::capitalize(fhir_type));
-            let rust_type = fhir_type_to_rust_type(element, fhir_type);
+            let rust_type = fhir_type_to_rust_type(element, fhir_type, inlined_terminology);
 
             quote! {
                 #enum_name(#rust_type)
@@ -188,21 +194,22 @@ fn process_leaf(
     sd: &StructureDefinition,
     element: &ElementDefinition,
     types: &mut NestedTypes,
+    inlined_terminology: &HashMap<String, String>,
 ) -> TokenStream {
     if element.contentReference.is_some() {
         let content_reference_element = resolve_content_reference(sd, element);
-        let field_type_name = field_typename(sd, content_reference_element);
+        let field_type_name = field_typename(sd, content_reference_element, inlined_terminology);
         get_struct_key_value(element, field_type_name)
     } else if conditionals::is_typechoice(element) {
-        let type_choice_name_ident = field_typename(sd, element);
-        let type_choice = create_type_choice(sd, element);
+        let type_choice_name_ident = field_typename(sd, element, inlined_terminology);
+        let type_choice = create_type_choice(sd, element, inlined_terminology);
 
         types.insert(type_choice_name_ident.to_string(), type_choice);
 
         get_struct_key_value(element, quote! {#type_choice_name_ident})
     } else {
         let fhir_type = extract::field_types(element)[0];
-        let rust_type = fhir_type_to_rust_type(element, fhir_type);
+        let rust_type = fhir_type_to_rust_type(element, fhir_type, inlined_terminology);
 
         get_struct_key_value(element, rust_type)
     }
@@ -249,13 +256,16 @@ fn process_complex(
     get_struct_key_value(element, quote! {#i})
 }
 
-fn generate_from_structure_definition(sd: &StructureDefinition) -> Result<TokenStream, String> {
+fn generate_from_structure_definition(
+    sd: &StructureDefinition,
+    inlined_terminology: &HashMap<String, String>,
+) -> Result<TokenStream, String> {
     let mut nested_types = IndexMap::<String, TokenStream>::new();
 
     let mut visitor =
         |element: &ElementDefinition, children: Vec<TokenStream>, _index: usize| -> TokenStream {
             if children.len() == 0 {
-                process_leaf(&sd, element, &mut nested_types)
+                process_leaf(&sd, element, &mut nested_types, inlined_terminology)
             } else {
                 process_complex(&sd, element, children, &mut nested_types)
             }
@@ -280,6 +290,7 @@ pub struct GeneratedTypes {
 pub fn generate_fhir_types_from_file(
     file_path: &Path,
     level: Option<&'static str>,
+    inlined_terminology: &HashMap<String, String>,
 ) -> Result<GeneratedTypes, String> {
     let resource = load::load_from_file(file_path)?;
     // Extract StructureDefinitions
@@ -291,20 +302,22 @@ pub fn generate_fhir_types_from_file(
     // let mut generated_code = vec![];
     let mut resource_types: Vec<String> = vec![];
 
-    for sd in structure_definitions.iter().filter(|sd| {
-        sd.derivation
-            .as_ref()
-            .and_then(|d| d.value.clone())
-            .unwrap_or_else(|| "specialization".to_string())
-            == "specialization"
-            // excludes Resource, DomainResource which are abstract + resource types.
-            && !(extract::is_abstract(sd) && sd.kind.value == Some("resource".to_string()))
-    }) {
+    for sd in
+        structure_definitions
+            .iter()
+            .filter(|sd| match sd.derivation.as_ref().map(|d| d.as_ref()) {
+                Some(TypeDerivationRule::Specialization(_)) | None => match sd.kind.as_ref() {
+                    StructureDefinitionKind::Resource(_) => !extract::is_abstract(sd),
+                    _ => true,
+                },
+                _ => false,
+            })
+    {
         if conditionals::is_resource_sd(&sd) {
             resource_types.push(sd.id.as_ref().unwrap().to_string());
-            resources.push(generate_from_structure_definition(sd)?);
+            resources.push(generate_from_structure_definition(sd, inlined_terminology)?);
         } else {
-            types.push(generate_from_structure_definition(sd)?);
+            types.push(generate_from_structure_definition(sd, inlined_terminology)?);
         }
     }
 
@@ -408,11 +421,13 @@ pub struct GeneratedCode {
 pub fn generate(
     file_paths: &Vec<String>,
     level: Option<&'static str>,
+    inlined_terminology: &HashMap<String, String>,
 ) -> Result<GeneratedCode, String> {
     let mut resource_code = quote! {
         #![allow(non_snake_case)]
         /// DO NOT EDIT THIS FILE. It is auto-generated by the FHIR Rust code generator.
         use self::super::types::*;
+        use self::super::terminology;
         use oxidized_reflect::{MetaValue, derive::Reflect};
         use oxidized_fhir_serialization_json;
         use std::io::Write;
@@ -423,6 +438,7 @@ pub fn generate(
         #![allow(non_snake_case)]
         /// DO NOT EDIT THIS FILE. It is auto-generated by the FHIR Rust code generator.
         use self::super::resources::Resource;
+        use self::super::terminology;
         use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
         use oxidized_reflect::{MetaValue, derive::Reflect};
         use oxidized_fhir_serialization_json;
@@ -437,7 +453,8 @@ pub fn generate(
             .filter_map(|e| e.ok())
             .filter(|e| e.metadata().unwrap().is_file())
         {
-            let generated_types = generate_fhir_types_from_file(entry.path(), level)?;
+            let generated_types =
+                generate_fhir_types_from_file(entry.path(), level, inlined_terminology)?;
             let code = generated_types.resources;
             resource_types.extend(generated_types.resource_types);
             resource_code = quote! {

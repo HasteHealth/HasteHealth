@@ -137,12 +137,20 @@ pub static FHIR_PRIMITIVE_VALUE_TYPE: Lazy<HashMap<String, String>> = Lazy::new(
 });
 
 pub mod conversion {
+    use std::collections::HashMap;
+
     use super::{FHIR_PRIMITIVES, RUST_PRIMITIVES};
-    use oxidized_fhir_model::r4::generated::types::ElementDefinition;
+    use oxidized_fhir_model::r4::generated::{
+        terminology::BindingStrength, types::ElementDefinition,
+    };
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
-    pub fn fhir_type_to_rust_type(element: &ElementDefinition, fhir_type: &str) -> TokenStream {
+    pub fn fhir_type_to_rust_type(
+        element: &ElementDefinition,
+        fhir_type: &str,
+        inlined_terminology: &HashMap<String, String>,
+    ) -> TokenStream {
         let path = element.path.value.as_ref().map(|p| p.as_str());
 
         match path {
@@ -174,9 +182,30 @@ pub mod conversion {
                         }
                     }
                 } else if let Some(primitive) = FHIR_PRIMITIVES.get(fhir_type) {
-                    let k = format_ident!("{}", primitive.clone());
-                    quote! {
-                        Box<#k>
+                    // Support for inlined types.
+                    // inlined could be a url | version for canonical.
+                    // Only do inlined if the binding is required and exists as inlined terminology.
+
+                    if let Some(BindingStrength::Required(_)) =
+                        element.binding.as_ref().map(|b| b.strength.as_ref())
+                        && let Some(canonical_string) = element
+                            .binding
+                            .as_ref()
+                            .and_then(|b| b.valueSet.as_ref())
+                            .and_then(|b| b.value.as_ref())
+                            .map(|u| u.as_str())
+                        && let Some(url) = canonical_string.split('|').next()
+                        && let Some(inlined) = inlined_terminology.get(url)
+                    {
+                        let inline_type = format_ident!("{}", inlined);
+                        quote! {
+                            Box<terminology::#inline_type>
+                        }
+                    } else {
+                        let k = format_ident!("{}", primitive.clone());
+                        quote! {
+                            Box<#k>
+                        }
                     }
                 } else {
                     let k = format_ident!("{}", fhir_type.to_string());
@@ -272,6 +301,8 @@ pub mod extract {
 }
 
 pub mod generate {
+    use std::collections::HashMap;
+
     use oxidized_fhir_model::r4::generated::{
         resources::StructureDefinition, types::ElementDefinition,
     };
@@ -331,7 +362,11 @@ pub mod generate {
             .collect()
     }
 
-    pub fn field_typename(sd: &StructureDefinition, element: &ElementDefinition) -> TokenStream {
+    pub fn field_typename(
+        sd: &StructureDefinition,
+        element: &ElementDefinition,
+        inlined_terminology: &HashMap<String, String>,
+    ) -> TokenStream {
         let field_value_type_name = if conditionals::is_typechoice(element) {
             let k = format_ident!("{}", type_choice_name(sd, element));
             quote! {
@@ -350,7 +385,7 @@ pub mod generate {
                 .as_ref()
                 .unwrap();
 
-            conversion::fhir_type_to_rust_type(element, fhir_type)
+            conversion::fhir_type_to_rust_type(element, fhir_type, inlined_terminology)
         };
 
         field_value_type_name
@@ -359,7 +394,8 @@ pub mod generate {
 
 pub mod conditionals {
     use oxidized_fhir_model::r4::generated::{
-        resources::StructureDefinition, types::ElementDefinition,
+        resources::StructureDefinition, terminology::StructureDefinitionKind,
+        types::ElementDefinition,
     };
 
     use crate::utilities::{FHIR_PRIMITIVES, RUST_PRIMITIVES, extract};
@@ -369,7 +405,11 @@ pub mod conditionals {
     }
 
     pub fn is_resource_sd(sd: &StructureDefinition) -> bool {
-        sd.kind.value == Some("resource".to_string())
+        if let StructureDefinitionKind::Resource(_) = sd.kind.as_ref() {
+            true
+        } else {
+            false
+        }
     }
 
     pub fn is_primitive(element: &ElementDefinition) -> bool {
@@ -389,7 +429,11 @@ pub mod conditionals {
     }
 
     pub fn is_primitive_sd(sd: &StructureDefinition) -> bool {
-        sd.kind.value == Some("primitive-type".to_string())
+        if let StructureDefinitionKind::PrimitiveType(_) = sd.kind.as_ref() {
+            true
+        } else {
+            false
+        }
     }
 
     pub fn is_typechoice(element: &ElementDefinition) -> bool {
@@ -400,7 +444,10 @@ pub mod conditionals {
 pub mod load {
     use std::path::Path;
 
-    use oxidized_fhir_model::r4::generated::resources::{Resource, StructureDefinition};
+    use oxidized_fhir_model::r4::generated::{
+        resources::{Resource, StructureDefinition},
+        terminology::StructureDefinitionKind,
+    };
 
     use crate::utilities::extract;
 
@@ -431,14 +478,15 @@ pub mod load {
 
                     let filtered_sds = sds.filter(move |sd| {
                         if let Some(level) = level {
-                            let kind = sd
-                                .kind
-                                .as_ref()
-                                .value
-                                .as_ref()
-                                .map(|v| v.as_str())
-                                .unwrap_or("resource");
-                            kind == level
+                            match sd.kind.as_ref() {
+                                StructureDefinitionKind::Resource(_)
+                                | StructureDefinitionKind::Null(_) => level == "resource",
+                                StructureDefinitionKind::ComplexType(_) => level == "complex-type",
+                                StructureDefinitionKind::PrimitiveType(_) => {
+                                    level == "primitive-type"
+                                }
+                                _ => false,
+                            }
                         } else {
                             true
                         }
@@ -453,14 +501,13 @@ pub mod load {
                 let resources = std::iter::once(sd);
                 let filtered_resources = resources.filter(|sd| {
                     if let Some(level) = level {
-                        let kind = sd
-                            .kind
-                            .as_ref()
-                            .value
-                            .as_ref()
-                            .map(|v| v.as_str())
-                            .unwrap_or("resource");
-                        kind == level
+                        match sd.kind.as_ref() {
+                            StructureDefinitionKind::Resource(_)
+                            | StructureDefinitionKind::Null(_) => level == "resource",
+                            StructureDefinitionKind::ComplexType(_) => level == "complex-type",
+                            StructureDefinitionKind::PrimitiveType(_) => level == "primitive-type",
+                            _ => false,
+                        }
                     } else {
                         true
                     }

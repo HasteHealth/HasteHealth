@@ -1,4 +1,5 @@
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use proc_macro2::TokenStream;
 
 mod data_types;
@@ -16,8 +17,9 @@ pub async fn generate(
 ) -> Result<GeneratedTypes, OperationOutcomeError> {
     let terminology_types = terminology::generate(file_paths).await?;
 
-    let data_types = data_types::generate(file_paths, level)
-        .map_err(|d| OperationOutcomeError::error(OperationOutcomeCodes::Exception, d))?;
+    let data_types =
+        data_types::generate(file_paths, level, &terminology_types.inlined_terminologies)
+            .map_err(|d| OperationOutcomeError::error(IssueType::Exception(None), d))?;
 
     Ok(GeneratedTypes {
         terminology: terminology_types.tokens,

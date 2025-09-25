@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use oxidized_codegen::type_gen;
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use quote::quote;
 use std::{
     io::Write,
@@ -58,9 +59,8 @@ enum CodeGen {
 }
 
 fn parse_fhir_data(data: &str) -> Result<serde_json::Value, OperationOutcomeError> {
-    let data: serde_json::Value = serde_json::from_str(data).map_err(|e| {
-        OperationOutcomeError::error(OperationOutcomeCodes::Exception, e.to_string())
-    })?;
+    let data: serde_json::Value = serde_json::from_str(data)
+        .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e.to_string()))?;
     Ok(data)
 }
 
@@ -107,19 +107,14 @@ async fn main() -> Result<(), OperationOutcomeError> {
                     type_gen::operation_definitions::generate_operation_definitions_from_files(
                         input,
                     )
-                    .map_err(|e| {
-                        OperationOutcomeError::error(OperationOutcomeCodes::Exception, e)
-                    })?;
+                    .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e))?;
 
                 let formatted_code = format_code(generated_operation_definitions);
 
                 match output {
                     Some(output_path) => {
                         std::fs::write(output_path, formatted_code.to_string()).map_err(|e| {
-                            OperationOutcomeError::error(
-                                OperationOutcomeCodes::Exception,
-                                e.to_string(),
-                            )
+                            OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
                         })?;
                         println!("Generated FHIR types written to: {}", output_path);
                     }
@@ -149,20 +144,12 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 let resource_path = output_path.join("resources.rs");
                 std::fs::write(resource_path, format_code(rust_code.resources.to_string()))
                     .map_err(|e| {
-                        OperationOutcomeError::error(
-                            OperationOutcomeCodes::Exception,
-                            e.to_string(),
-                        )
+                        OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
                     })?;
 
                 let type_path = output_path.join("types.rs");
                 std::fs::write(type_path, format_code(rust_code.types.to_string())).map_err(
-                    |e| {
-                        OperationOutcomeError::error(
-                            OperationOutcomeCodes::Exception,
-                            e.to_string(),
-                        )
-                    },
+                    |e| OperationOutcomeError::error(IssueType::Exception(None), e.to_string()),
                 )?;
 
                 let terminology_path = output_path.join("terminology.rs");
@@ -171,7 +158,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                     format_code(rust_code.terminology.to_string()),
                 )
                 .map_err(|e| {
-                    OperationOutcomeError::error(OperationOutcomeCodes::Exception, e.to_string())
+                    OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
                 })?;
 
                 let mod_path = output_path.join("mod.rs");
@@ -182,7 +169,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                    pub mod terminology;
                 };
                 std::fs::write(mod_path, module_code.to_string()).map_err(|e| {
-                    OperationOutcomeError::error(OperationOutcomeCodes::Exception, e.to_string())
+                    OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
                 })?;
 
                 let mod_path = output_path.join("mod.rs");
@@ -193,7 +180,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                    pub mod terminology;
                 };
                 std::fs::write(mod_path, format_code(module_code.to_string())).map_err(|e| {
-                    OperationOutcomeError::error(OperationOutcomeCodes::Exception, e.to_string())
+                    OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
                 })?;
 
                 println!("Generated FHIR types written to: {}", output_path.display());

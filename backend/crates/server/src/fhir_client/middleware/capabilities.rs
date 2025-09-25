@@ -11,9 +11,10 @@ use oxidized_fhir_model::r4::generated::{
         CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
         ResourceType,
     },
+    terminology::{IssueType, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy},
     types::{FHIRBoolean, FHIRCode, FHIRString},
 };
-use oxidized_fhir_operation_error::{OperationOutcomeCodes, OperationOutcomeError};
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
 use oxidized_repository::{
     Repository,
@@ -86,10 +87,7 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
 
     Ok(CapabilityStatement {
         rest: Some(vec![CapabilityStatementRest {
-            mode: Box::new(FHIRCode {
-                value: Some("server".to_string()),
-                ..Default::default()
-            }),
+            mode: Box::new(RestfulCapabilityMode::Server(None)),
             security: Some(CapabilityStatementRestSecurity {
                 cors: Some(Box::new(FHIRBoolean {
                     value: Some(true),
@@ -109,30 +107,23 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
                     })),
                     interaction: Some(
                         vec![
-                            "vread",
-                            "read",
-                            "update",
-                            "delete",
-                            "search-type",
-                            "create",
-                            "history-instance",
-                            "history-type",
-                            "history-instance",
+                            TypeRestfulInteraction::Read(None),
+                            TypeRestfulInteraction::Vread(None),
+                            TypeRestfulInteraction::Update(None),
+                            TypeRestfulInteraction::Delete(None),
+                            TypeRestfulInteraction::SearchType(None),
+                            TypeRestfulInteraction::Create(None),
+                            TypeRestfulInteraction::HistoryInstance(None),
+                            TypeRestfulInteraction::HistoryType(None),
                         ]
                         .into_iter()
                         .map(|code| CapabilityStatementRestResourceInteraction {
-                            code: Box::new(FHIRCode {
-                                value: Some(code.to_string()),
-                                ..Default::default()
-                            }),
+                            code: Box::new(code),
                             ..Default::default()
                         })
                         .collect(),
                     ),
-                    versioning: Some(Box::new(FHIRCode {
-                        value: Some("versioned".to_string()),
-                        ..Default::default()
-                    })),
+                    versioning: Some(Box::new(VersioningPolicy::Versioned(None))),
                     ..Default::default()
                 })
                 .collect(),
@@ -179,7 +170,7 @@ pub fn capabilities<
                     next(state, context).await
                 } else {
                     Err(OperationOutcomeError::fatal(
-                        OperationOutcomeCodes::Exception,
+                        IssueType::Exception(None),
                         "No next middleware found".to_string(),
                     ))
                 }

@@ -1,8 +1,9 @@
 use std::{borrow::Cow, path::Path};
 
 use crate::utilities::{FHIR_PRIMITIVES, RUST_KEYWORDS, generate::capitalize, load};
-use oxidized_fhir_model::r4::generated::resources::{
-    OperationDefinition, OperationDefinitionParameter, Resource,
+use oxidized_fhir_model::r4::generated::{
+    resources::{OperationDefinition, OperationDefinitionParameter, Resource},
+    terminology::OperationParameterUse,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -154,12 +155,9 @@ fn generate_parameter_type(
 fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
     let input_parameters = parameters
         .iter()
-        .filter(|p| {
-            p.use_
-                .value
-                .as_ref()
-                .map(|u| u.as_str() == "out")
-                .unwrap_or(false)
+        .filter(|p| match p.use_.as_ref() {
+            OperationParameterUse::Out(_) => true,
+            _ => false,
         })
         .collect::<Vec<_>>();
 
@@ -169,12 +167,9 @@ fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<T
 fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
     let input_parameters = parameters
         .iter()
-        .filter(|p| {
-            p.use_
-                .value
-                .as_ref()
-                .map(|u| u.as_str() == "in")
-                .unwrap_or(false)
+        .filter(|p| match p.use_.as_ref() {
+            OperationParameterUse::In(_) => true,
+            _ => false,
         })
         .collect::<Vec<_>>();
 
