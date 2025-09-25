@@ -125,21 +125,21 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 quote! {
                     #doc_attribute
                     #code_attribute
-                    #code_ident(Option<Element>)
+                    #code_ident(Option<Element>),
                 }
             });
             let try_from_value_variants = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
                 quote! {
-                    #code_string => Ok(#terminology_enum_name::#code_ident(None)),
+                    #code_string => Ok(#terminology_enum_name::#code_ident(None))
                 }
             });
             let into_string_variants = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
                 quote! {
-                    #terminology_enum_name::#code_ident => Some(#code_string.to_string()),
+                    #terminology_enum_name::#code_ident => Some(#code_string.to_string())
                 }
             });
 
@@ -148,7 +148,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_field(field),
+                    #terminology_enum_name::#code_ident(e) => e.get_field(field)
                 }
             });
             let extension_variant = id_variant.clone();
@@ -158,7 +158,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_field_mut(field),
+                    #terminology_enum_name::#code_ident(e) => e.get_field_mut(field)
                 }
             });
             let extension_variant_mut = id_variant_mut.clone();
@@ -215,11 +215,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                                 }
                             },
                             "id" => match self {
-                                #(#id_variant)*
+                                #(#id_variant),*
                                 #terminology_enum_name::Null(e) => e.get_field(field),
                             },
                             "extension" => match self {
-                                #(#extension_variant)*
+                                #(#extension_variant),*
                                 #terminology_enum_name::Null(e) => e.get_field(field),
                             },
                             _ => None,
@@ -229,11 +229,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
                         match field {
                             "id" => match self {
-                                #(#id_variant_mut)*
+                                #(#id_variant_mut),*
                                 #terminology_enum_name::Null(e) => e.get_field_mut(field),
                             },
                             "extension" => match self {
-                                #(#extension_variant_mut)*
+                                #(#extension_variant_mut),*
                                 #terminology_enum_name::Null(e) => e.get_field_mut(field),
                             },
                             _ => None,
