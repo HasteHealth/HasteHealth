@@ -137,12 +137,18 @@ pub static FHIR_PRIMITIVE_VALUE_TYPE: Lazy<HashMap<String, String>> = Lazy::new(
 });
 
 pub mod conversion {
+    use std::collections::HashMap;
+
     use super::{FHIR_PRIMITIVES, RUST_PRIMITIVES};
     use oxidized_fhir_model::r4::generated::types::ElementDefinition;
     use proc_macro2::TokenStream;
     use quote::{format_ident, quote};
 
-    pub fn fhir_type_to_rust_type(element: &ElementDefinition, fhir_type: &str) -> TokenStream {
+    pub fn fhir_type_to_rust_type(
+        element: &ElementDefinition,
+        fhir_type: &str,
+        inlined_terminology: &HashMap<String, String>,
+    ) -> TokenStream {
         let path = element.path.value.as_ref().map(|p| p.as_str());
 
         match path {
@@ -174,9 +180,21 @@ pub mod conversion {
                         }
                     }
                 } else if let Some(primitive) = FHIR_PRIMITIVES.get(fhir_type) {
-                    let k = format_ident!("{}", primitive.clone());
-                    quote! {
-                        Box<#k>
+                    // Support for inlined types.
+                    if let Some(binding) = element.binding.as_ref()
+                        && let Some(value_set) = binding.valueSet.as_ref()
+                        && let Some(value_set_value) = value_set.value.as_ref()
+                        && let Some(inlined) = inlined_terminology.get(value_set_value)
+                    {
+                        let inline_type = format_ident!("{}", inlined);
+                        quote! {
+                            Box<terminology::#inline_type>
+                        }
+                    } else {
+                        let k = format_ident!("{}", primitive.clone());
+                        quote! {
+                            Box<#k>
+                        }
                     }
                 } else {
                     let k = format_ident!("{}", fhir_type.to_string());
@@ -272,6 +290,8 @@ pub mod extract {
 }
 
 pub mod generate {
+    use std::collections::HashMap;
+
     use oxidized_fhir_model::r4::generated::{
         resources::StructureDefinition, types::ElementDefinition,
     };
@@ -331,7 +351,11 @@ pub mod generate {
             .collect()
     }
 
-    pub fn field_typename(sd: &StructureDefinition, element: &ElementDefinition) -> TokenStream {
+    pub fn field_typename(
+        sd: &StructureDefinition,
+        element: &ElementDefinition,
+        inlined_terminology: &HashMap<String, String>,
+    ) -> TokenStream {
         let field_value_type_name = if conditionals::is_typechoice(element) {
             let k = format_ident!("{}", type_choice_name(sd, element));
             quote! {
@@ -350,7 +374,7 @@ pub mod generate {
                 .as_ref()
                 .unwrap();
 
-            conversion::fhir_type_to_rust_type(element, fhir_type)
+            conversion::fhir_type_to_rust_type(element, fhir_type, inlined_terminology)
         };
 
         field_value_type_name

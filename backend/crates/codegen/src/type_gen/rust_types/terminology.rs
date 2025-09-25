@@ -10,7 +10,7 @@ use oxidized_fhir_terminology::{
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap},
     pin::Pin,
     sync::Arc,
 };
@@ -357,7 +357,7 @@ fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
 pub struct GeneratedTerminologies {
     pub tokens: TokenStream,
     #[allow(dead_code)]
-    pub inlined_terminologies: HashSet<String>,
+    pub inlined_terminologies: HashMap<String, String>,
 }
 
 pub async fn generate(
@@ -369,7 +369,7 @@ pub async fn generate(
 
     let mut codes = Vec::new();
 
-    let mut inlined_terminologies = HashSet::new();
+    let mut inlined_terminologies = HashMap::new();
 
     for resource in data.get(&ResourceType::ValueSet).unwrap().values() {
         match resource {
@@ -402,8 +402,16 @@ pub async fn generate(
                 if let Ok(expanded_valueset) = expanded_valueset
                     && let Some(code_enum_code) = generate_enum_variants(expanded_valueset.return_)
                 {
-                    inlined_terminologies
-                        .insert(valueset.id.clone().expect("ValueSet must have an id"));
+                    inlined_terminologies.insert(
+                        valueset
+                            .url
+                            .clone()
+                            .expect("VS must have url")
+                            .value
+                            .clone()
+                            .expect("VS must have url"),
+                        format_string(&valueset.id.clone().expect("ValueSet must have an id")),
+                    );
                     codes.push(code_enum_code);
                 }
             }

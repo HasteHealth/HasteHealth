@@ -16,8 +16,9 @@ pub async fn generate(
 ) -> Result<GeneratedTypes, OperationOutcomeError> {
     let terminology_types = terminology::generate(file_paths).await?;
 
-    let data_types = data_types::generate(file_paths, level)
-        .map_err(|d| OperationOutcomeError::error(OperationOutcomeCodes::Exception, d))?;
+    let data_types =
+        data_types::generate(file_paths, level, &terminology_types.inlined_terminologies)
+            .map_err(|d| OperationOutcomeError::error(OperationOutcomeCodes::Exception, d))?;
 
     Ok(GeneratedTypes {
         terminology: terminology_types.tokens,
