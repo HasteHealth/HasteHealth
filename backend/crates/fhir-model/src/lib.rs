@@ -158,8 +158,8 @@ mod tests {
         }
         "#;
         let address: Address = Address::from_json_str(address_string).unwrap();
-
-        assert_eq!(address.use_.unwrap().value.unwrap(), "home".to_string());
+        let address_use: Option<String> = address.use_.unwrap().as_ref().into();
+        assert_eq!(address_use.unwrap(), "home".to_string());
         assert_eq!(
             address.line.as_ref().unwrap()[0].value.as_ref().unwrap(),
             &"123 Main St".to_string()
