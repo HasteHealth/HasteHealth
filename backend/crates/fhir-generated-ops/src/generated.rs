@@ -2,10 +2,10 @@
 use oxidized_fhir_model::r4::generated::resources::*;
 use oxidized_fhir_model::r4::generated::types::*;
 use oxidized_fhir_operation_error::*;
-use oxidized_fhir_ops::derive::ParametersParse;
+use oxidized_fhir_ops::derive::FromParameters;
 pub mod ActivityDefinitionApply {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub activityDefinition: Option<ActivityDefinition>,
         pub subject: Vec<FHIRString>,
@@ -18,7 +18,7 @@ pub mod ActivityDefinitionApply {
         pub setting: Option<CodeableConcept>,
         pub settingContext: Option<CodeableConcept>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
@@ -26,9 +26,9 @@ pub mod ActivityDefinitionApply {
 }
 pub mod ActivityDefinitionDataRequirements {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {}
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
@@ -36,13 +36,13 @@ pub mod ActivityDefinitionDataRequirements {
 }
 pub mod CapabilityStatementConforms {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub left: Option<FHIRString>,
         pub right: Option<FHIRString>,
         pub mode: Option<FHIRCode>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub issues: OperationOutcome,
         pub union: Option<CapabilityStatement>,
@@ -51,13 +51,13 @@ pub mod CapabilityStatementConforms {
 }
 pub mod CapabilityStatementImplements {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub server: Option<FHIRString>,
         pub client: Option<FHIRString>,
         pub resource: Option<CapabilityStatement>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: OperationOutcome,
@@ -65,12 +65,12 @@ pub mod CapabilityStatementImplements {
 }
 pub mod CapabilityStatementSubset {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub server: Option<FHIRUri>,
         pub resource: Vec<FHIRCode>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: CapabilityStatement,
@@ -78,9 +78,9 @@ pub mod CapabilityStatementSubset {
 }
 pub mod CapabilityStatementVersions {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {}
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub version: Vec<FHIRCode>,
         pub default: FHIRCode,
@@ -88,12 +88,12 @@ pub mod CapabilityStatementVersions {
 }
 pub mod ChargeItemDefinitionApply {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub chargeItem: Reference,
         pub account: Option<Reference>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
@@ -101,11 +101,11 @@ pub mod ChargeItemDefinitionApply {
 }
 pub mod ClaimSubmit {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub resource: Resource,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
@@ -113,19 +113,19 @@ pub mod ClaimSubmit {
 }
 pub mod CodeSystemFindMatches {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct InputPropertySubproperty {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct InputProperty {
         pub code: FHIRCode,
         pub value: Option<ParametersParameterValueTypeChoice>,
         #[parameter_nested]
         pub subproperty: Option<Vec<InputPropertySubproperty>>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub system: Option<FHIRUri>,
         pub version: Option<FHIRString>,
@@ -134,26 +134,26 @@ pub mod CodeSystemFindMatches {
         pub exact: FHIRBoolean,
         pub compositional: Option<FHIRBoolean>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputMatchUnmatchedProperty {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputMatchUnmatched {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
         #[parameter_nested]
         pub property: Option<Vec<OutputMatchUnmatchedProperty>>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputMatch {
         pub code: Coding,
         #[parameter_nested]
         pub unmatched: Option<Vec<OutputMatchUnmatched>>,
         pub comment: Option<FHIRString>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "match"]
         #[parameter_nested]
@@ -162,7 +162,7 @@ pub mod CodeSystemFindMatches {
 }
 pub mod CodeSystemLookup {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub code: Option<FHIRCode>,
         pub system: Option<FHIRUri>,
@@ -172,20 +172,20 @@ pub mod CodeSystemLookup {
         pub displayLanguage: Option<FHIRCode>,
         pub property: Option<Vec<FHIRCode>>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputDesignation {
         pub language: Option<FHIRCode>,
         #[parameter_rename = "use"]
         pub use_: Option<Coding>,
         pub value: FHIRString,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputPropertySubproperty {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
         pub description: Option<FHIRString>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputProperty {
         pub code: FHIRCode,
         pub value: Option<ParametersParameterValueTypeChoice>,
@@ -193,7 +193,7 @@ pub mod CodeSystemLookup {
         #[parameter_nested]
         pub subproperty: Option<Vec<OutputPropertySubproperty>>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub name: FHIRString,
         pub version: Option<FHIRString>,
@@ -206,7 +206,7 @@ pub mod CodeSystemLookup {
 }
 pub mod CodeSystemSubsumes {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub codeA: Option<FHIRCode>,
         pub codeB: Option<FHIRCode>,
@@ -215,14 +215,14 @@ pub mod CodeSystemSubsumes {
         pub codingA: Option<Coding>,
         pub codingB: Option<Coding>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub outcome: FHIRCode,
     }
 }
 pub mod CodeSystemValidateCode {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
         pub codeSystem: Option<CodeSystem>,
@@ -236,7 +236,7 @@ pub mod CodeSystemValidateCode {
         pub abstract_: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub result: FHIRBoolean,
         pub message: Option<FHIRString>,
@@ -245,24 +245,24 @@ pub mod CodeSystemValidateCode {
 }
 pub mod CompositionDocument {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub id: Option<FHIRUri>,
         pub persist: Option<FHIRBoolean>,
         pub graph: Option<FHIRUri>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {}
 }
 pub mod ConceptMapClosure {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub name: FHIRString,
         pub concept: Option<Vec<Coding>>,
         pub version: Option<FHIRString>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: ConceptMap,
@@ -270,12 +270,12 @@ pub mod ConceptMapClosure {
 }
 pub mod ConceptMapTranslate {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct InputDependency {
         pub element: Option<FHIRUri>,
         pub concept: Option<CodeableConcept>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
         pub conceptMap: Option<ConceptMap>,
@@ -292,12 +292,12 @@ pub mod ConceptMapTranslate {
         pub dependency: Option<Vec<InputDependency>>,
         pub reverse: Option<FHIRBoolean>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputMatchProduct {
         pub element: Option<FHIRUri>,
         pub concept: Option<Coding>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct OutputMatch {
         pub equivalence: Option<FHIRCode>,
         pub concept: Option<Coding>,
@@ -305,7 +305,7 @@ pub mod ConceptMapTranslate {
         pub product: Option<Vec<OutputMatchProduct>>,
         pub source: Option<FHIRUri>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub result: FHIRBoolean,
         pub message: Option<FHIRString>,
@@ -316,11 +316,11 @@ pub mod ConceptMapTranslate {
 }
 pub mod CoverageEligibilityRequestSubmit {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub resource: Resource,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
@@ -328,13 +328,13 @@ pub mod CoverageEligibilityRequestSubmit {
 }
 pub mod EncounterEverything {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub _since: Option<FHIRInstant>,
         pub _type: Option<Vec<FHIRCode>>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -342,7 +342,7 @@ pub mod EncounterEverything {
 }
 pub mod GroupEverything {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub start: Option<FHIRDate>,
         pub end: Option<FHIRDate>,
@@ -350,7 +350,7 @@ pub mod GroupEverything {
         pub _type: Option<Vec<FHIRCode>>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -358,11 +358,11 @@ pub mod GroupEverything {
 }
 pub mod LibraryDataRequirements {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub target: Option<FHIRString>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
@@ -370,24 +370,24 @@ pub mod LibraryDataRequirements {
 }
 pub mod ListFind {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub patient: FHIRId,
         pub name: FHIRCode,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {}
 }
 pub mod MeasureCareGaps {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
         pub periodEnd: FHIRDate,
         pub topic: FHIRString,
         pub subject: FHIRString,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -395,7 +395,7 @@ pub mod MeasureCareGaps {
 }
 pub mod MeasureCollectData {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
         pub periodEnd: FHIRDate,
@@ -404,7 +404,7 @@ pub mod MeasureCollectData {
         pub practitioner: Option<FHIRString>,
         pub lastReceivedOn: Option<FHIRDateTime>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub measureReport: MeasureReport,
         pub resource: Option<Vec<Resource>>,
@@ -412,12 +412,12 @@ pub mod MeasureCollectData {
 }
 pub mod MeasureDataRequirements {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
         pub periodEnd: FHIRDate,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
@@ -425,7 +425,7 @@ pub mod MeasureDataRequirements {
 }
 pub mod MeasureEvaluateMeasure {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
         pub periodEnd: FHIRDate,
@@ -435,7 +435,7 @@ pub mod MeasureEvaluateMeasure {
         pub practitioner: Option<FHIRString>,
         pub lastReceivedOn: Option<FHIRDateTime>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: MeasureReport,
@@ -443,22 +443,22 @@ pub mod MeasureEvaluateMeasure {
 }
 pub mod MeasureSubmitData {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub measureReport: MeasureReport,
         pub resource: Option<Vec<Resource>>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {}
 }
 pub mod MedicinalProductEverything {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub _since: Option<FHIRInstant>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -466,14 +466,14 @@ pub mod MedicinalProductEverything {
 }
 pub mod MessageHeaderProcessMessage {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub content: Bundle,
         #[parameter_rename = "async"]
         pub async_: Option<FHIRBoolean>,
         pub response_url: Option<FHIRUrl>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Option<Bundle>,
@@ -481,24 +481,24 @@ pub mod MessageHeaderProcessMessage {
 }
 pub mod NamingSystemPreferredId {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub id: FHIRString,
         #[parameter_rename = "type"]
         pub type_: FHIRCode,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub result: FHIRString,
     }
 }
 pub mod ObservationLastn {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub max: Option<FHIRPositiveInt>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -506,7 +506,7 @@ pub mod ObservationLastn {
 }
 pub mod ObservationStats {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub subject: FHIRUri,
         pub code: Option<Vec<FHIRString>>,
@@ -518,7 +518,7 @@ pub mod ObservationStats {
         pub include: Option<FHIRBoolean>,
         pub limit: Option<FHIRPositiveInt>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub statistics: Vec<Observation>,
         pub source: Option<Vec<Observation>>,
@@ -526,7 +526,7 @@ pub mod ObservationStats {
 }
 pub mod PatientEverything {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub start: Option<FHIRDate>,
         pub end: Option<FHIRDate>,
@@ -534,7 +534,7 @@ pub mod PatientEverything {
         pub _type: Option<Vec<FHIRCode>>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -542,13 +542,13 @@ pub mod PatientEverything {
 }
 pub mod PatientMatch {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub resource: Resource,
         pub onlyCertainMatches: Option<FHIRBoolean>,
         pub count: Option<FHIRInteger>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
@@ -556,7 +556,7 @@ pub mod PatientMatch {
 }
 pub mod PlanDefinitionApply {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub planDefinition: Option<PlanDefinition>,
         pub subject: Vec<FHIRString>,
@@ -569,7 +569,7 @@ pub mod PlanDefinitionApply {
         pub setting: Option<CodeableConcept>,
         pub settingContext: Option<CodeableConcept>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: CarePlan,
@@ -577,9 +577,9 @@ pub mod PlanDefinitionApply {
 }
 pub mod PlanDefinitionDataRequirements {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {}
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
@@ -587,42 +587,42 @@ pub mod PlanDefinitionDataRequirements {
 }
 pub mod ResourceConvert {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub input: Resource,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub output: Resource,
     }
 }
 pub mod ResourceGraph {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub graph: FHIRUri,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub result: Bundle,
     }
 }
 pub mod ResourceGraphql {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub query: FHIRString,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub result: Binary,
     }
 }
 pub mod ResourceMeta {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {}
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Meta,
@@ -630,11 +630,11 @@ pub mod ResourceMeta {
 }
 pub mod ResourceMetaAdd {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub meta: Meta,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Meta,
@@ -642,11 +642,11 @@ pub mod ResourceMetaAdd {
 }
 pub mod ResourceMetaDelete {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub meta: Meta,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Meta,
@@ -654,13 +654,13 @@ pub mod ResourceMetaDelete {
 }
 pub mod ResourceValidate {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub resource: Option<Resource>,
         pub mode: Option<FHIRCode>,
         pub profile: Option<FHIRUri>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: OperationOutcome,
@@ -668,7 +668,7 @@ pub mod ResourceValidate {
 }
 pub mod StructureDefinitionQuestionnaire {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         #[parameter_rename = "identifier"]
         pub identifier_: Option<FHIRString>,
@@ -676,7 +676,7 @@ pub mod StructureDefinitionQuestionnaire {
         pub url: Option<FHIRString>,
         pub supportedOnly: Option<FHIRBoolean>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Questionnaire,
@@ -684,12 +684,12 @@ pub mod StructureDefinitionQuestionnaire {
 }
 pub mod StructureDefinitionSnapshot {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub definition: Option<StructureDefinition>,
         pub url: Option<FHIRString>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: StructureDefinition,
@@ -697,12 +697,12 @@ pub mod StructureDefinitionSnapshot {
 }
 pub mod StructureMapTransform {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub source: Option<FHIRUri>,
         pub content: Resource,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
@@ -710,7 +710,7 @@ pub mod StructureMapTransform {
 }
 pub mod ValueSetExpand {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
         pub valueSet: Option<ValueSet>,
@@ -734,7 +734,7 @@ pub mod ValueSetExpand {
         pub check_system_version: Option<Vec<FHIRString>>,
         pub force_system_version: Option<Vec<FHIRString>>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: ValueSet,
@@ -742,7 +742,7 @@ pub mod ValueSetExpand {
 }
 pub mod ValueSetValidateCode {
     use super::*;
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
         pub context: Option<FHIRUri>,
@@ -759,7 +759,7 @@ pub mod ValueSetValidateCode {
         pub abstract_: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
     }
-    #[derive(Debug, ParametersParse)]
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         pub result: FHIRBoolean,
         pub message: Option<FHIRString>,

@@ -141,7 +141,7 @@ fn generate_parameter_type(
     let struct_name = format_ident!("{}", name);
 
     let base_parameter_type = quote! {
-        #[derive(Debug, ParametersParse)]
+        #[derive(Debug, FromParameters)]
         pub struct #struct_name {
             #(#fields),*
         }
@@ -215,7 +215,7 @@ pub fn generate_operation_definitions_from_files(
 ) -> Result<String, String> {
     let mut generated_code = quote! {
         #![allow(non_snake_case)]
-        use oxidized_fhir_ops::derive::ParametersParse;
+        use oxidized_fhir_ops::derive::FromParameters;
         use oxidized_fhir_model::r4::generated::types::*;
         use oxidized_fhir_model::r4::generated::resources::*;
         use oxidized_fhir_operation_error::*;
