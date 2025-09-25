@@ -125,7 +125,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 quote! {
                     #doc_attribute
                     #code_attribute
-                    #code_ident(Option<Element>),
+                    #code_ident(Option<Element>)
                 }
             });
             let try_from_value_variants = codes.iter().map(|(_code, code)| {
@@ -215,11 +215,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                                 }
                             },
                             "id" => match self {
-                                #(#id_variant),*
+                                #(#id_variant),*,
                                 #terminology_enum_name::Null(e) => e.get_field(field),
                             },
                             "extension" => match self {
-                                #(#extension_variant),*
+                                #(#extension_variant),*,
                                 #terminology_enum_name::Null(e) => e.get_field(field),
                             },
                             _ => None,
@@ -229,11 +229,11 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                     fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
                         match field {
                             "id" => match self {
-                                #(#id_variant_mut),*
+                                #(#id_variant_mut),*,
                                 #terminology_enum_name::Null(e) => e.get_field_mut(field),
                             },
                             "extension" => match self {
-                                #(#extension_variant_mut),*
+                                #(#extension_variant_mut),*,
                                 #terminology_enum_name::Null(e) => e.get_field_mut(field),
                             },
                             _ => None,
