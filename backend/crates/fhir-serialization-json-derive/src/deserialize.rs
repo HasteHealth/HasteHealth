@@ -163,8 +163,8 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                                     Some(serde_json::Value::String(s)) => {
                                         match s.as_str(){
                                             #(#variants_deserialize_value_with_element),*,
-                                            _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
-                                                "Expected a string for value set enum".to_string(),
+                                            variant => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                                format!("Invalid code '{}' for field '{}'", variant, context.field)
                                             )),
                                         }
                                     },
@@ -181,8 +181,8 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                                     serde_json::Value::String(s) => {
                                         match s.as_str() {
                                             #(#variants_deserialize_value),*,
-                                            _ => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
-                                                "Expected a string for value set enum".to_string(),
+                                            variant => Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                                format!("Invalid code '{}' for value set enum", variant)
                                             )),
                                         }
                                     },
