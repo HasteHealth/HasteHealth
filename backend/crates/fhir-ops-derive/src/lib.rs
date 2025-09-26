@@ -2,8 +2,31 @@ use oxidized_fhir_model::r4::generated::resources::ResourceType;
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::{
-    parse_macro_input, Attribute, Data, DeriveInput, Field, Fields, PathArguments, PathSegment, Type
+    parse_macro_input, Attribute, Data, DeriveInput, Expr, Field, Fields, Lit, Meta, PathArguments, PathSegment, Type
 };
+
+fn get_attribute_value(attrs: &[Attribute], attribute: &str) -> Option<String> {
+    attrs.iter().find_map(|attr| match &attr.meta {
+        Meta::NameValue(name_value) => {
+            if name_value.path.is_ident(attribute) {
+                match &name_value.value {
+                    Expr::Lit(lit) => match &lit.lit {
+                        Lit::Str(lit) => Some(lit.value()),
+                        _ => panic!("Expected a string literal"),
+                    },
+                    _ => panic!("Expected a string literal"),
+                }
+            } else {
+                None
+            }
+        }
+        _ => None,
+    })
+}
+
+fn get_parameter_name(field: &Field) -> String {
+    if let Some(rename) = get_attribute_value(&field.attrs, "parameter_rename") { rename } else { field.ident.as_ref().unwrap().to_string() }
+}
 
 fn is_nested_parameter(attrs: &[Attribute]) -> bool {
     attrs
@@ -108,9 +131,107 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
     }
 }
 
+#[proc_macro_derive(ToParameters, attributes(parameter_rename, parameter_nested))]
+pub fn oxidized_to_parameters(input: TokenStream) -> TokenStream {
+    // Parse the input tokens into a syntax tree
+    let input = parse_macro_input!(input as DeriveInput);
+
+    match input.data {
+        Data::Struct(data) => {
+            let struct_name = input.ident;
+            let parameters_name = format_ident!("parameters");
+            let current_parameter = format_ident!("param");
+
+            let to_fields = data.fields.iter().map(|field| {
+                let field_name = field.ident.as_ref().unwrap();
+                let value_type = inner_type(field);
+                let expected_parameter_name = get_parameter_name(field);
+                let is_optional = is_optional(field);
+
+                let get_value_from_param = if is_nested_parameter(&field.attrs) {
+                    quote!{ 
+                        Vec<ParametersParameter>::from(self.#field_name);
+                    }
+                }else if value_type.ident == format_ident!("Resource") {
+                    quote!{
+                        ParametersParameter {
+
+                        }
+                    }
+                }else  if value_type.ident == format_ident!("ParametersParameterValueTypeChoice") {
+                    quote! {
+                        Ok(#current_parameter.value)
+                    }
+                }
+                 else if is_resource_type(field) {
+                    quote! {
+                        if let Some(Resource::#value_type(resource)) = #current_parameter.resource.map(|r| *r) {
+                            Ok(Some(resource))
+                        } else {
+                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                        }
+                    }
+                } else {
+                    // Need to remove the start FHIR on the primitives.
+                    let removed_fhir = value_type.ident.to_string().replacen("FHIR", "", 1);
+                    let parameter_value_type = format_ident!("{}", removed_fhir);
+
+                    quote! {
+                        if let Some(oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
+                            Ok(Some(*value))
+                        } else {
+                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                        }
+                    }
+                };
+
+                let setter = if determine_is_vector(field) {
+                    quote! {
+                        let tmp_value = #get_value_from_param;
+                        if let Some(tmp_value) = tmp_value? {
+                            if let Some(tmp_array) = #field_name.as_mut(){
+                                tmp_array.push(tmp_value);
+                            } else {
+                                #field_name = Some(vec![tmp_value]);
+                            }
+                        }
+                    }
+                } else {
+                    quote! {
+                        if #field_name.is_some(){
+                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
+                        }
+                        let tmp_value = #get_value_from_param;
+                        #field_name = tmp_value?;
+                    }
+                };
+
+                quote!{
+                    Some(#expected_parameter_name) =>  {
+                        #setter
+                    }
+                }
+            });
+
+            let try_from_code = quote! {
+                impl From<#struct_name> for Vec<ParametersParameter> {
+                    fn from(s: #struct_name) -> Self {
+                        Test::T1(None)
+                    }
+                }
+            };
+
+            // println!("{}", try_from_code.to_string());
+
+            try_from_code.into()
+        }
+        _ => panic!("From parameter deriviation is only supported for structs."),
+    }
+}
+
 
 #[proc_macro_derive(FromParameters, attributes(parameter_rename, parameter_nested))]
-pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
+pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -134,7 +255,7 @@ pub fn oxidized_from_parameter(input: TokenStream) -> TokenStream {
                 let field_name = field.ident.as_ref().unwrap();
                 let is_vector = determine_is_vector(field);
                 let value_type = inner_type(field);
-                let expected_parameter_name = field_name.to_string();
+                let expected_parameter_name = get_parameter_name(field);
 
                 let get_value_from_param = if is_nested_parameter(&field.attrs) {
                     quote!{ 
