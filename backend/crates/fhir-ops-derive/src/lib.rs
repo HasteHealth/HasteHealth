@@ -140,75 +140,73 @@ pub fn oxidized_to_parameters(input: TokenStream) -> TokenStream {
         Data::Struct(data) => {
             let struct_name = input.ident;
             let parameters_name = format_ident!("parameters");
-            let current_parameter = format_ident!("param");
 
-            let to_fields = data.fields.iter().map(|field| {
+            let to_parameters = data.fields.iter().map(|field| {
                 let field_name = field.ident.as_ref().unwrap();
                 let value_type = inner_type(field);
                 let expected_parameter_name = get_parameter_name(field);
                 let is_optional = is_optional(field);
+                let tmp_name = format_ident!("tmp");
 
-                let get_value_from_param = if is_nested_parameter(&field.attrs) {
+                let as_param = if is_nested_parameter(&field.attrs) {
                     quote!{ 
-                        Vec<ParametersParameter>::from(self.#field_name);
+                        Vec<ParametersParameter>::from(#tmp_name);
                     }
                 }else if value_type.ident == format_ident!("Resource") {
                     quote!{
                         ParametersParameter {
-
+                            name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
+                            resource: Box::new(Resource::#value_type(#tmp_name)),
+                            ..Default::default()
                         }
                     }
                 }else  if value_type.ident == format_ident!("ParametersParameterValueTypeChoice") {
                     quote! {
-                        Ok(#current_parameter.value)
+                        ParametersParameter {
+                            name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
+                            value: #tmp_name,
+                            ..Default::default()
+                        }
                     }
                 }
                  else if is_resource_type(field) {
-                    quote! {
-                        if let Some(Resource::#value_type(resource)) = #current_parameter.resource.map(|r| *r) {
-                            Ok(Some(resource))
-                        } else {
-                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                    quote!{
+                        ParametersParameter {
+                                name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
+                                resource: Resource::#value_type(#tmp_name),
+                                ..Default::default()
                         }
                     }
+
                 } else {
                     // Need to remove the start FHIR on the primitives.
                     let removed_fhir = value_type.ident.to_string().replacen("FHIR", "", 1);
                     let parameter_value_type = format_ident!("{}", removed_fhir);
 
                     quote! {
-                        if let Some(oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
-                            Ok(Some(*value))
-                        } else {
-                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                        ParametersParameter {
+                            name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
+                            value: oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(#tmp_name),
+                            ..Default::default()
                         }
                     }
                 };
 
-                let setter = if determine_is_vector(field) {
+                if determine_is_vector(field) {
                     quote! {
-                        let tmp_value = #get_value_from_param;
-                        if let Some(tmp_value) = tmp_value? {
-                            if let Some(tmp_array) = #field_name.as_mut(){
-                                tmp_array.push(tmp_value);
-                            } else {
-                                #field_name = Some(vec![tmp_value]);
-                            }
+                        #parameters_name.extend(self.#field_name.iter().map(|#tmp_name| #as_param));
+                    }
+                } else if is_optional {
+                    quote! {
+                        if let Some(#tmp_name) = &self.#field_name {
+                            #parameters_name.push(#as_param);
                         }
                     }
-                } else {
+                }
+                else {
                     quote! {
-                        if #field_name.is_some(){
-                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
-                        }
-                        let tmp_value = #get_value_from_param;
-                        #field_name = tmp_value?;
-                    }
-                };
-
-                quote!{
-                    Some(#expected_parameter_name) =>  {
-                        #setter
+                        let #tmp_name = &self.#field_name;
+                        #parameters_name.push(#as_param);
                     }
                 }
             });
@@ -216,12 +214,11 @@ pub fn oxidized_to_parameters(input: TokenStream) -> TokenStream {
             let try_from_code = quote! {
                 impl From<#struct_name> for Vec<ParametersParameter> {
                     fn from(s: #struct_name) -> Self {
-                        Test::T1(None)
+                        let mut #parameters_name = vec![];
+                        #(#to_parameters)*
                     }
                 }
             };
-
-            // println!("{}", try_from_code.to_string());
 
             try_from_code.into()
         }
