@@ -188,6 +188,11 @@ fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String
     let mut generated = quote! {};
     for op_def in op_defs {
         let name = format_ident!("{}", get_name(op_def));
+        let op_code = op_def
+            .code
+            .value
+            .as_ref()
+            .expect("Operation must have a code.");
         let parameters = op_def
             .parameter
             .as_ref()
@@ -200,6 +205,7 @@ fn generate_operation_definition(file_path: &Path) -> Result<TokenStream, String
         generated.extend(quote! {
             pub mod #name {
                 use super::*;
+                pub const CODE: &str = #op_code;
                 #(#generate_input)*
                 #(#generate_output)*
             }

@@ -5,6 +5,7 @@ use oxidized_fhir_operation_error::*;
 use oxidized_fhir_ops::derive::{FromParameters, ToParameters};
 pub mod ActivityDefinitionApply {
     use super::*;
+    pub const CODE: &str = "apply";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub activityDefinition: Option<ActivityDefinition>,
@@ -26,6 +27,7 @@ pub mod ActivityDefinitionApply {
 }
 pub mod ActivityDefinitionDataRequirements {
     use super::*;
+    pub const CODE: &str = "data-requirements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
     #[derive(Debug, FromParameters, ToParameters)]
@@ -36,6 +38,7 @@ pub mod ActivityDefinitionDataRequirements {
 }
 pub mod CapabilityStatementConforms {
     use super::*;
+    pub const CODE: &str = "conforms";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub left: Option<FHIRString>,
@@ -51,6 +54,7 @@ pub mod CapabilityStatementConforms {
 }
 pub mod CapabilityStatementImplements {
     use super::*;
+    pub const CODE: &str = "implements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub server: Option<FHIRString>,
@@ -65,6 +69,7 @@ pub mod CapabilityStatementImplements {
 }
 pub mod CapabilityStatementSubset {
     use super::*;
+    pub const CODE: &str = "subset";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub server: Option<FHIRUri>,
@@ -78,6 +83,7 @@ pub mod CapabilityStatementSubset {
 }
 pub mod CapabilityStatementVersions {
     use super::*;
+    pub const CODE: &str = "versions";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
     #[derive(Debug, FromParameters, ToParameters)]
@@ -88,6 +94,7 @@ pub mod CapabilityStatementVersions {
 }
 pub mod ChargeItemDefinitionApply {
     use super::*;
+    pub const CODE: &str = "apply";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub chargeItem: Reference,
@@ -101,6 +108,7 @@ pub mod ChargeItemDefinitionApply {
 }
 pub mod ClaimSubmit {
     use super::*;
+    pub const CODE: &str = "submit";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub resource: Resource,
@@ -113,6 +121,7 @@ pub mod ClaimSubmit {
 }
 pub mod CodeSystemFindMatches {
     use super::*;
+    pub const CODE: &str = "find-matches";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct InputPropertySubproperty {
         pub code: FHIRCode,
@@ -162,6 +171,7 @@ pub mod CodeSystemFindMatches {
 }
 pub mod CodeSystemLookup {
     use super::*;
+    pub const CODE: &str = "lookup";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub code: Option<FHIRCode>,
@@ -206,6 +216,7 @@ pub mod CodeSystemLookup {
 }
 pub mod CodeSystemSubsumes {
     use super::*;
+    pub const CODE: &str = "subsumes";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub codeA: Option<FHIRCode>,
@@ -222,6 +233,7 @@ pub mod CodeSystemSubsumes {
 }
 pub mod CodeSystemValidateCode {
     use super::*;
+    pub const CODE: &str = "validate-code";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
@@ -245,6 +257,7 @@ pub mod CodeSystemValidateCode {
 }
 pub mod CompositionDocument {
     use super::*;
+    pub const CODE: &str = "document";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub id: Option<FHIRUri>,
@@ -256,6 +269,7 @@ pub mod CompositionDocument {
 }
 pub mod ConceptMapClosure {
     use super::*;
+    pub const CODE: &str = "closure";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub name: FHIRString,
@@ -270,6 +284,7 @@ pub mod ConceptMapClosure {
 }
 pub mod ConceptMapTranslate {
     use super::*;
+    pub const CODE: &str = "translate";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct InputDependency {
         pub element: Option<FHIRUri>,
@@ -316,6 +331,7 @@ pub mod ConceptMapTranslate {
 }
 pub mod CoverageEligibilityRequestSubmit {
     use super::*;
+    pub const CODE: &str = "submit";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub resource: Resource,
@@ -328,6 +344,7 @@ pub mod CoverageEligibilityRequestSubmit {
 }
 pub mod EncounterEverything {
     use super::*;
+    pub const CODE: &str = "everything";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub _since: Option<FHIRInstant>,
@@ -342,6 +359,7 @@ pub mod EncounterEverything {
 }
 pub mod GroupEverything {
     use super::*;
+    pub const CODE: &str = "everything";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub start: Option<FHIRDate>,
@@ -358,6 +376,7 @@ pub mod GroupEverything {
 }
 pub mod LibraryDataRequirements {
     use super::*;
+    pub const CODE: &str = "data-requirements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub target: Option<FHIRString>,
@@ -370,6 +389,7 @@ pub mod LibraryDataRequirements {
 }
 pub mod ListFind {
     use super::*;
+    pub const CODE: &str = "find";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub patient: FHIRId,
@@ -380,6 +400,7 @@ pub mod ListFind {
 }
 pub mod MeasureCareGaps {
     use super::*;
+    pub const CODE: &str = "care-gaps";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
@@ -395,6 +416,7 @@ pub mod MeasureCareGaps {
 }
 pub mod MeasureCollectData {
     use super::*;
+    pub const CODE: &str = "collect-data";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
@@ -412,6 +434,7 @@ pub mod MeasureCollectData {
 }
 pub mod MeasureDataRequirements {
     use super::*;
+    pub const CODE: &str = "data-requirements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
@@ -425,6 +448,7 @@ pub mod MeasureDataRequirements {
 }
 pub mod MeasureEvaluateMeasure {
     use super::*;
+    pub const CODE: &str = "evaluate-measure";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub periodStart: FHIRDate,
@@ -443,6 +467,7 @@ pub mod MeasureEvaluateMeasure {
 }
 pub mod MeasureSubmitData {
     use super::*;
+    pub const CODE: &str = "submit-data";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub measureReport: MeasureReport,
@@ -453,6 +478,7 @@ pub mod MeasureSubmitData {
 }
 pub mod MedicinalProductEverything {
     use super::*;
+    pub const CODE: &str = "everything";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub _since: Option<FHIRInstant>,
@@ -466,6 +492,7 @@ pub mod MedicinalProductEverything {
 }
 pub mod MessageHeaderProcessMessage {
     use super::*;
+    pub const CODE: &str = "process-message";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub content: Bundle,
@@ -481,6 +508,7 @@ pub mod MessageHeaderProcessMessage {
 }
 pub mod NamingSystemPreferredId {
     use super::*;
+    pub const CODE: &str = "preferred-id";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub id: FHIRString,
@@ -494,6 +522,7 @@ pub mod NamingSystemPreferredId {
 }
 pub mod ObservationLastn {
     use super::*;
+    pub const CODE: &str = "lastn";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub max: Option<FHIRPositiveInt>,
@@ -506,6 +535,7 @@ pub mod ObservationLastn {
 }
 pub mod ObservationStats {
     use super::*;
+    pub const CODE: &str = "stats";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub subject: FHIRUri,
@@ -526,6 +556,7 @@ pub mod ObservationStats {
 }
 pub mod PatientEverything {
     use super::*;
+    pub const CODE: &str = "everything";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub start: Option<FHIRDate>,
@@ -542,6 +573,7 @@ pub mod PatientEverything {
 }
 pub mod PatientMatch {
     use super::*;
+    pub const CODE: &str = "match";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub resource: Resource,
@@ -556,6 +588,7 @@ pub mod PatientMatch {
 }
 pub mod PlanDefinitionApply {
     use super::*;
+    pub const CODE: &str = "apply";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub planDefinition: Option<PlanDefinition>,
@@ -577,6 +610,7 @@ pub mod PlanDefinitionApply {
 }
 pub mod PlanDefinitionDataRequirements {
     use super::*;
+    pub const CODE: &str = "data-requirements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
     #[derive(Debug, FromParameters, ToParameters)]
@@ -587,6 +621,7 @@ pub mod PlanDefinitionDataRequirements {
 }
 pub mod ResourceConvert {
     use super::*;
+    pub const CODE: &str = "convert";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub input: Resource,
@@ -598,6 +633,7 @@ pub mod ResourceConvert {
 }
 pub mod ResourceGraph {
     use super::*;
+    pub const CODE: &str = "graph";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub graph: FHIRUri,
@@ -609,6 +645,7 @@ pub mod ResourceGraph {
 }
 pub mod ResourceGraphql {
     use super::*;
+    pub const CODE: &str = "graphql";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub query: FHIRString,
@@ -620,6 +657,7 @@ pub mod ResourceGraphql {
 }
 pub mod ResourceMeta {
     use super::*;
+    pub const CODE: &str = "meta";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
     #[derive(Debug, FromParameters, ToParameters)]
@@ -630,6 +668,7 @@ pub mod ResourceMeta {
 }
 pub mod ResourceMetaAdd {
     use super::*;
+    pub const CODE: &str = "meta-add";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub meta: Meta,
@@ -642,6 +681,7 @@ pub mod ResourceMetaAdd {
 }
 pub mod ResourceMetaDelete {
     use super::*;
+    pub const CODE: &str = "meta-delete";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub meta: Meta,
@@ -654,6 +694,7 @@ pub mod ResourceMetaDelete {
 }
 pub mod ResourceValidate {
     use super::*;
+    pub const CODE: &str = "validate";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub resource: Option<Resource>,
@@ -668,6 +709,7 @@ pub mod ResourceValidate {
 }
 pub mod StructureDefinitionQuestionnaire {
     use super::*;
+    pub const CODE: &str = "questionnaire";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         #[parameter_rename = "identifier"]
@@ -684,6 +726,7 @@ pub mod StructureDefinitionQuestionnaire {
 }
 pub mod StructureDefinitionSnapshot {
     use super::*;
+    pub const CODE: &str = "snapshot";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub definition: Option<StructureDefinition>,
@@ -697,6 +740,7 @@ pub mod StructureDefinitionSnapshot {
 }
 pub mod StructureMapTransform {
     use super::*;
+    pub const CODE: &str = "transform";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub source: Option<FHIRUri>,
@@ -710,6 +754,7 @@ pub mod StructureMapTransform {
 }
 pub mod ValueSetExpand {
     use super::*;
+    pub const CODE: &str = "expand";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
@@ -742,6 +787,7 @@ pub mod ValueSetExpand {
 }
 pub mod ValueSetValidateCode {
     use super::*;
+    pub const CODE: &str = "validate-code";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         pub url: Option<FHIRUri>,
