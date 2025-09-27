@@ -14,6 +14,22 @@ pub enum Param<
     Parameters(Parameters),
 }
 
+impl<
+    T: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
+        + Into<Vec<ParametersParameter>>,
+> Param<T>
+{
+    pub fn as_parameters(self) -> Parameters {
+        match self {
+            Param::Value(v) => Parameters {
+                parameter: Some(v.into()),
+                ..Default::default()
+            },
+            Param::Parameters(p) => p,
+        }
+    }
+}
+
 pub trait OperationInvocation<
     I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
         + Into<Vec<ParametersParameter>>,
@@ -24,7 +40,7 @@ pub trait OperationInvocation<
     fn execute(
         &self,
         input: Param<I>,
-    ) -> impl Future<Output = Result<Param<O>, OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<O, OperationOutcomeError>> + Send + Sync;
 }
 
 pub struct OperationExecutor<
@@ -38,11 +54,8 @@ pub struct OperationExecutor<
         + Sync,
 > {
     executor: Box<
-        dyn Fn(
-                Param<I>,
-            ) -> Pin<
-                Box<dyn Future<Output = Result<Param<O>, OperationOutcomeError>> + Send + Sync>,
-            > + Send
+        dyn Fn(I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send + Sync>>
+            + Send
             + Sync,
     >,
 }
@@ -61,10 +74,10 @@ impl<
     pub fn new(
         executor: Box<
             dyn Fn(
-                    Param<I>,
-                ) -> Pin<
-                    Box<dyn Future<Output = Result<Param<O>, OperationOutcomeError>> + Send + Sync>,
-                > + Send
+                    I,
+                )
+                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send + Sync>>
+                + Send
                 + Sync,
         >,
     ) -> Self {
@@ -83,7 +96,12 @@ impl<
         + Sync,
 > OperationInvocation<I, O> for OperationExecutor<I, O>
 {
-    async fn execute(&self, input: Param<I>) -> Result<Param<O>, OperationOutcomeError> {
+    async fn execute(&self, input: Param<I>) -> Result<O, OperationOutcomeError> {
+        let input = match input {
+            Param::Parameters(params) => I::try_from(params.parameter.unwrap_or_default()),
+            Param::Value(v) => Ok(v),
+        }?;
+
         let output = (self.executor)(input).await;
         output
     }
