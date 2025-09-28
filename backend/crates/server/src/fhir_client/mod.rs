@@ -198,6 +198,16 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             middleware: Middleware::new(vec![Box::new(middleware::storage)]),
         };
 
+        let ops_route = Route {
+            filter: Box::new(|req: &FHIRRequest| match req {
+                FHIRRequest::InvokeInstance(_)
+                | FHIRRequest::InvokeType(_)
+                | FHIRRequest::InvokeSystem(_) => true,
+                _ => false,
+            }),
+            middleware: Middleware::new(vec![Box::new(middleware::operations)]),
+        };
+
         let artifact_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
                 FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => {
@@ -216,7 +226,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
         };
 
         let route_middleware =
-            router_middleware_chain(Arc::new(vec![storage_route, artifact_route]));
+            router_middleware_chain(Arc::new(vec![storage_route, artifact_route, ops_route]));
 
         FHIRServerClient {
             state: Arc::new(ClientState { repo, search }),

@@ -1,3 +1,13 @@
+use crate::{
+    fhir_client::{
+        ClientState, FHIRServerClient, StorageError,
+        middleware::{
+            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+            ServerMiddlewareState,
+        },
+    },
+    fhir_http::{self, HTTPRequest},
+};
 use axum::http::Method;
 use oxidized_fhir_client::{
     FHIRClient,
@@ -11,17 +21,6 @@ use oxidized_fhir_client::{
 use oxidized_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
     terminology::{BundleType, IssueType},
-};
-
-use crate::{
-    fhir_client::{
-        ClientState, FHIRServerClient, StorageError,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
-    },
-    fhir_http::{self, HTTPRequest},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
