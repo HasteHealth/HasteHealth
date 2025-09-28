@@ -7,7 +7,6 @@ use oxidized_fhir_model::r4::generated::{resources::ValueSet, terminology::Issue
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_ops::{OperationExecutor, OperationInvocation, Param};
 use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
 use std::sync::{Arc, LazyLock};
 
@@ -31,14 +30,13 @@ static VALUESET_EXPAND_OPERATION: LazyLock<
 pub fn operations<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    state: ServerMiddlewareState<Repo, Search, Terminology>,
+    _state: ServerMiddlewareState<Repo, Search>,
     mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
+    _next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
-        let ctx = context.ctx.clone();
+        // let ctx = context.ctx.clone();
 
         let output: Param<_> = match &context.request {
             FHIRRequest::InvokeInstance(instance_request) => {

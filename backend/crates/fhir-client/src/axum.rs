@@ -140,6 +140,33 @@ impl IntoResponse for FHIRResponse {
                 )
                     .into_response()
             }
+            FHIRResponse::InvokeInstance(response) => {
+                (
+                    StatusCode::OK,
+                    header,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                )
+                    .into_response()
+            }
+            FHIRResponse::InvokeType(response) => {
+                (
+                    StatusCode::OK,
+                    header,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                )
+                    .into_response()
+            }
+            FHIRResponse::InvokeSystem(response) => {
+                (
+                    StatusCode::OK,
+                    header,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                )
+                    .into_response()
+            }
             _ => panic!("Unsupported FHIRResponse type"),
         }
     }

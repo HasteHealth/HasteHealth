@@ -8,7 +8,6 @@ use crate::fhir_client::{
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     types::{Author, ProjectId, TenantId},
@@ -19,11 +18,10 @@ use std::sync::Arc;
 pub fn set_artifact_tenant<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    state: ServerMiddlewareState<Repo, Search, Terminology>,
+    state: ServerMiddlewareState<Repo, Search>,
     mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
+    next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let ctx = Arc::new(ServerCTX {
