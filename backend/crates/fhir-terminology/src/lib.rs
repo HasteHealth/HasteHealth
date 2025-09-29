@@ -4,7 +4,6 @@ use oxidized_fhir_generated_ops::generated::{
 use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use std::pin::Pin;
-use std::sync::Arc;
 
 pub mod client;
 
