@@ -18,17 +18,25 @@ pub enum TerminologyError {
     LookupError,
 }
 
-pub type CanonicalResolution = Arc<
-    Box<
-        dyn Fn(
-                ResourceType,
-                String,
-            ) -> Pin<
-                Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>,
-            > + Send
-            + Sync,
-    >,
->;
+pub trait CanonicalResolver {
+    fn resolve(
+        &self,
+        resource_type: ResourceType,
+        id: String,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>>;
+}
+
+// pub type CanonicalResolution = Arc<
+//     Box<
+//         dyn Fn(
+//                 ResourceType,
+//                 String,
+//             ) -> Pin<
+//                 Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>,
+//             > + Send
+//             + Sync,
+//     >,
+// >;
 
 pub trait FHIRTerminology {
     fn expand(

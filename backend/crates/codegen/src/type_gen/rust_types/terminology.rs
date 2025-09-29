@@ -6,7 +6,7 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_terminology::{
-    CanonicalResolution, FHIRTerminology, client::FHIRCanonicalTerminology,
+    CanonicalResolver, FHIRTerminology, client::FHIRCanonicalTerminology,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -355,32 +355,39 @@ fn load_terminologies(
     Ok(Arc::new(resolver_data))
 }
 
-fn create_resolver(data: Arc<ResolverData>) -> CanonicalResolution {
-    Arc::new(Box::new(
-        move |resource_type: ResourceType,
-              url: String|
-              -> Pin<
-            Box<
-                dyn std::future::Future<Output = Result<Resource, OperationOutcomeError>>
-                    + Send
-                    + Sync,
-            >,
-        > {
-            let data = data.clone();
-            Box::pin(async move {
-                if let Some(resources) = data.clone().get(&resource_type)
-                    && let Some(resource) = resources.get(&url)
-                {
-                    Ok(resource.clone())
-                } else {
-                    Err(OperationOutcomeError::error(
-                        IssueType::NotFound(None),
-                        format!("Could not resolve canonical url: {}", url),
-                    ))
-                }
-            })
-        },
-    ))
+struct InlineResolver {
+    data: Arc<ResolverData>,
+}
+
+impl InlineResolver {
+    pub fn new(data: Arc<ResolverData>) -> Self {
+        InlineResolver { data }
+    }
+}
+
+impl CanonicalResolver for InlineResolver {
+    fn resolve(
+        &self,
+        resource_type: ResourceType,
+        url: String,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>> {
+        Box::pin(async move {
+            if let Some(resources) = self.data.clone().get(&resource_type)
+                && let Some(resource) = resources.get(&url)
+            {
+                Ok(resource.clone())
+            } else {
+                Err(OperationOutcomeError::error(
+                    IssueType::NotFound(None),
+                    format!("Could not resolve canonical url: {}", url),
+                ))
+            }
+        })
+    }
+}
+
+fn create_resolver(data: Arc<ResolverData>) -> InlineResolver {
+    InlineResolver::new(data)
 }
 
 pub struct GeneratedTerminologies {
@@ -394,7 +401,7 @@ pub async fn generate(
 ) -> Result<GeneratedTerminologies, OperationOutcomeError> {
     let data = load_terminologies(file_paths)?;
 
-    let terminology = FHIRCanonicalTerminology::new(create_resolver(data.clone()));
+    let terminology = FHIRCanonicalTerminology::new(InlineResolver::new(data));
 
     let mut codes = Vec::new();
 
