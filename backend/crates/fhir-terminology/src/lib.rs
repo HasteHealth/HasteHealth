@@ -4,7 +4,6 @@ use oxidized_fhir_generated_ops::generated::{
 use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use std::pin::Pin;
-use std::sync::Arc;
 
 pub mod client;
 
@@ -18,22 +17,17 @@ pub enum TerminologyError {
     LookupError,
 }
 
-pub type CanonicalResolution = Arc<
-    Box<
-        dyn Fn(
-                ResourceType,
-                String,
-            ) -> Pin<
-                Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>,
-            > + Send
-            + Sync,
-    >,
->;
+pub trait CanonicalResolver {
+    fn resolve(
+        &self,
+        resource_type: ResourceType,
+        id: String,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>>;
+}
 
 pub trait FHIRTerminology {
     fn expand(
         &self,
-
         input: ValueSetExpand::Input,
     ) -> impl Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send;
     fn validate(

@@ -1,4 +1,4 @@
-use crate::{CanonicalResolution, FHIRTerminology};
+use crate::{CanonicalResolver, FHIRTerminology};
 use oxidized_fhir_generated_ops::generated::{
     CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
 };
@@ -11,27 +11,30 @@ use oxidized_fhir_model::r4::generated::{
     types::{FHIRString, FHIRUri},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use std::{borrow::Cow, pin::Pin};
+use std::{borrow::Cow, pin::Pin, sync::Arc};
 
-pub struct FHIRCanonicalTerminology {
-    resolver: CanonicalResolution,
+pub struct FHIRCanonicalTerminology<Resolver: CanonicalResolver> {
+    resolver: Arc<Resolver>,
 }
 
-impl FHIRCanonicalTerminology {
-    pub fn new(resolver: CanonicalResolution) -> Self {
-        FHIRCanonicalTerminology { resolver }
+impl<Resolver: CanonicalResolver> FHIRCanonicalTerminology<Resolver> {
+    pub fn new(resolver: Resolver) -> Self {
+        FHIRCanonicalTerminology {
+            resolver: Arc::new(resolver),
+        }
     }
 }
 
-async fn resolve_valueset(
-    canonical_resolution: CanonicalResolution,
+async fn resolve_valueset<Resolver: CanonicalResolver>(
+    canonical_resolution: Arc<Resolver>,
     input: ValueSetExpand::Input,
 ) -> Result<Option<ValueSet>, OperationOutcomeError> {
     if let Some(valueset) = input.valueSet.as_ref() {
         return Ok(Some(valueset.clone()));
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
-        let Resource::ValueSet(value_set) =
-            canonical_resolution(ResourceType::ValueSet, url.to_string()).await?
+        let Resource::ValueSet(value_set) = canonical_resolution
+            .resolve(ResourceType::ValueSet, url.to_string())
+            .await?
         else {
             return Ok(None);
         };
@@ -61,12 +64,13 @@ fn codes_inline_to_expansion(include: &ValueSetComposeInclude) -> Vec<ValueSetEx
         .collect()
 }
 
-async fn resolve_codesystem(
-    canonical_resolution: CanonicalResolution,
+async fn resolve_codesystem<Resolver: CanonicalResolver>(
+    canonical_resolution: Arc<Resolver>,
     url: &str,
 ) -> Result<Option<CodeSystem>, OperationOutcomeError> {
-    let Resource::CodeSystem(code_system) =
-        canonical_resolution(ResourceType::CodeSystem, url.to_string()).await?
+    let Resource::CodeSystem(code_system) = canonical_resolution
+        .resolve(ResourceType::CodeSystem, url.to_string())
+        .await?
     else {
         return Ok(None);
     };
@@ -141,8 +145,8 @@ fn code_system_concept_to_valueset_expansion(
         .collect()
 }
 
-async fn get_valueset_expansion_contains(
-    canonical_resolution: CanonicalResolution,
+async fn get_valueset_expansion_contains<Resolver: CanonicalResolver + Send + Sync + 'static>(
+    canonical_resolution: Arc<Resolver>,
     include: &ValueSetComposeInclude,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     if are_codes_inline(include) {
@@ -211,8 +215,8 @@ async fn get_valueset_expansion_contains(
     }
 }
 
-async fn get_valueset_expansion(
-    canonical_resolution: CanonicalResolution,
+async fn get_valueset_expansion<Resolver: CanonicalResolver + Sync + Send + 'static>(
+    canonical_resolution: Arc<Resolver>,
     value_set: &ValueSet,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     let mut result = Vec::new();
@@ -226,8 +230,8 @@ async fn get_valueset_expansion(
     Ok(result)
 }
 
-fn expand_valueset(
-    canonical_resolution: CanonicalResolution,
+fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + 'static>(
+    canonical_resolution: Arc<Resolver>,
     input: ValueSetExpand::Input,
 ) -> Pin<Box<dyn Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send>> {
     // Implementation would go here
@@ -251,7 +255,9 @@ fn expand_valueset(
     })
 }
 
-impl FHIRTerminology for FHIRCanonicalTerminology {
+impl<Resolver: CanonicalResolver + Send + Sync + 'static> FHIRTerminology
+    for FHIRCanonicalTerminology<Resolver>
+{
     async fn expand(
         &self,
         input: ValueSetExpand::Input,
