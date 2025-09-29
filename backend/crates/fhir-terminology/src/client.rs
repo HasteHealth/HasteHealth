@@ -1,4 +1,4 @@
-use crate::{CanonicalResolver, FHIRTerminology};
+use crate::{FHIRTerminology, resolvers::CanonicalResolver};
 use oxidized_fhir_generated_ops::generated::{
     CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
 };

@@ -1,11 +1,10 @@
 use oxidized_fhir_generated_ops::generated::{
     CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
 };
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use std::pin::Pin;
 
 pub mod client;
+pub mod resolvers;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum TerminologyError {
@@ -15,14 +14,6 @@ pub enum TerminologyError {
     ValidationError,
     #[error(code = "processing", diagnostic = "Failed to lookup code system")]
     LookupError,
-}
-
-pub trait CanonicalResolver {
-    fn resolve(
-        &self,
-        resource_type: ResourceType,
-        id: String,
-    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>>;
 }
 
 pub trait FHIRTerminology {

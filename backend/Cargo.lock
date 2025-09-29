@@ -2163,10 +2163,12 @@ dependencies = [
 name = "oxidized-fhir-terminology"
 version = "0.1.0"
 dependencies = [
+ "dashmap",
  "oxidized-fhir-client",
  "oxidized-fhir-generated-ops",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-fhir-search",
  "oxidized-repository",
 ]
 
