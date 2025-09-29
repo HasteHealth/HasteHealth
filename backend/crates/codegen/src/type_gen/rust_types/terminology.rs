@@ -371,8 +371,9 @@ impl CanonicalResolver for InlineResolver {
         resource_type: ResourceType,
         url: String,
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>> {
+        let data = self.data.clone();
         Box::pin(async move {
-            if let Some(resources) = self.data.clone().get(&resource_type)
+            if let Some(resources) = data.clone().get(&resource_type)
                 && let Some(resource) = resources.get(&url)
             {
                 Ok(resource.clone())
@@ -386,10 +387,6 @@ impl CanonicalResolver for InlineResolver {
     }
 }
 
-fn create_resolver(data: Arc<ResolverData>) -> InlineResolver {
-    InlineResolver::new(data)
-}
-
 pub struct GeneratedTerminologies {
     pub tokens: TokenStream,
     #[allow(dead_code)]
@@ -401,7 +398,7 @@ pub async fn generate(
 ) -> Result<GeneratedTerminologies, OperationOutcomeError> {
     let data = load_terminologies(file_paths)?;
 
-    let terminology = FHIRCanonicalTerminology::new(InlineResolver::new(data));
+    let terminology = FHIRCanonicalTerminology::new(InlineResolver::new(data.clone()));
 
     let mut codes = Vec::new();
 
