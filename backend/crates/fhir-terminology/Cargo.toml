@@ -10,4 +10,6 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
 oxidized-repository = { path = "../repository" }
+oxidized-fhir-search = { path = "../fhir-search" }
 oxidized-fhir-client = { path = "../fhir-client" }
+dashmap = "6.1.0"

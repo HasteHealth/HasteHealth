@@ -55,17 +55,19 @@ pub trait SearchEngine: Send + Sync {
         project: &ProjectId,
         search_request: SearchRequest,
         options: Option<SearchOptions>,
-    ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send + Sync;
 
     fn index(
         &self,
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
         resource: Vec<IndexResource>,
-    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + Sync;
 
     fn migrate(
         &self,
         fhir_version: &SupportedFHIRVersions,
-    ) -> impl Future<Output = Result<(), oxidized_fhir_operation_error::OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<(), oxidized_fhir_operation_error::OperationOutcomeError>>
+    + Send
+    + Sync;
 }
