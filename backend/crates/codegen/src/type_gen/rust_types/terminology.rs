@@ -6,7 +6,7 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_terminology::{
-    CanonicalResolver, FHIRTerminology, client::FHIRCanonicalTerminology,
+    FHIRTerminology, client::FHIRCanonicalTerminology, resolvers::CanonicalResolver,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -370,7 +370,7 @@ impl CanonicalResolver for InlineResolver {
         &self,
         resource_type: ResourceType,
         url: String,
-    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>> {
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>> {
         let data = self.data.clone();
         Box::pin(async move {
             if let Some(resources) = data.clone().get(&resource_type)

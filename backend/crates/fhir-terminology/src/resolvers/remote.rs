@@ -29,7 +29,7 @@ pub struct LRUCanonicalRemoteResolver<
 impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Sync + 'static>
     LRUCanonicalRemoteResolver<Repo, Search>
 {
-    pub fn new(repository: Arc<Repo>, search: Arc<Search>, size: Option<usize>) -> Self {
+    pub fn new(repository: Arc<Repo>, search: Arc<Search>) -> Self {
         Self {
             cache: Arc::new(DashMap::new()),
             search,
