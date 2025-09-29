@@ -25,22 +25,9 @@ pub trait CanonicalResolver {
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>>;
 }
 
-// pub type CanonicalResolution = Arc<
-//     Box<
-//         dyn Fn(
-//                 ResourceType,
-//                 String,
-//             ) -> Pin<
-//                 Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + Sync>,
-//             > + Send
-//             + Sync,
-//     >,
-// >;
-
 pub trait FHIRTerminology {
     fn expand(
         &self,
-
         input: ValueSetExpand::Input,
     ) -> impl Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send;
     fn validate(
