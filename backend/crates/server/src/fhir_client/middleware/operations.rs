@@ -37,7 +37,7 @@ pub fn operations<
             },
         ));
 
-        let output: Param<_> = match &context.request {
+        let output: Resource = match &context.request {
             FHIRRequest::InvokeInstance(instance_request) => {
                 let output = op_executor
                     .execute(
@@ -45,7 +45,7 @@ pub fn operations<
                         Param::Parameters(instance_request.parameters.clone()),
                     )
                     .await?;
-                Ok(Param::Value(output))
+                Ok(Resource::from(output))
             }
             FHIRRequest::InvokeType(type_request) => {
                 let output = op_executor
@@ -54,7 +54,7 @@ pub fn operations<
                         Param::Parameters(type_request.parameters.clone()),
                     )
                     .await?;
-                Ok(Param::Value(output))
+                Ok(Resource::from(output))
             }
             FHIRRequest::InvokeSystem(system_request) => {
                 let output = op_executor
@@ -63,7 +63,7 @@ pub fn operations<
                         Param::Parameters(system_request.parameters.clone()),
                     )
                     .await?;
-                Ok(Param::Value(output))
+                Ok(Resource::from(output))
             }
             _ => Err(OperationOutcomeError::fatal(
                 IssueType::Exception(None),
@@ -72,7 +72,7 @@ pub fn operations<
         }?;
 
         context.response = Some(FHIRResponse::InvokeSystem(FHIRInvokeSystemResponse {
-            resource: Resource::Parameters(output.as_parameters()),
+            resource: output,
         }));
 
         Ok(context)
