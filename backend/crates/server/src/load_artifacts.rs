@@ -153,14 +153,6 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
                 if let Ok(_res) = res {
                     println!("Updated {}", resource_type.as_ref());
                 } else if let Err(err) = res {
-                    if id == "item-type" {
-                        println!(
-                            "Err '{}': '{:?}' '{:?}'",
-                            resource_type.as_ref(),
-                            id,
-                            err.outcome().issue[0].diagnostics
-                        );
-                    }
                     if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
                         println!("BACKTRACE: {}", err.backtrace().unwrap());
                         panic!("INVALID");
