@@ -2,7 +2,7 @@ use std::{borrow::Cow, path::Path};
 
 use crate::utilities::{FHIR_PRIMITIVES, RUST_KEYWORDS, generate::capitalize, load};
 use oxidized_fhir_model::r4::generated::{
-    resources::{OperationDefinition, OperationDefinitionParameter, Resource},
+    resources::{OperationDefinition, OperationDefinitionParameter, Resource, ResourceType},
     terminology::OperationParameterUse,
 };
 use proc_macro2::TokenStream;
@@ -79,6 +79,23 @@ fn create_field_value(type_: &str, is_array: bool, required: bool) -> TokenStrea
     type_
 }
 
+/// If param is return and type is a resource, you can return resource directly from field.
+fn is_resource_return(parameters: &Vec<&OperationDefinitionParameter>) -> bool {
+    // Need special handling for single "return" parameter of type Any or a Resource type
+    if parameters.len() == 1
+        && parameters[0].name.value.as_deref() == Some("return")
+        && let Some(parameter_type) = parameters[0]
+            .type_
+            .as_ref()
+            .and_then(|t| t.value.as_deref())
+        && (parameter_type == "Any" || ResourceType::try_from(parameter_type).is_ok())
+    {
+        true
+    } else {
+        false
+    }
+}
+
 fn generate_parameter_type(
     name: &str,
     parameters: &Vec<&OperationDefinitionParameter>,
@@ -142,11 +159,18 @@ fn generate_parameter_type(
 
     let struct_name = format_ident!("{}", name);
 
-    let base_parameter_type = if is_base {
+    let base_parameter_type = if is_base && is_resource_return(parameters) {
         quote! {
             #[derive(Debug, FromParameters)]
             pub struct #struct_name {
                 #(#fields),*
+            }
+
+            impl From<#struct_name> for Resource {
+                fn from(value: #struct_name) -> Self {
+                    // Special handling for single "return" parameter of type Any or a Resource type
+                    value.return_.unwrap_or_else(|| Resource::Parameters(Parameters { parameter: vec![] }))
+                }
             }
         }
     } else {
