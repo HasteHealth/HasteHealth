@@ -1,6 +1,6 @@
 use std::{pin::Pin, sync::Arc};
 
-use oxidized_fhir_model::r4::generated::resources::{Parameters, ParametersParameter};
+use oxidized_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
 #[cfg(feature = "derive")]
@@ -35,9 +35,7 @@ pub trait OperationInvocation<
     I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
         + Into<Vec<ParametersParameter>>
         + Send,
-    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
-        + Into<Vec<ParametersParameter>>
-        + Send,
+    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 >
 {
     fn execute(
@@ -52,9 +50,7 @@ pub struct OperationExecutor<
     I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
         + Into<Vec<ParametersParameter>>
         + Send,
-    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
-        + Into<Vec<ParametersParameter>>
-        + Send,
+    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > {
     _ctx: std::marker::PhantomData<CTX>,
     executor: Arc<
@@ -71,9 +67,7 @@ impl<
     I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
         + Into<Vec<ParametersParameter>>
         + Send,
-    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
-        + Into<Vec<ParametersParameter>>
-        + Send,
+    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > OperationExecutor<CTX, I, O>
 {
     pub fn new(
@@ -95,9 +89,7 @@ impl<
     I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
         + Into<Vec<ParametersParameter>>
         + Send,
-    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
-        + Into<Vec<ParametersParameter>>
-        + Send,
+    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > OperationInvocation<CTX, I, O> for OperationExecutor<CTX, I, O>
 {
     fn execute(

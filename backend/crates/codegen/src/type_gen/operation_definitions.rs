@@ -2,7 +2,7 @@ use std::{borrow::Cow, path::Path};
 
 use crate::utilities::{FHIR_PRIMITIVES, RUST_KEYWORDS, generate::capitalize, load};
 use oxidized_fhir_model::r4::generated::{
-    resources::{OperationDefinition, OperationDefinitionParameter, Resource},
+    resources::{OperationDefinition, OperationDefinitionParameter, Resource, ResourceType},
     terminology::OperationParameterUse,
 };
 use proc_macro2::TokenStream;
@@ -79,10 +79,28 @@ fn create_field_value(type_: &str, is_array: bool, required: bool) -> TokenStrea
     type_
 }
 
+/// If param is return and type is a resource, you can return resource directly from field.
+fn is_resource_return(parameters: &Vec<&OperationDefinitionParameter>) -> bool {
+    // Need special handling for single "return" parameter of type Any or a Resource type
+    if parameters.len() == 1
+        && parameters[0].name.value.as_deref() == Some("return")
+        && let Some(parameter_type) = parameters[0]
+            .type_
+            .as_ref()
+            .and_then(|t| t.value.as_deref())
+        && (parameter_type == "Any" || ResourceType::try_from(parameter_type).is_ok())
+    {
+        true
+    } else {
+        false
+    }
+}
+
 fn generate_parameter_type(
     name: &str,
     parameters: &Vec<&OperationDefinitionParameter>,
     direction: &Direction,
+    is_base: bool,
 ) -> Vec<TokenStream> {
     let mut types = vec![];
     let mut fields = vec![];
@@ -111,11 +129,11 @@ fn generate_parameter_type(
 
         if let Some(type_) = p.type_.as_ref().and_then(|v| v.value.as_ref()) {
             let type_ = if type_ == "Any" { "Resource" } else { type_ };
-            let type_ = create_field_value(type_, is_array, required);
+            let field = create_field_value(type_, is_array, required);
 
             fields.push(quote! {
                 #attribute_rename
-                pub #field_ident: #type_
+                pub #field_ident: #field
             })
         } else {
             let name = name.to_string() + &capitalize(field_name.as_str());
@@ -126,6 +144,7 @@ fn generate_parameter_type(
                     .map(|v| v.iter().collect())
                     .unwrap_or(vec![]),
                 direction,
+                false,
             );
             types.extend(nested_types);
 
@@ -140,10 +159,65 @@ fn generate_parameter_type(
 
     let struct_name = format_ident!("{}", name);
 
-    let base_parameter_type = quote! {
-        #[derive(Debug, FromParameters, ToParameters)]
-        pub struct #struct_name {
-            #(#fields),*
+    let base_parameter_type = if is_base && is_resource_return(parameters) {
+        let required = parameters.get(0).and_then(|p| p.min.value).unwrap_or(0) > 0;
+        let type_ = parameters
+            .get(0)
+            .and_then(|p| {
+                p.type_
+                    .as_ref()
+                    .and_then(|v| v.value.as_ref().map(|s| s.as_str()))
+            })
+            .unwrap_or_default();
+
+        let return_type = if type_ == "Any" { "Resource" } else { type_ };
+        let return_type_ident = format_ident!("{}", return_type);
+
+        let return_v = if required {
+            quote! {
+                value.return_
+            }
+        } else {
+            quote! {
+               value.return_.unwrap_or_default()
+            }
+        };
+
+        let returned_value = if return_type == "Resource" {
+            quote! {#return_v}
+        } else {
+            quote! { Resource::#return_type_ident(#return_v) }
+        };
+
+        quote! {
+            #[derive(Debug, FromParameters)]
+            pub struct #struct_name {
+                #(#fields),*
+            }
+
+            impl From<#struct_name> for Resource {
+                fn from(value: #struct_name) -> Self {
+                    // Special handling for single "return" parameter of type Any or a Resource type
+                    #returned_value
+                }
+            }
+        }
+    } else {
+        quote! {
+            #[derive(Debug, FromParameters, ToParameters)]
+            pub struct #struct_name {
+                #(#fields),*
+            }
+
+            impl From<#struct_name> for Resource {
+                fn from(value: #struct_name) -> Self {
+                    let parameters: Vec<ParametersParameter> = value.into();
+                    Resource::Parameters(Parameters {
+                        parameter: Some(parameters),
+                        ..Default::default()
+                    })
+                }
+            }
         }
     };
 
@@ -161,7 +235,7 @@ fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<T
         })
         .collect::<Vec<_>>();
 
-    generate_parameter_type("Output", &input_parameters, &Direction::Output)
+    generate_parameter_type("Output", &input_parameters, &Direction::Output, true)
 }
 
 fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
@@ -173,7 +247,7 @@ fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<To
         })
         .collect::<Vec<_>>();
 
-    generate_parameter_type("Input", &input_parameters, &Direction::Input)
+    generate_parameter_type("Input", &input_parameters, &Direction::Input, true)
 }
 
 enum Direction {

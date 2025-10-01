@@ -19,10 +19,24 @@ pub mod ActivityDefinitionApply {
         pub setting: Option<CodeableConcept>,
         pub settingContext: Option<CodeableConcept>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            value.return_
+        }
     }
 }
 pub mod ActivityDefinitionDataRequirements {
@@ -30,10 +44,24 @@ pub mod ActivityDefinitionDataRequirements {
     pub const CODE: &str = "data-requirements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Library(value.return_)
+        }
     }
 }
 pub mod CapabilityStatementConforms {
@@ -45,11 +73,29 @@ pub mod CapabilityStatementConforms {
         pub right: Option<FHIRString>,
         pub mode: Option<FHIRCode>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub issues: OperationOutcome,
         pub union: Option<CapabilityStatement>,
         pub intersection: Option<CapabilityStatement>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CapabilityStatementImplements {
@@ -61,10 +107,24 @@ pub mod CapabilityStatementImplements {
         pub client: Option<FHIRString>,
         pub resource: Option<CapabilityStatement>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
     }
 }
 pub mod CapabilityStatementSubset {
@@ -75,10 +135,24 @@ pub mod CapabilityStatementSubset {
         pub server: Option<FHIRUri>,
         pub resource: Vec<FHIRCode>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: CapabilityStatement,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::CapabilityStatement(value.return_)
+        }
     }
 }
 pub mod CapabilityStatementVersions {
@@ -86,10 +160,28 @@ pub mod CapabilityStatementVersions {
     pub const CODE: &str = "versions";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub version: Vec<FHIRCode>,
         pub default: FHIRCode,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ChargeItemDefinitionApply {
@@ -100,10 +192,24 @@ pub mod ChargeItemDefinitionApply {
         pub chargeItem: Reference,
         pub account: Option<Reference>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            value.return_
+        }
     }
 }
 pub mod ClaimSubmit {
@@ -113,10 +219,28 @@ pub mod ClaimSubmit {
     pub struct Input {
         pub resource: Resource,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CodeSystemFindMatches {
@@ -127,12 +251,30 @@ pub mod CodeSystemFindMatches {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
     }
+    impl From<InputPropertySubproperty> for Resource {
+        fn from(value: InputPropertySubproperty) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct InputProperty {
         pub code: FHIRCode,
         pub value: Option<ParametersParameterValueTypeChoice>,
         #[parameter_nested]
         pub subproperty: Option<Vec<InputPropertySubproperty>>,
+    }
+    impl From<InputProperty> for Resource {
+        fn from(value: InputProperty) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
@@ -143,10 +285,28 @@ pub mod CodeSystemFindMatches {
         pub exact: FHIRBoolean,
         pub compositional: Option<FHIRBoolean>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputMatchUnmatchedProperty {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
+    }
+    impl From<OutputMatchUnmatchedProperty> for Resource {
+        fn from(value: OutputMatchUnmatchedProperty) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputMatchUnmatched {
@@ -155,6 +315,15 @@ pub mod CodeSystemFindMatches {
         #[parameter_nested]
         pub property: Option<Vec<OutputMatchUnmatchedProperty>>,
     }
+    impl From<OutputMatchUnmatched> for Resource {
+        fn from(value: OutputMatchUnmatched) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputMatch {
         pub code: Coding,
@@ -162,11 +331,29 @@ pub mod CodeSystemFindMatches {
         pub unmatched: Option<Vec<OutputMatchUnmatched>>,
         pub comment: Option<FHIRString>,
     }
+    impl From<OutputMatch> for Resource {
+        fn from(value: OutputMatch) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "match"]
         #[parameter_nested]
         pub match_: Option<Vec<OutputMatch>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CodeSystemLookup {
@@ -182,6 +369,15 @@ pub mod CodeSystemLookup {
         pub displayLanguage: Option<FHIRCode>,
         pub property: Option<Vec<FHIRCode>>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputDesignation {
         pub language: Option<FHIRCode>,
@@ -189,11 +385,29 @@ pub mod CodeSystemLookup {
         pub use_: Option<Coding>,
         pub value: FHIRString,
     }
+    impl From<OutputDesignation> for Resource {
+        fn from(value: OutputDesignation) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputPropertySubproperty {
         pub code: FHIRCode,
         pub value: ParametersParameterValueTypeChoice,
         pub description: Option<FHIRString>,
+    }
+    impl From<OutputPropertySubproperty> for Resource {
+        fn from(value: OutputPropertySubproperty) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputProperty {
@@ -202,6 +416,15 @@ pub mod CodeSystemLookup {
         pub description: Option<FHIRString>,
         #[parameter_nested]
         pub subproperty: Option<Vec<OutputPropertySubproperty>>,
+    }
+    impl From<OutputProperty> for Resource {
+        fn from(value: OutputProperty) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
@@ -212,6 +435,15 @@ pub mod CodeSystemLookup {
         pub designation: Option<Vec<OutputDesignation>>,
         #[parameter_nested]
         pub property: Option<Vec<OutputProperty>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CodeSystemSubsumes {
@@ -226,9 +458,27 @@ pub mod CodeSystemSubsumes {
         pub codingA: Option<Coding>,
         pub codingB: Option<Coding>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub outcome: FHIRCode,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CodeSystemValidateCode {
@@ -248,11 +498,29 @@ pub mod CodeSystemValidateCode {
         pub abstract_: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub result: FHIRBoolean,
         pub message: Option<FHIRString>,
         pub display: Option<FHIRString>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CompositionDocument {
@@ -264,8 +532,26 @@ pub mod CompositionDocument {
         pub persist: Option<FHIRBoolean>,
         pub graph: Option<FHIRUri>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {}
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
 }
 pub mod ConceptMapClosure {
     use super::*;
@@ -276,10 +562,24 @@ pub mod ConceptMapClosure {
         pub concept: Option<Vec<Coding>>,
         pub version: Option<FHIRString>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: ConceptMap,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::ConceptMap(value.return_)
+        }
     }
 }
 pub mod ConceptMapTranslate {
@@ -289,6 +589,15 @@ pub mod ConceptMapTranslate {
     pub struct InputDependency {
         pub element: Option<FHIRUri>,
         pub concept: Option<CodeableConcept>,
+    }
+    impl From<InputDependency> for Resource {
+        fn from(value: InputDependency) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
@@ -307,10 +616,28 @@ pub mod ConceptMapTranslate {
         pub dependency: Option<Vec<InputDependency>>,
         pub reverse: Option<FHIRBoolean>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputMatchProduct {
         pub element: Option<FHIRUri>,
         pub concept: Option<Coding>,
+    }
+    impl From<OutputMatchProduct> for Resource {
+        fn from(value: OutputMatchProduct) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputMatch {
@@ -320,6 +647,15 @@ pub mod ConceptMapTranslate {
         pub product: Option<Vec<OutputMatchProduct>>,
         pub source: Option<FHIRUri>,
     }
+    impl From<OutputMatch> for Resource {
+        fn from(value: OutputMatch) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub result: FHIRBoolean,
@@ -327,6 +663,15 @@ pub mod ConceptMapTranslate {
         #[parameter_rename = "match"]
         #[parameter_nested]
         pub match_: Option<Vec<OutputMatch>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod CoverageEligibilityRequestSubmit {
@@ -336,10 +681,28 @@ pub mod CoverageEligibilityRequestSubmit {
     pub struct Input {
         pub resource: Resource,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod EncounterEverything {
@@ -351,10 +714,24 @@ pub mod EncounterEverything {
         pub _type: Option<Vec<FHIRCode>>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod GroupEverything {
@@ -368,10 +745,24 @@ pub mod GroupEverything {
         pub _type: Option<Vec<FHIRCode>>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod LibraryDataRequirements {
@@ -381,10 +772,24 @@ pub mod LibraryDataRequirements {
     pub struct Input {
         pub target: Option<FHIRString>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Library(value.return_)
+        }
     }
 }
 pub mod ListFind {
@@ -395,8 +800,26 @@ pub mod ListFind {
         pub patient: FHIRId,
         pub name: FHIRCode,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {}
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
 }
 pub mod MeasureCareGaps {
     use super::*;
@@ -408,10 +831,24 @@ pub mod MeasureCareGaps {
         pub topic: FHIRString,
         pub subject: FHIRString,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod MeasureCollectData {
@@ -426,10 +863,28 @@ pub mod MeasureCollectData {
         pub practitioner: Option<FHIRString>,
         pub lastReceivedOn: Option<FHIRDateTime>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub measureReport: MeasureReport,
         pub resource: Option<Vec<Resource>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod MeasureDataRequirements {
@@ -440,10 +895,24 @@ pub mod MeasureDataRequirements {
         pub periodStart: FHIRDate,
         pub periodEnd: FHIRDate,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Library(value.return_)
+        }
     }
 }
 pub mod MeasureEvaluateMeasure {
@@ -459,10 +928,24 @@ pub mod MeasureEvaluateMeasure {
         pub practitioner: Option<FHIRString>,
         pub lastReceivedOn: Option<FHIRDateTime>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: MeasureReport,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::MeasureReport(value.return_)
+        }
     }
 }
 pub mod MeasureSubmitData {
@@ -473,8 +956,26 @@ pub mod MeasureSubmitData {
         pub measureReport: MeasureReport,
         pub resource: Option<Vec<Resource>>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {}
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
 }
 pub mod MedicinalProductEverything {
     use super::*;
@@ -484,10 +985,24 @@ pub mod MedicinalProductEverything {
         pub _since: Option<FHIRInstant>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod MessageHeaderProcessMessage {
@@ -500,10 +1015,24 @@ pub mod MessageHeaderProcessMessage {
         pub async_: Option<FHIRBoolean>,
         pub response_url: Option<FHIRUrl>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Option<Bundle>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_.unwrap_or_default())
+        }
     }
 }
 pub mod NamingSystemPreferredId {
@@ -515,9 +1044,27 @@ pub mod NamingSystemPreferredId {
         #[parameter_rename = "type"]
         pub type_: FHIRCode,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub result: FHIRString,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ObservationLastn {
@@ -527,10 +1074,24 @@ pub mod ObservationLastn {
     pub struct Input {
         pub max: Option<FHIRPositiveInt>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod ObservationStats {
@@ -548,10 +1109,28 @@ pub mod ObservationStats {
         pub include: Option<FHIRBoolean>,
         pub limit: Option<FHIRPositiveInt>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub statistics: Vec<Observation>,
         pub source: Option<Vec<Observation>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod PatientEverything {
@@ -565,10 +1144,24 @@ pub mod PatientEverything {
         pub _type: Option<Vec<FHIRCode>>,
         pub _count: Option<FHIRInteger>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod PatientMatch {
@@ -580,10 +1173,24 @@ pub mod PatientMatch {
         pub onlyCertainMatches: Option<FHIRBoolean>,
         pub count: Option<FHIRInteger>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Bundle(value.return_)
+        }
     }
 }
 pub mod PlanDefinitionApply {
@@ -602,10 +1209,24 @@ pub mod PlanDefinitionApply {
         pub setting: Option<CodeableConcept>,
         pub settingContext: Option<CodeableConcept>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: CarePlan,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::CarePlan(value.return_)
+        }
     }
 }
 pub mod PlanDefinitionDataRequirements {
@@ -613,10 +1234,24 @@ pub mod PlanDefinitionDataRequirements {
     pub const CODE: &str = "data-requirements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Library,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Library(value.return_)
+        }
     }
 }
 pub mod ResourceConvert {
@@ -626,9 +1261,27 @@ pub mod ResourceConvert {
     pub struct Input {
         pub input: Resource,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub output: Resource,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ResourceGraph {
@@ -638,9 +1291,27 @@ pub mod ResourceGraph {
     pub struct Input {
         pub graph: FHIRUri,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub result: Bundle,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ResourceGraphql {
@@ -650,9 +1321,27 @@ pub mod ResourceGraphql {
     pub struct Input {
         pub query: FHIRString,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub result: Binary,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ResourceMeta {
@@ -660,10 +1349,28 @@ pub mod ResourceMeta {
     pub const CODE: &str = "meta";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Meta,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ResourceMetaAdd {
@@ -673,10 +1380,28 @@ pub mod ResourceMetaAdd {
     pub struct Input {
         pub meta: Meta,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Meta,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ResourceMetaDelete {
@@ -686,10 +1411,28 @@ pub mod ResourceMetaDelete {
     pub struct Input {
         pub meta: Meta,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Meta,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ResourceValidate {
@@ -701,10 +1444,24 @@ pub mod ResourceValidate {
         pub mode: Option<FHIRCode>,
         pub profile: Option<FHIRUri>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
     }
 }
 pub mod StructureDefinitionQuestionnaire {
@@ -718,10 +1475,24 @@ pub mod StructureDefinitionQuestionnaire {
         pub url: Option<FHIRString>,
         pub supportedOnly: Option<FHIRBoolean>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Questionnaire,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::Questionnaire(value.return_)
+        }
     }
 }
 pub mod StructureDefinitionSnapshot {
@@ -732,10 +1503,24 @@ pub mod StructureDefinitionSnapshot {
         pub definition: Option<StructureDefinition>,
         pub url: Option<FHIRString>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: StructureDefinition,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::StructureDefinition(value.return_)
+        }
     }
 }
 pub mod StructureMapTransform {
@@ -746,10 +1531,28 @@ pub mod StructureMapTransform {
         pub source: Option<FHIRUri>,
         pub content: Resource,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: Resource,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
 pub mod ValueSetExpand {
@@ -779,10 +1582,24 @@ pub mod ValueSetExpand {
         pub check_system_version: Option<Vec<FHIRString>>,
         pub force_system_version: Option<Vec<FHIRString>>,
     }
-    #[derive(Debug, FromParameters, ToParameters)]
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
     pub struct Output {
         #[parameter_rename = "return"]
         pub return_: ValueSet,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::ValueSet(value.return_)
+        }
     }
 }
 pub mod ValueSetValidateCode {
@@ -805,10 +1622,28 @@ pub mod ValueSetValidateCode {
         pub abstract_: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
     }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Output {
         pub result: FHIRBoolean,
         pub message: Option<FHIRString>,
         pub display: Option<FHIRString>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
     }
 }
