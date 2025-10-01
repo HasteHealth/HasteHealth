@@ -89,9 +89,9 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
                 Some(Box::new(Resource::CapabilityStatement(res.capabilities)))
             }
 
-            FHIRResponse::InvokeInstance(res) => Some(Box::new(Resource::Parameters(res.resource))),
-            FHIRResponse::InvokeType(res) => Some(Box::new(Resource::Parameters(res.resource))),
-            FHIRResponse::InvokeSystem(res) => Some(Box::new(Resource::Parameters(res.resource))),
+            FHIRResponse::InvokeInstance(res) => Some(Box::new(res.resource)),
+            FHIRResponse::InvokeType(res) => Some(Box::new(res.resource)),
+            FHIRResponse::InvokeSystem(res) => Some(Box::new(res.resource)),
             FHIRResponse::Batch(res) => Some(Box::new(Resource::Bundle(res.resource))),
             FHIRResponse::Transaction(res) => Some(Box::new(Resource::Bundle(res.resource))),
         },

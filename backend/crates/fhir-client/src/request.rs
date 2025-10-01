@@ -234,15 +234,15 @@ pub struct FHIRHistorySystemResponse {
 }
 #[derive(Debug)]
 pub struct FHIRInvokeInstanceResponse {
-    pub resource: Parameters,
+    pub resource: Resource,
 }
 #[derive(Debug)]
 pub struct FHIRInvokeTypeResponse {
-    pub resource: Parameters,
+    pub resource: Resource,
 }
 #[derive(Debug)]
 pub struct FHIRInvokeSystemResponse {
-    pub resource: Parameters,
+    pub resource: Resource,
 }
 #[derive(Debug)]
 pub struct FHIRBatchResponse {

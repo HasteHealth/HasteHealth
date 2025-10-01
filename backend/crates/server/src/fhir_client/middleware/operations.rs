@@ -3,7 +3,7 @@ use crate::fhir_client::middleware::{
 };
 use oxidized_fhir_client::request::{FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse};
 use oxidized_fhir_generated_ops::generated::ValueSetExpand;
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_ops::{OperationExecutor, OperationInvocation, Param};
 use oxidized_fhir_search::SearchEngine;
@@ -72,7 +72,7 @@ pub fn operations<
         }?;
 
         context.response = Some(FHIRResponse::InvokeSystem(FHIRInvokeSystemResponse {
-            resource: output.as_parameters(),
+            resource: Resource::Parameters(output.as_parameters()),
         }));
 
         Ok(context)
