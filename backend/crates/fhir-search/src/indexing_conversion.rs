@@ -6,10 +6,9 @@ use oxidized_fhir_model::r4::{
         terminology::SearchParamType,
         types::{
             Address, Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean,
-            FHIRCanonical, FHIRCode, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRId, FHIRInstant,
-            FHIRInteger, FHIRMarkdown, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri,
-            FHIRUrl, FHIRUuid, HumanName, Identifier, Money, Period, Quantity, Range, Reference,
-            Timing,
+            FHIRCanonical, FHIRDate, FHIRDateTime, FHIRDecimal, FHIRId, FHIRInstant, FHIRInteger,
+            FHIRMarkdown, FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid,
+            HumanName, Identifier, Money, Period, Quantity, Range, Reference, Timing,
         },
     },
 };
@@ -347,13 +346,13 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
             }])
         }
         "FHIRCode" => {
-            let fp_code = value.as_any().downcast_ref::<FHIRCode>().ok_or_else(|| {
-                InsertableIndexError::FailedDowncast(value.typename().to_string())
-            })?;
+            let fp_code = value
+                .get_field("value")
+                .and_then(|v| v.as_any().downcast_ref::<String>());
 
             Ok(vec![TokenIndex {
                 system: None,
-                code: fp_code.value.as_ref().map(|v| v.to_string()),
+                code: fp_code.map(|v| v.to_string()),
             }])
         }
         "FHIRBoolean" => {

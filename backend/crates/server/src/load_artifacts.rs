@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 
 use crate::{fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
@@ -32,7 +32,7 @@ fn generate_sha256_hash(value: &Resource) -> String {
 
 static HASH_TAG_SYSTEM: &str = "https://oxidized-health.app/fhir/CodeSystem/hash";
 
-pub fn add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
+fn _add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
     let hash_tag = Box::new(Coding {
         system: Some(Box::new(FHIRUri {
             value: Some(HASH_TAG_SYSTEM.to_string()),
@@ -58,6 +58,44 @@ pub fn add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
     }
 }
 
+fn add_hash_tag(resource: &mut Resource, sha_hash: String) {
+    match resource {
+        Resource::StructureDefinition(structure_definition) => {
+            _add_hash_tag(&mut structure_definition.meta, sha_hash)
+        }
+        Resource::CodeSystem(code_system) => _add_hash_tag(&mut code_system.meta, sha_hash),
+        Resource::ValueSet(value_set) => _add_hash_tag(&mut value_set.meta, sha_hash),
+        Resource::SearchParameter(search_parameter) => {
+            _add_hash_tag(&mut search_parameter.meta, sha_hash)
+        }
+        _ => {}
+    }
+}
+
+fn get_id(resource: &Resource) -> String {
+    match resource {
+        Resource::StructureDefinition(structure_definition) => {
+            structure_definition.id.clone().unwrap_or_default()
+        }
+        Resource::CodeSystem(code_system) => code_system.id.clone().unwrap_or_default(),
+        Resource::ValueSet(value_set) => value_set.id.clone().unwrap_or_default(),
+        Resource::SearchParameter(search_parameter) => {
+            search_parameter.id.clone().unwrap_or_default()
+        }
+        _ => todo!("Unsupported resource type"),
+    }
+}
+
+pub fn get_resource_type(resource: &Resource) -> ResourceType {
+    match resource {
+        Resource::StructureDefinition(_) => ResourceType::StructureDefinition,
+        Resource::CodeSystem(_) => ResourceType::CodeSystem,
+        Resource::ValueSet(_) => ResourceType::ValueSet,
+        Resource::SearchParameter(_) => ResourceType::SearchParameter,
+        _ => todo!("Unsupported resource type"),
+    }
+}
+
 pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = create_services(config).await?;
 
@@ -71,133 +109,67 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
         },
     });
 
+    let mut hashes = HashSet::new();
+
     for resource in ARTIFACT_RESOURCES.iter() {
+        let sha_hash = generate_sha256_hash(*&resource);
+        hashes.insert(sha_hash);
+
         match &**resource {
-            Resource::StructureDefinition(structure_definition) => {
-                let sha_hash = generate_sha256_hash(*&resource);
-                let mut structure_definition = structure_definition.clone();
-                add_hash_tag(&mut structure_definition.meta, sha_hash.clone());
+            Resource::SearchParameter(_)
+            | Resource::CodeSystem(_)
+            | Resource::ValueSet(_)
+            | Resource::StructureDefinition(_) => {
+                let mut resource = (**resource).clone();
+                let resource_type = get_resource_type(&resource);
+                let id = get_id(&resource);
+                let sha_hash = generate_sha256_hash(&resource);
+
+                add_hash_tag(&mut resource, sha_hash.clone());
 
                 let res = services
                     .fhir_client
                     .conditional_update(
                         ctx.clone(),
-                        ResourceType::StructureDefinition,
-                        vec![ParsedParameter::Resource(Parameter {
-                            name: "_tag".to_string(),
-                            value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
-                            modifier: Some("not".to_string()),
-                            chains: None,
-                        })],
-                        Resource::StructureDefinition(structure_definition.clone()),
+                        resource_type.clone(),
+                        vec![
+                            ParsedParameter::Resource(Parameter {
+                                name: "_id".to_string(),
+                                value: vec![id.clone()],
+                                modifier: None,
+                                chains: None,
+                            }),
+                            ParsedParameter::Resource(Parameter {
+                                name: "_tag".to_string(),
+                                value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
+                                modifier: Some("not".to_string()),
+                                chains: None,
+                            }),
+                        ],
+                        resource.clone(),
                     )
                     .await;
 
                 if let Ok(_res) = res {
-                    println!("Updated StructureDefinition");
+                    println!("Updated {}", resource_type.as_ref());
                 } else if let Err(err) = res {
                     if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
                         println!("BACKTRACE: {}", err.backtrace().unwrap());
                         panic!("INVALID");
                     }
-                    // println!("Did not update StructureDefinition {:?}", err);
-                }
-            }
-            Resource::ValueSet(valueset) => {
-                let sha_hash = generate_sha256_hash(*&resource);
-                let mut valueset = valueset.clone();
-                add_hash_tag(&mut valueset.meta, sha_hash.clone());
-
-                let res = services
-                    .fhir_client
-                    .conditional_update(
-                        ctx.clone(),
-                        ResourceType::ValueSet,
-                        vec![ParsedParameter::Resource(Parameter {
-                            name: "_tag".to_string(),
-                            value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
-                            modifier: Some("not".to_string()),
-                            chains: None,
-                        })],
-                        Resource::ValueSet(valueset.clone()),
-                    )
-                    .await;
-
-                if let Ok(_res) = res {
-                    println!("Updated ValueSet");
-                } else if let Err(err) = res {
-                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
-                        println!("BACKTRACE: {}", err.backtrace().unwrap());
-                        panic!("INVALID");
-                    }
-                    // println!("Did not update ValueSet {:?}", err);
-                }
-            }
-            Resource::CodeSystem(code_system) => {
-                let sha_hash = generate_sha256_hash(*&resource);
-                let mut code_system = code_system.clone();
-                add_hash_tag(&mut code_system.meta, sha_hash.clone());
-
-                let res = services
-                    .fhir_client
-                    .conditional_update(
-                        ctx.clone(),
-                        ResourceType::CodeSystem,
-                        vec![ParsedParameter::Resource(Parameter {
-                            name: "_tag".to_string(),
-                            value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
-                            modifier: Some("not".to_string()),
-                            chains: None,
-                        })],
-                        Resource::CodeSystem(code_system.clone()),
-                    )
-                    .await;
-
-                if let Ok(_res) = res {
-                    println!("Updated CodeSystem");
-                } else if let Err(err) = res {
-                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
-                        println!("BACKTRACE: {}", err.backtrace().unwrap());
-                        panic!("INVALID");
-                    }
-                    // println!("Did not update StructureDefinition {:?}", err);
-                }
-            }
-            Resource::SearchParameter(search_param) => {
-                let sha_hash = generate_sha256_hash(*&resource);
-                let mut search_param = search_param.clone();
-                add_hash_tag(&mut search_param.meta, sha_hash.clone());
-
-                let res = services
-                    .fhir_client
-                    .conditional_update(
-                        ctx.clone(),
-                        ResourceType::SearchParameter,
-                        vec![ParsedParameter::Resource(Parameter {
-                            name: "_tag".to_string(),
-                            value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
-                            modifier: Some("not".to_string()),
-                            chains: None,
-                        })],
-                        Resource::SearchParameter(search_param.clone()),
-                    )
-                    .await;
-
-                if let Ok(_res) = res {
-                    println!("Updated SearchParameter");
-                } else if let Err(err) = res {
-                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
-                        println!("BACKTRACE: {}", err.backtrace().unwrap());
-                        panic!("INVALID");
-                    }
-                    // println!("Did not update StructureDefinition {:?}", err);
                 }
             }
             _ => {
-                println!("Skipping resource.");
+                // println!("Skipping resource.");
             }
         }
     }
+
+    println!(
+        "Done loading artifacts. {} {}",
+        hashes.len(),
+        ARTIFACT_RESOURCES.len()
+    );
 
     Ok(())
 }

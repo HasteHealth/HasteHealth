@@ -19,13 +19,18 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
 
-pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
-    state: &Arc<AppState<Repo, Search>>,
+pub async fn find_client_app<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    state: &Arc<AppState<Repo, Search, Terminology>>,
     tenant: TenantId,
     project: ProjectId,
     client_id: String,
@@ -67,16 +72,18 @@ pub async fn find_client_app<Repo: Repository + Send + Sync, Search: SearchEngin
 #[allow(unused)]
 pub struct OIDCClientApplication(pub ClientApplication);
 
-impl<Repo, Search> FromRequestParts<Arc<AppState<Repo, Search>>> for OIDCClientApplication
+impl<Repo, Search, Terminology> FromRequestParts<Arc<AppState<Repo, Search, Terminology>>>
+    for OIDCClientApplication
 where
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
 {
     type Rejection = Response;
 
     async fn from_request_parts(
         parts: &mut Parts,
-        state: &Arc<AppState<Repo, Search>>,
+        state: &Arc<AppState<Repo, Search, Terminology>>,
     ) -> Result<Self, Self::Rejection> {
         let Extension(oidc_params) = parts
             .extract::<Extension<OIDCParameters>>()

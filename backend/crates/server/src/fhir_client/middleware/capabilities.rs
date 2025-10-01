@@ -16,6 +16,7 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     types::{ProjectId, SupportedFHIRVersions, TenantId, VersionIdRef},
@@ -68,6 +69,7 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             Some(SearchOptions { count_limit: false }),
         )
         .await?;
+
     let sds = repo
         .read_by_version_ids(
             &TenantId::System,
@@ -137,10 +139,11 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
 pub fn capabilities<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    state: ServerMiddlewareState<Repo, Search>,
+    state: ServerMiddlewareState<Repo, Search, Terminology>,
     mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
+    next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         match context.request {

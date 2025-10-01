@@ -15,6 +15,7 @@ use axum_extra::routing::{
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, LazyLock};
@@ -45,10 +46,11 @@ pub struct WellKnown;
 async fn openid_configuration<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
 >(
     _: WellKnown,
     OriginalUri(uri): OriginalUri,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
     let api_url_string = state.config.get("API_URL").unwrap_or_default();
 
@@ -113,8 +115,11 @@ static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
     })
 });
 
-pub fn create_router<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>()
--> Router<Arc<AppState<Repo, Search>>> {
+pub fn create_router<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     let well_known_routes = Router::new().typed_get(openid_configuration);
 
     let token_routes = Router::new().typed_post(token::token);

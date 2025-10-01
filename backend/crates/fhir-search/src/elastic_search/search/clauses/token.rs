@@ -45,22 +45,26 @@ pub fn token(
                             "path": search_param.url.value.as_ref().unwrap(),
                             "query": {
                                 "bool": {
-                                    matching_type.clone(): [
-                                        {
-                                            "match": {
-                                                search_param.url.value.as_ref().unwrap().to_string() + ".code": {
-                                                    "query": pieces.get(1)
+                                    matching_type.clone(): [{
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".code": {
+                                                            "query": pieces.get(1)
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "match": {
+                                                        search_param.url.value.as_ref().unwrap().to_string() + ".system": {
+                                                            "query": pieces.get(0)
+                                                        }
+                                                    }
                                                 }
-                                            }
-                                        },
-                                        {
-                                            "match": {
-                                                search_param.url.value.as_ref().unwrap().to_string() + ".system": {
-                                                    "query": pieces.get(0)
-                                                }
-                                            }
-                                        }
-                                    ]
+                                            ]
+                                        }   
+                                    }]
                                 }
                             }
                         }

@@ -24,6 +24,7 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_reflect::MetaValue;
 use oxidized_repository::{
     Repository,
@@ -101,10 +102,11 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
 pub fn storage<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    state: ServerMiddlewareState<Repo, Search>,
+    state: ServerMiddlewareState<Repo, Search, Terminology>,
     mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repo, Search>>>,
+    next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
 ) -> ServerMiddlewareOutput {
     Box::pin(async move {
         let response = match &mut context.request {
@@ -451,7 +453,11 @@ pub fn storage<
                 let mut bundle_entries = Some(Vec::new());
                 // Memswap so I can avoid cloning.
                 std::mem::swap(&mut batch_request.resource.entry, &mut bundle_entries);
-                let batch_client = FHIRServerClient::new(state.repo.clone(), state.search.clone());
+                let batch_client = FHIRServerClient::new(
+                    state.repo.clone(),
+                    state.search.clone(),
+                    state.terminology.clone(),
+                );
 
                 let mut bundle_response = Bundle {
                     type_: Box::new(BundleType::BatchResponse(None)),
@@ -523,6 +529,7 @@ pub fn storage<
                 Arc::new(ClientState {
                     repo: Arc::new(state.repo.transaction().await.unwrap()),
                     search: state.search.clone(),
+                    terminology: state.terminology.clone(),
                 }),
                 context,
             )

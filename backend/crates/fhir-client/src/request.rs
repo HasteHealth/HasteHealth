@@ -173,81 +173,87 @@ pub enum FHIRRequest {
     Batch(FHIRBatchRequest),
     Transaction(FHIRTransactionRequest),
 }
-
+#[derive(Debug)]
 pub struct FHIRCreateResponse {
     pub resource: Resource,
 }
-
+#[derive(Debug)]
 pub struct FHIRReadResponse {
     pub resource: Resource,
 }
-
+#[derive(Debug)]
 pub struct FHIRVersionReadResponse {
     pub resource: Resource,
 }
-
+#[derive(Debug)]
 pub struct FHIRUpdateResponse {
     pub resource: Resource,
 }
+#[derive(Debug)]
 pub struct FHIRPatchResponse {
     pub resource: Resource,
 }
-
+#[derive(Debug)]
 pub struct FHIRDeleteInstanceResponse {
     pub resource: Resource,
 }
-
+#[derive(Debug)]
 pub struct FHIRDeleteTypeResponse {
     pub resource: Vec<Resource>,
 }
-
+#[derive(Debug)]
 pub struct FHIRDeleteSystemResponse {
     pub resource: Vec<Resource>,
 }
-
+#[derive(Debug)]
 pub struct FHIRCapabilitiesResponse {
     pub capabilities: CapabilityStatement,
 }
 
+#[derive(Debug)]
 pub struct FHIRSearchTypeResponse {
     pub total: Option<i64>,
     pub resources: Vec<Resource>,
 }
+#[derive(Debug)]
 pub struct FHIRSearchSystemResponse {
     pub total: Option<i64>,
     pub resources: Vec<Resource>,
 }
-
+#[derive(Debug)]
 pub struct FHIRHistoryInstanceResponse {
     pub resources: Vec<Resource>,
 }
+#[derive(Debug)]
 pub struct FHIRHistoryTypeResponse {
     pub resources: Vec<Resource>,
 }
+#[derive(Debug)]
 pub struct FHIRHistorySystemResponse {
     pub resources: Vec<Resource>,
 }
-
+#[derive(Debug)]
 pub struct FHIRInvokeInstanceResponse {
     pub resource: Parameters,
 }
-
+#[derive(Debug)]
 pub struct FHIRInvokeTypeResponse {
     pub resource: Parameters,
 }
-
+#[derive(Debug)]
 pub struct FHIRInvokeSystemResponse {
     pub resource: Parameters,
 }
-
+#[derive(Debug)]
 pub struct FHIRBatchResponse {
     pub resource: Bundle,
 }
-
+#[derive(Debug)]
 pub struct FHIRTransactionResponse {
     pub resource: Bundle,
 }
 
+#[derive(Debug)]
 pub enum FHIRResponse {
     Create(FHIRCreateResponse),
 
