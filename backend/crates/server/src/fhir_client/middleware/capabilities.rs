@@ -70,11 +70,6 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
         )
         .await?;
 
-    println!(
-        "Found {} StructureDefinitions for capabilities statement",
-        sd_results.total.unwrap_or(0)
-    );
-
     let sds = repo
         .read_by_version_ids(
             &TenantId::System,

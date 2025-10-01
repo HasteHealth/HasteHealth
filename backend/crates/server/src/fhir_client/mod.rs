@@ -225,8 +225,8 @@ impl<
 
         let artifact_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::UpdateInstance(_)
-                | FHIRRequest::ConditionalUpdate(_) 
+                // FHIRRequest::UpdateInstance(_)
+                // | FHIRRequest::ConditionalUpdate(_) 
                 | FHIRRequest::Read(_) 
                 | FHIRRequest::SearchType(_) => {
                     if let Some(resource_type) = request_to_resource_type(req) {

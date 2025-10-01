@@ -54,7 +54,6 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
             if let Some(cached) = cache.get(&key) {
                 Ok(cached.clone())
             } else {
-                // println!("{:?}", canonical_url.split('|').next());
                 if let Some(url) = canonical_url.split('|').next()
                     // Perform search for an entry with the given canonical URL.
                     && let Some(entry) = search
