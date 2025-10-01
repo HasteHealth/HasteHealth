@@ -83,6 +83,7 @@ fn generate_parameter_type(
     name: &str,
     parameters: &Vec<&OperationDefinitionParameter>,
     direction: &Direction,
+    is_base: bool,
 ) -> Vec<TokenStream> {
     let mut types = vec![];
     let mut fields = vec![];
@@ -126,6 +127,7 @@ fn generate_parameter_type(
                     .map(|v| v.iter().collect())
                     .unwrap_or(vec![]),
                 direction,
+                false,
             );
             types.extend(nested_types);
 
@@ -140,10 +142,28 @@ fn generate_parameter_type(
 
     let struct_name = format_ident!("{}", name);
 
-    let base_parameter_type = quote! {
-        #[derive(Debug, FromParameters, ToParameters)]
-        pub struct #struct_name {
-            #(#fields),*
+    let base_parameter_type = if is_base {
+        quote! {
+            #[derive(Debug, FromParameters)]
+            pub struct #struct_name {
+                #(#fields),*
+            }
+        }
+    } else {
+        quote! {
+            #[derive(Debug, FromParameters, ToParameters)]
+            pub struct #struct_name {
+                #(#fields),*
+            }
+
+            impl From<#struct_name> for Resource {
+                fn from(value: #struct_name) -> Self {
+                    let parameters: Vec<ParametersParameter> = value.into();
+                    Resource::Parameters(Parameters {
+                        parameter: parameters
+                    })
+                }
+            }
         }
     };
 
@@ -161,7 +181,7 @@ fn generate_output(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<T
         })
         .collect::<Vec<_>>();
 
-    generate_parameter_type("Output", &input_parameters, &Direction::Output)
+    generate_parameter_type("Output", &input_parameters, &Direction::Output, true)
 }
 
 fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<TokenStream> {
@@ -173,7 +193,7 @@ fn generate_input(parameters: &Cow<Vec<OperationDefinitionParameter>>) -> Vec<To
         })
         .collect::<Vec<_>>();
 
-    generate_parameter_type("Input", &input_parameters, &Direction::Input)
+    generate_parameter_type("Input", &input_parameters, &Direction::Input, true)
 }
 
 enum Direction {
