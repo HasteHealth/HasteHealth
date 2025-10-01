@@ -11,7 +11,10 @@ use elasticsearch::{
         transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
 };
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
+use oxidized_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType, SearchParameter},
+    terminology::IssueType,
+};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhirpath::FPEngine;
 use oxidized_repository::types::{
@@ -227,6 +230,9 @@ impl SearchEngine for ElasticSearchEngine {
             })
             .map(|r| match &r.fhir_method {
                 FHIRMethod::Create | FHIRMethod::Update => {
+                    // Id is not sufficient because different Resourcetypes may have the same id.
+                    let unique_index_id =
+                        r.resource_type.as_ref().to_string() + "/" + r.id.as_ref();
                     let params =
                         oxidized_artifacts::search_parameters::get_search_parameters_for_resource(
                             &r.resource_type,
@@ -259,7 +265,7 @@ impl SearchEngine for ElasticSearchEngine {
                     );
 
                     Ok(BulkOperation::index(elastic_index)
-                        .id(r.id.as_ref())
+                        .id(unique_index_id)
                         .index(get_index_name(_fhir_version)?)
                         .into())
                 }
@@ -279,15 +285,20 @@ impl SearchEngine for ElasticSearchEngine {
                 .await
                 .map_err(SearchError::from)?;
 
-            if !res.status_code().is_success() {
-                let status_code = res.status_code().as_u16();
+            let response_body = res.json::<serde_json::Value>().await.map_err(|_e| {
+                OperationOutcomeError::fatal(
+                    IssueType::Exception(None),
+                    "Failed to parse response body.".to_string(),
+                )
+            })?;
+
+            if response_body["errors"].as_bool().unwrap() == true {
                 tracing::error!(
-                    "Failed to index resources for tenant: '{}'. Response: '{:?}', body: '{}'",
+                    "Failed to index resources for tenant: '{}'. Response: '{:?}'",
                     tenant.as_ref(),
-                    status_code,
-                    res.text().await.unwrap()
+                    response_body
                 );
-                return Err(SearchError::Fatal(status_code).into());
+                return Err(SearchError::Fatal(500).into());
             }
         }
 

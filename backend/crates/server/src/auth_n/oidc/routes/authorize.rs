@@ -19,6 +19,7 @@ use axum_extra::routing::TypedPath;
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
@@ -33,11 +34,15 @@ use tower_sessions::Session;
 #[typed_path("/authorize")]
 pub struct Authorize;
 
-pub async fn authorize<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
+pub async fn authorize<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
     _: Authorize,
     Tenant { tenant }: Tenant,
     Project { project }: Project,
-    State(app_state): State<Arc<AppState<Repo, Search>>>,
+    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
     current_session: Session,

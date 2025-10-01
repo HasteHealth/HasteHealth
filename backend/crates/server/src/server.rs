@@ -19,6 +19,7 @@ use oxidized_config::get_config;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
@@ -57,11 +58,12 @@ struct FHIRRootHandlerPath {
 async fn fhir_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
     uri: Uri,
     path: FHIRHandlerPath,
-    state: Arc<AppState<Repo, Search>>,
+    state: Arc<AppState<Repo, Search, Terminology>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     let start = Instant::now();
@@ -102,12 +104,13 @@ async fn fhir_handler<
 async fn fhir_root_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
     _user: Extension<UserTokenClaims>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     fhir_handler(
@@ -128,11 +131,12 @@ async fn fhir_root_handler<
 async fn fhir_type_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRHandlerPath>,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     fhir_handler(method, uri, path, state, body).await

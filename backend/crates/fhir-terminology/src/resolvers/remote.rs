@@ -44,34 +44,39 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
     fn resolve(
         &self,
         resource_type: ResourceType,
-        url: String,
+        canonical_url: String,
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>> {
         let cache = self.cache.clone();
         let search = self.search.clone();
         let repository = self.repository.clone();
         Box::pin(async move {
-            let key = generate_key(&resource_type, &url);
+            let key = generate_key(&resource_type, &canonical_url);
             if let Some(cached) = cache.get(&key) {
                 Ok(cached.clone())
             } else {
-                let result = search
-                    .search(
-                        &R4,
-                        &TenantId::System,
-                        &ProjectId::System,
-                        SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
-                            resource_type: resource_type.clone(),
-                            parameters: vec![ParsedParameter::Resource(Parameter {
-                                name: "url".to_string(),
-                                value: vec![url.clone()],
-                                modifier: None,
-                                chains: None,
-                            })],
-                        }),
-                        None,
-                    )
-                    .await?;
-                if let Some(entry) = result.entries.first()
+                // println!("{:?}", canonical_url.split('|').next());
+                if let Some(url) = canonical_url.split('|').next()
+                    // Perform search for an entry with the given canonical URL.
+                    && let Some(entry) = search
+                        .search(
+                            &R4,
+                            &TenantId::System,
+                            &ProjectId::System,
+                            SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
+                                resource_type: resource_type.clone(),
+                                parameters: vec![ParsedParameter::Resource(Parameter {
+                                    name: "url".to_string(),
+                                    value: vec![url.to_string()],
+                                    modifier: None,
+                                    chains: None,
+                                })],
+                            }),
+                            None,
+                        )
+                        .await?
+                        .entries
+                        .first()
+                    // Read the repository for the search result.
                     && let Some(resource) = repository
                         .read_by_version_ids(
                             &TenantId::System,
@@ -82,16 +87,15 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                         .pop()
                 {
                     cache.insert(key, resource.clone());
-                    Ok(resource)
-                } else {
-                    Err(OperationOutcomeError::error(
-                        IssueType::NotFound(None),
-                        format!(
-                            "Could not find resource of type {:?} with url {}",
-                            resource_type, url
-                        ),
-                    ))
+                    return Ok(resource);
                 }
+                Err(OperationOutcomeError::error(
+                    IssueType::NotFound(None),
+                    format!(
+                        "Could not find resource of type '{:?}' with url '{}'",
+                        resource_type, canonical_url
+                    ),
+                ))
             }
         })
     }

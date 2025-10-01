@@ -21,6 +21,7 @@ use jsonwebtoken::{Algorithm, Header};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
@@ -96,11 +97,15 @@ pub fn verify_code_verifier(
     }
 }
 
-pub async fn token<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
+pub async fn token<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
     _: TokenPath,
     Tenant { tenant }: Tenant,
     Project { project }: Project,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
     match token_body {

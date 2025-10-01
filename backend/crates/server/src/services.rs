@@ -2,6 +2,11 @@ use crate::fhir_client::FHIRServerClient;
 use oxidized_config::Config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
+use oxidized_fhir_terminology::{
+    FHIRTerminology,
+    client::FHIRCanonicalTerminology,
+    resolvers::{self, remote::LRUCanonicalRemoteResolver},
+};
 use oxidized_fhirpath::FPEngine;
 use oxidized_repository::{Repository, pg::PGConnection};
 use sqlx::{Pool, Postgres};
@@ -55,16 +60,27 @@ pub enum CustomOpError {
 pub struct AppState<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
 > {
+    pub terminology: Arc<Terminology>,
     pub search: Search,
     pub repo: Repo,
-    pub fhir_client: Arc<FHIRServerClient<Repo, Search>>,
+    pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub config: Box<dyn Config>,
 }
 
 pub async fn create_services(
     config: Box<dyn Config>,
-) -> Result<Arc<AppState<PGConnection, ElasticSearchEngine>>, OperationOutcomeError> {
+) -> Result<
+    Arc<
+        AppState<
+            PGConnection,
+            ElasticSearchEngine,
+            FHIRCanonicalTerminology<LRUCanonicalRemoteResolver<PGConnection, ElasticSearchEngine>>,
+        >,
+    >,
+    OperationOutcomeError,
+> {
     let pool = get_pool(config.as_ref()).await;
     let search_engine = oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
         Arc::new(FPEngine::new()),
@@ -82,13 +98,22 @@ pub async fn create_services(
 
     let repo = PGConnection::PgPool(pool.clone());
 
+    let terminology = Arc::new(FHIRCanonicalTerminology::new(
+        resolvers::remote::LRUCanonicalRemoteResolver::new(
+            Arc::new(repo.clone()),
+            Arc::new(search_engine.clone()),
+        ),
+    ));
+
     let shared_state = Arc::new(AppState {
         config,
         repo: repo.clone(),
+        terminology: terminology.clone(),
         search: search_engine.clone(),
         fhir_client: Arc::new(FHIRServerClient::new(
             Arc::new(repo),
             Arc::new(search_engine),
+            terminology,
         )),
     });
 

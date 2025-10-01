@@ -12,6 +12,7 @@ use axum_extra::routing::TypedPath;
 use maud::{Markup, html};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     types::user::{LoginMethod, LoginResult},
@@ -94,10 +95,14 @@ pub struct LoginForm {
     pub password: String,
 }
 
-pub async fn login_post<Repo: Repository + Send + Sync, Search: SearchEngine + Send + Sync>(
+pub async fn login_post<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
     _: Login,
     uri: OriginalUri,
-    State(state): State<Arc<AppState<Repo, Search>>>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     current_session: Session,
     OIDCClientApplication(_client_app): OIDCClientApplication,
     Tenant { tenant }: Tenant,
