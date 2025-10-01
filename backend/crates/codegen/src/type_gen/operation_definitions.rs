@@ -129,11 +129,11 @@ fn generate_parameter_type(
 
         if let Some(type_) = p.type_.as_ref().and_then(|v| v.value.as_ref()) {
             let type_ = if type_ == "Any" { "Resource" } else { type_ };
-            let type_ = create_field_value(type_, is_array, required);
+            let field = create_field_value(type_, is_array, required);
 
             fields.push(quote! {
                 #attribute_rename
-                pub #field_ident: #type_
+                pub #field_ident: #field
             })
         } else {
             let name = name.to_string() + &capitalize(field_name.as_str());
@@ -160,6 +160,35 @@ fn generate_parameter_type(
     let struct_name = format_ident!("{}", name);
 
     let base_parameter_type = if is_base && is_resource_return(parameters) {
+        let required = parameters.get(0).and_then(|p| p.min.value).unwrap_or(0) > 0;
+        let type_ = parameters
+            .get(0)
+            .and_then(|p| {
+                p.type_
+                    .as_ref()
+                    .and_then(|v| v.value.as_ref().map(|s| s.as_str()))
+            })
+            .unwrap_or_default();
+
+        let return_type = if type_ == "Any" { "Resource" } else { type_ };
+        let return_type_ident = format_ident!("{}", return_type);
+
+        let return_v = if required {
+            quote! {
+                value.return_
+            }
+        } else {
+            quote! {
+               value.return_.unwrap_or_default()
+            }
+        };
+
+        let returned_value = if return_type == "Resource" {
+            quote! {#return_v}
+        } else {
+            quote! { Resource::#return_type_ident(#return_v) }
+        };
+
         quote! {
             #[derive(Debug, FromParameters)]
             pub struct #struct_name {
@@ -169,7 +198,7 @@ fn generate_parameter_type(
             impl From<#struct_name> for Resource {
                 fn from(value: #struct_name) -> Self {
                     // Special handling for single "return" parameter of type Any or a Resource type
-                    value.return_.unwrap_or_else(|| Resource::Parameters(Parameters { parameter: vec![] }))
+                    #returned_value
                 }
             }
         }
@@ -184,7 +213,8 @@ fn generate_parameter_type(
                 fn from(value: #struct_name) -> Self {
                     let parameters: Vec<ParametersParameter> = value.into();
                     Resource::Parameters(Parameters {
-                        parameter: parameters
+                        parameter: Some(parameters),
+                        ..Default::default()
                     })
                 }
             }
