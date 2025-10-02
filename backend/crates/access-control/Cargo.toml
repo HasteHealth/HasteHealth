@@ -1,0 +1,12 @@
+[package]
+name = "oxidized-access-control"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+oxidized-fhirpath = { path = "../fhirpath" }
+oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+    "derive",
+] }
+oxidized-fhir-client = { path = "../fhir-client" }
+oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
