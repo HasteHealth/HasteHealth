@@ -9,7 +9,7 @@ use thiserror::Error;
 
 use crate::{
     FHIRClient,
-    middleware::{Context, Middleware, Next},
+    middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{self, FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
 
@@ -111,33 +111,49 @@ async fn http_response_to_fhir_response(
     }
 }
 
-fn http_middleware<CTX: Send + Sync + 'static>(
-    state: Arc<FHIRHttpState>,
-    context: Context<CTX, FHIRRequest, FHIRResponse>,
-    _next: Option<
-        Arc<Next<Arc<FHIRHttpState>, Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>>,
-    >,
-) -> Pin<
-    Box<dyn Future<Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>> + Send>,
-> {
-    Box::pin(async move {
-        let http_request = fhir_request_to_http_request(&state, &context.request)?;
-        let response = state
-            .client
-            .execute(http_request)
-            .await
-            .map_err(FHIRHTTPError::RequestError)?;
-        let mut next_context = context;
-        let fhir_response = http_response_to_fhir_response(&next_context.request, response).await?;
-        next_context.response = Some(fhir_response);
+struct HTTPMiddleware {}
+impl HTTPMiddleware {
+    fn new() -> Self {
+        HTTPMiddleware {}
+    }
+}
+impl<CTX: Send + 'static>
+    MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>
+    for HTTPMiddleware
+{
+    fn call(
+        &self,
+        state: Arc<FHIRHttpState>,
+        context: Context<CTX, FHIRRequest, FHIRResponse>,
+        _next: Option<
+            Arc<Next<Arc<FHIRHttpState>, Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>>,
+        >,
+    ) -> Pin<
+        Box<
+            dyn Future<Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>>
+                + Send,
+        >,
+    > {
+        Box::pin(async move {
+            let http_request = fhir_request_to_http_request(&state, &context.request)?;
+            let response = state
+                .client
+                .execute(http_request)
+                .await
+                .map_err(FHIRHTTPError::RequestError)?;
+            let mut next_context = context;
+            let fhir_response =
+                http_response_to_fhir_response(&next_context.request, response).await?;
+            next_context.response = Some(fhir_response);
 
-        Ok(next_context)
-    })
+            Ok(next_context)
+        })
+    }
 }
 
 impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
     pub fn new(state: FHIRHttpState) -> Self {
-        let middleware = Middleware::new(vec![Box::new(http_middleware)]);
+        let middleware = Middleware::new(vec![Box::new(HTTPMiddleware::new())]);
         FHIRHttpClient {
             state: Arc::new(state),
             middleware,

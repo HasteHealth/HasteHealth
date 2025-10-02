@@ -220,7 +220,7 @@ impl<
                 | FHIRRequest::InvokeSystem(_) => true,
                 _ => false,
             }),
-            middleware: Middleware::new(vec![Box::new(middleware::operations)]),
+            middleware: Middleware::new(vec![middleware::create_operations_middleware()]),
         };
 
         let artifact_route = Route {
