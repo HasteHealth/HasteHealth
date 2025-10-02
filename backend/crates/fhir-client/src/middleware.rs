@@ -10,7 +10,8 @@ pub type MiddlewareOutput<Context, Error> =
     Pin<Box<dyn Future<Output = Result<Context, Error>> + Send>>;
 pub type Next<State, Context, Error> =
     Box<dyn Fn(State, Context) -> MiddlewareOutput<Context, Error> + Send + Sync>;
-pub type MiddlewareChain<State, CTX, Request, Response, Error> = Box<
+
+pub type MiddlewareChainOld<State, CTX, Request, Response, Error> = Box<
     dyn Fn(
             State,
             Context<CTX, Request, Response>,
@@ -19,6 +20,15 @@ pub type MiddlewareChain<State, CTX, Request, Response, Error> = Box<
         + Send
         + Sync,
 >;
+
+pub trait MiddlewareChain<State, CTX, Request, Response, Error>: Send + Sync {
+    fn call(
+        &self,
+        state: State,
+        ctx: Context<CTX, Request, Response>,
+        next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
+    ) -> MiddlewareOutput<Context<CTX, Request, Response>, Error>;
+}
 
 pub struct Middleware<State, CTX, Request, Response, Error> {
     _state: std::marker::PhantomData<State>,
@@ -34,16 +44,18 @@ impl<
     Error: 'static + Send + Sync,
 > Middleware<State, CTX, Request, Response, Error>
 {
-    pub fn new(mut middleware: Vec<MiddlewareChain<State, CTX, Request, Response, Error>>) -> Self {
+    pub fn new(
+        mut middleware: Vec<Box<dyn MiddlewareChain<State, CTX, Request, Response, Error>>>,
+    ) -> Self {
         middleware.reverse();
         let next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>> = middleware
             .into_iter()
             .fold(
             None,
             |prev_next: Option<Arc<Next<State, Context<CTX, Request, Response>, Error>>>,
-             middleware: MiddlewareChain<State, CTX, Request, Response, Error>| {
+             middleware: Box<dyn MiddlewareChain<State, CTX, Request, Response, Error>>| {
                 Some(Arc::new(Box::new(move |state, ctx| {
-                    middleware(state, ctx, prev_next.clone())
+                    middleware.call(state, ctx, prev_next.clone())
                 })))
             },
         );
@@ -76,67 +88,83 @@ impl<
 #[cfg(test)]
 mod test {
     use super::*;
-    fn middleware_1(
-        _state: (),
-        x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
-    ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
-        Box::pin(async move {
-            let mut x = if let Some(next) = _next {
-                let p = next((), x).await;
-                p
-            } else {
+
+    struct MiddlewareChain1 {}
+    impl MiddlewareChain<(), (), usize, usize, String> for MiddlewareChain1 {
+        fn call(
+            &self,
+            _state: (),
+            x: Context<(), usize, usize>,
+            _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
+        ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>>
+        {
+            Box::pin(async move {
+                let mut x = if let Some(next) = _next {
+                    let p = next((), x).await;
+                    p
+                } else {
+                    Ok(x)
+                }?;
+                println!("Middleware 1 executed");
+                x.response = x.response.map(|r| r + 1);
                 Ok(x)
-            }?;
-            println!("Middleware 1 executed");
-            x.response = x.response.map(|r| r + 1);
-            Ok(x)
-        })
+            })
+        }
     }
 
-    fn middleware_2(
-        _state: (),
-        x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
-    ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
-        Box::pin(async move {
-            let mut x = if let Some(next) = _next {
-                let p = next((), x).await;
-                p
-            } else {
-                Ok(x)
-            }?;
+    struct MiddlewareChain2 {}
+    impl MiddlewareChain<(), (), usize, usize, String> for MiddlewareChain2 {
+        fn call(
+            &self,
+            _state: (),
+            x: Context<(), usize, usize>,
+            _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
+        ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>>
+        {
+            Box::pin(async move {
+                let mut x = if let Some(next) = _next {
+                    let p = next((), x).await;
+                    p
+                } else {
+                    Ok(x)
+                }?;
 
-            println!("Middleware 2 executed {:?}", x.response);
-            x.response = x.response.map(|r| r + 2);
-            Ok(x)
-        })
+                println!("Middleware 2 executed {:?}", x.response);
+                x.response = x.response.map(|r| r + 2);
+                Ok(x)
+            })
+        }
     }
 
-    fn middleware_3(
-        _state: (),
-        x: Context<(), usize, usize>,
-        _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
-    ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>> {
-        Box::pin(async move {
-            let mut x = if let Some(next) = _next {
-                let p = next((), x).await;
-                p
-            } else {
-                Ok(x)
-            }?;
+    struct MiddlewareChain3 {}
+    impl MiddlewareChain<(), (), usize, usize, String> for MiddlewareChain3 {
+        fn call(
+            &self,
+            _state: (),
+            x: Context<(), usize, usize>,
+            _next: Option<Arc<Next<(), Context<(), usize, usize>, String>>>,
+        ) -> Pin<Box<dyn Future<Output = Result<Context<(), usize, usize>, String>> + Send>>
+        {
+            Box::pin(async move {
+                let mut x = if let Some(next) = _next {
+                    let p = next((), x).await;
+                    p
+                } else {
+                    Ok(x)
+                }?;
 
-            x.response = x.response.map_or(Some(x.request + 3), |r| Some(r + 3));
-            Ok(x)
-        })
+                x.response = x.response.map_or(Some(x.request + 3), |r| Some(r + 3));
+                Ok(x)
+            })
+        }
     }
 
     #[tokio::test]
     async fn test_middleware() {
         let test = Middleware::new(vec![
-            Box::new(middleware_1),
-            Box::new(middleware_2),
-            Box::new(middleware_3),
+            Box::new(MiddlewareChain1 {}),
+            Box::new(MiddlewareChain2 {}),
+            Box::new(MiddlewareChain3 {}),
         ]);
 
         let ret = test.call((), (), 42).await;

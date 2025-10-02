@@ -1,7 +1,12 @@
-use crate::fhir_client::middleware::{
-    ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
+use crate::fhir_client::{
+    ServerCTX,
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
+    },
 };
 use oxidized_fhir_client::{
+    middleware::MiddlewareChain,
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest},
     url::{Parameter, ParsedParameter},
 };
@@ -27,7 +32,7 @@ use tokio::sync::Mutex;
 static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
     LazyLock::new(|| Mutex::new(None));
 
-pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
@@ -136,48 +141,68 @@ pub async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     })
 }
 
-pub fn capabilities<
+pub struct CapabilitiesMiddleware {}
+impl CapabilitiesMiddleware {
+    pub fn new() -> Self {
+        CapabilitiesMiddleware {}
+    }
+}
+impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    state: ServerMiddlewareState<Repo, Search, Terminology>,
-    mut context: ServerMiddlewareContext,
-    next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-) -> ServerMiddlewareOutput {
-    Box::pin(async move {
-        match context.request {
-            FHIRRequest::Capabilities => {
-                let mut guard = CAPABILITIES.lock().await;
+>
+    MiddlewareChain<
+        ServerMiddlewareState<Repo, Search, Terminology>,
+        Arc<ServerCTX>,
+        FHIRRequest,
+        FHIRResponse,
+        OperationOutcomeError,
+    > for CapabilitiesMiddleware
+{
+    fn call(
+        &self,
 
-                if let Some(capabilities) = &*guard {
-                    context.response = Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                        capabilities: capabilities.clone(),
-                    }));
-                } else {
-                    let capabilities =
-                        generate_capabilities(state.repo.as_ref(), state.search.as_ref())
-                            .await
-                            .unwrap();
-                    *guard = Some(capabilities.clone());
+        state: ServerMiddlewareState<Repo, Search, Terminology>,
+        mut context: ServerMiddlewareContext,
+        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
+    ) -> ServerMiddlewareOutput {
+        Box::pin(async move {
+            match context.request {
+                FHIRRequest::Capabilities => {
+                    let mut guard = CAPABILITIES.lock().await;
 
-                    context.response = Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
-                        capabilities: capabilities,
-                    }));
+                    if let Some(capabilities) = &*guard {
+                        context.response =
+                            Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                                capabilities: capabilities.clone(),
+                            }));
+                    } else {
+                        let capabilities =
+                            generate_capabilities(state.repo.as_ref(), state.search.as_ref())
+                                .await
+                                .unwrap();
+                        *guard = Some(capabilities.clone());
+
+                        context.response =
+                            Some(FHIRResponse::Capabilities(FHIRCapabilitiesResponse {
+                                capabilities: capabilities,
+                            }));
+                    }
+
+                    Ok(context)
                 }
-
-                Ok(context)
-            }
-            _ => {
-                if let Some(next) = next {
-                    next(state, context).await
-                } else {
-                    Err(OperationOutcomeError::fatal(
-                        IssueType::Exception(None),
-                        "No next middleware found".to_string(),
-                    ))
+                _ => {
+                    if let Some(next) = next {
+                        next(state, context).await
+                    } else {
+                        Err(OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "No next middleware found".to_string(),
+                        ))
+                    }
                 }
             }
-        }
-    })
+        })
+    }
 }

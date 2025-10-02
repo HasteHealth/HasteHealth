@@ -1,5 +1,5 @@
 use crate::fhir_client::middleware::{
-    ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
+    CapabilitiesMiddleware, ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState, 
 };
 use oxidized_fhir_client::{
     FHIRClient,
@@ -62,7 +62,7 @@ struct ClientState<
     terminology: Arc<Terminology>,
 }
 
-struct Route<
+pub struct Route<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -92,50 +92,66 @@ pub struct FHIRServerClient<
     >,
 }
 
-fn router_middleware_chain<
+pub struct RouterMiddleware<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
->(
+>{
     routes: Arc<Vec<Route<Repo, Search, Terminology>>>,
-) -> MiddlewareChain<
-    Arc<ClientState<Repo, Search, Terminology>>,
-    Arc<ServerCTX>,
-    FHIRRequest,
-    FHIRResponse,
-    OperationOutcomeError,
-> {
-    Box::new(
-        move |state: ServerMiddlewareState<Repo, Search, Terminology>,
+}
+
+impl<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> RouterMiddleware<Repo, Search, Terminology> {
+    pub fn new(routes: Arc<Vec<Route<Repo, Search, Terminology>>>) -> Self {
+        RouterMiddleware { routes }
+    }
+}
+
+
+impl<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>
+    MiddlewareChain<
+        ServerMiddlewareState<Repo, Search, Terminology>,
+        Arc<ServerCTX>,
+        FHIRRequest,
+        FHIRResponse,
+        OperationOutcomeError,
+    > for RouterMiddleware<Repo, Search, Terminology>
+{
+    fn call(&self,state: ServerMiddlewareState<Repo, Search, Terminology>,
               context: ServerMiddlewareContext,
-              next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>|
-              -> ServerMiddlewareOutput {
-            let routes = routes.clone();
-            Box::pin(async move {
-                let route = Arc::new(routes.iter().find(|r| (r.filter)(&context.request)).clone());
-                match route.as_ref() {
-                    Some(route) => {
-                        let context = route
-                            .middleware
-                            .call(state.clone(), context.ctx, context.request)
-                            .await?;
-                        if let Some(next) = next {
-                            next(state, context).await
-                        } else {
-                            Ok(context)
-                        }
-                    }
-                    None => {
-                        if let Some(next) = next {
-                            next(state, context).await
-                        } else {
-                            Ok(context)
-                        }
+              next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>) -> ServerMiddlewareOutput {
+        let routes = self.routes.clone();
+        Box::pin(async move {
+            let route = Arc::new(routes.iter().find(|r| (r.filter)(&context.request)).clone());
+            match route.as_ref() {
+                Some(route) => {
+                    let context = route
+                        .middleware
+                        .call(state.clone(), context.ctx, context.request)
+                        .await?;
+                    if let Some(next) = next {
+                        next(state, context).await
+                    } else {
+                        Ok(context)
                     }
                 }
-            })
-        },
-    )
+                None => {
+                    if let Some(next) = next {
+                        next(state, context).await
+                    } else {
+                        Ok(context)
+                    }
+                }
+            }
+        })
+    }
 }
 
 static ARTIFACT_TYPES: &[&str] = &[
@@ -210,7 +226,7 @@ impl<
                 | FHIRRequest::Capabilities
                  => false,
             }),
-            middleware: Middleware::new(vec![Box::new(middleware::storage)]),
+            middleware: Middleware::new(vec![Box::new(middleware::StorageMiddleware::new())]),
         };
 
         let ops_route = Route {
@@ -220,7 +236,7 @@ impl<
                 | FHIRRequest::InvokeSystem(_) => true,
                 _ => false,
             }),
-            middleware: Middleware::new(vec![Box::new(middleware::operations)]),
+            middleware: Middleware::new(vec![Box::new(middleware::OperationMiddleware::new())]),
         };
 
         let artifact_route = Route {
@@ -238,13 +254,13 @@ impl<
                 _ => false,
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::set_artifact_tenant),
-                Box::new(middleware::storage),
+                Box::new(middleware::SetArtifactTenantMiddleware::new()),
+                Box::new(middleware::StorageMiddleware::new()),
             ]),
         };
 
         let route_middleware =
-            router_middleware_chain(Arc::new(vec![storage_route, artifact_route, ops_route]));
+            RouterMiddleware::new(Arc::new(vec![storage_route, artifact_route, ops_route]));
 
         FHIRServerClient {
             state: Arc::new(ClientState {
@@ -253,7 +269,7 @@ impl<
                 terminology,
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::capabilities),
+                Box::new(CapabilitiesMiddleware::new()),
                 Box::new(route_middleware),
             ]),
         }
