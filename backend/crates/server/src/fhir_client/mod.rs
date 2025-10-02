@@ -1,5 +1,5 @@
 use crate::fhir_client::middleware::{
-    CapabilitiesMiddleware, ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState, 
+     ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState, 
 };
 use oxidized_fhir_client::{
     FHIRClient,
@@ -269,7 +269,7 @@ impl<
                 terminology,
             }),
             middleware: Middleware::new(vec![
-                Box::new(CapabilitiesMiddleware::new()),
+                Box::new(middleware::CapabilitiesMiddleware::new()),
                 Box::new(route_middleware),
             ]),
         }
