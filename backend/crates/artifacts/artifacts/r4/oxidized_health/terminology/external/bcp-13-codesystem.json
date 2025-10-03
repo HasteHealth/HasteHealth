@@ -1,0 +1,14 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "bcp-13",
+  "url": "urn:ietf:bcp:13",
+  "version": "2015",
+  "name": "BCP-13",
+  "title": "Media Types",
+  "status": "active",
+  "experimental": false,
+  "publisher": "Internet Assigned Numbers Authority",
+  "description": "Codes for various media types.",
+  "caseSensitive": true,
+  "content": "not-present"
+}

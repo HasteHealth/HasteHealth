@@ -1,0 +1,67 @@
+{
+  "resourceType": "Bundle",
+  "id": "iguhealth-custom-types",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://iguhealth.app/fhir/CodeSystem/IGUHealthCustomTypes",
+      "resource": {
+        "id": "iguhealth-custom-types",
+        "url": "https://iguhealth.app/fhir/CodeSystem/IGUHealthCustomTypes",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "Custom types",
+        "title": "Custom Types",
+        "status": "active",
+        "experimental": true,
+        "publisher": "IGUHealth",
+        "description": "IGUHealth custom types",
+        "caseSensitive": true,
+        "content": "complete",
+        "concept": [
+          {
+            "code": "AccessPolicy",
+            "display": "AccessPolicy",
+            "definition": "Access policy resource used to hold authorization logic."
+          },
+          {
+            "code": "User",
+            "display": "User",
+            "definition": "Represents a person within the system.."
+          },
+          {
+            "code": "Any",
+            "display": "Any",
+            "definition": "Represents any resource type."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://iguhealth.app/fhir/ValueSet/ResourceTypes",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "iguhealth-types-valueset",
+        "url": "https://iguhealth.app/fhir/ValueSet/ResourceTypes",
+        "version": "4.0.1",
+        "name": "IGUHealth Resource Types",
+        "title": "IGUHealth Resource Types",
+        "status": "active",
+        "experimental": true,
+        "publisher": "IGUHealth",
+        "description": "Resource types on IGUHealth",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "http://hl7.org/fhir/resource-types"
+            },
+            {
+              "system": "https://iguhealth.app/fhir/CodeSystem/IGUHealthCustomTypes"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

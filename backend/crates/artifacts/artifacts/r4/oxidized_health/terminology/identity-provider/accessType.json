@@ -1,0 +1,55 @@
+{
+    "resourceType": "Bundle",
+    "id": "identity-provider-access-type",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderAccessType",
+            "resource": {
+                "id": "identity-provider-access-type-codesystem",
+                "url": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderAccessType",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "IdentityProviderAccessType",
+                "title": "IdentityProviderAccessType",
+                "status": "active",
+                "experimental": true,
+                "publisher": "IGUHealth",
+                "description": "Methods to connect to the identity provider.",
+                "caseSensitive": true,
+                "valueSet": "https://iguhealth.app/fhir/ValueSet/IdentityProviderAccessType",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "oidc",
+                        "display": "oidc",
+                        "definition": "Connect via OIDC"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://iguhealth.app/fhir/ValueSet/IdentityProviderAccessType",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "identity-provider-access-type-valueset",
+                "url": "https://iguhealth.app/fhir/ValueSet/IdentityProviderAccessType",
+                "version": "4.0.1",
+                "name": "IdentityProviderAccessType",
+                "title": "IdentityProviderAccessType",
+                "status": "active",
+                "experimental": true,
+                "publisher": "IGUHealth",
+                "description": "Methods to connect to the identity provider.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderAccessType"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

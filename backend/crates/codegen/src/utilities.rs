@@ -515,7 +515,7 @@ pub mod load {
 
                 Ok(filtered_resources.collect())
             }
-            _ => Err("Resource is not a Bundle or StructureDefinition".to_string()),
+            _ => Ok(vec![]),
         }
     }
 }

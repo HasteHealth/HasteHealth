@@ -1,0 +1,60 @@
+{
+    "resourceType": "Bundle",
+    "id": "access-policy-rule-condition-operaotors",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://iguhealth.app/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator",
+            "resource": {
+                "id": "access-policyv2-rule-condition-operator-codesystem",
+                "url": "https://iguhealth.app/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV2RuleConditionOperator",
+                "title": "AccessPolicyV2RuleConditionOperator",
+                "status": "active",
+                "experimental": true,
+                "publisher": "IGUHealth",
+                "description": "Access Policy V2 combination behaviros.",
+                "caseSensitive": true,
+                "valueSet": "https://iguhealth.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "=",
+                        "display": "=",
+                        "definition": "Equals operator."
+                    },
+                    {
+                        "code": "!=",
+                        "display": "!=",
+                        "definition": "Not equals operator."
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://iguhealth.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "access-policyv2-rule-condition-operator-valueset",
+                "url": "https://iguhealth.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
+                "version": "4.0.1",
+                "name": "AccessPolicyV2RuleConditionOperator",
+                "title": "AccessPolicyV2RuleConditionOperator",
+                "status": "active",
+                "experimental": true,
+                "publisher": "IGUHealth",
+                "description": "Access Policy V2 combination behaviros.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://iguhealth.app/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
