@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://iguhealth.app/fhir/CodeSystem/ClientApplicationGrantType",
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType",
       "resource": {
         "id": "clientapplication-grant-type-codesystem",
-        "url": "https://iguhealth.app/fhir/CodeSystem/ClientApplicationGrantType",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",
         "title": "ClientApplicationGrantType",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
+        "publisher": "OxidizedHealth",
         "description": "Grant types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://iguhealth.app/fhir/ValueSet/ClientApplicationGrantType",
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
         "content": "complete",
         "concept": [
           {
@@ -39,23 +39,23 @@
       }
     },
     {
-      "fullUrl": "https://iguhealth.app/fhir/ValueSet/ClientApplicationGrantType",
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
       "resource": {
         "resourceType": "ValueSet",
         "id": "clientapplication-grant-type-valueset",
-        "url": "https://iguhealth.app/fhir/ValueSet/ClientApplicationGrantType",
+        "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",
         "title": "ClientApplicationGrantType",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
+        "publisher": "OxidizedHealth",
         "description": "Grant Types allowed.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://iguhealth.app/fhir/CodeSystem/ClientApplicationGrantType"
+              "system": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType"
             }
           ]
         }

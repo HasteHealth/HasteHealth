@@ -4,20 +4,20 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderAccessType",
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderAccessType",
             "resource": {
                 "id": "identity-provider-access-type-codesystem",
-                "url": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderAccessType",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderAccessType",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",
                 "title": "IdentityProviderAccessType",
                 "status": "active",
                 "experimental": true,
-                "publisher": "IGUHealth",
+                "publisher": "OxidizedHealth",
                 "description": "Methods to connect to the identity provider.",
                 "caseSensitive": true,
-                "valueSet": "https://iguhealth.app/fhir/ValueSet/IdentityProviderAccessType",
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
                 "content": "complete",
                 "concept": [
                     {
@@ -29,23 +29,23 @@
             }
         },
         {
-            "fullUrl": "https://iguhealth.app/fhir/ValueSet/IdentityProviderAccessType",
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-access-type-valueset",
-                "url": "https://iguhealth.app/fhir/ValueSet/IdentityProviderAccessType",
+                "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",
                 "title": "IdentityProviderAccessType",
                 "status": "active",
                 "experimental": true,
-                "publisher": "IGUHealth",
+                "publisher": "OxidizedHealth",
                 "description": "Methods to connect to the identity provider.",
                 "immutable": true,
                 "compose": {
                     "include": [
                         {
-                            "system": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderAccessType"
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderAccessType"
                         }
                     ]
                 }

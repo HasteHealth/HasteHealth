@@ -1,21 +1,21 @@
 {
   "resourceType": "Bundle",
-  "id": "iguhealth-custom-types",
+  "id": "oxidized-health-custom-types",
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://iguhealth.app/fhir/CodeSystem/IGUHealthCustomTypes",
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes",
       "resource": {
-        "id": "iguhealth-custom-types",
-        "url": "https://iguhealth.app/fhir/CodeSystem/IGUHealthCustomTypes",
+        "id": "oxidized-health-custom-types",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "Custom types",
         "title": "Custom Types",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
-        "description": "IGUHealth custom types",
+        "publisher": "OxidizedHealth",
+        "description": "OxidizedHealth custom types",
         "caseSensitive": true,
         "content": "complete",
         "concept": [
@@ -38,18 +38,18 @@
       }
     },
     {
-      "fullUrl": "https://iguhealth.app/fhir/ValueSet/ResourceTypes",
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "iguhealth-types-valueset",
-        "url": "https://iguhealth.app/fhir/ValueSet/ResourceTypes",
+        "id": "oxidized-health-types-valueset",
+        "url": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
         "version": "4.0.1",
-        "name": "IGUHealth Resource Types",
-        "title": "IGUHealth Resource Types",
+        "name": "OxidizedHealth Resource Types",
+        "title": "OxidizedHealth Resource Types",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
-        "description": "Resource types on IGUHealth",
+        "publisher": "OxidizedHealth",
+        "description": "Resource types on OxidizedHealth",
         "immutable": true,
         "compose": {
           "include": [
@@ -57,7 +57,7 @@
               "system": "http://hl7.org/fhir/resource-types"
             },
             {
-              "system": "https://iguhealth.app/fhir/CodeSystem/IGUHealthCustomTypes"
+              "system": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes"
             }
           ]
         }

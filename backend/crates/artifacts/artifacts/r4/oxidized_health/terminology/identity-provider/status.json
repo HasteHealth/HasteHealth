@@ -4,20 +4,20 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderStatus",
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderStatus",
             "resource": {
                 "id": "identity-provider-status-codesystem",
-                "url": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderStatus",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderStatus",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderStatus",
                 "title": "IdentityProviderStatus",
                 "status": "active",
                 "experimental": true,
-                "publisher": "IGUHealth",
+                "publisher": "OxidizedHealth",
                 "description": "Identity Provider status",
                 "caseSensitive": true,
-                "valueSet": "https://iguhealth.app/fhir/ValueSet/IdentityProviderStatus",
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
                 "content": "complete",
                 "concept": [
                     {
@@ -34,23 +34,23 @@
             }
         },
         {
-            "fullUrl": "https://iguhealth.app/fhir/ValueSet/IdentityProviderStatus",
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-status-valueset",
-                "url": "https://iguhealth.app/fhir/ValueSet/IdentityProviderStatus",
+                "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
                 "version": "4.0.1",
                 "name": "IdentityProviderStatus",
                 "title": "IdentityProviderStatus",
                 "status": "active",
                 "experimental": true,
-                "publisher": "IGUHealth",
+                "publisher": "OxidizedHealth",
                 "description": "Identity Provider status",
                 "immutable": true,
                 "compose": {
                     "include": [
                         {
-                            "system": "https://iguhealth.app/fhir/CodeSystem/IdentityProviderStatus"
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderStatus"
                         }
                     ]
                 }

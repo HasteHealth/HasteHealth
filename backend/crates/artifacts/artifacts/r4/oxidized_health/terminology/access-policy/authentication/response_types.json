@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://iguhealth.app/fhir/CodeSystem/ClientApplicationResponseTypes",
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
       "resource": {
         "id": "clientapplication-response-types-codesystem",
-        "url": "https://iguhealth.app/fhir/CodeSystem/ClientApplicationResponseTypes",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",
         "title": "ClientApplicationResponseTypes",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
+        "publisher": "OxidizedHealth",
         "description": "Array of the OAuth 2.0 response type strings that the client can use at the authorization endpoint.",
         "caseSensitive": true,
-        "valueSet": "https://iguhealth.app/fhir/ValueSet/ClientApplicationResponseTypes",
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
         "content": "complete",
         "concept": [
           {
@@ -31,23 +31,23 @@
       }
     },
     {
-      "fullUrl": "https://iguhealth.app/fhir/ValueSet/ClientApplicationResponseTypes",
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
       "resource": {
         "resourceType": "ValueSet",
         "id": "clientapplication-response-types-valueset",
-        "url": "https://iguhealth.app/fhir/ValueSet/ClientApplicationResponseTypes",
+        "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",
         "title": "ClientApplicationResponseTypes",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
+        "publisher": "OxidizedHealth",
         "description": "Array of the OAuth 2.0 response type strings that the client can use at the authorization endpoint.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://iguhealth.app/fhir/CodeSystem/ClientApplicationResponseTypes"
+              "system": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationResponseTypes"
             }
           ]
         }

@@ -37,7 +37,8 @@ pub struct IdentityProviderOidcClient {
 pub struct IdentityProviderOidcPkce {
     #[primitive]
     #[doc = "PKCE code challenge method."]
-    pub code_challenge_method: Option<Box<FHIRCode>>,
+    pub code_challenge_method:
+        Option<Box<terminology::IdentityProviderPkceChallengeMethodValueset>>,
     #[primitive]
     #[doc = "PKCE enabled."]
     pub enabled: Option<Box<FHIRBoolean>>,
@@ -93,10 +94,10 @@ pub struct IdentityProvider {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "The status of the identity provider."]
-    pub status: Box<FHIRCode>,
+    pub status: Box<terminology::IdentityProviderStatusValueset>,
     #[primitive]
     #[doc = "Method for connecting to external identity provider."]
-    pub accessType: Box<FHIRCode>,
+    pub accessType: Box<terminology::IdentityProviderAccessTypeValueset>,
     #[doc = "OIDC connection configuration for the identity provider."]
     pub oidc: Option<IdentityProviderOidc>,
 }
@@ -136,7 +137,7 @@ pub struct AccessPolicyV2AttributeOperation {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The operation to retrieve the attribute."]
-    pub type_: Box<FHIRCode>,
+    pub type_: Box<terminology::AccessPolicyAttributeOperationTypesValueset>,
     #[doc = "The operation to retrieve the attribute."]
     pub path: Option<Box<Expression>>,
     #[doc = "The operation to retrieve the attribute."]
@@ -206,10 +207,10 @@ pub struct AccessPolicyV2Rule {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Rule combination behavior for children elements."]
-    pub combineBehavior: Option<Box<FHIRCode>>,
+    pub combineBehavior: Option<Box<terminology::AccessPolicyv2CombineBehaviorValueset>>,
     #[primitive]
     #[doc = ""]
-    pub effect: Option<Box<FHIRCode>>,
+    pub effect: Option<Box<terminology::AccessPolicyRuleEffectValueset>>,
     #[doc = ""]
     pub target: Option<AccessPolicyV2RuleTarget>,
     #[doc = ""]
@@ -254,7 +255,7 @@ pub struct AccessPolicyV2 {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The type of evaluation that is performed to determine if access is granted or denied."]
-    pub engine: Box<FHIRCode>,
+    pub engine: Box<terminology::AccessPolicyv2Engine>,
     #[doc = "Attributes to use for the policy evaluation."]
     pub attribute: Option<Vec<AccessPolicyV2Attribute>>,
     #[doc = "The rules that govern how the access policy is applied."]
@@ -285,10 +286,10 @@ pub struct ClientApplication {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The grant type for this client application."]
-    pub grantType: Vec<Box<FHIRCode>>,
+    pub grantType: Vec<Box<terminology::ClientapplicationGrantTypeValueset>>,
     #[primitive]
     #[doc = ""]
-    pub responseTypes: Box<FHIRCode>,
+    pub responseTypes: Box<terminology::ClientapplicationResponseTypesValueset>,
     #[primitive]
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
     pub secret: Option<Box<FHIRString>>,

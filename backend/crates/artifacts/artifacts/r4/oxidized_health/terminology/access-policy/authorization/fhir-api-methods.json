@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://iguhealth.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
       "resource": {
         "id": "access-policy-fhir-api-methods-codesystem",
-        "url": "https://iguhealth.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIMethod",
         "title": "AccessPolicyFHIRAPIMethod",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
+        "publisher": "OxidizedHealth",
         "description": "Access Policy types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://iguhealth.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
         "content": "complete",
         "concept": [
           {
@@ -71,23 +71,23 @@
       }
     },
     {
-      "fullUrl": "https://iguhealth.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
       "resource": {
         "resourceType": "ValueSet",
         "id": "access-policy-fhir-api-methods-valueset",
-        "url": "https://iguhealth.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+        "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIMethod",
         "title": "AccessPolicyFHIRAPIMethod",
         "status": "active",
         "experimental": true,
-        "publisher": "IGUHealth",
+        "publisher": "OxidizedHealth",
         "description": "Access Policy types allowed.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://iguhealth.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod"
+              "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod"
             }
           ]
         }
