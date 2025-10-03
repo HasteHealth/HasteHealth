@@ -251,7 +251,7 @@ impl<
                     .map_or(false, |rt| AUTHENTICATION_TYPES.contains(rt)),
             }),
             middleware: Middleware::new(vec![
-                Box::new(MembershipTableAlterationMiddleware::new()),
+                Box::new(middleware::MembershipTableAlterationMiddleware::new()),
                 Box::new(middleware::SetArtifactTenantMiddleware::new()),
                 Box::new(middleware::StorageMiddleware::new()),
             ]),
