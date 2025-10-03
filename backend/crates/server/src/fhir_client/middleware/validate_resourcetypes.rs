@@ -55,7 +55,7 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext,
+        context: ServerMiddlewareContext,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput {
         let resource_types = self.resource_types_allowed.clone();

@@ -154,11 +154,11 @@ impl<
     }
 }
 
-static ARTIFACT_TYPES: &[&str] = &[
-    "ValueSet",
-    "CodeSystem",
-    "StructureDefinition",
-    "SearchParameter",
+static ARTIFACT_TYPES: &[ResourceType] = &[
+    ResourceType::ValueSet,
+    ResourceType::CodeSystem,
+    ResourceType::StructureDefinition,
+    ResourceType::SearchParameter,
 ];
 
 fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {
@@ -205,7 +205,7 @@ impl<
                 | FHIRRequest::DeleteType(_) 
                  => {
                     if let Some(resource_type) = request_to_resource_type(req) {
-                       !ARTIFACT_TYPES.contains(&resource_type.as_ref())
+                       !ARTIFACT_TYPES.contains(&resource_type)
                     } else {
                         false
                     }
@@ -246,7 +246,7 @@ impl<
                 | FHIRRequest::Read(_) 
                 | FHIRRequest::SearchType(_) => {
                     if let Some(resource_type) = request_to_resource_type(req) {
-                        ARTIFACT_TYPES.contains(&resource_type.as_ref())
+                        ARTIFACT_TYPES.contains(&resource_type)
                     } else {
                         false
                     }
