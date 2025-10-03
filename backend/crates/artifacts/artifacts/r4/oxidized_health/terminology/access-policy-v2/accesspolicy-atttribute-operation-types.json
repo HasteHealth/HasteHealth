@@ -39,7 +39,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "access-policy-attribute-operation-types-valueset",
+                "id": "access-policy-attribute-operation-types",
                 "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
                 "version": "4.0.1",
                 "name": "AccessPolicyAttributeOperationTypes",

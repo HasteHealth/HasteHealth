@@ -34,7 +34,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "clientapplication-response-types-valueset",
+        "id": "clientapplication-response-types",
         "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",

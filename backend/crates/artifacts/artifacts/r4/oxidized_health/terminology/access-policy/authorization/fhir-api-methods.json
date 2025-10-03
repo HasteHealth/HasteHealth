@@ -74,7 +74,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "access-policy-fhir-api-methods-valueset",
+        "id": "access-policy-fhir-api-methods",
         "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIMethod",

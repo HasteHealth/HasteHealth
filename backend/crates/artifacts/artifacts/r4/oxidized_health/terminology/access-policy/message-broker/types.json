@@ -32,7 +32,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/MessageBrokerType",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "message-broker-type-valueset",
+        "id": "message-broker-type",
         "url": "https://oxidized-health.app/fhir/ValueSet/MessageBrokerType",
         "version": "4.0.1",
         "name": "MessageBrokerType",

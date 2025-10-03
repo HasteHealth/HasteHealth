@@ -37,7 +37,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "access-policy-rule-effect-valueset",
+                "id": "access-policy-rule-effect",
                 "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2RuleEffect",

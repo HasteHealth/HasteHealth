@@ -37,7 +37,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "identity-provider-status-valueset",
+                "id": "identity-provider-status",
                 "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
                 "version": "4.0.1",
                 "name": "IdentityProviderStatus",

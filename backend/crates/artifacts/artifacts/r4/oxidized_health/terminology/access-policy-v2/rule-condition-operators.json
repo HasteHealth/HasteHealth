@@ -37,7 +37,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "access-policyv2-rule-condition-operator-valueset",
+                "id": "access-policyv2-rule-condition-operator",
                 "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2RuleConditionOperator",

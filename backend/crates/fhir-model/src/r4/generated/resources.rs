@@ -37,8 +37,7 @@ pub struct IdentityProviderOidcClient {
 pub struct IdentityProviderOidcPkce {
     #[primitive]
     #[doc = "PKCE code challenge method."]
-    pub code_challenge_method:
-        Option<Box<terminology::IdentityProviderPkceChallengeMethodValueset>>,
+    pub code_challenge_method: Option<Box<terminology::IdentityProviderPkceChallengeMethod>>,
     #[primitive]
     #[doc = "PKCE enabled."]
     pub enabled: Option<Box<FHIRBoolean>>,
@@ -94,10 +93,10 @@ pub struct IdentityProvider {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "The status of the identity provider."]
-    pub status: Box<terminology::IdentityProviderStatusValueset>,
+    pub status: Box<terminology::IdentityProviderStatus>,
     #[primitive]
     #[doc = "Method for connecting to external identity provider."]
-    pub accessType: Box<terminology::IdentityProviderAccessTypeValueset>,
+    pub accessType: Box<terminology::IdentityProviderAccessType>,
     #[doc = "OIDC connection configuration for the identity provider."]
     pub oidc: Option<IdentityProviderOidc>,
 }
@@ -137,7 +136,7 @@ pub struct AccessPolicyV2AttributeOperation {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The operation to retrieve the attribute."]
-    pub type_: Box<terminology::AccessPolicyAttributeOperationTypesValueset>,
+    pub type_: Box<terminology::AccessPolicyAttributeOperationTypes>,
     #[doc = "The operation to retrieve the attribute."]
     pub path: Option<Box<Expression>>,
     #[doc = "The operation to retrieve the attribute."]
@@ -207,10 +206,10 @@ pub struct AccessPolicyV2Rule {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Rule combination behavior for children elements."]
-    pub combineBehavior: Option<Box<terminology::AccessPolicyv2CombineBehaviorValueset>>,
+    pub combineBehavior: Option<Box<terminology::AccessPolicyv2CombineBehavior>>,
     #[primitive]
     #[doc = ""]
-    pub effect: Option<Box<terminology::AccessPolicyRuleEffectValueset>>,
+    pub effect: Option<Box<terminology::AccessPolicyRuleEffect>>,
     #[doc = ""]
     pub target: Option<AccessPolicyV2RuleTarget>,
     #[doc = ""]
@@ -286,10 +285,10 @@ pub struct ClientApplication {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The grant type for this client application."]
-    pub grantType: Vec<Box<terminology::ClientapplicationGrantTypeValueset>>,
+    pub grantType: Vec<Box<terminology::ClientapplicationGrantType>>,
     #[primitive]
     #[doc = ""]
-    pub responseTypes: Box<terminology::ClientapplicationResponseTypesValueset>,
+    pub responseTypes: Box<terminology::ClientapplicationResponseTypes>,
     #[primitive]
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
     pub secret: Option<Box<FHIRString>>,

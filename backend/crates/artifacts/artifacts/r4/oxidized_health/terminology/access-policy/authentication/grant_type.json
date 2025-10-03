@@ -42,7 +42,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "clientapplication-grant-type-valueset",
+        "id": "clientapplication-grant-type",
         "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",

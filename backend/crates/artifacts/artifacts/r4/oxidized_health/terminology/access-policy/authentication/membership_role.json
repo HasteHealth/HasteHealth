@@ -38,7 +38,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/MembershipRole",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "membership-role-valueset",
+        "id": "membership-role",
         "url": "https://oxidized-health.app/fhir/ValueSet/MembershipRole",
         "version": "4.0.1",
         "name": "MembershipRole",

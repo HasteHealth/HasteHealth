@@ -32,7 +32,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "identity-provider-access-type-valueset",
+                "id": "identity-provider-access-type",
                 "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",

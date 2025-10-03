@@ -35,7 +35,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "identity-provider-pkce-challenge-method-valueset",
+                "id": "identity-provider-pkce-challenge-method",
                 "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
                 "version": "4.0.1",
                 "name": "IdentityProviderPKCEChallengeMethod",

@@ -38,7 +38,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "access-policy-fhir-api-parameter-valueset",
+        "id": "access-policy-fhir-api-parameter",
         "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIParameter",

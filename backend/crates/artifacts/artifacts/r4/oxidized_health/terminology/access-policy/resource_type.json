@@ -41,7 +41,7 @@
       "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "oxidized-health-types-valueset",
+        "id": "oxidized-health-types",
         "url": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
         "version": "4.0.1",
         "name": "OxidizedHealth Resource Types",

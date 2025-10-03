@@ -37,7 +37,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "access-policyv2-combine-behavior-valueset",
+                "id": "access-policyv2-combine-behavior",
                 "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2CombineBehavior",
