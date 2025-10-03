@@ -353,7 +353,6 @@ impl<
                             None,
                         )
                         .await?;
-
                     // No matches, no id provided:
                     //   The server creates the resource.
                     // No matches, id provided:
