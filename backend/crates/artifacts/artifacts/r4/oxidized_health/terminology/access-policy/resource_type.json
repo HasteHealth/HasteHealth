@@ -1,0 +1,67 @@
+{
+  "resourceType": "Bundle",
+  "id": "oxidized-health-custom-types",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes",
+      "resource": {
+        "id": "oxidized-health-custom-types",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "Custom types",
+        "title": "Custom Types",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "OxidizedHealth custom types",
+        "caseSensitive": true,
+        "content": "complete",
+        "concept": [
+          {
+            "code": "AccessPolicy",
+            "display": "AccessPolicy",
+            "definition": "Access policy resource used to hold authorization logic."
+          },
+          {
+            "code": "User",
+            "display": "User",
+            "definition": "Represents a person within the system.."
+          },
+          {
+            "code": "Any",
+            "display": "Any",
+            "definition": "Represents any resource type."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "oxidized-health-types",
+        "url": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
+        "version": "4.0.1",
+        "name": "OxidizedHealth Resource Types",
+        "title": "OxidizedHealth Resource Types",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Resource types on OxidizedHealth",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "http://hl7.org/fhir/resource-types"
+            },
+            {
+              "system": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

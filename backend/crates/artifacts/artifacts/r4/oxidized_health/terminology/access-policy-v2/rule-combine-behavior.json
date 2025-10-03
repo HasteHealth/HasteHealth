@@ -1,0 +1,60 @@
+{
+    "resourceType": "Bundle",
+    "id": "access-policy-rule-combine-behavior",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyV2CombineBehavior",
+            "resource": {
+                "id": "access-policyv2-combine-behavior-codesystem",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyV2CombineBehavior",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyV2CombineBehavior",
+                "title": "AccessPolicyV2CombineBehavior",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Policy V2 combination behaviros.",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "any",
+                        "display": "Any",
+                        "definition": "Any rule can grant access."
+                    },
+                    {
+                        "code": "all-of",
+                        "display": "All Of",
+                        "definition": "Every rule must grant access."
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "access-policyv2-combine-behavior",
+                "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior",
+                "version": "4.0.1",
+                "name": "AccessPolicyV2CombineBehavior",
+                "title": "AccessPolicyV2CombineBehavior",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Policy V2 combination behaviros.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyV2CombineBehavior"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,97 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
+      "resource": {
+        "id": "access-policy-fhir-api-methods-codesystem",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "AccessPolicyFHIRAPIMethod",
+        "title": "AccessPolicyFHIRAPIMethod",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Access Policy types allowed.",
+        "caseSensitive": true,
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+        "content": "complete",
+        "concept": [
+          {
+            "code": "read",
+            "display": "Read"
+          },
+          {
+            "code": "vread",
+            "display": "Version read"
+          },
+          {
+            "code": "update",
+            "display": "Update"
+          },
+          {
+            "code": "patch",
+            "display": "Patch"
+          },
+          {
+            "code": "delete",
+            "display": "Delete"
+          },
+          {
+            "code": "history",
+            "display": "History"
+          },
+          {
+            "code": "create",
+            "display": "create"
+          },
+          {
+            "code": "search",
+            "display": "Search"
+          },
+          {
+            "code": "capabilities",
+            "display": "Capabilities"
+          },
+          {
+            "code": "batch",
+            "display": "Batch"
+          },
+          {
+            "code": "transaction",
+            "display": "Transaction"
+          },
+          {
+            "code": "invoke",
+            "display": "Invoke"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "access-policy-fhir-api-methods",
+        "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+        "version": "4.0.1",
+        "name": "AccessPolicyFHIRAPIMethod",
+        "title": "AccessPolicyFHIRAPIMethod",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Access Policy types allowed.",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

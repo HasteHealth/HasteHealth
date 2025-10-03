@@ -1,0 +1,65 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType",
+      "resource": {
+        "id": "clientapplication-grant-type-codesystem",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "ClientApplicationGrantType",
+        "title": "ClientApplicationGrantType",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Grant types allowed.",
+        "caseSensitive": true,
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
+        "content": "complete",
+        "concept": [
+          {
+            "code": "client_credentials",
+            "display": "Client Credentials"
+          },
+          {
+            "code": "authorization_code",
+            "display": "Authorization Code"
+          },
+          {
+            "code": "refresh_token",
+            "display": "Refresh Token"
+          },
+          {
+            "code": "basic_auth",
+            "display": "Basic Authentication"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "clientapplication-grant-type",
+        "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
+        "version": "4.0.1",
+        "name": "ClientApplicationGrantType",
+        "title": "ClientApplicationGrantType",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Grant Types allowed.",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

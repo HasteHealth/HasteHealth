@@ -1,0 +1,55 @@
+{
+  "resourceType": "Bundle",
+  "id": "broker-types",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/MessageBrokerType",
+      "resource": {
+        "id": "message-broker-type-codesystem",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/MessageBrokerType",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "MessageBrokerType",
+        "title": "MessageBrokerType",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Message Broker types allowed.",
+        "caseSensitive": true,
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/MessageBrokerType",
+        "content": "complete",
+        "concept": [
+          {
+            "code": "kafka",
+            "display": "Kafka",
+            "definition": "Kafka broker type."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/MessageBrokerType",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "message-broker-type",
+        "url": "https://oxidized-health.app/fhir/ValueSet/MessageBrokerType",
+        "version": "4.0.1",
+        "name": "MessageBrokerType",
+        "title": "MessageBrokerType",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Message Broker types allowed.",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "https://oxidized-health.app/fhir/CodeSystem/MessageBrokerType"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

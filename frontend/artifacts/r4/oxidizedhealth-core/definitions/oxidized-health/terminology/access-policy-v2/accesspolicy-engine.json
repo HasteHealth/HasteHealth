@@ -37,7 +37,7 @@
             "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2",
             "resource": {
                 "resourceType": "ValueSet",
-                "id": "access-policyv2-engine-valueset",
+                "id": "access-policyv2-engine",
                 "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2",
                 "version": "4.0.1",
                 "name": "AccessPolicyEngineV2",

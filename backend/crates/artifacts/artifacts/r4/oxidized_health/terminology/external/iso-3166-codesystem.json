@@ -1,0 +1,14 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "iso-3166",
+  "url": "urn:iso:std:iso:3166",
+  "version": "2015",
+  "name": "ISO-3166",
+  "title": "Countries",
+  "status": "active",
+  "experimental": false,
+  "publisher": "International Organization for Standardization",
+  "description": "Codes for the representation of countries.",
+  "caseSensitive": true,
+  "content": "not-present"
+}

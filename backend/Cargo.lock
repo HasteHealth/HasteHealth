@@ -1991,6 +1991,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
+name = "oxidized-access-control"
+version = "0.1.0"
+dependencies = [
+ "oxidized-fhir-client",
+ "oxidized-fhir-model",
+ "oxidized-fhir-operation-error",
+ "oxidized-fhirpath",
+]
+
+[[package]]
 name = "oxidized-artifacts"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,60 @@
+{
+    "resourceType": "Bundle",
+    "id": "access-policy-engine",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyEngineV2",
+            "resource": {
+                "id": "access-policyv2-engine-codesystem",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyEngineV2",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "AccessPolicyEngineV2",
+                "title": "AccessPolicyEngineV2",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Policy V2 Engines.",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "full-access",
+                        "display": "Full Access",
+                        "definition": "Grants full access to all resources and operations."
+                    },
+                    {
+                        "code": "rule-engine",
+                        "display": "Rule Engine",
+                        "definition": "Rule engine to determine access."
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "access-policyv2-engine",
+                "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2",
+                "version": "4.0.1",
+                "name": "AccessPolicyEngineV2",
+                "title": "AccessPolicyEngineV2",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Access Policy V2 Engines.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyEngineV2"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

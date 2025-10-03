@@ -1,0 +1,61 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPILevel",
+      "resource": {
+        "id": "access-policy-fhir-api-level-codesystem",
+        "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPILevel",
+        "resourceType": "CodeSystem",
+        "version": "4.0.1",
+        "name": "AccessPolicyFHIRAPILevel",
+        "title": "AccessPolicyFHIRAPILevel",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Access Policy types allowed.",
+        "caseSensitive": true,
+        "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPILevel",
+        "content": "complete",
+        "concept": [
+          {
+            "code": "instance",
+            "display": "Instance"
+          },
+          {
+            "code": "type",
+            "display": "Type"
+          },
+          {
+            "code": "system",
+            "display": "System"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPILevel",
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "access-policy-fhir-api-level",
+        "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPILevel",
+        "version": "4.0.1",
+        "name": "AccessPolicyFHIRAPILevel",
+        "title": "AccessPolicyFHIRAPILevel",
+        "status": "active",
+        "experimental": true,
+        "publisher": "OxidizedHealth",
+        "description": "Access Policy types allowed.",
+        "immutable": true,
+        "compose": {
+          "include": [
+            {
+              "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPILevel"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
