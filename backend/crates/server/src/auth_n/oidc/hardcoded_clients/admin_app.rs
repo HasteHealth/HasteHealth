@@ -1,7 +1,8 @@
 use oxidized_config::Config;
 use oxidized_fhir_model::r4::generated::{
     resources::ClientApplication,
-    types::{FHIRCode, FHIRString},
+    terminology::{ClientapplicationGrantType, ClientapplicationResponseTypes},
+    types::FHIRString,
 };
 use oxidized_repository::types::TenantId;
 
@@ -15,23 +16,14 @@ pub fn get_admin_app(config: &Box<dyn Config>) -> Option<ClientApplication> {
                 value: Some("Admin Application".to_string()),
                 ..Default::default()
             }),
-            responseTypes: Box::new(FHIRCode {
-                value: Some("code".to_string()),
-                ..Default::default()
-            }),
+            responseTypes: Box::new(ClientapplicationResponseTypes::Code(None)),
             scope: Some(Box::new(FHIRString {
                 value: Some("offline_access openid email profile fhirUser user/*.*".to_string()),
                 ..Default::default()
             })),
             grantType: vec![
-                Box::new(FHIRCode {
-                    value: Some("authorization_code".to_string()),
-                    ..Default::default()
-                }),
-                Box::new(FHIRCode {
-                    value: Some("refresh_token".to_string()),
-                    ..Default::default()
-                }),
+                Box::new(ClientapplicationGrantType::Authorization_code(None)),
+                Box::new(ClientapplicationGrantType::Refresh_token(None)),
             ],
             redirectUri: Some(vec![Box::new(FHIRString {
                 value: Some(redirect_uri),
