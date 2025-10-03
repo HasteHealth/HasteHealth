@@ -129,7 +129,7 @@ impl<
               next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>) -> ServerMiddlewareOutput {
         let routes = self.routes.clone();
         Box::pin(async move {
-            let route = Arc::new(routes.iter().find(|r| (r.filter)(&context.request)).clone());
+            let route = routes.iter().find(|r| (r.filter)(&context.request));
             match route.as_ref() {
                 Some(route) => {
                     let context = route
