@@ -12,14 +12,12 @@ mod membership;
 mod operations;
 mod set_artifact_tenant;
 mod storage;
-mod validate_resourcetypes;
 
 pub use capabilities::*;
 pub use membership::*;
 pub use operations::*;
 pub use set_artifact_tenant::*;
 pub use storage::*;
-pub use validate_resourcetypes::*;
 
 pub type ServerMiddlewareState<Repository, Search, Terminology> =
     Arc<ClientState<Repository, Search, Terminology>>;

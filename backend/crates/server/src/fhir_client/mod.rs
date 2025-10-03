@@ -242,10 +242,26 @@ impl<
             ]),
         };
 
+        let auth_routes = Route {
+            filter: Box::new(|req: &FHIRRequest| match req {
+                FHIRRequest::InvokeInstance(_)
+                | FHIRRequest::InvokeType(_)
+                | FHIRRequest::InvokeSystem(_) => false,
+                _ => request_to_resource_type(req)
+                    .map_or(false, |rt| AUTHENTICATION_TYPES.contains(rt)),
+            }),
+            middleware: Middleware::new(vec![
+                Box::new(MembershipTableAlterationMiddleware::new()),
+                Box::new(middleware::SetArtifactTenantMiddleware::new()),
+                Box::new(middleware::StorageMiddleware::new()),
+            ]),
+        };
+
         let route_middleware = RouterMiddleware::new(Arc::new(vec![
             clinical_resources_route,
             artifact_routes,
             operation_invocation_routes,
+            auth_routes,
         ]));
 
         FHIRServerClient {
