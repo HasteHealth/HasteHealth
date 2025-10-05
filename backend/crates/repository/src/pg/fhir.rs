@@ -181,12 +181,13 @@ impl FHIRRepository for PGConnection {
         }
     }
 
-    async fn commit(self) -> Result<(), OperationOutcomeError> {
+    async fn commit(&self) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
             PGConnection::PgTransaction(tx) => {
                 let conn = Mutex::into_inner(
-                    Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
+                    Arc::try_unwrap(tx.clone())
+                        .map_err(|_e| StoreError::FailedCommitTransaction)?,
                 );
 
                 // Handle PgConnection connection
@@ -195,12 +196,13 @@ impl FHIRRepository for PGConnection {
             }
         }
     }
-    async fn rollback(self) -> Result<(), OperationOutcomeError> {
+    async fn rollback(&self) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
             PGConnection::PgTransaction(tx) => {
                 let conn = Mutex::into_inner(
-                    Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
+                    Arc::try_unwrap(tx.clone())
+                        .map_err(|_e| StoreError::FailedCommitTransaction)?,
                 );
 
                 // Handle PgConnection connection

@@ -1,5 +1,5 @@
 use crate::fhir_client::{
-    ServerCTX,
+    ClientState, ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
@@ -43,8 +43,18 @@ impl<
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput {
         Box::pin(async move {
+            let transaction_client = Arc::new(state.repo.transaction().await?);
+
+            let transaction_state = Arc::new(ClientState {
+                repo: transaction_client.clone(),
+                search: state.search.clone(),
+                terminology: state.terminology.clone(),
+            });
+
             if let Some(next) = next {
-                next(state, context).await
+                let res = next(transaction_state, context).await;
+                transaction_client.commit().await?;
+                res
             } else {
                 Err(OperationOutcomeError::fatal(
                     IssueType::Exception(None),
