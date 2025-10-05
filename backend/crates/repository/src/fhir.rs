@@ -76,6 +76,6 @@ pub trait FHIRRepository: Sized {
         &'a self,
     ) -> impl Future<Output = Result<Self, OperationOutcomeError>> + Send;
 
-    fn commit(&self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
-    fn rollback(&self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+    fn commit(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+    fn rollback(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
 }

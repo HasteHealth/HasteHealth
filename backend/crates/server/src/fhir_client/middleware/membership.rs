@@ -45,16 +45,26 @@ impl<
         Box::pin(async move {
             let transaction_client = Arc::new(state.repo.transaction().await?);
 
-            let transaction_state = Arc::new(ClientState {
-                repo: transaction_client.clone(),
-                search: state.search.clone(),
-                terminology: state.terminology.clone(),
-            });
-
             if let Some(next) = next {
-                let res = next(transaction_state, context).await;
-                transaction_client.commit().await?;
-                res
+                let mut res = context;
+                {
+                    let transaction_state = Arc::new(ClientState {
+                        repo: transaction_client.clone(),
+                        search: state.search.clone(),
+                        terminology: state.terminology.clone(),
+                    });
+                    res = next(transaction_state, res).await?;
+                };
+                Arc::try_unwrap(transaction_client)
+                    .map_err(|_e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "Failed to unwrap transaction client".to_string(),
+                        )
+                    })?
+                    .commit()
+                    .await?;
+                Ok(res)
             } else {
                 Err(OperationOutcomeError::fatal(
                     IssueType::Exception(None),
