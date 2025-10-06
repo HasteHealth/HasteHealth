@@ -59,7 +59,7 @@ fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
             r#"
                 SELECT tenant, project, user_id, role as "role: MembershipRole"
                 FROM memberships
-                WHERE tenant = $1 AND user_id = $2 AND project = $3
+                WHERE tenant = $1 AND project = $2 AND user_id = $3
             "#,
             tenant.as_ref(),
             project.as_ref(),
