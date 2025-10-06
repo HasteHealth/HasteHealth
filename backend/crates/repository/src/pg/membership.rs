@@ -108,12 +108,12 @@ fn update_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
 
         let query = query_builder.build_query_as();
 
-        let user = query
+        let membership = query
             .fetch_one(&mut *conn)
             .await
             .map_err(StoreError::SQLXError)?;
 
-        Ok(user)
+        Ok(membership)
     }
 }
 
