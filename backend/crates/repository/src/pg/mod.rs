@@ -7,6 +7,7 @@ use crate::Repository;
 
 mod authorization_code;
 mod fhir;
+mod membership;
 mod tenant;
 mod user;
 
