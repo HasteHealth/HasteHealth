@@ -21,7 +21,7 @@ fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder = QueryBuilder::new(
             r#"
-                INSERT INTO users(tenant, project, user_id, role) VALUES (
+                INSERT INTO memberships(tenant, project, user_id, role) VALUES (
             "#,
         );
 
