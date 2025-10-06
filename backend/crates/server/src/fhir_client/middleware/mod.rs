@@ -8,11 +8,13 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 mod capabilities;
+mod membership;
 mod operations;
 mod set_artifact_tenant;
 mod storage;
 
 pub use capabilities::*;
+pub use membership::*;
 pub use operations::*;
 pub use set_artifact_tenant::*;
 pub use storage::*;
