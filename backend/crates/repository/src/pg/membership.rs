@@ -1,57 +1,106 @@
 use crate::{
     admin::ProjectAuthAdmin,
-    pg::PGConnection,
-    types::membership::{CreateMembership, MembershipSearchClaims, UpdateMembership},
+    pg::{PGConnection, StoreError},
+    types::{
+        ProjectId, TenantId,
+        membership::{
+            CreateMembership, Membership, MembershipRole, MembershipSearchClaims, UpdateMembership,
+        },
+    },
 };
-use oxidized_fhir_model::r4::generated::resources::Membership;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
+
+fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    membership: CreateMembership,
+) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let mut query_builder = QueryBuilder::new(
+            r#"
+                INSERT INTO users(tenant, project, user_id, role) VALUES (
+            "#,
+        );
+
+        let mut seperator = query_builder.separated(", ");
+
+        seperator
+            .push_bind(tenant.as_ref())
+            .push_bind(project.as_ref())
+            .push_bind(&membership.user_id)
+            .push_bind(membership.role as MembershipRole);
+
+        query_builder.push(r#") RETURNING tenant, project, user_id, role"#);
+
+        let query = query_builder.build_query_as();
+
+        let membership = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
+
+        Ok(membership)
+    }
+}
 
 impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
     for PGConnection
 {
-    fn create(
+    async fn create(
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        model: CreateMembership,
-    ) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send {
-        todo!()
+        new_membership: CreateMembership,
+    ) -> Result<Membership, OperationOutcomeError> {
+        match self {
+            PGConnection::PgPool(pool) => {
+                let res = create_membership(pool, tenant, project, new_membership).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+                let res = create_membership(&mut *tx, tenant, project, new_membership).await?;
+                Ok(res)
+            }
+        }
     }
 
-    fn read(
+    async fn read(
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
         id: &str,
-    ) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send {
+    ) -> Result<Membership, OperationOutcomeError> {
         todo!()
     }
 
-    fn update(
+    async fn update(
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
         model: UpdateMembership,
-    ) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send {
+    ) -> Result<Membership, OperationOutcomeError> {
         todo!()
     }
 
-    fn delete(
+    async fn delete(
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
         id: &str,
-    ) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send {
+    ) -> Result<Membership, OperationOutcomeError> {
         todo!()
     }
 
-    fn search(
+    async fn search(
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
         clauses: &MembershipSearchClaims,
-    ) -> impl Future<Output = Result<Vec<Membership>, OperationOutcomeError>> + Send {
+    ) -> Result<Vec<Membership>, OperationOutcomeError> {
         todo!()
     }
 }
