@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ProjectId, TenantId};
-
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct Membership {
     pub tenant: String,
@@ -11,12 +9,11 @@ pub struct Membership {
 }
 
 pub struct UpdateMembership {
+    pub user_id: String,
     pub role: MembershipRole,
 }
 
 pub struct MembershipSearchClaims {
-    pub tenant: Option<String>,
-    pub project: Option<String>,
     pub user_id: Option<String>,
     pub role: Option<MembershipRole>,
 }
