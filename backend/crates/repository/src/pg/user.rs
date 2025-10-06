@@ -158,15 +158,15 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             "#,
         );
 
-        let mut seperator = query_builder.separated(", ");
+        let mut update_clauses = query_builder.separated(", ");
 
         if let Some(provider_id) = model.provider_id {
-            seperator
+            update_clauses
                 .push(" provider_id = ")
                 .push_bind_unseparated(provider_id);
         }
 
-        seperator
+        update_clauses
             .push(" tenant = ")
             .push_bind_unseparated(tenant.as_ref())
             .push(" email = ")
@@ -177,11 +177,14 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             .push_bind_unseparated(model.method);
 
         if let Some(password) = model.password {
-            seperator
+            update_clauses
                 .push(" password = crypt(")
                 .push_bind_unseparated(password)
                 .push_unseparated(", gen_salt('bf'))");
         }
+
+        query_builder.push(" WHERE id = ");
+        query_builder.push_bind(model.id);
 
         query_builder.push(r#" RETURNING id, provider_id, email, role, method"#);
 

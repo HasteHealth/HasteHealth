@@ -46,6 +46,70 @@ fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
     }
 }
 
+fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    user_id: &'a str,
+) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let membership = sqlx::query_as!(
+            Membership,
+            r#"
+                SELECT tenant, project, user_id, role as "role: MembershipRole"
+                FROM memberships
+                WHERE tenant = $1 AND user_id = $2 AND project = $3
+            "#,
+            tenant.as_ref(),
+            project.as_ref(),
+            user_id
+        )
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(StoreError::SQLXError)?;
+
+        Ok(membership)
+    }
+}
+
+fn update_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    model: UpdateMembership,
+) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let mut query_builder = QueryBuilder::new(
+            r#"
+                UPDATE memberships SET 
+            "#,
+        );
+
+        let mut seperator = query_builder.separated(", ");
+
+        seperator
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref())
+            .push(" project = ")
+            .push_bind_unseparated(project.as_ref())
+            .push(" role = ")
+            .push_bind_unseparated(model.role);
+
+        query_builder.push(r#" RETURNING id, provider_id, email, role, method"#);
+
+        let query = query_builder.build_query_as();
+
+        let user = query
+            .fetch_one(&mut *conn)
+            .await
+            .map_err(StoreError::SQLXError)?;
+
+        Ok(user)
+    }
+}
+
 impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
     for PGConnection
 {
@@ -74,7 +138,17 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         project: &crate::types::ProjectId,
         id: &str,
     ) -> Result<Membership, OperationOutcomeError> {
-        todo!()
+        match self {
+            PGConnection::PgPool(pool) => {
+                let res = read_membership(pool, tenant, project, id).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut tx = tx.lock().await;
+                let res = read_membership(&mut *tx, tenant, project, id).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn update(
