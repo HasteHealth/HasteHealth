@@ -168,6 +168,13 @@ impl FHIRRepository for PGConnection {
         }
     }
 
+    fn in_transaction(&self) -> bool {
+        match self {
+            PGConnection::PgTransaction(_tx) => true,
+            _ => false,
+        }
+    }
+
     async fn transaction<'a>(&'a self) -> Result<Self, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
