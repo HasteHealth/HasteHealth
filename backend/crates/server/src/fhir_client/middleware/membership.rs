@@ -13,7 +13,7 @@ use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::Repository;
+use oxidized_repository::{Repository, admin::ProjectAuthAdmin, types::membership as m};
 use std::sync::Arc;
 
 async fn setup_transaction_context<
@@ -79,24 +79,31 @@ impl<
                     // Setup so can run a commit after.
                     repo_client = transaction_state.repo.clone();
 
-                    next(transaction_state.clone(), context).await
+                    let res = next(transaction_state.clone(), context).await?;
 
-                    // match &context.request {
-                    //     FHIRRequest::Create(_) => {
-                    //         TenantAuthAdmin::create(repo_client.as_ref(), &context.ctx.tenant, CreateUser{
+                    match &context.request {
+                        FHIRRequest::Create(_) => {
+                            let k = ProjectAuthAdmin::create(
+                                repo_client.as_ref(),
+                                &context.ctx.tenant,
+                                &context.ctx.project,
+                                m::CreateMembership {
+                                    role: m::MembershipRole::Member,
+                                    user_id: "asdf".to_string(),
+                                },
+                            )
+                            .await?;
 
-                    //         })
-                    //     }
-                    //     | FHIRRequest::DeleteInstance(_)
-                    //     | FHIRRequest::UpdateInstance(_)
-                    //     | FHIRRequest::ConditionalUpdate(_) => {
-                    //         transaction_state.repo.
-                    //     }
-                    //     _ => Ok(()),
-                    // }?;
+                            Ok(())
+                        }
+                        FHIRRequest::DeleteInstance(_)
+                        | FHIRRequest::UpdateInstance(_)
+                        | FHIRRequest::ConditionalUpdate(_) => Ok(()),
+                        _ => Ok(()),
+                    }?;
 
-                    // Ok(res)
-                }?;
+                    res
+                };
 
                 if repo_client.in_transaction() {
                     Arc::try_unwrap(repo_client)
@@ -109,6 +116,7 @@ impl<
                         .commit()
                         .await?;
                 }
+
                 Ok(res)
             } else {
                 Err(OperationOutcomeError::fatal(

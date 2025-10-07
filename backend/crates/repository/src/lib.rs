@@ -1,3 +1,5 @@
+use oxidized_fhir_model::r4::generated::resources::Membership;
+
 use crate::{
     admin::{Login, ProjectAuthAdmin, TenantAuthAdmin},
     fhir::FHIRRepository,
@@ -5,6 +7,7 @@ use crate::{
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
+        membership::{CreateMembership, UpdateMembership},
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
         user::{CreateUser, UpdateUser, User, UserSearchClauses},
     },
@@ -20,7 +23,7 @@ pub mod utilities;
 pub trait Repository:
     FHIRRepository
     + TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
-    + ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
+    + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
     + TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims>
     + TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser>
     + Login
