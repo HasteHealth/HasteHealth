@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::fhir_client::{ClientState, ServerCTX};
 
 use oxidized_fhir_client::{
