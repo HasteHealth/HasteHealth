@@ -1,11 +1,8 @@
-use crate::{
-    auth_n::session::user::get_user,
-    fhir_client::{
-        ClientState, ServerCTX,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+use crate::fhir_client::{
+    ClientState, ServerCTX,
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
     },
 };
 use oxidized_fhir_client::{
@@ -19,7 +16,11 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{Repository, admin::ProjectAuthAdmin, types::membership as m};
+use oxidized_repository::{
+    Repository,
+    admin::ProjectAuthAdmin,
+    types::membership::{self as m, CreateMembership},
+};
 use std::sync::Arc;
 
 async fn setup_transaction_context<
@@ -51,12 +52,17 @@ async fn setup_transaction_context<
 }
 
 fn get_user_id<'a>(membership: &'a Membership) -> Option<&'a str> {
-    if let Some(user_reference) = membership.user.reference.and_then(|r| r.value)
+    if let Some(user_reference) = membership
+        .user
+        .reference
+        .as_ref()
+        .and_then(|r| r.value.as_ref())
         && let Some(user_id) = user_reference.split('/').last()
     {
         Some(user_id)
+    } else {
+        None
     }
-    None
 }
 
 pub struct MembershipTableAlterationMiddleware {}
@@ -98,76 +104,75 @@ impl<
 
                     match res.response.as_ref() {
                         Some(FHIRResponse::Create(create_response)) => {
-                            if let Some(user_id) = get_user_id(membership) {
-                                let k = ProjectAuthAdmin::create(
+                            if let Resource::Membership(membership) = &create_response.resource
+                                && let Some(user_id) = get_user_id(membership)
+                            {
+                                ProjectAuthAdmin::create(
                                     repo_client.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
+                                    &res.ctx.tenant,
+                                    &res.ctx.project,
                                     m::CreateMembership {
                                         role: m::MembershipRole::Member,
-                                        user_id: user_id,
+                                        user_id: user_id.to_string(),
                                     },
                                 )
                                 .await?;
 
                                 Ok(())
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Membership resource must have a valid user reference."
+                                        .to_string(),
+                                ))
                             }
                         }
-                        FHIRResponse::DeleteInstance(delete_response) => {
-                            if let Some(user_id) = get_user_id(membership) {
-                                let k = ProjectAuthAdmin::delete(
+                        Some(FHIRResponse::DeleteInstance(delete_response)) => {
+                            if let Resource::Membership(membership) = &delete_response.resource
+                                && let Some(user_id) = get_user_id(membership)
+                            {
+                                ProjectAuthAdmin::<CreateMembership, _, _, _>::delete(
                                     repo_client.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
+                                    &res.ctx.tenant,
+                                    &res.ctx.project,
                                     user_id,
                                 )
                                 .await?;
 
                                 Ok(())
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Membership resource must have a valid user reference."
+                                        .to_string(),
+                                ))
                             }
                         }
-                        FHIRResponse::UpdateInstance(update_response) => {
-                            if let Some(user_id) = get_user_id(membership) {
-                                let k = ProjectAuthAdmin::update(
+                        Some(FHIRResponse::Update(update_response)) => {
+                            if let Resource::Membership(membership) = &update_response.resource
+                                && let Some(user_id) = get_user_id(membership)
+                            {
+                                ProjectAuthAdmin::update(
                                     repo_client.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
-                                    m::Membership {
-                                        role: membership
-                                            .role
-                                            .clone()
-                                            .unwrap_or(m::MembershipRole::Member),
+                                    &res.ctx.tenant,
+                                    &res.ctx.project,
+                                    m::UpdateMembership {
+                                        role: m::MembershipRole::Member,
                                         user_id: user_id.to_string(),
-                                        tenant: context.ctx.tenant.clone(),
-                                        project: context.ctx.project.clone(),
                                     },
                                 )
                                 .await?;
 
                                 Ok(())
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Membership resource must have a valid user reference."
+                                        .to_string(),
+                                ))
                             }
                         }
-                        FHIRResponse::ConditionalUpdate(_) => {
-                            if let Some(user_id) = get_user_id(membership) {
-                                let k = ProjectAuthAdmin::update(
-                                    repo_client.as_ref(),
-                                    &context.ctx.tenant,
-                                    &context.ctx.project,
-                                    m::Membership {
-                                        role: membership
-                                            .role
-                                            .clone()
-                                            .unwrap_or(m::MembershipRole::Member),
-                                        user_id: user_id.to_string(),
-                                        tenant: context.ctx.tenant.clone(),
-                                        project: context.ctx.project.clone(),
-                                    },
-                                )
-                                .await?;
 
-                                Ok(())
-                            }
-                        }
                         _ => Ok(()),
                     }?;
 
