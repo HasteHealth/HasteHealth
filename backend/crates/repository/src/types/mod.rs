@@ -15,7 +15,7 @@ pub enum SupportedFHIRVersions {
     R4,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Author {
     pub id: String,
     pub kind: String,

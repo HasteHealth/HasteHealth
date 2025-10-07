@@ -11,12 +11,14 @@ mod capabilities;
 mod membership;
 mod operations;
 mod set_artifact_tenant;
+mod set_project;
 mod storage;
 
 pub use capabilities::*;
 pub use membership::*;
 pub use operations::*;
 pub use set_artifact_tenant::*;
+pub use set_project::*;
 pub use storage::*;
 
 pub type ServerMiddlewareState<Repository, Search, Terminology> =
