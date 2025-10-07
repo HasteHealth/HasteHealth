@@ -5,6 +5,7 @@ use crate::{
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
+        membership::{CreateMembership, Membership, MembershipSearchClaims, UpdateMembership},
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
         user::{CreateUser, UpdateUser, User, UserSearchClauses},
     },
@@ -21,6 +22,7 @@ pub trait Repository:
     FHIRRepository
     + TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
     + ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
+    + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
     + TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims>
     + TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser>
     + Login

@@ -28,7 +28,8 @@ use oxidized_repository::{
     types::{
         ResourceId,
         authorization_code::{
-            AuthorizationCode, AuthorizationCodeSearchClaims, PKCECodeChallengeMethod,
+            AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
+            PKCECodeChallengeMethod,
         },
         user::UserRole,
     },
@@ -161,7 +162,13 @@ pub async fn token<
                 }
 
                 // Remove the code once valid.
-                ProjectAuthAdmin::delete(&state.repo, &tenant, &project, &code.code).await?;
+                ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _>::delete(
+                    &state.repo,
+                    &tenant,
+                    &project,
+                    &code.code,
+                )
+                .await?;
 
                 let token = jsonwebtoken::encode(
                     &Header::new(Algorithm::RS256),
