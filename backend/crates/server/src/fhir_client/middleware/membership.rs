@@ -13,7 +13,7 @@ use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{admin::TenantAuthAdmin, types::user::CreateUser, Repository};
+use oxidized_repository::Repository;
 use std::sync::Arc;
 
 async fn setup_transaction_context<
@@ -79,23 +79,23 @@ impl<
                     // Setup so can run a commit after.
                     repo_client = transaction_state.repo.clone();
 
-                    let res = next(transaction_state.clone(), context).await?;
+                    next(transaction_state.clone(), context).await
 
-                    match &context.request {
-                        FHIRRequest::Create(_) => {
-                            TenantAuthAdmin::create(repo_client.as_ref(), &context.ctx.tenant, CreateUser{
+                    // match &context.request {
+                    //     FHIRRequest::Create(_) => {
+                    //         TenantAuthAdmin::create(repo_client.as_ref(), &context.ctx.tenant, CreateUser{
 
-                            })
-                        }
-                        | FHIRRequest::DeleteInstance(_)
-                        | FHIRRequest::UpdateInstance(_)
-                        | FHIRRequest::ConditionalUpdate(_) => {
-                            transaction_state.repo.
-                        }
-                        _ => Ok(()),
-                    }?;
+                    //         })
+                    //     }
+                    //     | FHIRRequest::DeleteInstance(_)
+                    //     | FHIRRequest::UpdateInstance(_)
+                    //     | FHIRRequest::ConditionalUpdate(_) => {
+                    //         transaction_state.repo.
+                    //     }
+                    //     _ => Ok(()),
+                    // }?;
 
-                    Ok(res)
+                    // Ok(res)
                 }?;
 
                 if repo_client.in_transaction() {
