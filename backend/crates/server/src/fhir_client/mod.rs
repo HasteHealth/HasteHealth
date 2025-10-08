@@ -193,10 +193,17 @@ static ARTIFACT_TYPES: &[ResourceType] = &[
     ResourceType::SearchParameter,
 ];
 
-static AUTHENTICATION_TYPES: &[ResourceType] = &[ResourceType::Membership];
+static TENANT_AUTH_TYPES: &[ResourceType] = &[ResourceType::User, ResourceType::IdentityProvider];
+static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
 
-static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> =
-    LazyLock::new(|| [&AUTHENTICATION_TYPES[..], &ARTIFACT_TYPES[..]].concat());
+static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
+    [
+        &TENANT_AUTH_TYPES[..],
+        &PROJECT_AUTH_TYPES[..],
+        &ARTIFACT_TYPES[..],
+    ]
+    .concat()
+});
 
 fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {
     match request {
@@ -230,7 +237,6 @@ impl<
                 | FHIRRequest::InvokeType(_)
                 | FHIRRequest::InvokeSystem(_)
                 | FHIRRequest::Capabilities => false,
-
                 _ => {
                     if let Some(resource_type) = request_to_resource_type(req) {
                         !SPECIAL_TYPES.contains(&resource_type)
@@ -271,17 +277,32 @@ impl<
             ]),
         };
 
-        let auth_routes = Route {
+        let tenant_auth_routes = Route {
+            filter: Box::new(|req: &FHIRRequest| match req {
+                FHIRRequest::InvokeInstance(_)
+                | FHIRRequest::InvokeType(_)
+                | FHIRRequest::InvokeSystem(_) => false,
+                _ => {
+                    request_to_resource_type(req).map_or(false, |rt| TENANT_AUTH_TYPES.contains(rt))
+                }
+            }),
+            middleware: Middleware::new(vec![
+                Box::new(middleware::SetProjectMiddleware::new(ProjectId::System)),
+                Box::new(middleware::UserTableAlterationMiddleware::new()),
+                Box::new(middleware::StorageMiddleware::new()),
+            ]),
+        };
+
+        let project_auth_routes = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
                 FHIRRequest::InvokeInstance(_)
                 | FHIRRequest::InvokeType(_)
                 | FHIRRequest::InvokeSystem(_) => false,
                 _ => request_to_resource_type(req)
-                    .map_or(false, |rt| AUTHENTICATION_TYPES.contains(rt)),
+                    .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
             }),
             middleware: Middleware::new(vec![
                 Box::new(middleware::MembershipTableAlterationMiddleware::new()),
-                Box::new(middleware::SetArtifactTenantMiddleware::new()),
                 Box::new(middleware::StorageMiddleware::new()),
             ]),
         };
@@ -290,7 +311,9 @@ impl<
             clinical_resources_route,
             artifact_routes,
             operation_invocation_routes,
-            auth_routes,
+            // Authentication routes.
+            tenant_auth_routes,
+            project_auth_routes,
         ]));
 
         FHIRServerClient {

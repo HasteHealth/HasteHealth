@@ -11,7 +11,7 @@ use crate::{
     utilities::generate_id,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{Acquire, Execute, Postgres, QueryBuilder};
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
