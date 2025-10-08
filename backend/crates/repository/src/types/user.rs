@@ -1,3 +1,4 @@
+use oxidized_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
@@ -11,9 +12,9 @@ pub struct User {
 
 pub struct UpdateUser {
     pub id: String,
-    pub email: String,
-    pub role: UserRole,
-    pub method: AuthMethod,
+    pub email: Option<String>,
+    pub role: Option<UserRole>,
+    pub method: Option<AuthMethod>,
     pub provider_id: Option<String>,
     pub password: Option<String>,
 }
@@ -34,6 +35,7 @@ pub struct UserSearchClauses {
 }
 
 pub struct CreateUser {
+    pub id: String,
     pub email: String,
     pub role: UserRole,
     pub method: AuthMethod,
@@ -56,4 +58,15 @@ pub enum UserRole {
     Owner,
     Admin,
     Member,
+}
+
+impl From<FHIRUserRole> for UserRole {
+    fn from(role: FHIRUserRole) -> Self {
+        match role {
+            FHIRUserRole::Owner(_) => UserRole::Owner,
+            FHIRUserRole::Admin(_) => UserRole::Admin,
+            FHIRUserRole::Member(_) => UserRole::Member,
+            FHIRUserRole::Null(_) => UserRole::Member,
+        }
+    }
 }

@@ -1,0 +1,61 @@
+{
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/UserRole",
+            "resource": {
+                "id": "user-role-codesystem",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/UserRole",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "UserRole",
+                "title": "UserRole",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Grant types allowed.",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/UserRole",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "owner",
+                        "display": "Owner"
+                    },
+                    {
+                        "code": "admin",
+                        "display": "Super Admin"
+                    },
+                    {
+                        "code": "member",
+                        "display": "Member"
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/UserRole",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "user-role",
+                "url": "https://oxidized-health.app/fhir/ValueSet/UserRole",
+                "version": "4.0.1",
+                "name": "UserRole",
+                "title": "UserRole",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Grant Types allowed.",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/UserRole"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

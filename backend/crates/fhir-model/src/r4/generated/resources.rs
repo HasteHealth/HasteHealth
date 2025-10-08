@@ -338,7 +338,7 @@ pub struct User {
     pub name: Option<Box<HumanName>>,
     #[primitive]
     #[doc = ""]
-    pub role: Box<FHIRCode>,
+    pub role: Box<terminology::UserRole>,
     #[doc = ""]
     pub federated: Option<Box<Reference>>,
 }

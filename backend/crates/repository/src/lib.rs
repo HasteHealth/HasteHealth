@@ -21,10 +21,10 @@ pub mod utilities;
 pub trait Repository:
     FHIRRepository
     + TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
-    + ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
-    + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
     + TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims>
     + TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser>
+    + ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
+    + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
     + Login
 {
 }
