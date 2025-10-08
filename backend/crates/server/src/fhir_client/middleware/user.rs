@@ -4,13 +4,14 @@ use crate::fhir_client::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
     },
+    utilities::setup_transaction_context,
 };
 use oxidized_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
 use oxidized_fhir_model::r4::generated::{
-    resources::{Membership, Resource},
+    resources::{Membership, Resource, User},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -21,50 +22,23 @@ use oxidized_repository::{
     admin::TenantAuthAdmin,
     types::{
         membership::{self as m, CreateMembership},
-        user::CreateUser,
+        user::{AuthMethod, CreateUser},
     },
 };
 use std::sync::Arc;
 
-async fn setup_transaction_context<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    request: &FHIRRequest,
-    state: ServerMiddlewareState<Repo, Search, Terminology>,
-) -> Result<ServerMiddlewareState<Repo, Search, Terminology>, OperationOutcomeError> {
-    match request {
-        FHIRRequest::Create(_)
-        | FHIRRequest::DeleteInstance(_)
-        | FHIRRequest::UpdateInstance(_)
-        | FHIRRequest::ConditionalUpdate(_) => {
-            let transaction_client = Arc::new(state.repo.transaction().await?);
-            Ok(Arc::new(ClientState {
-                repo: transaction_client.clone(),
-                search: state.search.clone(),
-                terminology: state.terminology.clone(),
-            }))
-        }
-        FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => Ok(state),
-        _ => Err(OperationOutcomeError::fatal(
-            IssueType::NotSupported(None),
-            "Request type not supported for membership middleware.".to_string(),
-        )),
-    }
+fn get_provider_id(user: &User) -> Option<String> {
+    user.federated
+        .as_ref()
+        .and_then(|f| f.reference)
+        .and_then(|r| r.value)
+        .and_then(|s| s.split('/').last().map(|s| s.to_string()))
 }
 
-fn get_user_id<'a>(membership: &'a Membership) -> Option<&'a str> {
-    if let Some(user_reference) = membership
-        .user
-        .reference
-        .as_ref()
-        .and_then(|r| r.value.as_ref())
-        && let Some(user_id) = user_reference.split('/').last()
-    {
-        Some(user_id)
-    } else {
-        None
+fn get_user_method(user: &User) -> AuthMethod {
+    match get_provider_id(user) {
+        Some(_) => AuthMethod::OIDC,
+        None => AuthMethod::EmailPassword,
     }
 }
 
@@ -113,10 +87,10 @@ impl<
                                     &res.ctx.tenant,
                                     CreateUser {
                                         email: user.email,
-                                        role: user.role,
-                                        // method: ,
-                                        provider_id: todo!(),
-                                        password: todo!(),
+                                        role: user.role.into(),
+                                        method: get_user_method(user),
+                                        provider_id: get_provider_id(user),
+                                        password: None,
                                     },
                                 )
                                 .await?;
@@ -131,7 +105,7 @@ impl<
                             }
                         }
                         Some(FHIRResponse::DeleteInstance(delete_response)) => {
-                            if let Resource::Membership(membership) = &delete_response.resource
+                            if let Resource::User(user) = &delete_response.resource
                                 && let Some(user_id) = get_user_id(membership)
                             {
                                 ProjectAuthAdmin::<CreateMembership, _, _, _>::delete(
@@ -152,7 +126,7 @@ impl<
                             }
                         }
                         Some(FHIRResponse::Update(update_response)) => {
-                            if let Resource::Membership(membership) = &update_response.resource
+                            if let Resource::User(user) = &update_response.resource
                                 && let Some(user_id) = get_user_id(membership)
                             {
                                 ProjectAuthAdmin::update(

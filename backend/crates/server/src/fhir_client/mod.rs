@@ -23,6 +23,7 @@ use oxidized_repository::{
 use std::sync::{Arc, LazyLock};
 
 mod middleware;
+mod utilities;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {

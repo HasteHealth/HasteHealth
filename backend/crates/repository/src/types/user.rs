@@ -1,3 +1,4 @@
+use oxidized_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
@@ -56,4 +57,15 @@ pub enum UserRole {
     Owner,
     Admin,
     Member,
+}
+
+impl From<FHIRUserRole> for UserRole {
+    fn from(role: FHIRUserRole) -> Self {
+        match role {
+            FHIRUserRole::Owner => UserRole::Owner,
+            FHIRUserRole::Admin => UserRole::Admin,
+            FHIRUserRole::Member => UserRole::Member,
+            _ => UserRole::Member, // Default to Member for any unrecognized roles
+        }
+    }
 }
