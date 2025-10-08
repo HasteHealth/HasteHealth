@@ -8,7 +8,6 @@ use crate::{
             UserSearchClauses,
         },
     },
-    utilities::generate_id,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
@@ -90,7 +89,7 @@ fn create_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 
         seperator
             .push_bind(tenant.as_ref())
-            .push_bind(generate_id(None))
+            .push_bind(new_user.id)
             .push_bind(new_user.email)
             .push_bind(new_user.role as UserRole)
             .push_bind(new_user.method as AuthMethod);
