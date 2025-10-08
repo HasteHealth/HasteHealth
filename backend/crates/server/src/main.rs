@@ -13,7 +13,7 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
-    types::{ProjectId, TenantId, tenant::CreateTenant},
+    types::{ProjectId, TenantId, tenant::CreateTenant, user::UpdateUser},
 };
 use oxidized_server::{
     fhir_client::ServerCTX,
@@ -164,11 +164,9 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 tenant,
             } => {
                 let services = services::create_services(config).await?;
+                let tenant = TenantId::new(tenant.clone());
 
-                let ctx = Arc::new(ServerCTX::root(
-                    TenantId::new(tenant.clone()),
-                    ProjectId::System,
-                ));
+                let ctx = Arc::new(ServerCTX::root(tenant.clone(), ProjectId::System));
 
                 services
                     .fhir_client
@@ -185,6 +183,20 @@ async fn main() -> Result<(), OperationOutcomeError> {
                         }),
                     )
                     .await?;
+
+                TenantAuthAdmin::update(
+                    services.repo,
+                    tenant,
+                    UpdateUser {
+                        password: Some(password.clone()),
+                        id: None,
+                        email: None,
+                        role: None,
+                        method: None,
+                        provider_id: None,
+                    },
+                )
+                .await?;
 
                 Ok(())
             }
