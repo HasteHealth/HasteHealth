@@ -107,9 +107,7 @@ impl<
 
                     match res.response.as_ref() {
                         Some(FHIRResponse::Create(create_response)) => {
-                            if let Resource::User(user) = &create_response.resource
-                                && let Some(user_id) = get_user_id(membership)
-                            {
+                            if let Resource::User(user) = &create_response.resource {
                                 TenantAuthAdmin::create(
                                     repo_client.as_ref(),
                                     &res.ctx.tenant,
