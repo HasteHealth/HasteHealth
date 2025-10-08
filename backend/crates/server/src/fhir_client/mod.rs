@@ -311,7 +311,7 @@ impl<
             clinical_resources_route,
             artifact_routes,
             operation_invocation_routes,
-            // Authentication routes.
+            // Special Authentication routes.
             tenant_auth_routes,
             project_auth_routes,
         ]));
