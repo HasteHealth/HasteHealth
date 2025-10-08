@@ -133,9 +133,9 @@ impl<
                                     &res.ctx.tenant,
                                     UpdateUser {
                                         id: id.clone(),
-                                        email: email.clone(),
-                                        role: (*user.role).clone().into(),
-                                        method: get_user_method(user),
+                                        email: Some(email.clone()),
+                                        role: Some((*user.role).clone().into()),
+                                        method: Some(get_user_method(user)),
                                         provider_id: get_provider_id(user),
                                         password: None,
                                     },

@@ -168,7 +168,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
 
                 let ctx = Arc::new(ServerCTX::root(tenant.clone(), ProjectId::System));
 
-                services
+                let user = services
                     .fhir_client
                     .create(
                         ctx,
@@ -184,12 +184,17 @@ async fn main() -> Result<(), OperationOutcomeError> {
                     )
                     .await?;
 
+                let user_id = match user {
+                    Resource::User(user) => user.id.clone().unwrap(),
+                    _ => panic!("Created resource is not a User"),
+                };
+
                 TenantAuthAdmin::update(
-                    services.repo,
-                    tenant,
+                    &services.repo,
+                    &tenant,
                     UpdateUser {
+                        id: user_id,
                         password: Some(password.clone()),
-                        id: None,
                         email: None,
                         role: None,
                         method: None,
