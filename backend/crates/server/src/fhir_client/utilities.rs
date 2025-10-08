@@ -1,10 +1,11 @@
-use crate::fhir_client::middleware::ServerMiddlewareState;
+use crate::fhir_client::{ClientState, middleware::ServerMiddlewareState};
 use oxidized_fhir_client::request::FHIRRequest;
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
+use std::sync::Arc;
 
 pub async fn setup_transaction_context<
     Repo: Repository + Send + Sync + 'static,

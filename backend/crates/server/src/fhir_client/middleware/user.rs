@@ -11,7 +11,7 @@ use oxidized_fhir_client::{
     request::{FHIRRequest, FHIRResponse},
 };
 use oxidized_fhir_model::r4::generated::{
-    resources::{Membership, Resource, User},
+    resources::{Resource, User},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -20,18 +20,15 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::TenantAuthAdmin,
-    types::{
-        membership::{self as m, CreateMembership},
-        user::{AuthMethod, CreateUser},
-    },
+    types::user::{AuthMethod, CreateUser, UpdateUser},
 };
 use std::sync::Arc;
 
 fn get_provider_id(user: &User) -> Option<String> {
     user.federated
         .as_ref()
-        .and_then(|f| f.reference)
-        .and_then(|r| r.value)
+        .and_then(|f| f.reference.as_ref())
+        .and_then(|r| r.value.as_ref())
         .and_then(|s| s.split('/').last().map(|s| s.to_string()))
 }
 
@@ -81,13 +78,17 @@ impl<
 
                     match res.response.as_ref() {
                         Some(FHIRResponse::Create(create_response)) => {
-                            if let Resource::User(user) = &create_response.resource {
+                            if let Resource::User(user) = &create_response.resource
+                                && let Some(email) = user.email.value.as_ref()
+                                && let Some(id) = user.id.as_ref()
+                            {
                                 TenantAuthAdmin::create(
                                     repo_client.as_ref(),
                                     &res.ctx.tenant,
                                     CreateUser {
-                                        email: user.email,
-                                        role: user.role.into(),
+                                        id: id.clone(),
+                                        email: email.clone(),
+                                        role: (*user.role).clone().into(),
                                         method: get_user_method(user),
                                         provider_id: get_provider_id(user),
                                         password: None,
@@ -99,20 +100,18 @@ impl<
                             } else {
                                 Err(OperationOutcomeError::fatal(
                                     IssueType::Invalid(None),
-                                    "Membership resource must have a valid user reference."
-                                        .to_string(),
+                                    "User resource is invalid.".to_string(),
                                 ))
                             }
                         }
                         Some(FHIRResponse::DeleteInstance(delete_response)) => {
                             if let Resource::User(user) = &delete_response.resource
-                                && let Some(user_id) = get_user_id(membership)
+                                && let Some(id) = user.id.as_ref()
                             {
-                                ProjectAuthAdmin::<CreateMembership, _, _, _>::delete(
+                                TenantAuthAdmin::<CreateUser, _, _, _>::delete(
                                     repo_client.as_ref(),
                                     &res.ctx.tenant,
-                                    &res.ctx.project,
-                                    user_id,
+                                    id,
                                 )
                                 .await?;
 
@@ -120,22 +119,25 @@ impl<
                             } else {
                                 Err(OperationOutcomeError::fatal(
                                     IssueType::Invalid(None),
-                                    "Membership resource must have a valid user reference."
-                                        .to_string(),
+                                    "User resource is invalid.".to_string(),
                                 ))
                             }
                         }
                         Some(FHIRResponse::Update(update_response)) => {
                             if let Resource::User(user) = &update_response.resource
-                                && let Some(user_id) = get_user_id(membership)
+                                && let Some(email) = user.email.value.as_ref()
+                                && let Some(id) = user.id.as_ref()
                             {
-                                ProjectAuthAdmin::update(
+                                TenantAuthAdmin::<CreateUser, _, _, _>::update(
                                     repo_client.as_ref(),
                                     &res.ctx.tenant,
-                                    &res.ctx.project,
-                                    m::UpdateMembership {
-                                        role: m::MembershipRole::Member,
-                                        user_id: user_id.to_string(),
+                                    UpdateUser {
+                                        id: id.clone(),
+                                        email: email.clone(),
+                                        role: (*user.role).clone().into(),
+                                        method: get_user_method(user),
+                                        provider_id: get_provider_id(user),
+                                        password: None,
                                     },
                                 )
                                 .await?;
@@ -144,8 +146,7 @@ impl<
                             } else {
                                 Err(OperationOutcomeError::fatal(
                                     IssueType::Invalid(None),
-                                    "Membership resource must have a valid user reference."
-                                        .to_string(),
+                                    "User resource is invalid.".to_string(),
                                 ))
                             }
                         }

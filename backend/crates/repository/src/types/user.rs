@@ -35,6 +35,7 @@ pub struct UserSearchClauses {
 }
 
 pub struct CreateUser {
+    pub id: String,
     pub email: String,
     pub role: UserRole,
     pub method: AuthMethod,
@@ -62,10 +63,10 @@ pub enum UserRole {
 impl From<FHIRUserRole> for UserRole {
     fn from(role: FHIRUserRole) -> Self {
         match role {
-            FHIRUserRole::Owner => UserRole::Owner,
-            FHIRUserRole::Admin => UserRole::Admin,
-            FHIRUserRole::Member => UserRole::Member,
-            _ => UserRole::Member, // Default to Member for any unrecognized roles
+            FHIRUserRole::Owner(_) => UserRole::Owner,
+            FHIRUserRole::Admin(_) => UserRole::Admin,
+            FHIRUserRole::Member(_) => UserRole::Member,
+            FHIRUserRole::Null(_) => UserRole::Member,
         }
     }
 }

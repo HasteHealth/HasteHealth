@@ -53,6 +53,34 @@ pub struct ServerCTX {
     pub author: Author,
 }
 
+impl ServerCTX {
+    pub fn new(
+        tenant: TenantId,
+        project: ProjectId,
+        fhir_version: SupportedFHIRVersions,
+        author: Author,
+    ) -> Self {
+        ServerCTX {
+            tenant,
+            project,
+            fhir_version,
+            author,
+        }
+    }
+
+    pub fn root(tenant: TenantId, project: ProjectId) -> Self {
+        ServerCTX {
+            tenant,
+            project,
+            fhir_version: SupportedFHIRVersions::R4,
+            author: Author {
+                id: "root".to_string(),
+                kind: "owner".to_string(),
+            },
+        }
+    }
+}
+
 struct ClientState<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,

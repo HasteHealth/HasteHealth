@@ -1,17 +1,22 @@
+use std::sync::Arc;
+
 use axum::{Router, ServiceExt, body::Body};
 use clap::{Parser, Subcommand};
 use oxidized_config::{Config, get_config};
+use oxidized_fhir_client::FHIRClient;
+use oxidized_fhir_model::r4::generated::{
+    resources::{Resource, ResourceType, User},
+    terminology::UserRole,
+    types::FHIRString,
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
-    types::{
-        TenantId,
-        tenant::CreateTenant,
-        user::{AuthMethod, CreateUser, UserRole},
-    },
+    types::{ProjectId, TenantId, tenant::CreateTenant},
 };
 use oxidized_server::{
+    fhir_client::ServerCTX,
     load_artifacts, server,
     services::{self, get_pool},
 };
@@ -159,17 +164,25 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 tenant,
             } => {
                 let services = services::create_services(config).await?;
+
+                let ctx = Arc::new(ServerCTX::root(
+                    TenantId::new(tenant.clone()),
+                    ProjectId::System,
+                ));
+
                 services
-                    .repo
+                    .fhir_client
                     .create(
-                        &TenantId::new(tenant.clone()),
-                        CreateUser {
-                            role: UserRole::Admin,
-                            email: email.clone(),
-                            password: Some(password.clone()),
-                            provider_id: None,
-                            method: AuthMethod::EmailPassword,
-                        },
+                        ctx,
+                        ResourceType::User,
+                        Resource::User(User {
+                            role: Box::new(UserRole::Admin(None)),
+                            email: Box::new(FHIRString {
+                                value: Some(email.clone()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
                     )
                     .await?;
 
