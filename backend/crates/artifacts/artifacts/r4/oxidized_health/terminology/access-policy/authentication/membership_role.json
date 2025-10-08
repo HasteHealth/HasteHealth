@@ -20,10 +20,6 @@
         "content": "complete",
         "concept": [
           {
-            "code": "owner",
-            "display": "Owner"
-          },
-          {
             "code": "admin",
             "display": "Super Admin"
           },

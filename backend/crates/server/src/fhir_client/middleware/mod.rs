@@ -14,6 +14,7 @@ mod operations;
 mod set_artifact_tenant;
 mod set_project;
 mod storage;
+mod user;
 
 pub use capabilities::*;
 pub use membership::*;
@@ -21,6 +22,7 @@ pub use operations::*;
 pub use set_artifact_tenant::*;
 pub use set_project::*;
 pub use storage::*;
+pub use user::*;
 
 pub type ServerMiddlewareState<Repository, Search, Terminology> =
     Arc<ClientState<Repository, Search, Terminology>>;
