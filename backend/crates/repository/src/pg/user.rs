@@ -166,15 +166,21 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                 .push_bind_unseparated(provider_id);
         }
 
-        update_clauses
-            .push(" tenant = ")
-            .push_bind_unseparated(tenant.as_ref())
-            .push(" email = ")
-            .push_bind_unseparated(model.email)
-            .push(" role = ")
-            .push_bind_unseparated(model.role)
-            .push(" method = ")
-            .push_bind_unseparated(model.method);
+        if let Some(email) = model.email.as_ref() {
+            update_clauses
+                .push(" email = ")
+                .push_bind_unseparated(email);
+        }
+
+        if let Some(role) = model.role.as_ref() {
+            update_clauses.push(" role = ").push_bind_unseparated(role);
+        }
+
+        if let Some(method) = model.method.as_ref() {
+            update_clauses
+                .push(" method = ")
+                .push_bind_unseparated(method);
+        }
 
         if let Some(password) = model.password {
             update_clauses
@@ -182,6 +188,10 @@ fn update_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                 .push_bind_unseparated(password)
                 .push_unseparated(", gen_salt('bf'))");
         }
+
+        update_clauses
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref());
 
         query_builder.push(" WHERE id = ");
         query_builder.push_bind(model.id);

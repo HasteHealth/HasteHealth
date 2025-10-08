@@ -12,9 +12,9 @@ pub struct User {
 
 pub struct UpdateUser {
     pub id: String,
-    pub email: String,
-    pub role: UserRole,
-    pub method: AuthMethod,
+    pub email: Option<String>,
+    pub role: Option<UserRole>,
+    pub method: Option<AuthMethod>,
     pub provider_id: Option<String>,
     pub password: Option<String>,
 }
