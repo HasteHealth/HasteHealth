@@ -2,7 +2,8 @@ use crate::{
     admin::TenantAuthAdmin,
     pg::{PGConnection, StoreError},
     types::{
-        TenantId,
+        ProjectId, SupportedFHIRVersions,
+        project::{CreateProject, Project},
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
     },
     utilities::generate_id,
@@ -10,24 +11,26 @@ use crate::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
-fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
-    tenant: CreateTenant,
-) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
+    project: CreateProject,
+) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let id = tenant.id.unwrap_or(TenantId::new(generate_id(None)));
-        let tenant = sqlx::query_as!(
-            Tenant,
-            "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id, subscription_tier",
+        let id = project.id.unwrap_or(ProjectId::new(generate_id(None)));
+
+        let project = sqlx::query_as!(
+            Project,
+            r#"INSERT INTO project (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            project.tenant.as_ref(),
             id.as_ref(),
-            tenant.subscription_tier.unwrap_or("free".to_string())
+            project.fhir_version as SupportedFHIRVersions,
         )
         .fetch_one(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(tenant)
+        Ok(project)
     }
 }
 
