@@ -21,9 +21,9 @@
     }
   ],
   "scripts": {
-    "minify": "yarn node ../../../packages/cli/lib/oxidized-health.js minimize artifacts -d definitions",
-    "generate-index-nonmin": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file --extension .json -p . -r definitions --ignore \\*.min.json",
-    "generate-index": "yarn node ../../../packages/cli/lib/oxidized-health.js generate index-file --extension .min.json -p . -r definitions",
+    "minify": "yarn node ../../../packages/cli/lib/oxidizedhealth.js minimize artifacts -d definitions",
+    "generate-index-nonmin": "yarn node ../../../packages/cli/lib/oxidizedhealth.js generate index-file --extension .json -p . -r definitions --ignore \\*.min.json",
+    "generate-index": "yarn node ../../../packages/cli/lib/oxidizedhealth.js generate index-file --extension .min.json -p . -r definitions",
     "fix": "yarn node ./fix.mjs",
     "publish": "yarn npm publish --access public --tolerate-republish"
   },

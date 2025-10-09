@@ -62,7 +62,7 @@
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/profiling/resource/oxidized-health-subscription.json",
+      "filename": "definitions/oxidized-health/profiling/resource/oxidizedhealth-subscription.json",
       "resourceType": "StructureDefinition"
     },
     {
@@ -158,19 +158,15 @@
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/access-policy-v2.json",
+      "filename": "definitions/oxidized-health/structuredefinition/access_policy_v2.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/access-policy.json",
+      "filename": "definitions/oxidized-health/structuredefinition/client_application.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/client-application.json",
-      "resourceType": "StructureDefinition"
-    },
-    {
-      "filename": "definitions/oxidized-health/structuredefinition/identity-provider.json",
+      "filename": "definitions/oxidized-health/structuredefinition/identity_provider.json",
       "resourceType": "StructureDefinition"
     },
     {
@@ -178,11 +174,11 @@
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/message-broker.json",
+      "filename": "definitions/oxidized-health/structuredefinition/project.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/message-topic.json",
+      "filename": "definitions/oxidized-health/structuredefinition/user.json",
       "resourceType": "StructureDefinition"
     },
     {
@@ -331,6 +327,14 @@
     },
     {
       "filename": "definitions/oxidized-health/terminology/identity-provider/status.json",
+      "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/oxidized-health/terminology/supportedFhirVersion.json",
+      "resourceType": "CodeSystem"
+    },
+    {
+      "filename": "definitions/oxidized-health/terminology/supportedFhirVersion.json",
       "resourceType": "ValueSet"
     }
   ]

@@ -1,0 +1,157 @@
+{
+    "resourceType": "StructureDefinition",
+    "id": "User",
+    "url": "https://oxidized-health.com/StructureDefinition/User",
+    "version": "4.0.1",
+    "name": "User",
+    "status": "active",
+    "publisher": "oxidized-health",
+    "fhirVersion": "4.0.1",
+    "kind": "resource",
+    "abstract": false,
+    "type": "User",
+    "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Resource",
+    "description": "A User resource is used to represent a user in a tenant. The resource contains information about the user's role in the organization, the user's email address, and whether the user's email address has been verified.",
+    "derivation": "specialization",
+    "snapshot": {
+        "element": [
+            {
+                "id": "User",
+                "path": "User",
+                "min": 0,
+                "max": "*",
+                "base": {
+                    "path": "User",
+                    "min": 0,
+                    "max": "*"
+                },
+                "isModifier": false,
+                "isSummary": false
+            },
+            {
+                "id": "User.id",
+                "path": "User.id",
+                "short": "Logical id of this artifact",
+                "definition": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+                "comment": "The only time that a resource does not have an id is when it is being submitted to the server using a create operation.",
+                "min": 0,
+                "max": "1",
+                "base": {
+                    "path": "Resource.id",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+                                "valueUrl": "string"
+                            }
+                        ],
+                        "code": "http://hl7.org/fhirpath/System.String"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "User.meta",
+                "path": "User.meta",
+                "short": "Metadata about the resource",
+                "definition": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+                "min": 0,
+                "max": "1",
+                "base": {
+                    "path": "Resource.meta",
+                    "min": 0,
+                    "max": "1"
+                },
+                "type": [
+                    {
+                        "code": "Meta"
+                    }
+                ],
+                "constraint": [
+                    {
+                        "key": "ele-1",
+                        "severity": "error",
+                        "human": "All FHIR elements must have a @value or children",
+                        "expression": "hasValue() or (children().count() > id.count())",
+                        "xpath": "@value|f:*|h:div",
+                        "source": "http://hl7.org/fhir/StructureDefinition/Element"
+                    }
+                ],
+                "isModifier": false,
+                "isSummary": true
+            },
+            {
+                "id": "User.email",
+                "path": "User.email",
+                "short": "Users email address.",
+                "type": [
+                    {
+                        "code": "string"
+                    }
+                ],
+                "min": 1,
+                "max": "1"
+            },
+            {
+                "id": "User.emailVerified",
+                "path": "User.emailVerified",
+                "short": "Is Users email address verified.",
+                "type": [
+                    {
+                        "code": "boolean"
+                    }
+                ],
+                "min": 0,
+                "max": "1"
+            },
+            {
+                "id": "User.name",
+                "path": "User.name",
+                "short": "Users name",
+                "type": [
+                    {
+                        "code": "HumanName"
+                    }
+                ],
+                "min": 0,
+                "max": "1"
+            },
+            {
+                "id": "User.role",
+                "path": "User.role",
+                "short": "The Users role. Note that owner and superadmin roles are granted full access.",
+                "type": [
+                    {
+                        "code": "code"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/UserRole|4.0.1"
+                },
+                "min": 1,
+                "max": "1"
+            },
+            {
+                "id": "User.federated",
+                "path": "User.federated",
+                "short": "Is Users email address verified.",
+                "type": [
+                    {
+                        "code": "Reference",
+                        "targetProfile": [
+                            "https://oxidized-health.com/StructureDefinition/IdentityProvider"
+                        ]
+                    }
+                ],
+                "min": 0,
+                "max": "1"
+            }
+        ]
+    }
+}

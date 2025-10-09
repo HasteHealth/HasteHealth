@@ -40,6 +40,7 @@ import ResourceEditor from "./views/ResourceEditor/index";
 import ResourceType from "./views/ResourceType";
 import Resources from "./views/Resources";
 import Settings from "./views/Settings";
+import Projects from "./views/Projects";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -81,7 +82,7 @@ function LoginWrapper() {
   );
 }
 
-function ServiceSetup({ children }: { children: React.ReactNode }) {
+function ServiceSetup() {
   const oxidizedHealth = useOxidizedHealth();
   const client = oxidizedHealth.isAuthenticated
     ? oxidizedHealth.client
@@ -94,7 +95,15 @@ function ServiceSetup({ children }: { children: React.ReactNode }) {
     }
   }, [setClient, oxidizedHealth.isAuthenticated, oxidizedHealth.client]);
 
-  return <>{c ? <>{children}</> : undefined}</>;
+  return (
+    <>
+      {c ? (
+        <>
+          <Outlet />
+        </>
+      ) : undefined}
+    </>
+  );
 }
 
 function deriveTenantID(): TenantId {
@@ -151,35 +160,43 @@ const router = createBrowserRouter([
                 path: "/no-workspace",
                 element: <EmptyWorkspace />,
               },
+
               {
                 path: "/",
-                element: (
-                  <ServiceSetup>
-                    <Root />
-                  </ServiceSetup>
-                ),
+                element: <ServiceSetup />,
                 children: [
-                  { id: "settings", path: "settings", element: <Settings /> },
-                  { id: "dashboard", path: "", element: <Dashboard /> },
+                  { id: "tenant", path: "/system", element: <Projects /> },
                   {
-                    id: "resources",
-                    path: "resources",
-                    element: <Resources />,
-                  },
-                  {
-                    id: "types",
-                    path: "resources/:resourceType",
-                    element: <ResourceType />,
-                  },
-                  {
-                    id: "instance",
-                    path: "resources/:resourceType/:id",
-                    element: <ResourceEditor />,
-                  },
-                  {
-                    id: "bundle-import",
-                    path: "bundle-import",
-                    element: <BundleImport />,
+                    path: "/:projectId",
+                    element: <ProjectRoot />,
+                    children: [
+                      {
+                        id: "settings",
+                        path: "settings",
+                        element: <Settings />,
+                      },
+                      { id: "dashboard", path: "", element: <Dashboard /> },
+                      {
+                        id: "resources",
+                        path: "resources",
+                        element: <Resources />,
+                      },
+                      {
+                        id: "types",
+                        path: "resources/:resourceType",
+                        element: <ResourceType />,
+                      },
+                      {
+                        id: "instance",
+                        path: "resources/:resourceType/:id",
+                        element: <ResourceEditor />,
+                      },
+                      {
+                        id: "bundle-import",
+                        path: "bundle-import",
+                        element: <BundleImport />,
+                      },
+                    ],
                   },
                 ],
               },
@@ -191,7 +208,7 @@ const router = createBrowserRouter([
   },
 ]);
 
-function Root() {
+function ProjectRoot() {
   const oxidizedHealth = useOxidizedHealth();
   const navigate = useNavigate();
   const matches = useMatches();
@@ -344,8 +361,6 @@ function Root() {
                       match.params.resourceType !== "AuditEvent" &&
                       match.params.resourceType !== "Membership" &&
                       match.params.resourceType !== "AccessPolicyV2" &&
-                      match.params.resourceType !== "MessageTopic" &&
-                      match.params.resourceType !== "MessageBroker" &&
                       match.params.resourceType !== "ClientApplication" &&
                       match.params.resourceType !== "IdentityProvider"
                   ) !== undefined
