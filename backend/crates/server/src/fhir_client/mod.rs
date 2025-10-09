@@ -288,7 +288,7 @@ impl<
             }),
             middleware: Middleware::new(vec![
                 Box::new(middleware::SetProjectMiddleware::new(ProjectId::System)),
-                Box::new(middleware::ProjectTableAlterationMiddleware::new()),
+                Box::new(middleware::UserTableAlterationMiddleware::new()),
                 Box::new(middleware::StorageMiddleware::new()),
             ]),
         };
