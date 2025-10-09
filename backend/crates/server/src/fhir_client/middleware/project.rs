@@ -12,7 +12,7 @@ use oxidized_fhir_client::{
 };
 use oxidized_fhir_model::r4::generated::{
     resources::{Resource, User},
-    terminology::IssueType,
+    terminology::{IssueType, SupportedFhirVersion},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -20,7 +20,10 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::TenantAuthAdmin,
-    types::user::{AuthMethod, CreateUser, UpdateUser},
+    types::{
+        SupportedFHIRVersions,
+        user::{AuthMethod, CreateUser, UpdateUser},
+    },
 };
 use std::sync::Arc;
 
@@ -63,11 +66,16 @@ impl<
 
                     match res.response.as_ref() {
                         Some(FHIRResponse::Create(create_response)) => {
-                            if let Resource::User(user) = &create_response.resource
-                                && let Some(email) = user.email.value.as_ref()
-                                && let Some(id) = user.id.as_ref()
+                            if let Resource::Project(project) = &create_response.resource
+                                && let Some(id) = project.id.as_ref()
                             {
-                                todo!("Implement project creation");
+                                let fhir_version = match &*project.fhirVersion {
+                                    SupportedFhirVersion::R4(_) => Ok(SupportedFHIRVersions::R4),
+                                    _ => Err(OperationOutcomeError::fatal(
+                                        IssueType::Invalid(None),
+                                        "Invalid FHIR Version".to_string(),
+                                    )),
+                                }?;
 
                                 Ok(())
                             } else {
