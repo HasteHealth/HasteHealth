@@ -128,7 +128,7 @@ pub async fn token<
             }
 
             let code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
-                &state.repo,
+                &*state.repo,
                 &tenant,
                 &project,
                 &AuthorizationCodeSearchClaims {
@@ -163,7 +163,7 @@ pub async fn token<
 
                 // Remove the code once valid.
                 ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _>::delete(
-                    &state.repo,
+                    &*state.repo,
                     &tenant,
                     &project,
                     &code.code,

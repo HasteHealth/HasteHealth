@@ -97,7 +97,7 @@ pub async fn authorize<
     })?;
 
     let authorzation_code = ProjectAuthAdmin::create(
-        &app_state.repo,
+        &*app_state.repo,
         &tenant,
         &project,
         CreateAuthorizationCode {
