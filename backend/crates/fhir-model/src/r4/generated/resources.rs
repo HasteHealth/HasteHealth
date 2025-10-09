@@ -130,6 +130,27 @@ pub struct Membership {
     oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
     oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
 )]
+#[fhir_serialize_type = "resource"]
+#[doc = ""]
+pub struct Project {
+    #[doc = "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes."]
+    pub id: Option<String>,
+    #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
+    pub meta: Option<Box<Meta>>,
+    #[doc = ""]
+    pub name: Option<Box<String>>,
+    #[primitive]
+    #[doc = ""]
+    pub fhirVersion: Box<terminology::SupportedFhirVersion>,
+}
+#[derive(
+    Clone,
+    Reflect,
+    Debug,
+    Default,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONSerialize,
+    oxidized_fhir_serialization_json :: derive :: FHIRJSONDeserialize,
+)]
 #[fhir_serialize_type = "complex"]
 #[doc = "The operation to retrieve the attribute."]
 pub struct AccessPolicyV2AttributeOperation {
@@ -27481,6 +27502,7 @@ pub struct VisionPrescription {
 pub enum Resource {
     IdentityProvider(IdentityProvider),
     Membership(Membership),
+    Project(Project),
     AccessPolicyV2(AccessPolicyV2),
     ClientApplication(ClientApplication),
     User(User),
@@ -27642,6 +27664,7 @@ pub enum ResourceTypeError {
 pub enum ResourceType {
     IdentityProvider,
     Membership,
+    Project,
     AccessPolicyV2,
     ClientApplication,
     User,
@@ -27803,6 +27826,9 @@ impl ResourceType {
             )),
             ResourceType::Membership => Ok(Resource::Membership(
                 oxidized_fhir_serialization_json::from_str::<Membership>(data)?,
+            )),
+            ResourceType::Project => Ok(Resource::Project(
+                oxidized_fhir_serialization_json::from_str::<Project>(data)?,
             )),
             ResourceType::AccessPolicyV2 => Ok(Resource::AccessPolicyV2(
                 oxidized_fhir_serialization_json::from_str::<AccessPolicyV2>(data)?,
@@ -28283,6 +28309,7 @@ impl AsRef<str> for ResourceType {
         match self {
             ResourceType::IdentityProvider => "IdentityProvider",
             ResourceType::Membership => "Membership",
+            ResourceType::Project => "Project",
             ResourceType::AccessPolicyV2 => "AccessPolicyV2",
             ResourceType::ClientApplication => "ClientApplication",
             ResourceType::User => "User",
@@ -28441,6 +28468,7 @@ impl TryFrom<String> for ResourceType {
         match s.as_str() {
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
             "Membership" => Ok(ResourceType::Membership),
+            "Project" => Ok(ResourceType::Project),
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "User" => Ok(ResourceType::User),
@@ -28604,6 +28632,7 @@ impl TryFrom<&str> for ResourceType {
         match s {
             "IdentityProvider" => Ok(ResourceType::IdentityProvider),
             "Membership" => Ok(ResourceType::Membership),
+            "Project" => Ok(ResourceType::Project),
             "AccessPolicyV2" => Ok(ResourceType::AccessPolicyV2),
             "ClientApplication" => Ok(ResourceType::ClientApplication),
             "User" => Ok(ResourceType::User),
