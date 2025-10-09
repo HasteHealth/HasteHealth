@@ -7,7 +7,6 @@ import {
   AccessPolicyV2,
   Bundle,
   IdentityProvider,
-  MessageTopic,
   OperationDefinition,
   Resource,
   ResourceType,
@@ -22,7 +21,7 @@ import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
 import AccessPolicyView from "./AccessPolicy";
 import IdentityProviderView from "./IdentityProvider";
-import MessageTopicView from "./MessageTopic";
+
 import OperationDefinitionView from "./OperationDefinition";
 import SubscriptionView from "./Subscription";
 
@@ -144,17 +143,6 @@ function ResourceEditorTabs() {
   }, [resourceType, id]);
 
   switch (resourceType) {
-    case "MessageTopic":
-      return (
-        <MessageTopicView
-          id={id as id}
-          resourceType={resourceType as ResourceType}
-          actions={actions}
-          resource={resource as MessageTopic}
-          structureDefinition={structureDefinition}
-          onChange={setResource}
-        />
-      );
     case "OperationDefinition":
       return (
         <OperationDefinitionView

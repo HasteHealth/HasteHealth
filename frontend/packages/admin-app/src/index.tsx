@@ -40,6 +40,7 @@ import ResourceEditor from "./views/ResourceEditor/index";
 import ResourceType from "./views/ResourceType";
 import Resources from "./views/Resources";
 import Settings from "./views/Settings";
+import Projects from "./views/Projects";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -160,7 +161,7 @@ const router = createBrowserRouter([
                 ),
                 children: [
                   { id: "settings", path: "settings", element: <Settings /> },
-                  { id: "dashboard", path: "", element: <Dashboard /> },
+                  { id: "dashboard", path: "", element: <Projects /> },
                   {
                     id: "resources",
                     path: "resources",
