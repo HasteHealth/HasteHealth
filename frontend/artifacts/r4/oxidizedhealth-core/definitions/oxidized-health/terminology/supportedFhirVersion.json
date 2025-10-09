@@ -1,0 +1,55 @@
+{
+    "resourceType": "Bundle",
+    "id": "supported-fhir-version",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/SupportedFHIRVersion",
+            "resource": {
+                "id": "supported-fhir-version",
+                "url": "https://oxidized-health.app/fhir/CodeSystem/SupportedFHIRVersion",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "SupportedFHIRVersion",
+                "title": "SupportedFHIRVersion",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Supported FHIR versions",
+                "caseSensitive": true,
+                "valueSet": "https://oxidized-health.app/fhir/ValueSet/SupportedFHIRVersion",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "r4",
+                        "display": "R4",
+                        "definition": "The FHIR version 4.0.1."
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/SupportedFHIRVersion",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "supported-fhir-version",
+                "url": "https://oxidized-health.app/fhir/ValueSet/SupportedFHIRVersion",
+                "version": "4.0.1",
+                "name": "SupportedFHIRVersion",
+                "title": "SupportedFHIRVersion",
+                "status": "active",
+                "experimental": true,
+                "publisher": "OxidizedHealth",
+                "description": "Supported FHIR versions",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://oxidized-health.app/fhir/CodeSystem/SupportedFHIRVersion"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

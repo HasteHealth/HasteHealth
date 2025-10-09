@@ -44754,110 +44754,6 @@ resourceType: "AccessPolicyV2"
   target?: Array<AccessPolicyV2Target>;
 }
 
-export interface AccessPolicyTarget {
-  /** 
-   * The target reference of the access policy applies to.
-   */
-  link: Reference;
-}
-export interface AccessPolicyAccessFhirParameter {
-  /** 
-   * The name of the FHIR parameter.
-   */
-  name: code;
-  /** 
-   * The name of the FHIR parameter.
-   */
-  _name?: Element
-  /** 
-   * The value of the FHIR parameter.
-   */
-  value: string;
-  /** 
-   * The value of the FHIR parameter.
-   */
-  _value?: Element
-}
-export interface AccessPolicyAccessFhir {
-  /** 
-   * The FHIR Method that is evaluated to determine if access is granted or denied.
-   */
-  method: code;
-  /** 
-   * The FHIR Method that is evaluated to determine if access is granted or denied.
-   */
-  _method?: Element
-  /** 
-   * FHIR resource types that are granted access.
-   */
-  resourceType?: Array<code>;
-  /** 
-   * FHIR resource types that are granted access.
-   */
-  _resourceType?: Array<Element>
-  /** 
-   * FHIR Parameters that are evaluated to determine if access is granted or denied.
-   */
-  parameter?: Array<AccessPolicyAccessFhirParameter>;
-}
-export interface AccessPolicyAccess {
-  /** 
-   * FHIR Based rules to determine if access is granted or denied.
-   */
-  fhir?: AccessPolicyAccessFhir;
-}
-export interface AccessPolicy {
-resourceType: "AccessPolicy"
-  /** 
-   * Logical id of this artifact
-   */
-  id?: id;
-  /** 
-   * Metadata about the resource
-   */
-  meta?: Meta;
-  /** 
-   * The name of the access policy.
-   */
-  name: string;
-  /** 
-   * The name of the access policy.
-   */
-  _name?: Element
-  /** 
-   * Unique identifier for the access policy.
-   */
-  code: code;
-  /** 
-   * Unique identifier for the access policy.
-   */
-  _code?: Element
-  /** 
-   * Description of the access policy.
-   */
-  description?: string;
-  /** 
-   * Description of the access policy.
-   */
-  _description?: Element
-  /** 
-   * The type of evaluation that is performed to determine if access is granted or denied.
-   */
-  type: code;
-  /** 
-   * The type of evaluation that is performed to determine if access is granted or denied.
-   */
-  _type?: Element
-  /** 
-   * Who the access policy applies to.
-   */
-  target?: Array<AccessPolicyTarget>;
-  /** 
-   * Access policy rules that are evaluated to determine if access is granted or denied.
-   */
-  access?: Array<AccessPolicyAccess>;
-}
-
 export interface ClientApplication {
 resourceType: "ClientApplication"
   /** 
@@ -45103,6 +44999,50 @@ resourceType: "Membership"
    */
   link?: Reference;
   /** 
+   * The user associated with this Membership.
+   */
+  user: Reference;
+  /** 
+   * Users name
+   */
+  name?: HumanName;
+}
+
+export interface Project {
+resourceType: "Project"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
+   * Projects name
+   */
+  name?: String;
+  /** 
+   * A Given projects fhir version.
+   */
+  fhirVersion: code;
+  /** 
+   * A Given projects fhir version.
+   */
+  _fhirVersion?: Element
+}
+
+export interface User {
+resourceType: "User"
+  /** 
+   * Logical id of this artifact
+   */
+  id?: id;
+  /** 
+   * Metadata about the resource
+   */
+  meta?: Meta;
+  /** 
    * Users email address.
    */
   email: string;
@@ -45123,107 +45063,17 @@ resourceType: "Membership"
    */
   name?: HumanName;
   /** 
-   * The Memberships role. Note that owner and superadmin roles are granted full access.
+   * The Users role. Note that owner and superadmin roles are granted full access.
    */
   role: code;
   /** 
-   * The Memberships role. Note that owner and superadmin roles are granted full access.
+   * The Users role. Note that owner and superadmin roles are granted full access.
    */
   _role?: Element
   /** 
    * Is Users email address verified.
    */
   federated?: Reference;
-}
-
-export interface MessageBrokerSecurity {
-  /** 
-   * The type of message broker security.
-   */
-  type: code;
-  /** 
-   * The type of message broker security.
-   */
-  _type?: Element
-  /** 
-   * Username for the message broker security.
-   */
-  username?: string;
-  /** 
-   * Username for the message broker security.
-   */
-  _username?: Element
-  /** 
-   * Password for the message broker security.
-   */
-  password?: string;
-  /** 
-   * Password for the message broker security.
-   */
-  _password?: Element
-}
-export interface MessageBroker {
-resourceType: "MessageBroker"
-  /** 
-   * Logical id of this artifact
-   */
-  id?: id;
-  /** 
-   * Metadata about the resource
-   */
-  meta?: Meta;
-  /** 
-   * Name of the message broker.
-   */
-  name: string;
-  /** 
-   * Name of the message broker.
-   */
-  _name?: Element
-  /** 
-   * The host for the message broker.
-   */
-  host: uri;
-  /** 
-   * The host for the message broker.
-   */
-  _host?: Element
-  /** 
-   * The type of message broker.
-   */
-  type: code;
-  /** 
-   * The type of message broker.
-   */
-  _type?: Element
-  /** 
-   * MessageBroker security.
-   */
-  security: MessageBrokerSecurity;
-}
-
-export interface MessageTopic {
-resourceType: "MessageTopic"
-  /** 
-   * Logical id of this artifact
-   */
-  id?: id;
-  /** 
-   * Metadata about the resource
-   */
-  meta?: Meta;
-  /** 
-   * Topic for the message.
-   */
-  topicId: code;
-  /** 
-   * Topic for the message.
-   */
-  _topicId?: Element
-  /** 
-   * The message broker for this topic.
-   */
-  broker: Reference;
 }
 export type ResourceMap = {
   Account: Account;
@@ -45373,12 +45223,11 @@ export type ResourceMap = {
   VerificationResult: VerificationResult;
   VisionPrescription: VisionPrescription;
   AccessPolicyV2: AccessPolicyV2;
-  AccessPolicy: AccessPolicy;
   ClientApplication: ClientApplication;
   IdentityProvider: IdentityProvider;
   Membership: Membership;
-  MessageBroker: MessageBroker;
-  MessageTopic: MessageTopic;
+  Project: Project;
+  User: User;
 }
 
 

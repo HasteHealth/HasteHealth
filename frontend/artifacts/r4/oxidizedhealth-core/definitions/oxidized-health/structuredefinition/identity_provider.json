@@ -5,7 +5,7 @@
     "version": "4.0.1",
     "name": "IdentityProvider",
     "status": "active",
-    "publisher": "OxidizedHealth",
+    "publisher": "oxidized-health",
     "fhirVersion": "4.0.1",
     "kind": "resource",
     "abstract": false,

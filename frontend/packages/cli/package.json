@@ -7,7 +7,7 @@
     "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
   },
   "bin": {
-    "oxidized-health": "lib/oxidized-health.js"
+    "oxidized-health": "lib/oxidizedhealth.js"
   },
   "types": "lib/oxidized-health.d.ts",
   "target": "node",
