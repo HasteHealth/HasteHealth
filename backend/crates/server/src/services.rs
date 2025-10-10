@@ -63,8 +63,8 @@ pub struct AppState<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > {
     pub terminology: Arc<Terminology>,
-    pub search: Search,
-    pub repo: Repo,
+    pub search: Arc<Search>,
+    pub repo: Arc<Repo>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub config: Box<dyn Config>,
 }
@@ -82,27 +82,26 @@ pub async fn create_services(
     OperationOutcomeError,
 > {
     let pool = get_pool(config.as_ref()).await;
-    let search_engine = oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
-        Arc::new(FPEngine::new()),
-        &config
-            .get("ELASTICSEARCH_URL")
-            .expect("ELASTICSEARCH_URL variable not set"),
-        config
-            .get("ELASTICSEARCH_USERNAME")
-            .expect("ELASTICSEARCH_USERNAME variable not set"),
-        config
-            .get("ELASTICSEARCH_PASSWORD")
-            .expect("ELASTICSEARCH_PASSWORD variable not set"),
-    )
-    .expect("Failed to create Elasticsearch client");
+    let search_engine = Arc::new(
+        oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
+            Arc::new(FPEngine::new()),
+            &config
+                .get("ELASTICSEARCH_URL")
+                .expect("ELASTICSEARCH_URL variable not set"),
+            config
+                .get("ELASTICSEARCH_USERNAME")
+                .expect("ELASTICSEARCH_USERNAME variable not set"),
+            config
+                .get("ELASTICSEARCH_PASSWORD")
+                .expect("ELASTICSEARCH_PASSWORD variable not set"),
+        )
+        .expect("Failed to create Elasticsearch client"),
+    );
 
-    let repo = PGConnection::PgPool(pool.clone());
+    let repo = Arc::new(PGConnection::PgPool(pool.clone()));
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new(
-        resolvers::remote::LRUCanonicalRemoteResolver::new(
-            Arc::new(repo.clone()),
-            Arc::new(search_engine.clone()),
-        ),
+        resolvers::remote::LRUCanonicalRemoteResolver::new(repo.clone(), search_engine.clone()),
     ));
 
     let shared_state = Arc::new(AppState {
@@ -110,11 +109,7 @@ pub async fn create_services(
         repo: repo.clone(),
         terminology: terminology.clone(),
         search: search_engine.clone(),
-        fhir_client: Arc::new(FHIRServerClient::new(
-            Arc::new(repo),
-            Arc::new(search_engine),
-            terminology,
-        )),
+        fhir_client: Arc::new(FHIRServerClient::new(repo, search_engine, terminology)),
     });
 
     Ok(shared_state)

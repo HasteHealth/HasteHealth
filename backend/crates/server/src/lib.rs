@@ -6,3 +6,4 @@ pub mod fhir_client;
 pub mod load_artifacts;
 pub mod server;
 pub mod services;
+pub mod tenants;

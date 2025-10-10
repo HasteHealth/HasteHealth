@@ -13,12 +13,13 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
-    types::{ProjectId, TenantId, tenant::CreateTenant, user::UpdateUser},
+    types::{ProjectId, TenantId, user::UpdateUser},
 };
 use oxidized_server::{
     fhir_client::ServerCTX,
     load_artifacts, server,
     services::{self, get_pool},
+    tenants::{SubscriptionTier, create_tenant},
 };
 
 /// Simple program to greet a person
@@ -66,7 +67,7 @@ enum TenantCommands {
         #[arg(short, long)]
         id: String,
         #[arg(short, long)]
-        subscription_tier: Option<String>,
+        subscription_tier: Option<SubscriptionTier>,
     },
 }
 
@@ -143,16 +144,13 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 subscription_tier,
             } => {
                 let services = services::create_services(config).await?;
-                services
-                    .repo
-                    .create(
-                        &TenantId::System,
-                        CreateTenant {
-                            id: Some(TenantId::new(id.clone())),
-                            subscription_tier: subscription_tier.clone(),
-                        },
-                    )
-                    .await?;
+                create_tenant(
+                    services,
+                    Some(id.clone()),
+                    id,
+                    &subscription_tier.clone().unwrap_or(SubscriptionTier::Free),
+                )
+                .await?;
 
                 Ok(())
             }
@@ -190,7 +188,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 };
 
                 TenantAuthAdmin::update(
-                    &services.repo,
+                    &*services.repo,
                     &tenant,
                     UpdateUser {
                         id: user_id,
