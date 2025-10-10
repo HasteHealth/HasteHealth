@@ -21,7 +21,8 @@ use oxidized_repository::{
     Repository,
     admin::TenantAuthAdmin,
     types::{
-        SupportedFHIRVersions,
+        ProjectId, SupportedFHIRVersions,
+        project::CreateProject,
         user::{AuthMethod, CreateUser, UpdateUser},
     },
 };
@@ -76,6 +77,17 @@ impl<
                                         "Invalid FHIR Version".to_string(),
                                     )),
                                 }?;
+
+                                TenantAuthAdmin::create(
+                                    repo_client.as_ref(),
+                                    &res.ctx.tenant,
+                                    CreateProject {
+                                        id: Some(ProjectId::new(id.to_string())),
+                                        tenant: res.ctx.tenant.clone(),
+                                        fhir_version,
+                                    },
+                                )
+                                .await?;
 
                                 Ok(())
                             } else {
