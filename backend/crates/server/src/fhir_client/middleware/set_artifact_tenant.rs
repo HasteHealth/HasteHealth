@@ -19,10 +19,10 @@ use oxidized_repository::{
 };
 use std::sync::Arc;
 
-pub struct SetArtifactTenantMiddleware {}
-impl SetArtifactTenantMiddleware {
+pub struct Middleware {}
+impl Middleware {
     pub fn new() -> Self {
-        SetArtifactTenantMiddleware {}
+        Middleware {}
     }
 }
 
@@ -37,7 +37,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for SetArtifactTenantMiddleware
+    > for Middleware
 {
     fn call(
         &self,

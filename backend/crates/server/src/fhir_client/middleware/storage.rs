@@ -100,10 +100,10 @@ fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
     }
 }
 
-pub struct StorageMiddleware {}
-impl StorageMiddleware {
+pub struct Middleware {}
+impl Middleware {
     pub fn new() -> Self {
-        StorageMiddleware {}
+        Middleware {}
     }
 }
 impl<
@@ -117,7 +117,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for StorageMiddleware
+    > for Middleware
 {
     fn call(
         &self,

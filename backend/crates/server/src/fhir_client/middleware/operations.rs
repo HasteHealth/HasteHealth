@@ -18,7 +18,7 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
 use std::sync::Arc;
 
-pub struct OperationMiddleware<
+pub struct Middleware<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -38,7 +38,7 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-> OperationMiddleware<Repo, Search, Terminology>
+> Middleware<Repo, Search, Terminology>
 {
     pub fn new() -> Self {
         let op_executor: OperationExecutor<
@@ -57,7 +57,7 @@ impl<
             },
         ));
 
-        OperationMiddleware {
+        Middleware {
             operations: Arc::new(vec![op_executor]),
         }
     }
@@ -74,7 +74,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for OperationMiddleware<Repo, Search, Terminology>
+    > for Middleware<Repo, Search, Terminology>
 {
     /// Sets tenant to search in system for artifact resources IE SDs etc..
     fn call(
