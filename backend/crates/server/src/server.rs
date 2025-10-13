@@ -60,6 +60,7 @@ async fn fhir_handler<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
+    claims: Arc<UserTokenClaims>,
     method: Method,
     uri: Uri,
     path: FHIRHandlerPath,
@@ -85,8 +86,8 @@ async fn fhir_handler<
             project: path.project,
             fhir_version: path.fhir_version,
             author: Author {
-                id: "anonymous".to_string(),
-                kind: "Membership".to_string(),
+                id: claims.sub.clone(),
+                kind: claims.resource_type.clone(),
             },
         });
 
@@ -107,13 +108,14 @@ async fn fhir_root_handler<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
-    _user: Extension<UserTokenClaims>,
+    Extension(user): Extension<Arc<UserTokenClaims>>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
     fhir_handler(
+        user,
         method,
         uri,
         FHIRHandlerPath {
@@ -134,12 +136,13 @@ async fn fhir_type_handler<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
+    Extension(user): Extension<Arc<UserTokenClaims>>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
-    fhir_handler(method, uri, path, state, body).await
+    fhir_handler(user, method, uri, path, state, body).await
 }
 
 async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeError> {

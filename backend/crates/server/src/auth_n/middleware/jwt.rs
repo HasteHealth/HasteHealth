@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 use axum::{extract::Request, http::StatusCode, middleware::Next, response::Response};
 use jsonwebtoken::Validation;
@@ -36,7 +36,7 @@ pub async fn token_verifcation(
 ) -> Result<Response, StatusCode> {
     match validate_jwt(&token) {
         Ok(claims) => {
-            request.extensions_mut().insert(claims);
+            request.extensions_mut().insert(Arc::new(claims));
             Ok(next.run(request).await)
         }
         Err(status_code) => Err(status_code),

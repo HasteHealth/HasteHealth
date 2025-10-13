@@ -1,6 +1,7 @@
 use axum::{Extension, extract::Request, middleware::Next, response::Response};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use std::sync::Arc;
 
 use crate::{
     auth_n::claims::UserTokenClaims,
@@ -11,7 +12,7 @@ pub async fn project_access(
     Tenant { tenant }: Tenant,
     Project { project }: Project,
     // run the `HeaderMap` extractor
-    Extension(claims): Extension<UserTokenClaims>,
+    Extension(claims): Extension<Arc<UserTokenClaims>>,
     // you can also add more extractors here but the last
     // extractor must implement `FromRequest` which
     // `Request` does

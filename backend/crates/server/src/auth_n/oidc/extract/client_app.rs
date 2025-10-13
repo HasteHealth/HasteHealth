@@ -22,7 +22,7 @@ use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
-    types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
+    types::{Author, AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId},
 };
 
 pub async fn find_client_app<
@@ -48,8 +48,8 @@ pub async fn find_client_app<
             project,
             fhir_version: SupportedFHIRVersions::R4,
             author: Author {
-                id: "anonymous".to_string(),
-                kind: "Membership".to_string(),
+                id: AuthorId::System,
+                kind: AuthorKind::System,
             },
         });
 

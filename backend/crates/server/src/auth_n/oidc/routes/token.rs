@@ -1,7 +1,7 @@
 use crate::{
     auth_n::{
         certificates::encoding_key,
-        claims::{UserResourceTypes, UserTokenClaims},
+        claims::UserTokenClaims,
         oidc::{
             extract::client_app::find_client_app,
             schemas::{self, token_body::OAuth2TokenBody},
@@ -26,7 +26,7 @@ use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
-        ResourceId,
+        AuthorId, AuthorKind,
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
             PKCECodeChallengeMethod,
@@ -173,7 +173,7 @@ pub async fn token<
                 let token = jsonwebtoken::encode(
                     &Header::new(Algorithm::RS256),
                     &UserTokenClaims {
-                        sub: ResourceId::new(code.user_id.clone()),
+                        sub: AuthorId::new(code.user_id.clone()),
                         exp: (chrono::Utc::now()
                             + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
                         .timestamp() as usize,
@@ -182,8 +182,8 @@ pub async fn token<
                         tenant: tenant,
                         project: Some(project),
                         user_role: UserRole::Member,
-                        user_id: Some(ResourceId::new(code.user_id.clone())),
-                        resource_type: UserResourceTypes::Membership,
+                        user_id: AuthorId::new(code.user_id.clone()),
+                        resource_type: AuthorKind::Membership,
                         access_policy_version_ids: vec![],
                     },
                     encoding_key(),

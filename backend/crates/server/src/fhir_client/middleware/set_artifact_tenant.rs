@@ -50,10 +50,7 @@ impl<
                 tenant: TenantId::System,
                 project: ProjectId::System,
                 fhir_version: context.ctx.fhir_version.clone(),
-                author: Author {
-                    id: "system".to_string(),
-                    kind: "admin".to_string(),
-                },
+                author: context.ctx.author.clone(),
             });
 
             context.ctx = ctx;
