@@ -21,7 +21,7 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 
         let project = sqlx::query_as!(
             Project,
-            r#"INSERT INTO project (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"INSERT INTO projects (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             project.tenant.as_ref(),
             id.as_ref(),
             project.fhir_version as SupportedFHIRVersions,
@@ -42,7 +42,7 @@ fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let project = sqlx::query_as!(
             Project,
-            r#"SELECT id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions" FROM project where id = $1"#,
+            r#"SELECT id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where id = $1"#,
             id
         )
         .fetch_one(&mut *conn)
@@ -61,7 +61,7 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let deleted_project = sqlx::query_as!(
             Project,
-            r#"DELETE FROM project WHERE id = $1 RETURNING id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"DELETE FROM projects WHERE id = $1 RETURNING id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             id
         )
         .fetch_one(&mut *conn)
@@ -80,7 +80,7 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions" FROM project WHERE "#,
+            r#"SELECT tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects WHERE "#,
         );
 
         let mut and_clauses = query_builder.separated(" AND ");

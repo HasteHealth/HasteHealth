@@ -1,0 +1,5 @@
+ALTER TABLE project
+RENAME TO projects;
+
+ALTER TABLE projects
+ADD COLUMN system_created BOOLEAN NOT NULL DEFAULT FALSE;

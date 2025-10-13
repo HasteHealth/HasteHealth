@@ -1,16 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO project (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as \"fhir_version: SupportedFHIRVersions\"",
+  "query": "SELECT id, tenant, fhir_version as \"fhir_version: SupportedFHIRVersions\" FROM projects where id = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "tenant",
+        "name": "id",
         "type_info": "Text"
       },
       {
         "ordinal": 1,
-        "name": "id",
+        "name": "tenant",
         "type_info": "Text"
       },
       {
@@ -32,20 +32,7 @@
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Text",
-        {
-          "Custom": {
-            "name": "fhir_version",
-            "kind": {
-              "Enum": [
-                "r4",
-                "r4b",
-                "r5"
-              ]
-            }
-          }
-        }
+        "Text"
       ]
     },
     "nullable": [
@@ -54,5 +41,5 @@
       false
     ]
   },
-  "hash": "1fd2b6f174e3eaaea682c263bcc36c38c909d41a3d69773f198d7ea15ff9c34d"
+  "hash": "d02344585f4b41d9fae4e2dd5be5f17488aa6dcb3704cbf81234ccb2317f82a3"
 }
