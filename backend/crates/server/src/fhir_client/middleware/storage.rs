@@ -258,14 +258,16 @@ impl<
                             .await?,
                         })))
                     } else {
+                        // Create the resource if it does not exist. With the given id.
                         Ok(Some(FHIRResponse::Create(FHIRCreateResponse {
-                            resource: FHIRRepository::create(
+                            resource: FHIRRepository::update(
                                 state.repo.as_ref(),
                                 &context.ctx.tenant,
                                 &context.ctx.project,
                                 &context.ctx.author,
                                 &context.ctx.fhir_version,
                                 &mut update_request.resource,
+                                &update_request.id,
                             )
                             .await?,
                         })))
