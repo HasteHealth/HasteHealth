@@ -18,12 +18,12 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{Repository, types::ProjectId};
 use std::sync::Arc;
 
-pub struct SetProjectMiddleware {
+pub struct Middleware {
     project_id: ProjectId,
 }
-impl SetProjectMiddleware {
+impl Middleware {
     pub fn new(project_id: ProjectId) -> Self {
-        SetProjectMiddleware { project_id }
+        Middleware { project_id }
     }
 }
 impl<
@@ -37,7 +37,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for SetProjectMiddleware
+    > for Middleware
 {
     fn call(
         &self,

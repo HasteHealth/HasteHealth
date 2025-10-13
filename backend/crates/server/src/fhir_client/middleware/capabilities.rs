@@ -141,10 +141,10 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     })
 }
 
-pub struct CapabilitiesMiddleware {}
-impl CapabilitiesMiddleware {
+pub struct Middleware {}
+impl Middleware {
     pub fn new() -> Self {
-        CapabilitiesMiddleware {}
+        Middleware {}
     }
 }
 impl<
@@ -158,7 +158,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for CapabilitiesMiddleware
+    > for Middleware
 {
     fn call(
         &self,

@@ -23,7 +23,6 @@ use oxidized_repository::{
 use std::sync::{Arc, LazyLock};
 
 mod middleware;
-mod utilities;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
@@ -245,7 +244,7 @@ impl<
                     }
                 }
             }),
-            middleware: Middleware::new(vec![Box::new(middleware::StorageMiddleware::new())]),
+            middleware: Middleware::new(vec![Box::new(middleware::storage::Middleware::new())]),
         };
 
         let operation_invocation_routes = Route {
@@ -255,7 +254,7 @@ impl<
                 | FHIRRequest::InvokeSystem(_) => true,
                 _ => false,
             }),
-            middleware: Middleware::new(vec![Box::new(middleware::OperationMiddleware::new())]),
+            middleware: Middleware::new(vec![Box::new(middleware::operations::Middleware::new())]),
         };
 
         let artifact_routes = Route {
@@ -272,8 +271,8 @@ impl<
                 _ => false,
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::SetArtifactTenantMiddleware::new()),
-                Box::new(middleware::StorageMiddleware::new()),
+                Box::new(middleware::set_artifact_tenant::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
             ]),
         };
 
@@ -287,9 +286,10 @@ impl<
                 }
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::SetProjectMiddleware::new(ProjectId::System)),
-                Box::new(middleware::UserTableAlterationMiddleware::new()),
-                Box::new(middleware::StorageMiddleware::new()),
+                Box::new(middleware::set_project::Middleware::new(ProjectId::System)),
+                Box::new(middleware::transaction::Middleware::new()),
+                Box::new(middleware::custom_models::user::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
             ]),
         };
 
@@ -302,8 +302,9 @@ impl<
                     .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::MembershipTableAlterationMiddleware::new()),
-                Box::new(middleware::StorageMiddleware::new()),
+                Box::new(middleware::transaction::Middleware::new()),
+                Box::new(middleware::custom_models::membership::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
             ]),
         };
 
@@ -323,7 +324,7 @@ impl<
                 terminology,
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::CapabilitiesMiddleware::new()),
+                Box::new(middleware::capabilities::Middleware::new()),
                 Box::new(route_middleware),
             ]),
         }

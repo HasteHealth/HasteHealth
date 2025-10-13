@@ -8,23 +8,13 @@ use oxidized_fhir_client::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
-mod capabilities;
-mod membership;
-mod operations;
-mod project;
-mod set_artifact_tenant;
-mod set_project;
-mod storage;
-mod user;
-
-pub use capabilities::*;
-pub use membership::*;
-pub use operations::*;
-pub use project::*;
-pub use set_artifact_tenant::*;
-pub use set_project::*;
-pub use storage::*;
-pub use user::*;
+pub mod capabilities;
+pub mod custom_models;
+pub mod operations;
+pub mod set_artifact_tenant;
+pub mod set_project;
+pub mod storage;
+pub mod transaction;
 
 pub type ServerMiddlewareState<Repository, Search, Terminology> =
     Arc<ClientState<Repository, Search, Terminology>>;
