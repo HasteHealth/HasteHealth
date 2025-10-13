@@ -239,14 +239,14 @@ fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
                 tenant.as_ref() as &str,
                 project.as_ref() as &str,
-                author.id,
+                author.id.as_ref() as &str,
                 // Useless cast so that macro has access to the type information.
                 // Otherwise it will not compile on type check.
                 fhir_version as &SupportedFHIRVersions,
                 &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
                 false, // deleted
                 "POST",
-                author.kind,
+                author.kind.as_ref() as &str,
                 &FHIRMethod::Create as &FHIRMethod,
             ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
         Ok(result.resource.0)
@@ -275,14 +275,14 @@ fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
             tenant.as_ref() as &str,
             project.as_ref() as &str,
-            author.id,
+            author.id.as_ref() as &str,
             // Useless cast so that macro has access to the type information.
             // Otherwise it will not compile on type check.
             fhir_version as &SupportedFHIRVersions,
             &FHIRJsonRef(resource) as &FHIRJsonRef<'_, Resource>,
             false, // deleted
             "PUT",
-            author.kind,
+            author.kind.as_ref() as &str,
             &FHIRMethod::Update as &FHIRMethod,
         );
 

@@ -61,7 +61,7 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let deleted_project = sqlx::query_as!(
             Project,
-            r#"DELETE FROM projects WHERE id = $1 RETURNING id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"DELETE FROM projects WHERE id = $1 and system_created = false RETURNING id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             id
         )
         .fetch_one(&mut *conn)

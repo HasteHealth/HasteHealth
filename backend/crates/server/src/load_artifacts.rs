@@ -14,7 +14,9 @@ use oxidized_fhir_model::r4::generated::{
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_repository::types::{Author, ProjectId, SupportedFHIRVersions, TenantId};
+use oxidized_repository::types::{
+    Author, AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId,
+};
 use sha1::{Digest, Sha1};
 // use tokio::task::JoinSet;
 
@@ -104,8 +106,8 @@ pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutc
         project: ProjectId::System,
         fhir_version: SupportedFHIRVersions::R4,
         author: Author {
-            id: "system".into(),
-            kind: "admin".into(),
+            id: AuthorId::System,
+            kind: AuthorKind::System,
         },
     });
 

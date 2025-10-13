@@ -9,6 +9,9 @@ pub mod project;
 pub mod tenant;
 pub mod user;
 
+// Reserved keyword for system tenant, author and project.
+static SYSTEM: &str = "system";
+
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
 #[sqlx(type_name = "fhir_version", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
 #[serde(rename_all = "lowercase")]
@@ -17,9 +20,86 @@ pub enum SupportedFHIRVersions {
 }
 
 #[derive(Clone, Debug)]
+pub enum AuthorId {
+    // System is used for system level actions such as tenant creation etc..
+    System,
+    User(ResourceId),
+}
+impl AuthorId {
+    pub fn new(id: String) -> Self {
+        // Should never be able to create a system author from user.
+        if id == SYSTEM {
+            AuthorId::System
+        } else {
+            AuthorId::User(ResourceId::new(id))
+        }
+    }
+}
+impl AsRef<str> for AuthorId {
+    fn as_ref(&self) -> &str {
+        match self {
+            AuthorId::System => SYSTEM,
+            AuthorId::User(id) => id.as_ref(),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for AuthorId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Ok(AuthorId::new(String::deserialize(deserializer)?))
+    }
+}
+
+impl Serialize for AuthorId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_ref())
+    }
+}
+
+impl Display for AuthorId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AuthorId::System => write!(f, "{}", SYSTEM),
+            AuthorId::User(id) => write!(f, "{}", id.as_ref()),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum AuthorKind {
+    System,
+    Membership,
+    ClientApplication,
+    OperationDefinition,
+}
+
+impl AsRef<str> for AuthorKind {
+    fn as_ref(&self) -> &str {
+        match self {
+            AuthorKind::System => "System",
+            AuthorKind::Membership => "Membership",
+            AuthorKind::ClientApplication => "ClientApplication",
+            AuthorKind::OperationDefinition => "OperationDefinition",
+        }
+    }
+}
+
+impl Display for AuthorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Author {
-    pub id: String,
-    pub kind: String,
+    pub id: AuthorId,
+    pub kind: AuthorKind,
 }
 
 impl std::fmt::Display for SupportedFHIRVersions {
@@ -29,8 +109,6 @@ impl std::fmt::Display for SupportedFHIRVersions {
         }
     }
 }
-
-static SYSTEM: &str = "system";
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TenantId {

@@ -167,7 +167,7 @@ const router = createBrowserRouter([
                 children: [
                   { id: "tenant", path: "/system", element: <Projects /> },
                   {
-                    path: "/:projectId",
+                    path: "/",
                     element: <ProjectRoot />,
                     children: [
                       {
