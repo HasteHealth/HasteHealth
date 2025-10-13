@@ -1,5 +1,9 @@
-use crate::fhir_client::middleware::{
-    ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput, ServerMiddlewareState,
+use crate::fhir_client::{
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
+    },
+    utilities::request_to_resource_type,
 };
 use oxidized_fhir_client::{
     FHIRClient,
@@ -23,6 +27,7 @@ use oxidized_repository::{
 use std::sync::{Arc, LazyLock};
 
 mod middleware;
+mod utilities;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StorageError {
@@ -203,25 +208,6 @@ static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
     ]
     .concat()
 });
-
-fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {
-    match request {
-        FHIRRequest::Read(req) => Some(&req.resource_type),
-        FHIRRequest::VersionRead(req) => Some(&req.resource_type),
-        FHIRRequest::UpdateInstance(req) => Some(&req.resource_type),
-        FHIRRequest::DeleteInstance(req) => Some(&req.resource_type),
-        FHIRRequest::Patch(req) => Some(&req.resource_type),
-        FHIRRequest::HistoryInstance(req) => Some(&req.resource_type),
-
-        // Type operations
-        FHIRRequest::Create(req) => Some(&req.resource_type),
-        FHIRRequest::HistoryType(req) => Some(&req.resource_type),
-        FHIRRequest::SearchType(req) => Some(&req.resource_type),
-        FHIRRequest::ConditionalUpdate(req) => Some(&req.resource_type),
-        FHIRRequest::DeleteType(req) => Some(&req.resource_type),
-        _ => None,
-    }
-}
 
 impl<
     Repo: Repository + Send + Sync + 'static,
