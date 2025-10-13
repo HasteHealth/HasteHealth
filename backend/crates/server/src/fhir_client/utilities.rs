@@ -18,6 +18,8 @@ pub fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a Reso
         FHIRRequest::SearchType(req) => Some(&req.resource_type),
         FHIRRequest::ConditionalUpdate(req) => Some(&req.resource_type),
         FHIRRequest::DeleteType(req) => Some(&req.resource_type),
+
+        // System operations default to None.
         _ => None,
     }
 }
