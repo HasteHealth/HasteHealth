@@ -98,10 +98,15 @@ impl<
                             }
                         }
                         Some(FHIRResponse::DeleteInstance(delete_response)) => {
-                            if let Resource::User(user) = &delete_response.resource
-                                && let Some(id) = user.id.as_ref()
+                            if let Resource::Project(project) = &delete_response.resource
+                                && let Some(id) = project.id.as_ref()
                             {
-                                todo!("Implement project deletion");
+                                TenantAuthAdmin::<CreateProject, _, _, _>::delete(
+                                    repo_client.as_ref(),
+                                    &res.ctx.tenant,
+                                    id,
+                                )
+                                .await?;
 
                                 Ok(())
                             } else {
@@ -116,9 +121,10 @@ impl<
                                 && let Some(email) = user.email.value.as_ref()
                                 && let Some(id) = user.id.as_ref()
                             {
-                                todo!("Implement project update.");
-
-                                Ok(())
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::NotSupported(None),
+                                    "Project updates are not supported.".to_string(),
+                                ))
                             } else {
                                 Err(OperationOutcomeError::fatal(
                                     IssueType::Invalid(None),
