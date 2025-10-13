@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "DELETE FROM project WHERE id = $1 RETURNING id, tenant, fhir_version as \"fhir_version: SupportedFHIRVersions\"",
+  "query": "DELETE FROM projects WHERE id = $1 RETURNING id, tenant, fhir_version as \"fhir_version: SupportedFHIRVersions\"",
   "describe": {
     "columns": [
       {
@@ -41,5 +41,5 @@
       false
     ]
   },
-  "hash": "38335f5204ab5bffa4b5523fbe3ca79f5bbcd9b0da5a6a7c2f7687a3b22206b7"
+  "hash": "bc0f159b6e65cc96e605b9b304e9a12cdb7e173cf75c3eb1c0637a91ee371573"
 }
