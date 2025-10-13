@@ -4,6 +4,7 @@ use oxidized_fhir_model::r4::generated::resources::ResourceType;
 /// Converts a FHIRRequest to its corresponding ResourceType if applicable.
 pub fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {
     match request {
+        // Instance operations
         FHIRRequest::Read(req) => Some(&req.resource_type),
         FHIRRequest::VersionRead(req) => Some(&req.resource_type),
         FHIRRequest::UpdateInstance(req) => Some(&req.resource_type),
