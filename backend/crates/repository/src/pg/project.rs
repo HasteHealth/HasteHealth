@@ -5,7 +5,7 @@ use crate::{
         ProjectId, SupportedFHIRVersions, TenantId,
         project::{CreateProject, Project, ProjectSearchClaims},
     },
-    utilities::generate_id,
+    utilities::{generate_id, validate_id},
 };
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -18,6 +18,8 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let id = project.id.unwrap_or(ProjectId::new(generate_id(None)));
+
+        validate_id(id.as_ref())?;
 
         let project = sqlx::query_as!(
             Project,
