@@ -115,6 +115,14 @@ static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
     })
 });
 
+static LOGOUT_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
+    Arc::new(ParameterConfig {
+        required_parameters: vec!["client_id".to_string()],
+        optional_parameters: vec!["redirect_uri".to_string()],
+        allow_launch_parameters: true,
+    })
+});
+
 pub fn create_router<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,

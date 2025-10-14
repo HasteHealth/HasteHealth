@@ -5,7 +5,7 @@ use tower_sessions::Session;
 
 static USER_KEY: &str = "auth_user";
 
-pub async fn get_user(session: Session) -> Result<Option<User>, OperationOutcomeError> {
+pub async fn get_user(session: &Session) -> Result<Option<User>, OperationOutcomeError> {
     let user = session.get::<User>(USER_KEY).await.map_err(|_e| {
         OperationOutcomeError::fatal(
             IssueType::Exception(None),
@@ -16,7 +16,7 @@ pub async fn get_user(session: Session) -> Result<Option<User>, OperationOutcome
     Ok(user)
 }
 
-pub async fn set_user(session: Session, user: &User) -> Result<(), OperationOutcomeError> {
+pub async fn set_user(session: &Session, user: &User) -> Result<(), OperationOutcomeError> {
     session.insert(USER_KEY, user).await.map_err(|_e| {
         OperationOutcomeError::fatal(
             IssueType::Exception(None),
@@ -25,7 +25,7 @@ pub async fn set_user(session: Session, user: &User) -> Result<(), OperationOutc
     })
 }
 
-pub async fn clear_user(session: Session) -> Result<(), OperationOutcomeError> {
+pub async fn clear_user(session: &Session) -> Result<(), OperationOutcomeError> {
     session.remove::<User>(USER_KEY).await.map_err(|_e| {
         OperationOutcomeError::fatal(
             IssueType::Exception(None),

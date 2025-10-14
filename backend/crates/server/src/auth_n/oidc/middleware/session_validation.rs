@@ -68,7 +68,7 @@ where
                 .await
                 .expect("Could not extract session.");
 
-            if let Ok(Some(_user)) = session::user::get_user(current_session).await {
+            if let Ok(Some(_user)) = session::user::get_user(&current_session).await {
                 let response = inner.call(request).await?;
                 Ok(response)
             } else {
