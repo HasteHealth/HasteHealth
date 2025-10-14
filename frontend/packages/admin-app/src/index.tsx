@@ -120,14 +120,6 @@ function deriveProjectId(): ProjectId {
   return projectId as ProjectId;
 }
 
-function WorkspaceCheck() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
-}
-
 function OxidizedHealthWrapper() {
   const navigate = useNavigate();
 
@@ -150,71 +142,104 @@ function OxidizedHealthWrapper() {
   );
 }
 
-const router = createBrowserRouter([
-  {
-    id: "oxidized-health-wrapper",
-    element: <OxidizedHealthWrapper />,
-    children: [
-      {
-        id: "login",
-        element: <LoginWrapper />,
-        children: [
-          {
-            path: "/",
-            element: <WorkspaceCheck />,
-            children: [
-              {
-                id: "empty-workspace",
-                path: "/no-workspace",
-                element: <EmptyWorkspace />,
-              },
-
-              {
-                path: "/",
-                element: <ServiceSetup />,
-                children: [
-                  { id: "tenant", path: "/system", element: <Projects /> },
-                  {
-                    path: "/",
-                    element: <ProjectRoot />,
-                    children: [
-                      {
-                        id: "settings",
-                        path: "settings",
-                        element: <Settings />,
-                      },
-                      { id: "dashboard", path: "", element: <Dashboard /> },
-                      {
-                        id: "resources",
-                        path: "resources",
-                        element: <Resources />,
-                      },
-                      {
-                        id: "types",
-                        path: "resources/:resourceType",
-                        element: <ResourceType />,
-                      },
-                      {
-                        id: "instance",
-                        path: "resources/:resourceType/:id",
-                        element: <ResourceEditor />,
-                      },
-                      {
-                        id: "bundle-import",
-                        path: "bundle-import",
-                        element: <BundleImport />,
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]);
+const router =
+  deriveProjectId() == "system"
+    ? createBrowserRouter([
+        {
+          id: "oxidized-health-wrapper",
+          element: <OxidizedHealthWrapper />,
+          children: [
+            {
+              id: "login",
+              element: <LoginWrapper />,
+              children: [
+                {
+                  id: "empty-workspace",
+                  path: "/no-workspace",
+                  element: <EmptyWorkspace />,
+                },
+                {
+                  path: "/",
+                  element: <ServiceSetup />,
+                  children: [
+                    {
+                      id: "tenant",
+                      path: "/",
+                      element: <Projects />,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ])
+    : createBrowserRouter([
+        {
+          id: "oxidized-health-wrapper",
+          element: <OxidizedHealthWrapper />,
+          children: [
+            {
+              id: "login",
+              element: <LoginWrapper />,
+              children: [
+                {
+                  id: "empty-workspace",
+                  path: "/no-workspace",
+                  element: <EmptyWorkspace />,
+                },
+                {
+                  path: "/",
+                  element: <ServiceSetup />,
+                  children: [
+                    {
+                      id: "tenant",
+                      path: "/system",
+                      element: <Projects />,
+                    },
+                    {
+                      path: "/",
+                      element: <ProjectRoot />,
+                      children: [
+                        {
+                          id: "settings",
+                          path: "settings",
+                          element: <Settings />,
+                        },
+                        {
+                          id: "dashboard",
+                          path: "",
+                          element: <Dashboard />,
+                        },
+                        {
+                          id: "resources",
+                          path: "resources",
+                          element: <Resources />,
+                        },
+                        {
+                          id: "types",
+                          path: "resources/:resourceType",
+                          element: <ResourceType />,
+                        },
+                        {
+                          id: "instance",
+                          path: "resources/:resourceType/:id",
+                          element: <ResourceEditor />,
+                        },
+                        {
+                          id: "bundle-import",
+                          path: "bundle-import",
+                          element: <BundleImport />,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
 
 function ProjectRoot() {
   const oxidizedHealth = useOxidizedHealth();
