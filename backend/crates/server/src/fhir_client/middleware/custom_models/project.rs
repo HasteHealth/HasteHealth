@@ -58,104 +58,109 @@ impl<
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput {
         Box::pin(async move {
-            if let Some(resource_type) = request_to_resource_type(&context.request)
-                && *resource_type != ResourceType::Project
-            {
-                Err(OperationOutcomeError::fatal(
-                    IssueType::NotSupported(None),
-                    "Only Project resource operations are supported.".to_string(),
-                ))?
-            } else if let Some(next) = next {
-                match &context.request {
-                    FHIRRequest::Create(create_request) => {
-                        if let Resource::Project(project) = &create_request.resource {
-                            let fhir_version = match &*project.fhirVersion {
-                                SupportedFhirVersion::R4(_) => Ok(SupportedFHIRVersions::R4),
-                                _ => Err(OperationOutcomeError::fatal(
+            if let Some(next) = next {
+                // Skip if not a project resource.
+                if let Some(resource_type) = request_to_resource_type(&context.request)
+                    && *resource_type != ResourceType::Project
+                {
+                    Ok(next(state, context).await?)
+                } else {
+                    match &context.request {
+                        FHIRRequest::Create(create_request) => {
+                            if let Resource::Project(project) = &create_request.resource {
+                                let fhir_version = match &*project.fhirVersion {
+                                    SupportedFhirVersion::R4(_) => Ok(SupportedFHIRVersions::R4),
+                                    _ => Err(OperationOutcomeError::fatal(
+                                        IssueType::Invalid(None),
+                                        format!(
+                                            "Invalid FHIR Version '{:?}'",
+                                            &*project.fhirVersion
+                                        ),
+                                    )),
+                                }?;
+
+                                let name = project.name.clone();
+                                let id = project.id.clone().unwrap_or(generate_id(Some(8)));
+
+                                let project_model = TenantAuthAdmin::create(
+                                    state.repo.as_ref(),
+                                    &context.ctx.tenant,
+                                    CreateProject {
+                                        id: Some(ProjectId::new(id.clone())),
+                                        tenant: context.ctx.tenant.clone(),
+                                        fhir_version,
+                                    },
+                                )
+                                .await?;
+
+                                let res = next(
+                                    state.clone(),
+                                    ServerMiddlewareContext {
+                                        ctx: context.ctx.clone(),
+                                        response: None,
+                                        request: FHIRRequest::UpdateInstance(
+                                            FHIRUpdateInstanceRequest {
+                                                resource_type: ResourceType::Project,
+                                                id: id.clone(),
+                                                resource: Resource::Project(Project {
+                                                    id: Some(id),
+                                                    name: name,
+                                                    fhirVersion: match project_model.fhir_version {
+                                                        SupportedFHIRVersions::R4 => {
+                                                            Box::new(SupportedFhirVersion::R4(None))
+                                                        }
+                                                        _ => unreachable!(),
+                                                    },
+                                                    ..Default::default()
+                                                }),
+                                            },
+                                        ),
+                                    },
+                                )
+                                .await?;
+
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
                                     IssueType::Invalid(None),
-                                    "Invalid FHIR Version".to_string(),
-                                )),
-                            }?;
+                                    "Project resource is invalid.".to_string(),
+                                ))
+                            }
+                        }
 
-                            let name = project.name.clone();
-                            let id = project.id.clone().unwrap_or(generate_id(Some(8)));
-
-                            let project_model = TenantAuthAdmin::create(
+                        FHIRRequest::DeleteInstance(delete_request) => {
+                            TenantAuthAdmin::<CreateProject, _, _, _>::delete(
                                 state.repo.as_ref(),
                                 &context.ctx.tenant,
-                                CreateProject {
-                                    id: Some(ProjectId::new(id.clone())),
-                                    tenant: context.ctx.tenant.clone(),
-                                    fhir_version,
-                                },
+                                &delete_request.id,
                             )
                             .await?;
 
-                            let res = next(
+                            next(
                                 state.clone(),
                                 ServerMiddlewareContext {
                                     ctx: context.ctx.clone(),
                                     response: None,
-                                    request: FHIRRequest::UpdateInstance(
-                                        FHIRUpdateInstanceRequest {
+                                    request: FHIRRequest::DeleteInstance(
+                                        FHIRDeleteInstanceRequest {
                                             resource_type: ResourceType::Project,
-                                            id: id.clone(),
-                                            resource: Resource::Project(Project {
-                                                id: Some(id),
-                                                name: name,
-                                                fhirVersion: match project_model.fhir_version {
-                                                    SupportedFHIRVersions::R4 => {
-                                                        Box::new(SupportedFhirVersion::R4(None))
-                                                    }
-                                                    _ => unreachable!(),
-                                                },
-                                                ..Default::default()
-                                            }),
+                                            id: delete_request.id.clone(),
                                         },
                                     ),
                                 },
                             )
-                            .await?;
-
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "Project resource is invalid.".to_string(),
-                            ))
+                            .await
                         }
+
+                        FHIRRequest::SearchType(_) => next(state.clone(), context).await,
+
+                        // Dissallow updates on project because could impact integrity of system. For example project has stored
+                        // resources in a specific FHIR version, changing that version would cause issues.
+                        _ => Err(OperationOutcomeError::fatal(
+                            IssueType::NotSupported(None),
+                            "Operation is not supported for Project resource types.".to_string(),
+                        )),
                     }
-
-                    FHIRRequest::DeleteInstance(delete_request) => {
-                        TenantAuthAdmin::<CreateProject, _, _, _>::delete(
-                            state.repo.as_ref(),
-                            &context.ctx.tenant,
-                            &delete_request.id,
-                        )
-                        .await?;
-
-                        next(
-                            state.clone(),
-                            ServerMiddlewareContext {
-                                ctx: context.ctx.clone(),
-                                response: None,
-                                request: FHIRRequest::DeleteInstance(FHIRDeleteInstanceRequest {
-                                    resource_type: ResourceType::Project,
-                                    id: delete_request.id.clone(),
-                                }),
-                            },
-                        )
-                        .await
-                    }
-
-                    FHIRRequest::SearchType(_) => next(state.clone(), context).await,
-
-                    // Dissallow updates on project because could impact integrity of system. For example project has stored
-                    // resources in a specific FHIR version, changing that version would cause issues.
-                    _ => Err(OperationOutcomeError::fatal(
-                        IssueType::NotSupported(None),
-                        "Operation is not supported for Project resource types.".to_string(),
-                    )),
                 }
             } else {
                 Err(OperationOutcomeError::fatal(

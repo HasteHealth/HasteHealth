@@ -197,7 +197,7 @@ static ARTIFACT_TYPES: &[ResourceType] = &[
     ResourceType::SearchParameter,
 ];
 
-static TENANT_AUTH_TYPES: &[ResourceType] = &[ResourceType::User, ResourceType::IdentityProvider];
+static TENANT_AUTH_TYPES: &[ResourceType] = &[ResourceType::User, ResourceType::Project];
 static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
 
 static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
@@ -274,6 +274,7 @@ impl<
             middleware: Middleware::new(vec![
                 Box::new(middleware::set_project::Middleware::new(ProjectId::System)),
                 Box::new(middleware::transaction::Middleware::new()),
+                Box::new(middleware::custom_models::project::Middleware::new()),
                 Box::new(middleware::custom_models::user::Middleware::new()),
                 Box::new(middleware::storage::Middleware::new()),
             ]),
