@@ -1,5 +1,8 @@
 use crate::{
-    auth_n::oidc::{middleware::OIDCParameterInjectLayer, routes::AUTHORIZE_PARAMETERS},
+    auth_n::oidc::{
+        middleware::OIDCParameterInjectLayer,
+        routes::{AUTHORIZE_PARAMETERS, LOGOUT_PARAMETERS},
+    },
     services::AppState,
 };
 use axum::Router;
@@ -27,7 +30,11 @@ pub fn interactions_router<
 
     let logout_routes = Router::new()
         .typed_post(logout::logout)
-        .typed_get(logout::logout);
+        .typed_get(logout::logout)
+        .route_layer(
+            ServiceBuilder::new()
+                .layer(OIDCParameterInjectLayer::new((*LOGOUT_PARAMETERS).clone())),
+        );
 
     Router::new().merge(login_routes).merge(logout_routes)
 }
