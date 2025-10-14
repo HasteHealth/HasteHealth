@@ -68,8 +68,6 @@ pub async fn authorize<
             )
             .await?;
 
-            println!("Membership: {:?}", membership);
-
             if membership.is_empty() {
                 session::user::clear_user(&current_session).await?;
                 Err(OperationOutcomeError::error(
