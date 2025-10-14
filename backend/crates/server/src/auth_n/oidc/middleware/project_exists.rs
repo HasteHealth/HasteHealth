@@ -27,19 +27,18 @@ pub async fn project_exists<
     next: Next,
 ) -> Result<Response, OperationOutcomeError> {
     // If not found automatically will error.
-    let project =
-        TenantAuthAdmin::<CreateProject, _, _, _>::read(&*state.repo, &tenant, project.as_ref())
-            .await
-            .map_err(|_| {
-                OperationOutcomeError::fatal(
-                    oxidized_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
-                    format!(
-                        "Project '{}' not found for tenant '{}'",
-                        project.as_ref(),
-                        tenant.as_ref()
-                    ),
-                )
-            })?;
+    TenantAuthAdmin::<CreateProject, _, _, _>::read(&*state.repo, &tenant, project.as_ref())
+        .await
+        .map_err(|_| {
+            OperationOutcomeError::fatal(
+                oxidized_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
+                format!(
+                    "Project '{}' not found for tenant '{}'",
+                    project.as_ref(),
+                    tenant.as_ref()
+                ),
+            )
+        })?;
 
     Ok(next.run(request).await)
 }
