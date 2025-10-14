@@ -189,8 +189,6 @@ impl FHIRRepository for PGConnection {
         match self {
             PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
             PGConnection::PgTransaction(tx) => {
-                println!("{}", Arc::strong_count(&tx));
-
                 let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
                     println!("Error during commit: {:?}", e);
                     StoreError::FailedCommitTransaction
