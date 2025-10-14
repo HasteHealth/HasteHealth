@@ -41,6 +41,7 @@ import ResourceType from "./views/ResourceType";
 import Resources from "./views/Resources";
 import Settings from "./views/Settings";
 import Projects from "./views/Projects";
+import { deriveProjectId, deriveTenantId } from "./utilities";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -106,20 +107,6 @@ function ServiceSetup() {
   );
 }
 
-function deriveTenantID(): TenantId {
-  const host = window.location.host;
-  const tenantID = host.split(".")[0]?.split("_")[0];
-
-  return tenantID as TenantId;
-}
-
-function deriveProjectId(): ProjectId {
-  const host = window.location.host;
-  const projectId = host.split(".")[0]?.split("_")[1];
-
-  return projectId as ProjectId;
-}
-
 function OxidizedHealthWrapper() {
   const navigate = useNavigate();
 
@@ -129,7 +116,7 @@ function OxidizedHealthWrapper() {
       authorize_method="GET"
       scope="openid email profile fhirUser user/*.*"
       domain={REACT_APP_FHIR_BASE_URL || ""}
-      tenant={deriveTenantID()}
+      tenant={deriveTenantId()}
       project={deriveProjectId()}
       clientId={REACT_APP_CLIENT_ID}
       redirectUrl={window.location.origin}
