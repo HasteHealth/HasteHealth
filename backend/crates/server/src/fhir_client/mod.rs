@@ -272,7 +272,9 @@ impl<
                 }
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::set_project::Middleware::new(ProjectId::System)),
+                Box::new(middleware::check_project::Middleware::new(
+                    ProjectId::System,
+                )),
                 Box::new(middleware::transaction::Middleware::new()),
                 Box::new(middleware::custom_models::project::Middleware::new()),
                 Box::new(middleware::custom_models::user::Middleware::new()),

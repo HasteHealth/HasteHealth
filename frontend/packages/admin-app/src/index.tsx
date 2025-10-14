@@ -41,6 +41,7 @@ import ResourceType from "./views/ResourceType";
 import Resources from "./views/Resources";
 import Settings from "./views/Settings";
 import Projects from "./views/Projects";
+import { deriveProjectId, deriveTenantId } from "./utilities";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -106,28 +107,6 @@ function ServiceSetup() {
   );
 }
 
-function deriveTenantID(): TenantId {
-  const host = window.location.host;
-  const tenantID = host.split(".")[0]?.split("_")[0];
-
-  return tenantID as TenantId;
-}
-
-function deriveProjectId(): ProjectId {
-  const host = window.location.host;
-  const projectId = host.split(".")[0]?.split("_")[1];
-
-  return projectId as ProjectId;
-}
-
-function WorkspaceCheck() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
-}
-
 function OxidizedHealthWrapper() {
   const navigate = useNavigate();
 
@@ -137,7 +116,7 @@ function OxidizedHealthWrapper() {
       authorize_method="GET"
       scope="openid email profile fhirUser user/*.*"
       domain={REACT_APP_FHIR_BASE_URL || ""}
-      tenant={deriveTenantID()}
+      tenant={deriveTenantId()}
       project={deriveProjectId()}
       clientId={REACT_APP_CLIENT_ID}
       redirectUrl={window.location.origin}
@@ -150,71 +129,104 @@ function OxidizedHealthWrapper() {
   );
 }
 
-const router = createBrowserRouter([
-  {
-    id: "oxidized-health-wrapper",
-    element: <OxidizedHealthWrapper />,
-    children: [
-      {
-        id: "login",
-        element: <LoginWrapper />,
-        children: [
-          {
-            path: "/",
-            element: <WorkspaceCheck />,
-            children: [
-              {
-                id: "empty-workspace",
-                path: "/no-workspace",
-                element: <EmptyWorkspace />,
-              },
-
-              {
-                path: "/",
-                element: <ServiceSetup />,
-                children: [
-                  { id: "tenant", path: "/system", element: <Projects /> },
-                  {
-                    path: "/",
-                    element: <ProjectRoot />,
-                    children: [
-                      {
-                        id: "settings",
-                        path: "settings",
-                        element: <Settings />,
-                      },
-                      { id: "dashboard", path: "", element: <Dashboard /> },
-                      {
-                        id: "resources",
-                        path: "resources",
-                        element: <Resources />,
-                      },
-                      {
-                        id: "types",
-                        path: "resources/:resourceType",
-                        element: <ResourceType />,
-                      },
-                      {
-                        id: "instance",
-                        path: "resources/:resourceType/:id",
-                        element: <ResourceEditor />,
-                      },
-                      {
-                        id: "bundle-import",
-                        path: "bundle-import",
-                        element: <BundleImport />,
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]);
+const router =
+  deriveProjectId() == "system"
+    ? createBrowserRouter([
+        {
+          id: "oxidized-health-wrapper",
+          element: <OxidizedHealthWrapper />,
+          children: [
+            {
+              id: "login",
+              element: <LoginWrapper />,
+              children: [
+                {
+                  id: "empty-workspace",
+                  path: "/no-workspace",
+                  element: <EmptyWorkspace />,
+                },
+                {
+                  path: "/",
+                  element: <ServiceSetup />,
+                  children: [
+                    {
+                      id: "tenant",
+                      path: "/",
+                      element: <Projects />,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ])
+    : createBrowserRouter([
+        {
+          id: "oxidized-health-wrapper",
+          element: <OxidizedHealthWrapper />,
+          children: [
+            {
+              id: "login",
+              element: <LoginWrapper />,
+              children: [
+                {
+                  id: "empty-workspace",
+                  path: "/no-workspace",
+                  element: <EmptyWorkspace />,
+                },
+                {
+                  path: "/",
+                  element: <ServiceSetup />,
+                  children: [
+                    {
+                      id: "tenant",
+                      path: "/system",
+                      element: <Projects />,
+                    },
+                    {
+                      path: "/",
+                      element: <ProjectRoot />,
+                      children: [
+                        {
+                          id: "settings",
+                          path: "settings",
+                          element: <Settings />,
+                        },
+                        {
+                          id: "dashboard",
+                          path: "",
+                          element: <Dashboard />,
+                        },
+                        {
+                          id: "resources",
+                          path: "resources",
+                          element: <Resources />,
+                        },
+                        {
+                          id: "types",
+                          path: "resources/:resourceType",
+                          element: <ResourceType />,
+                        },
+                        {
+                          id: "instance",
+                          path: "resources/:resourceType/:id",
+                          element: <ResourceEditor />,
+                        },
+                        {
+                          id: "bundle-import",
+                          path: "bundle-import",
+                          element: <BundleImport />,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
 
 function ProjectRoot() {
   const oxidizedHealth = useOxidizedHealth();

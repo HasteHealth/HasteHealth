@@ -47,19 +47,17 @@ impl<
     ) -> ServerMiddlewareOutput {
         let project_id = self.project_id.clone();
         Box::pin(async move {
-            context.ctx = Arc::new(ServerCTX {
-                tenant: context.ctx.tenant.clone(),
-                project: project_id,
-                fhir_version: context.ctx.fhir_version.clone(),
-                author: context.ctx.author.clone(),
-            });
-
-            if let Some(next) = next {
+            if let Some(next) = next
+                && context.ctx.project == project_id
+            {
                 next(state, context).await
             } else {
                 Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
-                    "No next middleware found".to_string(),
+                    IssueType::Security(None),
+                    format!(
+                        "Must be in project {} to access this resource, not {}",
+                        context.ctx.project, project_id
+                    ),
                 ))
             }
         })
