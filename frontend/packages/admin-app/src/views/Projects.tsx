@@ -50,7 +50,7 @@ export default function Projects() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-3">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 sm:grid-cols-2 gap-4 grid-flow-row-dense auto-cols-max">
             {projects.map((project) => (
               <div
                 onClick={(_e) => {
@@ -65,7 +65,7 @@ export default function Projects() {
                   window.location.href = newUrl;
                 }}
                 key={project.id}
-                className=" cursor-pointer max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+                className="hover:bg-gray-100 cursor-pointer p-6 bg-white border border-gray-200 rounded-lg shadow-sm"
               >
                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                   {project.name}
