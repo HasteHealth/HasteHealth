@@ -5,7 +5,7 @@ use crate::{
         TenantId,
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
     },
-    utilities::generate_id,
+    utilities::{generate_id, validate_id},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
@@ -17,6 +17,8 @@ fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let id = tenant.id.unwrap_or(TenantId::new(generate_id(None)));
+        validate_id(id.as_ref())?;
+
         let tenant = sqlx::query_as!(
             Tenant,
             "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id, subscription_tier",

@@ -21,3 +21,4 @@ sqlx-postgres = "0.8.6"
 nanoid = "0.4.0"
 tokio = { version = "1.47.1", features = ["sync"] }
 serde_json = "1.0.142"
+regex = "1.12.2"

@@ -1,24 +1,36 @@
 use oxidized_fhir_model::r4::generated::{
     resources::Resource,
+    terminology::IssueType,
     types::{FHIRId, Meta},
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_reflect::MetaValue;
 
+static ID_CHARACTERS: &[char] = &[
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
+    'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+    'V', 'W', 'X', 'Y', 'Z', '-',
+];
+
 // [A-Za-z0-9\-\.]{1,64} See https://hl7.org/fhir/r4/datatypes.html#id
 // Can't use _ for compliance.
 pub fn generate_id(len: Option<usize>) -> String {
     let len = len.unwrap_or(26);
-    nanoid::nanoid!(
-        len,
-        &[
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-            'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
-            'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-            'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-'
-        ]
-    )
-    .to_string()
+    nanoid::nanoid!(len, ID_CHARACTERS).to_string()
+}
+
+pub fn validate_id(id: &str) -> Result<(), OperationOutcomeError> {
+    let characters_allowed = ID_CHARACTERS.iter().collect::<String>();
+    let re = regex::Regex::new(&format!("^[{}]*$", characters_allowed)).unwrap();
+    if !re.is_match(id) {
+        Err(OperationOutcomeError::fatal(
+            IssueType::Invalid(None),
+            format!("ID contains invalid characters: {}", id),
+        ))
+    } else {
+        Ok(())
+    }
 }
 
 #[derive(OperationOutcomeError)]
