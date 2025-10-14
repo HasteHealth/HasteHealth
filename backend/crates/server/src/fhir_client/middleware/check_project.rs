@@ -48,7 +48,7 @@ impl<
         let project_id = self.project_id.clone();
         Box::pin(async move {
             if let Some(next) = next
-                && context.ctx.project == self.project_id
+                && context.ctx.project == project_id
             {
                 next(state, context).await
             } else {
@@ -56,7 +56,7 @@ impl<
                     IssueType::Security(None),
                     format!(
                         "Must be in project {} to access this resource, not {}",
-                        context.ctx.project, self.project_id
+                        context.ctx.project, project_id
                     ),
                 ))
             }

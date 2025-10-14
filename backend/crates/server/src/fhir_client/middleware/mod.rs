@@ -9,10 +9,10 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 pub mod capabilities;
+pub mod check_project;
 pub mod custom_models;
 pub mod operations;
 pub mod set_artifact_tenant;
-pub mod set_project;
 pub mod storage;
 pub mod transaction;
 
