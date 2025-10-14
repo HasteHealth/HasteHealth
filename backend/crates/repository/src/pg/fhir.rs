@@ -181,10 +181,7 @@ impl FHIRRepository for PGConnection {
                 let tx = pool.begin().await.map_err(StoreError::from)?;
                 Ok(PGConnection::PgTransaction(Arc::new(Mutex::new(tx))))
             }
-            PGConnection::PgTransaction(tx) => {
-                let tx = tx.clone();
-                Ok(PGConnection::PgTransaction(tx))
-            } // Transaction doesn't live long enough so cannot create.
+            PGConnection::PgTransaction(_) => Ok(self.clone()), // Transaction doesn't live long enough so cannot create.
         }
     }
 

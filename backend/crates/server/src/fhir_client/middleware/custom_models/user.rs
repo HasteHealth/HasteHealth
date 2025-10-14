@@ -4,13 +4,14 @@ use crate::fhir_client::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
     },
+    utilities::request_to_resource_type,
 };
 use oxidized_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
 use oxidized_fhir_model::r4::generated::{
-    resources::{Resource, User},
+    resources::{Resource, ResourceType, User},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -66,83 +67,88 @@ impl<
         Box::pin(async move {
             if let Some(next) = next {
                 let res = next(state.clone(), context).await?;
+                if let Some(resource_type) = request_to_resource_type(&res.request)
+                    && *resource_type != ResourceType::User
+                {
+                    Ok(res)
+                } else {
+                    match res.response.as_ref() {
+                        Some(FHIRResponse::Create(create_response)) => {
+                            if let Resource::User(user) = &create_response.resource
+                                && let Some(email) = user.email.value.as_ref()
+                                && let Some(id) = user.id.as_ref()
+                            {
+                                TenantAuthAdmin::create(
+                                    state.repo.as_ref(),
+                                    &res.ctx.tenant,
+                                    CreateUser {
+                                        id: id.clone(),
+                                        email: email.clone(),
+                                        role: (*user.role).clone().into(),
+                                        method: get_user_method(user),
+                                        provider_id: get_provider_id(user),
+                                        password: None,
+                                    },
+                                )
+                                .await?;
 
-                match res.response.as_ref() {
-                    Some(FHIRResponse::Create(create_response)) => {
-                        if let Resource::User(user) = &create_response.resource
-                            && let Some(email) = user.email.value.as_ref()
-                            && let Some(id) = user.id.as_ref()
-                        {
-                            TenantAuthAdmin::create(
-                                state.repo.as_ref(),
-                                &res.ctx.tenant,
-                                CreateUser {
-                                    id: id.clone(),
-                                    email: email.clone(),
-                                    role: (*user.role).clone().into(),
-                                    method: get_user_method(user),
-                                    provider_id: get_provider_id(user),
-                                    password: None,
-                                },
-                            )
-                            .await?;
-
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "User resource is invalid.".to_string(),
-                            ))
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "User resource is invalid.".to_string(),
+                                ))
+                            }
                         }
-                    }
-                    Some(FHIRResponse::DeleteInstance(delete_response)) => {
-                        if let Resource::User(user) = &delete_response.resource
-                            && let Some(id) = user.id.as_ref()
-                        {
-                            TenantAuthAdmin::<CreateUser, _, _, _>::delete(
-                                state.repo.as_ref(),
-                                &res.ctx.tenant,
-                                id,
-                            )
-                            .await?;
+                        Some(FHIRResponse::DeleteInstance(delete_response)) => {
+                            if let Resource::User(user) = &delete_response.resource
+                                && let Some(id) = user.id.as_ref()
+                            {
+                                TenantAuthAdmin::<CreateUser, _, _, _>::delete(
+                                    state.repo.as_ref(),
+                                    &res.ctx.tenant,
+                                    id,
+                                )
+                                .await?;
 
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "User resource is invalid.".to_string(),
-                            ))
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "User resource is invalid.".to_string(),
+                                ))
+                            }
                         }
-                    }
-                    Some(FHIRResponse::Update(update_response)) => {
-                        if let Resource::User(user) = &update_response.resource
-                            && let Some(email) = user.email.value.as_ref()
-                            && let Some(id) = user.id.as_ref()
-                        {
-                            TenantAuthAdmin::<CreateUser, _, _, _>::update(
-                                state.repo.as_ref(),
-                                &res.ctx.tenant,
-                                UpdateUser {
-                                    id: id.clone(),
-                                    email: Some(email.clone()),
-                                    role: Some((*user.role).clone().into()),
-                                    method: Some(get_user_method(user)),
-                                    provider_id: get_provider_id(user),
-                                    password: None,
-                                },
-                            )
-                            .await?;
+                        Some(FHIRResponse::Update(update_response)) => {
+                            if let Resource::User(user) = &update_response.resource
+                                && let Some(email) = user.email.value.as_ref()
+                                && let Some(id) = user.id.as_ref()
+                            {
+                                TenantAuthAdmin::<CreateUser, _, _, _>::update(
+                                    state.repo.as_ref(),
+                                    &res.ctx.tenant,
+                                    UpdateUser {
+                                        id: id.clone(),
+                                        email: Some(email.clone()),
+                                        role: Some((*user.role).clone().into()),
+                                        method: Some(get_user_method(user)),
+                                        provider_id: get_provider_id(user),
+                                        password: None,
+                                    },
+                                )
+                                .await?;
 
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "User resource is invalid.".to_string(),
-                            ))
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "User resource is invalid.".to_string(),
+                                ))
+                            }
                         }
-                    }
 
-                    _ => Ok(res),
+                        _ => Ok(res),
+                    }
                 }
             } else {
                 Err(OperationOutcomeError::fatal(

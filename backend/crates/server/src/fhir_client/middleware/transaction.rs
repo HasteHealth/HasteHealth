@@ -37,12 +37,16 @@ pub async fn setup_transaction_context<
         | FHIRRequest::DeleteInstance(_)
         | FHIRRequest::UpdateInstance(_)
         | FHIRRequest::ConditionalUpdate(_) => {
-            let transaction_client = Arc::new(state.repo.transaction().await?);
-            Ok(Arc::new(ClientState {
-                repo: transaction_client.clone(),
-                search: state.search.clone(),
-                terminology: state.terminology.clone(),
-            }))
+            if state.repo.in_transaction() {
+                return Ok(state);
+            } else {
+                let transaction_client = Arc::new(state.repo.transaction().await?);
+                Ok(Arc::new(ClientState {
+                    repo: transaction_client.clone(),
+                    search: state.search.clone(),
+                    terminology: state.terminology.clone(),
+                }))
+            }
         }
         FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => Ok(state),
         _ => Err(OperationOutcomeError::fatal(
@@ -79,32 +83,35 @@ impl<
     ) -> ServerMiddlewareOutput {
         Box::pin(async move {
             if let Some(next) = next {
-                let repo_client;
-                // Place in block so transaction_state gets dropped.
-                let res = {
-                    let transaction_state =
-                        setup_transaction_context(&context.request, state.clone()).await?;
-                    // Setup so can run a commit after.
-                    repo_client = transaction_state.repo.clone();
+                if state.repo.in_transaction() {
+                    Ok(next(state, context).await?)
+                } else {
+                    let repo_client;
+                    // Place in block so transaction_state gets dropped.
+                    let res = {
+                        let transaction_state =
+                            setup_transaction_context(&context.request, state.clone()).await?;
+                        // Setup so can run a commit after.
+                        repo_client = transaction_state.repo.clone();
+                        let res = next(transaction_state.clone(), context).await?;
 
-                    let res = next(transaction_state.clone(), context).await?;
+                        res
+                    };
 
-                    res
-                };
+                    if repo_client.in_transaction() {
+                        Arc::try_unwrap(repo_client)
+                            .map_err(|_e| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Exception(None),
+                                    "Failed to unwrap transaction client".to_string(),
+                                )
+                            })?
+                            .commit()
+                            .await?;
+                    }
 
-                if repo_client.in_transaction() {
-                    Arc::try_unwrap(repo_client)
-                        .map_err(|_e| {
-                            OperationOutcomeError::fatal(
-                                IssueType::Exception(None),
-                                "Failed to unwrap transaction client".to_string(),
-                            )
-                        })?
-                        .commit()
-                        .await?;
+                    Ok(res)
                 }
-
-                Ok(res)
             } else {
                 Err(OperationOutcomeError::fatal(
                     IssueType::Exception(None),
