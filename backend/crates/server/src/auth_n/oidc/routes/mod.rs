@@ -1,12 +1,13 @@
 use crate::{
     auth_n::oidc::middleware::{
-        AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig,
+        AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig, project_exists,
     },
     services::AppState,
 };
 use axum::{
     Router,
     extract::{Json, OriginalUri, State},
+    middleware,
 };
 use axum_extra::routing::{
     RouterExt, // for `Router::typed_*`
@@ -127,7 +128,9 @@ pub fn create_router<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
->() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
+>(
+    state: Arc<AppState<Repo, Search, Terminology>>,
+) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     let well_known_routes = Router::new().typed_get(openid_configuration);
 
     let token_routes = Router::new().typed_post(token::token);
@@ -137,6 +140,7 @@ pub fn create_router<
         .typed_get(authorize::authorize)
         .route_layer(
             ServiceBuilder::new()
+                .layer(middleware::from_fn_with_state(state, project_exists))
                 .layer(OIDCParameterInjectLayer::new(
                     (*AUTHORIZE_PARAMETERS).clone(),
                 ))

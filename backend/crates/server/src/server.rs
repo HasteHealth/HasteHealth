@@ -174,9 +174,10 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 )),
         );
 
-    let project_router = Router::new()
-        .nest("/fhir", fhir_router)
-        .nest("/oidc", auth_n::oidc::routes::create_router());
+    let project_router = Router::new().nest("/fhir", fhir_router).nest(
+        "/oidc",
+        auth_n::oidc::routes::create_router(shared_state.clone()),
+    );
 
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
 
