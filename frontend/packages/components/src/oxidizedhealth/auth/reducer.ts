@@ -98,7 +98,7 @@ export function OxidizedHealthReducer(
         logout: (redirect: string) => {
           const url = new URL(
             conditionalAddTenant(
-              `/oidc/interaction/logout?client_id=${action.clientId}&redirect_uri=${redirect}`,
+              `/api/v1/${action.project}/oidc/interactions/logout?client_id=${action.clientId}&redirect_uri=${redirect}`,
               action.tenant
             ),
             action.domain

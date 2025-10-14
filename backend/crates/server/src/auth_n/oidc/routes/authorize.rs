@@ -51,8 +51,8 @@ pub async fn authorize<
     Extension(oidc_params): Extension<OIDCParameters>,
     current_session: Session,
 ) -> Result<Redirect, OperationOutcomeError> {
-    let user = session::user::get_user(current_session).await?.unwrap();
-
+    let user = session::user::get_user(&current_session).await?.unwrap();
+    // Verify the user has access to the given project.
     match &user.role {
         UserRole::Owner | UserRole::Admin => Ok(()),
         UserRole::Member => {
@@ -68,7 +68,10 @@ pub async fn authorize<
             )
             .await?;
 
+            println!("Membership: {:?}", membership);
+
             if membership.is_empty() {
+                session::user::clear_user(&current_session).await?;
                 Err(OperationOutcomeError::error(
                     IssueType::Forbidden(None),
                     "User is not a member of the project.".to_string(),
