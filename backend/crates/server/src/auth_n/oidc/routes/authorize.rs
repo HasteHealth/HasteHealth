@@ -23,8 +23,12 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::authorization_code::{
-        AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
+    types::{
+        authorization_code::{
+            AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
+        },
+        membership::MembershipSearchClaims,
+        user::UserRole,
     },
 };
 use std::{sync::Arc, time::Duration};
@@ -48,6 +52,33 @@ pub async fn authorize<
     current_session: Session,
 ) -> Result<Redirect, OperationOutcomeError> {
     let user = session::user::get_user(current_session).await?.unwrap();
+
+    match &user.role {
+        UserRole::Owner | UserRole::Admin => Ok(()),
+        UserRole::Member => {
+            // Check that user is a member of the tenant.
+            let membership = ProjectAuthAdmin::search(
+                &*app_state.repo,
+                &tenant,
+                &project,
+                &MembershipSearchClaims {
+                    user_id: Some(user.id.clone()),
+                    role: None,
+                },
+            )
+            .await?;
+
+            if membership.is_empty() {
+                Err(OperationOutcomeError::error(
+                    IssueType::Forbidden(None),
+                    "User is not a member of the project.".to_string(),
+                ))
+            } else {
+                Ok(())
+            }
+        }
+    }?;
+
     let state = oidc_params.parameters.get("state").ok_or_else(|| {
         OperationOutcomeError::error(
             IssueType::Invalid(None),
