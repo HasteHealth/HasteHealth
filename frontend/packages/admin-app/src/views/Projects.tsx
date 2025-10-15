@@ -67,9 +67,16 @@ export default function Projects() {
                 key={project.id}
                 className="hover:bg-gray-100 cursor-pointer p-6 bg-white border border-gray-200 rounded-lg shadow-sm"
               >
-                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  {project.name}
-                </h5>
+                <div className="flex items-center space-x-1 mb-2">
+                  <div className="flex-1">
+                    <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                      {project.name}{" "}
+                    </h5>
+                  </div>
+                  <div>
+                    <span className="text-gray-300 text-sm">{project.id}</span>
+                  </div>
+                </div>
                 <p className="font-normal text-gray-700 dark:text-gray-400">
                   {project.fhirVersion}
                 </p>
