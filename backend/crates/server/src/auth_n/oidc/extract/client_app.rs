@@ -35,7 +35,7 @@ pub async fn find_client_app<
     project: ProjectId,
     client_id: String,
 ) -> Result<ClientApplication, OperationOutcomeError> {
-    let hardcoded_clients = get_hardcoded_clients(&state.config);
+    let hardcoded_clients = get_hardcoded_clients(&*state.config);
 
     if let Some(client) = hardcoded_clients
         .into_iter()

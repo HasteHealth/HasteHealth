@@ -12,6 +12,7 @@ export const getCapabilities = atom(async (get) => {
     const capabilityStatement = await client.capabilities({}, R4);
     return capabilityStatement;
   } catch (e) {
+    console.error(e);
     if (isResponseError(e)) {
       Toaster.error(
         e.response.body.issue?.[0]?.diagnostics ??

@@ -1,4 +1,4 @@
-use crate::fhir_client::FHIRServerClient;
+use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
 use oxidized_config::Config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
@@ -66,11 +66,11 @@ pub struct AppState<
     pub search: Arc<Search>,
     pub repo: Arc<Repo>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
-    pub config: Box<dyn Config>,
+    pub config: Arc<dyn Config>,
 }
 
 pub async fn create_services(
-    config: Box<dyn Config>,
+    config: Arc<dyn Config>,
 ) -> Result<
     Arc<
         AppState<
@@ -104,12 +104,26 @@ pub async fn create_services(
         resolvers::remote::LRUCanonicalRemoteResolver::new(repo.clone(), search_engine.clone()),
     ));
 
+    let can_mutate: String = config
+        .get("ALLOW_ARTIFACT_MUTATIONS")
+        .unwrap_or("false".into());
+
+    let fhir_client = Arc::new(FHIRServerClient::new(if can_mutate == "true" {
+        ServerClientConfig::allow_mutate_artifacts(
+            repo.clone(),
+            search_engine.clone(),
+            terminology.clone(),
+        )
+    } else {
+        ServerClientConfig::new(repo.clone(), search_engine.clone(), terminology.clone())
+    }));
+
     let shared_state = Arc::new(AppState {
         config,
-        repo: repo.clone(),
-        terminology: terminology.clone(),
-        search: search_engine.clone(),
-        fhir_client: Arc::new(FHIRServerClient::new(repo, search_engine, terminology)),
+        repo: repo,
+        terminology: terminology,
+        search: search_engine,
+        fhir_client,
     });
 
     Ok(shared_state)

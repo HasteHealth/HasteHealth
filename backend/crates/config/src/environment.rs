@@ -23,4 +23,10 @@ impl Config for EnvironmentConfig {
         let k = std::env::var(name).map_err(EnvironmentConfigError::from)?;
         Ok(k)
     }
+    fn set(&self, name: &str, value: String) -> Result<(), OperationOutcomeError> {
+        unsafe {
+            std::env::set_var(name, value);
+        }
+        Ok(())
+    }
 }

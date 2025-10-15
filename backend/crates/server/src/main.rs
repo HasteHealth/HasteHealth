@@ -91,7 +91,7 @@ async fn migrate_repo(config: &dyn Config) -> Result<(), OperationOutcomeError> 
     Ok(())
 }
 
-async fn migrate_search(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
+async fn migrate_search(config: Arc<dyn Config>) -> Result<(), OperationOutcomeError> {
     let services = services::create_services(config).await?;
     services
         .search
@@ -127,7 +127,12 @@ async fn main() -> Result<(), OperationOutcomeError> {
         }
         Commands::Migrate { command } => match command {
             MigrationCommands::Artifacts {} => {
-                load_artifacts::load_artifacts(config).await?;
+                let initial = config
+                    .get("ALLOW_ARTIFACT_MUTATIONS")
+                    .unwrap_or("false".to_string());
+                config.set("ALLOW_ARTIFACT_MUTATIONS", "true".to_string())?;
+                load_artifacts::load_artifacts(config.clone()).await?;
+                config.set("ALLOW_ARTIFACT_MUTATIONS", initial)?;
                 Ok(())
             }
             MigrationCommands::RepoSchema {} => migrate_repo(config.as_ref()).await,

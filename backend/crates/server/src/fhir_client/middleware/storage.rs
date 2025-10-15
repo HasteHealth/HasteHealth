@@ -1,6 +1,6 @@
 use crate::{
     fhir_client::{
-        ClientState, FHIRServerClient, ServerCTX, StorageError,
+        ClientState, FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
             ServerMiddlewareState,
@@ -471,11 +471,11 @@ impl<
                     let mut bundle_entries = Some(Vec::new());
                     // Memswap so I can avoid cloning.
                     std::mem::swap(&mut batch_request.resource.entry, &mut bundle_entries);
-                    let batch_client = FHIRServerClient::new(
+                    let batch_client = FHIRServerClient::new(ServerClientConfig::new(
                         state.repo.clone(),
                         state.search.clone(),
                         state.terminology.clone(),
-                    );
+                    ));
 
                     let mut bundle_response = Bundle {
                         type_: Box::new(BundleType::BatchResponse(None)),

@@ -151,7 +151,7 @@ async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeErro
 
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
-    auth_n::certificates::create_certifications(&config).unwrap();
+    auth_n::certificates::create_certifications(&*config).unwrap();
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
