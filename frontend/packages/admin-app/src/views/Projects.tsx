@@ -21,7 +21,7 @@ export default function Projects() {
   }, []);
 
   return (
-    <div className="h-screen w-screen flex flex-col ">
+    <div className="flex flex-col flex-1">
       <div className=" flex justify-center flex-col px-4 py-4  -top-[15px] mt-16">
         <div className="flex items-center space-x-2 mb-8">
           <h1 className="text-3xl font-bold text-center">Projects</h1>
@@ -65,20 +65,20 @@ export default function Projects() {
                   window.location.href = newUrl;
                 }}
                 key={project.id}
-                className="hover:bg-gray-100 cursor-pointer p-6 bg-white border border-gray-200 rounded-lg shadow-sm"
+                className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm"
               >
                 <div className="flex items-center space-x-1 mb-2">
                   <div className="flex-1">
-                    <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                      {project.name}{" "}
+                    <h5 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                      {project.name}
                     </h5>
                   </div>
                   <div>
-                    <span className="text-gray-300 text-sm">{project.id}</span>
+                    <span className="text-slate-300 text-sm">{project.id}</span>
                   </div>
                 </div>
-                <p className="font-normal text-gray-700 dark:text-gray-400">
-                  {project.fhirVersion}
+                <p className="font-normal text-slate-400">
+                  FHIR Version: {project.fhirVersion}
                 </p>
               </div>
             ))}

@@ -75,7 +75,7 @@ function LoginWrapper() {
           </div>
         </div>
       ) : (
-        <div className="h-screen flex">
+        <div className="flex flex-1">
           <Outlet />
         </div>
       )}
@@ -137,22 +137,28 @@ const router =
           element: <OxidizedHealthWrapper />,
           children: [
             {
-              id: "login",
-              element: <LoginWrapper />,
+              id: "system-root",
+              element: <Page />,
               children: [
                 {
-                  id: "empty-workspace",
-                  path: "/no-workspace",
-                  element: <EmptyWorkspace />,
-                },
-                {
-                  path: "/",
-                  element: <ServiceSetup />,
+                  id: "login",
+                  element: <LoginWrapper />,
                   children: [
                     {
-                      id: "tenant",
+                      id: "empty-workspace",
+                      path: "/no-workspace",
+                      element: <EmptyWorkspace />,
+                    },
+                    {
                       path: "/",
-                      element: <Projects />,
+                      element: <ServiceSetup />,
+                      children: [
+                        {
+                          id: "tenant",
+                          path: "/",
+                          element: <Projects />,
+                        },
+                      ],
                     },
                   ],
                 },
@@ -227,6 +233,79 @@ const router =
           ],
         },
       ]);
+
+function Navbar() {
+  const oxidizedHealth = useOxidizedHealth();
+  const navigate = useNavigate();
+
+  return (
+    <div className="px-4 z-10 sm:px-6 lg:px-8 sticky top-0 bg-white">
+      <div className="flex items-center " style={{ height: "64px" }}>
+        <div className="flex grow mr-4">
+          <Search />
+        </div>
+        <div className="flex justify-center items-center space-x-8">
+          <a
+            target="_blank"
+            className="cursor text-slate-500 hover:text-slate-600 hover:underline"
+            href="https://oxidized-health.app"
+          >
+            Documentation
+          </a>
+          <ProfileDropdown
+            user={{
+              email: oxidizedHealth.user?.email,
+              name:
+                oxidizedHealth.user?.given_name || oxidizedHealth.user?.email,
+              // imageUrl: auth0.user?.picture,
+            }}
+          >
+            <div>
+              <div className="mt-2">
+                <a
+                  className={classNames(
+                    "cursor-pointer block px-4 py-2 text-sm  hover:text-teal-800 hover:bg-teal-200"
+                  )}
+                  onClick={() => {
+                    navigate(generatePath("/settings", {}));
+                  }}
+                >
+                  Settings
+                </a>
+                <a
+                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-teal-800 hover:bg-teal-200"
+                  onClick={() => {
+                    oxidizedHealth.logout(window.location.origin);
+                  }}
+                >
+                  Sign out
+                </a>
+              </div>
+            </div>
+          </ProfileDropdown>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Page() {
+  return (
+    <>
+      <Navbar />
+      <div
+        className="p-4 flex flex-1"
+        style={{ maxHeight: "calc(100vh - 64px)" }}
+      >
+        <Toaster.Toaster />
+        <Outlet />
+      </div>
+      <React.Suspense fallback={<div />}>
+        <SearchModal />
+      </React.Suspense>
+    </>
+  );
+}
 
 function ProjectRoot() {
   const oxidizedHealth = useOxidizedHealth();
@@ -429,67 +508,8 @@ function ProjectRoot() {
           </SideBar.SideBar>
         }
       >
-        <>
-          <div className="px-4 z-10 sm:px-6 lg:px-8 sticky top-0 bg-white">
-            <div className="flex items-center " style={{ height: "64px" }}>
-              <div className="flex grow mr-4">
-                <Search />
-              </div>
-              <div className="flex justify-center items-center space-x-8">
-                <a
-                  target="_blank"
-                  className="cursor text-slate-500 hover:text-slate-600 hover:underline"
-                  href="https://oxidized-health.app"
-                >
-                  Documentation
-                </a>
-                <ProfileDropdown
-                  user={{
-                    email: oxidizedHealth.user?.email,
-                    name:
-                      oxidizedHealth.user?.given_name ||
-                      oxidizedHealth.user?.email,
-                    // imageUrl: auth0.user?.picture,
-                  }}
-                >
-                  <div>
-                    <div className="mt-2">
-                      <a
-                        className={classNames(
-                          "cursor-pointer block px-4 py-2 text-sm  hover:text-teal-800 hover:bg-teal-200"
-                        )}
-                        onClick={() => {
-                          navigate(generatePath("/settings", {}));
-                        }}
-                      >
-                        Settings
-                      </a>
-                      <a
-                        className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-teal-800 hover:bg-teal-200"
-                        onClick={() => {
-                          oxidizedHealth.logout(window.location.origin);
-                        }}
-                      >
-                        Sign out
-                      </a>
-                    </div>
-                  </div>
-                </ProfileDropdown>
-              </div>
-            </div>
-          </div>
-          <div
-            className="p-4 flex flex-1"
-            style={{ maxHeight: "calc(100vh - 64px)" }}
-          >
-            <Toaster.Toaster />
-            <Outlet />
-          </div>
-        </>
+        <Page />
       </SideBar.SidebarLayout>
-      <React.Suspense fallback={<div />}>
-        <SearchModal />
-      </React.Suspense>
     </>
   );
 }
