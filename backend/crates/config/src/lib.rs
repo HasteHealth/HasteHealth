@@ -4,9 +4,9 @@ use std::sync::Arc;
 
 mod environment;
 
-pub trait Config: Send + Sync {
-    fn get(&self, name: &str) -> Result<String, OperationOutcomeError>;
-    fn set(&self, name: &str, value: String) -> Result<(), OperationOutcomeError>;
+pub trait Config<Key: Into<String>>: Send + Sync {
+    fn get(&self, name: Key) -> Result<String, OperationOutcomeError>;
+    fn set(&self, name: Key, value: String) -> Result<(), OperationOutcomeError>;
 }
 
 pub enum ConfigType {
@@ -22,7 +22,7 @@ impl From<&str> for ConfigType {
     }
 }
 
-pub fn get_config(config_type: ConfigType) -> Arc<dyn Config> {
+pub fn get_config<Key: Into<String>>(config_type: ConfigType) -> Arc<dyn Config<Key>> {
     match config_type {
         ConfigType::Environment => Arc::new(EnvironmentConfig::new().unwrap()),
     }
