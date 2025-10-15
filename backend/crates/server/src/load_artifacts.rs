@@ -1,6 +1,6 @@
 use std::{collections::HashSet, sync::Arc};
 
-use crate::{fhir_client::ServerCTX, services::create_services};
+use crate::{ServerEnvironmentVariables, fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use oxidized_artifacts::ARTIFACT_RESOURCES;
 use oxidized_config::Config;
@@ -98,7 +98,9 @@ pub fn get_resource_type(resource: &Resource) -> ResourceType {
     }
 }
 
-pub async fn load_artifacts(config: Arc<dyn Config>) -> Result<(), OperationOutcomeError> {
+pub async fn load_artifacts(
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
+) -> Result<(), OperationOutcomeError> {
     let services = create_services(config.clone()).await?;
 
     let ctx = Arc::new(ServerCTX {

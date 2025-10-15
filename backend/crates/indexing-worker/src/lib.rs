@@ -146,8 +146,30 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
     }
 }
 
+pub enum IndexingWorkerEnvironmentVariables {
+    DatabaseURL,
+    ElasticSearchURL,
+    ElasticSearchUsername,
+    ElasticSearchPassword,
+}
+
+impl From<IndexingWorkerEnvironmentVariables> for String {
+    fn from(value: IndexingWorkerEnvironmentVariables) -> Self {
+        match value {
+            IndexingWorkerEnvironmentVariables::DatabaseURL => "DATABASE_URL".to_string(),
+            IndexingWorkerEnvironmentVariables::ElasticSearchURL => "ELASTICSEARCH_URL".to_string(),
+            IndexingWorkerEnvironmentVariables::ElasticSearchUsername => {
+                "ELASTICSEARCH_USERNAME".to_string()
+            }
+            IndexingWorkerEnvironmentVariables::ElasticSearchPassword => {
+                "ELASTICSEARCH_PASSWORD".to_string()
+            }
+        }
+    }
+}
+
 pub async fn run_worker() {
-    let config = get_config("environment".into());
+    let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
     let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
@@ -156,14 +178,23 @@ pub async fn run_worker() {
         ElasticSearchEngine::new(
             fp_engine.clone(),
             &config
-                .get("ELASTICSEARCH_URL")
-                .expect("ELASTICSEARCH_URL variable not set"),
+                .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
+                )),
             config
-                .get("ELASTICSEARCH_USERNAME")
-                .expect("ELASTICSEARCH_USERNAME variable not set"),
+                .get(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
+                )),
             config
-                .get("ELASTICSEARCH_PASSWORD")
-                .expect("ELASTICSEARCH_PASSWORD variable not set"),
+                .get(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
+                )),
         )
         .expect("Failed to create Elasticsearch client"),
     );
@@ -173,9 +204,13 @@ pub async fn run_worker() {
         .await
         .expect("Failed to create mapping for R4 index");
 
-    let pg_pool = sqlx::PgPool::connect(&config.get("DATABASE_URL").unwrap())
-        .await
-        .expect("Failed to connect to the database");
+    let pg_pool = sqlx::PgPool::connect(
+        &config
+            .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
+            .unwrap(),
+    )
+    .await
+    .expect("Failed to connect to the database");
 
     let repo = Arc::new(oxidized_repository::pg::PGConnection::PgPool(
         pg_pool.clone(),

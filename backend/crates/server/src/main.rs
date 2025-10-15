@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{Router, ServiceExt, body::Body};
 use clap::{Parser, Subcommand};
 use oxidized_config::{Config, get_config};
@@ -16,11 +14,13 @@ use oxidized_repository::{
     types::{ProjectId, TenantId, user::UpdateUser},
 };
 use oxidized_server::{
+    ServerEnvironmentVariables,
     fhir_client::ServerCTX,
     load_artifacts, server,
     services::{self, get_pool},
     tenants::{SubscriptionTier, create_tenant},
 };
+use std::sync::Arc;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -83,7 +83,9 @@ enum UserCommands {
     },
 }
 
-async fn migrate_repo(config: &dyn Config) -> Result<(), OperationOutcomeError> {
+async fn migrate_repo(
+    config: &dyn Config<ServerEnvironmentVariables>,
+) -> Result<(), OperationOutcomeError> {
     sqlx::migrate!("./migrations")
         .run(get_pool(config).await)
         .await
@@ -91,7 +93,9 @@ async fn migrate_repo(config: &dyn Config) -> Result<(), OperationOutcomeError> 
     Ok(())
 }
 
-async fn migrate_search(config: Arc<dyn Config>) -> Result<(), OperationOutcomeError> {
+async fn migrate_search(
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
+) -> Result<(), OperationOutcomeError> {
     let services = services::create_services(config).await?;
     services
         .search
@@ -104,7 +108,7 @@ async fn migrate_search(config: Arc<dyn Config>) -> Result<(), OperationOutcomeE
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
 
-    let config = get_config("environment".into());
+    let config = get_config::<ServerEnvironmentVariables>("environment".into());
 
     match &cli.command {
         Commands::Start { port } => {
@@ -128,11 +132,14 @@ async fn main() -> Result<(), OperationOutcomeError> {
         Commands::Migrate { command } => match command {
             MigrationCommands::Artifacts {} => {
                 let initial = config
-                    .get("ALLOW_ARTIFACT_MUTATIONS")
+                    .get(ServerEnvironmentVariables::AllowArtifactMutations)
                     .unwrap_or("false".to_string());
-                config.set("ALLOW_ARTIFACT_MUTATIONS", "true".to_string())?;
+                config.set(
+                    ServerEnvironmentVariables::AllowArtifactMutations,
+                    "true".to_string(),
+                )?;
                 load_artifacts::load_artifacts(config.clone()).await?;
-                config.set("ALLOW_ARTIFACT_MUTATIONS", initial)?;
+                config.set(ServerEnvironmentVariables::AllowArtifactMutations, initial)?;
                 Ok(())
             }
             MigrationCommands::RepoSchema {} => migrate_repo(config.as_ref()).await,

@@ -1,4 +1,7 @@
-use crate::fhir_client::{FHIRServerClient, ServerClientConfig};
+use crate::{
+    ServerEnvironmentVariables,
+    fhir_client::{FHIRServerClient, ServerClientConfig},
+};
 use oxidized_config::Config;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
@@ -17,11 +20,14 @@ use tracing::info;
 
 // Singleton for the database connection pool in postgres.
 static POOL: OnceCell<Pool<Postgres>> = OnceCell::const_new();
-pub async fn get_pool(config: &dyn Config) -> &'static Pool<Postgres> {
+pub async fn get_pool(config: &dyn Config<ServerEnvironmentVariables>) -> &'static Pool<Postgres> {
     POOL.get_or_init(async || {
         let database_url = config
-            .get("DATABASE_URL")
-            .expect("DATABASE_URL must be set");
+            .get(ServerEnvironmentVariables::DataBaseURL)
+            .expect(&format!(
+                "'{}' must be set",
+                String::from(ServerEnvironmentVariables::DataBaseURL)
+            ));
         info!("Connecting to postgres database");
         let connection = PgPoolOptions::new()
             .max_connections(5)
@@ -66,11 +72,11 @@ pub struct AppState<
     pub search: Arc<Search>,
     pub repo: Arc<Repo>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
-    pub config: Arc<dyn Config>,
+    pub config: Arc<dyn Config<ServerEnvironmentVariables>>,
 }
 
 pub async fn create_services(
-    config: Arc<dyn Config>,
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
 ) -> Result<
     Arc<
         AppState<
@@ -86,14 +92,23 @@ pub async fn create_services(
         oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
             Arc::new(FPEngine::new()),
             &config
-                .get("ELASTICSEARCH_URL")
-                .expect("ELASTICSEARCH_URL variable not set"),
+                .get(ServerEnvironmentVariables::ElasticSearchURL)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(ServerEnvironmentVariables::ElasticSearchURL)
+                )),
             config
-                .get("ELASTICSEARCH_USERNAME")
-                .expect("ELASTICSEARCH_USERNAME variable not set"),
+                .get(ServerEnvironmentVariables::ElasticSearchUsername)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(ServerEnvironmentVariables::ElasticSearchUsername)
+                )),
             config
-                .get("ELASTICSEARCH_PASSWORD")
-                .expect("ELASTICSEARCH_PASSWORD variable not set"),
+                .get(ServerEnvironmentVariables::ElasticSearchPassword)
+                .expect(&format!(
+                    "'{}' variable not set",
+                    String::from(ServerEnvironmentVariables::ElasticSearchPassword)
+                )),
         )
         .expect("Failed to create Elasticsearch client"),
     );
@@ -105,7 +120,7 @@ pub async fn create_services(
     ));
 
     let can_mutate: String = config
-        .get("ALLOW_ARTIFACT_MUTATIONS")
+        .get(ServerEnvironmentVariables::AllowArtifactMutations)
         .unwrap_or("false".into());
 
     let fhir_client = Arc::new(FHIRServerClient::new(if can_mutate == "true" {

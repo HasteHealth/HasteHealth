@@ -18,14 +18,14 @@ impl EnvironmentConfig {
     }
 }
 
-impl Config for EnvironmentConfig {
-    fn get(&self, name: &str) -> Result<String, OperationOutcomeError> {
-        let k = std::env::var(name).map_err(EnvironmentConfigError::from)?;
+impl<Key: Into<String>> Config<Key> for EnvironmentConfig {
+    fn get(&self, key: Key) -> Result<String, OperationOutcomeError> {
+        let k = std::env::var(key.into()).map_err(EnvironmentConfigError::from)?;
         Ok(k)
     }
-    fn set(&self, name: &str, value: String) -> Result<(), OperationOutcomeError> {
+    fn set(&self, key: Key, value: String) -> Result<(), OperationOutcomeError> {
         unsafe {
-            std::env::set_var(name, value);
+            std::env::set_var(key.into(), value);
         }
         Ok(())
     }
