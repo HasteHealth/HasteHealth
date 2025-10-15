@@ -83,7 +83,9 @@ enum UserCommands {
     },
 }
 
-async fn migrate_repo(config: &dyn Config) -> Result<(), OperationOutcomeError> {
+async fn migrate_repo(
+    config: &dyn Config<ServerEnvironmentVariables>,
+) -> Result<(), OperationOutcomeError> {
     sqlx::migrate!("./migrations")
         .run(get_pool(config).await)
         .await
@@ -91,7 +93,9 @@ async fn migrate_repo(config: &dyn Config) -> Result<(), OperationOutcomeError> 
     Ok(())
 }
 
-async fn migrate_search(config: Arc<dyn Config>) -> Result<(), OperationOutcomeError> {
+async fn migrate_search(
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
+) -> Result<(), OperationOutcomeError> {
     let services = services::create_services(config).await?;
     services
         .search
