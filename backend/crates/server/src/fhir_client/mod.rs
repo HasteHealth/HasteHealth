@@ -435,7 +435,7 @@ impl<
         match res.response {
             Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
             Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
-            _ => panic!("Unexpected response type"),
+            _ => panic!("Unexpected response type {:?}", res.response),
         }
     }
 

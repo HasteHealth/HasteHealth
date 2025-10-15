@@ -15,7 +15,10 @@ import {
   FixedSizeList as _FixedSizeList,
 } from "react-window";
 
-import { CapabilityStatementRestResource } from "@oxidized-health/fhir-types/r4/types";
+import {
+  CapabilityStatementRestResource,
+  ResourceType,
+} from "@oxidized-health/fhir-types/r4/types";
 
 import { getCapabilities } from "../db/capabilities";
 
@@ -66,7 +69,11 @@ function SearchResultItem({
   );
 }
 
-function SearchModal() {
+type SearchModalProps = {
+  resourceTypeFilter?: ResourceType[];
+};
+
+function SearchModal(props: SearchModalProps) {
   const [inputSearch, setInputSearch] = useState<HTMLInputElement | null>(null);
   const capabilities = useAtomValue(getCapabilities);
   const [search, setSearch] = useState("");
@@ -81,6 +88,13 @@ function SearchModal() {
 
   const searchResults = useMemo(() => {
     return capabilities?.rest?.[0].resource?.filter((r) => {
+      if (
+        props.resourceTypeFilter &&
+        !props.resourceTypeFilter.includes(r.type as ResourceType)
+      ) {
+        return false;
+      }
+
       return (
         r.type.toLowerCase().includes(search.toLowerCase()) ||
         r.profile?.toLowerCase().includes(search.toLowerCase())

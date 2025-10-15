@@ -40,6 +40,7 @@ import Resources from "./views/Resources";
 import Settings from "./views/Settings";
 import Projects from "./views/Projects";
 import { deriveProjectId, deriveTenantId } from "./utilities";
+import * as r4Types from "@oxidized-health/fhir-types/r4/types";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -127,6 +128,12 @@ function OxidizedHealthWrapper() {
   );
 }
 
+const SYSTEM_TYPES: r4Types.ResourceType[] = [
+  "User",
+  "Project",
+  "IdentityProvider",
+];
+
 const router =
   deriveProjectId() == "system"
     ? createBrowserRouter([
@@ -149,7 +156,7 @@ const router =
                   children: [
                     {
                       id: "system-root",
-                      element: <Page />,
+                      element: <Page resourceTypeFilter={SYSTEM_TYPES} />,
 
                       children: [
                         {
@@ -288,7 +295,11 @@ function Navbar() {
   );
 }
 
-function Page() {
+type PageProps = {
+  resourceTypeFilter?: r4Types.ResourceType[];
+};
+
+function Page(props: PageProps) {
   return (
     <>
       <Navbar />
@@ -300,7 +311,7 @@ function Page() {
         <Outlet />
       </div>
       <React.Suspense fallback={<div />}>
-        <SearchModal />
+        <SearchModal resourceTypeFilter={props.resourceTypeFilter} />
       </React.Suspense>
     </>
   );
