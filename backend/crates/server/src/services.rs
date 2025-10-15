@@ -108,8 +108,6 @@ pub async fn create_services(
         .get("ALLOW_ARTIFACT_MUTATIONS")
         .unwrap_or("false".into());
 
-    println!("CAN MUTATE: {}", can_mutate);
-
     let fhir_client = Arc::new(FHIRServerClient::new(if can_mutate == "true" {
         ServerClientConfig::allow_mutate_artifacts(
             repo.clone(),
