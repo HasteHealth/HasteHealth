@@ -24,9 +24,7 @@ import {
   useOxidizedHealth,
 } from "@oxidized-health/components";
 import "@oxidized-health/components/dist/index.css";
-import { ProjectId, TenantId } from "@oxidized-health/jwt/types";
 
-import { Logo } from "./components/Logo";
 import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
 import { REACT_APP_CLIENT_ID, REACT_APP_FHIR_BASE_URL } from "./config";
@@ -75,7 +73,7 @@ function LoginWrapper() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-1">
+        <div className="flex flex-col flex-1">
           <Outlet />
         </div>
       )}
@@ -137,21 +135,22 @@ const router =
           element: <OxidizedHealthWrapper />,
           children: [
             {
-              id: "system-root",
-              element: <Page />,
+              id: "empty-workspace",
+              path: "/no-workspace",
+              element: <EmptyWorkspace />,
+            },
+            {
+              path: "/",
+              element: <ServiceSetup />,
               children: [
                 {
                   id: "login",
                   element: <LoginWrapper />,
                   children: [
                     {
-                      id: "empty-workspace",
-                      path: "/no-workspace",
-                      element: <EmptyWorkspace />,
-                    },
-                    {
-                      path: "/",
-                      element: <ServiceSetup />,
+                      id: "system-root",
+                      element: <Page />,
+
                       children: [
                         {
                           id: "tenant",
