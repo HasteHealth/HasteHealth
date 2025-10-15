@@ -16,7 +16,7 @@ use std::{path::Path, sync::LazyLock};
 static PRIVATE_KEY_FILENAME: &str = "private_key.pem";
 static PUBLIC_KEY_FILENAME: &str = "public_key.pem";
 
-pub fn create_certifications(config: &Box<dyn Config>) -> Result<(), OperationOutcomeError> {
+pub fn create_certifications(config: &dyn Config) -> Result<(), OperationOutcomeError> {
     let certificate_dir = config.get("CERTIFICATION_DIR").unwrap();
     let dir: &Path = Path::new(&certificate_dir);
 

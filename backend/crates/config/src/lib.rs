@@ -1,10 +1,12 @@
 use crate::environment::EnvironmentConfig;
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use std::sync::Arc;
 
 mod environment;
 
 pub trait Config: Send + Sync {
     fn get(&self, name: &str) -> Result<String, OperationOutcomeError>;
+    fn set(&self, name: &str, value: String) -> Result<(), OperationOutcomeError>;
 }
 
 pub enum ConfigType {
@@ -20,8 +22,8 @@ impl From<&str> for ConfigType {
     }
 }
 
-pub fn get_config(config_type: ConfigType) -> Box<dyn Config> {
+pub fn get_config(config_type: ConfigType) -> Arc<dyn Config> {
     match config_type {
-        ConfigType::Environment => Box::new(EnvironmentConfig::new().unwrap()),
+        ConfigType::Environment => Arc::new(EnvironmentConfig::new().unwrap()),
     }
 }

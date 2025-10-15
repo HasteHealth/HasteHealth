@@ -98,8 +98,8 @@ pub fn get_resource_type(resource: &Resource) -> ResourceType {
     }
 }
 
-pub async fn load_artifacts(config: Box<dyn Config>) -> Result<(), OperationOutcomeError> {
-    let services = create_services(config).await?;
+pub async fn load_artifacts(config: Arc<dyn Config>) -> Result<(), OperationOutcomeError> {
+    let services = create_services(config.clone()).await?;
 
     let ctx = Arc::new(ServerCTX {
         tenant: TenantId::System,

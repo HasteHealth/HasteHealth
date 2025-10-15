@@ -1,5 +1,5 @@
 use crate::{
-    fhir_client::{FHIRServerClient, ServerCTX},
+    fhir_client::{FHIRServerClient, ServerCTX, ServerClientConfig},
     services::AppState,
 };
 use clap::ValueEnum;
@@ -50,11 +50,11 @@ pub async fn create_tenant<
 ) -> Result<(), OperationOutcomeError> {
     let transaction_repo = Arc::new(services.repo.transaction().await?);
     {
-        let fhir_client = FHIRServerClient::new(
+        let fhir_client = FHIRServerClient::new(ServerClientConfig::new(
             transaction_repo.clone(),
             services.search.clone(),
             services.terminology.clone(),
-        );
+        ));
 
         let new_tenant = TenantAuthAdmin::create(
             &*transaction_repo.clone(),
