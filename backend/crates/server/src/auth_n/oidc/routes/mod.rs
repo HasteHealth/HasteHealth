@@ -53,7 +53,10 @@ async fn openid_configuration<
     OriginalUri(uri): OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
-    let api_url_string = state.config.get("API_URL").unwrap_or_default();
+    let api_url_string = state
+        .config
+        .get(crate::ServerEnvironmentVariables::APIURL)
+        .unwrap_or_default();
 
     if api_url_string.is_empty() {
         return Err(OperationOutcomeError::error(

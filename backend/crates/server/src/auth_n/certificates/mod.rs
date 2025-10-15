@@ -13,11 +13,17 @@ use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::{path::Path, sync::LazyLock};
 
+use crate::ServerEnvironmentVariables;
+
 static PRIVATE_KEY_FILENAME: &str = "private_key.pem";
 static PUBLIC_KEY_FILENAME: &str = "public_key.pem";
 
-pub fn create_certifications(config: &dyn Config) -> Result<(), OperationOutcomeError> {
-    let certificate_dir = config.get("CERTIFICATION_DIR").unwrap();
+pub fn create_certifications(
+    config: &dyn Config<ServerEnvironmentVariables>,
+) -> Result<(), OperationOutcomeError> {
+    let certificate_dir = config
+        .get(ServerEnvironmentVariables::CertificationDir)
+        .unwrap();
     let dir: &Path = Path::new(&certificate_dir);
 
     let mut rng = OsRng;
