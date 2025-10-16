@@ -129,12 +129,6 @@ impl<
                         }
 
                         FHIRRequest::DeleteInstance(delete_request) => {
-                            println!(
-                                "Deleting project auth data for project id {} in transaction {}",
-                                delete_request.id,
-                                state.repo.in_transaction()
-                            );
-
                             let res = next(
                                 state.clone(),
                                 ServerMiddlewareContext {
@@ -149,8 +143,6 @@ impl<
                                 },
                             )
                             .await;
-
-                            println!("ADMIN DELETING CUSTOM PROJECT.");
 
                             TenantAuthAdmin::<CreateProject, _, _, _>::delete(
                                 state.repo.as_ref(),

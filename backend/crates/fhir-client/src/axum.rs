@@ -167,6 +167,9 @@ impl IntoResponse for FHIRResponse {
                 )
                     .into_response()
             }
+            FHIRResponse::DeleteInstance(_response) => {
+                (StatusCode::NO_CONTENT, header, "").into_response()
+            }
             _ => panic!("Unsupported FHIRResponse type"),
         }
     }

@@ -22,6 +22,7 @@ use oxidized_repository::{
     types::membership::{self as m, CreateMembership},
 };
 use std::sync::Arc;
+use tracing::info;
 
 // Only need a transaction in the context of Create, Update, Delete, and Conditional Update.
 pub async fn setup_transaction_context<
@@ -93,12 +94,12 @@ impl<
                             setup_transaction_context(&context.request, state.clone()).await?;
                         // Setup so can run a commit after.
                         repo_client = transaction_state.repo.clone();
-                        let res = next(transaction_state.clone(), context).await?;
+                        let res = next(transaction_state.clone(), context).await;
 
                         res
                     };
 
-                    if repo_client.in_transaction() {
+                    if res.is_ok() && repo_client.in_transaction() {
                         Arc::try_unwrap(repo_client)
                             .map_err(|_e| {
                                 OperationOutcomeError::fatal(
@@ -108,9 +109,20 @@ impl<
                             })?
                             .commit()
                             .await?;
+                    } else if res.is_err() && repo_client.in_transaction() {
+                        info!("Rolling back transaction due to error");
+                        Arc::try_unwrap(repo_client)
+                            .map_err(|_e| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Exception(None),
+                                    "Failed to unwrap transaction client".to_string(),
+                                )
+                            })?
+                            .rollback()
+                            .await?;
                     }
 
-                    Ok(res)
+                    res
                 }
             } else {
                 Err(OperationOutcomeError::fatal(
