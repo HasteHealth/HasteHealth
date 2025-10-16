@@ -168,6 +168,11 @@ struct ElasticSearchResponse {
     hits: ElasticSearchHit,
 }
 
+fn unique_index_id(resource_type: &ResourceType, id: &ResourceId) -> String {
+    let unique_index_id = resource_type.as_ref().to_string() + "/" + id.as_ref();
+    unique_index_id
+}
+
 impl SearchEngine for ElasticSearchEngine {
     async fn search<'a>(
         &self,
@@ -231,8 +236,7 @@ impl SearchEngine for ElasticSearchEngine {
             .map(|r| match &r.fhir_method {
                 FHIRMethod::Create | FHIRMethod::Update => {
                     // Id is not sufficient because different Resourcetypes may have the same id.
-                    let unique_index_id =
-                        r.resource_type.as_ref().to_string() + "/" + r.id.as_ref();
+                    let index_id = unique_index_id(&r.resource_type, &r.id);
                     let params =
                         oxidized_artifacts::search_parameters::get_search_parameters_for_resource(
                             &r.resource_type,
@@ -265,13 +269,16 @@ impl SearchEngine for ElasticSearchEngine {
                     );
 
                     Ok(BulkOperation::index(elastic_index)
-                        .id(unique_index_id)
+                        .id(index_id)
                         .index(get_index_name(_fhir_version)?)
                         .into())
                 }
-                FHIRMethod::Delete => Ok(BulkOperation::delete(r.id.as_ref())
-                    .index(get_index_name(_fhir_version)?)
-                    .into()),
+                FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
+                    &r.resource_type,
+                    &r.id,
+                ))
+                .index(get_index_name(_fhir_version)?)
+                .into()),
                 method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()).into()),
             })
             .collect::<Result<Vec<_>, OperationOutcomeError>>()?;

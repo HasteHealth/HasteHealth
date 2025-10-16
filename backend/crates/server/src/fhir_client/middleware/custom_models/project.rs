@@ -129,14 +129,7 @@ impl<
                         }
 
                         FHIRRequest::DeleteInstance(delete_request) => {
-                            TenantAuthAdmin::<CreateProject, _, _, _>::delete(
-                                state.repo.as_ref(),
-                                &context.ctx.tenant,
-                                &delete_request.id,
-                            )
-                            .await?;
-
-                            next(
+                            let res = next(
                                 state.clone(),
                                 ServerMiddlewareContext {
                                     ctx: context.ctx.clone(),
@@ -149,7 +142,16 @@ impl<
                                     ),
                                 },
                             )
-                            .await
+                            .await;
+
+                            TenantAuthAdmin::<CreateProject, _, _, _>::delete(
+                                state.repo.as_ref(),
+                                &context.ctx.tenant,
+                                &delete_request.id,
+                            )
+                            .await?;
+
+                            res
                         }
 
                         FHIRRequest::SearchType(_) => next(state.clone(), context).await,

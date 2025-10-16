@@ -1,5 +1,4 @@
 use axum::response::IntoResponse;
-use core::panic;
 use http::{HeaderMap, StatusCode};
 use oxidized_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
@@ -167,7 +166,32 @@ impl IntoResponse for FHIRResponse {
                 )
                     .into_response()
             }
-            _ => panic!("Unsupported FHIRResponse type"),
+            FHIRResponse::DeleteInstance(_response) => {
+                (StatusCode::NO_CONTENT, header, "").into_response()
+            }
+            FHIRResponse::Patch(fhirpatch_response) => (
+                StatusCode::OK,
+                header,
+                // Unwrap should be safe here.
+                oxidized_fhir_serialization_json::to_string(&fhirpatch_response.resource).unwrap(),
+            )
+                .into_response(),
+            FHIRResponse::DeleteType(_fhirdelete_type_response) => {
+                (StatusCode::NO_CONTENT, header, "").into_response()
+            }
+            FHIRResponse::DeleteSystem(_fhirdelete_system_response) => {
+                (StatusCode::NO_CONTENT, header, "").into_response()
+            }
+            FHIRResponse::Transaction(fhirtransaction_response) => {
+                (
+                    StatusCode::OK,
+                    header,
+                    // Unwrap should be safe here.
+                    oxidized_fhir_serialization_json::to_string(&fhirtransaction_response.resource)
+                        .unwrap(),
+                )
+                    .into_response()
+            }
         }
     }
 }
