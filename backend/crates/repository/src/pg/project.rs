@@ -13,6 +13,7 @@ use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
+    tenant: &'a TenantId,
     project: CreateProject,
 ) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
     async move {
@@ -24,7 +25,7 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         let project = sqlx::query_as!(
             Project,
             r#"INSERT INTO projects (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
-            project.tenant.as_ref(),
+            tenant.as_ref(),
             id.as_ref(),
             project.fhir_version as SupportedFHIRVersions,
         )
@@ -38,13 +39,15 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 
 fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
+    tenant: &'a TenantId,
     id: &'a str,
 ) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let project = sqlx::query_as!(
             Project,
-            r#"SELECT id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where id = $1"#,
+            r#"SELECT id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where tenant = $1 AND id = $2"#,
+            tenant.as_ref(),    
             id
         )
         .fetch_one(&mut *conn)
@@ -57,14 +60,15 @@ fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 
 fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
+    tenant: &'a TenantId,
     id: &'a str,
 ) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
-    println!("Deleting project with id: {}", id);
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let deleted_project = sqlx::query_as!(
             Project,
-            r#"DELETE FROM projects WHERE id = $1 and system_created = false RETURNING id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id, tenant, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            tenant.as_ref(),
             id
         )
         .fetch_one(&mut *conn)
@@ -118,17 +122,17 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 impl TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims> for PGConnection {
     async fn create(
         &self,
-        _tenant: &TenantId,
+        tenant: &TenantId,
         new_project: CreateProject,
     ) -> Result<Project, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = create_project(pool, new_project).await?;
+                let res = create_project(pool, tenant, new_project).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = create_project(&mut *tx, new_project).await?;
+                let res = create_project(&mut *tx, tenant, new_project).await?;
                 Ok(res)
             }
         }
@@ -136,17 +140,17 @@ impl TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims> for PGConnecti
 
     async fn read(
         &self,
-        _tenant: &TenantId,
+        tenant: &TenantId,
         id: &str,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = read_project(pool, id).await?;
+                let res = read_project(pool, tenant, id).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = read_project(&mut *tx, id).await?;
+                let res = read_project(&mut *tx, tenant, id).await?;
                 Ok(res)
             }
         }
@@ -165,17 +169,17 @@ impl TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims> for PGConnecti
 
     async fn delete(
         &self,
-        _tenant: &TenantId,
+        tenant: &TenantId,
         id: &str,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = delete_project(pool, id).await?;
+                let res = delete_project(pool, tenant, id).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = delete_project(&mut *tx, id).await?;
+                let res = delete_project(&mut *tx, tenant, id).await?;
                 Ok(res)
             }
         }
