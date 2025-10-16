@@ -80,6 +80,32 @@ export default function Projects() {
                 <p className="font-normal text-slate-400">
                   FHIR Version: {project.fhirVersion}
                 </p>
+                <div className="flex">
+                  <span
+                    onClick={(e) => {
+                      if (
+                        confirm("Do you want to delete project " + project.name)
+                      ) {
+                        if (confirm("Are you sure?")) {
+                          client
+                            .delete_instance({}, R4, "Project", project.id!)
+                            .then(() => {
+                              setProjects(
+                                projects.filter((p) => p.id !== project.id)
+                              );
+                            });
+                        }
+                      } else {
+                        console.log("You pressed Cancel!");
+                      }
+                      // Don't bubble up.
+                      e.stopPropagation();
+                    }}
+                    className="text-red-500 hover:text-red-600 cursor-pointer"
+                  >
+                    Delete
+                  </span>
+                </div>
               </div>
             ))}
           </div>

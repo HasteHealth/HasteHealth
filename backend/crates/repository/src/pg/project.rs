@@ -59,6 +59,7 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     connection: Connection,
     id: &'a str,
 ) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
+    println!("Deleting project with id: {}", id);
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let deleted_project = sqlx::query_as!(

@@ -539,7 +539,10 @@ impl<
                         resource: bundle_response,
                     })))
                 }
-                _ => Ok(None),
+                _ => Err(OperationOutcomeError::error(
+                    IssueType::NotSupported(None),
+                    "Unsupported FHIR operation".to_string(),
+                )),
             }?;
 
             let mut next_context = if let Some(next_) = next {
