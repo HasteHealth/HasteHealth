@@ -42,6 +42,38 @@ impl FHIRRepository for PGConnection {
         }
     }
 
+    async fn delete(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+        id: &str,
+    ) -> Result<Resource, OperationOutcomeError> {
+        match self {
+            PGConnection::PgPool(pool) => {
+                let res = delete(pool, tenant, project, author, fhir_version, resource, id).await?;
+                Ok(res)
+            }
+            PGConnection::PgTransaction(tx) => {
+                let mut conn = tx.lock().await;
+                // Handle PgConnection connection
+                let res = delete(
+                    &mut *conn,
+                    tenant,
+                    project,
+                    author,
+                    fhir_version,
+                    resource,
+                    id,
+                )
+                .await?;
+                Ok(res)
+            }
+        }
+    }
+
     async fn update(
         &self,
         tenant: &TenantId,
@@ -245,6 +277,40 @@ fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 "POST",
                 author.kind.as_ref() as &str,
                 &FHIRMethod::Create as &FHIRMethod,
+            ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
+        Ok(result.resource.0)
+    }
+}
+
+fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    author: &'a Author,
+    fhir_version: &'a SupportedFHIRVersions,
+    resource: &'a mut Resource,
+    id: &'a str,
+) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a {
+    async move {
+        utilities::set_resource_id(resource, Some(id.to_string()))?;
+        utilities::set_version_id(resource)?;
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let result = sqlx::query_as!(
+                ReturnV,
+                r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+                RETURNING resource as "resource: FHIRJson<Resource>""#,
+                tenant.as_ref() as &str,
+                project.as_ref() as &str,
+                author.id.as_ref() as &str,
+                // Useless cast so that macro has access to the type information.
+                // Otherwise it will not compile on type check.
+                fhir_version as &SupportedFHIRVersions,
+                &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
+                true, // deleted
+                "DELETE",
+                author.kind.as_ref() as &str,
+                &FHIRMethod::Delete as &FHIRMethod,
             ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
         Ok(result.resource.0)
     }

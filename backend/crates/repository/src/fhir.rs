@@ -46,6 +46,16 @@ pub trait FHIRRepository: Sized {
         id: &str,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
 
+    fn delete(
+        &self,
+        tenant: &TenantId,
+        project: &ProjectId,
+        author: &Author,
+        fhir_version: &SupportedFHIRVersions,
+        resource: &mut Resource,
+        id: &str,
+    ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
+
     fn read_by_version_ids(
         &self,
         tenant_id: &TenantId,

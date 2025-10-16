@@ -13,9 +13,10 @@ use oxidized_fhir_client::{
     FHIRClient,
     middleware::MiddlewareChain,
     request::{
-        FHIRBatchResponse, FHIRCreateResponse, FHIRHistoryInstanceResponse, FHIRReadResponse,
-        FHIRRequest, FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest,
-        FHIRSearchTypeResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
+        FHIRBatchResponse, FHIRCreateResponse, FHIRDeleteInstanceResponse,
+        FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
+        FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
+        FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
@@ -160,6 +161,37 @@ impl<
                     Ok(Some(FHIRResponse::Read(FHIRReadResponse {
                         resource: resource,
                     })))
+                }
+                FHIRRequest::DeleteInstance(delete_request) => {
+                    let mut current_resource = FHIRRepository::read_latest(
+                        state.repo.as_ref(),
+                        &context.ctx.tenant,
+                        &context.ctx.project,
+                        &delete_request.resource_type,
+                        &ResourceId::new(delete_request.id.to_string()),
+                    )
+                    .await?;
+                    if let Some(mut resource) = current_resource {
+                        Ok(Some(FHIRResponse::DeleteInstance(
+                            FHIRDeleteInstanceResponse {
+                                resource: FHIRRepository::delete(
+                                    state.repo.as_ref(),
+                                    &context.ctx.tenant,
+                                    &context.ctx.project,
+                                    &context.ctx.author,
+                                    &context.ctx.fhir_version,
+                                    &mut resource,
+                                    &delete_request.id,
+                                )
+                                .await?,
+                            },
+                        )))
+                    } else {
+                        Err(OperationOutcomeError::error(
+                            IssueType::NotFound(None),
+                            format!("Resource with id '{}' not found", delete_request.id),
+                        ))
+                    }
                 }
                 FHIRRequest::VersionRead(vread_request) => {
                     let mut vread_resources = state
@@ -467,6 +499,7 @@ impl<
                         )),
                     }
                 }
+
                 FHIRRequest::Batch(batch_request) => {
                     let mut bundle_entries = Some(Vec::new());
                     // Memswap so I can avoid cloning.
