@@ -91,7 +91,7 @@
                 "short": "Projects name",
                 "type": [
                     {
-                        "code": "string"
+                        "code": "http://hl7.org/fhirpath/System.String"
                     }
                 ],
                 "min": 0,

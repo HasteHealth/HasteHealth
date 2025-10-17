@@ -137,9 +137,8 @@ pub struct Project {
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
-    #[primitive]
     #[doc = ""]
-    pub name: Option<Box<FHIRString>>,
+    pub name: Option<String>,
     #[primitive]
     #[doc = ""]
     pub fhirVersion: Box<terminology::SupportedFhirVersion>,
