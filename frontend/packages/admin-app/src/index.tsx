@@ -133,8 +133,8 @@ function OxidizedHealthWrapper() {
 }
 
 const SYSTEM_TYPES: r4Types.ResourceType[] = [
-  "User",
   "Project",
+  "User",
   "IdentityProvider",
 ];
 
@@ -146,7 +146,7 @@ function SystemBar() {
   return (
     <div className="w-full">
       {/* Create a horizontal navbar with circular buttons for navigation to user project IdentityProvider */}
-      <nav className="flex space-x-4">
+      <nav className="flex space-x-4 pb-4">
         {SYSTEM_TYPES.map((type) => (
           <Link
             key={type}
@@ -218,6 +218,11 @@ const router =
                               id: "redirect",
                               path: "/",
                               element: <Navigate to="/project" replace />,
+                            },
+                            {
+                              id: "settings",
+                              path: "settings",
+                              element: <Settings />,
                             },
                           ],
                         },
