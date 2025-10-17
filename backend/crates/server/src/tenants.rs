@@ -7,6 +7,7 @@ use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType},
     terminology::IssueType,
+    types::FHIRString,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -75,7 +76,10 @@ pub async fn create_tenant<
                 ResourceType::Project,
                 Resource::Project(Project {
                     id: Some(ProjectId::System.to_string()),
-                    name: Some(ProjectId::System.to_string()),
+                    name: Some(Box::new(FHIRString {
+                        value: Some(ProjectId::System.to_string()),
+                        ..Default::default()
+                    })),
                     fhirVersion: Box::new(
                         oxidized_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(
                             None,

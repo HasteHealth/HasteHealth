@@ -59,15 +59,9 @@ function ProjectCreateModal({
         <Button
           className="mt-4"
           onClick={(_e) => {
-            const createPromise = client
-              .create({}, R4, {
-                resourceType: "Project",
-                name: "New Project",
-                fhirVersion: "r4" as code,
-              })
-              .then((res) => {
-                setProjects((projects) => [...projects, res]);
-              });
+            const createPromise = client.create({}, R4, project).then((res) => {
+              setProjects((projects) => [...projects, res]);
+            });
 
             Toaster.promise(createPromise, {
               loading: "Creating Project",
