@@ -13,13 +13,12 @@ import {
   id,
   Project,
   StructureDefinition,
-  Resource,
 } from "@oxidized-health/fhir-types/lib/generated/r4/types";
 
 import { getClient } from "../db/client";
 import { deriveProjectId, deriveTenantId, getErrorMessage } from "../utilities";
 import Modal from "../components/Modal";
-import ResourceEditorComponent from "../components/ResourceEditor";
+
 import { getResource } from "../db/resource";
 
 function ProjectCreateModal({

@@ -7,6 +7,8 @@ import { useAtom } from "jotai";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import {
+  Link,
+  Navigate,
   Outlet,
   RouterProvider,
   createBrowserRouter,
@@ -134,6 +136,38 @@ const SYSTEM_TYPES: r4Types.ResourceType[] = [
   "IdentityProvider",
 ];
 
+function SystemBar() {
+  const navigate = useNavigate();
+  const matches = useMatches();
+  console.log(matches);
+
+  return (
+    <div className="w-full">
+      {/* Create a horizontal navbar with circular buttons for navigation to user project IdentityProvider */}
+      <nav className="flex space-x-4">
+        {SYSTEM_TYPES.map((type) => (
+          <Link
+            key={type}
+            to={`/${type.toLowerCase()}`}
+            className={classNames(
+              "flex items-center justify-center  h-10 rounded-full px-4 text-sm",
+              {
+                ["bg-blue-500 text-white"]:
+                  matches[matches.length - 1].id === type,
+                [" bg-gray-100 hover:bg-blue-400 p-2"]:
+                  matches[matches.length - 1].id !== type,
+              }
+            )}
+          >
+            {type}
+          </Link>
+        ))}
+      </nav>
+      <Outlet />
+    </div>
+  );
+}
+
 const router =
   deriveProjectId() == "system"
     ? createBrowserRouter([
@@ -160,9 +194,20 @@ const router =
 
                       children: [
                         {
-                          id: "tenant",
-                          path: "/",
-                          element: <Projects />,
+                          id: "root",
+                          element: <SystemBar />,
+                          children: [
+                            {
+                              id: "Project",
+                              path: "/project",
+                              element: <Projects />,
+                            },
+                            {
+                              id: "redirect",
+                              path: "/",
+                              element: <Navigate to="/project" replace />,
+                            },
+                          ],
                         },
                       ],
                     },
@@ -245,7 +290,7 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <div className="px-4 z-10 sm:px-6 lg:px-8 sticky top-0 bg-white">
+    <div className="z-10 sticky top-0 bg-white">
       <div className="flex items-center " style={{ height: "64px" }}>
         <div className="flex grow mr-4">
           <Search />
@@ -301,10 +346,10 @@ type PageProps = {
 
 function Page(props: PageProps) {
   return (
-    <>
+    <div className="px-4">
       <Navbar />
       <div
-        className="p-4 flex flex-1"
+        className="py-4 flex flex-1"
         style={{ maxHeight: "calc(100vh - 64px)" }}
       >
         <Toaster.Toaster />
@@ -313,7 +358,7 @@ function Page(props: PageProps) {
       <React.Suspense fallback={<div />}>
         <SearchModal resourceTypeFilter={props.resourceTypeFilter} />
       </React.Suspense>
-    </>
+    </div>
   );
 }
 
