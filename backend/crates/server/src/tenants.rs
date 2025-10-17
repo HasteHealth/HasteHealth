@@ -75,7 +75,7 @@ pub async fn create_tenant<
                 ResourceType::Project,
                 Resource::Project(Project {
                     id: Some(ProjectId::System.to_string()),
-                    name: Some(Box::new(ProjectId::System.to_string())),
+                    name: Some(ProjectId::System.to_string()),
                     fhirVersion: Box::new(
                         oxidized_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(
                             None,
