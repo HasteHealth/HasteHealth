@@ -74,7 +74,12 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         )
         .fetch_one(&mut *conn)
         .await
-        .map_err(StoreError::SQLXError)?;
+        .map_err(|_e| {
+            OperationOutcomeError::error(
+                IssueType::NotFound(None),
+                format!("Project '{}' not found or is system created and cannot be deleted.", id),
+            )
+        })?;
 
         Ok(deleted_project)
     }
