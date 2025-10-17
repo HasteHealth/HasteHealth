@@ -6,8 +6,8 @@ import { Button, Input, Toaster } from "@oxidized-health/components";
 import { Bundle } from "@oxidized-health/fhir-types/r4/types";
 import { R4 } from "@oxidized-health/fhir-types/versions";
 
-import { getClient } from "../db/client";
-import { getErrorMessage } from "../utilities";
+import { getClient } from "../../db/client";
+import { getErrorMessage } from "../../utilities";
 
 const getData = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {

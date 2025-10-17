@@ -7,8 +7,8 @@ import { Loading } from "@oxidized-health/components";
 import { R4 } from "@oxidized-health/fhir-types/versions";
 import { OxidizedHealthUsageStatistics } from "@oxidized-health/generated-ops/lib/r4/ops";
 
-import Card from "../components/Card";
-import { getClient } from "../db/client";
+import Card from "../../components/Card";
+import { getClient } from "../../db/client";
 
 const Dashboard = () => {
   // const [stats, setStats] = useState<{

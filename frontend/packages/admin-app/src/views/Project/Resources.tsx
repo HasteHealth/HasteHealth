@@ -5,7 +5,7 @@ import { generatePath, useNavigate } from "react-router-dom";
 import { Loading, Table } from "@oxidized-health/components";
 import { CapabilityStatementRestResource } from "@oxidized-health/fhir-types/r4/types";
 
-import { getCapabilities } from "../db/capabilities";
+import { getCapabilities } from "../../db/capabilities";
 
 const DisplayResources = () => {
   const navigate = useNavigate();

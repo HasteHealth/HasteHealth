@@ -26,9 +26,9 @@ import { OxidizedHealthEvaluatePolicy } from "@oxidized-health/generated-ops/lib
 
 import ResourceEditorComponent, {
   AdditionalContent,
-} from "../../components/ResourceEditor";
-import { getClient } from "../../db/client";
-import { getErrorMessage } from "../../utilities";
+} from "../../../components/ResourceEditor";
+import { getClient } from "../../../db/client";
+import { getErrorMessage } from "../../../utilities";
 
 interface AccessPolicyV2EditorProps extends AdditionalContent {
   resource: AccessPolicyV2 | undefined;

@@ -21,8 +21,8 @@ import {
 } from "@oxidized-health/fhir-types/versions";
 import { OxidizedHealthInviteUser } from "@oxidized-health/generated-ops/r4";
 
-import { getClient } from "../db/client";
-import { getErrorMessage } from "../utilities";
+import { getClient } from "../../db/client";
+import { getErrorMessage } from "../../utilities";
 
 function InviteModal({
   refresh,

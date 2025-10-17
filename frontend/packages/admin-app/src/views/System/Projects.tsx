@@ -15,11 +15,15 @@ import {
   StructureDefinition,
 } from "@oxidized-health/fhir-types/lib/generated/r4/types";
 
-import { getClient } from "../db/client";
-import { deriveProjectId, deriveTenantId, getErrorMessage } from "../utilities";
-import Modal from "../components/Modal";
+import { getClient } from "../../db/client";
+import {
+  deriveProjectId,
+  deriveTenantId,
+  getErrorMessage,
+} from "../../utilities";
+import Modal from "../../components/Modal";
 
-import { getResource } from "../db/resource";
+import { getResource } from "../../db/resource";
 
 function ProjectCreateModal({
   open,
@@ -139,7 +143,7 @@ export default function Projects() {
                       `${currentTenant}_${project.id}`
                     );
 
-                    window.location.href = newUrl;
+                    window.open(newUrl, "_blank");
                   }}
                   key={project.id}
                   className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm"

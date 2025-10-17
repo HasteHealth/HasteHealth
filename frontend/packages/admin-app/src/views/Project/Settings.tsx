@@ -20,7 +20,7 @@ import {
 } from "@oxidized-health/generated-ops/lib/r4/ops";
 import { IDTokenPayload } from "@oxidized-health/jwt/types";
 
-import { getClient } from "../db/client";
+import { getClient } from "../../db/client";
 
 function copytoClipboard(token: string | undefined) {
   if (token) {

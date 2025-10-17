@@ -26,9 +26,9 @@ import { Operation } from "@oxidized-health/operation-execution";
 
 import ResourceEditorComponent, {
   AdditionalContent,
-} from "../../components/ResourceEditor";
-import { getClient } from "../../db/client";
-import { getErrorMessage } from "../../utilities";
+} from "../../../components/ResourceEditor";
+import { getClient } from "../../../db/client";
+import { getErrorMessage } from "../../../utilities";
 
 const extensions = [
   basicSetup,

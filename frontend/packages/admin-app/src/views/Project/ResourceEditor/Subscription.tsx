@@ -14,8 +14,8 @@ import { R4 } from "@oxidized-health/fhir-types/versions";
 
 import ResourceEditorComponent, {
   AdditionalContent,
-} from "../../components/ResourceEditor";
-import { getClient } from "../../db/client";
+} from "../../../components/ResourceEditor";
+import { getClient } from "../../../db/client";
 
 interface SubscriptionEditorProps extends AdditionalContent {
   resource: Subscription | undefined;
