@@ -24,7 +24,7 @@ use oxidized_repository::{
     Repository,
     admin::TenantAuthAdmin,
     types::{
-        ProjectId, SupportedFHIRVersions,
+        AuthorKind, ProjectId, SupportedFHIRVersions,
         project::CreateProject,
         user::{AuthMethod, CreateUser, UpdateUser},
     },
@@ -89,6 +89,8 @@ impl<
                                         id: Some(ProjectId::new(id.clone())),
                                         tenant: context.ctx.tenant.clone(),
                                         fhir_version,
+                                        system_created: context.ctx.author.kind
+                                            == AuthorKind::System,
                                     },
                                 )
                                 .await?;
@@ -129,6 +131,13 @@ impl<
                         }
 
                         FHIRRequest::DeleteInstance(delete_request) => {
+                            TenantAuthAdmin::<CreateProject, _, _, _>::delete(
+                                state.repo.as_ref(),
+                                &context.ctx.tenant,
+                                &delete_request.id,
+                            )
+                            .await?;
+
                             let res = next(
                                 state.clone(),
                                 ServerMiddlewareContext {
@@ -142,16 +151,9 @@ impl<
                                     ),
                                 },
                             )
-                            .await;
-
-                            TenantAuthAdmin::<CreateProject, _, _, _>::delete(
-                                state.repo.as_ref(),
-                                &context.ctx.tenant,
-                                &delete_request.id,
-                            )
                             .await?;
 
-                            res
+                            Ok(res)
                         }
 
                         FHIRRequest::SearchType(_) => next(state.clone(), context).await,

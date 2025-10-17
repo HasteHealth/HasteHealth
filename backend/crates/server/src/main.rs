@@ -176,7 +176,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 let services = services::create_services(config).await?;
                 let tenant = TenantId::new(tenant.clone());
 
-                let ctx = Arc::new(ServerCTX::root(tenant.clone(), ProjectId::System));
+                let ctx = Arc::new(ServerCTX::system(tenant.clone(), ProjectId::System));
 
                 let user = services
                     .fhir_client

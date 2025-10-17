@@ -24,10 +24,11 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 
         let project = sqlx::query_as!(
             Project,
-            r#"INSERT INTO projects (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"INSERT INTO projects (tenant, id, fhir_version, system_created) VALUES ($1, $2, $3, $4) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             tenant.as_ref(),
             id.as_ref(),
             project.fhir_version as SupportedFHIRVersions,
+            project.system_created
         )
         .fetch_one(&mut *conn)
         .await
@@ -73,7 +74,12 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         )
         .fetch_one(&mut *conn)
         .await
-        .map_err(StoreError::SQLXError)?;
+        .map_err(|_e| {
+            OperationOutcomeError::error(
+                IssueType::NotFound(None),
+                format!("Project '{}' not found or is system created and cannot be deleted.", id),
+            )
+        })?;
 
         Ok(deleted_project)
     }
