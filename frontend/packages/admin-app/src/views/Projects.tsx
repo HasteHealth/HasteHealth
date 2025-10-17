@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Button, useOxidizedHealth } from "@oxidized-health/components";
+import { Button, Toaster } from "@oxidized-health/components";
 import { useAtomValue } from "jotai";
 import { getClient } from "../db/client";
 import { R4 } from "@oxidized-health/fhir-types/versions";
@@ -8,7 +8,7 @@ import {
   code,
   Project,
 } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { deriveProjectId, deriveTenantId } from "../utilities";
+import { deriveProjectId, deriveTenantId, getErrorMessage } from "../utilities";
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -27,7 +27,7 @@ export default function Projects() {
           <h1 className="text-3xl font-bold text-center">Projects</h1>
           <Button
             onClick={(_e) => {
-              client
+              const createPromise = client
                 .create({}, R4, {
                   resourceType: "Project",
                   name: "New Project",
@@ -36,6 +36,14 @@ export default function Projects() {
                 .then((res) => {
                   setProjects([...projects, res]);
                 });
+
+              Toaster.promise(createPromise, {
+                loading: "Creating Project",
+                success: (success) => `Project created`,
+                error: (error) => {
+                  return getErrorMessage(error);
+                },
+              });
             }}
           >
             Create
@@ -87,13 +95,20 @@ export default function Projects() {
                         confirm("Do you want to delete project " + project.name)
                       ) {
                         if (confirm("Are you sure?")) {
-                          client
+                          const deletePromise = client
                             .delete_instance({}, R4, "Project", project.id!)
                             .then(() => {
                               setProjects(
                                 projects.filter((p) => p.id !== project.id)
                               );
                             });
+                          Toaster.promise(deletePromise, {
+                            loading: "Deleting Project",
+                            success: (success) => `Project deleted`,
+                            error: (error) => {
+                              return getErrorMessage(error);
+                            },
+                          });
                         }
                       } else {
                         console.log("You pressed Cancel!");
