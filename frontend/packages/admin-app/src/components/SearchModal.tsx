@@ -21,6 +21,7 @@ import {
 } from "@oxidized-health/fhir-types/r4/types";
 
 import { getCapabilities } from "../db/capabilities";
+import Modal from "./Modal";
 
 const List = _FixedSizeList as ComponentType<FixedSizeListProps>;
 
@@ -150,81 +151,47 @@ function SearchModal(props: SearchModalProps) {
   }, [openModal, searchResults, searchIndex, setOpenModal]);
 
   return (
-    <Transition appear show={openModal} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-50"
-        onClose={() => setOpenModal((v: boolean) => !v)}
-      >
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+    <Modal open={openModal} setOpen={() => setOpenModal(false)}>
+      <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-none shadow-sm">
+        <input
+          ref={(ref) => {
+            setInputSearch(ref);
+          }}
+          className="focus:outline-none text-left flex-1 text-slate-500 text-sm"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setSearchIndex(0);
+          }}
+        />
+        <button
+          onClick={() => {
+            setOpenModal(false);
+          }}
+          className="shadow-sm cursor flex-none text-xs text-slate-400 p-1 border"
         >
-          <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
-        </Transition.Child>
-
-        <div className="fixed inset-0">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <Dialog.Panel className="absolute top-12 max-w-lg w-full transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-opacity">
-                <div className="flex flex-1 p-3 space-x-2 items-center focus:outline-none shadow-sm">
-                  <input
-                    ref={(ref) => {
-                      setInputSearch(ref);
-                    }}
-                    className="focus:outline-none text-left flex-1 text-slate-500 text-sm"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => {
-                      setSearch(e.target.value);
-                      setSearchIndex(0);
-                    }}
-                  />
-                  <button
-                    onClick={() => {
-                      setOpenModal(false);
-                    }}
-                    className="shadow-sm cursor flex-none text-xs text-slate-400 p-1 border"
-                  >
-                    ESC
-                  </button>
-                </div>
-                <div className="w-full " />
-                <div className="text-slate-600 space-y-2 px-2 py-2 max-h-64 overflow-y-auto">
-                  <List
-                    height={200}
-                    itemData={{
-                      data: searchResults || [],
-                      activeIndex: searchIndex,
-                      setActiveIndex: setSearchIndex,
-                      onSelect,
-                    }}
-                    itemCount={searchResults ? searchResults.length : 0}
-                    itemSize={55}
-                    width={"100%"}
-                  >
-                    {SearchResultItem}
-                  </List>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+          ESC
+        </button>
+      </div>
+      <div className="w-full " />
+      <div className="text-slate-600 space-y-2 px-2 py-2 max-h-64 overflow-y-auto">
+        <List
+          height={200}
+          itemData={{
+            data: searchResults || [],
+            activeIndex: searchIndex,
+            setActiveIndex: setSearchIndex,
+            onSelect,
+          }}
+          itemCount={searchResults ? searchResults.length : 0}
+          itemSize={55}
+          width={"100%"}
+        >
+          {SearchResultItem}
+        </List>
+      </div>
+    </Modal>
   );
 }
 
