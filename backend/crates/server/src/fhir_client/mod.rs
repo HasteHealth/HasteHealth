@@ -72,7 +72,7 @@ impl ServerCTX {
         }
     }
 
-    pub fn root(tenant: TenantId, project: ProjectId) -> Self {
+    pub fn system(tenant: TenantId, project: ProjectId) -> Self {
         ServerCTX {
             tenant,
             project,

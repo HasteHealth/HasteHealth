@@ -4,6 +4,7 @@ pub struct CreateProject {
     pub tenant: TenantId,
     pub id: Option<ProjectId>,
     pub fhir_version: SupportedFHIRVersions,
+    pub system_created: bool,
 }
 
 #[derive(sqlx::FromRow, Debug)]

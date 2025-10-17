@@ -24,10 +24,11 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 
         let project = sqlx::query_as!(
             Project,
-            r#"INSERT INTO projects (tenant, id, fhir_version) VALUES ($1, $2, $3) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"INSERT INTO projects (tenant, id, fhir_version, system_created) VALUES ($1, $2, $3, $4) RETURNING tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             tenant.as_ref(),
             id.as_ref(),
             project.fhir_version as SupportedFHIRVersions,
+            project.system_created
         )
         .fetch_one(&mut *conn)
         .await
