@@ -7,6 +7,8 @@ import { useAtom } from "jotai";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import {
+  Link,
+  Navigate,
   Outlet,
   RouterProvider,
   createBrowserRouter,
@@ -31,16 +33,18 @@ import { REACT_APP_CLIENT_ID, REACT_APP_FHIR_BASE_URL } from "./config";
 import { createAdminAppClient, getClient } from "./db/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import BundleImport from "./views/BundleImport";
-import Dashboard from "./views/Dashboard";
-import EmptyWorkspace from "./views/EmptyWorkspace";
-import ResourceEditor from "./views/ResourceEditor/index";
-import ResourceType from "./views/ResourceType";
-import Resources from "./views/Resources";
-import Settings from "./views/Settings";
-import Projects from "./views/Projects";
+import BundleImport from "./views/Project/BundleImport";
+import Dashboard from "./views/Project/Dashboard";
+import EmptyWorkspace from "./views/Project/EmptyWorkspace";
+import ResourceEditor from "./views/Project/ResourceEditor/index";
+import ResourceType from "./views/Project/ResourceType";
+import Resources from "./views/Project/Resources";
+import Settings from "./views/Project/Settings";
+import Projects from "./views/System/Projects";
 import { deriveProjectId, deriveTenantId } from "./utilities";
 import * as r4Types from "@oxidized-health/fhir-types/r4/types";
+import Users from "./views/System/Users";
+import IdentityProviders from "./views/System/IdentityProviders";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -129,10 +133,42 @@ function OxidizedHealthWrapper() {
 }
 
 const SYSTEM_TYPES: r4Types.ResourceType[] = [
-  "User",
   "Project",
+  "User",
   "IdentityProvider",
 ];
+
+function SystemBar() {
+  const navigate = useNavigate();
+  const matches = useMatches();
+  console.log(matches);
+
+  return (
+    <div className="w-full">
+      {/* Create a horizontal navbar with circular buttons for navigation to user project IdentityProvider */}
+      <nav className="flex space-x-4 pb-4">
+        {SYSTEM_TYPES.map((type) => (
+          <Link
+            key={type}
+            to={`/${type.toLowerCase()}`}
+            className={classNames(
+              "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
+              {
+                ["bg-indigo-500 hover:bg-indigo-600 text-white"]:
+                  matches[matches.length - 1].id === type,
+                [" bg-gray-100 hover:bg-indigo-400 hover:text-white p-2"]:
+                  matches[matches.length - 1].id !== type,
+              }
+            )}
+          >
+            {type}s
+          </Link>
+        ))}
+      </nav>
+      <Outlet />
+    </div>
+  );
+}
 
 const router =
   deriveProjectId() == "system"
@@ -160,9 +196,35 @@ const router =
 
                       children: [
                         {
-                          id: "tenant",
-                          path: "/",
-                          element: <Projects />,
+                          id: "root",
+                          element: <SystemBar />,
+                          children: [
+                            {
+                              id: "Project",
+                              path: "/project",
+                              element: <Projects />,
+                            },
+                            {
+                              id: "User",
+                              path: "/user",
+                              element: <Users />,
+                            },
+                            {
+                              id: "IdentityProvider",
+                              path: "/identityprovider",
+                              element: <IdentityProviders />,
+                            },
+                            {
+                              id: "redirect",
+                              path: "/",
+                              element: <Navigate to="/project" replace />,
+                            },
+                            {
+                              id: "settings",
+                              path: "settings",
+                              element: <Settings />,
+                            },
+                          ],
                         },
                       ],
                     },
@@ -245,7 +307,7 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <div className="px-4 z-10 sm:px-6 lg:px-8 sticky top-0 bg-white">
+    <div className="z-10 sticky top-0 bg-white">
       <div className="flex items-center " style={{ height: "64px" }}>
         <div className="flex grow mr-4">
           <Search />
@@ -301,10 +363,10 @@ type PageProps = {
 
 function Page(props: PageProps) {
   return (
-    <>
+    <div className="px-4">
       <Navbar />
       <div
-        className="p-4 flex flex-1"
+        className="py-4 flex flex-1"
         style={{ maxHeight: "calc(100vh - 64px)" }}
       >
         <Toaster.Toaster />
@@ -313,7 +375,7 @@ function Page(props: PageProps) {
       <React.Suspense fallback={<div />}>
         <SearchModal resourceTypeFilter={props.resourceTypeFilter} />
       </React.Suspense>
-    </>
+    </div>
   );
 }
 

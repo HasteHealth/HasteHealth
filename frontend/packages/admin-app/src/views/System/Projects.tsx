@@ -13,14 +13,17 @@ import {
   id,
   Project,
   StructureDefinition,
-  Resource,
 } from "@oxidized-health/fhir-types/lib/generated/r4/types";
 
-import { getClient } from "../db/client";
-import { deriveProjectId, deriveTenantId, getErrorMessage } from "../utilities";
-import Modal from "../components/Modal";
-import ResourceEditorComponent from "../components/ResourceEditor";
-import { getResource } from "../db/resource";
+import { getClient } from "../../db/client";
+import {
+  deriveProjectId,
+  deriveTenantId,
+  getErrorMessage,
+} from "../../utilities";
+import Modal from "../../components/Modal";
+
+import { getResource } from "../../db/resource";
 
 function ProjectCreateModal({
   open,
@@ -108,7 +111,7 @@ export default function Projects() {
           }}
           setProjects={setProjects}
         />
-        <div className=" flex justify-center flex-col px-4 py-4  -top-[15px] mt-16">
+        <div className=" flex justify-center flex-col px-4  -top-[15px] mt-16">
           <div className="flex items-center space-x-2 mb-8">
             <h1 className="text-3xl font-bold text-center">Projects</h1>
             <Button
@@ -140,7 +143,7 @@ export default function Projects() {
                       `${currentTenant}_${project.id}`
                     );
 
-                    window.location.href = newUrl;
+                    window.open(newUrl, "_blank");
                   }}
                   key={project.id}
                   className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm"
