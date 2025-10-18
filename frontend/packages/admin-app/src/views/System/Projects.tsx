@@ -124,7 +124,6 @@ export default function Projects() {
           </div>
           {projects.length === 0 ? (
             <div className="shadow-md">
-              <h1 className="text-3xl font-bold mb-4">No Projects Found</h1>{" "}
               <p className="text-lg mb-8 text-center">
                 It looks like you don't have any projects yet. Click the button
                 below to create your first project.

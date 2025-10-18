@@ -15,6 +15,7 @@ use tower::ServiceBuilder;
 
 mod login;
 mod logout;
+mod scopes;
 
 pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
