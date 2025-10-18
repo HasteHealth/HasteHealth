@@ -36,7 +36,7 @@ import reportWebVitals from "./reportWebVitals";
 import BundleImport from "./views/Project/BundleImport";
 import Dashboard from "./views/Project/Dashboard";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
-import ResourceEditor from "./views/Project/ResourceEditor/index";
+import ResourceEditor from "./views/ResourceEditor/index";
 import ResourceType from "./views/Project/ResourceType";
 import Resources from "./views/Project/Resources";
 import Settings from "./views/Project/Settings";
@@ -201,28 +201,33 @@ const router =
                           children: [
                             {
                               id: "Project",
-                              path: "/project",
+                              path: "/Project",
                               element: <Projects />,
                             },
                             {
                               id: "User",
-                              path: "/user",
+                              path: "/User",
                               element: <Users />,
                             },
                             {
                               id: "IdentityProvider",
-                              path: "/identityprovider",
+                              path: "/IdentityProvider",
                               element: <IdentityProviders />,
                             },
                             {
-                              id: "redirect",
-                              path: "/",
-                              element: <Navigate to="/project" replace />,
+                              id: "Editor",
+                              path: "/edit/:resourceType/:id",
+                              element: <ResourceEditor />,
                             },
                             {
                               id: "settings",
                               path: "settings",
                               element: <Settings />,
+                            },
+                            {
+                              id: "redirect",
+                              path: "/",
+                              element: <Navigate to="/project" replace />,
                             },
                           ],
                         },
