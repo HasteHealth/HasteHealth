@@ -24,7 +24,7 @@ export default function IdentityProviders() {
       }}
       onRowClick={(row) => {
         navigate(
-          generatePath("/edit/:resourceType/:id", {
+          generatePath("/resources/:resourceType/:id", {
             resourceType: (row as Resource<R4, AllResourceTypes>).resourceType,
             id: (row as Resource<R4, AllResourceTypes>).id as string,
           })

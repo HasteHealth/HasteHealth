@@ -15,6 +15,7 @@ import {
   generatePath,
   useMatches,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 
 import {
@@ -43,8 +44,7 @@ import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
 import { deriveProjectId, deriveTenantId } from "./utilities";
 import * as r4Types from "@oxidized-health/fhir-types/r4/types";
-import Users from "./views/System/Users";
-import IdentityProviders from "./views/System/IdentityProviders";
+import SystemResources from "./views/System";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -139,9 +139,7 @@ const SYSTEM_TYPES: r4Types.ResourceType[] = [
 ];
 
 function SystemBar() {
-  const navigate = useNavigate();
-  const matches = useMatches();
-  console.log(matches);
+  const params = useParams();
 
   return (
     <div className="w-full">
@@ -150,14 +148,14 @@ function SystemBar() {
         {SYSTEM_TYPES.map((type) => (
           <Link
             key={type}
-            to={`/${type.toLowerCase()}`}
+            to={`/resources/${type}`}
             className={classNames(
               "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
               {
                 ["bg-indigo-500 hover:bg-indigo-600 text-white"]:
-                  matches[matches.length - 1].id === type,
+                  params.resourceType === type,
                 [" bg-gray-100 hover:bg-indigo-400 hover:text-white p-2"]:
-                  matches[matches.length - 1].id !== type,
+                  params.resourceType !== type,
               }
             )}
           >
@@ -200,23 +198,13 @@ const router =
                           element: <SystemBar />,
                           children: [
                             {
-                              id: "Project",
-                              path: "/Project",
-                              element: <Projects />,
-                            },
-                            {
-                              id: "User",
-                              path: "/User",
-                              element: <Users />,
-                            },
-                            {
-                              id: "IdentityProvider",
-                              path: "/IdentityProvider",
-                              element: <IdentityProviders />,
+                              id: "Resources",
+                              path: "/resources/:resourceType",
+                              element: <SystemResources />,
                             },
                             {
                               id: "Editor",
-                              path: "/edit/:resourceType/:id",
+                              path: "/resources/:resourceType/:id",
                               element: <ResourceEditor />,
                             },
                             {
@@ -227,7 +215,9 @@ const router =
                             {
                               id: "redirect",
                               path: "/",
-                              element: <Navigate to="/project" replace />,
+                              element: (
+                                <Navigate to="/resources/Project" replace />
+                              ),
                             },
                           ],
                         },

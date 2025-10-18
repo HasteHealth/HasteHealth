@@ -21,7 +21,6 @@ import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
 import AccessPolicyView from "./AccessPolicy";
 import IdentityProviderView from "./IdentityProvider";
-
 import OperationDefinitionView from "./OperationDefinition";
 import SubscriptionView from "./Subscription";
 

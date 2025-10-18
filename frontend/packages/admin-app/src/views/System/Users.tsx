@@ -9,7 +9,7 @@ import { useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 import { getClient } from "../../db/client";
 
-export default function IdentityProviders() {
+export default function Users() {
   const client = useAtomValue(getClient);
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState<(() => void) | undefined>(undefined);
@@ -24,7 +24,7 @@ export default function IdentityProviders() {
       }}
       onRowClick={(row) => {
         navigate(
-          generatePath("/edit/:resourceType/:id", {
+          generatePath("/resources/:resourceType/:id", {
             resourceType: (row as Resource<R4, AllResourceTypes>).resourceType,
             id: (row as Resource<R4, AllResourceTypes>).id as string,
           })
