@@ -1,7 +1,8 @@
 use crate::{
     auth_n::{
         oidc::{
-            extract::client_app::OIDCClientApplication, middleware::OIDCParameters,
+            extract::{client_app::OIDCClientApplication, scopes::Scopes},
+            middleware::OIDCParameters,
             utilities::is_valid_redirect_url,
         },
         session,
@@ -16,6 +17,7 @@ use axum::{
     response::Redirect,
 };
 use axum_extra::routing::TypedPath;
+use maud::{Markup, html};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -34,6 +36,33 @@ use oxidized_repository::{
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 
+#[allow(unused)]
+fn scopes_html_form() -> Markup {
+    html! {
+         head {
+            meta charset="utf-8" {}
+            meta name="viewport" content="width=device-width, initial-scale=1" {}
+            link rel="preload" as="image" href="/img/logo.svg" {}
+            title { "Oxidized Health" }
+            link rel="icon" href="/img/logo.svg" {}
+            link rel="stylesheet" href="/css/app.css" {}
+        }
+        body {
+            section class="bg-gray-50  h-screen" {
+                div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0" {
+                    a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900" {
+                        img class="w-8 h-8 mr-2" src="/img/logo.svg" alt="logo" {}
+                        "Oxidized Health"
+                    }
+                    div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 sm:max-w-md" {
+
+                    }
+                }
+            }
+        }
+    }
+}
+
 #[derive(TypedPath)]
 #[typed_path("/authorize")]
 pub struct Authorize;
@@ -44,6 +73,7 @@ pub async fn authorize<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Authorize,
+    Scopes(_scopes): Scopes,
     Tenant { tenant }: Tenant,
     Project { project }: Project,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
@@ -53,6 +83,7 @@ pub async fn authorize<
 ) -> Result<Redirect, OperationOutcomeError> {
     let user = session::user::get_user(&current_session).await?.unwrap();
     // Verify the user has access to the given project.
+
     match &user.role {
         UserRole::Owner | UserRole::Admin => Ok(()),
         UserRole::Member => {
