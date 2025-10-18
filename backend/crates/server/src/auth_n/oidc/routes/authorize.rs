@@ -1,7 +1,8 @@
 use crate::{
     auth_n::{
         oidc::{
-            extract::client_app::OIDCClientApplication, middleware::OIDCParameters,
+            extract::{client_app::OIDCClientApplication, scopes::Scopes},
+            middleware::OIDCParameters,
             utilities::is_valid_redirect_url,
         },
         session,
@@ -35,6 +36,7 @@ use oxidized_repository::{
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 
+#[allow(unused)]
 fn scopes_html_form() -> Markup {
     html! {
          head {
@@ -71,6 +73,7 @@ pub async fn authorize<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Authorize,
+    Scopes(_scopes): Scopes,
     Tenant { tenant }: Tenant,
     Project { project }: Project,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
@@ -80,6 +83,7 @@ pub async fn authorize<
 ) -> Result<Redirect, OperationOutcomeError> {
     let user = session::user::get_user(&current_session).await?.unwrap();
     // Verify the user has access to the given project.
+
     match &user.role {
         UserRole::Owner | UserRole::Admin => Ok(()),
         UserRole::Member => {
