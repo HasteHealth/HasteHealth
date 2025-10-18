@@ -16,12 +16,11 @@ import {
 } from "@oxidized-health/fhir-types/r4/types";
 import { R4 } from "@oxidized-health/fhir-types/versions";
 
-import ResourceEditorComponent from "../../../components/ResourceEditor";
-import { getClient } from "../../../db/client";
-import { getErrorMessage } from "../../../utilities";
+import ResourceEditorComponent from "../../components/ResourceEditor";
+import { getClient } from "../../db/client";
+import { getErrorMessage } from "../../utilities";
 import AccessPolicyView from "./AccessPolicy";
 import IdentityProviderView from "./IdentityProvider";
-
 import OperationDefinitionView from "./OperationDefinition";
 import SubscriptionView from "./Subscription";
 

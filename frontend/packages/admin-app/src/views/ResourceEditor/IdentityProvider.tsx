@@ -12,8 +12,8 @@ import { OxidizedHealthIdpRegistrationInfo } from "@oxidized-health/generated-op
 
 import ResourceEditorComponent, {
   AdditionalContent,
-} from "../../../components/ResourceEditor";
-import { getClient } from "../../../db/client";
+} from "../../components/ResourceEditor";
+import { getClient } from "../../db/client";
 
 interface IdentityProviderEditorProps extends AdditionalContent {
   resource: IdentityProvider | undefined;
