@@ -21,7 +21,7 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, Resource},
+    resources::{Bundle, BundleEntry, BundleEntryResponse, Resource},
     terminology::{BundleType, IssueType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -35,69 +35,132 @@ use oxidized_repository::{
 };
 use std::{str::FromStr, sync::Arc};
 
-fn convert_bundle_entry(fhir_response: FHIRResponse) -> BundleEntry {
-    BundleEntry {
-        resource: match fhir_response {
-            FHIRResponse::Create(res) => Some(Box::new(res.resource)),
-            FHIRResponse::Read(res) => Some(Box::new(res.resource)),
-            FHIRResponse::Update(res) => Some(Box::new(res.resource)),
-            FHIRResponse::VersionRead(res) => Some(Box::new(res.resource)),
-            FHIRResponse::DeleteInstance(_res) => None,
-            FHIRResponse::DeleteType(_res) => None,
-            FHIRResponse::DeleteSystem(_res) => None,
-            FHIRResponse::HistoryInstance(res) => {
-                let bundle = oxidized_fhir_client::axum::to_bundle(
-                    BundleType::History(None),
-                    None,
-                    res.resources,
-                );
-                Some(Box::new(Resource::Bundle(bundle)))
-            }
-            FHIRResponse::HistoryType(res) => {
-                let bundle = oxidized_fhir_client::axum::to_bundle(
-                    BundleType::History(None),
-                    None,
-                    res.resources,
-                );
-                Some(Box::new(Resource::Bundle(bundle)))
-            }
-            FHIRResponse::HistorySystem(res) => {
-                let bundle = oxidized_fhir_client::axum::to_bundle(
-                    BundleType::History(None),
-                    None,
-                    res.resources,
-                );
-                Some(Box::new(Resource::Bundle(bundle)))
-            }
-            FHIRResponse::SearchSystem(res) => {
-                let bundle = oxidized_fhir_client::axum::to_bundle(
-                    BundleType::Searchset(None),
-                    res.total,
-                    res.resources,
-                );
-                Some(Box::new(Resource::Bundle(bundle)))
-            }
-            FHIRResponse::SearchType(res) => {
-                let bundle = oxidized_fhir_client::axum::to_bundle(
-                    BundleType::Searchset(None),
-                    res.total,
-                    res.resources,
-                );
-                Some(Box::new(Resource::Bundle(bundle)))
-            }
-            FHIRResponse::Patch(res) => Some(Box::new(res.resource)),
-
-            FHIRResponse::Capabilities(res) => {
-                Some(Box::new(Resource::CapabilityStatement(res.capabilities)))
-            }
-
-            FHIRResponse::InvokeInstance(res) => Some(Box::new(res.resource)),
-            FHIRResponse::InvokeType(res) => Some(Box::new(res.resource)),
-            FHIRResponse::InvokeSystem(res) => Some(Box::new(res.resource)),
-            FHIRResponse::Batch(res) => Some(Box::new(Resource::Bundle(res.resource))),
-            FHIRResponse::Transaction(res) => Some(Box::new(Resource::Bundle(res.resource))),
+fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeError>) -> BundleEntry {
+    match fhir_response {
+        Ok(FHIRResponse::Create(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
         },
-        ..Default::default()
+        Ok(FHIRResponse::Read(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::Update(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::VersionRead(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::DeleteInstance(_res)) => BundleEntry {
+            resource: None,
+            ..Default::default()
+        },
+        Ok(FHIRResponse::DeleteType(_res)) => BundleEntry {
+            resource: None,
+            ..Default::default()
+        },
+        Ok(FHIRResponse::DeleteSystem(_res)) => BundleEntry {
+            resource: None,
+            ..Default::default()
+        },
+        Ok(FHIRResponse::HistoryInstance(res)) => {
+            let bundle = oxidized_fhir_client::axum::to_bundle(
+                BundleType::History(None),
+                None,
+                res.resources,
+            );
+            BundleEntry {
+                resource: Some(Box::new(Resource::Bundle(bundle))),
+                ..Default::default()
+            }
+        }
+        Ok(FHIRResponse::HistoryType(res)) => {
+            let bundle = oxidized_fhir_client::axum::to_bundle(
+                BundleType::History(None),
+                None,
+                res.resources,
+            );
+            BundleEntry {
+                resource: Some(Box::new(Resource::Bundle(bundle))),
+                ..Default::default()
+            }
+        }
+        Ok(FHIRResponse::HistorySystem(res)) => {
+            let bundle = oxidized_fhir_client::axum::to_bundle(
+                BundleType::History(None),
+                None,
+                res.resources,
+            );
+            BundleEntry {
+                resource: Some(Box::new(Resource::Bundle(bundle))),
+                ..Default::default()
+            }
+        }
+        Ok(FHIRResponse::SearchSystem(res)) => {
+            let bundle = oxidized_fhir_client::axum::to_bundle(
+                BundleType::Searchset(None),
+                res.total,
+                res.resources,
+            );
+            BundleEntry {
+                resource: Some(Box::new(Resource::Bundle(bundle))),
+                ..Default::default()
+            }
+        }
+        Ok(FHIRResponse::SearchType(res)) => {
+            let bundle = oxidized_fhir_client::axum::to_bundle(
+                BundleType::Searchset(None),
+                res.total,
+                res.resources,
+            );
+            BundleEntry {
+                resource: Some(Box::new(Resource::Bundle(bundle))),
+                ..Default::default()
+            }
+        }
+        Ok(FHIRResponse::Patch(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+
+        Ok(FHIRResponse::Capabilities(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::CapabilityStatement(res.capabilities))),
+            ..Default::default()
+        },
+
+        Ok(FHIRResponse::InvokeInstance(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::InvokeType(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::InvokeSystem(res)) => BundleEntry {
+            resource: Some(Box::new(res.resource)),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::Batch(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.resource))),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::Transaction(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.resource))),
+            ..Default::default()
+        },
+        Err(operation_error) => {
+            let operation_outcome = operation_error.outcome().clone();
+
+            BundleEntry {
+                response: Some(BundleEntryResponse {
+                    outcome: Some(Box::new(Resource::OperationOutcome(operation_outcome))),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }
+        }
     }
 }
 
@@ -560,8 +623,7 @@ impl<
 
                                 let fhir_response = batch_client
                                     .request(context.ctx.clone(), fhir_request)
-                                    .await?;
-
+                                    .await;
                                 bundle_response_entries.push(convert_bundle_entry(fhir_response));
                             }
                         }
