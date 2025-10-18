@@ -37,12 +37,7 @@ pub fn interactions_router<
                 .layer(OIDCParameterInjectLayer::new((*LOGOUT_PARAMETERS).clone())),
         );
 
-    let scope_routes =
-        Router::new()
-            .typed_post(scopes::scope_post)
-            .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
-                (*AUTHORIZE_PARAMETERS).clone(),
-            )));
+    let scope_routes = Router::new().typed_post(scopes::scope_post);
 
     Router::new()
         .merge(login_routes)
