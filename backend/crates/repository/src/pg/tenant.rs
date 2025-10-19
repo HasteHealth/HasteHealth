@@ -36,7 +36,7 @@ fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 fn read_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     id: &'a str,
-) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Option<Tenant>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let tenant = sqlx::query_as!(
@@ -44,7 +44,7 @@ fn read_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             r#"SELECT id, subscription_tier FROM tenants where id = $1"#,
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
@@ -142,7 +142,7 @@ impl<Key: AsRef<str> + Send + Sync>
         &self,
         _tenant: &TenantId,
         id: &Key,
-    ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<Option<Tenant>, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = read_tenant(pool, id.as_ref()).await?;

@@ -42,7 +42,7 @@ fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
     connection: Connection,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Option<Project>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let project = sqlx::query_as!(
@@ -51,7 +51,7 @@ fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             tenant.as_ref(),    
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
@@ -148,7 +148,7 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         &self,
         tenant: &TenantId,
         id: &Key,
-    ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<Option<Project>, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = read_project(pool, tenant, id.as_ref()).await?;

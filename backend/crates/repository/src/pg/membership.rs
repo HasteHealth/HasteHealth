@@ -51,7 +51,7 @@ fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
     tenant: &'a TenantId,
     project: &'a ProjectId,
     user_id: &'a str,
-) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Option<Membership>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let membership = sqlx::query_as!(
@@ -65,7 +65,7 @@ fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
             project.as_ref(),
             user_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
@@ -211,7 +211,7 @@ impl<Key: AsRef<str> + Send + Sync>
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
         id: &Key,
-    ) -> Result<Membership, OperationOutcomeError> {
+    ) -> Result<Option<Membership>, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = read_membership(pool, tenant, project, id.as_ref()).await?;

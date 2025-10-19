@@ -126,7 +126,7 @@ fn read_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<User, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Option<User>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let user = sqlx::query_as!(
@@ -138,7 +138,7 @@ fn read_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
             "#,
             tenant.as_ref(),
             id
-        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+        ).fetch_optional(&mut *conn).await.map_err(StoreError::SQLXError)?;
 
         Ok(user)
     }
@@ -285,7 +285,11 @@ impl<Key: AsRef<str> + Send + Sync>
         }
     }
 
-    async fn read(&self, tenant: &TenantId, id: &Key) -> Result<User, OperationOutcomeError> {
+    async fn read(
+        &self,
+        tenant: &TenantId,
+        id: &Key,
+    ) -> Result<Option<User>, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = read_user(pool, tenant, id.as_ref()).await?;

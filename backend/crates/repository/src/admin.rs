@@ -23,7 +23,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, K
         &self,
         tenant: &TenantId,
         id: &Key,
-    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Option<ReadModel>, OperationOutcomeError>> + Send;
     fn update(
         &self,
         tenant: &TenantId,
@@ -53,7 +53,7 @@ pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, 
         tenant: &TenantId,
         project: &ProjectId,
         id: &Key,
-    ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Option<ReadModel>, OperationOutcomeError>> + Send;
     fn update(
         &self,
         tenant: &TenantId,
