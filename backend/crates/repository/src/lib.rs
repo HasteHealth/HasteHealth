@@ -7,6 +7,7 @@ use crate::{
         },
         membership::{CreateMembership, Membership, MembershipSearchClaims, UpdateMembership},
         project::{CreateProject, Project, ProjectSearchClaims},
+        scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
         user::{CreateUser, UpdateUser, User, UserSearchClauses},
     },
@@ -36,6 +37,7 @@ pub trait Repository: FHIRRepository
         AuthorizationCode,
         String,
     > + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, String>
+    + ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     + Login
 {
 }
