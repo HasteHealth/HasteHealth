@@ -11,7 +11,10 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
     admin::TenantAuthAdmin,
-    types::{ProjectId, TenantId, user::UpdateUser},
+    types::{
+        ProjectId, TenantId,
+        user::{CreateUser, UpdateUser},
+    },
 };
 use oxidized_server::{
     ServerEnvironmentVariables,
@@ -199,7 +202,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                     _ => panic!("Created resource is not a User"),
                 };
 
-                TenantAuthAdmin::update(
+                TenantAuthAdmin::<CreateUser, _, _, _, String>::update(
                     &*services.repo,
                     &tenant,
                     UpdateUser {

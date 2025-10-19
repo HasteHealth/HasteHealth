@@ -117,7 +117,9 @@ fn search_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
     }
 }
 
-impl TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims> for PGConnection {
+impl<Key: AsRef<str> + Send + Sync>
+    TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims, Tenant, Key> for PGConnection
+{
     async fn create(
         &self,
         _tenant: &TenantId,
@@ -139,16 +141,16 @@ impl TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims> for PGConnection 
     async fn read(
         &self,
         _tenant: &TenantId,
-        id: &str,
+        id: &Key,
     ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = read_tenant(pool, id).await?;
+                let res = read_tenant(pool, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = read_tenant(&mut *tx, id).await?;
+                let res = read_tenant(&mut *tx, id.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -175,16 +177,16 @@ impl TenantAuthAdmin<CreateTenant, Tenant, TenantSearchClaims> for PGConnection 
     async fn delete(
         &self,
         _tenant: &TenantId,
-        id: &str,
+        id: &Key,
     ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = delete_tenant(pool, id).await?;
+                let res = delete_tenant(pool, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = delete_tenant(&mut *tx, id).await?;
+                let res = delete_tenant(&mut *tx, id.as_ref()).await?;
                 Ok(res)
             }
         }

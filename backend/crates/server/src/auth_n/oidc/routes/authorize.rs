@@ -18,7 +18,7 @@ use axum::{
 };
 use axum_extra::routing::TypedPath;
 use maud::{Markup, html};
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_model::r4::generated::{resources::ClientApplication, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
@@ -37,25 +37,61 @@ use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 
 #[allow(unused)]
-fn scopes_html_form() -> Markup {
+fn scopes_html_form(client_application: ClientApplication, scopes: Scopes) -> Markup {
     html! {
-         head {
-            meta charset="utf-8" {}
-            meta name="viewport" content="width=device-width, initial-scale=1" {}
-            link rel="preload" as="image" href="/img/logo.svg" {}
-            title { "Oxidized Health" }
-            link rel="icon" href="/img/logo.svg" {}
-            link rel="stylesheet" href="/css/app.css" {}
-        }
-        body {
-            section class="bg-gray-50  h-screen" {
-                div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0" {
-                    a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900" {
-                        img class="w-8 h-8 mr-2" src="/img/logo.svg" alt="logo" {}
-                        "Oxidized Health"
-                    }
-                    div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 sm:max-w-md" {
+             head {
+                meta charset="utf-8" {}
+                meta name="viewport" content="width=device-width, initial-scale=1" {}
+                link rel="preload" as="image" href="/img/logo.svg" {}
+                title { "Oxidized Health" }
+                link rel="icon" href="/img/logo.svg" {}
+                link rel="stylesheet" href="/css/app.css" {}
+            }
+            body {
+                section class="bg-gray-50 dark:bg-gray-900 h-screen" {
+                    div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0" {
+                        a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" {
+                            img class="w-8 h-8 mr-2" src="/public/img/logo.svg" alt="logo" {
+                                "IGUHealth"
+                            }
+                        }
+                        div class="w-full bg-white rounded-lg shadow dark:border md:mt-0  xl:p-0 dark:bg-gray-800 dark:border-gray-700 sm:max-w-md" {
+                            div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
+                                div {
+                                    div class="flex flex-col justify-center items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white space-y-2" {
+                                        div {
+                                            div class="flex  justify-center items-center w-12 h-12 rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100" {
+                                                div {"A"}
+                                            }
+                                        }
+                                        div {"Admin Application"}
+                                    }
+                                }
+                                div {
+                                    span class="text-sm text-gray-500" {
+                                        "The above app is requesting the following permissions. Please review and either consent or deny access for the app."
+                                    }
+                                div class="max-h-72 overflow-auto" {
+                                    table class="border-collapse  list-inside list-disc w-full" {
+                                        tbody {
+                                            tr class="border"{
+                                                td class="p-4" {
+                                                    "openid"
+                                                }
+                                                td {
+                                                    div class="items-center justify-center flex"{
+                                                        svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" class="w-6 h-6 text-gray-300"{
+                                                            path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" { }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
+                        }
                     }
                 }
             }

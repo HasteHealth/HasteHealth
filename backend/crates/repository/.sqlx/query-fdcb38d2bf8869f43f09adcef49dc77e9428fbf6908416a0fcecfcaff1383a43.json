@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) RETURNING  client, user_, scope",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "client",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "scope",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fdcb38d2bf8869f43f09adcef49dc77e9428fbf6908416a0fcecfcaff1383a43"
+}

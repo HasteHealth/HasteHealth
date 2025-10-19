@@ -1,0 +1,1 @@
+ALTER TABLE authorization_scopes ADD CONSTRAINT pk_authorization_scopes PRIMARY KEY (tenant, project, client, user_);

@@ -183,7 +183,8 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
     }
 }
 
-impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
+impl<Key: AsRef<str> + Send + Sync>
+    ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, Key>
     for PGConnection
 {
     async fn create(
@@ -209,16 +210,16 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        id: &str,
+        id: &Key,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = read_membership(pool, tenant, project, id).await?;
+                let res = read_membership(pool, tenant, project, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = read_membership(&mut *tx, tenant, project, id).await?;
+                let res = read_membership(&mut *tx, tenant, project, id.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -247,16 +248,16 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        id: &str,
+        id: &Key,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = delete_membership(pool, tenant, project, id).await?;
+                let res = delete_membership(pool, tenant, project, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = delete_membership(&mut *tx, tenant, project, id).await?;
+                let res = delete_membership(&mut *tx, tenant, project, id.as_ref()).await?;
                 Ok(res)
             }
         }

@@ -104,7 +104,7 @@ impl<
                             if let Resource::User(user) = &delete_response.resource
                                 && let Some(id) = user.id.as_ref()
                             {
-                                TenantAuthAdmin::<CreateUser, _, _, _>::delete(
+                                TenantAuthAdmin::<CreateUser, _, _, _, _>::delete(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     id,
@@ -124,7 +124,7 @@ impl<
                                 && let Some(email) = user.email.value.as_ref()
                                 && let Some(id) = user.id.as_ref()
                             {
-                                TenantAuthAdmin::<CreateUser, _, _, _>::update(
+                                TenantAuthAdmin::<CreateUser, _, _, _, _>::update(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     UpdateUser {
