@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                DELETE FROM authorization_scopes\n                WHERE tenant = $1 AND project = $2 AND client = $3 AND user_ = $4\n                RETURNING user_, client, scope\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "client",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "scope",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "716ce1af431c8fde6850c163775cbc05010081bc16496602e6e38494605909a1"
+}

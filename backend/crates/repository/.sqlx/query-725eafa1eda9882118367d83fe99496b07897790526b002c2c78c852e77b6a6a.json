@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT user_, client, scope\n                FROM authorization_scopes\n                WHERE tenant = $1 AND project = $2 AND client = $3 and user_ = $4\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "client",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "scope",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "725eafa1eda9882118367d83fe99496b07897790526b002c2c78c852e77b6a6a"
+}
