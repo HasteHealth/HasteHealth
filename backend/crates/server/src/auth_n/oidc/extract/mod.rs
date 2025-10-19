@@ -78,4 +78,22 @@ mod tests {
             true
         );
     }
+
+    #[test]
+    fn test_roundtrip() {
+        assert_eq!(
+            String::from(
+                scopes::Scopes::try_from(
+                    "openid profile email offline_access launch/patient user/*.*"
+                )
+                .unwrap()
+            ),
+            "openid profile email offline_access launch/patient user/*.cruds".to_string(),
+        );
+
+        assert_eq!(
+            String::from(scopes::Scopes::try_from("launch/encounter system/Patient.cud").unwrap()),
+            "launch/encounter system/Patient.cud".to_string()
+        );
+    }
 }
