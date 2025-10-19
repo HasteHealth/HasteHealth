@@ -94,11 +94,11 @@ impl<
                         if let Resource::Membership(membership) = &delete_response.resource
                             && let Some(user_id) = get_user_id(membership)
                         {
-                            ProjectAuthAdmin::<CreateMembership, _, _, _>::delete(
+                            ProjectAuthAdmin::<CreateMembership, _, _, _, _>::delete(
                                 state.repo.as_ref(),
                                 &res.ctx.tenant,
                                 &res.ctx.project,
-                                user_id,
+                                &user_id.to_string(),
                             )
                             .await?;
 

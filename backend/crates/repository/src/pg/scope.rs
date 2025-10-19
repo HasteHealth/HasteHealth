@@ -143,7 +143,7 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
     }
 }
 
-impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership>
+impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, str>
     for PGConnection
 {
     async fn create(

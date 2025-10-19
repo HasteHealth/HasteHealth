@@ -226,8 +226,14 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
     }
 }
 
-impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
-    for PGConnection
+impl<Key: AsRef<str> + Send + Sync>
+    TenantAuthAdmin<
+        CreateAuthorizationCode,
+        AuthorizationCode,
+        AuthorizationCodeSearchClaims,
+        AuthorizationCode,
+        Key,
+    > for PGConnection
 {
     async fn create(
         &self,
@@ -251,17 +257,17 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
     async fn read(
         &self,
         tenant: &TenantId,
-        code: &str,
+        code: &Key,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
             PGConnection::PgPool(pool) => {
-                let res = read_code(pool, tenant, None, code).await?;
+                let res = read_code(pool, tenant, None, code.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
 
-                let res = read_code(&mut *tx, tenant, None, code).await?;
+                let res = read_code(&mut *tx, tenant, None, code.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -281,17 +287,17 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
     async fn delete(
         &self,
         tenant: &TenantId,
-        code: &str,
+        code: &Key,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
             PGConnection::PgPool(pool) => {
-                let res = delete_code(pool, tenant, None, code).await?;
+                let res = delete_code(pool, tenant, None, code.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
 
-                let res = delete_code(&mut *tx, tenant, None, code).await?;
+                let res = delete_code(&mut *tx, tenant, None, code.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -317,8 +323,14 @@ impl TenantAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCo
     }
 }
 
-impl ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationCodeSearchClaims>
-    for PGConnection
+impl<Key: AsRef<str> + Send + Sync>
+    ProjectAuthAdmin<
+        CreateAuthorizationCode,
+        AuthorizationCode,
+        AuthorizationCodeSearchClaims,
+        AuthorizationCode,
+        Key,
+    > for PGConnection
 {
     async fn create(
         &self,
@@ -344,17 +356,17 @@ impl ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationC
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        code: &str,
+        code: &Key,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
             PGConnection::PgPool(pool) => {
-                let res = read_code(pool, tenant, Some(project), code).await?;
+                let res = read_code(pool, tenant, Some(project), code.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
 
-                let res = read_code(&mut *tx, tenant, Some(project), code).await?;
+                let res = read_code(&mut *tx, tenant, Some(project), code.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -376,17 +388,17 @@ impl ProjectAuthAdmin<CreateAuthorizationCode, AuthorizationCode, AuthorizationC
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        code: &str,
+        code: &Key,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
             PGConnection::PgPool(pool) => {
-                let res = delete_code(pool, tenant, Some(project), code).await?;
+                let res = delete_code(pool, tenant, Some(project), code.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
 
-                let res = delete_code(&mut *tx, tenant, Some(project), code).await?;
+                let res = delete_code(&mut *tx, tenant, Some(project), code.as_ref()).await?;
                 Ok(res)
             }
         }

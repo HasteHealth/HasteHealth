@@ -264,7 +264,9 @@ fn search_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     }
 }
 
-impl TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser> for PGConnection {
+impl<Key: AsRef<str> + Send + Sync>
+    TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser, Key> for PGConnection
+{
     async fn create(
         &self,
         tenant: &TenantId,
@@ -283,15 +285,15 @@ impl TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser> for PGConn
         }
     }
 
-    async fn read(&self, tenant: &TenantId, id: &str) -> Result<User, OperationOutcomeError> {
+    async fn read(&self, tenant: &TenantId, id: &Key) -> Result<User, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = read_user(pool, tenant, id).await?;
+                let res = read_user(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = read_user(&mut *tx, tenant, id).await?;
+                let res = read_user(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -315,15 +317,15 @@ impl TenantAuthAdmin<CreateUser, User, UserSearchClauses, UpdateUser> for PGConn
         }
     }
 
-    async fn delete(&self, tenant: &TenantId, id: &str) -> Result<User, OperationOutcomeError> {
+    async fn delete(&self, tenant: &TenantId, id: &Key) -> Result<User, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = delete_user(pool, tenant, id).await?;
+                let res = delete_user(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = delete_user(&mut *tx, tenant, id).await?;
+                let res = delete_user(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
             }
         }

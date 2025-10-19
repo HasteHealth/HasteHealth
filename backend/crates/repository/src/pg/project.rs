@@ -125,7 +125,7 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     }
 }
 
-impl TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims> for PGConnection {
+impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims, Project, Key> for PGConnection {
     async fn create(
         &self,
         tenant: &TenantId,
@@ -147,16 +147,16 @@ impl TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims> for PGConnecti
     async fn read(
         &self,
         tenant: &TenantId,
-        id: &str,
+        id: &Key,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = read_project(pool, tenant, id).await?;
+                let res = read_project(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = read_project(&mut *tx, tenant, id).await?;
+                let res = read_project(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
             }
         }
@@ -176,16 +176,16 @@ impl TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims> for PGConnecti
     async fn delete(
         &self,
         tenant: &TenantId,
-        id: &str,
+        id: &Key,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = delete_project(pool, tenant, id).await?;
+                let res = delete_project(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = delete_project(&mut *tx, tenant, id).await?;
+                let res = delete_project(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
             }
         }

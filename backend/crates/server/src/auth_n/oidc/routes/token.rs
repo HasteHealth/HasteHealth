@@ -162,7 +162,7 @@ pub async fn token<
                 }
 
                 // Remove the code once valid.
-                ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _>::delete(
+                ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
                     &*state.repo,
                     &tenant,
                     &project,

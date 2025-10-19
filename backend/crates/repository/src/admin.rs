@@ -13,7 +13,7 @@ pub trait Login {
     ) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send;
 }
 
-pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = ReadModel> {
+pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
     fn create(
         &self,
         tenant: &TenantId,
@@ -22,7 +22,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = 
     fn read(
         &self,
         tenant: &TenantId,
-        id: &str,
+        id: &Key,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
         &self,
@@ -32,7 +32,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = 
     fn delete(
         &self,
         tenant: &TenantId,
-        id: &str,
+        id: &Key,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn search(
         &self,
@@ -41,7 +41,7 @@ pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = 
     ) -> impl Future<Output = Result<Vec<ReadModel>, OperationOutcomeError>> + Send;
 }
 
-pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel = ReadModel> {
+pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
     fn create(
         &self,
         tenant: &TenantId,
@@ -52,7 +52,7 @@ pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel =
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        id: &str,
+        id: &Key,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn update(
         &self,
@@ -64,7 +64,7 @@ pub trait ProjectAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel =
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        id: &str,
+        id: &Key,
     ) -> impl Future<Output = Result<ReadModel, OperationOutcomeError>> + Send;
     fn search(
         &self,

@@ -131,7 +131,7 @@ impl<
                         }
 
                         FHIRRequest::DeleteInstance(delete_request) => {
-                            TenantAuthAdmin::<CreateProject, _, _, _>::delete(
+                            TenantAuthAdmin::<CreateProject, _, _, _, _>::delete(
                                 state.repo.as_ref(),
                                 &context.ctx.tenant,
                                 &delete_request.id,
