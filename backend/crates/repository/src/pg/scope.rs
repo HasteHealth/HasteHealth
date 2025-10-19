@@ -82,7 +82,7 @@ fn read_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     tenant: &'a TenantId,
     project: &'a ProjectId,
     id: &'a ScopeKey,
-) -> impl Future<Output = Result<Scope, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Option<Scope>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let scope = sqlx::query_as!(
@@ -97,7 +97,7 @@ fn read_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
             String::from(id.0.clone()),
             String::from(id.1.clone()),
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
@@ -202,7 +202,7 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
         key: &ScopeKey,
-    ) -> Result<Scope, OperationOutcomeError> {
+    ) -> Result<Option<Scope>, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = read_scope(pool, tenant, project, key).await?;

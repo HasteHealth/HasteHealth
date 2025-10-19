@@ -30,6 +30,7 @@ use oxidized_repository::{
             AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
         },
         membership::MembershipSearchClaims,
+        scope::{ClientId, CreateScope, ScopeKey, UserId},
         user::UserRole,
     },
 };
@@ -194,6 +195,19 @@ pub async fn authorize<
             "Client ID is required.".to_string(),
         )
     })?;
+
+    let existing_scopes = ProjectAuthAdmin::<CreateScope, _, _, _, _>::read(
+        &*app_state.repo,
+        &tenant,
+        &project,
+        &ScopeKey::new(
+            ClientId::new(client_id.to_string()),
+            UserId::new(user.id.clone()),
+        ),
+    )
+    .await;
+
+    println!("Existing scopes: {:?}", existing_scopes);
 
     let authorzation_code = ProjectAuthAdmin::create(
         &*app_state.repo,

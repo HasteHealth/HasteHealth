@@ -7,6 +7,11 @@ impl From<ClientId> for String {
         client_id.0
     }
 }
+impl ClientId {
+    pub fn new(id: String) -> Self {
+        ClientId(id)
+    }
+}
 impl AsRef<str> for ClientId {
     fn as_ref(&self) -> &str {
         &self.0
@@ -18,6 +23,11 @@ pub struct UserId(String);
 impl From<UserId> for String {
     fn from(user_id: UserId) -> Self {
         user_id.0
+    }
+}
+impl UserId {
+    pub fn new(id: String) -> Self {
+        UserId(id)
     }
 }
 impl AsRef<str> for UserId {
@@ -51,3 +61,8 @@ pub struct CreateScope {
 }
 
 pub struct ScopeKey(pub ClientId, pub UserId);
+impl ScopeKey {
+    pub fn new(client: ClientId, user_: UserId) -> Self {
+        ScopeKey(client, user_)
+    }
+}
