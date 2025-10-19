@@ -3,7 +3,7 @@ use crate::{
     pg::{PGConnection, StoreError},
     types::{
         ProjectId, TenantId,
-        scope::{CreateScope, Scope, UpdateScope},
+        scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
     },
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -22,8 +22,8 @@ fn create_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             r#"INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) RETURNING  client, user_, scope"#,
             tenant.as_ref(),
             project.as_ref(),
-            &scope.client,
-            &scope.user_,
+            &scope.client.as_ref(),
+            &scope.user_.as_ref(),
             &scope.scope
         ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
 
@@ -60,9 +60,9 @@ fn update_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             .push(" project = ")
             .push_bind_unseparated(project.as_ref())
             .push(" client = ")
-            .push_bind_unseparated(&model.client)
+            .push_bind_unseparated(model.client.as_ref())
             .push(" user = ")
-            .push_bind_unseparated(&model.user_);
+            .push_bind_unseparated(model.user_.as_ref());
 
         query_builder.push(r#" RETURNING client, user_ , scope"#);
 
@@ -77,45 +77,73 @@ fn update_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
     }
 }
 
-fn delete_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn read_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     project: &'a ProjectId,
-    user_id: &'a str,
-) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
+    id: &'a ScopeKey,
+) -> impl Future<Output = Result<Scope, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let membership = sqlx::query_as!(
-            Membership,
+        let scope = sqlx::query_as!(
+            Scope,
             r#"
-                DELETE FROM memberships
-                WHERE tenant = $1 AND project = $2 AND user_id = $3
-                RETURNING user_id, tenant, project, role as "role: MembershipRole"
+                SELECT user_, client, scope
+                FROM authorization_scopes
+                WHERE tenant = $1 AND project = $2 AND client = $3 and user_ = $4
             "#,
             tenant.as_ref(),
             project.as_ref(),
-            user_id
+            String::from(id.0.clone()),
+            String::from(id.1.clone()),
         )
         .fetch_one(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(membership)
+        Ok(scope)
     }
 }
 
-fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+fn delete_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     project: &'a ProjectId,
-    clauses: &'a MembershipSearchClaims,
-) -> impl Future<Output = Result<Vec<Membership>, OperationOutcomeError>> + Send + 'a {
+    key: &'a ScopeKey,
+) -> impl Future<Output = Result<Scope, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+        let scope = sqlx::query_as!(
+            Scope,
+            r#"
+                DELETE FROM authorization_scopes
+                WHERE tenant = $1 AND project = $2 AND client = $3 AND user_ = $4
+                RETURNING user_, client, scope
+            "#,
+            tenant.as_ref(),
+            project.as_ref(),
+            key.0.as_ref(),
+            key.1.as_ref(),
+        )
+        .fetch_one(&mut *conn)
+        .await
+        .map_err(StoreError::SQLXError)?;
+
+        Ok(scope)
+    }
+}
+
+fn search_scopes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    clauses: &'a ScopeSearchClaims,
+) -> impl Future<Output = Result<Vec<Scope>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
-        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT user_id, tenant, project, role as "role: MembershipRole" FROM memberships WHERE  "#,
-        );
+        let mut query_builder: QueryBuilder<Postgres> =
+            QueryBuilder::new(r#"SELECT user_, client, scope FROM authorization_scopes WHERE  "#);
 
         let mut seperator = query_builder.separated(" AND ");
         seperator
@@ -124,42 +152,46 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
             .push(" project = ")
             .push_bind_unseparated(project.as_ref());
 
-        if let Some(user_id) = clauses.user_id.as_ref() {
-            seperator.push(" user_id = ").push_bind_unseparated(user_id);
+        if let Some(user_id) = clauses.user_.as_ref() {
+            seperator
+                .push(" user_ = ")
+                .push_bind_unseparated(user_id.as_ref());
         }
 
-        if let Some(role) = clauses.role.as_ref() {
-            seperator.push(" role = ").push_bind_unseparated(role);
+        if let Some(client) = clauses.client.as_ref() {
+            seperator
+                .push(" client = ")
+                .push_bind_unseparated(client.as_ref());
         }
 
         let query = query_builder.build_query_as();
 
-        let memberships: Vec<Membership> = query
+        let scopes: Vec<Scope> = query
             .fetch_all(&mut *conn)
             .await
             .map_err(StoreError::from)?;
 
-        Ok(memberships)
+        Ok(scopes)
     }
 }
 
-impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, str>
+impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     for PGConnection
 {
     async fn create(
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        new_membership: CreateMembership,
-    ) -> Result<Membership, OperationOutcomeError> {
+        new_scope: CreateScope,
+    ) -> Result<Scope, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = create_scope(pool, tenant, project, new_membership).await?;
+                let res = create_scope(pool, tenant, project, new_scope).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = create_scope(&mut *tx, tenant, project, new_membership).await?;
+                let res = create_scope(&mut *tx, tenant, project, new_scope).await?;
                 Ok(res)
             }
         }
@@ -169,16 +201,16 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        id: &str,
-    ) -> Result<Membership, OperationOutcomeError> {
+        key: &ScopeKey,
+    ) -> Result<Scope, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = read_membership(pool, tenant, project, id).await?;
+                let res = read_scope(pool, tenant, project, key).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = read_membership(&mut *tx, tenant, project, id).await?;
+                let res = read_scope(&mut *tx, tenant, project, key).await?;
                 Ok(res)
             }
         }
@@ -188,8 +220,8 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        model: UpdateMembership,
-    ) -> Result<Membership, OperationOutcomeError> {
+        model: UpdateScope,
+    ) -> Result<Scope, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
                 let res = update_scope(pool, tenant, project, model).await?;
@@ -207,16 +239,16 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        id: &str,
-    ) -> Result<Membership, OperationOutcomeError> {
+        key: &ScopeKey,
+    ) -> Result<Scope, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = delete_membership(pool, tenant, project, id).await?;
+                let res = delete_scope(pool, tenant, project, key).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = delete_membership(&mut *tx, tenant, project, id).await?;
+                let res = delete_scope(&mut *tx, tenant, project, key).await?;
                 Ok(res)
             }
         }
@@ -226,16 +258,16 @@ impl ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Upda
         &self,
         tenant: &crate::types::TenantId,
         project: &crate::types::ProjectId,
-        clauses: &MembershipSearchClaims,
-    ) -> Result<Vec<Membership>, OperationOutcomeError> {
+        clauses: &ScopeSearchClaims,
+    ) -> Result<Vec<Scope>, OperationOutcomeError> {
         match self {
             PGConnection::PgPool(pool) => {
-                let res = search_memberships(pool, tenant, project, clauses).await?;
+                let res = search_scopes(pool, tenant, project, clauses).await?;
                 Ok(res)
             }
             PGConnection::PgTransaction(tx) => {
                 let mut tx = tx.lock().await;
-                let res = search_memberships(&mut *tx, tenant, project, clauses).await?;
+                let res = search_scopes(&mut *tx, tenant, project, clauses).await?;
                 Ok(res)
             }
         }

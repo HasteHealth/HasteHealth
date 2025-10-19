@@ -9,7 +9,7 @@ mod authorization_code;
 mod fhir;
 mod membership;
 mod project;
-// mod scope;
+mod scope;
 mod tenant;
 mod user;
 
