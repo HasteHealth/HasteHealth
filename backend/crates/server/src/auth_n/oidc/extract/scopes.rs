@@ -18,6 +18,18 @@ pub enum OIDCScope {
     OnlineAccess,
 }
 
+impl From<OIDCScope> for String {
+    fn from(value: OIDCScope) -> Self {
+        match value {
+            OIDCScope::OpenId => "openid".to_string(),
+            OIDCScope::Profile => "profile".to_string(),
+            OIDCScope::Email => "email".to_string(),
+            OIDCScope::OfflineAccess => "offline_access".to_string(),
+            OIDCScope::OnlineAccess => "online_access".to_string(),
+        }
+    }
+}
+
 impl TryFrom<&str> for OIDCScope {
     type Error = OperationOutcomeError;
 
@@ -38,6 +50,12 @@ impl TryFrom<&str> for OIDCScope {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct LaunchSystemScope;
+
+impl From<LaunchSystemScope> for String {
+    fn from(_: LaunchSystemScope) -> Self {
+        "launch".to_string()
+    }
+}
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum LaunchType {
@@ -63,6 +81,15 @@ impl TryFrom<&str> for LaunchType {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct LaunchTypeScope {
     pub launch_type: LaunchType,
+}
+
+impl From<LaunchTypeScope> for String {
+    fn from(value: LaunchTypeScope) -> Self {
+        match value.launch_type {
+            LaunchType::Encounter => "launch/encounter".to_string(),
+            LaunchType::Patient => "launch/patient".to_string(),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -237,12 +264,59 @@ pub struct SMARTResourceScope {
     pub permissions: SmartResourceScopePermissions,
 }
 
+impl From<SMARTResourceScope> for String {
+    fn from(value: SMARTResourceScope) -> Self {
+        let user_str = match value.user {
+            SmartResourceScopeUser::User => "user",
+            SmartResourceScopeUser::System => "system",
+            SmartResourceScopeUser::Patient => "patient",
+        };
+
+        let level_str = match value.level {
+            SmartResourceScopeLevel::AllResources => "*".to_string(),
+            SmartResourceScopeLevel::ResourceType(resource_type) => {
+                resource_type.as_ref().to_string()
+            }
+        };
+
+        let mut permissions_str = String::new();
+        if value.permissions.create {
+            permissions_str.push('c');
+        }
+        if value.permissions.read {
+            permissions_str.push('r');
+        }
+        if value.permissions.update {
+            permissions_str.push('u');
+        }
+        if value.permissions.delete {
+            permissions_str.push('d');
+        }
+        if value.permissions.search {
+            permissions_str.push('s');
+        }
+
+        format!("{}/{}.{}", user_str, level_str, permissions_str)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SmartScope {
     LaunchSystem(LaunchSystemScope),
     LaunchType(LaunchTypeScope),
     Resource(SMARTResourceScope),
     FHIRUser,
+}
+
+impl From<SmartScope> for String {
+    fn from(value: SmartScope) -> Self {
+        match value {
+            SmartScope::FHIRUser => "fhirUser".to_string(),
+            SmartScope::LaunchSystem(launch_system) => String::from(launch_system),
+            SmartScope::LaunchType(launch_type) => String::from(launch_type),
+            SmartScope::Resource(resource) => String::from(resource),
+        }
+    }
 }
 
 impl TryFrom<&str> for SmartScope {
@@ -320,6 +394,15 @@ impl TryFrom<&str> for Scope {
     }
 }
 
+impl From<Scope> for String {
+    fn from(value: Scope) -> Self {
+        match value {
+            Scope::OIDC(oidc_scope) => String::from(oidc_scope),
+            Scope::SMART(smart_scope) => String::from(smart_scope),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Scopes(pub Vec<Scope>);
 
@@ -333,6 +416,17 @@ impl TryFrom<&str> for Scopes {
             .collect();
 
         Ok(Scopes(scopes?))
+    }
+}
+
+impl From<Scopes> for String {
+    fn from(value: Scopes) -> Self {
+        value
+            .0
+            .into_iter()
+            .map(|s| String::from(s))
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }
 
