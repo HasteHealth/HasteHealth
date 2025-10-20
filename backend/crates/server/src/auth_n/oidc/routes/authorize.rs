@@ -14,7 +14,7 @@ use axum::{
     Extension,
     extract::State,
     http::{Uri, uri::Scheme},
-    response::Redirect,
+    response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::routing::TypedPath;
 use maud::{Markup, html};
@@ -34,11 +34,11 @@ use oxidized_repository::{
         user::UserRole,
     },
 };
-use std::{sync::Arc, time::Duration};
+use std::{borrow::Cow, sync::Arc, time::Duration};
 use tower_sessions::Session;
 
 #[allow(unused)]
-fn scopes_html_form(client_application: ClientApplication, scopes: Scopes) -> Markup {
+fn scopes_html_form(client_application: &ClientApplication, scopes: &Scopes) -> Markup {
     html! {
              head {
                 meta charset="utf-8" {}
@@ -52,8 +52,8 @@ fn scopes_html_form(client_application: ClientApplication, scopes: Scopes) -> Ma
                 section class="bg-gray-50 dark:bg-gray-900 h-screen" {
                     div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0" {
                         a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" {
-                            img class="w-8 h-8 mr-2" src="/public/img/logo.svg" alt="logo" {
-                                "IGUHealth"
+                            img class="w-8 h-8 mr-2" src="/img/logo.svg" alt="logo" {
+                                "Oxidized Health"
                             }
                         }
                         div class="w-full bg-white rounded-lg shadow dark:border md:mt-0  xl:p-0 dark:bg-gray-800 dark:border-gray-700 sm:max-w-md" {
@@ -110,14 +110,14 @@ pub async fn authorize<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Authorize,
-    Scopes(_scopes): Scopes,
+    scopes: Scopes,
     Tenant { tenant }: Tenant,
     Project { project }: Project,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
     current_session: Session,
-) -> Result<Redirect, OperationOutcomeError> {
+) -> Result<Response, OperationOutcomeError> {
     let user = session::user::get_user(&current_session).await?.unwrap();
     // Verify the user has access to the given project.
 
@@ -189,7 +189,7 @@ pub async fn authorize<
         ));
     }
 
-    let client_id = client_app.id.ok_or_else(|| {
+    let client_id = client_app.id.clone().ok_or_else(|| {
         OperationOutcomeError::error(
             IssueType::Invalid(None),
             "Client ID is required.".to_string(),
@@ -205,9 +205,22 @@ pub async fn authorize<
             UserId::new(user.id.clone()),
         ),
     )
-    .await;
+    .await?;
 
-    println!("Existing scopes: {:?}", existing_scopes);
+    let existing_scope_str = existing_scopes
+        .as_ref()
+        .map(|s| Cow::Borrowed(&s.scope))
+        .unwrap_or_else(|| Cow::Owned("".to_string()));
+
+    let existing_scopes = Scopes::try_from(existing_scope_str.as_str())?;
+
+    if existing_scopes != scopes {
+        return Ok(scopes_html_form(&client_app, &scopes).into_response());
+        // Err(OperationOutcomeError::error(
+        //     IssueType::Forbidden(None),
+        //     "User consent is required for the requested scopes.".to_string(),
+        // ));
+    }
 
     let authorzation_code = ProjectAuthAdmin::create(
         &*app_state.repo,
@@ -239,5 +252,7 @@ pub async fn authorize<
         .build()
         .unwrap();
 
-    Ok(Redirect::to(&redirection.to_string()))
+    let redirect = Redirect::to(&redirection.to_string());
+    let response = redirect.into_response();
+    Ok(response)
 }
