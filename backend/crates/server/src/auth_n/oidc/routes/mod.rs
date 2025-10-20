@@ -23,7 +23,7 @@ use url::Url;
 mod authorize;
 mod interactions;
 mod route_string;
-mod scopes;
+mod scope;
 mod token;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -134,8 +134,8 @@ pub fn create_router<
     state: Arc<AppState<Repo, Search, Terminology>>,
 ) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     let well_known_routes = Router::new().typed_get(openid_configuration);
-
     let token_routes = Router::new().typed_post(token::token);
+    let scope_routes = Router::new().typed_post(scope::scope_post);
 
     let authorize_routes = Router::new()
         .typed_post(authorize::authorize)
@@ -152,7 +152,10 @@ pub fn create_router<
                 )),
         );
 
-    let auth_router = Router::new().merge(token_routes).merge(authorize_routes);
+    let auth_router = Router::new()
+        .merge(token_routes)
+        .merge(authorize_routes)
+        .merge(scope_routes);
 
     Router::new()
         .merge(well_known_routes)
