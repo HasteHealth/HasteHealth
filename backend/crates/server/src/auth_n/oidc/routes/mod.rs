@@ -9,10 +9,7 @@ use axum::{
     extract::{Json, OriginalUri, State},
     middleware,
 };
-use axum_extra::routing::{
-    RouterExt, // for `Router::typed_*`
-    TypedPath,
-};
+use axum_extra::routing::{RouterExt, TypedPath};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -25,6 +22,7 @@ use url::Url;
 
 mod authorize;
 mod interactions;
+mod route_string;
 mod scopes;
 mod token;
 
