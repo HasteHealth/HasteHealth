@@ -37,8 +37,40 @@ use oxidized_repository::{
 use std::{borrow::Cow, sync::Arc, time::Duration};
 use tower_sessions::Session;
 
+fn exclamation_point() -> Markup {
+    html! {
+        svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" class="w-6 h-6 text-gray-300" {
+            path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" {}
+        }
+    }
+}
+
+struct ScopeAuthorizeInfo {
+    response_type: String,
+    state: String,
+    code_challenge: String,
+    code_challenge_method: String,
+    scopes: Scopes,
+    redirect_uri: String,
+}
+
 #[allow(unused)]
-fn scopes_html_form(client_application: &ClientApplication, scopes: &Scopes) -> Markup {
+fn scopes_html_form(
+    client_application: &ClientApplication,
+    authorization_info: &ScopeAuthorizeInfo,
+) -> Markup {
+    let client_id = client_application
+        .id
+        .as_ref()
+        .map(|s| Cow::Borrowed(s))
+        .unwrap_or(Cow::Owned("".to_string()));
+    let client_name = client_application
+        .name
+        .value
+        .as_ref()
+        .map(|s| Cow::Borrowed(s))
+        .unwrap_or(Cow::Owned("Unnamed Client".to_string()));
+
     html! {
              head {
                 meta charset="utf-8" {}
@@ -49,40 +81,40 @@ fn scopes_html_form(client_application: &ClientApplication, scopes: &Scopes) -> 
                 link rel="stylesheet" href="/css/app.css" {}
             }
             body {
-                section class="bg-gray-50 dark:bg-gray-900 h-screen" {
+                section class="bg-gray-50  h-screen" {
                     div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0" {
-                        a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" {
+                        a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 " {
                             img class="w-8 h-8 mr-2" src="/img/logo.svg" alt="logo" {
                                 "Oxidized Health"
                             }
                         }
-                        div class="w-full bg-white rounded-lg shadow dark:border md:mt-0  xl:p-0 dark:bg-gray-800 dark:border-gray-700 sm:max-w-md" {
+                        div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
                             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                                div {
-                                    div class="flex flex-col justify-center items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white space-y-2" {
-                                        div {
-                                            div class="flex  justify-center items-center w-12 h-12 rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100" {
-                                                div {"A"}
-                                            }
+                                div class="flex flex-col justify-center items-center text-2xl font-semibold text-gray-900  space-y-2" {
+                                    div {
+                                        div class="flex  justify-center items-center w-12 h-12 rounded-full bg-green-100 text-green-800 " {
+                                            div {(client_name.chars().next().unwrap_or('U').to_uppercase())}
                                         }
-                                        div {"Admin Application"}
                                     }
+                                    div {(client_name)}
                                 }
+
                                 div {
                                     span class="text-sm text-gray-500" {
                                         "The above app is requesting the following permissions. Please review and either consent or deny access for the app."
                                     }
+                                }
                                 div class="max-h-72 overflow-auto" {
                                     table class="border-collapse  list-inside list-disc w-full" {
                                         tbody {
-                                            tr class="border"{
-                                                td class="p-4" {
-                                                    "openid"
-                                                }
-                                                td {
-                                                    div class="items-center justify-center flex"{
-                                                        svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" class="w-6 h-6 text-gray-300"{
-                                                            path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" { }
+                                            @for s in authorization_info.scopes.0.iter() {
+                                                tr class="border border-gray-200"{
+                                                    td class="p-4" {
+                                                        (String::from(s.clone()))
+                                                    }
+                                                    td {
+                                                        div class="items-center justify-center flex" {
+                                                            (exclamation_point())
                                                         }
                                                     }
                                                 }
@@ -90,8 +122,35 @@ fn scopes_html_form(client_application: &ClientApplication, scopes: &Scopes) -> 
                                         }
                                     }
                                 }
-                            }
+                                div class="justify-center items-center flex space-x-4" {
+                                    form action="/w/2ld12f8nbrz80m3asevbk/oidc/auth/scope" method="POST" {
+                                        input readonly="" class="hidden" type="text" name="client_id" value=(client_id) {}
+                                        input readonly="" class="hidden" type="text" name="response_type" value=(authorization_info.response_type) {}
+                                        input readonly="" class="hidden" type="text" name="state" value=(authorization_info.state)  {}
+                                        input readonly="" class="hidden" type="text" name="code_challenge" value=(authorization_info.code_challenge)  {}
+                                        input readonly="" class="hidden" type="text" name="code_challenge_method" value=(authorization_info.code_challenge_method) {}
+                                        input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scopes.clone())) {}
+                                        input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
+                                        input readonly="" class="hidden" type="checkbox" name="accept" checked="" {}
+                                        button type="submit" class="cursor-pointer w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800" {
+                                            "Allow"
+                                        }
+                                    }
 
+                                    form action="/w/2ld12f8nbrz80m3asevbk/oidc/auth/scope" method="POST" {
+                                        input readonly="" class="hidden" type="text" name="client_id" value=(client_id) {}
+                                        input readonly="" class="hidden" type="text" name="response_type" value=(authorization_info.response_type) {}
+                                        input readonly="" class="hidden" type="text" name="state" value=(authorization_info.state)  {}
+                                        input readonly="" class="hidden" type="text" name="code_challenge" value=(authorization_info.code_challenge)  {}
+                                        input readonly="" class="hidden" type="text" name="code_challenge_method" value=(authorization_info.code_challenge_method) {}
+                                        input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scopes.clone())) {}
+                                        input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
+                                        input readonly="" class="hidden" type="checkbox" name="accept" {}
+                                        button type="submit" class="cursor-pointer w-full text-gray-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" {
+                                            "Deny"
+                                        }
+                                    }
+                                }
                         }
                     }
                 }
@@ -155,11 +214,29 @@ pub async fn authorize<
         )
     })?;
 
+    let response_type = oidc_params.parameters.get("response_type").ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "response_type parameter is required.".to_string(),
+        )
+    })?;
+
     let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
         OperationOutcomeError::error(
             IssueType::Invalid(None),
             "redirect_uri parameter is required.".to_string(),
         )
+    })?;
+
+    if !is_valid_redirect_url(&redirect_uri, &client_app) {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid redirect URI.".to_string(),
+        ));
+    }
+
+    let uri = Uri::try_from(redirect_uri).map_err(|_| {
+        OperationOutcomeError::error(IssueType::Invalid(None), "Invalid redirect uri".to_string())
     })?;
 
     let Some(code_challenge) = oidc_params.parameters.get("code_challenge") else {
@@ -181,13 +258,6 @@ pub async fn authorize<
             "code_challenge_method must be a valid PKCE code challenge method.".to_string(),
         ));
     };
-
-    if !is_valid_redirect_url(&redirect_uri, &client_app) {
-        return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "Invalid redirect URI.".to_string(),
-        ));
-    }
 
     let client_id = client_app.id.clone().ok_or_else(|| {
         OperationOutcomeError::error(
@@ -215,14 +285,21 @@ pub async fn authorize<
     let existing_scopes = Scopes::try_from(existing_scope_str.as_str())?;
 
     if existing_scopes != scopes {
-        return Ok(scopes_html_form(&client_app, &scopes).into_response());
-        // Err(OperationOutcomeError::error(
-        //     IssueType::Forbidden(None),
-        //     "User consent is required for the requested scopes.".to_string(),
-        // ));
+        return Ok(scopes_html_form(
+            &client_app,
+            &ScopeAuthorizeInfo {
+                scopes,
+                response_type: response_type.clone(),
+                state: state.clone(),
+                code_challenge: code_challenge.to_string(),
+                code_challenge_method: String::from(code_challenge_method),
+                redirect_uri: redirect_uri.to_string(),
+            },
+        )
+        .into_response());
     }
 
-    let authorzation_code = ProjectAuthAdmin::create(
+    let authorization_code = ProjectAuthAdmin::create(
         &*app_state.repo,
         &tenant,
         &project,
@@ -239,15 +316,11 @@ pub async fn authorize<
     )
     .await?;
 
-    let uri = Uri::try_from(redirect_uri).map_err(|_| {
-        OperationOutcomeError::error(IssueType::Invalid(None), "Invalid redirect uri".to_string())
-    })?;
-
     let redirection = Uri::builder()
         .scheme(uri.scheme().cloned().unwrap_or(Scheme::HTTPS))
         .authority(uri.authority().unwrap().clone())
         .path_and_query(
-            uri.path().to_string() + "?code=" + &authorzation_code.code + "&state=" + state,
+            uri.path().to_string() + "?code=" + &authorization_code.code + "&state=" + state,
         )
         .build()
         .unwrap();

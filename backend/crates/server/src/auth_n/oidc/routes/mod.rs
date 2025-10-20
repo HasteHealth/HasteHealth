@@ -25,6 +25,7 @@ use url::Url;
 
 mod authorize;
 mod interactions;
+mod scopes;
 mod token;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

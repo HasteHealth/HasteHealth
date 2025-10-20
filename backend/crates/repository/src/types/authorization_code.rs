@@ -37,6 +37,15 @@ impl<'a> TryFrom<&'a str> for PKCECodeChallengeMethod {
     }
 }
 
+impl From<PKCECodeChallengeMethod> for String {
+    fn from(method: PKCECodeChallengeMethod) -> Self {
+        match method {
+            PKCECodeChallengeMethod::S256 => "S256".to_string(),
+            PKCECodeChallengeMethod::Plain => "plain".to_string(),
+        }
+    }
+}
+
 pub struct AuthorizationCodeSearchClaims {
     pub client_id: Option<String>,
     pub code: Option<String>,
