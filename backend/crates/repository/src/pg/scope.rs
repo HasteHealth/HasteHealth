@@ -19,7 +19,7 @@ fn create_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let scope = sqlx::query_as!(
             Scope,
-            r#"INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) RETURNING  client, user_, scope"#,
+            r#"INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (tenant, project, client, user_) DO UPDATE set scope = $5  RETURNING  client, user_, scope"#,
             tenant.as_ref(),
             project.as_ref(),
             &scope.client.as_ref(),
