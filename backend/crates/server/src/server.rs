@@ -25,7 +25,7 @@ use oxidized_repository::{
     types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
 };
 use serde::Deserialize;
-use std::{sync::Arc, time::Instant};
+use std::{path::PathBuf, sync::Arc, time::Instant};
 use tower::{Layer, ServiceBuilder};
 use tower_http::{
     compression::CompressionLayer,
@@ -149,6 +149,17 @@ async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeErro
     Ok(Json(&*JWK_SET))
 }
 
+static SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+fn root_asset_route() -> PathBuf {
+    ["/assets", SERVER_VERSION].iter().collect()
+}
+
+pub fn asset_route(asset: &str) -> String {
+    let path = root_asset_route();
+    path.join(asset).to_str().unwrap().to_string()
+}
+
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
     auth_n::certificates::create_certifications(&*config).unwrap();
@@ -181,6 +192,9 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
 
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
 
+    let assets_router = Router::new()
+        .fallback_service(ServeDir::new("public").append_index_html_on_directories(true));
+
     let app = Router::new()
         .route("/certs/jwks", routing::get(jwks_get))
         .nest("/w/{tenant}", tenant_router)
@@ -203,7 +217,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 ),
         )
         .with_state(shared_state)
-        .fallback_service(ServeDir::new("public"));
+        .nest(root_asset_route().to_str().unwrap(), assets_router);
 
     Ok(NormalizePathLayer::trim_trailing_slash().layer(app))
 }
