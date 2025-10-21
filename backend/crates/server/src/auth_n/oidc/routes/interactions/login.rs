@@ -6,6 +6,7 @@ use crate::{
         session,
     },
     extract::path_tenant::{Project, Tenant},
+    server::asset_route,
     services::AppState,
 };
 use axum::{
@@ -39,16 +40,16 @@ fn login_html_form(tenant: &TenantId, project: &ProjectId, login_route: &str) ->
         head {
             meta charset="utf-8" {}
             meta name="viewport" content="width=device-width, initial-scale=1" {}
-            link rel="preload" as="image" href="/img/logo.svg" {}
+            link rel="preload" as="image" href=(asset_route("img/logo.svg")) {}
             title { "Oxidized Health" }
-            link rel="icon" href="/img/logo.svg" {}
-            link rel="stylesheet" href="/css/app.css" {}
+            link rel="icon" href=(asset_route("img/logo.svg")) {}
+            link rel="stylesheet" href=(asset_route("css/app.css")) {}
         }
         body {
             section class="bg-gray-50  h-screen" {
                 div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0" {
                     a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900" {
-                        img class="w-8 h-8 mr-2" src="/img/logo.svg" alt="logo" {}
+                        img class="w-8 h-8 mr-2" src=(asset_route("img/logo.svg")) alt="logo" {}
                         "Oxidized Health"
                     }
                     div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 sm:max-w-md" {
