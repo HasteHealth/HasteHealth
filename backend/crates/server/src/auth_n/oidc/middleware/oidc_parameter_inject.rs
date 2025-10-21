@@ -177,7 +177,6 @@ where
                         .parameters
                         .insert(parameter_name.clone(), parameter_value.clone());
                 } else if is_required {
-                    println!("{:?}", unvalidated_parameters);
                     return Ok((
                         StatusCode::BAD_REQUEST,
                         format!("Missing required parameter: '{parameter_name}'",),
