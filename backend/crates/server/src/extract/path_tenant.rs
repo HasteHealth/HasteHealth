@@ -1,10 +1,72 @@
+use crate::services::AppState;
 use axum::{
     extract::{FromRequestParts, Path},
     http::request::Parts,
     response::{IntoResponse, Response},
 };
-use oxidized_repository::types::{ProjectId, TenantId};
+use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_repository::{
+    Repository,
+    types::{ProjectId, ResourceId, TenantId},
+};
 use serde::Deserialize;
+use std::sync::Arc;
+
+#[derive(Clone)]
+pub struct Project(pub oxidized_fhir_model::r4::generated::resources::Project);
+
+impl<Repo, Search, Terminology> FromRequestParts<Arc<AppState<Repo, Search, Terminology>>>
+    for Project
+where
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+{
+    type Rejection = Response;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState<Repo, Search, Terminology>>,
+    ) -> Result<Self, Self::Rejection> {
+        let TenantIdentifier { tenant } = TenantIdentifier::from_request_parts(parts, state)
+            .await
+            .map_err(|err| err.into_response())?;
+
+        let ProjectIdentifier { project } = ProjectIdentifier::from_request_parts(parts, state)
+            .await
+            .map_err(|err| err.into_response())?;
+
+        let project_resource = state
+            .repo
+            .read_latest(
+                &tenant,
+                &ProjectId::System,
+                &ResourceType::Project,
+                &ResourceId::new(project.as_ref().to_string()),
+            )
+            .await
+            .map_err(|err| err.into_response())?;
+
+        if let Some(resource) = project_resource
+            && let Resource::Project(project) = resource
+        {
+            Ok(Self(project))
+        } else {
+            Err(OperationOutcomeError::fatal(
+                oxidized_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
+                format!(
+                    "Project resource '{}' not found for tenant '{}'",
+                    project.as_ref(),
+                    tenant.as_ref()
+                ),
+            )
+            .into_response())
+        }
+    }
+}
 
 #[derive(Deserialize, Clone)]
 pub struct ProjectIdentifier {

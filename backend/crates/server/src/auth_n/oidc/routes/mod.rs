@@ -23,7 +23,7 @@ use url::Url;
 mod authorize;
 mod interactions;
 pub mod route_string;
-mod scope;
+pub mod scope;
 mod token;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
