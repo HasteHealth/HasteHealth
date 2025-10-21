@@ -1,7 +1,4 @@
-use crate::{
-    auth_n::oidc::{routes::route_string::oidc_route_string, ui::app_header},
-    server::asset_route,
-};
+use crate::{auth_n::oidc::routes::route_string::oidc_route_string, server::asset_route};
 use maud::{Markup, html};
 use oxidized_fhir_model::r4::generated::resources::ClientApplication;
 use oxidized_repository::types::{ProjectId, TenantId};
