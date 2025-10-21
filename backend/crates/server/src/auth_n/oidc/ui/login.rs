@@ -24,6 +24,19 @@ pub fn login_form_html(
     let password_reset_route_str = password_reset_route
         .to_str()
         .expect("Could not create password reset route.");
+    let client_name = client_app
+        .name
+        .value
+        .as_ref()
+        .map(|s| Cow::Borrowed(s))
+        .unwrap_or_else(|| {
+            Cow::Owned(
+                client_app
+                    .id
+                    .clone()
+                    .unwrap_or_else(|| "unknown client".to_string()),
+            )
+        });
 
     html! {
         head {
@@ -55,11 +68,11 @@ pub fn login_form_html(
                             }
                         }
                     }
-                    div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 sm:max-w-md" {
+                    div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 sm:max-w-md text-slate-700" {
                         div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                             // div {}
                             // div {}
-                            h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl " { "Sign in to your account" }
+                            h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl " { "Sign in to " span class="underline text-slate-500 " {(client_name)} }
                             form class="space-y-4 md:space-y-6" action=(login_route) method="POST" {
                                 div {
                                     label for="email" class="block mb-2 text-sm font-medium text-gray-900 " { "Your email" }
