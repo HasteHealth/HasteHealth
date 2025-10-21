@@ -1,9 +1,11 @@
+use crate::types::TenantId;
 use oxidized_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct User {
     pub id: String,
+    pub tenant: TenantId,
     pub email: String,
     pub role: UserRole,
     pub method: AuthMethod,
