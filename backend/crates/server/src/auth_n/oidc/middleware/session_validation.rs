@@ -60,7 +60,8 @@ where
 
         // Return the response as an immediate future
         Box::pin(async move {
-            let Ok(tenant) = request.extract_parts::<TenantIdentifier>().await else {
+            let Ok(TenantIdentifier { tenant }) = request.extract_parts::<TenantIdentifier>().await
+            else {
                 return Ok((
                     StatusCode::BAD_REQUEST,
                     "Tenant id not found on request".to_string(),
@@ -80,9 +81,11 @@ where
                 .await
                 .expect("Could not extract session.");
 
-            let to_route = oidc_route_string(&tenant.tenant, &project.project, &to);
+            let to_route = oidc_route_string(&tenant, &project.project, &to);
 
-            if let Ok(Some(_user)) = session::user::get_user(&current_session).await {
+            if let Ok(Some(user)) = session::user::get_user(&current_session, &tenant).await
+                && user.tenant == tenant
+            {
                 let response = inner.call(request).await?;
                 Ok(response)
             } else {

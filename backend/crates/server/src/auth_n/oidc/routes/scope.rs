@@ -60,7 +60,9 @@ pub async fn scope_post<
     ProjectIdentifier { project }: ProjectIdentifier,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    let user = session::user::get_user(&current_session).await?.unwrap();
+    let user = session::user::get_user(&current_session, &tenant)
+        .await?
+        .unwrap();
 
     if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
         ProjectAuthAdmin::create(

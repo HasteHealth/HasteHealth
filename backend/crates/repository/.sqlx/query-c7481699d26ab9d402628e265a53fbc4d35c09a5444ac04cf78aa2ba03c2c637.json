@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                DELETE FROM users\n                WHERE tenant = $1 AND id = $2\n                RETURNING id, provider_id, email, role as \"role: UserRole\", method as \"method: AuthMethod\"\n            ",
+  "query": "\n                  SELECT id, tenant as \"tenant: TenantId\", email, role as \"role: UserRole\", method as \"method: AuthMethod\", provider_id FROM users WHERE tenant = $1 AND method = $2 AND email = $3 AND password = crypt($4, password)\n                ",
   "describe": {
     "columns": [
       {
@@ -10,7 +10,7 @@
       },
       {
         "ordinal": 1,
-        "name": "provider_id",
+        "name": "tenant: TenantId",
         "type_info": "Text"
       },
       {
@@ -48,21 +48,39 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 5,
+        "name": "provider_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "auth_method",
+            "kind": {
+              "Enum": [
+                "email-password",
+                "oidc-provider"
+              ]
+            }
+          }
+        },
         "Text",
         "Text"
       ]
     },
     "nullable": [
       false,
-      true,
       false,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "8cff36275f075d0a1a4578e35bb347aacde3d4e2db60f9bae6d465c5a2cd0068"
+  "hash": "c7481699d26ab9d402628e265a53fbc4d35c09a5444ac04cf78aa2ba03c2c637"
 }
