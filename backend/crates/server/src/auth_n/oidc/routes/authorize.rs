@@ -48,7 +48,7 @@ pub async fn authorize<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Authorize,
-    scopes: Scopes,
+    Scopes(scopes): Scopes,
     TenantIdentifier { tenant }: TenantIdentifier,
     Project(project_resource): Project,
     ProjectIdentifier { project }: ProjectIdentifier,
@@ -164,7 +164,8 @@ pub async fn authorize<
         .map(|s| Cow::Borrowed(&s.scope))
         .unwrap_or_else(|| Cow::Owned("".to_string()));
 
-    let existing_scopes = Scopes::try_from(existing_scope_str.as_str())?;
+    let existing_scopes =
+        oxidized_repository::types::scopes::Scopes::try_from(existing_scope_str.as_str())?;
 
     if existing_scopes != scopes {
         return Ok(scope_approval_html(
