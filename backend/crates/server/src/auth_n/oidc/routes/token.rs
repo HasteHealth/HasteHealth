@@ -66,6 +66,22 @@ pub async fn token<
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
     match token_body {
+        OAuth2TokenBody::ClientCredentials {
+            client_id,
+            client_secret,
+        } => Err(OperationOutcomeError::fatal(
+            IssueType::NotSupported(None),
+            "Client credentials grant type is not supported.".to_string(),
+        )),
+        OAuth2TokenBody::RefreshToken {
+            client_id,
+            client_secret,
+            refresh_token,
+            scope,
+        } => Err(OperationOutcomeError::fatal(
+            IssueType::NotSupported(None),
+            "Refresh grant type is not supported.".to_string(),
+        )),
         OAuth2TokenBody::AuthorizationCode {
             client_id,
             client_secret,
@@ -154,10 +170,5 @@ pub async fn token<
             })
             .into_response())
         }
-
-        _ => Err(OperationOutcomeError::fatal(
-            IssueType::NotSupported(None),
-            "The provided grant type is not supported.".to_string(),
-        )),
     }
 }
