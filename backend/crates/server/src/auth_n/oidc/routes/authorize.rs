@@ -35,7 +35,7 @@ use oxidized_repository::{
         user::UserRole,
     },
 };
-use std::{borrow::Cow, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
 
 #[derive(TypedPath)]
@@ -159,15 +159,7 @@ pub async fn authorize<
     )
     .await?;
 
-    let existing_scope_str = existing_scopes
-        .as_ref()
-        .map(|s| Cow::Borrowed(&s.scope))
-        .unwrap_or_else(|| Cow::Owned("".to_string()));
-
-    let existing_scopes =
-        oxidized_repository::types::scopes::Scopes::try_from(existing_scope_str.as_str())?;
-
-    if existing_scopes != scopes {
+    if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
         return Ok(scope_approval_html(
             &tenant,
             &project_resource,

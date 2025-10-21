@@ -129,7 +129,7 @@ pub async fn token<
                     scope: approved_scopes
                         .get(0)
                         .map(|s| s.scope.clone())
-                        .unwrap_or_else(|| "".to_string()),
+                        .unwrap_or_else(|| Default::default()),
                     tenant: tenant,
                     project: Some(project),
                     user_role: UserRole::Member,

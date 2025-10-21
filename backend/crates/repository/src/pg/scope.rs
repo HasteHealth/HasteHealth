@@ -4,6 +4,7 @@ use crate::{
     types::{
         ProjectId, TenantId,
         scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
+        scopes::Scopes,
     },
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -24,7 +25,7 @@ fn create_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             project.as_ref(),
             &scope.client.as_ref(),
             &scope.user_.as_ref(),
-            &scope.scope
+            &scope.scope as &Scopes,
         ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
 
         Ok(scope)

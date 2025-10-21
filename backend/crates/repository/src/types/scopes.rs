@@ -1,6 +1,6 @@
 use oxidized_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum OIDCScope {
@@ -398,6 +398,11 @@ impl From<Scope> for String {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Scopes(pub Vec<Scope>);
+impl Default for Scopes {
+    fn default() -> Self {
+        Scopes(vec![])
+    }
+}
 
 impl TryFrom<&str> for Scopes {
     type Error = OperationOutcomeError;
@@ -409,6 +414,15 @@ impl TryFrom<&str> for Scopes {
             .collect();
 
         Ok(Scopes(scopes?))
+    }
+}
+
+// Used by sqlx binding this is not safe.
+impl From<String> for Scopes {
+    fn from(value: String) -> Self {
+        let scopes = Self::try_from(value.as_str()).expect("Invalid scopes string");
+
+        scopes
     }
 }
 
@@ -430,6 +444,15 @@ impl From<Scopes> for String {
             .map(|s| String::from(s))
             .collect::<Vec<_>>()
             .join(" ")
+    }
+}
+
+impl Serialize for Scopes {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&String::from(self.clone()))
     }
 }
 

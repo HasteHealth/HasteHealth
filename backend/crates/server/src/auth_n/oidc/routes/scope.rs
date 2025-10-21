@@ -71,7 +71,7 @@ pub async fn scope_post<
             CreateScope {
                 client: ClientId::new(scope_data.client_id.clone()),
                 user_: UserId::new(user.id),
-                scope: String::from(scope_data.scope.clone()),
+                scope: scope_data.scope.clone(),
             },
         )
         .await?;
