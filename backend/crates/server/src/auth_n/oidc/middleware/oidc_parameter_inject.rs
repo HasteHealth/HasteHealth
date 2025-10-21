@@ -1,8 +1,10 @@
 use axum::RequestExt;
-use axum::http::StatusCode;
+use axum::http::{Method, StatusCode};
 use axum::response::IntoResponse;
 use axum::{body::Body, extract::Request, response::Response};
 use axum::{body::to_bytes, extract::Query};
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::Deserialize;
 use std::sync::Arc;
 use std::task::{Context, Poll};
@@ -66,6 +68,7 @@ impl<'a, T> Service<Request<Body>> for OIDCParameterInjectService<T>
 where
     T: Service<Request, Response = Response> + Send + 'static + Clone,
     T::Future: Send + 'static,
+    T::Error: IntoResponse,
 {
     type Response = T::Response;
     type Error = T::Error;
@@ -83,11 +86,10 @@ where
         let parameter_config = self.state.clone();
 
         Box::pin(async move {
-            let query_params = request
+            let Ok(Query(query_params)) = request
                 .extract_parts::<Query<HashMap<String, String>>>()
-                .await;
-
-            let Ok(query_params) = query_params else {
+                .await
+            else {
                 return Ok((StatusCode::BAD_REQUEST, "".to_string()).into_response());
             };
 
@@ -100,9 +102,50 @@ where
                 )
                     .into_response());
             };
+
+            let content_type = parts
+                .headers
+                .get(axum::http::header::CONTENT_TYPE)
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("");
+
             // Either check the body if serializes or check the query params.
-            let unvalidated_parameters = serde_json::from_slice::<HashMap<String, String>>(&bytes)
-                .unwrap_or_else(|_e| query_params.0);
+            let unvalidated_parameters = match &parts.method {
+                &Method::POST => match content_type {
+                    "application/x-www-form-urlencoded" => {
+                        let mut form_params =
+                            serde_html_form::from_bytes::<HashMap<String, String>>(&bytes)
+                                .unwrap_or_else(|_e| HashMap::new());
+                        form_params.extend(query_params);
+
+                        Ok(form_params)
+                    }
+                    "application/json" => {
+                        let mut json_params =
+                            serde_json::from_slice::<HashMap<String, String>>(&bytes)
+                                .unwrap_or_else(|_e| HashMap::new());
+                        json_params.extend(query_params);
+                        Ok(json_params)
+                    }
+                    content_type => Err(OperationOutcomeError::error(
+                        IssueType::NotSupported(None),
+                        format!(
+                            "Unsupported Content-Type for OIDC parameter injection '{}'",
+                            content_type
+                        ),
+                    )),
+                },
+                &Method::GET => Ok(query_params),
+                _ => Err(OperationOutcomeError::error(
+                    IssueType::NotSupported(None),
+                    "Unsupported HTTP method for OIDC parameter injection".to_string(),
+                )),
+            };
+
+            let Ok(unvalidated_parameters) = unvalidated_parameters else {
+                let error = unvalidated_parameters.err().unwrap();
+                return Ok(error.into_response());
+            };
 
             let mut oidc_parameters = OIDCParameters {
                 parameters: HashMap::new(),
@@ -134,6 +177,7 @@ where
                         .parameters
                         .insert(parameter_name.clone(), parameter_value.clone());
                 } else if is_required {
+                    println!("{:?}", unvalidated_parameters);
                     return Ok((
                         StatusCode::BAD_REQUEST,
                         format!("Missing required parameter: '{parameter_name}'",),

@@ -133,27 +133,31 @@ pub fn create_router<
 >(
     state: Arc<AppState<Repo, Search, Terminology>>,
 ) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
-    let well_known_routes = Router::new().typed_get(openid_configuration);
-
-    let token_routes = Router::new().typed_post(token::token);
-
-    let authorize_routes = Router::new()
-        .typed_post(authorize::authorize)
-        .typed_get(authorize::authorize)
-        .typed_post(scope::scope_post)
-        .route_layer(
-            ServiceBuilder::new()
-                .layer(middleware::from_fn_with_state(state, project_exists))
-                .layer(OIDCParameterInjectLayer::new(
-                    (*AUTHORIZE_PARAMETERS).clone(),
-                ))
-                .layer(AuthSessionValidationLayer::new("interactions/login")),
-        );
-
-    let auth_router = Router::new().merge(token_routes).merge(authorize_routes);
-
     Router::new()
-        .merge(well_known_routes)
-        .nest("/auth", auth_router)
+        .merge(Router::new().typed_get(openid_configuration))
+        .nest(
+            "/auth",
+            Router::new()
+                .merge(Router::new().typed_post(token::token))
+                .merge(
+                    Router::new()
+                        .merge(
+                            Router::new()
+                                .typed_post(authorize::authorize)
+                                .typed_get(authorize::authorize)
+                                .typed_post(scope::scope_post)
+                                .route_layer(ServiceBuilder::new().layer(
+                                    OIDCParameterInjectLayer::new((*AUTHORIZE_PARAMETERS).clone()),
+                                )),
+                        )
+                        .route_layer(
+                            ServiceBuilder::new()
+                                .layer(AuthSessionValidationLayer::new("interactions/login")),
+                        ),
+                ),
+        )
         .nest("/interactions", interactions::interactions_router())
+        .route_layer(
+            ServiceBuilder::new().layer(middleware::from_fn_with_state(state, project_exists)),
+        )
 }

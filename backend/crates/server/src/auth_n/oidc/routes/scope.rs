@@ -14,7 +14,6 @@ use crate::{
 use axum::{
     Form,
     extract::{OriginalUri, State},
-    handler::HandlerWithoutStateExt,
     response::{IntoResponse, Response},
 };
 use axum_extra::routing::TypedPath;
@@ -25,7 +24,7 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::scope::{ClientId, CreateScope, ScopeKey, UserId},
+    types::scope::{ClientId, CreateScope, UserId},
 };
 use serde::Deserialize;
 use std::sync::Arc;
@@ -44,7 +43,7 @@ pub struct ScopeForm {
     pub code_challenge_method: String,
     pub scope: Scopes,
     pub redirect_uri: String,
-    pub accept: Option<bool>,
+    pub accept: Option<String>,
 }
 
 pub async fn scope_post<
@@ -56,15 +55,15 @@ pub async fn scope_post<
     _uri: OriginalUri,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     current_session: Session,
-    OIDCClientApplication(client_app): OIDCClientApplication,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
     Tenant { tenant }: Tenant,
     Project { project }: Project,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OperationOutcomeError> {
     let user = session::user::get_user(&current_session).await?.unwrap();
 
-    if scope_data.accept.unwrap_or(false) {
-        let scopes = ProjectAuthAdmin::create(
+    if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
+        ProjectAuthAdmin::create(
             &*app_state.repo,
             &tenant,
             &project,
@@ -80,7 +79,7 @@ pub async fn scope_post<
             .to_str()
             .expect("Could not create authorize route.")
             .to_string()
-            + "client_id="
+            + "?client_id="
             + &scope_data.client_id
             + "&response_type="
             + &scope_data.response_type
