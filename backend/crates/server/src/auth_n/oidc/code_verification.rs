@@ -1,0 +1,110 @@
+use base64::{Engine as _, engine::general_purpose::URL_SAFE};
+use oxidized_fhir_model::r4::generated::{resources::ClientApplication, terminology::IssueType};
+use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_repository::{
+    Repository,
+    admin::ProjectAuthAdmin,
+    types::{
+        ProjectId, TenantId,
+        authorization_code::{
+            AuthorizationCode, AuthorizationCodeSearchClaims, PKCECodeChallengeMethod,
+        },
+    },
+};
+use sha2::{Digest, Sha256};
+
+pub fn verify_code_verifier(
+    code: &AuthorizationCode,
+    code_verifier: &str,
+) -> Result<(), OperationOutcomeError> {
+    match code.pkce_code_challenge_method {
+        Some(PKCECodeChallengeMethod::S256) => {
+            let mut hasher = Sha256::new();
+            hasher.update(code_verifier.as_bytes());
+            let hashed = hasher.finalize();
+
+            let mut computed_challenge = URL_SAFE.encode(&hashed);
+            // Remove last character which is an equal.
+            computed_challenge.pop();
+
+            if Some(computed_challenge.as_str())
+                != code.pkce_code_challenge.as_ref().map(|v| v.as_str())
+            {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "PKCE code verifier does not match the code challenge.".to_string(),
+                ));
+            }
+
+            Ok(())
+        }
+        Some(PKCECodeChallengeMethod::Plain) => {
+            if code_verifier != code.pkce_code_challenge.as_deref().unwrap_or("") {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "PKCE code verifier does not match the code challenge.".to_string(),
+                ));
+            }
+            Ok(())
+        }
+        _ => Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "PKCE code challenge method not supported.".to_string(),
+        )),
+    }
+}
+
+pub async fn retrieve_and_verify_code<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    client: &ClientApplication,
+    code: &str,
+    redirect_uri: Option<&str>,
+    code_verifier: Option<&str>,
+) -> Result<AuthorizationCode, OperationOutcomeError> {
+    let mut code: Vec<AuthorizationCode> = ProjectAuthAdmin::search(
+        repo,
+        &tenant,
+        &project,
+        &AuthorizationCodeSearchClaims {
+            client_id: client.id.clone(),
+            code: Some(code.to_string()),
+            user_id: None,
+        },
+    )
+    .await?;
+
+    if let Some(code) = code.pop() {
+        if code.is_expired.unwrap_or(false) {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::Security(None),
+                "Authorization code has expired.".to_string(),
+            ));
+        }
+
+        if let Some(code_verifier) = code_verifier
+            && let Err(_e) = verify_code_verifier(&code, &code_verifier)
+        {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "Failed to verify PKCE code verifier.".to_string(),
+            ));
+        }
+
+        if code.redirect_uri.as_ref().map(String::as_str) != redirect_uri {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "Redirect URI does not match the one used to create the authorization code."
+                    .to_string(),
+            ));
+        }
+
+        Ok(code)
+    } else {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::Invalid(None),
+            "Authorization code not found.".to_string(),
+        ));
+    }
+}

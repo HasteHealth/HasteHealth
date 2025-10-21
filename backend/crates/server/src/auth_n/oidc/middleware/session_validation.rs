@@ -1,5 +1,6 @@
 use axum::RequestExt;
 use axum::extract::OriginalUri;
+use axum::http::StatusCode;
 use axum::response::{IntoResponse, Redirect};
 use axum::{body::Body, extract::Request, response::Response};
 use std::pin::Pin;
@@ -7,11 +8,12 @@ use std::task::{Context, Poll};
 use tower::{Layer, Service};
 use tower_sessions::Session;
 
+use crate::auth_n::oidc::routes::route_string::oidc_route_string;
 use crate::auth_n::session;
+use crate::extract::path_tenant::{Project, Tenant};
 
 #[derive(Clone)]
 pub struct AuthSessionValidationLayer {
-    from: &'static str,
     to: &'static str,
 }
 
@@ -19,24 +21,19 @@ impl<S> Layer<S> for AuthSessionValidationLayer {
     type Service = AuthSessionValidationService<S>;
 
     fn layer(&self, inner: S) -> Self::Service {
-        AuthSessionValidationService {
-            inner,
-            from: self.from,
-            to: self.to,
-        }
+        AuthSessionValidationService { inner, to: self.to }
     }
 }
 
 impl AuthSessionValidationLayer {
-    pub fn new(from: &'static str, to: &'static str) -> Self {
-        AuthSessionValidationLayer { from, to }
+    pub fn new(to: &'static str) -> Self {
+        AuthSessionValidationLayer { to }
     }
 }
 
 #[derive(Clone)]
 pub struct AuthSessionValidationService<T> {
     inner: T,
-    from: &'static str,
     to: &'static str,
 }
 
@@ -44,6 +41,7 @@ impl<'a, T> Service<Request<Body>> for AuthSessionValidationService<T>
 where
     T: Service<Request, Response = Response> + Send + 'static + Clone,
     T::Future: Send + 'static,
+    T::Error: IntoResponse,
 {
     type Response = Response;
     type Error = T::Error;
@@ -58,15 +56,31 @@ where
         let clone = self.inner.clone();
         // take the service that was ready
         let mut inner = std::mem::replace(&mut self.inner, clone);
-        let from = self.from;
         let to = self.to;
 
         // Return the response as an immediate future
         Box::pin(async move {
+            let Ok(tenant) = request.extract_parts::<Tenant>().await else {
+                return Ok((
+                    StatusCode::BAD_REQUEST,
+                    "Tenant id not found on request".to_string(),
+                )
+                    .into_response());
+            };
+            let Ok(project) = request.extract_parts::<Project>().await else {
+                return Ok((
+                    StatusCode::BAD_REQUEST,
+                    "Project id not found on request".to_string(),
+                )
+                    .into_response());
+            };
+
             let current_session = request
                 .extract_parts::<Session>()
                 .await
                 .expect("Could not extract session.");
+
+            let to_route = oidc_route_string(&tenant.tenant, &project.project, &to);
 
             if let Ok(Some(_user)) = session::user::get_user(&current_session).await {
                 let response = inner.call(request).await?;
@@ -77,7 +91,12 @@ where
                     .await
                     .expect("Could not extract original URI.");
                 let login_redirect = Redirect::to(
-                    &(uri.path().to_string().replace(&from, &to) + "?" + uri.query().unwrap_or("")),
+                    &(to_route
+                        .to_str()
+                        .expect("Failed to create to route.")
+                        .to_string()
+                        + "?"
+                        + uri.query().unwrap_or("")),
                 );
 
                 Ok(login_redirect.into_response())

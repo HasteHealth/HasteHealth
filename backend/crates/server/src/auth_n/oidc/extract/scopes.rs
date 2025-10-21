@@ -7,6 +7,7 @@ use axum::{
 };
 use oxidized_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use serde::Deserialize;
 use std::borrow::Cow;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -416,6 +417,16 @@ impl TryFrom<&str> for Scopes {
             .collect();
 
         Ok(Scopes(scopes?))
+    }
+}
+
+impl<'de> Deserialize<'de> for Scopes {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        Scopes::try_from(s.as_str()).map_err(serde::de::Error::custom)
     }
 }
 

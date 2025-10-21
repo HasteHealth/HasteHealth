@@ -9,10 +9,7 @@ use axum::{
     extract::{Json, OriginalUri, State},
     middleware,
 };
-use axum_extra::routing::{
-    RouterExt, // for `Router::typed_*`
-    TypedPath,
-};
+use axum_extra::routing::{RouterExt, TypedPath};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -25,6 +22,8 @@ use url::Url;
 
 mod authorize;
 mod interactions;
+pub mod route_string;
+mod scope;
 mod token;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -134,29 +133,31 @@ pub fn create_router<
 >(
     state: Arc<AppState<Repo, Search, Terminology>>,
 ) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
-    let well_known_routes = Router::new().typed_get(openid_configuration);
-
-    let token_routes = Router::new().typed_post(token::token);
-
-    let authorize_routes = Router::new()
-        .typed_post(authorize::authorize)
-        .typed_get(authorize::authorize)
-        .route_layer(
-            ServiceBuilder::new()
-                .layer(middleware::from_fn_with_state(state, project_exists))
-                .layer(OIDCParameterInjectLayer::new(
-                    (*AUTHORIZE_PARAMETERS).clone(),
-                ))
-                .layer(AuthSessionValidationLayer::new(
-                    "/auth/authorize",
-                    "/interactions/login",
-                )),
-        );
-
-    let auth_router = Router::new().merge(token_routes).merge(authorize_routes);
-
     Router::new()
-        .merge(well_known_routes)
-        .nest("/auth", auth_router)
+        .merge(Router::new().typed_get(openid_configuration))
+        .nest(
+            "/auth",
+            Router::new()
+                .merge(Router::new().typed_post(token::token))
+                .merge(
+                    Router::new()
+                        .merge(
+                            Router::new()
+                                .typed_post(authorize::authorize)
+                                .typed_get(authorize::authorize)
+                                .typed_post(scope::scope_post)
+                                .route_layer(ServiceBuilder::new().layer(
+                                    OIDCParameterInjectLayer::new((*AUTHORIZE_PARAMETERS).clone()),
+                                )),
+                        )
+                        .route_layer(
+                            ServiceBuilder::new()
+                                .layer(AuthSessionValidationLayer::new("interactions/login")),
+                        ),
+                ),
+        )
         .nest("/interactions", interactions::interactions_router())
+        .route_layer(
+            ServiceBuilder::new().layer(middleware::from_fn_with_state(state, project_exists)),
+        )
 }

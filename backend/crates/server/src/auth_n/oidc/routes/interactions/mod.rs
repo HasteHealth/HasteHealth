@@ -15,7 +15,6 @@ use tower::ServiceBuilder;
 
 mod login;
 mod logout;
-mod scopes;
 
 pub fn interactions_router<
     Repo: Repository + Send + Sync + 'static,
@@ -37,10 +36,5 @@ pub fn interactions_router<
                 .layer(OIDCParameterInjectLayer::new((*LOGOUT_PARAMETERS).clone())),
         );
 
-    let scope_routes = Router::new().typed_post(scopes::scope_post);
-
-    Router::new()
-        .merge(login_routes)
-        .merge(logout_routes)
-        .merge(scope_routes)
+    Router::new().merge(login_routes).merge(logout_routes)
 }
