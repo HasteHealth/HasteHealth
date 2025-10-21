@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                SELECT id, provider_id, email, role as \"role: UserRole\", method as \"method: AuthMethod\"\n                FROM users\n                WHERE tenant = $1 AND id = $2\n            ",
+  "query": "\n                DELETE FROM users\n                WHERE tenant = $1 AND id = $2\n                RETURNING id, tenant as \"tenant: TenantId\", provider_id, email, role as \"role: UserRole\", method as \"method: AuthMethod\"\n            ",
   "describe": {
     "columns": [
       {
@@ -10,16 +10,21 @@
       },
       {
         "ordinal": 1,
-        "name": "provider_id",
+        "name": "tenant: TenantId",
         "type_info": "Text"
       },
       {
         "ordinal": 2,
-        "name": "email",
+        "name": "provider_id",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "role: UserRole",
         "type_info": {
           "Custom": {
@@ -35,7 +40,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "method: AuthMethod",
         "type_info": {
           "Custom": {
@@ -58,11 +63,12 @@
     },
     "nullable": [
       false,
+      false,
       true,
       false,
       false,
       false
     ]
   },
-  "hash": "cca9ca650edf81d60ac2c86efbe9a8074ee1e7a35aad43cfd5e469e726c831f1"
+  "hash": "4499ca75adbe3a9b933faaa8484dcdc399e32eb9a736b1139f3e89e1c23259eb"
 }
