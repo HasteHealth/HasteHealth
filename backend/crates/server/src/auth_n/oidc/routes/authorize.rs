@@ -8,7 +8,7 @@ use crate::{
         },
         session,
     },
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     server::asset_route,
     services::AppState,
 };
@@ -164,8 +164,8 @@ pub async fn authorize<
 >(
     _: Authorize,
     scopes: Scopes,
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,

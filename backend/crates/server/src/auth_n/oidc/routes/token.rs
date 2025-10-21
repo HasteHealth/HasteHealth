@@ -8,7 +8,7 @@ use crate::{
             schemas::{self, token_body::OAuth2TokenBody},
         },
     },
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     services::AppState,
 };
 use axum::{
@@ -55,8 +55,8 @@ pub async fn token<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TokenPath,
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {

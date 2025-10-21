@@ -8,7 +8,7 @@ use crate::{
         },
         session,
     },
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     services::AppState,
 };
 use axum::{
@@ -56,8 +56,8 @@ pub async fn scope_post<
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     current_session: Session,
     OIDCClientApplication(_client_app): OIDCClientApplication,
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OperationOutcomeError> {
     let user = session::user::get_user(&current_session).await?.unwrap();

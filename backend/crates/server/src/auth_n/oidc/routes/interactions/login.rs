@@ -5,7 +5,7 @@ use crate::{
         },
         session,
     },
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     server::asset_route,
     services::AppState,
 };
@@ -95,8 +95,8 @@ pub struct Login;
 
 pub async fn login_get(
     _: Login,
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     OIDCClientApplication(_client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
@@ -117,8 +117,8 @@ pub async fn login_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Login,
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     current_session: Session,

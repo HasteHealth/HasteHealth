@@ -7,15 +7,15 @@ use oxidized_repository::types::{ProjectId, TenantId};
 use serde::Deserialize;
 
 #[derive(Deserialize, Clone)]
-pub struct Project {
+pub struct ProjectIdentifier {
     pub project: ProjectId,
 }
 
-impl<S: Send + Sync> FromRequestParts<S> for Project {
+impl<S: Send + Sync> FromRequestParts<S> for ProjectIdentifier {
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let Path(project) = Path::<Project>::from_request_parts(parts, state)
+        let Path(project) = Path::<ProjectIdentifier>::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 
@@ -24,15 +24,15 @@ impl<S: Send + Sync> FromRequestParts<S> for Project {
 }
 
 #[derive(Deserialize, Clone)]
-pub struct Tenant {
+pub struct TenantIdentifier {
     pub tenant: TenantId,
 }
 
-impl<S: Send + Sync> FromRequestParts<S> for Tenant {
+impl<S: Send + Sync> FromRequestParts<S> for TenantIdentifier {
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let Path(tenant_information) = Path::<Tenant>::from_request_parts(parts, state)
+        let Path(tenant_information) = Path::<TenantIdentifier>::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 
