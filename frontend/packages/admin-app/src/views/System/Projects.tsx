@@ -76,7 +76,7 @@ function ProjectCreateModal({
             setOpen(false);
           }}
         >
-          Ok
+          Create
         </Button>
       </div>
     </Modal>
