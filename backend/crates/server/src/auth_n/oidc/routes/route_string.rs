@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use oxidized_repository::types::{ProjectId, TenantId};
 
 fn tenant_route_path(tenant: &TenantId) -> PathBuf {
-    ["w", tenant.as_ref(), "api", "v1"].iter().collect()
+    ["/w", tenant.as_ref(), "api", "v1"].iter().collect()
 }
 
 fn project_route_string(tenant: &TenantId, project: &ProjectId) -> PathBuf {
@@ -14,6 +14,5 @@ pub fn oidc_route_string(tenant: &TenantId, project: &ProjectId, path: &str) -> 
     let route = project_route_string(tenant, project)
         .join("oidc")
         .join(path);
-    println!("OIDC route: {}", route.display());
     route
 }

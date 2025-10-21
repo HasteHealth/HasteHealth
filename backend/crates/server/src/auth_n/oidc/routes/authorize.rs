@@ -294,6 +294,7 @@ pub async fn authorize<
                 code_challenge: code_challenge.to_string(),
                 code_challenge_method: String::from(code_challenge_method),
                 redirect_uri: redirect_uri.to_string(),
+                accept: None,
             },
         )
         .into_response());
