@@ -25,7 +25,12 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::{AuthorId, AuthorKind, authorization_code::CreateAuthorizationCode, user::UserRole},
+    types::{
+        AuthorId, AuthorKind,
+        authorization_code::CreateAuthorizationCode,
+        scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
+        user::UserRole,
+    },
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -94,6 +99,17 @@ pub async fn token<
             )
             .await?;
 
+            let approved_scopes = ProjectAuthAdmin::<CreateScope, _, _, _, _>::search(
+                &*state.repo,
+                &tenant,
+                &project,
+                &ScopeSearchClaims {
+                    user_: Some(UserId::new(code.user_id.clone())),
+                    client: Some(ClientId::new(client_id.clone())),
+                },
+            )
+            .await?;
+
             // Remove the code once valid.
             ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
                 &*state.repo,
@@ -110,7 +126,10 @@ pub async fn token<
                     exp: (chrono::Utc::now() + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
                         .timestamp() as usize,
                     aud: client_id,
-                    scope: "".to_string(),
+                    scope: approved_scopes
+                        .get(0)
+                        .map(|s| s.scope.clone())
+                        .unwrap_or_else(|| "".to_string()),
                     tenant: tenant,
                     project: Some(project),
                     user_role: UserRole::Member,
