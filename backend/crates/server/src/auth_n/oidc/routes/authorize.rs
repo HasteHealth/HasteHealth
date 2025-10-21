@@ -3,6 +3,7 @@ use crate::{
         oidc::{
             extract::{client_app::OIDCClientApplication, scopes::Scopes},
             middleware::OIDCParameters,
+            routes::{route_string::oidc_route_string, scope::ScopeForm},
             utilities::is_valid_redirect_url,
         },
         session,
@@ -26,6 +27,7 @@ use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
+        ProjectId, TenantId,
         authorization_code::{
             AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
         },
@@ -45,31 +47,22 @@ fn exclamation_point() -> Markup {
     }
 }
 
-struct ScopeAuthorizeInfo {
-    response_type: String,
-    state: String,
-    code_challenge: String,
-    code_challenge_method: String,
-    scopes: Scopes,
-    redirect_uri: String,
-}
-
 #[allow(unused)]
 fn scopes_html_form(
+    tenant: &TenantId,
+    project: &ProjectId,
     client_application: &ClientApplication,
-    authorization_info: &ScopeAuthorizeInfo,
+    authorization_info: &ScopeForm,
 ) -> Markup {
-    let client_id = client_application
-        .id
-        .as_ref()
-        .map(|s| Cow::Borrowed(s))
-        .unwrap_or(Cow::Owned("".to_string()));
     let client_name = client_application
         .name
         .value
         .as_ref()
         .map(|s| Cow::Borrowed(s))
         .unwrap_or(Cow::Owned("Unnamed Client".to_string()));
+
+    let scope_route = oidc_route_string(tenant, project, "auth/scope");
+    let scope_route_str = scope_route.to_str().expect("Could not create scope route");
 
     html! {
              head {
@@ -107,7 +100,7 @@ fn scopes_html_form(
                                 div class="max-h-72 overflow-auto" {
                                     table class="border-collapse  list-inside list-disc w-full" {
                                         tbody {
-                                            @for s in authorization_info.scopes.0.iter() {
+                                            @for s in authorization_info.scope.0.iter() {
                                                 tr class="border border-gray-200"{
                                                     td class="p-4" {
                                                         (String::from(s.clone()))
@@ -123,27 +116,27 @@ fn scopes_html_form(
                                     }
                                 }
                                 div class="justify-center items-center flex space-x-4" {
-                                    form action="/w/2ld12f8nbrz80m3asevbk/oidc/auth/scope" method="POST" {
-                                        input readonly="" class="hidden" type="text" name="client_id" value=(client_id) {}
+                                    form action=(scope_route_str) method="POST" {
+                                        input readonly="" class="hidden" type="text" name="client_id" value=(authorization_info.client_id) {}
                                         input readonly="" class="hidden" type="text" name="response_type" value=(authorization_info.response_type) {}
                                         input readonly="" class="hidden" type="text" name="state" value=(authorization_info.state)  {}
                                         input readonly="" class="hidden" type="text" name="code_challenge" value=(authorization_info.code_challenge)  {}
                                         input readonly="" class="hidden" type="text" name="code_challenge_method" value=(authorization_info.code_challenge_method) {}
-                                        input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scopes.clone())) {}
+                                        input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                                         input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
-                                        input readonly="" class="hidden" type="checkbox" name="accept" checked="" {}
+                                        input readonly="" class="hidden" type="checkbox" name="accept" checked {}
                                         button type="submit" class="cursor-pointer w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800" {
                                             "Allow"
                                         }
                                     }
 
-                                    form action="/w/2ld12f8nbrz80m3asevbk/oidc/auth/scope" method="POST" {
-                                        input readonly="" class="hidden" type="text" name="client_id" value=(client_id) {}
+                                    form action=(scope_route_str) method="POST" {
+                                        input readonly="" class="hidden" type="text" name="client_id" value=(authorization_info.client_id) {}
                                         input readonly="" class="hidden" type="text" name="response_type" value=(authorization_info.response_type) {}
                                         input readonly="" class="hidden" type="text" name="state" value=(authorization_info.state)  {}
                                         input readonly="" class="hidden" type="text" name="code_challenge" value=(authorization_info.code_challenge)  {}
                                         input readonly="" class="hidden" type="text" name="code_challenge_method" value=(authorization_info.code_challenge_method) {}
-                                        input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scopes.clone())) {}
+                                        input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                                         input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
                                         input readonly="" class="hidden" type="checkbox" name="accept" {}
                                         button type="submit" class="cursor-pointer w-full text-gray-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" {
@@ -286,9 +279,16 @@ pub async fn authorize<
 
     if existing_scopes != scopes {
         return Ok(scopes_html_form(
+            &tenant,
+            &project,
             &client_app,
-            &ScopeAuthorizeInfo {
-                scopes,
+            &ScopeForm {
+                client_id: client_app
+                    .id
+                    .as_ref()
+                    .map(|s| s.to_string())
+                    .unwrap_or("".to_string()),
+                scope: scopes,
                 response_type: response_type.clone(),
                 state: state.clone(),
                 code_challenge: code_challenge.to_string(),

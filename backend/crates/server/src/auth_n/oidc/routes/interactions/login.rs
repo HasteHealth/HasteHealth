@@ -30,6 +30,11 @@ use std::sync::Arc;
 use tower_sessions::Session;
 
 fn login_html_form(tenant: &TenantId, project: &ProjectId, login_route: &str) -> Markup {
+    let password_reset_route = oidc_route_string(tenant, project, "password-reset");
+    let password_reset_route_str = password_reset_route
+        .to_str()
+        .expect("Could not create password reset route.");
+
     html! {
         head {
             meta charset="utf-8" {}
@@ -69,7 +74,7 @@ fn login_html_form(tenant: &TenantId, project: &ProjectId, login_route: &str) ->
                                             label for="remember" class="text-gray-500" { "Remember me" }
                                         }
                                     }
-                                    a href=(oidc_route_string(tenant, project, "/password-reset")) class="text-sm font-medium text-teal-600 hover:underline " { "Forgot password?" }
+                                    a href=(password_reset_route_str) class="text-sm font-medium text-teal-600 hover:underline " { "Forgot password?" }
                                 }
                                 button type="submit" class="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
                             }
