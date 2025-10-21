@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     auth_n::oidc::{hardcoded_clients::get_hardcoded_clients, middleware::OIDCParameters},
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
     services::AppState,
 };
@@ -90,11 +90,11 @@ where
             .await
             .map_err(|err| err.into_response())?;
 
-        let Tenant { tenant } = Tenant::from_request_parts(parts, state)
+        let TenantIdentifier { tenant } = TenantIdentifier::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 
-        let Project { project } = Project::from_request_parts(parts, state)
+        let ProjectIdentifier { project } = ProjectIdentifier::from_request_parts(parts, state)
             .await
             .map_err(|err| err.into_response())?;
 

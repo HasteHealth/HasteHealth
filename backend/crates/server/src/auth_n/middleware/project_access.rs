@@ -5,12 +5,12 @@ use std::sync::Arc;
 
 use crate::{
     auth_n::claims::UserTokenClaims,
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
 };
 
 pub async fn project_access(
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     // run the `HeaderMap` extractor
     Extension(claims): Extension<Arc<UserTokenClaims>>,
     // you can also add more extractors here but the last

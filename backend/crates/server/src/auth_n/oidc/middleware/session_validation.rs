@@ -10,7 +10,7 @@ use tower_sessions::Session;
 
 use crate::auth_n::oidc::routes::route_string::oidc_route_string;
 use crate::auth_n::session;
-use crate::extract::path_tenant::{Project, Tenant};
+use crate::extract::path_tenant::{ProjectIdentifier, TenantIdentifier};
 
 #[derive(Clone)]
 pub struct AuthSessionValidationLayer {
@@ -60,14 +60,14 @@ where
 
         // Return the response as an immediate future
         Box::pin(async move {
-            let Ok(tenant) = request.extract_parts::<Tenant>().await else {
+            let Ok(tenant) = request.extract_parts::<TenantIdentifier>().await else {
                 return Ok((
                     StatusCode::BAD_REQUEST,
                     "Tenant id not found on request".to_string(),
                 )
                     .into_response());
             };
-            let Ok(project) = request.extract_parts::<Project>().await else {
+            let Ok(project) = request.extract_parts::<ProjectIdentifier>().await else {
                 return Ok((
                     StatusCode::BAD_REQUEST,
                     "Project id not found on request".to_string(),

@@ -11,7 +11,7 @@ use oxidized_repository::{Repository, admin::TenantAuthAdmin, types::project::Cr
 use std::sync::Arc;
 
 use crate::{
-    extract::path_tenant::{Project, Tenant},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     services::AppState,
 };
 
@@ -21,8 +21,8 @@ pub async fn project_exists<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    Tenant { tenant }: Tenant,
-    Project { project }: Project,
+    TenantIdentifier { tenant }: TenantIdentifier,
+    ProjectIdentifier { project }: ProjectIdentifier,
     request: Request,
     next: Next,
 ) -> Result<Response, OperationOutcomeError> {
