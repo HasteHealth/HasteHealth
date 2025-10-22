@@ -7,6 +7,7 @@ pub mod authorization_code;
 pub mod membership;
 pub mod project;
 pub mod scope;
+pub mod scopes;
 pub mod tenant;
 pub mod user;
 

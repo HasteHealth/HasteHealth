@@ -3,8 +3,7 @@ use crate::{
     // extract::path_tenant::{Project, Tenant},
     auth_n::{
         oidc::{
-            extract::{client_app::OIDCClientApplication, scopes::Scopes},
-            routes::route_string::oidc_route_string,
+            extract::client_app::OIDCClientApplication, routes::route_string::oidc_route_string,
         },
         session,
     },
@@ -41,7 +40,7 @@ pub struct ScopeForm {
     pub state: String,
     pub code_challenge: String,
     pub code_challenge_method: String,
-    pub scope: Scopes,
+    pub scope: oxidized_repository::types::scopes::Scopes,
     pub redirect_uri: String,
     pub accept: Option<String>,
 }
@@ -72,7 +71,7 @@ pub async fn scope_post<
             CreateScope {
                 client: ClientId::new(scope_data.client_id.clone()),
                 user_: UserId::new(user.id),
-                scope: String::from(scope_data.scope.clone()),
+                scope: scope_data.scope.clone(),
             },
         )
         .await?;

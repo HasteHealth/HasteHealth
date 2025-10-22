@@ -1,5 +1,5 @@
 use oxidized_repository::types::{
-    AuthorId, AuthorKind, ProjectId, TenantId, VersionId, user::UserRole,
+    AuthorId, AuthorKind, ProjectId, TenantId, VersionId, scopes::Scopes, user::UserRole,
 };
 use serde::{Deserialize, Serialize};
 
@@ -8,7 +8,7 @@ pub struct UserTokenClaims {
     pub sub: AuthorId,
     pub exp: usize,
     pub aud: String,
-    pub scope: String,
+    pub scope: Scopes,
 
     #[serde(rename = "https://oxidized-health.app/tenant")]
     pub tenant: TenantId,

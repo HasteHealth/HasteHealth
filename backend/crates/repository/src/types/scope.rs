@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::types::scopes::Scopes;
+
 #[derive(Debug, Clone)]
 pub struct ClientId(String);
 impl From<ClientId> for String {
@@ -40,13 +42,13 @@ impl AsRef<str> for UserId {
 pub struct Scope {
     pub client: String,
     pub user_: String,
-    pub scope: String,
+    pub scope: Scopes,
 }
 
 pub struct UpdateScope {
     pub client: ClientId,
     pub user_: UserId,
-    pub scope: String,
+    pub scope: Scopes,
 }
 
 pub struct ScopeSearchClaims {
@@ -57,7 +59,7 @@ pub struct ScopeSearchClaims {
 pub struct CreateScope {
     pub client: ClientId,
     pub user_: UserId,
-    pub scope: String,
+    pub scope: Scopes,
 }
 
 pub struct ScopeKey(pub ClientId, pub UserId);
