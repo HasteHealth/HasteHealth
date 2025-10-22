@@ -28,13 +28,22 @@ fn min_max_attribute(element: &ElementDefinition) -> TokenStream {
     let min = cardinality.0;
 
     match max {
-        extract::Max::Unlimited => quote! {
-            #[cardinality(min = #min)]
-        },
+        extract::Max::Unlimited => {
+            if min > 0 {
+                quote! { #[cardinality(min = #min)] }
+            } else {
+                quote! {}
+            }
+        }
+        // Means it's a singular value.
         extract::Max::Fixed(1) => quote! {},
-        extract::Max::Fixed(n) => quote! {
-            #[cardinality(min = #min, max = #n)]
-        },
+        extract::Max::Fixed(n) => {
+            if min > 0 {
+                quote! { #[cardinality(min = #min, max = #n)] }
+            } else {
+                quote! { #[cardinality(max = #n)] }
+            }
+        }
     }
 }
 
