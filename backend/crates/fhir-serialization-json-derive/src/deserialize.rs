@@ -1,4 +1,4 @@
-use crate::{utilities::{ get_attribute_value, get_type_choice_attribute, is_attribute_present}, DeserializeComplexType};
+use crate::{utilities::{ get_attribute_value, get_cardinality_attributes, get_type_choice_attribute, is_attribute_present}, DeserializeComplexType};
 use core::panic;
 
 use proc_macro2::TokenStream;
@@ -42,6 +42,8 @@ fn handle_optional_require_field(
         }
     }
 }
+
+
 
 pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
     let name = input.ident;
@@ -339,14 +341,21 @@ fn create_complex_struct_handler(
     }
 }
 
+fn handle_cardinality_attribute(field: &Field) -> TokenStream {
+    let cardinality = get_cardinality_attributes(&field.attrs);
+    quote! { }
+}
+
 fn set_struct_field(found_fields_variable: &Ident, obj_variable: &Ident, field_variable: &Ident, field: &Field) -> TokenStream {
-    if is_attribute_present(&field.attrs, "primitive") {
+    let struct_set = if is_attribute_present(&field.attrs, "primitive") {
         create_primitive_struct_handler(found_fields_variable, obj_variable, field_variable, field)
     } else if is_type_choice_field(field) {
         create_type_choice_struct_handler(found_fields_variable, obj_variable, field_variable, field)
     } else {
         create_complex_struct_handler(found_fields_variable, obj_variable, field_variable, field)
-    }
+    };
+
+    struct_set
 }
 
 fn create_struct_item(fields: &Fields) -> TokenStream {
