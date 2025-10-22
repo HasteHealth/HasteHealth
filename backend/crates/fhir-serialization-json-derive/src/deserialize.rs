@@ -21,7 +21,7 @@ fn is_optional_field(field: &Field) -> bool {
     if field_type == "Option" { true } else { false }
 }
 
-fn handle_optional_require_field(
+fn unwrap_and_validate_cardinality_field(
     field: &Field,
     value_identifier: proc_macro2::Ident,
 ) -> TokenStream {
@@ -58,7 +58,7 @@ pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
             let value_type = get_field_type(value_field_found.unwrap());
 
             let unwrap_required =
-                handle_optional_require_field(value_field_found.unwrap(), format_ident!("value"));
+                unwrap_and_validate_cardinality_field(value_field_found.unwrap(), format_ident!("value"));
 
             let expanded = quote! {
                 impl FHIRJSONDeserializer for #name {
@@ -341,10 +341,6 @@ fn create_complex_struct_handler(
     }
 }
 
-fn handle_cardinality_attribute(field: &Field) -> TokenStream {
-    let cardinality = get_cardinality_attributes(&field.attrs);
-    quote! { }
-}
 
 fn set_struct_field(found_fields_variable: &Ident, obj_variable: &Ident, field_variable: &Ident, field: &Field) -> TokenStream {
     let struct_set = if is_attribute_present(&field.attrs, "primitive") {
@@ -358,42 +354,61 @@ fn set_struct_field(found_fields_variable: &Ident, obj_variable: &Ident, field_v
     struct_set
 }
 
-fn create_struct_item(fields: &Fields) -> TokenStream {
-    let mut required_fields: Vec<&Field> = vec![];
-    let mut optional_fields: Vec<&Field> = vec![];
+fn instantiate_struct_with_required_cardinality_checks(fields: &Fields) -> TokenStream {
+    let mut field_instantiation = quote !{};
 
     for field in fields {
-        if is_optional_field(field) {
-            optional_fields.push(field);
-        } else {
-            required_fields.push(field);
-        }
-    }
-
-    let optional_fields_instantiate = optional_fields.iter().map(|field| {
-        let field_name = field.ident.as_ref().unwrap();
-        // We can just unwrap with an and_then to remove the nested option.
-        quote! {
-            #field_name: #field_name.and_then(|v| v),
-        }
-    });
-
-    let required_fields_instantiate = required_fields.iter().map(|field| {
+        let cardinality = get_cardinality_attributes(&field.attrs);
         let field_name = field.ident.as_ref().unwrap();
         let field_name_str = field_name.to_string();
 
+        if is_optional_field(field) {
+            field_instantiation = quote!{#field_instantiation
+                let #field_name =  #field_name.and_then(|v| v);
+            }
+        }
+
+        if let Some(cardinality) = cardinality {
+            let mut conditions = vec![];
+            if let Some(min) = cardinality.min {
+                conditions.push(quote!{ #field_name.len() < #min });
+            }
+            if let Some(max) = cardinality.max {
+                conditions.push(quote!{ #field_name.len() > #max })
+            };
+
+            field_instantiation =  quote! {#field_instantiation
+                if let Some(#field_name) = #field_name.as_ref() && (#(#conditions)||*) {    
+                    return Err(oxidized_fhir_serialization_json::errors::DeserializeError::CardinalityViolation(
+                        #field_name_str.to_string()
+                    ));
+                }
+            };
+        }
+
+        if !is_optional_field(field) {
+            field_instantiation = quote!{#field_instantiation
+                let #field_name = #field_name.ok_or_else(|| {
+                    oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
+                        #field_name_str.to_string()
+                    )
+                })?;
+            }
+        }
+    }
+
+
+    let field_idents = fields.iter().map(|field| {
+        let field_name = field.ident.as_ref().unwrap();
         quote! {
-          #field_name: #field_name.ok_or_else(|| {
-            oxidized_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(
-                #field_name_str.to_string()
-            )})?,
+            #field_name
         }
     });
-    quote! {
-        Self{
-            #(#required_fields_instantiate)*
-            #(#optional_fields_instantiate)*
-        }
+
+    quote! {#field_instantiation
+        Ok(Self {
+            #(#field_idents),*
+        })
     }
 }
 
@@ -447,7 +462,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                 .iter()
                 .map(|field| set_struct_field(&found_fields_ident, &obj_variable, &field_variable, field));
 
-            let return_val = create_struct_item(&data.fields);
+            let return_val = instantiate_struct_with_required_cardinality_checks(&data.fields);
 
             let expanded = quote! {
                 impl oxidized_fhir_serialization_json::FHIRJSONDeserializer for #name {
@@ -483,7 +498,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                                   }
                                 }
                             }
-                            Ok(#return_val)
+                            #return_val
                         } else {
                             Err(oxidized_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                 "Expected an object".to_string(),
