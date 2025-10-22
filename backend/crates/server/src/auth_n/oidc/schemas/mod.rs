@@ -36,7 +36,7 @@ mod tests {
                "scope" : "read write",
                "client_id": "test_client",
                "client_secret": "test_secret",
-               "code": "should not be here"
+               "codee": "should not be here"
             }
             "#,
         );
@@ -65,7 +65,7 @@ mod tests {
                 "redirect_uri": "redirect_uri",
                 "code_verifier": "code_verifier",
                 "client_id": "client_id",
-                "refresh_token": "should not be here",
+                "refresh_tokene": "should not be here"
             }
             "#,
         );

@@ -150,13 +150,16 @@ export async function authorize({
 }
 
 export async function refreshToken({
+  clientId,
   token_endpoint,
   payload,
 }: {
+  clientId: string;
   payload: AccessTokenResponse;
   token_endpoint: string;
 }): Promise<AccessTokenResponse> {
   const parameters: Record<string, unknown> = {
+    client_id: clientId,
     grant_type: "refresh_token",
     refresh_token: payload.refresh_token,
   };
@@ -292,6 +295,7 @@ export function OxidizedHealthProvider({
                   isRefreshing.current = true;
                   try {
                     const payload = await refreshToken({
+                      clientId,
                       payload: state.payload,
                       token_endpoint: well_known.token_endpoint,
                     });
