@@ -4,8 +4,8 @@ use crate::{
         claims::UserTokenClaims,
         oidc::{
             code_verification,
-            extract::client_app::find_client_app,
-            schemas::{self, token_body::OAuth2TokenBody},
+            extract::{body::ParsedBody, client_app::find_client_app},
+            schemas,
         },
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
@@ -162,25 +162,25 @@ pub async fn token<
     TenantIdentifier { tenant }: TenantIdentifier,
     ProjectIdentifier { project }: ProjectIdentifier,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    Json(token_body): Json<schemas::token_body::OAuth2TokenBody>,
+    ParsedBody(token_body): ParsedBody<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    match token_body {
-        OAuth2TokenBody::ClientCredentials {
-            #[allow(unused_variables)]
-            client_id,
-            #[allow(unused_variables)]
-            client_secret,
-        } => Err(OperationOutcomeError::fatal(
-            IssueType::NotSupported(None),
-            "Client credentials grant type is not supported.".to_string(),
-        )),
-        OAuth2TokenBody::RefreshToken {
-            client_id,
-            client_secret,
-            refresh_token,
-            #[allow(unused_variables)]
-            scope,
-        } => {
+    match token_body.grant_type {
+        schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
+            Err(OperationOutcomeError::fatal(
+                IssueType::NotSupported(None),
+                "Client credentials grant type is not supported.".to_string(),
+            ))
+        }
+        schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
+            let client_id = token_body.client_id;
+            let client_secret = token_body.client_secret;
+            let refresh_token = token_body.refresh_token.ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "refresh_token is required for refresh_token grant type.".to_string(),
+                )
+            })?;
+
             let client_app =
                 find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
@@ -245,13 +245,28 @@ pub async fn token<
 
             Ok(Json(response).into_response())
         }
-        OAuth2TokenBody::AuthorizationCode {
-            client_id,
-            client_secret,
-            code,
-            code_verifier,
-            redirect_uri,
-        } => {
+        schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
+            let client_id = token_body.client_id;
+            let client_secret = token_body.client_secret;
+            let code = token_body.code.ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "code is required for authorization_code grant type.".to_string(),
+                )
+            })?;
+            let code_verifier = token_body.code_verifier.ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "code_verifier is required for authorization_code grant type.".to_string(),
+                )
+            })?;
+            let redirect_uri = token_body.redirect_uri.ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "redirect_uri is required for authorization_code grant type.".to_string(),
+                )
+            })?;
+
             let client_app =
                 find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
 

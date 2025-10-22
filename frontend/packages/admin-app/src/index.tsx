@@ -117,7 +117,7 @@ function OxidizedHealthWrapper() {
     <OxidizedHealthProvider
       refresh
       authorize_method="GET"
-      scope="openid email profile fhirUser user/*.*"
+      scope="offline_access openid email profile fhirUser user/*.*"
       domain={REACT_APP_FHIR_BASE_URL || ""}
       tenant={deriveTenantId()}
       project={deriveProjectId()}
@@ -498,6 +498,18 @@ function ProjectRoot() {
                 }}
               >
                 Client Applications
+              </SideBar.SideBarItem>
+              <SideBar.SideBarItem
+                active={matches[0].params.resourceType === "IdentityProvider"}
+                onClick={() => {
+                  navigate(
+                    generatePath("/resources/:resourceType", {
+                      resourceType: "IdentityProvider",
+                    })
+                  );
+                }}
+              >
+                Identity Providers
               </SideBar.SideBarItem>
             </SideBar.SideBarItemGroup>
             <SideBar.SideBarItemGroup label="Data">
