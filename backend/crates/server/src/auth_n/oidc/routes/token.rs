@@ -18,7 +18,10 @@ use axum::{
 };
 use axum_extra::routing::TypedPath;
 use jsonwebtoken::{Algorithm, Header};
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_model::r4::generated::{
+    resources::ClientApplication,
+    terminology::{ClientapplicationGrantType, IssueType},
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
@@ -58,6 +61,7 @@ pub struct TokenResponse {
 
 struct TokenResponseArguments {
     user_id: String,
+    user_kind: AuthorKind,
     client_id: String,
     scopes: Scopes,
     tenant: TenantId,
@@ -66,6 +70,8 @@ struct TokenResponseArguments {
 
 async fn create_token_response<Repo: Repository>(
     repo: &Repo,
+    client_app: &ClientApplication,
+    grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
     args: TokenResponseArguments,
 ) -> Result<TokenResponse, OperationOutcomeError> {
     let token = jsonwebtoken::encode(
@@ -80,7 +86,7 @@ async fn create_token_response<Repo: Repository>(
             project: Some(args.project.clone()),
             user_role: UserRole::Member,
             user_id: AuthorId::new(args.user_id.clone()),
-            resource_type: AuthorKind::Membership,
+            resource_type: args.user_kind,
             access_policy_version_ids: vec![],
         },
         encoding_key(),
@@ -105,15 +111,28 @@ async fn create_token_response<Repo: Repository>(
         .iter()
         .find(|s| **s == Scope::OIDC(OIDCScope::OfflineAccess))
         .is_some()
+        && client_app
+            .grantType
+            .iter()
+            .find(|gt| {
+                let discriminator = std::mem::discriminant(gt.as_ref());
+                let offline_discriminator =
+                    std::mem::discriminant(&ClientapplicationGrantType::Refresh_token(None));
+                discriminator == offline_discriminator
+            })
+            .is_some()
+            // Client credentials grant does not get refresh tokens. Serves no purpose and requires knowing user kind to 
+            // rebuild the token.
+        && *grant_type_used != schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials
     {
         let refresh_token = ProjectAuthAdmin::create(
             repo,
             &args.tenant,
             &args.project,
             CreateAuthorizationCode {
+                user_id: args.user_id,
                 expires_in: Duration::from_secs(60 * 60 * 12), // 12 hours.
                 kind: AuthorizationCodeKind::RefreshToken,
-                user_id: args.user_id,
                 client_id: Some(args.client_id),
                 pkce_code_challenge: None,
                 pkce_code_challenge_method: None,
@@ -153,6 +172,80 @@ async fn get_approved_scopes<Repo: Repository>(
     Ok(approved_scopes)
 }
 
+fn validate_client_grant_type(
+    client_app: &ClientApplication,
+    grant_type: &ClientapplicationGrantType,
+) -> Result<(), OperationOutcomeError> {
+    if client_app
+        .grantType
+        .iter()
+        .find(|gt| {
+            let discriminator = std::mem::discriminant(gt.as_ref());
+            let requested_discriminator = std::mem::discriminant(grant_type);
+            discriminator == requested_discriminator
+        })
+        .is_none()
+    {
+        return Err(OperationOutcomeError::error(
+            IssueType::Forbidden(None),
+            "Client application is not authorized for the requested grant type.".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
+fn verify_client(
+    client_app: &ClientApplication,
+    token_request_body: &schemas::token_body::OAuth2TokenBody,
+) -> Result<(), OperationOutcomeError> {
+    // Verify the grant types align
+    match token_request_body.grant_type {
+        schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
+            validate_client_grant_type(
+                client_app,
+                &ClientapplicationGrantType::Client_credentials(None),
+            )?;
+        }
+        schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
+            validate_client_grant_type(
+                client_app,
+                &ClientapplicationGrantType::Refresh_token(None),
+            )?;
+        }
+        schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
+            validate_client_grant_type(
+                client_app,
+                &ClientapplicationGrantType::Authorization_code(None),
+            )?;
+        }
+    }
+
+    if client_app
+        .secret
+        .as_ref()
+        .and_then(|s| s.value.as_ref().map(String::as_str))
+        != token_request_body
+            .client_secret
+            .as_ref()
+            .map(String::as_str)
+    {
+        return Err(OperationOutcomeError::error(
+            IssueType::Security(None),
+            "Invalid credentials".to_string(),
+        ));
+    }
+
+    if client_app.id.as_ref() != Some(&token_request_body.client_id) {
+        return Err(OperationOutcomeError::error(
+            IssueType::Security(None),
+            "Invalid credentials".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
 pub async fn token<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -164,17 +257,40 @@ pub async fn token<
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     ParsedBody(token_body): ParsedBody<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {
-    match token_body.grant_type {
+    match &token_body.grant_type {
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
-            Err(OperationOutcomeError::fatal(
-                IssueType::NotSupported(None),
-                "Client credentials grant type is not supported.".to_string(),
-            ))
+            let client_id = &token_body.client_id;
+            let client_app =
+                find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
+
+            verify_client(&client_app, &token_body)?;
+
+            let response = create_token_response(
+                &*state.repo,
+                &client_app,
+                &token_body.grant_type,
+                TokenResponseArguments {
+                    user_id: client_app.id.clone().unwrap_or_default(),
+                    user_kind: AuthorKind::ClientApplication,
+                    client_id: client_app.id.clone().unwrap_or_default(),
+                    scopes: Scopes::try_from(
+                        client_app
+                            .scope
+                            .as_ref()
+                            .and_then(|s| s.value.as_ref().map(String::as_str))
+                            .unwrap_or_default(),
+                    )?,
+                    tenant: tenant.clone(),
+                    project: project.clone(),
+                },
+            )
+            .await?;
+
+            Ok(Json(response).into_response())
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
-            let client_id = token_body.client_id;
-            let client_secret = token_body.client_secret;
-            let refresh_token = token_body.refresh_token.ok_or_else(|| {
+            let client_id = &token_body.client_id;
+            let refresh_token = &token_body.refresh_token.as_ref().ok_or_else(|| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "refresh_token is required for refresh_token grant type.".to_string(),
@@ -184,17 +300,7 @@ pub async fn token<
             let client_app =
                 find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
-            if client_secret.as_ref().map(String::as_str)
-                != client_app
-                    .secret
-                    .as_ref()
-                    .and_then(|v| v.value.as_ref().map(String::as_str))
-            {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Security(None),
-                    "Invalid client secret".to_string(),
-                ));
-            }
+            verify_client(&client_app, &token_body)?;
 
             let code = code_verification::retrieve_and_verify_code(
                 &*state.repo,
@@ -233,8 +339,11 @@ pub async fn token<
 
             let response = create_token_response(
                 &*state.repo,
+                &client_app,
+                &token_body.grant_type,
                 TokenResponseArguments {
                     user_id: code.user_id.clone(),
+                    user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
@@ -246,21 +355,20 @@ pub async fn token<
             Ok(Json(response).into_response())
         }
         schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
-            let client_id = token_body.client_id;
-            let client_secret = token_body.client_secret;
-            let code = token_body.code.ok_or_else(|| {
+            let client_id = &token_body.client_id;
+            let code = token_body.code.as_ref().ok_or_else(|| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "code is required for authorization_code grant type.".to_string(),
                 )
             })?;
-            let code_verifier = token_body.code_verifier.ok_or_else(|| {
+            let code_verifier = token_body.code_verifier.as_ref().ok_or_else(|| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "code_verifier is required for authorization_code grant type.".to_string(),
                 )
             })?;
-            let redirect_uri = token_body.redirect_uri.ok_or_else(|| {
+            let redirect_uri = token_body.redirect_uri.as_ref().ok_or_else(|| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "redirect_uri is required for authorization_code grant type.".to_string(),
@@ -270,17 +378,7 @@ pub async fn token<
             let client_app =
                 find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
-            if client_secret.as_ref().map(String::as_str)
-                != client_app
-                    .secret
-                    .as_ref()
-                    .and_then(|v| v.value.as_ref().map(String::as_str))
-            {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Security(None),
-                    "Invalid client secret".to_string(),
-                ));
-            }
+            verify_client(&client_app, &token_body)?;
 
             let code = code_verification::retrieve_and_verify_code(
                 &*state.repo,
@@ -320,8 +418,11 @@ pub async fn token<
 
             let response = create_token_response(
                 &*state.repo,
+                &client_app,
+                &token_body.grant_type,
                 TokenResponseArguments {
                     user_id: code.user_id.clone(),
+                    user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),

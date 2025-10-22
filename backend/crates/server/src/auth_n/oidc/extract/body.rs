@@ -26,7 +26,7 @@ where
             .and_then(|v| v.to_str().ok())
             .unwrap_or("");
 
-        let bytes = to_bytes(body, 1000000).await.map_err(|_| {
+        let bytes = to_bytes(body, 1000000).await.map_err(|_e| {
             OperationOutcomeError::fatal(
                 IssueType::Exception(None),
                 "Failed to extract request body".to_string(),
@@ -35,21 +35,16 @@ where
 
         match content_type {
             "application/json" | "application/fhir+json" => {
-                let body = serde_json::from_slice::<T>(&bytes).map_err(|_e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
-                        "Failed to parse JSON body".to_string(),
-                    )
+                let body = serde_json::from_slice::<T>(&bytes).map_err(|e| {
+                    println!("JSON parse error: {:?}", e);
+                    OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
                 })?;
 
                 Ok(ParsedBody(body))
             }
             "application/x-www-form-urlencoded" => {
-                let body = serde_html_form::from_bytes::<T>(&bytes).map_err(|_e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
-                        "Failed to parse form encoded body".to_string(),
-                    )
+                let body = serde_html_form::from_bytes::<T>(&bytes).map_err(|e| {
+                    OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
                 })?;
 
                 Ok(ParsedBody(body))
