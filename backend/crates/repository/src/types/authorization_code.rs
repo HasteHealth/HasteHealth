@@ -3,6 +3,8 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use sqlx::types::Json;
 use std::time::Duration;
 
+use crate::types::{ProjectId, TenantId};
+
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
 #[sqlx(type_name = "code_kind", rename_all = "lowercase")] // only for PostgreSQL to match a type definition
 pub enum AuthorizationCodeKind {
@@ -65,12 +67,12 @@ pub struct CreateAuthorizationCode {
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct AuthorizationCode {
-    pub tenant: String,
+    pub tenant: TenantId,
     pub is_expired: Option<bool>,
     pub kind: AuthorizationCodeKind,
     pub code: String,
     pub user_id: String,
-    pub project: Option<String>,
+    pub project: Option<ProjectId>,
     pub client_id: Option<String>,
     pub pkce_code_challenge: Option<String>,
     pub pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,

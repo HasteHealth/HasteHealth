@@ -7,7 +7,7 @@ pub struct CreateTenant {
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct Tenant {
-    pub id: String,
+    pub id: TenantId,
     pub subscription_tier: String,
 }
 

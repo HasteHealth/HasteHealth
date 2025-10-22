@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE tenants SET subscription_tier = $1 WHERE id = $2 RETURNING id, subscription_tier",
+  "query": "UPDATE tenants SET subscription_tier = $1 WHERE id = $2 RETURNING id as \"id: TenantId\", subscription_tier",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id: TenantId",
         "type_info": "Text"
       },
       {
@@ -25,5 +25,5 @@
       false
     ]
   },
-  "hash": "73d2fe7138dd6ffc12c51e8a8453346e6c14c5a9ef3aa9ed9521c8b4ec86fde5"
+  "hash": "2c3a03a1e10595f07cadab2646b09a880d3d901a63b4ff6239516e091c0a5dd9"
 }

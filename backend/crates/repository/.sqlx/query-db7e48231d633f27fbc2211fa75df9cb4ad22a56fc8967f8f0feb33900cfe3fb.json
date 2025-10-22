@@ -1,16 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id, tenant, fhir_version as \"fhir_version: SupportedFHIRVersions\"",
+  "query": "SELECT id as \"id: ProjectId\", tenant as \"tenant: TenantId\", fhir_version as \"fhir_version: SupportedFHIRVersions\" FROM projects where tenant = $1 AND id = $2",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id: ProjectId",
         "type_info": "Text"
       },
       {
         "ordinal": 1,
-        "name": "tenant",
+        "name": "tenant: TenantId",
         "type_info": "Text"
       },
       {
@@ -42,5 +42,5 @@
       false
     ]
   },
-  "hash": "586d365108341ec007c2a3988df17111f3891c67047f585dcbbfcf58de0e1a99"
+  "hash": "db7e48231d633f27fbc2211fa75df9cb4ad22a56fc8967f8f0feb33900cfe3fb"
 }

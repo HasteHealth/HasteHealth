@@ -21,8 +21,8 @@ fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 
         let tenant = sqlx::query_as!(
             Tenant,
-            "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id, subscription_tier",
-            id.as_ref(),
+            r#"INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id as "id: TenantId", subscription_tier"#,
+            id as TenantId,
             tenant.subscription_tier.unwrap_or("free".to_string())
         )
         .fetch_one(&mut *conn)
@@ -41,7 +41,7 @@ fn read_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let tenant = sqlx::query_as!(
             Tenant,
-            r#"SELECT id, subscription_tier FROM tenants where id = $1"#,
+            r#"SELECT id as "id: TenantId", subscription_tier FROM tenants where id = $1"#,
             id
         )
         .fetch_optional(&mut *conn)
@@ -60,9 +60,9 @@ fn update_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let updated_tenant = sqlx::query_as!(
             Tenant,
-            "UPDATE tenants SET subscription_tier = $1 WHERE id = $2 RETURNING id, subscription_tier",
+            r#"UPDATE tenants SET subscription_tier = $1 WHERE id = $2 RETURNING id as "id: TenantId", subscription_tier"#,
             tenant.subscription_tier,
-            tenant.id
+            tenant.id as TenantId,
         )
         .fetch_one(&mut *conn)
         .await
@@ -80,7 +80,7 @@ fn delete_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let deleted_tenant = sqlx::query_as!(
             Tenant,
-            "DELETE FROM tenants WHERE id = $1 RETURNING id, subscription_tier",
+            r#"DELETE FROM tenants WHERE id = $1 RETURNING id as "id: TenantId", subscription_tier"#,
             id
         )
         .fetch_one(&mut *conn)

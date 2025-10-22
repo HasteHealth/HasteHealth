@@ -57,7 +57,7 @@ fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
         let membership = sqlx::query_as!(
             Membership,
             r#"
-                SELECT tenant, project, user_id, role as "role: MembershipRole"
+                SELECT tenant as "tenant: TenantId", project as "project: ProjectId", user_id, role as "role: MembershipRole"
                 FROM memberships
                 WHERE tenant = $1 AND project = $2 AND user_id = $3
             "#,
@@ -130,7 +130,7 @@ fn delete_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
             r#"
                 DELETE FROM memberships
                 WHERE tenant = $1 AND project = $2 AND user_id = $3
-                RETURNING user_id, tenant, project, role as "role: MembershipRole"
+                RETURNING user_id, tenant as "tenant: TenantId", project as "project: ProjectId", role as "role: MembershipRole"
             "#,
             tenant.as_ref(),
             project.as_ref(),

@@ -129,6 +129,12 @@ impl TenantId {
     }
 }
 
+impl From<String> for TenantId {
+    fn from(id: String) -> Self {
+        TenantId::new(id)
+    }
+}
+
 impl AsRef<str> for TenantId {
     fn as_ref(&self) -> &str {
         match self {
