@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id, subscription_tier",
+  "query": "DELETE FROM tenants WHERE id = $1 RETURNING id as \"id: TenantId\", subscription_tier",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id: TenantId",
         "type_info": "Text"
       },
       {
@@ -16,7 +16,6 @@
     ],
     "parameters": {
       "Left": [
-        "Text",
         "Text"
       ]
     },
@@ -25,5 +24,5 @@
       false
     ]
   },
-  "hash": "14ca5a5852b7929c106de9f61c0d3a23b9b9c6542bca3c83d45e8aaaa7ce5111"
+  "hash": "a65b753b273f16850666a4ec6bfceef87e285e6de5e43cf3d679692976e2bd3d"
 }
