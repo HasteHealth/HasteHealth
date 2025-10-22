@@ -70,6 +70,8 @@ struct TokenResponseArguments {
 
 async fn create_token_response<Repo: Repository>(
     repo: &Repo,
+    client_app: &ClientApplication,
+    grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
     args: TokenResponseArguments,
 ) -> Result<TokenResponse, OperationOutcomeError> {
     let token = jsonwebtoken::encode(
@@ -109,6 +111,19 @@ async fn create_token_response<Repo: Repository>(
         .iter()
         .find(|s| **s == Scope::OIDC(OIDCScope::OfflineAccess))
         .is_some()
+        && client_app
+            .grantType
+            .iter()
+            .find(|gt| {
+                let discriminator = std::mem::discriminant(gt.as_ref());
+                let offline_discriminator =
+                    std::mem::discriminant(&ClientapplicationGrantType::Refresh_token(None));
+                discriminator == offline_discriminator
+            })
+            .is_some()
+            // Client credentials grant does not get refresh tokens. Serves no purpose and requires knowing user kind to 
+            // rebuild the token.
+        && *grant_type_used != schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials
     {
         let refresh_token = ProjectAuthAdmin::create(
             repo,
@@ -252,10 +267,12 @@ pub async fn token<
 
             let response = create_token_response(
                 &*state.repo,
+                &client_app,
+                &token_body.grant_type,
                 TokenResponseArguments {
                     user_id: client_app.id.clone().unwrap_or_default(),
                     user_kind: AuthorKind::ClientApplication,
-                    client_id: client_app.id.unwrap_or_default(),
+                    client_id: client_app.id.clone().unwrap_or_default(),
                     scopes: Scopes::try_from(
                         client_app
                             .scope
@@ -322,6 +339,8 @@ pub async fn token<
 
             let response = create_token_response(
                 &*state.repo,
+                &client_app,
+                &token_body.grant_type,
                 TokenResponseArguments {
                     user_id: code.user_id.clone(),
                     user_kind: AuthorKind::Membership,
@@ -399,6 +418,8 @@ pub async fn token<
 
             let response = create_token_response(
                 &*state.repo,
+                &client_app,
+                &token_body.grant_type,
                 TokenResponseArguments {
                     user_id: code.user_id.clone(),
                     user_kind: AuthorKind::Membership,
