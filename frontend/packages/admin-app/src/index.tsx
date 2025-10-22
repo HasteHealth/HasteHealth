@@ -499,18 +499,6 @@ function ProjectRoot() {
               >
                 Client Applications
               </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "IdentityProvider"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "IdentityProvider",
-                    })
-                  );
-                }}
-              >
-                Identity Providers
-              </SideBar.SideBarItem>
             </SideBar.SideBarItemGroup>
             <SideBar.SideBarItemGroup label="Data">
               <SideBar.SideBarItem
