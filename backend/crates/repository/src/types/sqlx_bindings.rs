@@ -52,6 +52,12 @@ impl<'r> Encode<'r, Postgres> for ProjectId {
     }
 }
 
+impl sqlx::Type<Postgres> for ProjectId {
+    fn type_info() -> sqlx::postgres::PgTypeInfo {
+        <&str as sqlx::Type<Postgres>>::type_info()
+    }
+}
+
 impl<'r, DB: Database> Decode<'r, DB> for ResourceId
 where
     &'r str: Decode<'r, DB>,

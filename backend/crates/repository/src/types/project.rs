@@ -9,8 +9,8 @@ pub struct CreateProject {
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct Project {
-    pub tenant: String,
-    pub id: String,
+    pub tenant: TenantId,
+    pub id: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
 }
 
