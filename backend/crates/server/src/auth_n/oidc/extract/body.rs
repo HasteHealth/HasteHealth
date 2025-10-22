@@ -45,10 +45,11 @@ where
                 Ok(ParsedBody(body))
             }
             "application/x-www-form-urlencoded" => {
-                let body = String::from_utf8(bytes.to_vec()).unwrap_or_default();
-
-                let body = serde_html_form::from_str::<T>(&body).map_err(|e| {
-                    OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
+                let body = serde_html_form::from_bytes::<T>(&bytes).map_err(|_e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::Invalid(None),
+                        "Failed to parse form encoded body".to_string(),
+                    )
                 })?;
 
                 Ok(ParsedBody(body))
