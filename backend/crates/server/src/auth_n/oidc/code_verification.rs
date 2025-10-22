@@ -84,7 +84,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
         }
 
         if let Some(code_verifier) = code_verifier
-            && let Err(_e) = verify_code_verifier(&code, &code_verifier)
+            && verify_code_verifier(&code, &code_verifier).is_err()
         {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Invalid(None),

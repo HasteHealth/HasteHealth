@@ -47,7 +47,8 @@
             "type": "object",
             "required": [
                 "grant_type",
-                "refresh_token"
+                "refresh_token",
+                "client_id"
             ],
             "properties": {
                 "grant_type": {
