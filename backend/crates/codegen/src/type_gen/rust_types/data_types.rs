@@ -22,6 +22,31 @@ use walkdir::WalkDir;
 
 type NestedTypes = IndexMap<String, TokenStream>;
 
+fn min_max_attribute(element: &ElementDefinition) -> TokenStream {
+    let cardinality = extract::cardinality(element);
+    let max = cardinality.1;
+    let min = cardinality.0;
+
+    match max {
+        extract::Max::Unlimited => {
+            if min > 0 {
+                quote! { #[cardinality(min = #min)] }
+            } else {
+                quote! {}
+            }
+        }
+        // Means it's a singular value.
+        extract::Max::Fixed(1) => quote! {},
+        extract::Max::Fixed(n) => {
+            if min > 0 {
+                quote! { #[cardinality(min = #min, max = #n)] }
+            } else {
+                quote! { #[cardinality(max = #n)] }
+            }
+        }
+    }
+}
+
 fn wrap_cardinality_and_optionality(
     element: &ElementDefinition,
     field_value: TokenStream,
@@ -93,12 +118,15 @@ fn get_struct_key_value(
         quote! {}
     };
 
+    let cardinality_attribute = min_max_attribute(element);
+
     let field_value = wrap_cardinality_and_optionality(element, field_value_type_name);
 
     quote! {
         #type_choice_variants
         #reflect_attribute
         #primitive_attribute
+        #cardinality_attribute
         #[doc = #description]
         pub #field_name_ident: #field_value
     }

@@ -277,6 +277,7 @@ pub struct AccessPolicyV2 {
     #[primitive]
     #[doc = "The type of evaluation that is performed to determine if access is granted or denied."]
     pub engine: Box<terminology::AccessPolicyv2Engine>,
+    #[cardinality(max = 15usize)]
     #[doc = "Attributes to use for the policy evaluation."]
     pub attribute: Option<Vec<AccessPolicyV2Attribute>>,
     #[doc = "The rules that govern how the access policy is applied."]
@@ -306,6 +307,7 @@ pub struct ClientApplication {
     #[doc = ""]
     pub description: Option<Box<FHIRString>>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "The grant type for this client application."]
     pub grantType: Vec<Box<terminology::ClientapplicationGrantType>>,
     #[primitive]
@@ -315,6 +317,7 @@ pub struct ClientApplication {
     #[doc = "For client credentials (or other confidential authentication methods), the client secret."]
     pub secret: Option<Box<FHIRString>>,
     #[primitive]
+    #[cardinality(max = 5usize)]
     #[doc = "Array of redirection URI strings for use in redirect-based flows such as the authorization code and implicit flows.  As required by Section 2 of OAuth 2.0 [RFC6749], clients using flows with redirection MUST register their redirection URI values. Authorization servers that support dynamic registration for redirect-based flows MUST implement support for this metadata value."]
     pub redirectUri: Option<Vec<Box<FHIRString>>>,
     #[primitive]
@@ -886,6 +889,7 @@ pub struct AllergyIntoleranceReaction {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Identification of the specific substance (or pharmaceutical product) considered to be responsible for the Adverse Reaction event. Note: the substance for a specific reaction may be different from the substance identified as the cause of the risk, but it must be consistent with it. For instance, it may be a more specific substance (e.g. a brand medication) or a composite product that includes the identified substance. It must be clinically safe to only process the 'code' and ignore the 'reaction.substance'.  If a receiving system is unable to confirm that AllergyIntolerance.reaction.substance falls within the semantic scope of AllergyIntolerance.code, then the receiving system should ignore AllergyIntolerance.reaction.substance."]
     pub substance: Option<Box<CodeableConcept>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Clinical symptoms and/or signs that are observed or associated with the adverse reaction event."]
     pub manifestation: Vec<Box<CodeableConcept>>,
     #[primitive]
@@ -1082,6 +1086,7 @@ pub struct Appointment {
     pub patientInstruction: Option<Box<FHIRString>>,
     #[doc = "The service request this appointment is allocated to assess (e.g. incoming referral or procedure request)."]
     pub basedOn: Option<Vec<Box<Reference>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "List of participants involved in the appointment."]
     pub participant: Vec<AppointmentParticipant>,
     #[doc = "A set of date ranges (potentially including times) that the appointment is preferred to be scheduled within.\n\nThe duration (usually in minutes) could also be provided to indicate the length of the appointment to fill and populate the start/end times for the actual allocated time. However, in other situations the duration may be calculated by the scheduling system."]
@@ -1367,6 +1372,7 @@ pub struct AuditEvent {
     pub outcomeDesc: Option<Box<FHIRString>>,
     #[doc = "The purposeOfUse (reason) that was used during the event being recorded."]
     pub purposeOfEvent: Option<Vec<Box<CodeableConcept>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "An actor taking an active role in the event or activity that is logged."]
     pub agent: Vec<AuditEventAgent>,
     #[doc = "The system that is reporting the event."]
@@ -2377,6 +2383,7 @@ pub struct CapabilityStatement {
     #[doc = "The version of the FHIR specification that this CapabilityStatement describes (which SHALL be the same as the FHIR version of the CapabilityStatement itself). There is no default value."]
     pub fhirVersion: Box<terminology::FHIRVersion>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "A list of the formats supported by this implementation using their content types."]
     pub format: Vec<Box<FHIRCode>>,
     #[primitive]
@@ -3692,6 +3699,7 @@ pub struct Claim {
     pub diagnosis: Option<Vec<ClaimDiagnosis>>,
     #[doc = "Procedures performed on the patient relevant to the billing items with the claim."]
     pub procedure: Option<Vec<ClaimProcedure>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Financial instruments for reimbursement for the health care products and services specified on the claim."]
     pub insurance: Vec<ClaimInsurance>,
     #[doc = "Details of an accident which resulted in injuries which required the products and services listed in the claim."]
@@ -3777,6 +3785,7 @@ pub struct ClaimResponseItemDetail {
     #[primitive]
     #[doc = "The numbers associated with notes below which apply to the adjudication of this item."]
     pub noteNumber: Option<Vec<Box<FHIRPositiveInt>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The adjudication results."]
     pub adjudication: Vec<ClaimResponseItemAdjudication>,
     #[doc = "A sub-detail adjudication of a simple product or service."]
@@ -3805,6 +3814,7 @@ pub struct ClaimResponseItem {
     #[primitive]
     #[doc = "The numbers associated with notes below which apply to the adjudication of this item."]
     pub noteNumber: Option<Vec<Box<FHIRPositiveInt>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "If this item is a group then the values here are a summary of the adjudication of the detail items. If this item is a simple product or service then this is the result of the adjudication of this item."]
     pub adjudication: Vec<ClaimResponseItemAdjudication>,
     #[doc = "A claim detail. Either a simple (a product or service) or a 'group' of sub-details which are simple items."]
@@ -3880,6 +3890,7 @@ pub struct ClaimResponseAddItemDetailSubDetail {
     #[primitive]
     #[doc = "The numbers associated with notes below which apply to the adjudication of this item."]
     pub noteNumber: Option<Vec<Box<FHIRPositiveInt>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The adjudication results."]
     pub adjudication: Vec<ClaimResponseItemAdjudication>,
 }
@@ -3916,6 +3927,7 @@ pub struct ClaimResponseAddItemDetail {
     #[primitive]
     #[doc = "The numbers associated with notes below which apply to the adjudication of this item."]
     pub noteNumber: Option<Vec<Box<FHIRPositiveInt>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The adjudication results."]
     pub adjudication: Vec<ClaimResponseItemAdjudication>,
     #[doc = "The third-tier service adjudications for payor added services."]
@@ -3977,6 +3989,7 @@ pub struct ClaimResponseAddItem {
     #[primitive]
     #[doc = "The numbers associated with notes below which apply to the adjudication of this item."]
     pub noteNumber: Option<Vec<Box<FHIRPositiveInt>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The adjudication results."]
     pub adjudication: Vec<ClaimResponseItemAdjudication>,
     #[doc = "The second-tier service adjudications for payor added services."]
@@ -4386,6 +4399,7 @@ pub struct CodeSystemFilter {
     #[doc = "A description of how or why the filter is used."]
     pub description: Option<Box<FHIRString>>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "A list of operators that can be used with the filter."]
     pub operator: Vec<Box<terminology::FilterOperator>>,
     #[primitive]
@@ -5168,6 +5182,7 @@ pub struct Composition {
     #[primitive]
     #[doc = "The composition editing time, when the composition was last logically changed by the author."]
     pub date: Box<FHIRDateTime>,
+    #[cardinality(min = 1usize)]
     #[doc = "Identifies who is responsible for the information in the composition, not necessarily who typed it in."]
     pub author: Vec<Box<Reference>>,
     #[primitive]
@@ -5372,6 +5387,7 @@ pub struct ConceptMapGroup {
     #[primitive]
     #[doc = "The specific version of the code system, as determined by the code system authority."]
     pub targetVersion: Option<Box<FHIRString>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Mappings for an individual concept in the source to one or more concepts in the target."]
     pub element: Vec<ConceptMapGroupElement>,
     #[doc = "What to do when there is no mapping for the source concept. \"Unmapped\" does not include codes that are unmatched, and the unmapped element is ignored in a code is specified to have equivalence = unmatched."]
@@ -5806,6 +5822,7 @@ pub struct Consent {
     pub status: Box<terminology::ConsentStateCodes>,
     #[doc = "A selector of the type of consent being presented: ADR, Privacy, Treatment, Research.  This list is now extensible."]
     pub scope: Box<CodeableConcept>,
+    #[cardinality(min = 1usize)]
     #[doc = "A classification of the type of consents found in the statement. This element supports indexing and retrieval of consent statements."]
     pub category: Vec<Box<CodeableConcept>>,
     #[doc = "The patient/healthcare consumer to whom this consent applies."]
@@ -5943,6 +5960,7 @@ pub struct ContractTermOfferParty {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Participant in the offer."]
     pub reference: Vec<Box<Reference>>,
     #[doc = "How the party participates in the offer."]
@@ -6208,6 +6226,7 @@ pub struct ContractTermActionSubject {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The entity the action is performed or not performed on or for."]
     pub reference: Vec<Box<Reference>>,
     #[doc = "Role type of agent assigned roles in this Contract."]
@@ -6371,6 +6390,7 @@ pub struct ContractSigner {
     pub type_: Box<Coding>,
     #[doc = "Party which is a signator to this Contract."]
     pub party: Box<Reference>,
+    #[cardinality(min = 1usize)]
     #[doc = "Legally binding Contract DSIG signature contents in Base64."]
     pub signature: Vec<Box<Signature>>,
 }
@@ -6766,6 +6786,7 @@ pub struct Coverage {
     pub relationship: Option<Box<CodeableConcept>>,
     #[doc = "Time period during which the coverage is in force. A missing start date indicates the start date isn't known, a missing end date means the coverage is continuing to be in force."]
     pub period: Option<Box<Period>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The program or plan underwriter or payor including both insurance and non-insurance agreements, such as patient-pay agreements."]
     pub payor: Vec<Box<Reference>>,
     #[doc = "A suite of underwriter specific classifiers."]
@@ -6972,6 +6993,7 @@ pub struct CoverageEligibilityRequest {
     #[doc = "When the requestor expects the processor to complete processing."]
     pub priority: Option<Box<CodeableConcept>>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified."]
     pub purpose: Vec<Box<terminology::EligibilityrequestPurpose>>,
     #[doc = "The party who is the beneficiary of the supplied coverage and for whom eligibility is sought."]
@@ -7218,6 +7240,7 @@ pub struct CoverageEligibilityResponse {
     #[doc = "The status of the resource instance."]
     pub status: Box<terminology::FmStatus>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified."]
     pub purpose: Vec<Box<terminology::EligibilityresponsePurpose>>,
     #[doc = "The party who is the beneficiary of the supplied coverage and for whom eligibility is sought."]
@@ -8373,6 +8396,7 @@ pub struct DocumentManifest {
     #[primitive]
     #[doc = "Human-readable description of the source document. This is sometimes known as the \"title\"."]
     pub description: Option<Box<FHIRString>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The list of Resources that consist of the parts of this manifest."]
     pub content: Vec<Box<Reference>>,
     #[doc = "Related identifiers or resources associated with the DocumentManifest."]
@@ -8518,6 +8542,7 @@ pub struct DocumentReference {
     pub description: Option<Box<FHIRString>>,
     #[doc = "A set of Security-Tag codes specifying the level of privacy/security of the Document. Note that DocumentReference.meta.security contains the security labels of the \"reference\" to the document, while DocumentReference.securityLabel contains a snapshot of the security labels on the document the reference refers to."]
     pub securityLabel: Option<Vec<Box<CodeableConcept>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The document and format referenced. There may be multiple content element repetitions, each with a different format."]
     pub content: Vec<DocumentReferenceContent>,
     #[doc = "The clinical context in which the document was prepared."]
@@ -9082,6 +9107,7 @@ pub struct Endpoint {
     pub contact: Option<Vec<Box<ContactPoint>>>,
     #[doc = "The interval during which the endpoint is expected to be operational."]
     pub period: Option<Box<Period>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The payload type describes the acceptable content that can be communicated on the endpoint."]
     pub payloadType: Vec<Box<CodeableConcept>>,
     #[primitive]
@@ -9415,6 +9441,7 @@ pub struct EventDefinition {
     pub endorser: Option<Vec<Box<ContactDetail>>>,
     #[doc = "Related resources such as additional documentation, justification, or bibliographic references."]
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The trigger element defines when the event occurs. If more than one trigger condition is specified, the event fires whenever any one of the trigger conditions is met."]
     pub trigger: Vec<Box<TriggerDefinition>>,
 }
@@ -9696,6 +9723,7 @@ pub struct EvidenceVariable {
     #[primitive]
     #[doc = "The type of evidence element, a population, an exposure, or an outcome."]
     pub type_: Option<Box<terminology::VariableType>>,
+    #[cardinality(min = 1usize)]
     #[doc = "A characteristic that defines the members of the evidence element. Multiple characteristics are applied with \"and\" semantics."]
     pub characteristic: Vec<EvidenceVariableCharacteristic>,
 }
@@ -11038,6 +11066,7 @@ pub struct ExplanationOfBenefit {
     #[primitive]
     #[doc = "This indicates the relative order of a series of EOBs related to different coverages for the same suite of services."]
     pub precedence: Option<Box<FHIRPositiveInt>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Financial instruments for reimbursement for the health care products and services specified on the claim."]
     pub insurance: Vec<ExplanationOfBenefitInsurance>,
     #[doc = "Details of a accident which resulted in injuries which required the products and services listed in the claim."]
@@ -12674,6 +12703,7 @@ pub struct ImmunizationRecommendation {
     pub date: Box<FHIRDateTime>,
     #[doc = "Indicates the authority who published the protocol (e.g. ACIP)."]
     pub authority: Option<Box<Reference>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Vaccine administration recommendations."]
     pub recommendation: Vec<ImmunizationRecommendationRecommendation>,
 }
@@ -12925,6 +12955,7 @@ pub struct ImplementationGuideDefinition {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "A logical group of resources. Logical groups can be used when building pages."]
     pub grouping: Option<Vec<ImplementationGuideDefinitionGrouping>>,
+    #[cardinality(min = 1usize)]
     #[doc = "A resource that is part of the implementation guide. Conformance resources (value set, structure definition, capability statements etc.) are obvious candidates for inclusion, but any kind of resource can be included as an example resource."]
     pub resource: Vec<ImplementationGuideDefinitionResource>,
     #[doc = "A page / section in the implementation guide. The root page is the implementation guide home page."]
@@ -13025,6 +13056,7 @@ pub struct ImplementationGuideManifest {
     #[primitive]
     #[doc = "A pointer to official web page, PDF or other rendering of the implementation guide."]
     pub rendering: Option<Box<FHIRUrl>>,
+    #[cardinality(min = 1usize)]
     #[doc = "A resource that is part of the implementation guide. Conformance resources (value set, structure definition, capability statements etc.) are obvious candidates for inclusion, but any kind of resource can be included as an example resource."]
     pub resource: Vec<ImplementationGuideManifestResource>,
     #[doc = "Information about a page within the IG."]
@@ -13108,6 +13140,7 @@ pub struct ImplementationGuide {
     #[doc = "The license that applies to this Implementation Guide, using an SPDX license code, or 'not-open-source'."]
     pub license: Option<Box<FHIRCode>>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "The version(s) of the FHIR specification that this ImplementationGuide targets - e.g. describes how to use. The value of this element is the formal version of the specification, without the revision number, e.g. [publication].[major].[minor], which is 4.0.1. for this version."]
     pub fhirVersion: Vec<Box<terminology::FHIRVersion>>,
     #[doc = "Another implementation guide that this implementation depends on. Typically, an implementation guide uses value sets, profiles etc.defined in other implementation guides."]
@@ -13215,6 +13248,7 @@ pub struct InsurancePlanCoverage {
     pub type_: Box<CodeableConcept>,
     #[doc = "Reference to the network that providing the type of coverage."]
     pub network: Option<Vec<Box<Reference>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Specific benefits under this type of coverage."]
     pub benefit: Vec<InsurancePlanCoverageBenefit>,
 }
@@ -13763,6 +13797,7 @@ pub struct Linkage {
     pub active: Option<Box<FHIRBoolean>>,
     #[doc = "Identifies the user or organization responsible for asserting the linkages as well as the user or organization who establishes the context in which the nature of each linkage is evaluated."]
     pub author: Option<Box<Reference>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Identifies which record considered as the reference to the same real-world occurrence as well as how the items should be evaluated within the collection of linked items."]
     pub item: Vec<LinkageItem>,
 }
@@ -15065,6 +15100,7 @@ pub struct MedicationKnowledgeRelatedMedicationKnowledge {
     #[rename_field = "type"]
     #[doc = "The category of the associated medication knowledge reference."]
     pub type_: Box<CodeableConcept>,
+    #[cardinality(min = 1usize)]
     #[doc = "Associated documentation about the associated medication knowledge."]
     pub reference: Vec<Box<Reference>>,
 }
@@ -15205,6 +15241,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesDosage {
     #[rename_field = "type"]
     #[doc = "The type of dosage (for example, prophylaxis, maintenance, therapeutic, etc.)."]
     pub type_: Box<CodeableConcept>,
+    #[cardinality(min = 1usize)]
     #[doc = "Dosage for the medication for the specific guidelines."]
     pub dosage: Vec<Box<Dosage>>,
 }
@@ -16149,6 +16186,7 @@ pub struct MedicinalProduct {
     pub contact: Option<Vec<Box<Reference>>>,
     #[doc = "Clinical trials or studies that this product is involved in."]
     pub clinicalTrial: Option<Vec<Box<Reference>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The product's name, including full name and possibly coded parts."]
     pub name: Vec<MedicinalProductName>,
     #[doc = "Reference to another product, e.g. for linking authorised to investigational product."]
@@ -16879,6 +16917,7 @@ pub struct MedicinalProductPackaged {
     pub manufacturer: Option<Vec<Box<Reference>>>,
     #[doc = "Batch numbering."]
     pub batchIdentifier: Option<Vec<MedicinalProductPackagedBatchIdentifier>>,
+    #[cardinality(min = 1usize)]
     #[doc = "A packaging item, as a contained for medicine, possibly with other packaging items within."]
     pub packageItem: Vec<MedicinalProductPackagedPackageItem>,
 }
@@ -17028,6 +17067,7 @@ pub struct MedicinalProductPharmaceutical {
     pub device: Option<Vec<Box<Reference>>>,
     #[doc = "Characteristics e.g. a products onset of action."]
     pub characteristics: Option<Vec<MedicinalProductPharmaceuticalCharacteristics>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The path by which the pharmaceutical product is taken into or makes contact with the body."]
     pub routeOfAdministration: Vec<MedicinalProductPharmaceuticalRouteOfAdministration>,
 }
@@ -17853,6 +17893,7 @@ pub struct NamingSystem {
     #[primitive]
     #[doc = "Provides guidance on the use of the namespace, including the handling of formatting characters, use of upper vs. lower case, etc."]
     pub usage: Option<Box<FHIRString>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Indicates how the system may be identified when referenced in electronic exchange."]
     pub uniqueId: Vec<NamingSystemUniqueId>,
 }
@@ -18751,6 +18792,7 @@ pub struct OperationOutcome {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "An error, warning, or information message that results from a system action."]
     pub issue: Vec<OperationOutcomeIssue>,
 }
@@ -20378,6 +20420,7 @@ pub struct Provenance {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The Reference(s) that were generated or updated by  the activity described in this resource. A provenance can point to more than one target if multiple resources were created/updated by the same activity."]
     pub target: Vec<Box<Reference>>,
     # [type_choice_variants (complex = ["occurredPeriod"] , primitive = ["occurredDateTime"])]
@@ -20395,6 +20438,7 @@ pub struct Provenance {
     pub reason: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "An activity is something that occurs over a period of time and acts upon or with entities; it may include consuming, processing, transforming, modifying, relocating, using, or generating entities."]
     pub activity: Option<Box<CodeableConcept>>,
+    #[cardinality(min = 1usize)]
     #[doc = "An actor taking a role in an activity  for which it can be assigned some degree of responsibility for the activity taking place."]
     pub agent: Vec<ProvenanceAgent>,
     #[doc = "An entity used in this activity."]
@@ -21539,6 +21583,7 @@ pub struct ResearchElementDefinition {
     #[primitive]
     #[doc = "The type of the outcome (e.g. Dichotomous, Continuous, or Descriptive)."]
     pub variableType: Option<Box<terminology::VariableType>>,
+    #[cardinality(min = 1usize)]
     #[doc = "A characteristic that defines the members of the research element. Multiple characteristics are applied with \"and\" semantics."]
     pub characteristic: Vec<ResearchElementDefinitionCharacteristic>,
 }
@@ -22169,6 +22214,7 @@ pub struct Schedule {
     pub serviceType: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The specialty of a practitioner that would be required to perform the service requested in this appointment."]
     pub specialty: Option<Vec<Box<CodeableConcept>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Slots that reference this schedule resource provide the availability details to these referenced resource(s)."]
     pub actor: Vec<Box<Reference>>,
     #[doc = "The period of time that the slots that reference this Schedule resource cover (even if none exist). These  cover the amount of time that an organization's planning horizon; the interval for which they are currently accepting appointments. This does not define a \"template\" for planning outside these dates."]
@@ -22270,6 +22316,7 @@ pub struct SearchParameter {
     #[doc = "The code used in the URL or the parameter name in a parameters resource for this search parameter."]
     pub code: Box<FHIRCode>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "The base resource type(s) that this search parameter can be used against."]
     pub base: Vec<Box<FHIRCode>>,
     #[rename_field = "type"]
@@ -23036,6 +23083,7 @@ pub struct StructureDefinitionSnapshot {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Captures constraints on each element within the resource."]
     pub element: Vec<Box<ElementDefinition>>,
 }
@@ -23056,6 +23104,7 @@ pub struct StructureDefinitionDifferential {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Captures constraints on each element within the resource."]
     pub element: Vec<Box<ElementDefinition>>,
 }
@@ -23449,6 +23498,7 @@ pub struct StructureMapGroupRuleDependent {
     #[doc = "Name of a rule or group to apply."]
     pub name: Box<FHIRId>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "Variable to pass to the rule or group."]
     pub variable: Vec<Box<FHIRString>>,
 }
@@ -23472,6 +23522,7 @@ pub struct StructureMapGroupRule {
     #[primitive]
     #[doc = "Name of the rule for internal references."]
     pub name: Box<FHIRId>,
+    #[cardinality(min = 1usize)]
     #[doc = "Source inputs to the mapping."]
     pub source: Vec<StructureMapGroupRuleSource>,
     #[doc = "Content to create because of this mapping rule."]
@@ -23513,8 +23564,10 @@ pub struct StructureMapGroup {
     #[primitive]
     #[doc = "Additional supporting documentation that explains the purpose of the group and the types of mappings within it."]
     pub documentation: Option<Box<FHIRString>>,
+    #[cardinality(min = 1usize)]
     #[doc = "A name assigned to an instance of data. The instance must be provided when the mapping is invoked."]
     pub input: Vec<StructureMapGroupInput>,
+    #[cardinality(min = 1usize)]
     #[doc = "Transform Rule from source to target."]
     pub rule: Vec<StructureMapGroupRule>,
 }
@@ -23594,6 +23647,7 @@ pub struct StructureMap {
     #[primitive]
     #[doc = "Other maps used by this map (canonical URLs)."]
     pub import: Option<Vec<Box<FHIRString>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Organizes the mapping into manageable chunks for human review/ease of maintenance."]
     pub group: Vec<StructureMapGroup>,
 }
@@ -25718,6 +25772,7 @@ pub struct TerminologyCapabilitiesCodeSystemVersionFilter {
     #[doc = "Code of the property supported."]
     pub code: Box<FHIRCode>,
     #[primitive]
+    #[cardinality(min = 1usize)]
     #[doc = "Operations supported for the property."]
     pub op: Vec<Box<FHIRCode>>,
 }
@@ -26114,6 +26169,7 @@ pub struct TestReportSetup {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Action would contain either an operation or an assertion."]
     pub action: Vec<TestReportSetupAction>,
 }
@@ -26162,6 +26218,7 @@ pub struct TestReportTest {
     #[primitive]
     #[doc = "A short description of the test used by test engines for tracking and reporting purposes."]
     pub description: Option<Box<FHIRString>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Action would contain either an operation or an assertion."]
     pub action: Vec<TestReportTestAction>,
 }
@@ -26202,6 +26259,7 @@ pub struct TestReportTeardown {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The teardown action will only contain an operation."]
     pub action: Vec<TestReportTeardownAction>,
 }
@@ -26394,6 +26452,7 @@ pub struct TestScriptMetadata {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "A link to the FHIR specification that this test is covering."]
     pub link: Option<Vec<TestScriptMetadataLink>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Capabilities that must exist and are assumed to function correctly on the FHIR server being tested."]
     pub capability: Vec<TestScriptMetadataCapability>,
 }
@@ -26680,6 +26739,7 @@ pub struct TestScriptSetup {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Action would contain either an operation or an assertion."]
     pub action: Vec<TestScriptSetupAction>,
 }
@@ -26728,6 +26788,7 @@ pub struct TestScriptTest {
     #[primitive]
     #[doc = "A short description of the test used by test engines for tracking and reporting purposes."]
     pub description: Option<Box<FHIRString>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Action would contain either an operation or an assertion."]
     pub action: Vec<TestScriptTestAction>,
 }
@@ -26768,6 +26829,7 @@ pub struct TestScriptTeardown {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 1usize)]
     #[doc = "The teardown action will only contain an operation."]
     pub action: Vec<TestScriptTeardownAction>,
 }
@@ -26995,6 +27057,7 @@ pub struct ValueSetCompose {
     #[primitive]
     #[doc = "Whether inactive codes - codes that are not approved for current use - are in the value set. If inactive = true, inactive codes are to be included in the expansion, if inactive = false, the inactive codes will not be included in the expansion. If absent, the behavior is determined by the implementation, or by the applicable $expand parameters (but generally, inactive codes would be expected to be included)."]
     pub inactive: Option<Box<FHIRBoolean>>,
+    #[cardinality(min = 1usize)]
     #[doc = "Include one or more codes from a code system or other value set(s)."]
     pub include: Vec<ValueSetComposeInclude>,
     #[doc = "Exclude one or more codes from the value set based on code system filters and/or other value sets."]
@@ -27488,6 +27551,7 @@ pub struct VisionPrescription {
     pub dateWritten: Box<FHIRDateTime>,
     #[doc = "The healthcare professional responsible for authorizing the prescription."]
     pub prescriber: Box<Reference>,
+    #[cardinality(min = 1usize)]
     #[doc = "Contain the details of  the individual lens specifications and serves as the authorization for the fullfillment by certified professionals."]
     pub lensSpecification: Vec<VisionPrescriptionLensSpecification>,
 }
