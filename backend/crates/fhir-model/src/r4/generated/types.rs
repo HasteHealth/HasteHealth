@@ -19,6 +19,7 @@ use std::io::Write;
 pub struct Element {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
 }
@@ -35,8 +36,10 @@ pub struct Element {
 pub struct BackboneElement {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
 }
@@ -53,6 +56,7 @@ pub struct BackboneElement {
 pub struct FHIRBase64Binary {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -71,6 +75,7 @@ pub struct FHIRBase64Binary {
 pub struct FHIRBoolean {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -89,6 +94,7 @@ pub struct FHIRBoolean {
 pub struct FHIRCanonical {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for canonical"]
@@ -107,6 +113,7 @@ pub struct FHIRCanonical {
 pub struct FHIRCode {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for code"]
@@ -125,6 +132,7 @@ pub struct FHIRCode {
 pub struct FHIRDate {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -143,6 +151,7 @@ pub struct FHIRDate {
 pub struct FHIRDateTime {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -161,6 +170,7 @@ pub struct FHIRDateTime {
 pub struct FHIRDecimal {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -179,6 +189,7 @@ pub struct FHIRDecimal {
 pub struct FHIRId {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for id"]
@@ -197,6 +208,7 @@ pub struct FHIRId {
 pub struct FHIRInstant {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -215,6 +227,7 @@ pub struct FHIRInstant {
 pub struct FHIRInteger {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -233,6 +246,7 @@ pub struct FHIRInteger {
 pub struct FHIRMarkdown {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for markdown"]
@@ -251,6 +265,7 @@ pub struct FHIRMarkdown {
 pub struct FHIROid {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for oid"]
@@ -269,6 +284,7 @@ pub struct FHIROid {
 pub struct FHIRPositiveInt {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for positiveInt"]
@@ -287,6 +303,7 @@ pub struct FHIRPositiveInt {
 pub struct FHIRString {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -305,6 +322,7 @@ pub struct FHIRString {
 pub struct FHIRTime {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -323,6 +341,7 @@ pub struct FHIRTime {
 pub struct FHIRUnsignedInt {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for unsignedInt"]
@@ -341,6 +360,7 @@ pub struct FHIRUnsignedInt {
 pub struct FHIRUri {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The actual value"]
@@ -359,6 +379,7 @@ pub struct FHIRUri {
 pub struct FHIRUrl {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for url"]
@@ -377,6 +398,7 @@ pub struct FHIRUrl {
 pub struct FHIRUuid {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Primitive value for uuid"]
@@ -395,6 +417,7 @@ pub struct FHIRUuid {
 pub struct FHIRXhtml {
     #[doc = "unique id for the element within a resource (for internal references)"]
     pub id: Option<String>,
+    #[cardinality(min = 0usize, max = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Actual xhtml"]
@@ -413,6 +436,7 @@ pub struct FHIRXhtml {
 pub struct Address {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "use"]
@@ -427,6 +451,7 @@ pub struct Address {
     #[doc = "Specifies the entire address as it should be displayed e.g. on a postal label. This may be provided instead of or as well as the specific parts."]
     pub text: Option<Box<FHIRString>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "This component contains the house number, apartment number, street name, street direction,  P.O. Box number, delivery hints, and similar address information."]
     pub line: Option<Vec<Box<FHIRString>>>,
     #[primitive]
@@ -460,6 +485,7 @@ pub struct Address {
 pub struct Age {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -509,6 +535,7 @@ impl Default for AnnotationAuthorTypeChoice {
 pub struct Annotation {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["authorReference"] , primitive = ["authorString"])]
@@ -534,6 +561,7 @@ pub struct Annotation {
 pub struct Attachment {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -574,8 +602,10 @@ pub struct Attachment {
 pub struct CodeableConcept {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "A reference to a code defined by a terminology system."]
     pub coding: Option<Vec<Box<Coding>>>,
     #[primitive]
@@ -595,6 +625,7 @@ pub struct CodeableConcept {
 pub struct Coding {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -626,11 +657,13 @@ pub struct Coding {
 pub struct ContactDetail {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The name of an individual to contact."]
     pub name: Option<Box<FHIRString>>,
+    #[cardinality(min = 0usize)]
     #[doc = "The contact details for the individual (if a name was provided) or the organization."]
     pub telecom: Option<Vec<Box<ContactPoint>>>,
 }
@@ -647,6 +680,7 @@ pub struct ContactDetail {
 pub struct ContactPoint {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -678,6 +712,7 @@ pub struct ContactPoint {
 pub struct Contributor {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
@@ -687,6 +722,7 @@ pub struct Contributor {
     #[primitive]
     #[doc = "The name of the individual or organization responsible for the contribution."]
     pub name: Box<FHIRString>,
+    #[cardinality(min = 0usize)]
     #[doc = "Contact details to assist a user in finding and communicating with the contributor."]
     pub contact: Option<Vec<Box<ContactDetail>>>,
 }
@@ -703,6 +739,7 @@ pub struct Contributor {
 pub struct Count {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -752,6 +789,7 @@ impl Default for DataRequirementSubjectTypeChoice {
 pub struct DataRequirementCodeFilter {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -763,6 +801,7 @@ pub struct DataRequirementCodeFilter {
     #[primitive]
     #[doc = "The valueset for the code filter. The valueSet and code elements are additive. If valueSet is specified, the filter will return only those data items for which the value of the code-valued element specified in the path is a member of the specified valueset."]
     pub valueSet: Option<Box<FHIRString>>,
+    #[cardinality(min = 0usize)]
     #[doc = "The codes for the code filter. If values are given, the filter will return only those data items for which the code-valued attribute specified by the path has a value that is one of the specified codes. If codes are specified in addition to a value set, the filter returns items matching a code in the value set or one of the specified codes."]
     pub code: Option<Vec<Box<Coding>>>,
 }
@@ -798,6 +837,7 @@ impl Default for DataRequirementDateFilterValueTypeChoice {
 pub struct DataRequirementDateFilter {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -823,6 +863,7 @@ pub struct DataRequirementDateFilter {
 pub struct DataRequirementSort {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -845,6 +886,7 @@ pub struct DataRequirementSort {
 pub struct DataRequirement {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
@@ -852,21 +894,26 @@ pub struct DataRequirement {
     #[doc = "The type of the required data, specified as the type name of a resource. For profiles, this value is set to the type of the base resource of the profile."]
     pub type_: Box<FHIRCode>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "The profile of the required data, specified as the uri of the profile definition."]
     pub profile: Option<Vec<Box<FHIRString>>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
     #[doc = "The intended subjects of the data requirement. If this element is not provided, a Patient subject is assumed."]
     pub subject: Option<DataRequirementSubjectTypeChoice>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Indicates that specific elements of the type are referenced by the knowledge module and must be supported by the consumer in order to obtain an effective evaluation. This does not mean that a value is required for this element, only that the consuming system must understand the element and be able to provide values for it if they are available. \n\nThe value of mustSupport SHALL be a FHIRPath resolveable on the type of the DataRequirement. The path SHALL consist only of identifiers, constant indexers, and .resolve() (see the [Simple FHIRPath Profile](fhirpath.html#simple) for full details)."]
     pub mustSupport: Option<Vec<Box<FHIRString>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Code filters specify additional constraints on the data, specifying the value set of interest for a particular element of the data. Each code filter defines an additional constraint on the data, i.e. code filters are AND'ed, not OR'ed."]
     pub codeFilter: Option<Vec<DataRequirementCodeFilter>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Date filters specify additional constraints on the data in terms of the applicable date range for specific elements. Each date filter specifies an additional constraint on the data, i.e. date filters are AND'ed, not OR'ed."]
     pub dateFilter: Option<Vec<DataRequirementDateFilter>>,
     #[primitive]
     #[doc = "Specifies a maximum number of results that are required (uses the _count search parameter)."]
     pub limit: Option<Box<FHIRPositiveInt>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Specifies the order of the results to be returned."]
     pub sort: Option<Vec<DataRequirementSort>>,
 }
@@ -883,6 +930,7 @@ pub struct DataRequirement {
 pub struct Distance {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -969,6 +1017,7 @@ impl Default for DosageDoseAndRateRateTypeChoice {
 pub struct DosageDoseAndRate {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
@@ -994,8 +1043,10 @@ pub struct DosageDoseAndRate {
 pub struct Dosage {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1004,6 +1055,7 @@ pub struct Dosage {
     #[primitive]
     #[doc = "Free text dosage instructions e.g. SIG."]
     pub text: Option<Box<FHIRString>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Supplemental instructions to the patient on how to take the medication  (e.g. \"with meals\" or\"take half to one hour before food\") or warnings for the patient about the medication (e.g. \"may cause drowsiness\" or \"avoid exposure of skin to direct sunlight or sunlamps\")."]
     pub additionalInstruction: Option<Vec<Box<CodeableConcept>>>,
     #[primitive]
@@ -1020,6 +1072,7 @@ pub struct Dosage {
     pub route: Option<Box<CodeableConcept>>,
     #[doc = "Technique for administering medication."]
     pub method: Option<Box<CodeableConcept>>,
+    #[cardinality(min = 0usize)]
     #[doc = "The amount of medication administered."]
     pub doseAndRate: Option<Vec<DosageDoseAndRate>>,
     #[doc = "Upper limit on medication per unit of time."]
@@ -1042,6 +1095,7 @@ pub struct Dosage {
 pub struct Duration {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1073,6 +1127,7 @@ pub struct Duration {
 pub struct ElementDefinitionSlicingDiscriminator {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
@@ -1096,8 +1151,10 @@ pub struct ElementDefinitionSlicingDiscriminator {
 pub struct ElementDefinitionSlicing {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Designates which child elements are used to discriminate between the slices when processing an instance. If one or more discriminators are provided, the value of the child elements in the instance data SHALL completely distinguish which slice the element in the resource matches based on the allowed values for those elements in each of the slices."]
     pub discriminator: Option<Vec<ElementDefinitionSlicingDiscriminator>>,
     #[primitive]
@@ -1123,6 +1180,7 @@ pub struct ElementDefinitionSlicing {
 pub struct ElementDefinitionBase {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1148,18 +1206,22 @@ pub struct ElementDefinitionBase {
 pub struct ElementDefinitionType {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition e.g. \"string\" is a reference to http://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models."]
     pub code: Box<FHIRUri>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Identifies a profile structure or implementation Guide that applies to the datatype this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the type SHALL conform to at least one profile defined in the implementation guide."]
     pub profile: Option<Vec<Box<FHIRString>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide."]
     pub targetProfile: Option<Vec<Box<FHIRString>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "If the type is a reference to another resource, how the resource is or can be aggregated - is it a contained resource, or a reference, and if the context is a bundle, is it included in the bundle."]
     pub aggregation: Option<Vec<Box<terminology::ResourceAggregationMode>>>,
     #[primitive]
@@ -1443,6 +1505,7 @@ impl Default for ElementDefinitionExampleValueTypeChoice {
 pub struct ElementDefinitionExample {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1515,6 +1578,7 @@ impl Default for ElementDefinitionMaxValueTypeChoice {
 pub struct ElementDefinitionConstraint {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1552,6 +1616,7 @@ pub struct ElementDefinitionConstraint {
 pub struct ElementDefinitionBinding {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1577,6 +1642,7 @@ pub struct ElementDefinitionBinding {
 pub struct ElementDefinitionMapping {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1605,14 +1671,17 @@ pub struct ElementDefinitionMapping {
 pub struct ElementDefinition {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The path identifies the element and is expressed as a \".\"-separated list of ancestor elements, beginning with the name of the resource or extension."]
     pub path: Box<FHIRString>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Codes that define how this element is represented in instances, when the deviation varies from the normal case."]
     pub representation: Option<Vec<Box<terminology::PropertyRepresentation>>>,
     #[primitive]
@@ -1624,6 +1693,7 @@ pub struct ElementDefinition {
     #[primitive]
     #[doc = "A single preferred label which is the text to display beside the element indicating its meaning or to use to prompt for the element in a user display or form."]
     pub label: Option<Box<FHIRString>>,
+    #[cardinality(min = 0usize)]
     #[doc = "A code that has the same meaning as the element in a particular terminology."]
     pub code: Option<Vec<Box<Coding>>>,
     #[doc = "Indicates that the element is sliced into a set of alternative definitions (i.e. in a structure definition, there are multiple different constraints on a single element in the base resource). Slicing can be used in any resource that has cardinality ..* on the base resource, or any resource with a choice of types. The set of slices is any elements that come after this in the element sequence that have the same path, until a shorter path occurs (the shorter path terminates the set)."]
@@ -1641,6 +1711,7 @@ pub struct ElementDefinition {
     #[doc = "This element is for traceability of why the element was created and why the constraints exist as they do. This may be used to point to source materials or specifications that drove the structure of this element."]
     pub requirements: Option<Box<FHIRMarkdown>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Identifies additional names by which this element might also be known."]
     pub alias: Option<Vec<Box<FHIRString>>>,
     #[primitive]
@@ -1655,6 +1726,7 @@ pub struct ElementDefinition {
     #[doc = "Identifies an element defined elsewhere in the definition whose content rules should be applied to the current element. ContentReferences bring across all the rules that are in the ElementDefinition for the element, including definitions, cardinality constraints, bindings, invariants etc."]
     pub contentReference: Option<Box<FHIRUri>>,
     #[rename_field = "type"]
+    #[cardinality(min = 0usize)]
     #[doc = "The data type or resource that the value of this element is permitted to be."]
     pub type_: Option<Vec<ElementDefinitionType>>,
     # [type_choice_variants (complex = ["defaultValueAddress" , "defaultValueAge" , "defaultValueAnnotation" , "defaultValueAttachment" , "defaultValueCodeableConcept" , "defaultValueCoding" , "defaultValueContactPoint" , "defaultValueCount" , "defaultValueDistance" , "defaultValueDuration" , "defaultValueHumanName" , "defaultValueIdentifier" , "defaultValueMoney" , "defaultValuePeriod" , "defaultValueQuantity" , "defaultValueRange" , "defaultValueRatio" , "defaultValueReference" , "defaultValueSampledData" , "defaultValueSignature" , "defaultValueTiming" , "defaultValueContactDetail" , "defaultValueContributor" , "defaultValueDataRequirement" , "defaultValueExpression" , "defaultValueParameterDefinition" , "defaultValueRelatedArtifact" , "defaultValueTriggerDefinition" , "defaultValueUsageContext" , "defaultValueDosage" , "defaultValueMeta"] , primitive = ["defaultValueBase64Binary" , "defaultValueBoolean" , "defaultValueCanonical" , "defaultValueCode" , "defaultValueDate" , "defaultValueDateTime" , "defaultValueDecimal" , "defaultValueId" , "defaultValueInstant" , "defaultValueInteger" , "defaultValueMarkdown" , "defaultValueOid" , "defaultValuePositiveInt" , "defaultValueString" , "defaultValueTime" , "defaultValueUnsignedInt" , "defaultValueUri" , "defaultValueUrl" , "defaultValueUuid"])]
@@ -1672,6 +1744,7 @@ pub struct ElementDefinition {
     # [type_choice_variants (complex = ["patternAddress" , "patternAge" , "patternAnnotation" , "patternAttachment" , "patternCodeableConcept" , "patternCoding" , "patternContactPoint" , "patternCount" , "patternDistance" , "patternDuration" , "patternHumanName" , "patternIdentifier" , "patternMoney" , "patternPeriod" , "patternQuantity" , "patternRange" , "patternRatio" , "patternReference" , "patternSampledData" , "patternSignature" , "patternTiming" , "patternContactDetail" , "patternContributor" , "patternDataRequirement" , "patternExpression" , "patternParameterDefinition" , "patternRelatedArtifact" , "patternTriggerDefinition" , "patternUsageContext" , "patternDosage" , "patternMeta"] , primitive = ["patternBase64Binary" , "patternBoolean" , "patternCanonical" , "patternCode" , "patternDate" , "patternDateTime" , "patternDecimal" , "patternId" , "patternInstant" , "patternInteger" , "patternMarkdown" , "patternOid" , "patternPositiveInt" , "patternString" , "patternTime" , "patternUnsignedInt" , "patternUri" , "patternUrl" , "patternUuid"])]
     #[doc = "Specifies a value that the value in the instance SHALL follow - that is, any value in the pattern must be found in the instance. Other additional values may be found too. This is effectively constraint by example.  \n\nWhen pattern[x] is used to constrain a primitive, it means that the value provided in the pattern[x] must match the instance value exactly.\n\nWhen pattern[x] is used to constrain an array, it means that each element provided in the pattern[x] array must (recursively) match at least one element from the instance array.\n\nWhen pattern[x] is used to constrain a complex object, it means that each property in the pattern must be present in the complex object, and its value must recursively match -- i.e.,\n\n1. If primitive: it must match exactly the pattern value\n2. If a complex object: it must match (recursively) the pattern value\n3. If an array: it must match (recursively) the pattern value."]
     pub pattern: Option<ElementDefinitionPatternTypeChoice>,
+    #[cardinality(min = 0usize)]
     #[doc = "A sample value for this element demonstrating the type of information that would typically be found in the element."]
     pub example: Option<Vec<ElementDefinitionExample>>,
     # [type_choice_variants (complex = ["minValueQuantity"] , primitive = ["minValueDate" , "minValueDateTime" , "minValueInstant" , "minValueTime" , "minValueDecimal" , "minValueInteger" , "minValuePositiveInt" , "minValueUnsignedInt"])]
@@ -1684,8 +1757,10 @@ pub struct ElementDefinition {
     #[doc = "Indicates the maximum length in characters that is permitted to be present in conformant instances and which is expected to be supported by conformant consumers that support the element."]
     pub maxLength: Option<Box<FHIRInteger>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "A reference to an invariant that may make additional statements about the cardinality or value in the instance."]
     pub condition: Option<Vec<Box<FHIRId>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Formal constraints such as co-occurrence and other constraints that can be computationally evaluated within the context of the instance."]
     pub constraint: Option<Vec<ElementDefinitionConstraint>>,
     #[primitive]
@@ -1702,6 +1777,7 @@ pub struct ElementDefinition {
     pub isSummary: Option<Box<FHIRBoolean>>,
     #[doc = "Binds to a value set if this element is coded (code, Coding, CodeableConcept, Quantity), or the data types (string, uri)."]
     pub binding: Option<ElementDefinitionBinding>,
+    #[cardinality(min = 0usize)]
     #[doc = "Identifies a concept from an external specification that roughly corresponds to this element."]
     pub mapping: Option<Vec<ElementDefinitionMapping>>,
 }
@@ -1718,6 +1794,7 @@ pub struct ElementDefinition {
 pub struct Expression {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1815,6 +1892,7 @@ impl Default for ExtensionValueTypeChoice {
 pub struct Extension {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Source of the definition for the extension code - a logical name or a URL."]
@@ -1836,6 +1914,7 @@ pub struct Extension {
 pub struct HumanName {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "use"]
@@ -1849,12 +1928,15 @@ pub struct HumanName {
     #[doc = "The part of a name that links to the genealogy. In some cultures (e.g. Eritrea) the family name of a son is the first name of his father."]
     pub family: Option<Box<FHIRString>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Given name."]
     pub given: Option<Vec<Box<FHIRString>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Part of the name that is acquired as a title due to academic, legal, employment or nobility status, etc. and that appears at the start of the name."]
     pub prefix: Option<Vec<Box<FHIRString>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Part of the name that is acquired as a title due to academic, legal, employment or nobility status, etc. and that appears at the end of the name."]
     pub suffix: Option<Vec<Box<FHIRString>>>,
     #[doc = "Indicates the period of time when this name was valid for the named person."]
@@ -1873,6 +1955,7 @@ pub struct HumanName {
 pub struct Identifier {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "use"]
@@ -1906,8 +1989,10 @@ pub struct Identifier {
 pub struct MarketingStatus {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "The country in which the marketing authorisation has been granted shall be specified It should be specified using the ISO 3166 ‑ 1 alpha-2 code elements."]
@@ -1935,6 +2020,7 @@ pub struct MarketingStatus {
 pub struct Meta {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1947,10 +2033,13 @@ pub struct Meta {
     #[doc = "A uri that identifies the source system of the resource. This provides a minimal amount of [Provenance](provenance.html#) information that can be used to track or differentiate the source of information in the resource. The source may identify another FHIR server, document, message, database, etc."]
     pub source: Option<Box<FHIRUri>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "A list of profiles (references to [StructureDefinition](structuredefinition.html#) resources) that this resource claims to conform to. The URL is a reference to [StructureDefinition.url](structuredefinition-definitions.html#StructureDefinition.url)."]
     pub profile: Option<Vec<Box<FHIRString>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Security labels applied to this resource. These tags connect specific resources to the overall security policy and infrastructure."]
     pub security: Option<Vec<Box<Coding>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Tags applied to this resource. Tags are intended to be used to identify and relate resources to process and workflow, and applications are not required to consider the tags when interpreting the meaning of a resource."]
     pub tag: Option<Vec<Box<Coding>>>,
 }
@@ -1967,6 +2056,7 @@ pub struct Meta {
 pub struct Money {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -1989,6 +2079,7 @@ pub struct Money {
 pub struct Narrative {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -2011,6 +2102,7 @@ pub struct Narrative {
 pub struct ParameterDefinition {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -2050,6 +2142,7 @@ pub struct ParameterDefinition {
 pub struct Period {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -2090,8 +2183,10 @@ impl Default for PopulationAgeTypeChoice {
 pub struct Population {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["ageRange" , "ageCodeableConcept"] , primitive = [])]
@@ -2117,8 +2212,10 @@ pub struct Population {
 pub struct ProdCharacteristic {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Where applicable, the height can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used."]
@@ -2137,11 +2234,14 @@ pub struct ProdCharacteristic {
     #[doc = "Where applicable, the shape can be specified An appropriate controlled vocabulary shall be used The term and the term identifier shall be used."]
     pub shape: Option<Box<FHIRString>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Where applicable, the color can be specified An appropriate controlled vocabulary shall be used The term and the term identifier shall be used."]
     pub color: Option<Vec<Box<FHIRString>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Where applicable, the imprint can be specified as text."]
     pub imprint: Option<Vec<Box<FHIRString>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Where applicable, the image can be provided The format of the image attachment shall be specified by regional implementations."]
     pub image: Option<Vec<Box<Attachment>>>,
     #[doc = "Where applicable, the scoring can be specified An appropriate controlled vocabulary shall be used The term and the term identifier shall be used."]
@@ -2160,8 +2260,10 @@ pub struct ProdCharacteristic {
 pub struct ProductShelfLife {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[rename_field = "identifier"]
@@ -2172,6 +2274,7 @@ pub struct ProductShelfLife {
     pub type_: Box<CodeableConcept>,
     #[doc = "The shelf life time period can be specified using a numerical value for the period of time and its unit of time measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used."]
     pub period: Box<Quantity>,
+    #[cardinality(min = 0usize)]
     #[doc = "Special precautions for storage, if any, can be specified using an appropriate controlled vocabulary The controlled term and the controlled term identifier shall be specified."]
     pub specialPrecautionsForStorage: Option<Vec<Box<CodeableConcept>>>,
 }
@@ -2188,6 +2291,7 @@ pub struct ProductShelfLife {
 pub struct Quantity {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -2219,6 +2323,7 @@ pub struct Quantity {
 pub struct Range {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The low limit. The boundary is inclusive."]
@@ -2239,6 +2344,7 @@ pub struct Range {
 pub struct Ratio {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The value of the numerator."]
@@ -2259,6 +2365,7 @@ pub struct Ratio {
 pub struct Reference {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -2288,6 +2395,7 @@ pub struct Reference {
 pub struct RelatedArtifact {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
@@ -2325,6 +2433,7 @@ pub struct RelatedArtifact {
 pub struct SampledData {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "The base quantity that a measured value of zero represents. In addition, this provides the units of the entire measurement series."]
@@ -2361,9 +2470,11 @@ pub struct SampledData {
 pub struct Signature {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
+    #[cardinality(min = 1usize)]
     #[doc = "An indication of the reason that the entity signed this document. This may be explicitly included as part of the signature information and can be used when determining accountability for various actions concerning the document."]
     pub type_: Vec<Box<Coding>>,
     #[primitive]
@@ -2415,6 +2526,7 @@ impl Default for SubstanceAmountAmountTypeChoice {
 pub struct SubstanceAmountReferenceRange {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "Lower limit possible or expected."]
@@ -2435,8 +2547,10 @@ pub struct SubstanceAmountReferenceRange {
 pub struct SubstanceAmount {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["amountQuantity" , "amountRange"] , primitive = ["amountString"])]
@@ -2482,6 +2596,7 @@ impl Default for TimingRepeatBoundsTypeChoice {
 pub struct TimingRepeat {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["boundsDuration" , "boundsRange" , "boundsPeriod"] , primitive = [])]
@@ -2518,12 +2633,15 @@ pub struct TimingRepeat {
     #[doc = "The units of time for the period in UCUM units."]
     pub periodUnit: Option<Box<terminology::UnitsOfTime>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "If one or more days of week is provided, then the action happens only on the specified day(s)."]
     pub dayOfWeek: Option<Vec<Box<terminology::DaysOfWeek>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Specified time of day for action to take place."]
     pub timeOfDay: Option<Vec<Box<FHIRTime>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "An approximate time period during the day, potentially linked to an event of daily living that indicates when the action should occur."]
     pub when: Option<Vec<Box<terminology::EventTiming>>>,
     #[primitive]
@@ -2543,11 +2661,14 @@ pub struct TimingRepeat {
 pub struct Timing {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
+    #[cardinality(min = 0usize)]
     #[doc = "Identifies specific times when the event occurs."]
     pub event: Option<Vec<Box<FHIRDateTime>>>,
     #[doc = "A set of rules that describe when the event is scheduled."]
@@ -2588,6 +2709,7 @@ impl Default for TriggerDefinitionTimingTypeChoice {
 pub struct TriggerDefinition {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[rename_field = "type"]
@@ -2600,6 +2722,7 @@ pub struct TriggerDefinition {
     # [type_choice_variants (complex = ["timingTiming" , "timingReference"] , primitive = ["timingDate" , "timingDateTime"])]
     #[doc = "The timing of the event (if this is a periodic trigger)."]
     pub timing: Option<TriggerDefinitionTimingTypeChoice>,
+    #[cardinality(min = 0usize)]
     #[doc = "The triggering data of the event (if this is a data trigger). If more than one data is requirement is specified, then all the data requirements must be true."]
     pub data: Option<Vec<Box<DataRequirement>>>,
     #[doc = "A boolean-valued expression that is evaluated in the context of the container of the trigger definition and returns whether or not the trigger fires."]
@@ -2638,6 +2761,7 @@ impl Default for UsageContextValueTypeChoice {
 pub struct UsageContext {
     #[doc = "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."]
     pub id: Option<String>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "A code that identifies the type of context being specified by this usage context."]
@@ -2669,10 +2793,13 @@ pub struct MetadataResource {
     pub language: Option<Box<FHIRCode>>,
     #[doc = "A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it \"clinically safe\" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety."]
     pub text: Option<Box<Narrative>>,
+    #[cardinality(min = 0usize)]
     #[doc = "These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope."]
     pub contained: Option<Vec<Box<Resource>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
@@ -2699,13 +2826,16 @@ pub struct MetadataResource {
     #[primitive]
     #[doc = "The name of the organization or individual that published the metadata resource."]
     pub publisher: Option<Box<FHIRString>>,
+    #[cardinality(min = 0usize)]
     #[doc = "Contact details to assist a user in finding and communicating with the publisher."]
     pub contact: Option<Vec<Box<ContactDetail>>>,
     #[primitive]
     #[doc = "A free text natural language description of the metadata resource from a consumer's perspective."]
     pub description: Option<Box<FHIRMarkdown>>,
+    #[cardinality(min = 0usize)]
     #[doc = "The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate metadata resource instances."]
     pub useContext: Option<Vec<Box<UsageContext>>>,
+    #[cardinality(min = 0usize)]
     #[doc = "A legal or geographic region in which the metadata resource is intended to be used."]
     pub jurisdiction: Option<Vec<Box<CodeableConcept>>>,
 }

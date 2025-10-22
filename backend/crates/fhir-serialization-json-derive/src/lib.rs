@@ -37,7 +37,9 @@ fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
          // Used on field itself for variants.
         type_choice_variants,
         primitive,
-        code
+        code,
+        // For validation on vector min maxes.
+        cardinality
     )
 )]
 pub fn serialize(input: TokenStream) -> TokenStream {
@@ -54,9 +56,7 @@ pub fn serialize(input: TokenStream) -> TokenStream {
         "resource" => {
             serialize::complex_serialization(input, serialize::ComplexSerializeType::Resource)
         }
-        "valueset" => {
-            serialize::value_set_serialization(input)
-        }
+        "valueset" => serialize::value_set_serialization(input),
         "enum-variant" => serialize::enum_variant_serialization(input),
         // Some("typechoice") => typechoice_serialization(input),
         _ => panic!("Must be one of primitive, typechoice, complex or resource."),
@@ -64,7 +64,6 @@ pub fn serialize(input: TokenStream) -> TokenStream {
 
     result
 }
-
 
 enum DeserializeComplexType {
     Complex,
@@ -84,9 +83,12 @@ enum DeserializeComplexType {
         type_choice_variants,
 
         primitive,
-        
+
         // Used for enum serialization.
         determine_by,
+
+        // For validation on vector min maxes.
+        cardinality
     )
 )]
 pub fn deserialize(input: TokenStream) -> TokenStream {
