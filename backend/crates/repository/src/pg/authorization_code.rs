@@ -39,11 +39,11 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING tenant,
+        RETURNING tenant as "tenant: TenantId",
                   kind as "kind: AuthorizationCodeKind",
                   code,
                   user_id,
-                  project,
+                  project as "project: ProjectId",
                   client_id,
                   pkce_code_challenge,
                   pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
@@ -51,8 +51,8 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   meta as "meta: Json<serde_json::Value>",
                   NOW() > created_at + expires_in as is_expired
         "#,
-            tenant.as_ref(),
-            project.map(|p| p.as_ref()),
+            tenant as &TenantId,
+            project as Option<&'a ProjectId>,
             authorization_code.client_id,
             authorization_code.kind as AuthorizationCodeKind,
             code,
