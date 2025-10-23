@@ -3,6 +3,7 @@ use crate::{
     fhir_client::{FHIRServerClient, ServerClientConfig},
 };
 use oxidized_config::Config;
+use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhir_terminology::{
@@ -73,6 +74,46 @@ pub struct AppState<
     pub repo: Arc<Repo>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub config: Arc<dyn Config<ServerEnvironmentVariables>>,
+}
+
+impl<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> AppState<Repo, Search, Terminology>
+{
+    pub async fn transaction(&self) -> Result<Self, OperationOutcomeError> {
+        self.repo.transaction().await.map(|tx_repo| {
+            let tx_repo = Arc::new(tx_repo);
+            AppState {
+                terminology: self.terminology.clone(),
+                search: self.search.clone(),
+                repo: tx_repo.clone(),
+                fhir_client: Arc::new(FHIRServerClient::new(ServerClientConfig::new(
+                    tx_repo,
+                    self.search.clone(),
+                    self.terminology.clone(),
+                ))),
+                config: self.config.clone(),
+            }
+        })
+    }
+    pub async fn commit(self) -> Result<(), OperationOutcomeError> {
+        let repo = self.repo.clone();
+        drop(self);
+
+        Arc::try_unwrap(repo)
+            .map_err(|_e| {
+                OperationOutcomeError::fatal(
+                    IssueType::Exception(None),
+                    "Failed to unwrap transaction client".to_string(),
+                )
+            })?
+            .commit()
+            .await?;
+
+        Ok(())
+    }
 }
 
 pub async fn create_services(
