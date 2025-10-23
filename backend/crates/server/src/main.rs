@@ -4,12 +4,13 @@ use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, User},
-    terminology::UserRole,
+    terminology::{IssueType, UserRole},
     types::FHIRString,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_repository::{
+    Repository,
     admin::TenantAuthAdmin,
     types::{
         ProjectId, TenantId,
@@ -84,6 +85,45 @@ enum UserCommands {
         #[arg(short, long)]
         tenant: String,
     },
+}
+
+async fn set_user_password<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    user_email: &str,
+    user_id: &str,
+    password: &str,
+) -> Result<(), OperationOutcomeError> {
+    // In a real implementation, you would hash the password here
+    let password_strength = zxcvbn::zxcvbn(password, &[user_email]);
+
+    if u8::from(password_strength.score()) < 3 {
+        let feedback = password_strength
+            .feedback()
+            .map(|f| format!("{}", f))
+            .unwrap_or_default();
+
+        return Err(OperationOutcomeError::fatal(
+            IssueType::Security(None),
+            feedback,
+        ));
+    }
+
+    TenantAuthAdmin::<CreateUser, _, _, _, String>::update(
+        repo,
+        &tenant,
+        UpdateUser {
+            id: user_id.to_string(),
+            password: Some(password.to_string()),
+            email: None,
+            role: None,
+            method: None,
+            provider_id: None,
+        },
+    )
+    .await?;
+
+    Ok(())
 }
 
 async fn migrate_repo(
@@ -176,7 +216,11 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 password,
                 tenant,
             } => {
-                let services = services::create_services(config).await?;
+                let services = services::create_services(config)
+                    .await?
+                    .transaction()
+                    .await?;
+
                 let tenant = TenantId::new(tenant.clone());
 
                 let ctx = Arc::new(ServerCTX::system(tenant.clone(), ProjectId::System));
@@ -197,24 +241,16 @@ async fn main() -> Result<(), OperationOutcomeError> {
                     )
                     .await?;
 
-                let user_id = match user {
-                    Resource::User(user) => user.id.clone().unwrap(),
+                let user = match user {
+                    Resource::User(user) => user,
                     _ => panic!("Created resource is not a User"),
                 };
 
-                TenantAuthAdmin::<CreateUser, _, _, _, String>::update(
-                    &*services.repo,
-                    &tenant,
-                    UpdateUser {
-                        id: user_id,
-                        password: Some(password.clone()),
-                        email: None,
-                        role: None,
-                        method: None,
-                        provider_id: None,
-                    },
-                )
-                .await?;
+                let user_id = user.id.clone().unwrap();
+
+                set_user_password(&*services.repo, &tenant, email, &user_id, password).await?;
+
+                services.commit().await?;
 
                 Ok(())
             }
