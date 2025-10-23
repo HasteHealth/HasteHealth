@@ -101,7 +101,7 @@ impl<
                     | FHIRRequest::SearchType(_) => {
                         context.ctx = Arc::new(ServerCTX {
                             tenant: context.ctx.tenant.clone(),
-                            project: ProjectId::System,
+                            project: project_id,
                             fhir_version: context.ctx.fhir_version.clone(),
                             author: context.ctx.author.clone(),
                         });
