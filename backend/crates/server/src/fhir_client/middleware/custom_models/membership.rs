@@ -4,13 +4,14 @@ use crate::fhir_client::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
     },
+    utilities::request_to_resource_type,
 };
 use oxidized_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
 use oxidized_fhir_model::r4::generated::{
-    resources::{Membership, Resource},
+    resources::{Membership, Resource, ResourceType},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -64,76 +65,85 @@ impl<
     ) -> ServerMiddlewareOutput {
         Box::pin(async move {
             if let Some(next) = next {
-                let res = next(state.clone(), context).await?;
+                if let Some(resource_type) = request_to_resource_type(&context.request)
+                    && *resource_type != ResourceType::Membership
+                {
+                    Ok(next(state, context).await?)
+                } else {
+                    let res = next(state.clone(), context).await?;
 
-                match res.response.as_ref() {
-                    Some(FHIRResponse::Create(create_response)) => {
-                        if let Resource::Membership(membership) = &create_response.resource
-                            && let Some(user_id) = get_user_id(membership)
-                        {
-                            ProjectAuthAdmin::create(
-                                state.repo.as_ref(),
-                                &res.ctx.tenant,
-                                &res.ctx.project,
-                                m::CreateMembership {
-                                    role: m::MembershipRole::Member,
-                                    user_id: user_id.to_string(),
-                                },
-                            )
-                            .await?;
+                    match res.response.as_ref() {
+                        Some(FHIRResponse::Create(create_response)) => {
+                            if let Resource::Membership(membership) = &create_response.resource
+                                && let Some(user_id) = get_user_id(membership)
+                            {
+                                ProjectAuthAdmin::create(
+                                    state.repo.as_ref(),
+                                    &res.ctx.tenant,
+                                    &res.ctx.project,
+                                    m::CreateMembership {
+                                        role: m::MembershipRole::Member,
+                                        user_id: user_id.to_string(),
+                                    },
+                                )
+                                .await?;
 
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "Membership resource must have a valid user reference.".to_string(),
-                            ))
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Membership resource must have a valid user reference."
+                                        .to_string(),
+                                ))
+                            }
                         }
-                    }
-                    Some(FHIRResponse::DeleteInstance(delete_response)) => {
-                        if let Resource::Membership(membership) = &delete_response.resource
-                            && let Some(user_id) = get_user_id(membership)
-                        {
-                            ProjectAuthAdmin::<CreateMembership, _, _, _, _>::delete(
-                                state.repo.as_ref(),
-                                &res.ctx.tenant,
-                                &res.ctx.project,
-                                &user_id.to_string(),
-                            )
-                            .await?;
+                        Some(FHIRResponse::DeleteInstance(delete_response)) => {
+                            if let Resource::Membership(membership) = &delete_response.resource
+                                && let Some(user_id) = get_user_id(membership)
+                            {
+                                ProjectAuthAdmin::<CreateMembership, _, _, _, _>::delete(
+                                    state.repo.as_ref(),
+                                    &res.ctx.tenant,
+                                    &res.ctx.project,
+                                    &user_id.to_string(),
+                                )
+                                .await?;
 
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "Membership resource must have a valid user reference.".to_string(),
-                            ))
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Membership resource must have a valid user reference."
+                                        .to_string(),
+                                ))
+                            }
                         }
-                    }
-                    Some(FHIRResponse::Update(update_response)) => {
-                        if let Resource::Membership(membership) = &update_response.resource
-                            && let Some(user_id) = get_user_id(membership)
-                        {
-                            ProjectAuthAdmin::update(
-                                state.repo.as_ref(),
-                                &res.ctx.tenant,
-                                &res.ctx.project,
-                                m::UpdateMembership {
-                                    role: m::MembershipRole::Member,
-                                    user_id: user_id.to_string(),
-                                },
-                            )
-                            .await?;
+                        Some(FHIRResponse::Update(update_response)) => {
+                            if let Resource::Membership(membership) = &update_response.resource
+                                && let Some(user_id) = get_user_id(membership)
+                            {
+                                ProjectAuthAdmin::update(
+                                    state.repo.as_ref(),
+                                    &res.ctx.tenant,
+                                    &res.ctx.project,
+                                    m::UpdateMembership {
+                                        role: m::MembershipRole::Member,
+                                        user_id: user_id.to_string(),
+                                    },
+                                )
+                                .await?;
 
-                            Ok(res)
-                        } else {
-                            Err(OperationOutcomeError::fatal(
-                                IssueType::Invalid(None),
-                                "Membership resource must have a valid user reference.".to_string(),
-                            ))
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Membership resource must have a valid user reference."
+                                        .to_string(),
+                                ))
+                            }
                         }
+                        _ => Ok(res),
                     }
-                    _ => Ok(res),
                 }
             } else {
                 Err(OperationOutcomeError::fatal(
