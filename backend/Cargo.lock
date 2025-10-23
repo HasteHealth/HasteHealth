@@ -2077,6 +2077,7 @@ dependencies = [
  "oxidized-fhir-operation-error",
  "oxidized-fhirpath",
  "quote",
+ "sendgrid",
  "serde_json",
  "thiserror 2.0.15",
  "tokio",

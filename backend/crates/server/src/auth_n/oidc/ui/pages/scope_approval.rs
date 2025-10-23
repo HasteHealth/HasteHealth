@@ -1,7 +1,7 @@
 use crate::{
     auth_n::oidc::{
         routes::{route_string::oidc_route_string, scope::ScopeForm},
-        ui::app_header,
+        ui::components::app_header,
     },
     server::asset_route,
 };

@@ -4,7 +4,7 @@ use crate::{
             extract::{client_app::OIDCClientApplication, scopes::Scopes},
             middleware::OIDCParameters,
             routes::scope::ScopeForm,
-            ui::scope_approval::scope_approval_html,
+            ui::pages,
             utilities::is_valid_redirect_url,
         },
         session,
@@ -160,7 +160,7 @@ pub async fn authorize<
     .await?;
 
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
-        return Ok(scope_approval_html(
+        return Ok(pages::scope_approval::scope_approval_html(
             &tenant,
             &project_resource,
             &client_app,
