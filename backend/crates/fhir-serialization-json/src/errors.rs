@@ -22,4 +22,6 @@ pub enum DeserializeError {
     InvalidEnumVariant(String, String),
     #[error("Invalid type choice variant: {0}")]
     InvalidTypeChoiceVariant(String),
+    #[error("Cardinality violation: field '{0}' has invalid length.")]
+    CardinalityViolation(String),
 }

@@ -25,6 +25,69 @@ pub fn is_attribute_present(attrs: &[Attribute], attribute: &str) -> bool {
     attrs.iter().any(|attr| attr.path().is_ident(attribute))
 }
 
+pub struct CardinalityAttribute {
+    pub min: Option<usize>,
+    pub max: Option<usize>,
+}
+
+pub fn get_cardinality_attributes(attrs: &[Attribute]) -> Option<CardinalityAttribute> {
+    if let Some(attribute_list) = get_attribute_list(attrs, "cardinality") {
+        let mut cardinality_attribute = CardinalityAttribute {
+            min: None,
+            max: None,
+        };
+
+        let parsed_arguments = attribute_list
+            .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
+            .unwrap();
+
+        for expression in parsed_arguments {
+            match expression {
+                Expr::Assign(expr_assign) => {
+                    match (expr_assign.left.as_ref(), expr_assign.right.as_ref()) {
+                        (Expr::Path(path), Expr::Lit(value)) => {
+                            match path.path.get_ident().to_token_stream().to_string().as_str() {
+                                "min" => match &value.lit {
+                                    Lit::Int(v) => {
+                                        cardinality_attribute.min =
+                                            Some(v.base10_parse::<usize>().unwrap());
+                                    }
+                                    _ => panic!(
+                                        "cardinality min must be an integer like #[cardinality(min = 1, max = 1)]"
+                                    ),
+                                },
+                                "max" => match &value.lit {
+                                    Lit::Int(v) => {
+                                        cardinality_attribute.max =
+                                            Some(v.base10_parse::<usize>().unwrap());
+                                    }
+                                    _ => panic!(
+                                        "cardinality min must be an integer like #[cardinality(min = 1, max = 1)]"
+                                    ),
+                                },
+                                _ => panic!(
+                                    "cardinality must be in format like #[cardinality(min = 1, max = 1)]"
+                                ),
+                            }
+                        }
+                        _ => {
+                            panic!(
+                                "cardinality must be in format like #[cardinality(min = 1, max = 1)]"
+                            )
+                        }
+                    }
+                }
+                _ => {
+                    panic!("cardinality must be in format like #[cardinality(min = 1, max = 1)]");
+                }
+            }
+        }
+        Some(cardinality_attribute)
+    } else {
+        None
+    }
+}
+
 pub struct TypeChoiceAttribute {
     pub complex_variants: Vec<String>,
     pub primitive_variants: Vec<String>,
@@ -49,6 +112,7 @@ pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttrib
         let parsed_arguments = attribute_list
             .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
             .unwrap();
+
         if parsed_arguments.len() > 2 {
             panic!("Expected exactly 2 type choice variants");
         }
