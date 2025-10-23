@@ -341,6 +341,9 @@ impl<
                 }
             }),
             middleware: Middleware::new(vec![
+                Box::new(
+                    middleware::check_project::SetProjectReadOnlyMiddleware::new(ProjectId::System),
+                ),
                 Box::new(middleware::check_project::Middleware::new(
                     ProjectId::System,
                 )),
