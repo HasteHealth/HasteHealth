@@ -19,7 +19,7 @@ export default function ResourceTypes() {
 
   return (
     <>
-      <div className="mt-4 flex items-center ">
+      <div className="mt-4 mb-4 flex items-center justify-end ">
         <Button
           className="ml-2 font-medium"
           buttonSize="small"
