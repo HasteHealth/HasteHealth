@@ -119,8 +119,6 @@ pub struct Membership {
     pub link: Option<Box<Reference>>,
     #[doc = ""]
     pub user: Box<Reference>,
-    #[doc = ""]
-    pub name: Option<Box<HumanName>>,
 }
 #[derive(
     Clone,
