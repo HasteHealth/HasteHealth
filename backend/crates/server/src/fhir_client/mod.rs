@@ -316,6 +316,21 @@ impl<
             ]),
         };
 
+        let project_auth_routes = Route {
+            filter: Box::new(|req: &FHIRRequest| match req {
+                FHIRRequest::InvokeInstance(_)
+                | FHIRRequest::InvokeType(_)
+                | FHIRRequest::InvokeSystem(_) => false,
+                _ => request_to_resource_type(req)
+                    .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
+            }),
+            middleware: Middleware::new(vec![
+                Box::new(middleware::transaction::Middleware::new()),
+                Box::new(middleware::custom_models::membership::Middleware::new()),
+                Box::new(middleware::storage::Middleware::new()),
+            ]),
+        };
+
         let tenant_auth_routes = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
                 FHIRRequest::InvokeInstance(_)
@@ -341,6 +356,7 @@ impl<
             artifact_routes,
             operation_invocation_routes,
             // Special Authentication routes.
+            project_auth_routes,
             tenant_auth_routes,
         ]));
 
