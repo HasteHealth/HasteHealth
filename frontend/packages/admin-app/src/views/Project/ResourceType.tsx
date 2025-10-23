@@ -132,45 +132,23 @@ function ResourceTypeHeader({ refresh }: Readonly<{ refresh: () => void }>) {
       </h2>
       <div className="flex flex-1 justify-end">
         <div className="pr-4">
-          {params.resourceType === "Membership" ? (
-            <Modal
-              modalTitle="Invite User"
-              ModalContent={(setOpen) => (
-                <InviteModal refresh={refresh} setOpen={setOpen} />
-              )}
-            >
-              {(setopen) => (
-                <Button
-                  className="ml-2 font-medium"
-                  buttonSize="small"
-                  buttonType="secondary"
-                  onClick={() => {
-                    setopen(true);
-                  }}
-                >
-                  Send Invite
-                </Button>
-              )}
-            </Modal>
-          ) : (
-            <Button
-              className="ml-2 font-medium"
-              buttonSize="small"
-              buttonType="secondary"
-              onClick={() =>
-                navigate(
-                  generatePath("/resources/:resourceType/:id", {
-                    resourceType: params.resourceType as string,
-                    id: "new",
-                  })
-                )
-              }
-            >
-              <div className="flex items-center justify-center ">
-                <PlusIcon className="w-4 h-4 mr-1" /> <span>New</span>
-              </div>
-            </Button>
-          )}
+          <Button
+            className="ml-2 font-medium"
+            buttonSize="small"
+            buttonType="secondary"
+            onClick={() =>
+              navigate(
+                generatePath("/resources/:resourceType/:id", {
+                  resourceType: params.resourceType as string,
+                  id: "new",
+                })
+              )
+            }
+          >
+            <div className="flex items-center justify-center ">
+              <PlusIcon className="w-4 h-4 mr-1" /> <span>New</span>
+            </div>
+          </Button>
         </div>
       </div>
     </div>
