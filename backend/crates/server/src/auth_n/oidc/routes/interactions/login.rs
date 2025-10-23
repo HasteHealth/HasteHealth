@@ -1,6 +1,6 @@
 use crate::{
     auth_n::{
-        oidc::{extract::client_app::OIDCClientApplication, ui::login::login_form_html},
+        oidc::{extract::client_app::OIDCClientApplication, ui::pages},
         session,
     },
     extract::path_tenant::{Project, TenantIdentifier},
@@ -35,7 +35,7 @@ pub async fn login_get(
     OIDCClientApplication(client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
-    let response = login_form_html(&tenant, &project, &client_app, &uri.to_string());
+    let response = pages::login::login_form_html(&tenant, &project, &client_app, &uri.to_string());
 
     Ok(response)
 }
@@ -86,7 +86,10 @@ pub async fn login_post<
             Ok(authorization_redirect.into_response())
         }
         LoginResult::Failure => {
-            Ok(login_form_html(&tenant, &project, &client_app, &uri.to_string()).into_response())
+            Ok(
+                pages::login::login_form_html(&tenant, &project, &client_app, &uri.to_string())
+                    .into_response(),
+            )
         }
     }
 }

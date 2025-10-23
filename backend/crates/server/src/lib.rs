@@ -22,11 +22,13 @@ pub enum ServerEnvironmentVariables {
     APIURL,
     // Where to redirect for hardcoded admin app.
     AdminAppRedirectURI,
+    SendGridAPIKey,
 }
 
 impl From<ServerEnvironmentVariables> for String {
     fn from(value: ServerEnvironmentVariables) -> Self {
         match value {
+            ServerEnvironmentVariables::SendGridAPIKey => "SENDGRID_API_KEY".to_string(),
             ServerEnvironmentVariables::CertificationDir => "CERTIFICATION_DIR".to_string(),
             ServerEnvironmentVariables::AllowArtifactMutations => {
                 "ALLOW_ARTIFACT_MUTATIONS".to_string()

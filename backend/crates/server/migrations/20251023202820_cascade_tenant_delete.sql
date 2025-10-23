@@ -1,0 +1,3 @@
+ALTER TABLE resources
+DROP CONSTRAINT fk_tenant,
+ADD CONSTRAINT fk_tenant FOREIGN KEY (tenant) REFERENCES tenants (id) ON DELETE CASCADE;

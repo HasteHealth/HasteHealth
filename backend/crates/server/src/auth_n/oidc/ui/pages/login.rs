@@ -17,7 +17,8 @@ pub fn login_form_html(
         .and_then(|name| name.value.as_ref())
         .map(|s| Cow::Borrowed(s.as_str()))
         .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
-    let password_reset_route = oidc_route_string(tenant, &project_id, "password-reset");
+    let password_reset_route =
+        oidc_route_string(tenant, &project_id, "interactions/password-reset");
     let password_reset_route_str = password_reset_route
         .to_str()
         .expect("Could not create password reset route.");

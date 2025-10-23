@@ -168,8 +168,20 @@ struct ElasticSearchResponse {
     hits: ElasticSearchHit,
 }
 
-fn unique_index_id(resource_type: &ResourceType, id: &ResourceId) -> String {
-    let unique_index_id = resource_type.as_ref().to_string() + "/" + id.as_ref();
+fn unique_index_id(
+    tenant: &TenantId,
+    project: &ProjectId,
+    resource_type: &ResourceType,
+    id: &ResourceId,
+) -> String {
+    let unique_index_id = format!(
+        "{}/{}/{}/{}",
+        tenant.as_ref(),
+        project.as_ref(),
+        resource_type.as_ref(),
+        id.as_ref()
+    );
+
     unique_index_id
 }
 
@@ -223,6 +235,7 @@ impl SearchEngine for ElasticSearchEngine {
         &self,
         _fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
+
         resources: Vec<IndexResource<'a>>,
     ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
         // Iterator used to evaluate all of the search expressions for indexing.
@@ -236,7 +249,7 @@ impl SearchEngine for ElasticSearchEngine {
             .map(|r| match &r.fhir_method {
                 FHIRMethod::Create | FHIRMethod::Update => {
                     // Id is not sufficient because different Resourcetypes may have the same id.
-                    let index_id = unique_index_id(&r.resource_type, &r.id);
+                    let index_id = unique_index_id(tenant, r.project, &r.resource_type, &r.id);
                     let params =
                         oxidized_artifacts::search_parameters::get_search_parameters_for_resource(
                             &r.resource_type,
@@ -274,6 +287,8 @@ impl SearchEngine for ElasticSearchEngine {
                         .into())
                 }
                 FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
+                    tenant,
+                    r.project,
                     &r.resource_type,
                     &r.id,
                 ))

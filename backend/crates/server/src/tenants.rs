@@ -1,12 +1,8 @@
-use crate::{
-    fhir_client::{FHIRServerClient, ServerCTX, ServerClientConfig},
-    services::AppState,
-};
+use crate::{fhir_client::ServerCTX, services::AppState};
 use clap::ValueEnum;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType},
-    terminology::IssueType,
     types::FHIRString,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -49,54 +45,38 @@ pub async fn create_tenant<
     _name: &str,
     subscription_tier: &SubscriptionTier,
 ) -> Result<(), OperationOutcomeError> {
-    let transaction_repo = Arc::new(services.repo.transaction().await?);
-    {
-        let fhir_client = FHIRServerClient::new(ServerClientConfig::new(
-            transaction_repo.clone(),
-            services.search.clone(),
-            services.terminology.clone(),
-        ));
+    let services = services.transaction().await?;
 
-        let new_tenant = TenantAuthAdmin::create(
-            &*transaction_repo.clone(),
-            &TenantId::System,
-            CreateTenant {
-                id: Some(TenantId::new(id.unwrap_or(generate_id(Some(16))))),
-                subscription_tier: Some(subscription_tier.clone().into()),
-            },
+    let new_tenant = TenantAuthAdmin::create(
+        &*services.repo,
+        &TenantId::System,
+        CreateTenant {
+            id: Some(TenantId::new(id.unwrap_or(generate_id(Some(16))))),
+            subscription_tier: Some(subscription_tier.clone().into()),
+        },
+    )
+    .await?;
+
+    services
+        .fhir_client
+        .create(
+            Arc::new(ServerCTX::system(new_tenant.id, ProjectId::System)),
+            ResourceType::Project,
+            Resource::Project(Project {
+                id: Some(ProjectId::System.to_string()),
+                name: Some(Box::new(FHIRString {
+                    value: Some(ProjectId::System.to_string()),
+                    ..Default::default()
+                })),
+                fhirVersion: Box::new(
+                    oxidized_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(None),
+                ),
+                ..Default::default()
+            }),
         )
         .await?;
 
-        fhir_client
-            .create(
-                Arc::new(ServerCTX::system(new_tenant.id, ProjectId::System)),
-                ResourceType::Project,
-                Resource::Project(Project {
-                    id: Some(ProjectId::System.to_string()),
-                    name: Some(Box::new(FHIRString {
-                        value: Some(ProjectId::System.to_string()),
-                        ..Default::default()
-                    })),
-                    fhirVersion: Box::new(
-                        oxidized_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(
-                            None,
-                        ),
-                    ),
-                    ..Default::default()
-                }),
-            )
-            .await?;
-    }
-
-    Arc::try_unwrap(transaction_repo)
-        .map_err(|_e| {
-            OperationOutcomeError::fatal(
-                IssueType::Exception(None),
-                "Failed to unwrap transaction client".to_string(),
-            )
-        })?
-        .commit()
-        .await?;
+    services.commit().await?;
 
     Ok(())
 }
