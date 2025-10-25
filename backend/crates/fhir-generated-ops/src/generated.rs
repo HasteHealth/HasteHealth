@@ -3,6 +3,34 @@ use oxidized_fhir_model::r4::generated::resources::*;
 use oxidized_fhir_model::r4::generated::types::*;
 use oxidized_fhir_operation_error::*;
 use oxidized_fhir_ops::derive::{FromParameters, ToParameters};
+pub mod ProjectInformation {
+    use super::*;
+    pub const CODE: &str = "current-project";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        pub project: Project,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 pub mod ActivityDefinitionApply {
     use super::*;
     pub const CODE: &str = "apply";
