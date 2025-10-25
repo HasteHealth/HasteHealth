@@ -54,7 +54,7 @@ async fn openid_configuration<
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
     let api_url_string = state
         .config
-        .get(crate::ServerEnvironmentVariables::APIURL)
+        .get(crate::ServerEnvironmentVariables::APIURI)
         .unwrap_or_default();
 
     if api_url_string.is_empty() {
@@ -76,6 +76,8 @@ async fn openid_configuration<
 
     let authorize_path = path.replace(&well_known_path, "/auth/authorize");
     let token_path = path.replace(&well_known_path, "/auth/token");
+
+    println!("API URL: {}", api_url);
 
     let oidc_response = OIDCResponse {
         issuer: api_url.to_string(),

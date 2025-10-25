@@ -5,4 +5,4 @@ mod middleware;
 pub mod routes;
 mod schemas;
 mod ui;
-mod utilities;
+pub mod utilities;

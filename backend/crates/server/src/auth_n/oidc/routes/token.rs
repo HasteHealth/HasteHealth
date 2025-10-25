@@ -320,6 +320,13 @@ pub async fn token<
                 ));
             }
 
+            if code.is_expired.unwrap_or(true) {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::Invalid(None),
+                    "Refresh token has expired.".to_string(),
+                ));
+            }
+
             let approved_scopes = get_approved_scopes(
                 &*state.repo,
                 &tenant,
@@ -395,6 +402,13 @@ pub async fn token<
                 return Err(OperationOutcomeError::fatal(
                     IssueType::Invalid(None),
                     "Invalid authorization code.".to_string(),
+                ));
+            }
+
+            if code.is_expired.unwrap_or(true) {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::Invalid(None),
+                    "Authorization code has expired.".to_string(),
                 ));
             }
 
