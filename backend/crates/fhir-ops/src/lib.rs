@@ -43,6 +43,7 @@ pub trait OperationInvocation<
         ctx: CTX,
         input: Param<I>,
     ) -> impl Future<Output = Result<O, OperationOutcomeError>> + Send;
+    fn code<'a>(&'a self) -> &'a str;
 }
 
 pub struct OperationExecutor<
@@ -53,6 +54,7 @@ pub struct OperationExecutor<
     O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > {
     _ctx: std::marker::PhantomData<CTX>,
+    code: String,
     executor: Arc<
         Box<
             dyn Fn(CTX, I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
@@ -71,6 +73,7 @@ impl<
 > OperationExecutor<CTX, I, O>
 {
     pub fn new(
+        code: String,
         executor: Box<
             dyn Fn(CTX, I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
                 + Send
@@ -80,6 +83,7 @@ impl<
         Self {
             _ctx: std::marker::PhantomData,
             executor: Arc::new(executor),
+            code,
         }
     }
 }
@@ -108,5 +112,9 @@ impl<
             let output = (executor)(ctx, input).await;
             output
         }
+    }
+
+    fn code<'a>(&'a self) -> &'a str {
+        &self.code
     }
 }

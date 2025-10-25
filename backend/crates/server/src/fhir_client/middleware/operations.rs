@@ -18,12 +18,12 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
 use std::sync::Arc;
 
-pub struct Middleware<
+struct ServerOperations<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-> {
-    operations: Arc<
+>(
+    Arc<
         Vec<
             OperationExecutor<
                 ServerMiddlewareState<Repo, Search, Terminology>,
@@ -32,6 +32,67 @@ pub struct Middleware<
             >,
         >,
     >,
+);
+
+impl<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> Clone for ServerOperations<Repo, Search, Terminology>
+{
+    fn clone(&self) -> Self {
+        ServerOperations(self.0.clone())
+    }
+}
+
+impl<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> ServerOperations<Repo, Search, Terminology>
+{
+    pub fn new() -> Self {
+        let executors = Arc::new(vec![OperationExecutor::new(
+            ValueSetExpand::CODE.to_string(),
+            Box::new(
+                |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
+                 input: ValueSetExpand::Input| {
+                    Box::pin(async move {
+                        let output = ctx.terminology.expand(input).await?;
+                        Ok(output)
+                    })
+                },
+            ),
+        )]);
+
+        ServerOperations(executors)
+    }
+
+    pub fn find_operation(
+        &self,
+        code: &str,
+    ) -> Option<
+        &OperationExecutor<
+            ServerMiddlewareState<Repo, Search, Terminology>,
+            ValueSetExpand::Input,
+            ValueSetExpand::Output,
+        >,
+    > {
+        for executor in self.0.iter() {
+            if executor.code() == code {
+                return Some(executor);
+            }
+        }
+        None
+    }
+}
+
+pub struct Middleware<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> {
+    operations: ServerOperations<Repo, Search, Terminology>,
 }
 
 impl<
@@ -41,25 +102,18 @@ impl<
 > Middleware<Repo, Search, Terminology>
 {
     pub fn new() -> Self {
-        let op_executor: OperationExecutor<
-            ServerMiddlewareState<Repo, Search, Terminology>,
-            ValueSetExpand::Input,
-            ValueSetExpand::Output,
-        > = OperationExecutor::new(Box::new(
-            |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
-             input: ValueSetExpand::Input| {
-                Box::pin(async move {
-                    // Implement the logic for the $expand operation here.
-                    // For demonstration, we'll just return an error indicating it's not implemented.
-                    let output = ctx.terminology.expand(input).await?;
-                    Ok(output)
-                })
-            },
-        ));
-
         Middleware {
-            operations: Arc::new(vec![op_executor]),
+            operations: ServerOperations::new(),
         }
+    }
+}
+
+fn get_request_operation_code<'a>(request: &'a FHIRRequest) -> Option<&'a str> {
+    match request {
+        FHIRRequest::InvokeInstance(instance_request) => Some(&instance_request.operation.name()),
+        FHIRRequest::InvokeType(type_request) => Some(&type_request.operation.name()),
+        FHIRRequest::InvokeSystem(system_request) => Some(&system_request.operation.name()),
+        _ => None,
     }
 }
 
@@ -85,40 +139,48 @@ impl<
     ) -> ServerMiddlewareOutput {
         let executors = self.operations.clone();
         Box::pin(async move {
-            let op_executor = &executors[0];
-            let output: Resource = match &context.request {
-                FHIRRequest::InvokeInstance(instance_request) => {
-                    let output = op_executor
-                        .execute(
-                            state,
-                            Param::Parameters(instance_request.parameters.clone()),
-                        )
-                        .await?;
-                    Ok(Resource::from(output))
-                }
-                FHIRRequest::InvokeType(type_request) => {
-                    let output = op_executor
-                        .execute(state, Param::Parameters(type_request.parameters.clone()))
-                        .await?;
-                    Ok(Resource::from(output))
-                }
-                FHIRRequest::InvokeSystem(system_request) => {
-                    let output = op_executor
-                        .execute(state, Param::Parameters(system_request.parameters.clone()))
-                        .await?;
-                    Ok(Resource::from(output))
-                }
-                _ => Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
-                    "Operation not supported".to_string(),
-                )),
-            }?;
+            if let Some(code) = get_request_operation_code(&context.request)
+                && let Some(op_executor) = executors.find_operation(code)
+            {
+                let output: Resource = match &context.request {
+                    FHIRRequest::InvokeInstance(instance_request) => {
+                        let output = op_executor
+                            .execute(
+                                state,
+                                Param::Parameters(instance_request.parameters.clone()),
+                            )
+                            .await?;
+                        Ok(Resource::from(output))
+                    }
+                    FHIRRequest::InvokeType(type_request) => {
+                        let output = op_executor
+                            .execute(state, Param::Parameters(type_request.parameters.clone()))
+                            .await?;
+                        Ok(Resource::from(output))
+                    }
+                    FHIRRequest::InvokeSystem(system_request) => {
+                        let output = op_executor
+                            .execute(state, Param::Parameters(system_request.parameters.clone()))
+                            .await?;
+                        Ok(Resource::from(output))
+                    }
+                    _ => Err(OperationOutcomeError::fatal(
+                        IssueType::Exception(None),
+                        "Operation not supported".to_string(),
+                    )),
+                }?;
 
-            context.response = Some(FHIRResponse::InvokeSystem(FHIRInvokeSystemResponse {
-                resource: output,
-            }));
+                context.response = Some(FHIRResponse::InvokeSystem(FHIRInvokeSystemResponse {
+                    resource: output,
+                }));
 
-            Ok(context)
+                Ok(context)
+            } else {
+                Err(OperationOutcomeError::fatal(
+                    IssueType::NotFound(None),
+                    "Operation not found".to_string(),
+                ))
+            }
         })
     }
 }
