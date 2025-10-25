@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO authorization_code (\n            tenant, project, client_id, kind, code, expires_in,\n            user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n        RETURNING tenant as \"tenant: TenantId\",\n                  kind as \"kind: AuthorizationCodeKind\",\n                  code,\n                  user_id,\n                  project as \"project: ProjectId\",\n                  client_id,\n                  pkce_code_challenge,\n                  pkce_code_challenge_method as \"pkce_code_challenge_method: PKCECodeChallengeMethod\",\n                  redirect_uri,\n                  meta as \"meta: Json<serde_json::Value>\",\n                  NOW() > created_at + expires_in as is_expired\n        ",
+  "query": "\n        INSERT INTO authorization_code (\n            tenant, project, client_id, kind, code, expires_in,\n            user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n        RETURNING tenant as \"tenant: TenantId\",\n                  kind as \"kind: AuthorizationCodeKind\",\n                  code,\n                  user_id,\n                  project as \"project: ProjectId\",\n                  client_id,\n                  pkce_code_challenge,\n                  pkce_code_challenge_method as \"pkce_code_challenge_method: PKCECodeChallengeMethod\",\n                  redirect_uri,\n                  meta as \"meta: Json<serde_json::Value>\",\n                  NOW() > (created_at + expires_in) as is_expired\n        ",
   "describe": {
     "columns": [
       {
@@ -130,5 +130,5 @@
       null
     ]
   },
-  "hash": "61d0e38f9b35693e32a8c94fe2dd1bf3f1f726ec222e83b3884548f773581c1a"
+  "hash": "9ad150a48edbd7d6565819e56e9233244ecaeeee6854c46fdecd16756220e13b"
 }
