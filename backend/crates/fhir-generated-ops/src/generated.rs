@@ -31,6 +31,35 @@ pub mod ProjectInformation {
         }
     }
 }
+pub mod TenantInformation {
+    use super::*;
+    pub const CODE: &str = "current-tenant";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        pub id: FHIRString,
+        pub subscription: FHIRCode,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 pub mod ActivityDefinitionApply {
     use super::*;
     pub const CODE: &str = "apply";
