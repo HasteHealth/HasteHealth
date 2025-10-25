@@ -49,7 +49,7 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
                   redirect_uri,
                   meta as "meta: Json<serde_json::Value>",
-                  NOW() > created_at + expires_in as is_expired
+                  NOW() > (created_at + expires_in) as is_expired
         "#,
             tenant as &TenantId,
             project as Option<&'a ProjectId>,
@@ -89,7 +89,7 @@ fn read_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                pkce_code_challenge_method,
                redirect_uri,
                meta,
-               NOW() > created_at + expires_in as is_expired
+               NOW() > (created_at + expires_in) as is_expired
             FROM authorization_code
             WHERE 
         "#,
@@ -152,7 +152,7 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   pkce_code_challenge_method,
                   redirect_uri,
                   meta,
-                  NOW() > created_at + expires_in as is_expired
+                  NOW() > (created_at + expires_in) as is_expired
         "#,
         );
 
@@ -187,7 +187,7 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
                pkce_code_challenge_method,
                redirect_uri,
                meta,
-               NOW() > created_at + expires_in as is_expired
+               NOW() > (created_at + expires_in) as is_expired
             FROM authorization_code
             WHERE
         "#,

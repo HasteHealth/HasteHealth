@@ -1,7 +1,7 @@
-mod auth_n;
 mod extract;
 mod fhir_http;
 
+pub mod auth_n;
 pub mod fhir_client;
 pub mod load_artifacts;
 pub mod server;
@@ -19,16 +19,17 @@ pub enum ServerEnvironmentVariables {
     ElasticSearchUsername,
     ElasticSearchPassword,
     // Main root where the FHIR Server is hosted.
-    APIURL,
+    APIURI,
     // Where to redirect for hardcoded admin app.
     AdminAppRedirectURI,
+    // Email
     SendGridAPIKey,
+    EmailFromAddress,
 }
 
 impl From<ServerEnvironmentVariables> for String {
     fn from(value: ServerEnvironmentVariables) -> Self {
         match value {
-            ServerEnvironmentVariables::SendGridAPIKey => "SENDGRID_API_KEY".to_string(),
             ServerEnvironmentVariables::CertificationDir => "CERTIFICATION_DIR".to_string(),
             ServerEnvironmentVariables::AllowArtifactMutations => {
                 "ALLOW_ARTIFACT_MUTATIONS".to_string()
@@ -41,8 +42,10 @@ impl From<ServerEnvironmentVariables> for String {
             ServerEnvironmentVariables::ElasticSearchPassword => {
                 "ELASTICSEARCH_PASSWORD".to_string()
             }
-            ServerEnvironmentVariables::APIURL => "API_URL".to_string(),
+            ServerEnvironmentVariables::APIURI => "API_URI".to_string(),
             ServerEnvironmentVariables::AdminAppRedirectURI => "ADMIN_APP_REDIRECT_URI".to_string(),
+            ServerEnvironmentVariables::SendGridAPIKey => "SG_API_KEY".to_string(),
+            ServerEnvironmentVariables::EmailFromAddress => "EMAIL_FROM".to_string(),
         }
     }
 }

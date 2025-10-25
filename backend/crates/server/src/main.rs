@@ -4,21 +4,15 @@ use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, User},
-    terminology::{IssueType, UserRole},
+    terminology::UserRole,
     types::FHIRString,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
-use oxidized_repository::{
-    Repository,
-    admin::TenantAuthAdmin,
-    types::{
-        ProjectId, TenantId,
-        user::{CreateUser, UpdateUser},
-    },
-};
+use oxidized_repository::types::{ProjectId, TenantId};
 use oxidized_server::{
     ServerEnvironmentVariables,
+    auth_n::oidc::utilities::set_user_password,
     fhir_client::ServerCTX,
     load_artifacts, server,
     services::{self, get_pool},
@@ -85,45 +79,6 @@ enum UserCommands {
         #[arg(short, long)]
         tenant: String,
     },
-}
-
-async fn set_user_password<Repo: Repository>(
-    repo: &Repo,
-    tenant: &TenantId,
-    user_email: &str,
-    user_id: &str,
-    password: &str,
-) -> Result<(), OperationOutcomeError> {
-    // In a real implementation, you would hash the password here
-    let password_strength = zxcvbn::zxcvbn(password, &[user_email]);
-
-    if u8::from(password_strength.score()) < 3 {
-        let feedback = password_strength
-            .feedback()
-            .map(|f| format!("{}", f))
-            .unwrap_or_default();
-
-        return Err(OperationOutcomeError::fatal(
-            IssueType::Security(None),
-            feedback,
-        ));
-    }
-
-    TenantAuthAdmin::<CreateUser, _, _, _, String>::update(
-        repo,
-        &tenant,
-        UpdateUser {
-            id: user_id.to_string(),
-            password: Some(password.to_string()),
-            email: None,
-            role: None,
-            method: None,
-            provider_id: None,
-        },
-    )
-    .await?;
-
-    Ok(())
 }
 
 async fn migrate_repo(

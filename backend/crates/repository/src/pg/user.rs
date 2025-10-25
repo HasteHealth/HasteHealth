@@ -254,6 +254,10 @@ fn search_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             seperator.push(" role = ").push_bind_unseparated(role);
         }
 
+        if let Some(method) = clauses.method.as_ref() {
+            seperator.push(" method = ").push_bind_unseparated(method);
+        }
+
         let query = query_builder.build_query_as();
 
         let users: Vec<User> = query

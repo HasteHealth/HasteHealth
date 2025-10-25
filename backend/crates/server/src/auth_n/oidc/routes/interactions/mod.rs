@@ -22,7 +22,11 @@ pub fn interactions_router<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
-    let password_reset_routes = Router::new().typed_get(password_reset::password_reset_get);
+    let password_reset_routes = Router::new()
+        .typed_get(password_reset::password_reset_initiate_get)
+        .typed_post(password_reset::password_reset_initiate_post)
+        .typed_get(password_reset::password_reset_verify_get)
+        .typed_post(password_reset::password_reset_verify_post);
 
     let login_routes = Router::new()
         .typed_get(login::login_get)

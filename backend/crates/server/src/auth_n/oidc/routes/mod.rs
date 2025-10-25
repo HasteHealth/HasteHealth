@@ -54,7 +54,7 @@ async fn openid_configuration<
 ) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
     let api_url_string = state
         .config
-        .get(crate::ServerEnvironmentVariables::APIURL)
+        .get(crate::ServerEnvironmentVariables::APIURI)
         .unwrap_or_default();
 
     if api_url_string.is_empty() {

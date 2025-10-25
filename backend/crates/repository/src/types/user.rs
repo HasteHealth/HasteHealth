@@ -34,6 +34,7 @@ pub enum LoginResult {
 pub struct UserSearchClauses {
     pub email: Option<String>,
     pub role: Option<UserRole>,
+    pub method: Option<AuthMethod>,
 }
 
 pub struct CreateUser {

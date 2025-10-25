@@ -1,0 +1,23 @@
+use maud::{Markup, html};
+
+use crate::server::asset_route;
+
+pub fn page_html(children: Markup) -> Markup {
+    html! {
+        head {
+            meta charset="utf-8" {}
+            meta name="viewport" content="width=device-width, initial-scale=1" {}
+            link rel="preload" as="image" href=(asset_route("img/logo.svg")) {}
+            title { "Oxidized Health" }
+            link rel="icon" href=(asset_route("img/logo.svg")) {}
+            link rel="stylesheet" href=(asset_route("css/app.css")) {}
+        }
+        body {
+            section class="bg-gray-50  h-screen" {
+                div class="flex flex-col items-center justify-center px-6 py-8 space-y-4 mx-auto md:h-screen lg:py-0" {
+                    (children)
+                }
+            }
+        }
+    }
+}

@@ -76,7 +76,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
     .await?;
 
     if let Some(code) = code.pop() {
-        if code.is_expired.unwrap_or(false) {
+        if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Security(None),
                 "Authorization code has expired.".to_string(),
