@@ -131,8 +131,6 @@ pub async fn password_reset_initiate_post<
         )
         .await?;
 
-        let password_reset_code = password_reset_code.code;
-
         let api_url_string = state.config.get(ServerEnvironmentVariables::APIURI)?;
 
         let api_url = Uri::try_from(&api_url_string).map_err(|_| {
@@ -150,7 +148,7 @@ pub async fn password_reset_initiate_post<
                     PasswordResetInitiate.to_uri().path(),
                     PasswordResetVerify.to_uri().path(),
                 ) + "?code="
-                    + &password_reset_code,
+                    + &password_reset_code.code,
             )
             .build()
             .unwrap();
