@@ -77,8 +77,6 @@ async fn openid_configuration<
     let authorize_path = path.replace(&well_known_path, "/auth/authorize");
     let token_path = path.replace(&well_known_path, "/auth/token");
 
-    println!("API URL: {}", api_url);
-
     let oidc_response = OIDCResponse {
         issuer: api_url.to_string(),
         authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
