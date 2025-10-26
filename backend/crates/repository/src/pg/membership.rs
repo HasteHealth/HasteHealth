@@ -165,7 +165,9 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
             .push_bind_unseparated(project.as_ref());
 
         if let Some(user_id) = clauses.user_id.as_ref() {
-            seperator.push(" user_id = ").push_bind_unseparated(user_id);
+            seperator
+                .push(" user_id = ")
+                .push_bind_unseparated(user_id.as_ref());
         }
 
         if let Some(role) = clauses.role.as_ref() {

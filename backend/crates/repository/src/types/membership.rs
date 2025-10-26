@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ProjectId, TenantId};
+use crate::types::{ProjectId, TenantId, scope::UserId};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct Membership {
@@ -16,7 +16,7 @@ pub struct UpdateMembership {
 }
 
 pub struct MembershipSearchClaims {
-    pub user_id: Option<String>,
+    pub user_id: Option<UserId>,
     pub role: Option<MembershipRole>,
 }
 

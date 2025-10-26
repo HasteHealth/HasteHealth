@@ -31,6 +31,7 @@ use oxidized_repository::{
     types::{
         AuthorId, AuthorKind, ProjectId, TenantId,
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
+        membership::{CreateMembership, MembershipSearchClaims},
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
         scopes::{OIDCScope, Scope, Scopes},
         user::UserRole,
@@ -240,6 +241,42 @@ fn verify_client(
         return Err(OperationOutcomeError::error(
             IssueType::Security(None),
             "Invalid credentials".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
+fn find_membership(
+    repo: &impl Repository,
+    tenant: &TenantId,
+    project: &ProjectId,
+    user_id: &UserId,
+) -> Result<(), OperationOutcomeError> {
+    ProjectAuthAdmin::<CreateMembership, _, _, _, _>::search(
+        repo,
+        tenant,
+        project,
+        &MembershipSearchClaims {
+            user_id: Some(user_id.clone()),
+            role: None,
+        },
+    );
+    // Verify the user is a member of the project.
+    let membership_exists = repo
+        .check_membership_exists(tenant, project, user_id)
+        .await
+        .map_err(|_| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                "Failed to verify user membership.".to_string(),
+            )
+        })?;
+
+    if !membership_exists {
+        return Err(OperationOutcomeError::error(
+            IssueType::Forbidden(None),
+            "User is not a member of the project.".to_string(),
         ));
     }
 
