@@ -300,7 +300,7 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
 
                 let setter = if is_vector {
                     quote! {
-                        let tmp_value = #get_value_from_param;
+                        let tmp_value: Result<_, OperationOutcomeError> = #get_value_from_param;
                         if let Some(tmp_value) = tmp_value? {
                             if let Some(tmp_array) = #field_name.as_mut(){
                                 tmp_array.push(tmp_value);
@@ -314,7 +314,7 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
                         if #field_name.is_some(){
                             return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
                         }
-                        let tmp_value = #get_value_from_param;
+                        let tmp_value: Result<_, OperationOutcomeError> = #get_value_from_param;
                         #field_name = tmp_value?;
                     }
                 };
@@ -350,9 +350,7 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
                     }
                 }
             };
-
-            // println!("{}", try_from_code.to_string());
-
+            
             try_from_code.into()
         }
         _ => panic!("From parameter deriviation is only supported for structs."),

@@ -9,16 +9,19 @@ use oxidized_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse},
 };
-use oxidized_fhir_generated_ops::generated::ValueSetExpand;
+use oxidized_fhir_generated_ops::generated::{ProjectInformation, ValueSetExpand};
 use oxidized_fhir_model::r4::generated::{
-    resources::{Parameters, Resource},
+    resources::{Parameters, Resource, ResourceType},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_ops::{OperationExecutor, OperationInvocation, Param};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::Repository;
+use oxidized_repository::{
+    Repository,
+    types::{ProjectId, ResourceId, TenantId},
+};
 use std::{pin::Pin, sync::Arc};
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);
@@ -36,10 +39,55 @@ fn valueset_expand_operation<
         ValueSetExpand::CODE.to_string(),
         Box::new(
             |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
+             tenant: TenantId,
+             project: ProjectId,
              input: ValueSetExpand::Input| {
                 Box::pin(async move {
                     let output = ctx.terminology.expand(input).await?;
                     Ok(output)
+                })
+            },
+        ),
+    )
+}
+
+fn project_information<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>() -> OperationExecutor<
+    ServerMiddlewareState<Repo, Search, Terminology>,
+    ProjectInformation::Input,
+    ProjectInformation::Output,
+> {
+    OperationExecutor::new(
+        ProjectInformation::CODE.to_string(),
+        Box::new(
+            |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
+             tenant: TenantId,
+             project: ProjectId,
+             _input: ProjectInformation::Input| {
+                Box::pin(async move {
+                    let output = ctx
+                        .repo
+                        .read_latest(
+                            &tenant,
+                            &project,
+                            &ResourceType::Project,
+                            &ResourceId::new(project.to_string()),
+                        )
+                        .await?;
+
+                    if let Some(resource) = output
+                        && let Resource::Project(project) = resource
+                    {
+                        Ok(ProjectInformation::Output { project })
+                    } else {
+                        return Err(OperationOutcomeError::fatal(
+                            IssueType::NotFound(None),
+                            "Project not found".to_string(),
+                        ));
+                    }
                 })
             },
         ),
@@ -61,7 +109,10 @@ impl<
     pub fn new() -> Self {
         let executors: Vec<
             Box<dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>>,
-        > = vec![Box::new(valueset_expand_operation())];
+        > = vec![
+            Box::new(valueset_expand_operation()),
+            Box::new(project_information()),
+        ];
 
         Self(Arc::new(executors))
     }
@@ -137,19 +188,34 @@ impl<
                 let output: Resource = match &context.request {
                     FHIRRequest::InvokeInstance(instance_request) => {
                         let output = op_executor
-                            .execute(state, instance_request.parameters.clone())
+                            .execute(
+                                state,
+                                context.ctx.tenant.clone(),
+                                context.ctx.project.clone(),
+                                instance_request.parameters.clone(),
+                            )
                             .await?;
                         Ok(Resource::from(output))
                     }
                     FHIRRequest::InvokeType(type_request) => {
                         let output = op_executor
-                            .execute(state, type_request.parameters.clone())
+                            .execute(
+                                state,
+                                context.ctx.tenant.clone(),
+                                context.ctx.project.clone(),
+                                type_request.parameters.clone(),
+                            )
                             .await?;
                         Ok(Resource::from(output))
                     }
                     FHIRRequest::InvokeSystem(system_request) => {
                         let output = op_executor
-                            .execute(state, system_request.parameters.clone())
+                            .execute(
+                                state,
+                                context.ctx.tenant.clone(),
+                                context.ctx.project.clone(),
+                                system_request.parameters.clone(),
+                            )
                             .await?;
                         Ok(Resource::from(output))
                     }

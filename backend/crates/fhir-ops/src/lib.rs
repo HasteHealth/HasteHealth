@@ -2,6 +2,7 @@ use std::{pin::Pin, sync::Arc};
 
 use oxidized_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_repository::types::{ProjectId, TenantId};
 
 #[cfg(feature = "derive")]
 pub mod derive;
@@ -34,6 +35,8 @@ pub trait OperationInvocation<CTX: Send>: Send + Sync {
     fn execute(
         &self,
         ctx: CTX,
+        tenant: TenantId,
+        project: ProjectId,
         input: Parameters,
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>>;
     fn code<'a>(&'a self) -> &'a str;
@@ -50,7 +53,13 @@ pub struct OperationExecutor<
     code: String,
     executor: Arc<
         Box<
-            dyn Fn(CTX, I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
+            dyn Fn(
+                    CTX,
+                    TenantId,
+                    ProjectId,
+                    I,
+                )
+                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
                 + Send
                 + Sync,
         >,
@@ -68,7 +77,13 @@ impl<
     pub fn new(
         code: String,
         executor: Box<
-            dyn Fn(CTX, I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
+            dyn Fn(
+                    CTX,
+                    TenantId,
+                    ProjectId,
+                    I,
+                )
+                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
                 + Send
                 + Sync,
         >,
@@ -96,13 +111,15 @@ impl<
     fn execute(
         &self,
         ctx: CTX,
+        tenant: TenantId,
+        project: ProjectId,
         input: Parameters,
     ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>> {
         let executor = self.executor.clone();
         Box::pin(async move {
             let input = I::try_from(input.parameter.unwrap_or_default())?;
 
-            let output = (executor)(ctx, input).await?;
+            let output = (executor)(ctx, tenant, project, input).await?;
 
             Ok(output.into())
         })
