@@ -23,6 +23,29 @@ use std::{pin::Pin, sync::Arc};
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);
 
+fn valueset_expand_operation<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>() -> OperationExecutor<
+    ServerMiddlewareState<Repo, Search, Terminology>,
+    ValueSetExpand::Input,
+    ValueSetExpand::Output,
+> {
+    OperationExecutor::new(
+        ValueSetExpand::CODE.to_string(),
+        Box::new(
+            |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
+             input: ValueSetExpand::Input| {
+                Box::pin(async move {
+                    let output = ctx.terminology.expand(input).await?;
+                    Ok(output)
+                })
+            },
+        ),
+    )
+}
+
 impl<CTX> Clone for ServerOperations<CTX> {
     fn clone(&self) -> Self {
         ServerOperations(self.0.clone())
@@ -38,18 +61,7 @@ impl<
     pub fn new() -> Self {
         let executors: Vec<
             Box<dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>>,
-        > = vec![Box::new(OperationExecutor::new(
-            ValueSetExpand::CODE.to_string(),
-            Box::new(
-                |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
-                 input: ValueSetExpand::Input| {
-                    Box::pin(async move {
-                        let output = ctx.terminology.expand(input).await?;
-                        Ok(output)
-                    })
-                },
-            ),
-        ))];
+        > = vec![Box::new(valueset_expand_operation())];
 
         Self(Arc::new(executors))
     }
