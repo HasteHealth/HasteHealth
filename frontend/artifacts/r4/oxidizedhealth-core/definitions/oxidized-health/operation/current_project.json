@@ -1,0 +1,26 @@
+{
+    "resourceType": "OperationDefinition",
+    "id": "project-information",
+    "url": "https://oxidized-health.app/OperationDefinition/project-information",
+    "version": "4.0.1",
+    "name": "Current Project Information",
+    "status": "draft",
+    "kind": "operation",
+    "date": "2023-11-16T09:29:23+11:00",
+    "publisher": "OxidizedHealth",
+    "description": "Get Project resource for the current project.",
+    "code": "current-project",
+    "system": true,
+    "type": false,
+    "instance": false,
+    "parameter": [
+        {
+            "name": "project",
+            "use": "out",
+            "min": 1,
+            "max": "1",
+            "documentation": "Users current project.",
+            "type": "Project"
+        }
+    ]
+}

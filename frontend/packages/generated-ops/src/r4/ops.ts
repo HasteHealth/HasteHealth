@@ -5178,6 +5178,76 @@ export namespace ValueSetValidateCode {
     ],
   } as fhirTypes.OperationDefinition);
 }
+export namespace ProjectInformation {
+  export type Input = Record<string, never>;
+  export type Output = { project: fhirTypes.Project };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "project-information",
+    url: "https://oxidized-health.app/OperationDefinition/project-information",
+    version: "4.0.1",
+    name: "Current Project Information",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "OxidizedHealth",
+    description: "Get Project resource for the current project.",
+    code: "current-project",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "project",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "Users current project.",
+        type: "Project",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
+export namespace TenantInformation {
+  export type Input = Record<string, never>;
+  export type Output = { id: fhirTypes.string; subscription: fhirTypes.code };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "tenant-information",
+    url: "https://oxidized-health.app/OperationDefinition/tenant-information",
+    version: "4.0.1",
+    name: "Current Tenant Information",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "OxidizedHealth",
+    description: "Get tenant information for the current tenant.",
+    code: "current-tenant",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "id",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "tenant id",
+        type: "string",
+      },
+      {
+        name: "subscription",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "tenant subscription level",
+        type: "code",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
 export namespace OxidizedHealthDeployOperation {
   export type Input = {
     code: fhirTypes.string;
