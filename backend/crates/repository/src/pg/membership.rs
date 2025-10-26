@@ -21,7 +21,7 @@ fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder = QueryBuilder::new(
             r#"
-                INSERT INTO memberships(tenant, project, user_id, role) VALUES (
+                INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
             "#,
         );
 
@@ -31,9 +31,10 @@ fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
             .push_bind(tenant.as_ref())
             .push_bind(project.as_ref())
             .push_bind(&membership.user_id)
-            .push_bind(membership.role as MembershipRole);
+            .push_bind(membership.role as MembershipRole)
+            .push_bind(&membership.resource_id);
 
-        query_builder.push(r#") RETURNING tenant, project, user_id, role"#);
+        query_builder.push(r#") RETURNING tenant, project, user_id, role, resource_id"#);
 
         let query = query_builder.build_query_as();
 
@@ -57,7 +58,7 @@ fn read_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send +
         let membership = sqlx::query_as!(
             Membership,
             r#"
-                SELECT tenant as "tenant: TenantId", project as "project: ProjectId", user_id, role as "role: MembershipRole"
+                SELECT tenant as "tenant: TenantId", project as "project: ProjectId", user_id, role as "role: MembershipRole", resource_id
                 FROM memberships
                 WHERE tenant = $1 AND project = $2 AND user_id = $3
             "#,
@@ -130,7 +131,7 @@ fn delete_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
             r#"
                 DELETE FROM memberships
                 WHERE tenant = $1 AND project = $2 AND user_id = $3
-                RETURNING user_id, tenant as "tenant: TenantId", project as "project: ProjectId", role as "role: MembershipRole"
+                RETURNING user_id, tenant as "tenant: TenantId", project as "project: ProjectId", role as "role: MembershipRole", resource_id
             "#,
             tenant.as_ref(),
             project.as_ref(),
@@ -154,7 +155,7 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT user_id, tenant, project, role as "role: MembershipRole" FROM memberships WHERE  "#,
+            r#"SELECT user_id, tenant, project, role as "role: MembershipRole", resource_id FROM memberships WHERE  "#,
         );
 
         let mut seperator = query_builder.separated(" AND ");
@@ -165,7 +166,9 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
             .push_bind_unseparated(project.as_ref());
 
         if let Some(user_id) = clauses.user_id.as_ref() {
-            seperator.push(" user_id = ").push_bind_unseparated(user_id);
+            seperator
+                .push(" user_id = ")
+                .push_bind_unseparated(user_id.as_ref());
         }
 
         if let Some(role) = clauses.role.as_ref() {

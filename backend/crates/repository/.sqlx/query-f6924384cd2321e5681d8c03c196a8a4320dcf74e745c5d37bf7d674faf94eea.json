@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                SELECT tenant as \"tenant: TenantId\", project as \"project: ProjectId\", user_id, role as \"role: MembershipRole\"\n                FROM memberships\n                WHERE tenant = $1 AND project = $2 AND user_id = $3\n            ",
+  "query": "\n                SELECT tenant as \"tenant: TenantId\", project as \"project: ProjectId\", user_id, role as \"role: MembershipRole\", resource_id\n                FROM memberships\n                WHERE tenant = $1 AND project = $2 AND user_id = $3\n            ",
   "describe": {
     "columns": [
       {
@@ -32,6 +32,11 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "resource_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -45,8 +50,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "e22b831cf72acb077715024b95ca37e90be3270210dcade454e1491987ecda0e"
+  "hash": "f6924384cd2321e5681d8c03c196a8a4320dcf74e745c5d37bf7d674faf94eea"
 }

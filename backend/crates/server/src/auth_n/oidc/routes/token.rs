@@ -66,6 +66,7 @@ struct TokenResponseArguments {
     scopes: Scopes,
     tenant: TenantId,
     project: ProjectId,
+    membership: Option<String>,
 }
 
 async fn create_token_response<Repo: Repository>(
@@ -86,6 +87,7 @@ async fn create_token_response<Repo: Repository>(
             project: Some(args.project.clone()),
             user_role: UserRole::Member,
             user_id: AuthorId::new(args.user_id.clone()),
+            membership_id: args.membership.clone(),
             resource_type: args.user_kind,
             access_policy_version_ids: vec![],
         },
@@ -130,6 +132,7 @@ async fn create_token_response<Repo: Repository>(
             &args.tenant,
             &args.project,
             CreateAuthorizationCode {
+                membership: args.membership,
                 user_id: args.user_id,
                 expires_in: Duration::from_secs(60 * 60 * 12), // 12 hours.
                 kind: AuthorizationCodeKind::RefreshToken,
@@ -282,6 +285,7 @@ pub async fn token<
                     )?,
                     tenant: tenant.clone(),
                     project: project.clone(),
+                    membership: None,
                 },
             )
             .await?;
@@ -349,7 +353,8 @@ pub async fn token<
                 &client_app,
                 &token_body.grant_type,
                 TokenResponseArguments {
-                    user_id: code.user_id.clone(),
+                    membership: code.membership,
+                    user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
@@ -435,7 +440,8 @@ pub async fn token<
                 &client_app,
                 &token_body.grant_type,
                 TokenResponseArguments {
-                    user_id: code.user_id.clone(),
+                    membership: code.membership,
+                    user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),

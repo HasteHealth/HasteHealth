@@ -119,6 +119,7 @@ pub async fn password_reset_initiate_post<
             &tenant,
             &project,
             CreateAuthorizationCode {
+                membership: None,
                 expires_in: Duration::from_secs(60 * 15), // 15 minutes
                 kind: AuthorizationCodeKind::PasswordReset,
                 user_id: user.id,

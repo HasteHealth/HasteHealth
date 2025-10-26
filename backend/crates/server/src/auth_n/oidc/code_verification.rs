@@ -76,6 +76,20 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
     .await?;
 
     if let Some(code) = code.pop() {
+        if code.project.as_ref() != Some(project) {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "Authorization code does not belong to the specified project.".to_string(),
+            ));
+        }
+
+        if code.tenant != *tenant {
+            return Err(OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "Authorization code does not belong to the specified tenant.".to_string(),
+            ));
+        }
+
         if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Security(None),

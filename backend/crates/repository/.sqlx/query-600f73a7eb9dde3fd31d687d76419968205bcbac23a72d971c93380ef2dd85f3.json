@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                DELETE FROM memberships\n                WHERE tenant = $1 AND project = $2 AND user_id = $3\n                RETURNING user_id, tenant as \"tenant: TenantId\", project as \"project: ProjectId\", role as \"role: MembershipRole\"\n            ",
+  "query": "\n                DELETE FROM memberships\n                WHERE tenant = $1 AND project = $2 AND user_id = $3\n                RETURNING user_id, tenant as \"tenant: TenantId\", project as \"project: ProjectId\", role as \"role: MembershipRole\", resource_id\n            ",
   "describe": {
     "columns": [
       {
@@ -32,6 +32,11 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "resource_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -45,8 +50,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "c6422d1e6dd3c27c29eb1871af8aa6783e61c15775e4323478769b07288ee83a"
+  "hash": "600f73a7eb9dde3fd31d687d76419968205bcbac23a72d971c93380ef2dd85f3"
 }

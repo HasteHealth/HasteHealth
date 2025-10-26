@@ -27,16 +27,43 @@ use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
+        ProjectId, TenantId,
         authorization_code::{
             AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
         },
-        membership::MembershipSearchClaims,
+        membership::{Membership, MembershipSearchClaims},
         scope::{ClientId, CreateScope, ScopeKey, UserId},
-        user::UserRole,
+        user::{User, UserRole},
     },
 };
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
+
+pub async fn find_membership<Repo: Repository>(
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+    user: &User,
+) -> Result<Option<Membership>, OperationOutcomeError> {
+    match &user.role {
+        UserRole::Owner | UserRole::Admin => Ok(None),
+        UserRole::Member => {
+            // Check that user is a member of the tenant.
+            let membership = ProjectAuthAdmin::search(
+                repo,
+                &tenant,
+                &project,
+                &MembershipSearchClaims {
+                    user_id: Some(UserId::new(user.id.clone())),
+                    role: None,
+                },
+            )
+            .await?;
+
+            Ok(membership.into_iter().next())
+        }
+    }
+}
 
 #[derive(TypedPath)]
 #[typed_path("/authorize")]
@@ -62,32 +89,15 @@ pub async fn authorize<
         .unwrap();
     // Verify the user has access to the given project.
 
-    match &user.role {
-        UserRole::Owner | UserRole::Admin => Ok(()),
-        UserRole::Member => {
-            // Check that user is a member of the tenant.
-            let membership = ProjectAuthAdmin::search(
-                &*app_state.repo,
-                &tenant,
-                &project,
-                &MembershipSearchClaims {
-                    user_id: Some(user.id.clone()),
-                    role: None,
-                },
-            )
-            .await?;
+    let membership = find_membership(&*app_state.repo, &tenant, &project, &user).await?;
 
-            if membership.is_empty() {
-                session::user::clear_user(&current_session, &tenant).await?;
-                Err(OperationOutcomeError::error(
-                    IssueType::Forbidden(None),
-                    "User is not a member of the project.".to_string(),
-                ))
-            } else {
-                Ok(())
-            }
-        }
-    }?;
+    if membership.is_none() && &user.role == &UserRole::Member {
+        session::user::clear_user(&current_session, &tenant).await?;
+        return Err(OperationOutcomeError::error(
+            IssueType::Forbidden(None),
+            "User is not a member of the project.".to_string(),
+        ));
+    }
 
     let state = oidc_params.parameters.get("state").ok_or_else(|| {
         OperationOutcomeError::error(
@@ -187,6 +197,7 @@ pub async fn authorize<
         &tenant,
         &project,
         CreateAuthorizationCode {
+            membership: membership.as_ref().map(|m| m.resource_id.clone()),
             expires_in: Duration::from_secs(60 * 5),
             kind: AuthorizationCodeKind::OAuth2CodeGrant,
             user_id: user.id,
