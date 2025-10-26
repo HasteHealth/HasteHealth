@@ -4,7 +4,7 @@ import {
 } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { useAtom } from "jotai";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import {
   Link,
@@ -45,6 +45,8 @@ import Projects from "./views/System/Projects";
 import { deriveProjectId, deriveTenantId } from "./utilities";
 import * as r4Types from "@oxidized-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
+import { ProjectInformation } from "@oxidized-health/generated-ops/r4";
+import { R4 } from "@oxidized-health/fhir-types/versions";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -378,6 +380,15 @@ function ProjectRoot() {
   const oxidizedHealth = useOxidizedHealth();
   const navigate = useNavigate();
   const matches = useMatches();
+  const [project, setProject] = React.useState<r4Types.Project | null>(null);
+
+  useEffect(() => {
+    oxidizedHealth.client
+      .invoke_system(ProjectInformation.Op, {}, R4, {})
+      .then((res) => {
+        setProject(res.project);
+      });
+  }, []);
 
   return (
     <>
@@ -387,8 +398,17 @@ function ProjectRoot() {
             top={
               <div
                 onClick={() => navigate(generatePath("/", {}))}
-                className="cursor-pointer p-2 mt-4"
-              ></div>
+                className="font-semibold cursor-pointer p-2 mt-4 mb-4"
+              >
+                <div>
+                  <span>{project?.name} </span>
+                </div>
+                <div>
+                  <span className="text-slate-400">
+                    {oxidizedHealth.tenant}
+                  </span>
+                </div>
+              </div>
             }
           >
             <SideBar.SideBarItemGroup label="Configuration">

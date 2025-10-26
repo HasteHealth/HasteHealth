@@ -72,7 +72,7 @@ fn project_information<
                         .repo
                         .read_latest(
                             &tenant,
-                            &project,
+                            &ProjectId::System,
                             &ResourceType::Project,
                             &ResourceId::new(project.to_string()),
                         )

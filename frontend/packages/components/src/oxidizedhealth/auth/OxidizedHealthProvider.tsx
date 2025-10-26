@@ -273,6 +273,7 @@ export function OxidizedHealthProvider({
 
           dispatch({
             type: "ON_SUCCESS",
+
             domain,
             well_known_uri,
             well_known,
