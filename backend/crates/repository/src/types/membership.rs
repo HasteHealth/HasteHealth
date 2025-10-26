@@ -4,6 +4,7 @@ use crate::types::{ProjectId, TenantId, scope::UserId};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct Membership {
+    pub resource_id: String,
     pub tenant: TenantId,
     pub project: ProjectId,
     pub user_id: String,
@@ -21,6 +22,7 @@ pub struct MembershipSearchClaims {
 }
 
 pub struct CreateMembership {
+    pub resource_id: String,
     pub user_id: String,
     pub role: MembershipRole,
 }

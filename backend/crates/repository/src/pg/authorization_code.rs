@@ -36,9 +36,9 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             r#"
         INSERT INTO authorization_code (
             tenant, project, client_id, kind, code, expires_in,
-            user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta
+            user_id, pkce_code_challenge, pkce_code_challenge_method, redirect_uri, meta, membership
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING tenant as "tenant: TenantId",
                   kind as "kind: AuthorizationCodeKind",
                   code,
@@ -49,7 +49,8 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   pkce_code_challenge_method as "pkce_code_challenge_method: PKCECodeChallengeMethod",
                   redirect_uri,
                   meta as "meta: Json<serde_json::Value>",
-                  NOW() > (created_at + expires_in) as is_expired
+                  NOW() > (created_at + expires_in) as is_expired,
+                  membership
         "#,
             tenant as &TenantId,
             project as Option<&'a ProjectId>,
@@ -62,6 +63,7 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             authorization_code.pkce_code_challenge_method as Option<PKCECodeChallengeMethod>,
             authorization_code.redirect_uri,
             authorization_code.meta as std::option::Option<Json<serde_json::Value>>,
+            authorization_code.membership as std::option::Option<String>,
         ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
 
         Ok(new_authorization_code)
@@ -89,7 +91,8 @@ fn read_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                pkce_code_challenge_method,
                redirect_uri,
                meta,
-               NOW() > (created_at + expires_in) as is_expired
+               NOW() > (created_at + expires_in) as is_expired,
+               membership
             FROM authorization_code
             WHERE 
         "#,
@@ -187,7 +190,8 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
                pkce_code_challenge_method,
                redirect_uri,
                meta,
-               NOW() > (created_at + expires_in) as is_expired
+               NOW() > (created_at + expires_in) as is_expired,
+               membership
             FROM authorization_code
             WHERE
         "#,

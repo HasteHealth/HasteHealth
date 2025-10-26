@@ -76,12 +76,14 @@ impl<
                         Some(FHIRResponse::Create(create_response)) => {
                             if let Resource::Membership(membership) = &create_response.resource
                                 && let Some(user_id) = get_user_id(membership)
+                                && let Some(membership_id) = membership.id.as_ref()
                             {
                                 ProjectAuthAdmin::create(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     &res.ctx.project,
                                     m::CreateMembership {
+                                        resource_id: membership_id.clone(),
                                         role: m::MembershipRole::Member,
                                         user_id: user_id.to_string(),
                                     },

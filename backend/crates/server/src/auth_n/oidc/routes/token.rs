@@ -31,7 +31,6 @@ use oxidized_repository::{
     types::{
         AuthorId, AuthorKind, ProjectId, TenantId,
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
-        membership::{CreateMembership, Membership, MembershipSearchClaims},
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
         scopes::{OIDCScope, Scope, Scopes},
         user::UserRole,
@@ -67,6 +66,7 @@ struct TokenResponseArguments {
     scopes: Scopes,
     tenant: TenantId,
     project: ProjectId,
+    membership: Option<String>,
 }
 
 async fn create_token_response<Repo: Repository>(
@@ -131,6 +131,7 @@ async fn create_token_response<Repo: Repository>(
             &args.tenant,
             &args.project,
             CreateAuthorizationCode {
+                membership: args.membership,
                 user_id: args.user_id,
                 expires_in: Duration::from_secs(60 * 60 * 12), // 12 hours.
                 kind: AuthorizationCodeKind::RefreshToken,
@@ -247,33 +248,6 @@ fn verify_client(
     Ok(())
 }
 
-async fn find_membership(
-    repo: &impl Repository,
-    tenant: &TenantId,
-    project: &ProjectId,
-    user_id: &UserId,
-) -> Result<Membership, OperationOutcomeError> {
-    let membership_found = ProjectAuthAdmin::<CreateMembership, _, _, _, _>::search(
-        repo,
-        tenant,
-        project,
-        &MembershipSearchClaims {
-            user_id: Some(user_id.clone()),
-            role: None,
-        },
-    )
-    .await?;
-
-    if let Some(membership_found) = membership_found.into_iter().next() {
-        Ok(membership_found)
-    } else {
-        Err(OperationOutcomeError::error(
-            IssueType::Forbidden(None),
-            "User is not a member of the project.".to_string(),
-        ))
-    }
-}
-
 pub async fn token<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -310,6 +284,7 @@ pub async fn token<
                     )?,
                     tenant: tenant.clone(),
                     project: project.clone(),
+                    membership: None,
                 },
             )
             .await?;
@@ -377,7 +352,8 @@ pub async fn token<
                 &client_app,
                 &token_body.grant_type,
                 TokenResponseArguments {
-                    user_id: code.user_id.clone(),
+                    membership: code.membership,
+                    user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
@@ -463,7 +439,8 @@ pub async fn token<
                 &client_app,
                 &token_body.grant_type,
                 TokenResponseArguments {
-                    user_id: code.user_id.clone(),
+                    membership: code.membership,
+                    user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),

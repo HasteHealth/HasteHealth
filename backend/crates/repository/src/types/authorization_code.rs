@@ -55,6 +55,7 @@ pub struct AuthorizationCodeSearchClaims {
 }
 
 pub struct CreateAuthorizationCode {
+    pub membership: Option<String>,
     pub expires_in: Duration,
     pub kind: AuthorizationCodeKind,
     pub user_id: String,
@@ -67,6 +68,7 @@ pub struct CreateAuthorizationCode {
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct AuthorizationCode {
+    pub membership: Option<String>,
     pub tenant: TenantId,
     pub is_expired: Option<bool>,
     pub kind: AuthorizationCodeKind,
