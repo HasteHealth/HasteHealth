@@ -10,36 +10,20 @@ use oxidized_fhir_client::{
     request::{FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse},
 };
 use oxidized_fhir_generated_ops::generated::ValueSetExpand;
-use oxidized_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
+use oxidized_fhir_model::r4::generated::{
+    resources::{Parameters, Resource},
+    terminology::IssueType,
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_ops::{OperationExecutor, OperationInvocation, Param};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
-use std::sync::Arc;
+use std::{pin::Pin, sync::Arc};
 
-struct ServerOperations<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    Arc<
-        Vec<
-            OperationExecutor<
-                ServerMiddlewareState<Repo, Search, Terminology>,
-                ValueSetExpand::Input,
-                ValueSetExpand::Output,
-            >,
-        >,
-    >,
-);
+struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);
 
-impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
-> Clone for ServerOperations<Repo, Search, Terminology>
-{
+impl<CTX> Clone for ServerOperations<CTX> {
     fn clone(&self) -> Self {
         ServerOperations(self.0.clone())
     }
@@ -49,10 +33,12 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-> ServerOperations<Repo, Search, Terminology>
+> ServerOperations<ServerMiddlewareState<Repo, Search, Terminology>>
 {
     pub fn new() -> Self {
-        let executors = Arc::new(vec![OperationExecutor::new(
+        let executors: Vec<
+            Box<dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>>,
+        > = vec![Box::new(OperationExecutor::new(
             ValueSetExpand::CODE.to_string(),
             Box::new(
                 |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
@@ -63,24 +49,18 @@ impl<
                     })
                 },
             ),
-        )]);
+        ))];
 
-        ServerOperations(executors)
+        Self(Arc::new(executors))
     }
 
     pub fn find_operation(
         &self,
         code: &str,
-    ) -> Option<
-        &OperationExecutor<
-            ServerMiddlewareState<Repo, Search, Terminology>,
-            ValueSetExpand::Input,
-            ValueSetExpand::Output,
-        >,
-    > {
+    ) -> Option<&dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>> {
         for executor in self.0.iter() {
             if executor.code() == code {
-                return Some(executor);
+                return Some(executor.as_ref());
             }
         }
         None
@@ -92,7 +72,7 @@ pub struct Middleware<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > {
-    operations: ServerOperations<Repo, Search, Terminology>,
+    operations: ServerOperations<ServerMiddlewareState<Repo, Search, Terminology>>,
 }
 
 impl<
@@ -145,22 +125,19 @@ impl<
                 let output: Resource = match &context.request {
                     FHIRRequest::InvokeInstance(instance_request) => {
                         let output = op_executor
-                            .execute(
-                                state,
-                                Param::Parameters(instance_request.parameters.clone()),
-                            )
+                            .execute(state, instance_request.parameters.clone())
                             .await?;
                         Ok(Resource::from(output))
                     }
                     FHIRRequest::InvokeType(type_request) => {
                         let output = op_executor
-                            .execute(state, Param::Parameters(type_request.parameters.clone()))
+                            .execute(state, type_request.parameters.clone())
                             .await?;
                         Ok(Resource::from(output))
                     }
                     FHIRRequest::InvokeSystem(system_request) => {
                         let output = op_executor
-                            .execute(state, Param::Parameters(system_request.parameters.clone()))
+                            .execute(state, system_request.parameters.clone())
                             .await?;
                         Ok(Resource::from(output))
                     }
