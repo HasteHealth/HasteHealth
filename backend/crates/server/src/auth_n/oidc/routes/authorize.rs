@@ -71,7 +71,7 @@ pub async fn authorize<
                 &tenant,
                 &project,
                 &MembershipSearchClaims {
-                    user_id: Some(user.id.clone()),
+                    user_id: Some(UserId::new(user.id.clone())),
                     role: None,
                 },
             )

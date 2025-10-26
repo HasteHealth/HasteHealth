@@ -31,7 +31,7 @@ use oxidized_repository::{
     types::{
         AuthorId, AuthorKind, ProjectId, TenantId,
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
-        membership::{CreateMembership, MembershipSearchClaims},
+        membership::{CreateMembership, Membership, MembershipSearchClaims},
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
         scopes::{OIDCScope, Scope, Scopes},
         user::UserRole,
@@ -247,13 +247,13 @@ fn verify_client(
     Ok(())
 }
 
-fn find_membership(
+async fn find_membership(
     repo: &impl Repository,
     tenant: &TenantId,
     project: &ProjectId,
     user_id: &UserId,
-) -> Result<(), OperationOutcomeError> {
-    ProjectAuthAdmin::<CreateMembership, _, _, _, _>::search(
+) -> Result<Membership, OperationOutcomeError> {
+    let membership_found = ProjectAuthAdmin::<CreateMembership, _, _, _, _>::search(
         repo,
         tenant,
         project,
@@ -261,26 +261,17 @@ fn find_membership(
             user_id: Some(user_id.clone()),
             role: None,
         },
-    );
-    // Verify the user is a member of the project.
-    let membership_exists = repo
-        .check_membership_exists(tenant, project, user_id)
-        .await
-        .map_err(|_| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                "Failed to verify user membership.".to_string(),
-            )
-        })?;
+    )
+    .await?;
 
-    if !membership_exists {
-        return Err(OperationOutcomeError::error(
+    if let Some(membership_found) = membership_found.into_iter().next() {
+        Ok(membership_found)
+    } else {
+        Err(OperationOutcomeError::error(
             IssueType::Forbidden(None),
             "User is not a member of the project.".to_string(),
-        ));
+        ))
     }
-
-    Ok(())
 }
 
 pub async fn token<
