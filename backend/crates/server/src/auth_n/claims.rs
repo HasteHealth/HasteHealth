@@ -22,4 +22,6 @@ pub struct UserTokenClaims {
     pub resource_type: AuthorKind,
     #[serde(rename = "https://oxidized-health.app/access_policies")]
     pub access_policy_version_ids: Vec<VersionId>,
+    #[serde(rename = "https://oxidized-health.app/membership_id")]
+    pub membership_id: Option<String>,
 }

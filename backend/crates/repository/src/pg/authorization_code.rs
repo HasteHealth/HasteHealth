@@ -155,7 +155,8 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   pkce_code_challenge_method,
                   redirect_uri,
                   meta,
-                  NOW() > (created_at + expires_in) as is_expired
+                  NOW() > (created_at + expires_in) as is_expired,
+                  membership
         "#,
         );
 

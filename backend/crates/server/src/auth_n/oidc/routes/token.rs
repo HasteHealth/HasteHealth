@@ -87,6 +87,7 @@ async fn create_token_response<Repo: Repository>(
             project: Some(args.project.clone()),
             user_role: UserRole::Member,
             user_id: AuthorId::new(args.user_id.clone()),
+            membership_id: args.membership.clone(),
             resource_type: args.user_kind,
             access_policy_version_ids: vec![],
         },
