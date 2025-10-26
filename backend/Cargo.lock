@@ -2178,6 +2178,7 @@ dependencies = [
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
  "oxidized-fhir-ops-derive",
+ "oxidized-repository",
 ]
 
 [[package]]

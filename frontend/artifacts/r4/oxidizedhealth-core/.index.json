@@ -2,6 +2,14 @@
   "index-version": "1",
   "files": [
     {
+      "filename": "definitions/oxidized-health/operation/current_project.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
+      "filename": "definitions/oxidized-health/operation/current_tenant.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/oxidized-health/operation/deploy.json",
       "resourceType": "OperationDefinition"
     },

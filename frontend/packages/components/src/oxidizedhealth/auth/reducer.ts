@@ -90,6 +90,8 @@ export function OxidizedHealthReducer(
       return {
         ...state,
         rootURL,
+        tenant: action.tenant,
+        project: action.project,
         isAuthenticated: true,
         well_known_uri: action.well_known_uri,
         well_known: action.well_known,

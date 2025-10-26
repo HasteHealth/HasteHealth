@@ -22,7 +22,7 @@ use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
-    types::{Author, AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId},
+    types::{ProjectId, TenantId},
 };
 
 pub async fn find_client_app<
@@ -43,19 +43,13 @@ pub async fn find_client_app<
     {
         Ok(client)
     } else {
-        let ctx = Arc::new(ServerCTX {
-            tenant,
-            project,
-            fhir_version: SupportedFHIRVersions::R4,
-            author: Author {
-                id: AuthorId::System,
-                kind: AuthorKind::System,
-            },
-        });
-
         let client_app = state
             .fhir_client
-            .read(ctx, ResourceType::ClientApplication, client_id)
+            .read(
+                Arc::new(ServerCTX::system(tenant, project)),
+                ResourceType::ClientApplication,
+                client_id,
+            )
             .await?;
 
         if let Some(Resource::ClientApplication(client_app)) = client_app {

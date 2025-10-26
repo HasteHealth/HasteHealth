@@ -10,3 +10,4 @@ derive = ["dep:oxidized-fhir-ops-derive"]
 oxidized-fhir-ops-derive = { path = "../fhir-ops-derive", optional = true }
 oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
+oxidized-repository = { path = "../repository" }

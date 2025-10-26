@@ -1,9 +1,11 @@
 import { createContext } from "react";
 
 import {
+  TenantId,
   AccessToken,
   IDToken,
   IDTokenPayload,
+  ProjectId,
 } from "@oxidized-health/jwt/types";
 
 import { OIDC_WELL_KNOWN } from "./reducer";
@@ -17,6 +19,8 @@ export type AccessTokenResponse = {
 };
 
 export type OxidizedHealthContextState = {
+  tenant?: TenantId;
+  project?: ProjectId;
   rootURL?: string;
   well_known_uri?: string;
   well_known?: OIDC_WELL_KNOWN;
@@ -39,6 +43,8 @@ const stub = (): never => {
 };
 
 export const InitialContext: OxidizedHealthContextState = {
+  tenant: undefined,
+  project: undefined,
   logout: stub,
   reAuthenticate: stub,
   well_known_uri: undefined,

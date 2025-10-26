@@ -2,6 +2,7 @@ use std::{pin::Pin, sync::Arc};
 
 use oxidized_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_repository::types::{ProjectId, TenantId};
 
 #[cfg(feature = "derive")]
 pub mod derive;
@@ -30,19 +31,15 @@ impl<
     }
 }
 
-pub trait OperationInvocation<
-    CTX: Send,
-    I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
-        + Into<Vec<ParametersParameter>>
-        + Send,
-    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
->
-{
+pub trait OperationInvocation<CTX: Send>: Send + Sync {
     fn execute(
         &self,
         ctx: CTX,
-        input: Param<I>,
-    ) -> impl Future<Output = Result<O, OperationOutcomeError>> + Send;
+        tenant: TenantId,
+        project: ProjectId,
+        input: Parameters,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>>;
+    fn code<'a>(&'a self) -> &'a str;
 }
 
 pub struct OperationExecutor<
@@ -53,9 +50,16 @@ pub struct OperationExecutor<
     O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
 > {
     _ctx: std::marker::PhantomData<CTX>,
+    code: String,
     executor: Arc<
         Box<
-            dyn Fn(CTX, I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
+            dyn Fn(
+                    CTX,
+                    TenantId,
+                    ProjectId,
+                    I,
+                )
+                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
                 + Send
                 + Sync,
         >,
@@ -71,8 +75,15 @@ impl<
 > OperationExecutor<CTX, I, O>
 {
     pub fn new(
+        code: String,
         executor: Box<
-            dyn Fn(CTX, I) -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
+            dyn Fn(
+                    CTX,
+                    TenantId,
+                    ProjectId,
+                    I,
+                )
+                    -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
                 + Send
                 + Sync,
         >,
@@ -80,33 +91,41 @@ impl<
         Self {
             _ctx: std::marker::PhantomData,
             executor: Arc::new(executor),
+            code,
         }
     }
 }
 
 impl<
-    CTX: Send,
+    CTX: Send + Sync + 'static,
     I: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
         + Into<Vec<ParametersParameter>>
-        + Send,
-    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError> + Into<Resource> + Send,
-> OperationInvocation<CTX, I, O> for OperationExecutor<CTX, I, O>
+        + Send
+        + 'static,
+    O: TryFrom<Vec<ParametersParameter>, Error = OperationOutcomeError>
+        + Into<Resource>
+        + Send
+        + 'static,
+> OperationInvocation<CTX> for OperationExecutor<CTX, I, O>
 {
     fn execute(
         &self,
         ctx: CTX,
-        input: Param<I>,
-    ) -> impl Future<Output = Result<O, OperationOutcomeError>> + Send {
+        tenant: TenantId,
+        project: ProjectId,
+        input: Parameters,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>> {
         let executor = self.executor.clone();
+        Box::pin(async move {
+            let input = I::try_from(input.parameter.unwrap_or_default())?;
 
-        async move {
-            let input = match input {
-                Param::Parameters(params) => I::try_from(params.parameter.unwrap_or_default()),
-                Param::Value(v) => Ok(v),
-            }?;
+            let output = (executor)(ctx, tenant, project, input).await?;
 
-            let output = (executor)(ctx, input).await;
-            output
-        }
+            Ok(output.into())
+        })
+    }
+
+    fn code<'a>(&'a self) -> &'a str {
+        &self.code
     }
 }
