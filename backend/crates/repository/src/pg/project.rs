@@ -93,7 +93,7 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT tenant, id, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects WHERE "#,
+            r#"SELECT tenant, id, fhir_version FROM projects WHERE "#,
         );
 
         let mut and_clauses = query_builder.separated(" AND ");
