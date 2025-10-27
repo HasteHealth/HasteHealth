@@ -364,7 +364,7 @@ function Page(props: PageProps) {
       <Navbar />
       <div
         className="py-4 flex flex-1"
-        style={{ maxHeight: "calc(100vh - 64px)" }}
+        style={{ height: "calc(100vh - 64px)" }}
       >
         <Toaster.Toaster />
         <Outlet />
