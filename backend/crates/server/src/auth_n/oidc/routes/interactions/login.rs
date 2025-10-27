@@ -35,7 +35,8 @@ pub async fn login_get(
     OIDCClientApplication(client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
-    let response = pages::login::login_form_html(&tenant, &project, &client_app, &uri.to_string());
+    let response =
+        pages::login::login_form_html(&tenant, &project, &client_app, &uri.to_string(), None);
 
     Ok(response)
 }
@@ -85,11 +86,13 @@ pub async fn login_post<
 
             Ok(authorization_redirect.into_response())
         }
-        LoginResult::Failure => {
-            Ok(
-                pages::login::login_form_html(&tenant, &project, &client_app, &uri.to_string())
-                    .into_response(),
-            )
-        }
+        LoginResult::Failure => Ok(pages::login::login_form_html(
+            &tenant,
+            &project,
+            &client_app,
+            &uri.to_string(),
+            Some(vec!["Invalid credentials. Please try again.".to_string()]),
+        )
+        .into_response()),
     }
 }
