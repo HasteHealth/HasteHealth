@@ -9,7 +9,7 @@ use maud::html;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
-// Our middleware is responsible for logging error details internally
+// Log operation outcome errors encountered during request processing.
 pub async fn log_operationoutcome_errors(request: Request, next: Next) -> Response {
     let response = next.run(request).await;
     // If the response contains an AppError Extension, log it.
