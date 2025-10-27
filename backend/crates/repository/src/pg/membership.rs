@@ -155,7 +155,7 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
         let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-            r#"SELECT user_id, tenant, project, role as "role: MembershipRole", resource_id FROM memberships WHERE  "#,
+            r#"SELECT user_id, tenant, project, role, resource_id FROM memberships WHERE  "#,
         );
 
         let mut seperator = query_builder.separated(" AND ");
