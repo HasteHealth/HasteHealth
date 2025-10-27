@@ -3,6 +3,7 @@ use axum::extract::OriginalUri;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Redirect};
 use axum::{body::Body, extract::Request, response::Response};
+use axum_extra::extract::Cached;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use tower::{Layer, Service};
@@ -60,7 +61,8 @@ where
 
         // Return the response as an immediate future
         Box::pin(async move {
-            let Ok(TenantIdentifier { tenant }) = request.extract_parts::<TenantIdentifier>().await
+            let Ok(Cached(TenantIdentifier { tenant })) =
+                request.extract_parts::<Cached<TenantIdentifier>>().await
             else {
                 return Ok((
                     StatusCode::BAD_REQUEST,
@@ -68,7 +70,9 @@ where
                 )
                     .into_response());
             };
-            let Ok(project) = request.extract_parts::<ProjectIdentifier>().await else {
+            let Ok(Cached(ProjectIdentifier { project })) =
+                request.extract_parts::<Cached<ProjectIdentifier>>().await
+            else {
                 return Ok((
                     StatusCode::BAD_REQUEST,
                     "Project id not found on request".to_string(),
@@ -76,12 +80,12 @@ where
                     .into_response());
             };
 
-            let current_session = request
-                .extract_parts::<Session>()
+            let Cached(current_session) = request
+                .extract_parts::<Cached<Session>>()
                 .await
                 .expect("Could not extract session.");
 
-            let to_route = oidc_route_string(&tenant, &project.project, &to);
+            let to_route = oidc_route_string(&tenant, &project, &to);
 
             if let Ok(Some(user)) = session::user::get_user(&current_session, &tenant).await
                 && user.tenant == tenant

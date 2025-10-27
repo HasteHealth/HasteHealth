@@ -1,5 +1,5 @@
 use axum::{Extension, response::Redirect};
-use axum_extra::routing::TypedPath;
+use axum_extra::{extract::Cached, routing::TypedPath};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use tower_sessions::Session;
@@ -21,9 +21,9 @@ pub struct Logout;
 
 pub async fn logout(
     _: Logout,
-    TenantIdentifier { tenant }: TenantIdentifier,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     OIDCClientApplication(_client_app): OIDCClientApplication,
-    current_session: Session,
+    Cached(current_session): Cached<Session>,
     Extension(oidc_params): Extension<OIDCParameters>,
 ) -> Result<Redirect, OperationOutcomeError> {
     session::user::clear_user(&current_session, &tenant).await?;

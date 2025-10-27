@@ -1,11 +1,10 @@
 use crate::{extract::path_tenant::TenantIdentifier, ui::pages::error::error_html};
 use axum::{
-    RequestPartsExt,
-    extract::FromRequestParts,
     extract::Request,
     middleware::Next,
     response::{IntoResponse, Response},
 };
+use axum_extra::extract::Cached;
 use maud::html;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
@@ -21,7 +20,11 @@ pub async fn log_operationoutcome_errors(request: Request, next: Next) -> Respon
     response
 }
 
-pub async fn operation_outcome_error_handle(request: Request, next: Next) -> Response {
+pub async fn operation_outcome_error_handle(
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    request: Request,
+    next: Next,
+) -> Response {
     let content_type = request
         .headers()
         .get(axum::http::header::ACCEPT)
@@ -30,6 +33,7 @@ pub async fn operation_outcome_error_handle(request: Request, next: Next) -> Res
         .to_string();
 
     let mut response = next.run(request).await;
+
     let error = response
         .extensions()
         .get::<Arc<OperationOutcomeError>>()
@@ -41,19 +45,22 @@ pub async fn operation_outcome_error_handle(request: Request, next: Next) -> Res
 
             let outcome = err.outcome();
             let issue = outcome.issue.first();
-            let body_html = error_html(html! {
-                div class ="text-xl font-semibold text-red-600 mb-4" {
-                   (issue.as_ref().map(|i| &i.code)
-                        .and_then(|s| {let code_string: Option<String> =  s.as_ref().into(); code_string})
-                        .unwrap_or_else(|| "UNKNOWN_ERROR".to_string()).to_ascii_uppercase())
-                }
-                div class= "text-sm text-red-500" {
-                    (issue.as_ref().and_then(|i| i.diagnostics.as_ref())
-                        .and_then(|d| d.value.as_ref())
-                        .map(|s| s.as_str())
-                        .unwrap_or("An unexpected error occurred."))
-                }
-            });
+            let body_html = error_html(
+                &tenant,
+                html! {
+                    div class ="text-xl font-semibold text-red-600 mb-4" {
+                       (issue.as_ref().map(|i| &i.code)
+                            .and_then(|s| {let code_string: Option<String> =  s.as_ref().into(); code_string})
+                            .unwrap_or_else(|| "UNKNOWN_ERROR".to_string()).to_ascii_uppercase())
+                    }
+                    div class= "text-sm text-red-500" {
+                        (issue.as_ref().and_then(|i| i.diagnostics.as_ref())
+                            .and_then(|d| d.value.as_ref())
+                            .map(|s| s.as_str())
+                            .unwrap_or("An unexpected error occurred."))
+                    }
+                },
+            );
             let mut html_response = body_html.into_response();
             let status_mut = html_response.status_mut();
             *status_mut = parts.status;

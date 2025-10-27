@@ -4,6 +4,7 @@ use axum::{
     response::Response,
 };
 
+use axum_extra::extract::Cached;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
@@ -21,8 +22,8 @@ pub async fn project_exists<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    ProjectIdentifier { project }: ProjectIdentifier,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     request: Request,
     next: Next,
 ) -> Result<Response, OperationOutcomeError> {

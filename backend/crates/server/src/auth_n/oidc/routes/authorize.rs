@@ -18,7 +18,7 @@ use axum::{
     http::{Uri, uri::Scheme},
     response::{IntoResponse, Redirect, Response},
 };
-use axum_extra::routing::TypedPath;
+use axum_extra::{extract::Cached, routing::TypedPath};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -76,13 +76,13 @@ pub async fn authorize<
 >(
     _: Authorize,
     Scopes(scopes): Scopes,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    Project(project_resource): Project,
-    ProjectIdentifier { project }: ProjectIdentifier,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(Project(project_resource)): Cached<Project>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
-    current_session: Session,
+    Cached(current_session): Cached<Session>,
 ) -> Result<Response, OperationOutcomeError> {
     let user = session::user::get_user(&current_session, &tenant)
         .await?
