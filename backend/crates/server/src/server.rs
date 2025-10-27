@@ -10,11 +10,13 @@ use crate::{
 };
 use axum::{
     Extension, Json, Router,
-    extract::{OriginalUri, Path, State},
+    extract::{OriginalUri, Path, Request, State},
     http::{Method, Uri},
+    middleware::{Next, from_fn},
     response::{IntoResponse, Response},
     routing::{self, any},
 };
+use maud::html;
 use oxidized_config::get_config;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::OperationOutcomeError;
@@ -160,6 +162,52 @@ pub fn asset_route(asset: &str) -> String {
     path.join(asset).to_str().unwrap().to_string()
 }
 
+// Our middleware is responsible for logging error details internally
+async fn log_operationoutcome_errors(request: Request, next: Next) -> Response {
+    let content_type = request
+        .headers()
+        .get(axum::http::header::ACCEPT)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .to_string();
+
+    let mut response = next.run(request).await;
+    // If the response contains an AppError Extension, log it.
+    if let Some(err) = response.extensions().get::<Arc<OperationOutcomeError>>() {
+        tracing::error!(?err);
+
+        if content_type.contains("text/html") || content_type.contains("application/fhir+json") {
+            let (parts, body) = response.into_parts();
+            let body_html = html! {
+                div {
+                    h1 { "An error occurred" }
+
+                }
+            };
+            let mut html_response = body_html.into_response();
+            let status_mut = html_response.status_mut();
+            *status_mut = parts.status;
+            let headers_mut = html_response.headers_mut();
+            *headers_mut = parts.headers;
+
+            headers_mut.insert(
+                axum::http::header::CONTENT_TYPE,
+                axum::http::HeaderValue::from_static("text/html; charset=utf-8"),
+            );
+
+            html_response
+        } else {
+            response.headers_mut().insert(
+                axum::http::header::CONTENT_TYPE,
+                axum::http::HeaderValue::from_static("application/fhir+json"),
+            );
+            response
+        }
+    } else {
+        response
+    }
+}
+
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
     auth_n::certificates::create_certifications(&*config).unwrap();
@@ -214,7 +262,8 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                         // allow requests from any origin
                         .allow_origin(Any)
                         .allow_headers(Any),
-                ),
+                )
+                .layer(from_fn(log_operationoutcome_errors)),
         )
         .with_state(shared_state)
         .nest(root_asset_route().to_str().unwrap(), assets_router);
