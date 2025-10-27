@@ -4,10 +4,11 @@ mod fhir_http;
 pub mod auth_n;
 pub mod fhir_client;
 pub mod load_artifacts;
+mod middleware;
 pub mod server;
 pub mod services;
 pub mod tenants;
-pub mod ui;
+mod ui;
 
 pub enum ServerEnvironmentVariables {
     AllowArtifactMutations,
