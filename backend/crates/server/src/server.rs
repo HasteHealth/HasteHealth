@@ -177,7 +177,7 @@ async fn log_operationoutcome_errors(request: Request, next: Next) -> Response {
         tracing::error!(?err);
 
         if content_type.contains("text/html") || content_type.contains("application/fhir+json") {
-            let (parts, body) = response.into_parts();
+            let (parts, _) = response.into_parts();
             let body_html = html! {
                 div {
                     h1 { "An error occurred" }

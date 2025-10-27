@@ -1,14 +1,12 @@
 use crate::{
     ServerEnvironmentVariables,
-    auth_n::oidc::{
-        ui::{
-            self,
-            pages::{self, message::message_html},
-        },
-        utilities::set_user_password,
-    },
+    auth_n::oidc::utilities::set_user_password,
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     services::AppState,
+    ui::{
+        self,
+        pages::{self, message::message_html},
+    },
 };
 use axum::{
     Form,

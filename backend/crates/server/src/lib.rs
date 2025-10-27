@@ -7,6 +7,7 @@ pub mod load_artifacts;
 pub mod server;
 pub mod services;
 pub mod tenants;
+pub mod ui;
 
 pub enum ServerEnvironmentVariables {
     AllowArtifactMutations,

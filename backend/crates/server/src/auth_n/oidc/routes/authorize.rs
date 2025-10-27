@@ -4,13 +4,13 @@ use crate::{
             extract::{client_app::OIDCClientApplication, scopes::Scopes},
             middleware::OIDCParameters,
             routes::scope::ScopeForm,
-            ui::pages,
             utilities::is_valid_redirect_url,
         },
         session,
     },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     services::AppState,
+    ui::pages,
 };
 use axum::{
     Extension,

@@ -1,4 +1,4 @@
-use crate::{auth_n::oidc::ui::components::page_html, server::asset_route};
+use crate::{server::asset_route, ui::components::page_html};
 use maud::{Markup, html};
 use oxidized_repository::types::{ProjectId, TenantId};
 use std::borrow::Cow;

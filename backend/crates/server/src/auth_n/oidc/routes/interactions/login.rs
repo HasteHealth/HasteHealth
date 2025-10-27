@@ -1,10 +1,8 @@
 use crate::{
-    auth_n::{
-        oidc::{extract::client_app::OIDCClientApplication, ui::pages},
-        session,
-    },
+    auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
     extract::path_tenant::{Project, TenantIdentifier},
     services::AppState,
+    ui::pages,
 };
 use axum::{
     Form,
