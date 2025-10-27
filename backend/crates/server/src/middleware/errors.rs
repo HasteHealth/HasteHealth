@@ -20,6 +20,9 @@ pub async fn log_operationoutcome_errors(request: Request, next: Next) -> Respon
     response
 }
 
+/// Middleware to handle OperationOutcomeErrors and return appropriate HTML or FHIR+JSON responses.
+/// If the client accepts HTML, an error page is rendered.
+/// Otherwise, a FHIR OperationOutcome JSON response is returned.
 pub async fn operation_outcome_error_handle(
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     request: Request,
@@ -41,7 +44,7 @@ pub async fn operation_outcome_error_handle(
 
     if let Some(err) = error {
         if content_type.contains("text/html") || content_type.contains("application/fhir+json") {
-            let (mut parts, _) = response.into_parts();
+            let (parts, _) = response.into_parts();
 
             let outcome = err.outcome();
             let issue = outcome.issue.first();
