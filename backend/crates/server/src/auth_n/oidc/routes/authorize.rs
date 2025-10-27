@@ -95,7 +95,15 @@ pub async fn authorize<
         session::user::clear_user(&current_session, &tenant).await?;
         return Err(OperationOutcomeError::error(
             IssueType::Forbidden(None),
-            "User is not a member of the project.".to_string(),
+            format!(
+                "User is not a member of project '{}'.",
+                project_resource
+                    .name
+                    .as_ref()
+                    .and_then(|n| n.value.as_ref())
+                    .map(|s| s.as_str())
+                    .unwrap_or(project.as_ref())
+            ),
         ));
     }
 
