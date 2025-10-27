@@ -1,17 +1,15 @@
 use crate::{
-    auth_n::{
-        oidc::{extract::client_app::OIDCClientApplication, ui::pages},
-        session,
-    },
+    auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
     extract::path_tenant::{Project, TenantIdentifier},
     services::AppState,
+    ui::pages,
 };
 use axum::{
     Form,
     extract::{OriginalUri, State},
     response::{IntoResponse, Redirect, Response},
 };
-use axum_extra::routing::TypedPath;
+use axum_extra::{extract::Cached, routing::TypedPath};
 use maud::Markup;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
@@ -30,8 +28,8 @@ pub struct Login;
 
 pub async fn login_get(
     _: Login,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    Project(project): Project,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(Project(project)): Cached<Project>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
@@ -53,11 +51,11 @@ pub async fn login_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: Login,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    Project(project): Project,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(Project(project)): Cached<Project>,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    current_session: Session,
+    Cached(current_session): Cached<Session>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     Form(login_data): Form<LoginForm>,
 ) -> Result<Response, OperationOutcomeError> {

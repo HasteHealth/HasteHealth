@@ -1,21 +1,19 @@
 use crate::{
     ServerEnvironmentVariables,
-    auth_n::oidc::{
-        ui::{
-            self,
-            pages::{self, message::message_html},
-        },
-        utilities::set_user_password,
-    },
+    auth_n::oidc::utilities::set_user_password,
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     services::AppState,
+    ui::{
+        self,
+        pages::{self, message::message_html},
+    },
 };
 use axum::{
     Form,
     extract::{OriginalUri, Query, State},
     http::Uri,
 };
-use axum_extra::routing::TypedPath;
+use axum_extra::{extract::Cached, routing::TypedPath};
 use maud::{Markup, html};
 use oxidized_config::Config;
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
@@ -68,8 +66,8 @@ pub struct PasswordResetInitiate;
 
 pub async fn password_reset_initiate_get(
     _: PasswordResetInitiate,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    Project(project): Project,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(Project(project)): Cached<Project>,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
     let response = pages::email_form::email_form_html(
@@ -95,8 +93,8 @@ pub async fn password_reset_initiate_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: PasswordResetInitiate,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    ProjectIdentifier { project }: ProjectIdentifier,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     project_resource: Project,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     uri: OriginalUri,
@@ -201,9 +199,9 @@ pub async fn password_reset_verify_get<
     _: PasswordResetVerify,
     uri: OriginalUri,
     query: Query<PasswordResetVerifyQuery>,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    ProjectIdentifier { project }: ProjectIdentifier,
-    Project(project_resource): Project,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    Cached(Project(project_resource)): Cached<Project>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Markup, OperationOutcomeError> {
     if let Some(code) = ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::read(
@@ -258,9 +256,9 @@ pub async fn password_reset_verify_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: PasswordResetVerify,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    ProjectIdentifier { project }: ProjectIdentifier,
-    Project(project_resource): Project,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    Cached(Project(project_resource)): Cached<Project>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Form(body): Form<PasswordVerifyPOSTBODY>,
 ) -> Result<Markup, OperationOutcomeError> {

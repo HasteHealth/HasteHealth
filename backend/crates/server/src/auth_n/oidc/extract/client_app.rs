@@ -12,6 +12,7 @@ use axum::{
     http::request::Parts,
     response::{IntoResponse, Response},
 };
+use axum_extra::extract::Cached;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{ClientApplication, Resource, ResourceType},
@@ -84,13 +85,15 @@ where
             .await
             .map_err(|err| err.into_response())?;
 
-        let TenantIdentifier { tenant } = TenantIdentifier::from_request_parts(parts, state)
-            .await
-            .map_err(|err| err.into_response())?;
+        let Cached(TenantIdentifier { tenant }) =
+            Cached::<TenantIdentifier>::from_request_parts(parts, state)
+                .await
+                .map_err(|err| err.into_response())?;
 
-        let ProjectIdentifier { project } = ProjectIdentifier::from_request_parts(parts, state)
-            .await
-            .map_err(|err| err.into_response())?;
+        let Cached(ProjectIdentifier { project }) =
+            Cached::<ProjectIdentifier>::from_request_parts(parts, state)
+                .await
+                .map_err(|err| err.into_response())?;
 
         let client_app = find_client_app(
             state,

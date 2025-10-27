@@ -16,7 +16,7 @@ use axum::{
     extract::State,
     response::{IntoResponse, Response},
 };
-use axum_extra::routing::TypedPath;
+use axum_extra::{extract::Cached, routing::TypedPath};
 use jsonwebtoken::{Algorithm, Header};
 use oxidized_fhir_model::r4::generated::{
     resources::ClientApplication,
@@ -255,8 +255,8 @@ pub async fn token<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TokenPath,
-    TenantIdentifier { tenant }: TenantIdentifier,
-    ProjectIdentifier { project }: ProjectIdentifier,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     ParsedBody(token_body): ParsedBody<schemas::token_body::OAuth2TokenBody>,
 ) -> Result<Response, OperationOutcomeError> {

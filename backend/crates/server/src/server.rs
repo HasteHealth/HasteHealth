@@ -6,12 +6,14 @@ use crate::{
     },
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
+    middleware::errors::{log_operationoutcome_errors, operation_outcome_error_handle},
     services::{AppState, ConfigError, create_services, get_pool},
 };
 use axum::{
     Extension, Json, Router,
     extract::{OriginalUri, Path, State},
     http::{Method, Uri},
+    middleware::from_fn,
     response::{IntoResponse, Response},
     routing::{self, any},
 };
@@ -214,7 +216,9 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                         // allow requests from any origin
                         .allow_origin(Any)
                         .allow_headers(Any),
-                ),
+                )
+                .layer(from_fn(operation_outcome_error_handle))
+                .layer(from_fn(log_operationoutcome_errors)),
         )
         .with_state(shared_state)
         .nest(root_asset_route().to_str().unwrap(), assets_router);

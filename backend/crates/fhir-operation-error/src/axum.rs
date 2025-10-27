@@ -1,15 +1,13 @@
-use std::error::Error;
-
+use crate::OperationOutcomeError;
 use axum::response::IntoResponse;
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
-
-use crate::OperationOutcomeError;
+use std::sync::Arc;
 
 impl IntoResponse for OperationOutcomeError {
     fn into_response(self) -> axum::response::Response {
-        tracing::error!("OperationOutcomeError source: {:?}", &self.source());
-        let outcome = self.outcome;
-        let response = oxidized_fhir_serialization_json::to_string(&outcome)
+        let error = Arc::new(self);
+        let outcome = &error.outcome;
+        let response = oxidized_fhir_serialization_json::to_string(outcome)
             .expect("Failed to serialize OperationOutcome");
 
         let status_code = match outcome.issue.first() {
@@ -23,6 +21,10 @@ impl IntoResponse for OperationOutcomeError {
             None => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        (status_code, response).into_response()
+        // Attach the original error to the response extensions for logging middleware to access and content-type handling.
+        let mut response = (status_code, response).into_response();
+        response.extensions_mut().insert(error);
+
+        response
     }
 }
