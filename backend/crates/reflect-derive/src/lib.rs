@@ -78,18 +78,10 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
                 };
 
                 let accessor = field.ident.to_owned().unwrap();
-                if is_optional(field) {
-                    quote! {
-                         #name => if let Some(mut_ref) = self.#accessor.as_mut() {
-                                Some(mut_ref)
-                            } else {
-                                None
-                            }
-                    }
-                } else {
-                    quote! {
-                        #name => Some(&mut self.#accessor)
-                    }
+                // For mutable accessors, we return nested Option types that are None
+                // So that the caller can choose to initialize them if needed.
+                quote! {
+                    #name => Some(&mut self.#accessor)
                 }
             });
 

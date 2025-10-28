@@ -270,6 +270,53 @@ where
     }
 }
 
+// Used for mutable access which requires setting optional fields.
+impl<T> MetaValue for Option<T>
+where
+    T: MetaValue,
+{
+    fn fields(&self) -> Vec<&'static str> {
+        match self {
+            Some(value) => value.fields(),
+            None => vec![],
+        }
+    }
+
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        self.as_ref().and_then(|value| value.get_field(field))
+    }
+
+    fn typename(&self) -> &'static str {
+        match self {
+            Some(value) => value.typename(),
+            None => "",
+        }
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        match self {
+            Some(value) => value.as_any(),
+            None => self,
+        }
+    }
+
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        self.as_ref().map(|v| v.flatten()).unwrap_or_else(|| vec![])
+    }
+
+    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+        self.as_ref().and_then(|v| v.get_index(index))
+    }
+
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        self.as_mut().and_then(|value| value.get_field_mut(field))
+    }
+
+    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+        self.as_mut().and_then(|v| v.get_index_mut(index))
+    }
+}
+
 impl<T> MetaValue for Box<T>
 where
     T: MetaValue,
