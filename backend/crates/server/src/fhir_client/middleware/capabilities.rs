@@ -196,10 +196,7 @@ impl<
                     if let Some(next) = next {
                         next(state, context).await
                     } else {
-                        Err(OperationOutcomeError::fatal(
-                            IssueType::Exception(None),
-                            "No next middleware found".to_string(),
-                        ))
+                        Ok(context)
                     }
                 }
             }

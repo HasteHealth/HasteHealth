@@ -84,6 +84,7 @@ impl<
     ) -> ServerMiddlewareOutput {
         Box::pin(async move {
             if let Some(next) = next {
+                // Skip over commit which will happen from caller site.
                 if state.repo.in_transaction() {
                     Ok(next(state, context).await?)
                 } else {

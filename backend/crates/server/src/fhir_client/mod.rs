@@ -370,8 +370,8 @@ impl<
                 terminology: config.terminology,
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::capabilities::Middleware::new()),
                 Box::new(route_middleware),
+                Box::new(middleware::capabilities::Middleware::new()),
             ]),
         }
     }
