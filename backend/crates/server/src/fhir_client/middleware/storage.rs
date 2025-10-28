@@ -164,6 +164,65 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
     }
 }
 
+async fn process_bundle_response<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
+    ctx: Arc<ServerCTX>,
+    response_bundle: &mut Bundle,
+    request_bundle_entries: Vec<BundleEntry>,
+) -> Result<(), OperationOutcomeError> {
+    let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
+    for e in request_bundle_entries.into_iter() {
+        if let Some(request) = e.request.as_ref() {
+            let url = request
+                .url
+                .value
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or_default();
+
+            let (path, query) = url.split_once("?").unwrap_or((url, ""));
+            let request_method_string: Option<String> = request.method.as_ref().into();
+            let Ok(method) = Method::from_str(&request_method_string.unwrap_or_default()) else {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid HTTP Method".to_string(),
+                ));
+            };
+
+            let http_request = HTTPRequest::new(
+                method,
+                path.to_string(),
+                if let Some(body) = e.resource {
+                    fhir_http::HTTPBody::Resource(*body)
+                } else {
+                    fhir_http::HTTPBody::String("".to_string())
+                },
+                query.to_string(),
+            );
+
+            let Ok(fhir_request) =
+                fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)
+            else {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid Bundle entry".to_string(),
+                ));
+            };
+
+            let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await;
+            bundle_response_entries.push(convert_bundle_entry(fhir_response));
+        }
+    }
+
+    response_bundle.entry = Some(bundle_response_entries);
+
+    Ok(())
+}
+
 pub struct Middleware {}
 impl Middleware {
     pub fn new() -> Self {
@@ -577,58 +636,14 @@ impl<
                         type_: Box::new(BundleType::BatchResponse(None)),
                         ..Default::default()
                     };
-                    if let Some(bundle_entries) = bundle_entries {
-                        let mut bundle_response_entries = Vec::with_capacity(bundle_entries.len());
-                        for e in bundle_entries.into_iter() {
-                            if let Some(request) = e.request.as_ref() {
-                                let url = request
-                                    .url
-                                    .value
-                                    .as_ref()
-                                    .map(|s| s.as_str())
-                                    .unwrap_or_default();
 
-                                let (path, query) = url.split_once("?").unwrap_or((url, ""));
-                                let request_method_string: Option<String> =
-                                    request.method.as_ref().into();
-                                let Ok(method) =
-                                    Method::from_str(&request_method_string.unwrap_or_default())
-                                else {
-                                    return Err(OperationOutcomeError::error(
-                                        IssueType::Invalid(None),
-                                        "Invalid HTTP Method".to_string(),
-                                    ));
-                                };
-
-                                let http_request = HTTPRequest::new(
-                                    method,
-                                    path.to_string(),
-                                    if let Some(body) = e.resource {
-                                        fhir_http::HTTPBody::Resource(*body)
-                                    } else {
-                                        fhir_http::HTTPBody::String("".to_string())
-                                    },
-                                    query.to_string(),
-                                );
-
-                                let Ok(fhir_request) = fhir_http::http_request_to_fhir_request(
-                                    SupportedFHIRVersions::R4,
-                                    http_request,
-                                ) else {
-                                    return Err(OperationOutcomeError::error(
-                                        IssueType::Invalid(None),
-                                        "Invalid Bundle entry".to_string(),
-                                    ));
-                                };
-
-                                let fhir_response = batch_client
-                                    .request(context.ctx.clone(), fhir_request)
-                                    .await;
-                                bundle_response_entries.push(convert_bundle_entry(fhir_response));
-                            }
-                        }
-                        bundle_response.entry = Some(bundle_response_entries);
-                    }
+                    process_bundle_response(
+                        &batch_client,
+                        context.ctx.clone(),
+                        &mut bundle_response,
+                        bundle_entries.unwrap_or_else(Vec::new),
+                    )
+                    .await?;
 
                     Ok(Some(FHIRResponse::Batch(FHIRBatchResponse {
                         resource: bundle_response,
