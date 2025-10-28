@@ -19,6 +19,7 @@
     "@oxidized-health/components": "workspace:^",
     "@oxidized-health/fhir-patch-building": "workspace:^",
     "@oxidized-health/fhir-pointer": "workspace:^",
+    "@oxidized-health/fhirpath": "workspace:^",
     "@oxidized-health/generated-ops": "workspace:^",
     "@oxidized-health/jwt": "workspace:^",
     "@oxidized-health/operation-execution": "workspace:^",
@@ -68,8 +69,8 @@
     "@oxidized-health/fhir-types": "workspace:^",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.17",
-    "@types/react": "^19.2.4",
-    "@types/react-dom": "^19.2.4",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
     "@types/react-window": "^1.8.8",
     "tailwindcss": "^3.4.17",
     "wrangler": "^4.20.1"
