@@ -439,6 +439,44 @@ function ProjectRoot() {
                 Subscriptions
               </SideBar.SideBarItem>
             </SideBar.SideBarItemGroup>
+            <SideBar.SideBarItemGroup label="Clinical">
+              <SideBar.SideBarItem
+                active={matches[0].params.resourceType === "Patient"}
+                onClick={() => {
+                  navigate(
+                    generatePath("/resources/:resourceType", {
+                      resourceType: "Patient",
+                    })
+                  );
+                }}
+              >
+                Patients
+              </SideBar.SideBarItem>
+              <SideBar.SideBarItem
+                active={matches[0].params.resourceType === "Encounter"}
+                onClick={() => {
+                  navigate(
+                    generatePath("/resources/:resourceType", {
+                      resourceType: "Encounter",
+                    })
+                  );
+                }}
+              >
+                Encounters
+              </SideBar.SideBarItem>
+              <SideBar.SideBarItem
+                active={matches[0].params.resourceType === "Observation"}
+                onClick={() => {
+                  navigate(
+                    generatePath("/resources/:resourceType", {
+                      resourceType: "Observation",
+                    })
+                  );
+                }}
+              >
+                Observations
+              </SideBar.SideBarItem>
+            </SideBar.SideBarItemGroup>
             <SideBar.SideBarItemGroup label="UI">
               <SideBar.SideBarItem
                 active={matches[0].params.resourceType === "Questionnaire"}
@@ -536,7 +574,10 @@ function ProjectRoot() {
                       match.params.resourceType !== "Membership" &&
                       match.params.resourceType !== "AccessPolicyV2" &&
                       match.params.resourceType !== "ClientApplication" &&
-                      match.params.resourceType !== "IdentityProvider"
+                      match.params.resourceType !== "IdentityProvider" &&
+                      match.params.resourceType !== "Patient" &&
+                      match.params.resourceType !== "Encounter" &&
+                      match.params.resourceType !== "Observation"
                   ) !== undefined
                 }
                 onClick={() => {
