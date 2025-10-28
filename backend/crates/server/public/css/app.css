@@ -3422,6 +3422,11 @@
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
   }
+  .md\:-mt-32 {
+    @media (width >= 48rem) {
+      margin-top: calc(var(--spacing) * -32);
+    }
+  }
   .md\:mt-0 {
     @media (width >= 48rem) {
       margin-top: calc(var(--spacing) * 0);
