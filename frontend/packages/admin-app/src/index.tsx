@@ -154,9 +154,9 @@ function SystemBar() {
             className={classNames(
               "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
               {
-                ["bg-indigo-500 hover:bg-indigo-600 text-white"]:
+                ["bg-teal-600 hover:bg-teal-700 text-white"]:
                   params.resourceType === type,
-                [" bg-gray-100 hover:bg-indigo-400 hover:text-white p-2"]:
+                [" bg-gray-100 hover:bg-teal-600 hover:text-white p-2"]:
                   params.resourceType !== type,
               }
             )}

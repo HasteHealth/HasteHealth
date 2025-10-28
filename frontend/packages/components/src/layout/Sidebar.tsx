@@ -23,8 +23,8 @@ export function SideBarItem({
         className={classNames(
           "cursor-pointer flex items-center p-1 px-2 group rounded-lg group",
           {
-            "text-slate-800 hover:bg-gray-200": !active,
-            "text-teal-800 bg-teal-200 ": active,
+            "text-slate-800 hover:bg-gray-100": !active,
+            "text-teal-800 bg-teal-100 ": active,
           }
         )}
       >
