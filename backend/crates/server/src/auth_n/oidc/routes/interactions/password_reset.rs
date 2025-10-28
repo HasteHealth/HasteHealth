@@ -177,7 +177,7 @@ pub async fn password_reset_initiate_post<
     } else {
         Err(OperationOutcomeError::error(
             IssueType::NotFound(None),
-            "No user found with that email.".to_string(),
+            "No user found with provided email address.".to_string(),
         ))?
     }
 }
