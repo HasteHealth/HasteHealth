@@ -23,6 +23,9 @@ type Statistics = {
   questionnaire?: number;
   questionnaireResponse?: number;
   auditEvent?: number;
+  membership?: number;
+  accessPolicy?: number;
+  clientApplication?: number;
 };
 
 const Dashboard = () => {
@@ -85,6 +88,24 @@ const Dashboard = () => {
               url: "AuditEvent?_total=estimate&_count=1" as uri,
             },
           },
+          {
+            request: {
+              method: "GET" as code,
+              url: "Membership?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "AccessPolicyV2?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "ClientApplication?_total=estimate&_count=1" as uri,
+            },
+          },
         ],
       })
       .then((bundle) => {
@@ -97,6 +118,9 @@ const Dashboard = () => {
           questionnaire: (bundle.entry?.[5]?.resource as Bundle)?.total,
           questionnaireResponse: (bundle.entry?.[6]?.resource as Bundle)?.total,
           auditEvent: (bundle.entry?.[7]?.resource as Bundle)?.total,
+          membership: (bundle.entry?.[8]?.resource as Bundle)?.total,
+          accessPolicy: (bundle.entry?.[9]?.resource as Bundle)?.total,
+          clientApplication: (bundle.entry?.[10]?.resource as Bundle)?.total,
         });
       })
       .catch((e) => {
@@ -171,6 +195,14 @@ const Dashboard = () => {
           title="Monitoring Resources"
           stats={{
             AuditEvent: stats?.auditEvent,
+          }}
+        />
+        <StatCard
+          title="Security"
+          stats={{
+            Membership: stats?.membership,
+            AccessPolicy: stats?.accessPolicy,
+            ClientApplication: stats?.clientApplication,
           }}
         />
       </div>
