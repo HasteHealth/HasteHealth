@@ -16,7 +16,7 @@ use oxidized_fhir_client::{
         FHIRBatchResponse, FHIRCreateResponse, FHIRDeleteInstanceResponse,
         FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
         FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
-        FHIRUpdateResponse, FHIRVersionReadResponse,
+        FHIRTransactionResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
@@ -173,6 +173,7 @@ async fn process_bundle_response<
     ctx: Arc<ServerCTX>,
     response_bundle: &mut Bundle,
     request_bundle_entries: Vec<BundleEntry>,
+    allow_failure: bool,
 ) -> Result<(), OperationOutcomeError> {
     let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
     for e in request_bundle_entries.into_iter() {
@@ -213,8 +214,13 @@ async fn process_bundle_response<
                 ));
             };
 
-            let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await;
-            bundle_response_entries.push(convert_bundle_entry(fhir_response));
+            if allow_failure {
+                let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await;
+                bundle_response_entries.push(convert_bundle_entry(fhir_response));
+            } else {
+                let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;
+                bundle_response_entries.push(convert_bundle_entry(Ok(fhir_response)));
+            }
         }
     }
 
@@ -622,10 +628,67 @@ impl<
                     }
                 }
 
-                FHIRRequest::Batch(batch_request) => {
-                    let mut bundle_entries = Some(Vec::new());
+                FHIRRequest::Transaction(transaction_request) => {
+                    let mut transaction_entries = Some(Vec::new());
                     // Memswap so I can avoid cloning.
-                    std::mem::swap(&mut batch_request.resource.entry, &mut bundle_entries);
+                    std::mem::swap(
+                        &mut transaction_request.resource.entry,
+                        &mut transaction_entries,
+                    );
+
+                    let transaction_repo = Arc::new(state.repo.transaction().await?);
+                    let bundle_response: Result<Bundle, OperationOutcomeError> = {
+                        let transaction_client = FHIRServerClient::new(ServerClientConfig::new(
+                            transaction_repo.clone(),
+                            state.search.clone(),
+                            state.terminology.clone(),
+                        ));
+                        let mut bundle_response = Bundle {
+                            type_: Box::new(BundleType::BatchResponse(None)),
+                            ..Default::default()
+                        };
+
+                        process_bundle_response(
+                            &transaction_client,
+                            context.ctx.clone(),
+                            &mut bundle_response,
+                            transaction_entries.unwrap_or_else(Vec::new),
+                            false,
+                        )
+                        .await?;
+
+                        Ok(bundle_response)
+                    };
+
+                    let repo = Arc::try_unwrap(transaction_repo).map_err(|_e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "Failed to unwrap transaction client".to_string(),
+                        )
+                    })?;
+
+                    if let Ok(transaction_bundle) = bundle_response {
+                        repo.commit().await?;
+                        Ok(Some(FHIRResponse::Transaction(FHIRTransactionResponse {
+                            resource: transaction_bundle,
+                        })))
+                    } else if let Err(operation_error) = bundle_response {
+                        tracing::info!("Rolling back transaction due to error");
+                        repo.rollback().await?;
+
+                        Err(operation_error)
+                    } else {
+                        Err(OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "Unexpected transaction error".to_string(),
+                        ))
+                    }
+                }
+
+                FHIRRequest::Batch(batch_request) => {
+                    let mut batch_entries = Some(Vec::new());
+                    // Memswap so I can avoid cloning.
+                    std::mem::swap(&mut batch_request.resource.entry, &mut batch_entries);
                     let batch_client = FHIRServerClient::new(ServerClientConfig::new(
                         state.repo.clone(),
                         state.search.clone(),
@@ -641,7 +704,8 @@ impl<
                         &batch_client,
                         context.ctx.clone(),
                         &mut bundle_response,
-                        bundle_entries.unwrap_or_else(Vec::new),
+                        batch_entries.unwrap_or_else(Vec::new),
+                        true,
                     )
                     .await?;
 
