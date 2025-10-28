@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Attribute, Data, DeriveInput, Expr, Lit, Meta, parse_macro_input};
+use syn::{Attribute, Data, DeriveInput, Expr, Field, Lit, Meta, parse_macro_input};
 
 fn get_attribute_rename(attrs: &[Attribute]) -> Option<String> {
     attrs.iter().find_map(|attr| match &attr.meta {
@@ -19,6 +19,15 @@ fn get_attribute_rename(attrs: &[Attribute]) -> Option<String> {
         }
         _ => None,
     })
+}
+
+fn is_optional(field: &Field) -> bool {
+    if let syn::Type::Path(type_path) = &field.ty {
+        if let Some(segment) = type_path.path.segments.first() {
+            return segment.ident == "Option";
+        }
+    }
+    false
 }
 
 #[proc_macro_derive(Reflect, attributes(rename_field))]
@@ -45,8 +54,14 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
                 };
 
                 let accessor = field.ident.to_owned().unwrap();
-                quote! {
-                    #name => Some(&self.#accessor)
+                if is_optional(field) {
+                    quote! {
+                         #name => self.#accessor.as_ref().and_then(|value| value.get_field(field))
+                    }
+                } else {
+                    quote! {
+                        #name => Some(&self.#accessor)
+                    }
                 }
             });
 
@@ -59,8 +74,14 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
                 };
 
                 let accessor = field.ident.to_owned().unwrap();
-                quote! {
-                    #name => Some(&mut self.#accessor)
+                if is_optional(field) {
+                    quote! {
+                         #name => self.#accessor.as_mut().and_then(|value| value.get_field_mut(field))
+                    }
+                } else {
+                    quote! {
+                        #name => Some(&mut self.#accessor)
+                    }
                 }
             });
 
