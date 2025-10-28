@@ -7,7 +7,7 @@ pub fn base(uri: &Uri, children: Markup) -> Markup {
     let img_url = Uri::builder()
         .scheme(uri.scheme().unwrap().clone())
         .authority(uri.authority().unwrap().clone())
-        .path_and_query(asset_route("img/logo.svg"))
+        .path_and_query(asset_route("img/logo.png"))
         .build()
         .unwrap();
     html! {
