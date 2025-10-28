@@ -12,6 +12,7 @@ import {
   code,
   uri,
 } from "@oxidized-health/fhir-types/lib/generated/r4/types";
+import { generatePath, useNavigate } from "react-router-dom";
 
 type Statistics = {
   patient?: number;
@@ -26,6 +27,8 @@ type Statistics = {
 
 const Dashboard = () => {
   const [stats, setStats] = useState<Statistics | null>(null);
+
+  const navigate = useNavigate();
 
   const client = useAtomValue(getClient);
   useEffect(() => {
@@ -114,13 +117,23 @@ const Dashboard = () => {
     title: string;
     stats: Record<string, number | undefined>;
   }) => (
-    <div className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm">
-      <h3 className="text-lg font-bold mb-2">{title}</h3>
+    <div className=" p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-slate-800">
+      <h3 className="text-lg font-semibold underline mb-2">{title}</h3>
       <div className="space-y-1">
-        {Object.keys(stats).map((key) => (
-          <div className="space-x-1 text-wrap" key={key}>
-            <span className="font-medium">{key}:</span>
-            <span className="text-slate-600">{stats[key] ?? ""}</span>
+        {Object.keys(stats).map((statKey) => (
+          <div
+            className="cursor-pointer font-medium hover:text-teal-400 space-x-1 text-wrap"
+            key={statKey}
+            onClick={() => {
+              navigate(
+                generatePath("/resources/:resourceType", {
+                  resourceType: statKey,
+                })
+              );
+            }}
+          >
+            <span className="font-medium">{statKey}s:</span>
+            <span className="text-slate-600">{stats[statKey] ?? ""}</span>
           </div>
         ))}
       </div>
@@ -133,93 +146,35 @@ const Dashboard = () => {
         <StatCard
           title="Clinical Resources"
           stats={{
-            Patients: stats?.patient,
-            Encounters: stats?.encounter,
-            Observations: stats?.observation,
+            Patient: stats?.patient,
+            Encounter: stats?.encounter,
+            Observation: stats?.observation,
           }}
         />
 
         <StatCard
           title="Configuration Resources"
           stats={{
-            "Operation Definitions": stats?.operationDefinition,
-            Subscriptions: stats?.subscription,
+            OperationDefinition: stats?.operationDefinition,
+            Subscription: stats?.subscription,
           }}
         />
 
         <StatCard
           title="UI Resources"
           stats={{
-            Questionnaires: stats?.questionnaire,
-            "Questionnaire Responses": stats?.questionnaireResponse,
+            Questionnaire: stats?.questionnaire,
+            QuestionnaireResponse: stats?.questionnaireResponse,
           }}
         />
         <StatCard
           title="Monitoring Resources"
           stats={{
-            AuditEvents: stats?.auditEvent,
+            AuditEvent: stats?.auditEvent,
           }}
         />
       </div>
     </div>
-    // <div className="flex flex-col flex-1 overflow-auto">
-    //   <div className="mt-6 mb-6">
-    //     <h2 className=" px-6 text-left flex text-2xl font-semibold">
-    //       FHIR R4 Limits
-    //     </h2>
-    //     <span className="text-xs px-6 mt-2">
-    //       These are the current FHIR R4 Limits for your tenant. To see available
-    //       upgrades click{" "}
-    //       <a
-    //         target="_blank"
-    //         className="underline text-teal-400"
-    //         href="https://oxidized-health.app/pricing"
-    //       >
-    //         here
-    //       </a>
-    //       .
-    //     </span>
-    //   </div>
-    //   <div className="flex flex-wrap mb-6">
-    //     {/* {stats["R4"]?.map((statistic) => (
-    //       <Card
-    //         key={statistic.name}
-    //         title={`${statistic.name} Limit`}
-    //         limit={statistic.limit}
-    //         usage={statistic.usage}
-    //         description={statistic.description ?? ""}
-    //       />
-    //     ))} */}
-    //   </div>
-    //   <div className="mt-6 mb-6">
-    //     <h2 className=" px-6 text-left flex text-2xl font-semibold">
-    //       FHIR R4B Limits
-    //     </h2>
-    //     <span className="text-xs px-6 mt-2">
-    //       These are the current FHIR R4B Limits for your tenant. To see
-    //       available upgrades click{" "}
-    //       <a
-    //         target="_blank"
-    //         className="underline text-teal-400"
-    //         href="https://oxidized-health.app/pricing"
-    //       >
-    //         here
-    //       </a>
-    //       .
-    //     </span>
-    //   </div>
-    //   <div className="flex flex-wrap mb-6">
-    //     {/* {stats["R4B"]?.map((statistic) => (
-    //       <Card
-    //         key={statistic.name}
-    //         title={`${statistic.name} Limit`}
-    //         limit={statistic.limit}
-    //         usage={statistic.usage}
-    //         description={statistic.description ?? ""}
-    //       />
-    //     ))} */}
-    //   </div>
-    // </div>
   );
 };
 
