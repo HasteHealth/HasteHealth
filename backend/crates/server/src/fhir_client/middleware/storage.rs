@@ -629,7 +629,7 @@ impl<
                 }
 
                 FHIRRequest::Transaction(transaction_request) => {
-                    let mut transaction_entries = Some(Vec::new());
+                    let mut transaction_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
                     std::mem::swap(
                         &mut transaction_request.resource.entry,
@@ -644,7 +644,7 @@ impl<
                             state.terminology.clone(),
                         ));
                         let mut bundle_response = Bundle {
-                            type_: Box::new(BundleType::BatchResponse(None)),
+                            type_: Box::new(BundleType::TransactionResponse(None)),
                             ..Default::default()
                         };
 
@@ -686,7 +686,7 @@ impl<
                 }
 
                 FHIRRequest::Batch(batch_request) => {
-                    let mut batch_entries = Some(Vec::new());
+                    let mut batch_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
                     std::mem::swap(&mut batch_request.resource.entry, &mut batch_entries);
                     let batch_client = FHIRServerClient::new(ServerClientConfig::new(
