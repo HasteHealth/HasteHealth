@@ -13,9 +13,11 @@ pub fn page_html(children: Markup) -> Markup {
             link rel="stylesheet" href=(asset_route("css/app.css")) {}
         }
         body {
-            section class="bg-gray-50  h-screen" {
-                div class="flex flex-col items-center justify-center px-6 py-8 space-y-4 mx-auto md:h-screen lg:py-0" {
-                    (children)
+            section class="bg-gray-50 h-screen" {
+                div class="flex flex-col items-center justify-center md:h-screen md:-mt-32" {
+                    div class="px-6 py-8 lg:py-0 space-y-4 mx-auto" {
+                     (children)
+                    }
                 }
             }
         }
