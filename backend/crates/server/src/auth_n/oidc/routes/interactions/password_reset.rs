@@ -172,7 +172,7 @@ pub async fn password_reset_initiate_post<
         Ok(message_html(
             &tenant,
             &project_resource.0,
-            html! {"Email has been sent check your inbox."},
+            html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
         ))
     } else {
         Err(OperationOutcomeError::error(
