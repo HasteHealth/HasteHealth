@@ -4,7 +4,7 @@ mod error;
 mod parser;
 use crate::{
     error::{FunctionError, OperationError},
-    parser::{Expression, FunctionInvocation, Invocation, Literal, Operation, Term},
+    parser::{Expression, FunctionInvocation, Identifier, Invocation, Literal, Operation, Term},
 };
 use dashmap::DashMap;
 pub use error::FHIRPathError;
@@ -115,12 +115,12 @@ fn evaluate_invocation<'b>(
         }
         Invocation::IndexAccessor => Err(FHIRPathError::NotImplemented("index access".to_string())),
         Invocation::Total => Err(FHIRPathError::NotImplemented("total".to_string())),
-        Invocation::Identifier(id) => Ok(context.new_context_from(
+        Invocation::Identifier(Identifier(id)) => Ok(context.new_context_from(
             context
                 .values
                 .iter()
                 .flat_map(|v| {
-                    v.get_field(&id.0)
+                    v.get_field(id)
                         .map(|v| v.flatten())
                         .unwrap_or_else(|| vec![])
                 })
@@ -438,6 +438,22 @@ fn evaluate_function<'b>(
             Ok(context
                 .new_context_from(vec![context.allocate(Box::new(!context.values.is_empty()))]))
         }),
+        "children" => fp_func_0(&function.arguments, context, |context| {
+            Ok(context.new_context_from(
+                context
+                    .values
+                    .iter()
+                    .flat_map(|value| {
+                        value
+                            .fields()
+                            .iter()
+                            .map(|f| value.get_field(f))
+                            .collect::<Vec<_>>()
+                    })
+                    .filter_map(|v| v)
+                    .collect(),
+            ))
+        }),
         "type" => fp_func_0(&function.arguments, context, |context| {
             Ok(context.new_context_from(
                 context
@@ -747,7 +763,7 @@ impl FPEngine {
 mod tests {
     use super::*;
     use oxidized_fhir_model::r4::generated::{
-        resources::{Bundle, Patient, Resource, SearchParameter},
+        resources::{Bundle, Patient, PatientDeceasedTypeChoice, Resource, SearchParameter},
         types::{
             Extension, ExtensionValueTypeChoice, FHIRString, HumanName, Identifier, Reference,
         },
@@ -1232,6 +1248,37 @@ mod tests {
         assert_eq!(
             references[0].reference.as_ref().unwrap().value,
             Some("Patient/f001".to_string())
+        );
+    }
+
+    #[test]
+    fn children_test() {
+        let engine = FPEngine::new();
+        let patient = Patient {
+            name: Some(vec![Box::new(HumanName {
+                given: Some(vec![Box::new(FHIRString {
+                    value: Some("Alice".to_string()),
+                    ..Default::default()
+                })]),
+                ..Default::default()
+            })]),
+            deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let result = engine.evaluate("$this.children()", vec![&patient]).unwrap();
+
+        assert_eq!(result.values.len(), 2);
+        assert_eq!(
+            result
+                .values
+                .iter()
+                .map(|v| v.typename())
+                .collect::<Vec<_>>(),
+            vec!["HumanName", "FHIRBoolean"]
         );
     }
 }

@@ -143,25 +143,23 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                 }
             });
 
-            let id_variant = codes.iter().map(|(_code, code)| {
+            let get_field_variants = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_field(field)
+                    #terminology_enum_name::#code_ident(Some(e)) => e.get_field(field)
                 }
             });
-            let extension_variant = id_variant.clone();
 
-            let id_variant_mut = codes.iter().map(|(_code, code)| {
+            let get_field_mut_variant = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));
 
                 quote! {
-                    #terminology_enum_name::#code_ident(e) => e.get_field_mut(field)
+                    #terminology_enum_name::#code_ident(Some(e)) => e.get_field_mut(field)
                 }
             });
-            let extension_variant_mut = id_variant_mut.clone();
 
             return Some(quote! {
                 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -214,29 +212,22 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
                                     None
                                 }
                             },
-                            "id" => match self {
-                                #(#id_variant),*,
-                                #terminology_enum_name::Null(e) => e.get_field(field),
-                            },
-                            "extension" => match self {
-                                #(#extension_variant),*,
-                                #terminology_enum_name::Null(e) => e.get_field(field),
-                            },
-                            _ => None,
+                            _ => match self {
+                                #(#get_field_variants),*,
+                                #terminology_enum_name::Null(Some(e)) => e.get_field(field),
+                                _ => None,
+                            }
                         }
                     }
 
                     fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
                         match field {
-                            "id" => match self {
-                                #(#id_variant_mut),*,
-                                #terminology_enum_name::Null(e) => e.get_field_mut(field),
-                            },
-                            "extension" => match self {
-                                #(#extension_variant_mut),*,
-                                #terminology_enum_name::Null(e) => e.get_field_mut(field),
-                            },
-                            _ => None,
+                            "value" => None,
+                            _ => match self {
+                                #(#get_field_mut_variant),*,
+                                #terminology_enum_name::Null(Some(e)) => e.get_field_mut(field),
+                                _ => None,
+                            }
                         }
                     }
 

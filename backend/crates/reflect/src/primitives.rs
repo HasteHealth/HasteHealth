@@ -270,6 +270,7 @@ where
     }
 }
 
+// Used for mutable access which requires setting optional fields.
 impl<T> MetaValue for Option<T>
 where
     T: MetaValue,
