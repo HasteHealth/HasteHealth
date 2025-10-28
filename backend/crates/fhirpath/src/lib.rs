@@ -357,7 +357,9 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
     match value.typename() {
         // Special handling for reference which is to check the reference type.
         "Reference" => {
-            if let Some(reference) = value.as_any().downcast_ref::<Reference>() {
+            if type_to_check == "Reference" {
+                return true;
+            } else if let Some(reference) = value.as_any().downcast_ref::<Reference>() {
                 if let Some(resource_type) = reference
                     .reference
                     .as_ref()
@@ -444,15 +446,47 @@ fn evaluate_function<'b>(
                     .values
                     .iter()
                     .flat_map(|value| {
-                        value
+                        let result = value
                             .fields()
                             .iter()
-                            .map(|f| value.get_field(f))
-                            .collect::<Vec<_>>()
+                            .filter_map(|f| value.get_field(f).map(|v| v.flatten()))
+                            .flatten()
+                            .collect::<Vec<_>>();
+                        result
                     })
-                    .filter_map(|v| v)
                     .collect(),
             ))
+        }),
+        "repeat" => fp_func_1(&function.arguments, context, |args, context| {
+            let projection = &args[0];
+            let mut end_result = vec![];
+            let mut cur = context;
+
+            while (cur.values.len() != 0) {
+                cur = evaluate_expression(projection, cur)?;
+                end_result.extend_from_slice(cur.values.as_slice());
+            }
+
+            Ok(cur.new_context_from(end_result))
+        }),
+        "descendants" => fp_func_0(&function.arguments, context, |context| {
+            // Descendants is shorthand for repeat(children()) see [https://hl7.org/fhirpath/N1/#descendants-collection].
+            let result = evaluate_expression(
+                &Expression::Singular(vec![Term::Invocation(Invocation::Function(
+                    FunctionInvocation {
+                        name: Identifier("repeat".to_string()),
+                        arguments: vec![Expression::Singular(vec![Term::Invocation(
+                            Invocation::Function(FunctionInvocation {
+                                name: Identifier("children".to_string()),
+                                arguments: vec![],
+                            }),
+                        )])],
+                    },
+                ))]),
+                context,
+            )?;
+
+            Ok(result)
         }),
         "type" => fp_func_0(&function.arguments, context, |context| {
             Ok(context.new_context_from(
@@ -763,7 +797,9 @@ impl FPEngine {
 mod tests {
     use super::*;
     use oxidized_fhir_model::r4::generated::{
-        resources::{Bundle, Patient, PatientDeceasedTypeChoice, Resource, SearchParameter},
+        resources::{
+            Bundle, Patient, PatientDeceasedTypeChoice, PatientLink, Resource, SearchParameter,
+        },
         types::{
             Extension, ExtensionValueTypeChoice, FHIRString, HumanName, Identifier, Reference,
         },
@@ -1279,6 +1315,156 @@ mod tests {
                 .map(|v| v.typename())
                 .collect::<Vec<_>>(),
             vec!["HumanName", "FHIRBoolean"]
+        );
+    }
+
+    #[test]
+    fn repeat_test() {
+        let engine = FPEngine::new();
+        let patient = Patient {
+            name: Some(vec![Box::new(HumanName {
+                given: Some(vec![Box::new(FHIRString {
+                    value: Some("Alice".to_string()),
+                    ..Default::default()
+                })]),
+                ..Default::default()
+            })]),
+            deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let result = engine.evaluate("$this.name.given", vec![&patient]).unwrap();
+
+        assert_eq!(result.values.len(), 1);
+
+        assert_eq!(result.values[0].typename(), "FHIRString");
+
+        let result = engine
+            .evaluate("$this.repeat(children())", vec![&patient])
+            .unwrap();
+
+        assert_eq!(
+            result
+                .values
+                .iter()
+                .map(|v| v.typename())
+                .collect::<Vec<_>>(),
+            vec![
+                "HumanName",
+                "FHIRBoolean",
+                "FHIRString",
+                "http://hl7.org/fhirpath/System.Boolean",
+                "http://hl7.org/fhirpath/System.String"
+            ]
+        );
+    }
+    #[test]
+    fn descendants_test() {
+        let engine = FPEngine::new();
+        let patient = Patient {
+            name: Some(vec![Box::new(HumanName {
+                given: Some(vec![Box::new(FHIRString {
+                    value: Some("Alice".to_string()),
+                    ..Default::default()
+                })]),
+                ..Default::default()
+            })]),
+            deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+        let result = engine.evaluate("descendants()", vec![&patient]).unwrap();
+
+        assert_eq!(
+            result
+                .values
+                .iter()
+                .map(|v| v.typename())
+                .collect::<Vec<_>>(),
+            vec![
+                "HumanName",
+                "FHIRBoolean",
+                "FHIRString",
+                "http://hl7.org/fhirpath/System.Boolean",
+                "http://hl7.org/fhirpath/System.String"
+            ]
+        );
+    }
+
+    #[test]
+    fn descendants_test_filter() {
+        let engine = FPEngine::new();
+        let patient = Patient {
+            link: Some(vec![PatientLink {
+                other: Box::new(Reference {
+                    reference: Some(Box::new(FHIRString {
+                        value: Some("Patient/123".to_string()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]),
+            name: Some(vec![Box::new(HumanName {
+                given: Some(vec![Box::new(FHIRString {
+                    value: Some("Alice".to_string()),
+                    ..Default::default()
+                })]),
+                ..Default::default()
+            })]),
+            deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+        let result = engine.evaluate("descendants()", vec![&patient]).unwrap();
+
+        assert_eq!(
+            result
+                .values
+                .iter()
+                .map(|v| v.typename())
+                .collect::<Vec<_>>(),
+            vec![
+                "HumanName",
+                "FHIRBoolean",
+                "PatientLink",
+                "FHIRString",
+                "http://hl7.org/fhirpath/System.Boolean",
+                "Reference",
+                "http://hl7.org/fhirpath/System.String",
+                "FHIRString",
+                "http://hl7.org/fhirpath/System.String"
+            ]
+        );
+
+        let result = engine
+            .evaluate("descendants().ofType(Reference)", vec![&patient])
+            .unwrap();
+
+        assert_eq!(
+            result
+                .values
+                .iter()
+                .map(|v| v.typename())
+                .collect::<Vec<_>>(),
+            vec!["Reference",]
+        );
+
+        let value = result.values[0]
+            .as_any()
+            .downcast_ref::<Reference>()
+            .unwrap();
+
+        assert_eq!(
+            value.reference.as_ref().unwrap().value.as_ref().unwrap(),
+            "Patient/123"
         );
     }
 }
