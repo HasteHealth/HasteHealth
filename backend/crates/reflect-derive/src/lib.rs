@@ -56,7 +56,11 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
                 let accessor = field.ident.to_owned().unwrap();
                 if is_optional(field) {
                     quote! {
-                         #name => self.#accessor.as_ref().and_then(|value| value.get_field(field))
+                         #name => if let Some(v) = self.#accessor.as_ref() {
+                             Some(v)
+                         } else {
+                             None
+                         }
                     }
                 } else {
                     quote! {
@@ -76,7 +80,11 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
                 let accessor = field.ident.to_owned().unwrap();
                 if is_optional(field) {
                     quote! {
-                         #name => self.#accessor.as_mut().and_then(|value| value.get_field_mut(field))
+                         #name => if let Some(mut_ref) = self.#accessor.as_mut() {
+                                Some(mut_ref)
+                            } else {
+                                None
+                            }
                     }
                 } else {
                     quote! {
