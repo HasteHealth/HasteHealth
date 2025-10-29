@@ -13,7 +13,7 @@ use std::{
     collections::HashSet,
     marker::PhantomData,
     rc::Rc,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
 };
 // use owning_ref::BoxRef;
 use once_cell::sync::Lazy;
@@ -758,11 +758,11 @@ pub struct FPEngine {
     ast: Arc<DashMap<String, Expression>>,
 }
 
+static AST: LazyLock<Arc<DashMap<String, Expression>>> = LazyLock::new(|| Arc::new(DashMap::new()));
+
 impl FPEngine {
     pub fn new() -> Self {
-        Self {
-            ast: Arc::new(DashMap::new()),
-        }
+        Self { ast: AST.clone() }
     }
 
     /// Evaluate a FHIRPath expression against a context.
