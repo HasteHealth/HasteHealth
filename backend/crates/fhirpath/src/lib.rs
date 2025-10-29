@@ -1467,4 +1467,85 @@ mod tests {
             "Patient/123"
         );
     }
+
+    #[test]
+    fn try_unsafe_set_from_ref() {
+        let engine = FPEngine::new();
+        let patient = Patient {
+            link: Some(vec![PatientLink {
+                other: Box::new(Reference {
+                    reference: Some(Box::new(FHIRString {
+                        value: Some("Patient/123".to_string()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }]),
+            name: Some(vec![Box::new(HumanName {
+                given: Some(vec![Box::new(FHIRString {
+                    value: Some("Alice".to_string()),
+                    ..Default::default()
+                })]),
+                ..Default::default()
+            })]),
+            deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let result = engine
+            .evaluate("descendants().ofType(Reference)", vec![&patient])
+            .unwrap();
+
+        assert_eq!(
+            result
+                .values
+                .iter()
+                .map(|v| v.typename())
+                .collect::<Vec<_>>(),
+            vec!["Reference",]
+        );
+
+        let value = result.values[0]
+            .as_any()
+            .downcast_ref::<Reference>()
+            .unwrap();
+
+        assert_eq!(
+            value.reference.as_ref().unwrap().value.as_ref().unwrap(),
+            "Patient/123"
+        );
+
+        // An example for use in transaction processing where we have a reference to an object
+        // but need to modify it in place.
+        unsafe {
+            let r = value as *const Reference;
+            let mut_ptr = r as *mut Reference;
+
+            (*mut_ptr).reference = Some(Box::new(FHIRString {
+                value: Some("Patient/456".to_string()),
+                ..Default::default()
+            }));
+        }
+
+        assert_eq!(
+            value.reference.as_ref().unwrap().value.as_ref().unwrap(),
+            "Patient/456"
+        );
+
+        assert_eq!(
+            patient.link.as_ref().unwrap()[0]
+                .other
+                .reference
+                .as_ref()
+                .unwrap()
+                .value
+                .as_ref()
+                .unwrap(),
+            "Patient/456"
+        );
+    }
 }
