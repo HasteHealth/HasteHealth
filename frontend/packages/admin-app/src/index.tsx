@@ -398,10 +398,20 @@ function ProjectRoot() {
             top={
               <div
                 onClick={() => navigate(generatePath("/", {}))}
-                className="font-semibold cursor-pointer p-2 mt-4 mb-4"
+                className="group font-semibold cursor-pointer p-2 mt-4 mb-4"
               >
                 <div>
-                  <span>{project?.name} </span>
+                  <span
+                    className={classNames(
+                      "font-bold group-hover:text-teal-900 group-hover:underline",
+                      {
+                        "text-teal-900 underline":
+                          matches[matches.length - 1].id === "dashboard",
+                      }
+                    )}
+                  >
+                    {project?.name}
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-400">
