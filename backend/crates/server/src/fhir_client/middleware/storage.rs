@@ -33,7 +33,7 @@ use oxidized_repository::{
     fhir::{FHIRRepository, HistoryRequest},
     types::{ResourceId, SupportedFHIRVersions, VersionIdRef},
 };
-use std::{str::FromStr, sync::Arc};
+use std::{str::FromStr, sync::Arc, time::Instant};
 
 fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeError>) -> BundleEntry {
     match fhir_response {
@@ -629,6 +629,7 @@ impl<
                 }
 
                 FHIRRequest::Transaction(transaction_request) => {
+                    let fp_engine = oxidized_fhirpath::FPEngine::new();
                     let mut transaction_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
                     std::mem::swap(
@@ -636,7 +637,24 @@ impl<
                         &mut transaction_entries,
                     );
 
+                    let fp_test_data = transaction_entries.clone().unwrap_or_default();
+                    let now = Instant::now();
+                    let fp_result = fp_engine
+                        .evaluate(
+                            "$this.descendants().ofType(Reference)",
+                            fp_test_data.iter().map(|be| be as &dyn MetaValue).collect(),
+                        )
+                        .unwrap();
+
+                    tracing::info!(
+                        "FHIRPath evaluation for references took {:?}",
+                        now.elapsed()
+                    );
+
+                    let res = fp_result.iter().collect::<Vec<_>>();
+
                     let transaction_repo = Arc::new(state.repo.transaction().await?);
+
                     let bundle_response: Result<Bundle, OperationOutcomeError> = {
                         let transaction_client = FHIRServerClient::new(ServerClientConfig::new(
                             transaction_repo.clone(),
