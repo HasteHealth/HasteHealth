@@ -272,7 +272,7 @@ pub async fn process_transaction_bundle<
 ) -> Result<Bundle, OperationOutcomeError> {
     let fp_engine = oxidized_fhirpath::FPEngine::new();
 
-    let mut graph = DiGraph::<Option<BundleEntry>, Pin<&mut Reference>>::new();
+    let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&mut Reference>>>::new();
     // Used for index lookup when mutating.
     let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
 
@@ -313,12 +313,16 @@ pub async fn process_transaction_bundle<
                         let r = reference as *const Reference;
                         let mut_ptr = r as *mut Reference;
                         let mutable_reference = unsafe { mut_ptr.as_mut().unwrap() };
-                        Some((*reference_index, cur_index, Pin::new(mutable_reference)))
+                        Some((
+                            *reference_index,
+                            cur_index,
+                            Some(Pin::new(mutable_reference)),
+                        ))
                     } else {
                         None
                     }
                 })
-                .collect::<Vec<(NodeIndex, NodeIndex, Pin<&mut Reference>)>>()
+                .collect::<Vec<(NodeIndex, NodeIndex, Option<Pin<&mut Reference>>)>>()
         })
         .collect::<Vec<_>>();
 
@@ -342,7 +346,18 @@ pub async fn process_transaction_bundle<
         let targets = graph.edges(*index).map(|e| e.id()).collect::<Vec<_>>();
         let edges = targets
             .into_iter()
-            .filter_map(|i| graph.remove_edge(i))
+            // Do memswap as actual removal alters edge locations of graph.
+            // So next set of edges would be invalid (although could possibly go in reverse order).
+            .filter_map(|i| {
+                if let Some(edge_weight) = graph.edge_weight_mut(i) {
+                    let mut placeholder = None;
+                    std::mem::swap(&mut placeholder, edge_weight);
+
+                    placeholder
+                } else {
+                    None
+                }
+            })
             .collect::<Vec<_>>();
 
         let mut entry = None;
