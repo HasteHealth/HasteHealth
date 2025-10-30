@@ -456,13 +456,6 @@ impl<
                         let fp_test_data = transaction_entries.clone().unwrap_or_default();
                         let now = Instant::now();
 
-                        let res = process_transaction_bundle(
-                            &transaction_client,
-                            context.ctx.clone(),
-                            fp_test_data,
-                        )
-                        .await;
-
                         Ok(process_transaction_bundle(
                             &transaction_client,
                             context.ctx.clone(),
