@@ -23,21 +23,21 @@ pub async fn project_access(
     if claims.tenant != tenant {
         return Err(OperationOutcomeError::error(
             IssueType::Forbidden(None),
-            "User does not have access to project".to_string(),
+            format!("User does not have access to tenant '{}'.", tenant),
         ));
     }
 
     let Some(user_project) = &claims.project else {
         return Err(OperationOutcomeError::error(
             IssueType::Forbidden(None),
-            "User does not have access to project".to_string(),
+            format!("User does not have access to project '{}'.", project),
         ));
     };
 
     if user_project != &project {
         return Err(OperationOutcomeError::error(
             IssueType::Forbidden(None),
-            "User does not have access to project".to_string(),
+            format!("User does not have access to project '{}'.", project),
         ));
     }
 
