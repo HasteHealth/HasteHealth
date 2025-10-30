@@ -11,7 +11,7 @@ use crate::{
 };
 use axum::{
     Extension, Json, Router,
-    extract::{OriginalUri, Path, State},
+    extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::{Method, Uri},
     middleware::from_fn,
     response::{IntoResponse, Response},
@@ -172,6 +172,11 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let session_store = PostgresStore::new(pool.clone());
     session_store.migrate().await.map_err(ConfigError::from)?;
 
+    let max_body_size = config
+        .get(crate::ServerEnvironmentVariables::MaxRequestBodySize)
+        .ok()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(4 * 1024 * 1024);
     let shared_state = create_services(config).await?;
 
     let fhir_router = Router::new()
@@ -202,6 +207,8 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                // 4mb by default.
+                .layer(DefaultBodyLimit::max(max_body_size))
                 .layer(CompressionLayer::new())
                 .layer(
                     SessionManagerLayer::new(session_store)

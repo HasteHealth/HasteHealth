@@ -27,6 +27,9 @@ pub enum ServerEnvironmentVariables {
     // Email
     SendGridAPIKey,
     EmailFromAddress,
+
+    // Data Limits
+    MaxRequestBodySize,
 }
 
 impl From<ServerEnvironmentVariables> for String {
@@ -48,6 +51,7 @@ impl From<ServerEnvironmentVariables> for String {
             ServerEnvironmentVariables::AdminAppRedirectURI => "ADMIN_APP_REDIRECT_URI".to_string(),
             ServerEnvironmentVariables::SendGridAPIKey => "SG_API_KEY".to_string(),
             ServerEnvironmentVariables::EmailFromAddress => "EMAIL_FROM".to_string(),
+            ServerEnvironmentVariables::MaxRequestBodySize => "MAX_REQUEST_BODY_SIZE".to_string(),
         }
     }
 }
