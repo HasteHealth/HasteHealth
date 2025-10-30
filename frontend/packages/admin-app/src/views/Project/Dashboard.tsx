@@ -26,6 +26,14 @@ type Statistics = {
   membership?: number;
   accessPolicy?: number;
   clientApplication?: number;
+  claim?: number;
+  explanationOfBenefit?: number;
+  medication?: number;
+  medicationRequest?: number;
+  condition?: number;
+  careTeam?: number;
+  carePlan?: number;
+  practitioner?: number;
 };
 
 const Dashboard = () => {
@@ -106,6 +114,55 @@ const Dashboard = () => {
               url: "ClientApplication?_total=estimate&_count=1" as uri,
             },
           },
+          {
+            request: {
+              method: "GET" as code,
+              url: "Claim?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "ExplanationOfBenefit?_total=estimate&_count=1" as uri,
+            },
+          },
+
+          {
+            request: {
+              method: "GET" as code,
+              url: "Medication?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "MedicationRequest?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "Condition?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "CareTeam?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "CarePlan?_total=estimate&_count=1" as uri,
+            },
+          },
+          {
+            request: {
+              method: "GET" as code,
+              url: "Practitioner?_total=estimate&_count=1" as uri,
+            },
+          },
         ],
       })
       .then((bundle) => {
@@ -121,6 +178,14 @@ const Dashboard = () => {
           membership: (bundle.entry?.[8]?.resource as Bundle)?.total,
           accessPolicy: (bundle.entry?.[9]?.resource as Bundle)?.total,
           clientApplication: (bundle.entry?.[10]?.resource as Bundle)?.total,
+          claim: (bundle.entry?.[11]?.resource as Bundle)?.total,
+          explanationOfBenefit: (bundle.entry?.[12]?.resource as Bundle)?.total,
+          medication: (bundle.entry?.[13]?.resource as Bundle)?.total,
+          medicationRequest: (bundle.entry?.[14]?.resource as Bundle)?.total,
+          condition: (bundle.entry?.[15]?.resource as Bundle)?.total,
+          careTeam: (bundle.entry?.[16]?.resource as Bundle)?.total,
+          carePlan: (bundle.entry?.[17]?.resource as Bundle)?.total,
+          practitioner: (bundle.entry?.[18]?.resource as Bundle)?.total,
         });
       })
       .catch((e) => {
@@ -146,7 +211,7 @@ const Dashboard = () => {
       <div className="space-y-1">
         {Object.keys(stats).map((statKey) => (
           <div
-            className="cursor-pointer font-medium hover:text-teal-400 space-x-1 text-wrap"
+            className="cursor-pointer font-medium hover:text-teal-400 space-x-1"
             key={statKey}
             onClick={() => {
               navigate(
@@ -156,8 +221,10 @@ const Dashboard = () => {
               );
             }}
           >
-            <span className="font-medium">{statKey}s:</span>
-            <span className="text-slate-600">{stats[statKey] ?? ""}</span>
+            <span className="font-medium text-pretty">
+              {statKey}s:{" "}
+              <span className="text-slate-600">{stats[statKey] ?? ""}</span>
+            </span>
           </div>
         ))}
       </div>
@@ -168,14 +235,24 @@ const Dashboard = () => {
     <div className="w-full">
       <div className="grid md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5  sm:grid-cols-2 gap-4 grid-flow-row-dense auto-cols-max">
         <StatCard
-          title="Clinical Resources"
+          title="Patient Resources"
           stats={{
             Patient: stats?.patient,
             Encounter: stats?.encounter,
             Observation: stats?.observation,
+            Medication: stats?.medication,
+            MedicationRequest: stats?.medicationRequest,
+            Condition: stats?.condition,
           }}
         />
-
+        <StatCard
+          title="Practitioner Resources"
+          stats={{
+            CareTeam: stats?.careTeam,
+            CarePlan: stats?.carePlan,
+            Practitioner: stats?.practitioner,
+          }}
+        />
         <StatCard
           title="Configuration Resources"
           stats={{
@@ -183,7 +260,6 @@ const Dashboard = () => {
             Subscription: stats?.subscription,
           }}
         />
-
         <StatCard
           title="UI Resources"
           stats={{
@@ -192,17 +268,24 @@ const Dashboard = () => {
           }}
         />
         <StatCard
-          title="Monitoring Resources"
-          stats={{
-            AuditEvent: stats?.auditEvent,
-          }}
-        />
-        <StatCard
           title="Security"
           stats={{
             Membership: stats?.membership,
             AccessPolicy: stats?.accessPolicy,
             ClientApplication: stats?.clientApplication,
+          }}
+        />
+        <StatCard
+          title="Insurance"
+          stats={{
+            Claim: stats?.claim,
+            ExplanationOfBenefit: stats?.explanationOfBenefit,
+          }}
+        />
+        <StatCard
+          title="Monitoring Resources"
+          stats={{
+            AuditEvent: stats?.auditEvent,
           }}
         />
       </div>
