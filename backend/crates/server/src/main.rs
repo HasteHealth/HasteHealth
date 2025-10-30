@@ -20,7 +20,7 @@ use oxidized_server::{
 };
 use std::sync::Arc;
 
-/// Simple program to greet a person
+/// CLI for Oxidized Health Server
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
