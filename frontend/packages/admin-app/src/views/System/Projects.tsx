@@ -89,9 +89,13 @@ export default function Projects() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
   useEffect(() => {
-    client.search_type({}, R4, "Project", []).then((res) => {
-      setProjects(res.resources);
-    });
+    client
+      .search_type({}, R4, "Project", [
+        { name: "_sort", value: ["_lastUpdated"] },
+      ])
+      .then((res) => {
+        setProjects(res.resources);
+      });
   }, []);
 
   return (
