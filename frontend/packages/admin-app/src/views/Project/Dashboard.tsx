@@ -223,7 +223,9 @@ const Dashboard = () => {
           >
             <span className="font-medium text-pretty">
               {statKey}s:{" "}
-              <span className="text-slate-600">{stats[statKey] ?? ""}</span>
+              <span className="text-slate-600">
+                {stats[statKey]?.toLocaleString() ?? ""}
+              </span>
             </span>
           </div>
         ))}
