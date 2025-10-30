@@ -370,8 +370,8 @@ pub async fn process_transaction_bundle<
             {
                 let ref_string = format!("{}/{}", resource_type.as_ref(), id);
                 for reference_pointer in edges.into_iter() {
-                    let z = Pin::into_inner(reference_pointer);
-                    z.reference = Some(Box::new(
+                    let reference_pointing_entry = Pin::into_inner(reference_pointer);
+                    reference_pointing_entry.reference = Some(Box::new(
                         oxidized_fhir_model::r4::generated::types::FHIRString {
                             value: Some(ref_string.clone()),
                             ..Default::default()
