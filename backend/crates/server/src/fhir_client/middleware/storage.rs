@@ -1,6 +1,7 @@
 use crate::{
     fhir_client::{
         ClientState, FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
+        batch_transaction_processing::{process_batch_bundle, process_transaction_bundle},
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
             ServerMiddlewareState,
@@ -34,200 +35,6 @@ use oxidized_repository::{
     types::{ResourceId, SupportedFHIRVersions, VersionIdRef},
 };
 use std::{str::FromStr, sync::Arc, time::Instant};
-
-fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeError>) -> BundleEntry {
-    match fhir_response {
-        Ok(FHIRResponse::Create(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::Read(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::Update(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::VersionRead(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::DeleteInstance(_res)) => BundleEntry {
-            resource: None,
-            ..Default::default()
-        },
-        Ok(FHIRResponse::DeleteType(_res)) => BundleEntry {
-            resource: None,
-            ..Default::default()
-        },
-        Ok(FHIRResponse::DeleteSystem(_res)) => BundleEntry {
-            resource: None,
-            ..Default::default()
-        },
-        Ok(FHIRResponse::HistoryInstance(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::History(None),
-                None,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::HistoryType(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::History(None),
-                None,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::HistorySystem(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::History(None),
-                None,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::SearchSystem(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::Searchset(None),
-                res.total,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::SearchType(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::Searchset(None),
-                res.total,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::Patch(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-
-        Ok(FHIRResponse::Capabilities(res)) => BundleEntry {
-            resource: Some(Box::new(Resource::CapabilityStatement(res.capabilities))),
-            ..Default::default()
-        },
-
-        Ok(FHIRResponse::InvokeInstance(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::InvokeType(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::InvokeSystem(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::Batch(res)) => BundleEntry {
-            resource: Some(Box::new(Resource::Bundle(res.resource))),
-            ..Default::default()
-        },
-        Ok(FHIRResponse::Transaction(res)) => BundleEntry {
-            resource: Some(Box::new(Resource::Bundle(res.resource))),
-            ..Default::default()
-        },
-        Err(operation_error) => {
-            let operation_outcome = operation_error.outcome().clone();
-
-            BundleEntry {
-                response: Some(BundleEntryResponse {
-                    outcome: Some(Box::new(Resource::OperationOutcome(operation_outcome))),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            }
-        }
-    }
-}
-
-async fn process_bundle_response<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
-    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX>,
-    response_bundle: &mut Bundle,
-    request_bundle_entries: Vec<BundleEntry>,
-    allow_failure: bool,
-) -> Result<(), OperationOutcomeError> {
-    let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
-    for e in request_bundle_entries.into_iter() {
-        if let Some(request) = e.request.as_ref() {
-            let url = request
-                .url
-                .value
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or_default();
-
-            let (path, query) = url.split_once("?").unwrap_or((url, ""));
-            let request_method_string: Option<String> = request.method.as_ref().into();
-            let Ok(method) = Method::from_str(&request_method_string.unwrap_or_default()) else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Invalid HTTP Method".to_string(),
-                ));
-            };
-
-            let http_request = HTTPRequest::new(
-                method,
-                path.to_string(),
-                if let Some(body) = e.resource {
-                    fhir_http::HTTPBody::Resource(*body)
-                } else {
-                    fhir_http::HTTPBody::String("".to_string())
-                },
-                query.to_string(),
-            );
-
-            let Ok(fhir_request) =
-                fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)
-            else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Invalid Bundle entry".to_string(),
-                ));
-            };
-
-            if allow_failure {
-                let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await;
-                bundle_response_entries.push(convert_bundle_entry(fhir_response));
-            } else {
-                let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;
-                bundle_response_entries.push(convert_bundle_entry(Ok(fhir_response)));
-            }
-        }
-    }
-
-    response_bundle.entry = Some(bundle_response_entries);
-
-    Ok(())
-}
 
 pub struct Middleware {}
 impl Middleware {
@@ -637,22 +444,6 @@ impl<
                         &mut transaction_entries,
                     );
 
-                    let fp_test_data = transaction_entries.clone().unwrap_or_default();
-                    let now = Instant::now();
-                    let fp_result = fp_engine
-                        .evaluate(
-                            "$this.descendants().ofType(Reference)",
-                            fp_test_data.iter().map(|be| be as &dyn MetaValue).collect(),
-                        )
-                        .unwrap();
-
-                    tracing::info!(
-                        "FHIRPath evaluation for references took {:?}",
-                        now.elapsed()
-                    );
-
-                    let res = fp_result.iter().collect::<Vec<_>>();
-
                     let transaction_repo = Arc::new(state.repo.transaction().await?);
 
                     let bundle_response: Result<Bundle, OperationOutcomeError> = {
@@ -661,21 +452,28 @@ impl<
                             state.search.clone(),
                             state.terminology.clone(),
                         ));
-                        let mut bundle_response = Bundle {
-                            type_: Box::new(BundleType::TransactionResponse(None)),
-                            ..Default::default()
-                        };
 
-                        process_bundle_response(
+                        let fp_test_data = transaction_entries.clone().unwrap_or_default();
+                        let now = Instant::now();
+
+                        let res = process_transaction_bundle(
                             &transaction_client,
                             context.ctx.clone(),
-                            &mut bundle_response,
-                            transaction_entries.unwrap_or_else(Vec::new),
-                            false,
+                            fp_test_data,
                         )
-                        .await?;
+                        .await;
 
-                        Ok(bundle_response)
+                        tracing::info!(
+                            "Transaction evaluation for references took {:?}",
+                            now.elapsed()
+                        );
+
+                        Ok(process_transaction_bundle(
+                            &transaction_client,
+                            context.ctx.clone(),
+                            transaction_entries.unwrap_or_else(Vec::new),
+                        )
+                        .await?)
                     };
 
                     let repo = Arc::try_unwrap(transaction_repo).map_err(|_e| {
@@ -713,22 +511,13 @@ impl<
                         state.terminology.clone(),
                     ));
 
-                    let mut bundle_response = Bundle {
-                        type_: Box::new(BundleType::BatchResponse(None)),
-                        ..Default::default()
-                    };
-
-                    process_bundle_response(
-                        &batch_client,
-                        context.ctx.clone(),
-                        &mut bundle_response,
-                        batch_entries.unwrap_or_else(Vec::new),
-                        true,
-                    )
-                    .await?;
-
                     Ok(Some(FHIRResponse::Batch(FHIRBatchResponse {
-                        resource: bundle_response,
+                        resource: process_batch_bundle(
+                            &batch_client,
+                            context.ctx.clone(),
+                            batch_entries.unwrap_or_else(Vec::new),
+                        )
+                        .await?,
                     })))
                 }
                 _ => Err(OperationOutcomeError::error(
