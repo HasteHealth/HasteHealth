@@ -26,6 +26,7 @@ use oxidized_repository::{
 };
 use std::sync::{Arc, LazyLock};
 
+mod batch_transaction_processing;
 mod middleware;
 mod utilities;
 

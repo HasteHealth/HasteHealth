@@ -207,7 +207,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                     SessionManagerLayer::new(session_store)
                         .with_secure(true)
                         .with_same_site(SameSite::None)
-                        .with_expiry(Expiry::OnInactivity(Duration::hours(2))),
+                        .with_expiry(Expiry::OnInactivity(Duration::days(3))),
                 )
                 .layer(
                     CorsLayer::new()

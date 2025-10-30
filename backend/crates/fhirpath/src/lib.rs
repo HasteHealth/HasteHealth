@@ -8,7 +8,13 @@ use crate::{
 };
 use dashmap::DashMap;
 pub use error::FHIRPathError;
-use std::{cell::RefCell, collections::HashSet, marker::PhantomData, rc::Rc, sync::Arc};
+use std::{
+    cell::RefCell,
+    collections::HashSet,
+    marker::PhantomData,
+    rc::Rc,
+    sync::{Arc, LazyLock, Mutex},
+};
 // use owning_ref::BoxRef;
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::generated::{
@@ -714,25 +720,25 @@ impl<'a> Allocator<'a> {
 }
 
 pub struct Context<'a> {
-    allocator: Rc<RefCell<Allocator<'a>>>,
-    values: Rc<Vec<&'a dyn MetaValue>>,
+    allocator: Arc<Mutex<Allocator<'a>>>,
+    values: Arc<Vec<&'a dyn MetaValue>>,
 }
 
 impl<'a> Context<'a> {
-    fn new(values: Vec<&'a dyn MetaValue>, allocator: Rc<RefCell<Allocator<'a>>>) -> Self {
+    fn new(values: Vec<&'a dyn MetaValue>, allocator: Arc<Mutex<Allocator<'a>>>) -> Self {
         Self {
             allocator,
-            values: Rc::new(values),
+            values: Arc::new(values),
         }
     }
     fn new_context_from(&self, values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
             allocator: self.allocator.clone(),
-            values: Rc::new(values),
+            values: Arc::new(values),
         }
     }
     fn allocate(&self, value: Box<dyn MetaValue>) -> &'a dyn MetaValue {
-        self.allocator.borrow_mut().allocate(value)
+        self.allocator.lock().unwrap().allocate(value)
     }
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().map(|v| *v))
@@ -752,11 +758,11 @@ pub struct FPEngine {
     ast: Arc<DashMap<String, Expression>>,
 }
 
+static AST: LazyLock<Arc<DashMap<String, Expression>>> = LazyLock::new(|| Arc::new(DashMap::new()));
+
 impl FPEngine {
     pub fn new() -> Self {
-        Self {
-            ast: Arc::new(DashMap::new()),
-        }
+        Self { ast: AST.clone() }
     }
 
     /// Evaluate a FHIRPath expression against a context.
@@ -783,7 +789,7 @@ impl FPEngine {
             };
 
         // Store created.
-        let allocator: Rc<RefCell<Allocator<'b>>> = Rc::new(RefCell::new(Allocator::new()));
+        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 
