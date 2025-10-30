@@ -537,10 +537,11 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
         let right_value = downcast_bool(right.values[0])?;
         Ok(left_value == right_value)
     } else {
-        Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
-            left.values[0].typename(),
-            right.values[0].typename(),
-        )))
+        // If types do not match return false.
+        // Should consider implicit conversion rules here but for now
+        // FPs like 'Patient.deceased.exists() and Patient.deceased != false' (deceased is either boolean or dateTime)
+        // Should return false rather than error.
+        Ok(false)
     }
 }
 

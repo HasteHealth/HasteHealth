@@ -120,10 +120,21 @@ fn resource_to_elastic_index(
         {
             let result = fp_engine
                 .evaluate(expression, vec![resource])
-                .map_err(SearchError::from)?;
+                .map_err(SearchError::from);
 
-            let result_vec =
-                indexing_conversion::to_insertable_index(param, result.iter().collect::<Vec<_>>())?;
+            if let Err(err) = result {
+                tracing::error!(
+                    "Failed to evaluate FHIRPath expression: '{}' for resource.",
+                    expression,
+                );
+
+                return Err(SearchError::from(err).into());
+            }
+
+            let result_vec = indexing_conversion::to_insertable_index(
+                param,
+                result?.iter().collect::<Vec<_>>(),
+            )?;
 
             map.insert(url.clone(), result_vec);
         }
