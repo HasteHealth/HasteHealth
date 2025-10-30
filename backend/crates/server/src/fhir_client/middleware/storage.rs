@@ -463,11 +463,6 @@ impl<
                         )
                         .await;
 
-                        tracing::info!(
-                            "Transaction evaluation for references took {:?}",
-                            now.elapsed()
-                        );
-
                         Ok(process_transaction_bundle(
                             &transaction_client,
                             context.ctx.clone(),

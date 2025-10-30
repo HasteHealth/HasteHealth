@@ -259,6 +259,8 @@ fn get_resource_type_from_fhir_request(request: &FHIRRequest) -> Option<Resource
     }
 }
 
+/// Process a transaction bundle, ensuring that references between entries are resolved correctly.
+/// Sorts transactions using topological sort to ensure that dependencies are processed first.
 pub async fn process_transaction_bundle<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
