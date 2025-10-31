@@ -5,6 +5,7 @@ use crate::{
         oidc::{
             code_verification,
             extract::{body::ParsedBody, client_app::find_client_app},
+            routes::scope::verify_requested_scope_is_subset,
             schemas,
         },
     },
@@ -268,6 +269,18 @@ pub async fn token<
 
             verify_client(&client_app, &token_body)?;
 
+            let requested_scopes = Scopes::from(token_body.scope.clone().unwrap_or_default());
+            verify_requested_scope_is_subset(
+                &requested_scopes,
+                &Scopes::try_from(
+                    client_app
+                        .scope
+                        .as_ref()
+                        .and_then(|s| s.value.as_ref().map(String::as_str))
+                        .unwrap_or_default(),
+                )?,
+            )?;
+
             let response = create_token_response(
                 &*state.repo,
                 &client_app,
@@ -276,13 +289,7 @@ pub async fn token<
                     user_id: client_app.id.clone().unwrap_or_default(),
                     user_kind: AuthorKind::ClientApplication,
                     client_id: client_app.id.clone().unwrap_or_default(),
-                    scopes: Scopes::try_from(
-                        client_app
-                            .scope
-                            .as_ref()
-                            .and_then(|s| s.value.as_ref().map(String::as_str))
-                            .unwrap_or_default(),
-                    )?,
+                    scopes: requested_scopes,
                     tenant: tenant.clone(),
                     project: project.clone(),
                     membership: None,
