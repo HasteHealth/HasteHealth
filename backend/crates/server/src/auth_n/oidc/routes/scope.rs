@@ -85,6 +85,17 @@ pub async fn scope_post<
         .unwrap();
 
     if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
+        verify_requested_scope_is_subset(
+            &scope_data.scope,
+            &Scopes::from(
+                client_app
+                    .scope
+                    .as_ref()
+                    .and_then(|s| s.value.clone())
+                    .unwrap_or_default(),
+            ),
+        )?;
+
         ProjectAuthAdmin::create(
             &*app_state.repo,
             &tenant,
@@ -96,17 +107,6 @@ pub async fn scope_post<
             },
         )
         .await?;
-
-        verify_requested_scope_is_subset(
-            &scope_data.scope,
-            &Scopes::from(
-                client_app
-                    .scope
-                    .as_ref()
-                    .and_then(|s| s.value.clone())
-                    .unwrap_or_default(),
-            ),
-        )?;
 
         let authorization_route = oidc_route_string(&tenant, &project, "auth/authorize")
             .to_str()
