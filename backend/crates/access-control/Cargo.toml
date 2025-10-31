@@ -10,3 +10,5 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
 ] }
 oxidized-fhir-client = { path = "../fhir-client" }
 oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+oxidized-jwt = { path = "../jwt", features = ["reflect"] }
+oxidized-reflect = { path = "../reflect", features = ["derive"] }

@@ -3,13 +3,16 @@ use oxidized_fhir_model::r4::generated::{
     resources::AccessPolicyV2, terminology::AccessPolicyv2Engine,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::{ProjectId, TenantId};
+use oxidized_reflect::{MetaValue, derive::Reflect};
 
 mod engine;
 mod utilities;
 
+#[derive(Debug, Reflect)]
 struct PolicyEnvironment {
-    // tenant: TenantId,
-    // project: ProjectId,
+    tenant: TenantId,
+    project: ProjectId,
     request: FHIRRequest,
     user: Option<String>,
 }
