@@ -3,7 +3,7 @@ use crate::{
         oidc::{
             extract::{client_app::OIDCClientApplication, scopes::Scopes},
             middleware::OIDCParameters,
-            routes::scope::ScopeForm,
+            routes::scope::{ScopeForm, verify_requested_scope_is_subset},
             utilities::is_valid_redirect_url,
         },
         session,
@@ -178,6 +178,17 @@ pub async fn authorize<
     .await?;
 
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
+        verify_requested_scope_is_subset(
+            &scopes,
+            &oxidized_repository::types::scopes::Scopes::from(
+                client_app
+                    .scope
+                    .as_ref()
+                    .and_then(|s| s.value.clone())
+                    .unwrap_or_default(),
+            ),
+        )?;
+
         return Ok(pages::scope_approval::scope_approval_html(
             &tenant,
             &project_resource,

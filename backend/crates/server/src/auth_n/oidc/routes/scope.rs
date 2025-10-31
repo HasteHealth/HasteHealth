@@ -23,7 +23,10 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::scope::{ClientId, CreateScope, UserId},
+    types::{
+        scope::{ClientId, CreateScope, UserId},
+        scopes::Scopes,
+    },
 };
 use serde::Deserialize;
 use std::sync::Arc;
@@ -45,6 +48,24 @@ pub struct ScopeForm {
     pub accept: Option<String>,
 }
 
+pub fn verify_requested_scope_is_subset(
+    requested: &Scopes,
+    allowed: &Scopes,
+) -> Result<(), OperationOutcomeError> {
+    for scope in requested.0.iter() {
+        if !allowed.0.contains(scope) {
+            return Err(OperationOutcomeError::error(
+                IssueType::Forbidden(None),
+                format!(
+                    "Requested scope '{}' is not allowed. Check client configuration for what scopes are allowed.",
+                    String::from(scope.clone())
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub async fn scope_post<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -54,7 +75,7 @@ pub async fn scope_post<
     _uri: OriginalUri,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
-    OIDCClientApplication(_client_app): OIDCClientApplication,
+    OIDCClientApplication(client_app): OIDCClientApplication,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Form(scope_data): Form<ScopeForm>,
@@ -64,6 +85,17 @@ pub async fn scope_post<
         .unwrap();
 
     if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
+        verify_requested_scope_is_subset(
+            &scope_data.scope,
+            &Scopes::from(
+                client_app
+                    .scope
+                    .as_ref()
+                    .and_then(|s| s.value.clone())
+                    .unwrap_or_default(),
+            ),
+        )?;
+
         ProjectAuthAdmin::create(
             &*app_state.repo,
             &tenant,
