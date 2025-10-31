@@ -20,7 +20,7 @@ pub fn get_admin_app(config: &dyn Config<ServerEnvironmentVariables>) -> Option<
             }),
             responseTypes: Box::new(ClientapplicationResponseTypes::Code(None)),
             scope: Some(Box::new(FHIRString {
-                value: Some("offline_access openid email profile fhirUser user/*.*".to_string()),
+                value: Some("offline_access openid email profile fhirUser system/*.*".to_string()),
                 ..Default::default()
             })),
             grantType: vec![
