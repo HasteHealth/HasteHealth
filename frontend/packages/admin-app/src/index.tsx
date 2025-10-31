@@ -119,7 +119,7 @@ function OxidizedHealthWrapper() {
     <OxidizedHealthProvider
       refresh
       authorize_method="GET"
-      scope="offline_access openid email profile fhirUser user/*.*"
+      scope="offline_access openid email profile fhirUser system/*.*"
       domain={REACT_APP_FHIR_BASE_URL || ""}
       tenant={deriveTenantId()}
       project={deriveProjectId()}
