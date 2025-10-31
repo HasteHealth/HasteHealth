@@ -1,15 +1,13 @@
 use crate::{
     admin::{Login, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
-    types::{
-        TenantId,
-        user::{
-            AuthMethod, CreateUser, LoginMethod, LoginResult, UpdateUser, User, UserRole,
-            UserSearchClauses,
-        },
+    types::user::{
+        AuthMethod, CreateUser, LoginMethod, LoginResult, UpdateUser, User, UserRole,
+        UserSearchClauses,
     },
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::TenantId;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(

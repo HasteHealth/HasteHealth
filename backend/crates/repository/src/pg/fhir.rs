@@ -1,9 +1,7 @@
 use crate::{
     fhir::{FHIRRepository, HistoryRequest, ResourcePollingValue},
     pg::{PGConnection, StoreError},
-    types::{
-        Author, FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionIdRef,
-    },
+    types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
 };
 use oxidized_fhir_model::r4::{
@@ -11,6 +9,7 @@ use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionIdRef};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;

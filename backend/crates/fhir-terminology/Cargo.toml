@@ -12,4 +12,5 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
 oxidized-repository = { path = "../repository" }
 oxidized-fhir-search = { path = "../fhir-search" }
 oxidized-fhir-client = { path = "../fhir-client" }
+oxidized-jwt = { path = "../jwt" }
 dashmap = "6.1.0"

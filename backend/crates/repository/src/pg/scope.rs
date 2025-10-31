@@ -1,13 +1,10 @@
 use crate::{
     admin::ProjectAuthAdmin,
     pg::{PGConnection, StoreError},
-    types::{
-        ProjectId, TenantId,
-        scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
-        scopes::Scopes,
-    },
+    types::scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::{ProjectId, TenantId, scopes::Scopes};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -181,8 +178,8 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
 {
     async fn create(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         new_scope: CreateScope,
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
@@ -200,8 +197,8 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
 
     async fn read(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         key: &ScopeKey,
     ) -> Result<Option<Scope>, OperationOutcomeError> {
         match self {
@@ -219,8 +216,8 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
 
     async fn update(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         model: UpdateScope,
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
@@ -238,8 +235,8 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
 
     async fn delete(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         key: &ScopeKey,
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
@@ -257,8 +254,8 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
 
     async fn search(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         clauses: &ScopeSearchClaims,
     ) -> Result<Vec<Scope>, OperationOutcomeError> {
         match self {

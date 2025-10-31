@@ -43,7 +43,7 @@ pub struct ScopeForm {
     pub state: String,
     pub code_challenge: String,
     pub code_challenge_method: String,
-    pub scope: oxidized_repository::types::scopes::Scopes,
+    pub scope: oxidized_jwt::scopes::Scopes,
     pub redirect_uri: String,
     pub accept: Option<String>,
 }

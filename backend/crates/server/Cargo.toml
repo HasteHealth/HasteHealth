@@ -21,6 +21,7 @@ oxidized-fhir-search = { path = "../fhir-search" }
 oxidized-fhir-ops = { path = "../fhir-ops" }
 oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
 oxidized-fhir-terminology = { path = "../fhir-terminology" }
+oxidized-jwt = { path = "../jwt" }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
     "tls-native-tls",

@@ -16,7 +16,7 @@ use oxidized_fhir_model::r4::generated::terminology::BundleType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_serialization_json::errors::DeserializeError;
-use oxidized_repository::types::SupportedFHIRVersions;
+use oxidized_jwt::SupportedFHIRVersions;
 
 #[derive(Debug)]
 pub enum HTTPBody {

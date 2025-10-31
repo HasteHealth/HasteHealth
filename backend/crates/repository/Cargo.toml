@@ -10,6 +10,7 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
 oxidized-reflect = { path = "../reflect", features = ["derive"] }
+oxidized-jwt = { path = "../jwt", features = ["sqlx"] }
 serde = "1.0.219"
 sqlx = { version = "0.8", features = [
     "runtime-tokio",

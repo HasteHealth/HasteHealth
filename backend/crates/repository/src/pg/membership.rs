@@ -1,14 +1,12 @@
 use crate::{
     admin::ProjectAuthAdmin,
     pg::{PGConnection, StoreError},
-    types::{
-        ProjectId, TenantId,
-        membership::{
-            CreateMembership, Membership, MembershipRole, MembershipSearchClaims, UpdateMembership,
-        },
+    types::membership::{
+        CreateMembership, Membership, MembershipRole, MembershipSearchClaims, UpdateMembership,
     },
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::{ProjectId, TenantId};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -192,8 +190,8 @@ impl<Key: AsRef<str> + Send + Sync>
 {
     async fn create(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         new_membership: CreateMembership,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
@@ -211,8 +209,8 @@ impl<Key: AsRef<str> + Send + Sync>
 
     async fn read(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         id: &Key,
     ) -> Result<Option<Membership>, OperationOutcomeError> {
         match self {
@@ -230,8 +228,8 @@ impl<Key: AsRef<str> + Send + Sync>
 
     async fn update(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         model: UpdateMembership,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
@@ -249,8 +247,8 @@ impl<Key: AsRef<str> + Send + Sync>
 
     async fn delete(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         id: &Key,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
@@ -268,8 +266,8 @@ impl<Key: AsRef<str> + Send + Sync>
 
     async fn search(
         &self,
-        tenant: &crate::types::TenantId,
-        project: &crate::types::ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         clauses: &MembershipSearchClaims,
     ) -> Result<Vec<Membership>, OperationOutcomeError> {
         match self {

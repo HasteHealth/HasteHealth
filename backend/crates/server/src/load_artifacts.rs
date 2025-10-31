@@ -14,9 +14,7 @@ use oxidized_fhir_model::r4::generated::{
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_repository::types::{
-    Author, AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId,
-};
+use oxidized_jwt::{Author, AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId};
 use sha1::{Digest, Sha1};
 // use tokio::task::JoinSet;
 

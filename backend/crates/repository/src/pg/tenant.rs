@@ -1,13 +1,11 @@
 use crate::{
     admin::TenantAuthAdmin,
     pg::{PGConnection, StoreError},
-    types::{
-        TenantId,
-        tenant::{CreateTenant, Tenant, TenantSearchClaims},
-    },
+    types::tenant::{CreateTenant, Tenant, TenantSearchClaims},
     utilities::{generate_id, validate_id},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::TenantId;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(

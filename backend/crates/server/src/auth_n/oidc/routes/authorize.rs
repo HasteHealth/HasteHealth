@@ -180,7 +180,7 @@ pub async fn authorize<
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
         verify_requested_scope_is_subset(
             &scopes,
-            &oxidized_repository::types::scopes::Scopes::from(
+            &oxidized_jwt::scopes::Scopes::from(
                 client_app
                     .scope
                     .as_ref()

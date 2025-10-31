@@ -1,6 +1,5 @@
-use crate::types::{ProjectId, ResourceId, TenantId, VersionIdRef, scopes::Scopes};
-use sqlx::{Database, Decode, Encode, Postgres};
-use sqlx_postgres::PgArgumentBuffer;
+use crate::{ProjectId, ResourceId, TenantId, VersionIdRef, scopes::Scopes};
+use sqlx::{Database, Decode, Encode, Postgres, postgres::PgArgumentBuffer};
 use std::{error::Error, io::Write};
 
 impl<'r, DB: Database> Decode<'r, DB> for TenantId

@@ -31,7 +31,10 @@ members = [
     "crates/macro-loads",
     "crates/fhir-generated-ops",
     "crates/fhir-terminology",
-    "crates/fhir-ops", "crates/fhir-ops-derive", "crates/access-control",
+    "crates/fhir-ops",
+    "crates/fhir-ops-derive",
+    "crates/access-control",
+    "crates/jwt",
 ]
 
 [dependencies]

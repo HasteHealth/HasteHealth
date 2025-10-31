@@ -5,9 +5,9 @@ use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
+use oxidized_jwt::{ProjectId, TenantId, VersionIdRef};
 use oxidized_repository::Repository;
 use oxidized_repository::types::SupportedFHIRVersions::R4;
-use oxidized_repository::types::{ProjectId, TenantId, VersionIdRef};
 use std::pin::Pin;
 use std::sync::Arc;
 

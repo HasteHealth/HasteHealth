@@ -9,7 +9,7 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
-use oxidized_repository::types::{ProjectId, TenantId};
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_server::{
     ServerEnvironmentVariables,
     auth_n::oidc::utilities::set_user_password,
@@ -97,7 +97,7 @@ async fn migrate_search(
     let services = services::create_services(config).await?;
     services
         .search
-        .migrate(&oxidized_repository::types::SupportedFHIRVersions::R4)
+        .migrate(&oxidized_jwt::SupportedFHIRVersions::R4)
         .await?;
     Ok(())
 }
