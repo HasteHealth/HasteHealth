@@ -1,4 +1,4 @@
-use crate::types::TenantId;
+use oxidized_jwt::TenantId;
 
 pub struct CreateTenant {
     pub id: Option<TenantId>,

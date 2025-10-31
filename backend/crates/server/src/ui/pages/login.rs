@@ -4,7 +4,7 @@ use crate::{
 };
 use maud::{Markup, html};
 use oxidized_fhir_model::r4::generated::resources::ClientApplication;
-use oxidized_repository::types::{ProjectId, TenantId};
+use oxidized_jwt::{ProjectId, TenantId};
 use std::borrow::Cow;
 
 pub fn login_form_html(

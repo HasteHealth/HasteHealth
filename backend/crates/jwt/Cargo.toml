@@ -1,13 +1,13 @@
 [package]
-name = "oxidized-fhir-ops"
+name = "oxidized-jwt"
 version = "0.1.0"
 edition = "2024"
 
 [features]
-derive = ["dep:oxidized-fhir-ops-derive"]
+sqlx = ["dep:sqlx"]
 
 [dependencies]
-oxidized-fhir-ops-derive = { path = "../fhir-ops-derive", optional = true }
+serde = "1.0.228"
 oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
-oxidized-jwt = { path = "../jwt" }
+sqlx = { version = "0.8", optional = true }

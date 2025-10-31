@@ -5,7 +5,7 @@ use oxidized_fhir_model::r4::generated::{
     terminology::SearchParamType,
 };
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use oxidized_repository::types::{ProjectId, TenantId};
+use oxidized_jwt::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

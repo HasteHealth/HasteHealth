@@ -1,9 +1,7 @@
 /// Authentication traits include management for user and Authorization codes.
-use crate::types::{
-    ProjectId, TenantId,
-    user::{LoginMethod, LoginResult},
-};
+use crate::types::user::{LoginMethod, LoginResult};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::{ProjectId, TenantId};
 
 pub trait Login {
     fn login(

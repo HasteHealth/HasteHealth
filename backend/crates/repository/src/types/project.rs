@@ -1,4 +1,5 @@
-use crate::types::{ProjectId, SupportedFHIRVersions, TenantId};
+use crate::types::SupportedFHIRVersions;
+use oxidized_jwt::{ProjectId, TenantId};
 
 pub struct CreateProject {
     pub tenant: TenantId,

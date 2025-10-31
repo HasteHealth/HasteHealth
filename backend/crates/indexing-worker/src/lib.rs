@@ -4,10 +4,8 @@ use oxidized_fhir_model::r4::generated::resources::ResourceTypeError;
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
-use oxidized_repository::{
-    fhir::FHIRRepository,
-    types::{SupportedFHIRVersions, TenantId},
-};
+use oxidized_jwt::TenantId;
+use oxidized_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 

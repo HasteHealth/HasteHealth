@@ -1,9 +1,8 @@
 use oxidized_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeRequest};
 use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_repository::types::{
-    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionId,
-};
+use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId};
+use oxidized_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use serde::Deserialize;
 
 pub mod elastic_search;

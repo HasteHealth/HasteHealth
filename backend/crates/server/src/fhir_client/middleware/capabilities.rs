@@ -22,10 +22,8 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
-    Repository,
-    types::{ProjectId, SupportedFHIRVersions, TenantId, VersionIdRef},
-};
+use oxidized_jwt::{ProjectId, TenantId, VersionIdRef};
+use oxidized_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;
 

@@ -28,11 +28,12 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::{ResourceId, VersionIdRef};
 use oxidized_reflect::MetaValue;
 use oxidized_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
-    types::{ResourceId, SupportedFHIRVersions, VersionIdRef},
+    types::SupportedFHIRVersions,
 };
 use std::{str::FromStr, sync::Arc, time::Instant};
 

@@ -1,5 +1,5 @@
-use crate::types::TenantId;
 use oxidized_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
+use oxidized_jwt::TenantId;
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]

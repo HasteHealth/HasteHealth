@@ -12,6 +12,7 @@ oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
 ] }
 oxidized-fhir-search = { path = "../fhir-search" }
 oxidized-repository = { path = "../repository" }
+oxidized-jwt = { path = "../jwt" }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
     "tls-native-tls",

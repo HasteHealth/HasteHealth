@@ -2,11 +2,12 @@ use crate::{
     admin::TenantAuthAdmin,
     pg::{PGConnection, StoreError},
     types::{
-        ProjectId, SupportedFHIRVersions, TenantId,
+        SupportedFHIRVersions, 
         project::{CreateProject, Project, ProjectSearchClaims},
     },
     utilities::{generate_id, validate_id},
 };
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};

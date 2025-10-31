@@ -1,6 +1,6 @@
 use crate::{server::asset_route, ui::components::page_html};
 use maud::{Markup, html};
-use oxidized_repository::types::TenantId;
+use oxidized_jwt::TenantId;
 
 pub fn error_html(tenant: &TenantId, message: Markup) -> Markup {
     page_html(html! {

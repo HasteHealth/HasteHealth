@@ -2,7 +2,7 @@ use std::{pin::Pin, sync::Arc};
 
 use oxidized_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_repository::types::{ProjectId, TenantId};
+use oxidized_jwt::{ProjectId, TenantId};
 
 #[cfg(feature = "derive")]
 pub mod derive;

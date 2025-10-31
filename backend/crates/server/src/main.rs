@@ -9,7 +9,7 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
-use oxidized_repository::types::{ProjectId, TenantId};
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_server::{
     ServerEnvironmentVariables,
     auth_n::oidc::utilities::set_user_password,

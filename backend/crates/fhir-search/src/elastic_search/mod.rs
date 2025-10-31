@@ -17,9 +17,8 @@ use oxidized_fhir_model::r4::generated::{
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhirpath::FPEngine;
-use oxidized_repository::types::{
-    FHIRMethod, ProjectId, ResourceId, SupportedFHIRVersions, TenantId, VersionId,
-};
+use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId};
+use oxidized_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use rayon::prelude::*;
 use serde::Deserialize;
 use std::{collections::HashMap, sync::Arc};

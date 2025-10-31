@@ -4,7 +4,7 @@ use oxidized_fhir_model::r4::generated::{
     terminology::{ClientapplicationGrantType, ClientapplicationResponseTypes},
     types::FHIRString,
 };
-use oxidized_repository::types::TenantId;
+use oxidized_jwt::TenantId;
 
 use crate::ServerEnvironmentVariables;
 

@@ -1,6 +1,4 @@
-use oxidized_repository::types::{
-    AuthorId, AuthorKind, ProjectId, TenantId, VersionId, scopes::Scopes, user::UserRole,
-};
+use crate::{AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId, scopes::Scopes};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

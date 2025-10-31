@@ -23,11 +23,11 @@ use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
-        ProjectId, TenantId,
         authorization_code::{
             AuthorizationCodeKind, CreateAuthorizationCode, PKCECodeChallengeMethod,
         },
@@ -180,7 +180,7 @@ pub async fn authorize<
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
         verify_requested_scope_is_subset(
             &scopes,
-            &oxidized_repository::types::scopes::Scopes::from(
+            &oxidized_jwt::scopes::Scopes::from(
                 client_app
                     .scope
                     .as_ref()

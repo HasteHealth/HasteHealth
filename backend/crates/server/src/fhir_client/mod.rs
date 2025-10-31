@@ -20,10 +20,8 @@ use oxidized_fhir_model::r4::generated::resources::{
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
-    Repository,
-    types::{Author, AuthorId, AuthorKind, ProjectId, SupportedFHIRVersions, TenantId},
-};
+use oxidized_jwt::{Author, AuthorId, AuthorKind, ProjectId, TenantId};
+use oxidized_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 
 mod batch_transaction_processing;

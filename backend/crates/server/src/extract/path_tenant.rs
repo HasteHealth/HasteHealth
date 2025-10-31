@@ -8,10 +8,8 @@ use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
-    Repository,
-    types::{ProjectId, ResourceId, TenantId},
-};
+use oxidized_jwt::{ProjectId, ResourceId, TenantId};
+use oxidized_repository::Repository;
 use serde::Deserialize;
 use std::sync::Arc;
 

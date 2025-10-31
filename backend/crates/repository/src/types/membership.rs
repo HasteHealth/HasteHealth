@@ -1,6 +1,6 @@
+use crate::types::scope::UserId;
+use oxidized_jwt::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
-
-use crate::types::{ProjectId, TenantId, scope::UserId};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
 pub struct Membership {

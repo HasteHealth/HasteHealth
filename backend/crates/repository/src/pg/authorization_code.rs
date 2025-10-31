@@ -1,17 +1,15 @@
 use crate::{
     admin::{ProjectAuthAdmin, TenantAuthAdmin},
     pg::{PGConnection, StoreError},
-    types::{
-        ProjectId, TenantId,
-        authorization_code::{
-            AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims, CodeErrors,
-            CreateAuthorizationCode, PKCECodeChallengeMethod,
-        },
+    types::authorization_code::{
+        AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims, CodeErrors,
+        CreateAuthorizationCode, PKCECodeChallengeMethod,
     },
     utilities::generate_id,
 };
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::{ProjectId, TenantId};
 use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
 use sqlx_postgres::types::PgInterval;
 
