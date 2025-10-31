@@ -2,7 +2,6 @@ use crate::{
     auth_n::{
         self,
         certificates::{JSONWebKeySet, JWK_SET},
-        claims::UserTokenClaims,
     },
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
@@ -22,10 +21,8 @@ use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
-    Repository,
-    types::{Author, ProjectId, SupportedFHIRVersions, TenantId},
-};
+use oxidized_jwt::{Author, ProjectId, TenantId, claims::UserTokenClaims};
+use oxidized_repository::{Repository, types::SupportedFHIRVersions};
 use serde::Deserialize;
 use std::{path::PathBuf, sync::Arc, time::Instant};
 use tower::{Layer, ServiceBuilder};

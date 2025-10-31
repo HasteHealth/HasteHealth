@@ -18,10 +18,8 @@ use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_ops::{OperationExecutor, OperationInvocation, Param};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
-    Repository,
-    types::{ProjectId, ResourceId, TenantId},
-};
+use oxidized_jwt::{ProjectId, ResourceId, TenantId};
+use oxidized_repository::Repository;
 use std::{pin::Pin, sync::Arc};
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);

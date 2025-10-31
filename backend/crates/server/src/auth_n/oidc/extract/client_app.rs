@@ -21,10 +21,8 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
-    Repository,
-    types::{ProjectId, TenantId},
-};
+use oxidized_jwt::{ProjectId, TenantId};
+use oxidized_repository::Repository;
 
 pub async fn find_client_app<
     Repo: Repository + Send + Sync,

@@ -1,7 +1,6 @@
 use crate::{
     auth_n::{
         certificates::encoding_key,
-        claims::UserTokenClaims,
         oidc::{
             code_verification,
             extract::{body::ParsedBody, client_app::find_client_app},
@@ -26,15 +25,17 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::{
+    AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
+    claims::UserTokenClaims,
+    scopes::{OIDCScope, Scope, Scopes},
+};
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
-        AuthorId, AuthorKind, ProjectId, TenantId,
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
-        scopes::{OIDCScope, Scope, Scopes},
-        user::UserRole,
     },
 };
 use serde::{Deserialize, Serialize};

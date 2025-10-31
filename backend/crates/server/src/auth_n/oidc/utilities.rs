@@ -1,12 +1,10 @@
 use oxidized_fhir_model::r4::generated::{resources::ClientApplication, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::TenantId;
 use oxidized_repository::{
     Repository,
     admin::TenantAuthAdmin,
-    types::{
-        TenantId,
-        user::{CreateUser, UpdateUser},
-    },
+    types::user::{CreateUser, UpdateUser},
 };
 use regex::Regex;
 

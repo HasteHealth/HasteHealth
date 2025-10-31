@@ -97,7 +97,7 @@ async fn migrate_search(
     let services = services::create_services(config).await?;
     services
         .search
-        .migrate(&oxidized_jwt::SupportedFHIRVersions::R4)
+        .migrate(&oxidized_repository::types::SupportedFHIRVersions::R4)
         .await?;
     Ok(())
 }

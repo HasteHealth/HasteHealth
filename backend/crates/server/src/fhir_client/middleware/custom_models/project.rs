@@ -20,11 +20,12 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::{AuthorKind, ProjectId};
 use oxidized_repository::{
     Repository,
     admin::TenantAuthAdmin,
     types::{
-        AuthorKind, ProjectId, SupportedFHIRVersions,
+        SupportedFHIRVersions,
         project::CreateProject,
         user::{AuthMethod, CreateUser, UpdateUser},
     },

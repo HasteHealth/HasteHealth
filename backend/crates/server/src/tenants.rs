@@ -8,11 +8,9 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_repository::{
-    Repository,
-    admin::TenantAuthAdmin,
-    types::{ProjectId, TenantId, tenant::CreateTenant},
-    utilities::generate_id,
+    Repository, admin::TenantAuthAdmin, types::tenant::CreateTenant, utilities::generate_id,
 };
 use std::sync::Arc;
 

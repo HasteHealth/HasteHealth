@@ -20,13 +20,11 @@ use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::scopes::Scopes;
 use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
-    types::{
-        scope::{ClientId, CreateScope, UserId},
-        scopes::Scopes,
-    },
+    types::scope::{ClientId, CreateScope, UserId},
 };
 use serde::Deserialize;
 use std::sync::Arc;
