@@ -3,29 +3,28 @@ use oxidized_fhir_model::r4::generated::{
     resources::AccessPolicyV2, terminology::AccessPolicyv2Engine,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, TenantId};
-use oxidized_reflect::{MetaValue, derive::Reflect};
+use oxidized_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 
 mod engine;
 mod utilities;
 
-#[derive(Debug, Reflect)]
-struct PolicyEnvironment {
-    tenant: TenantId,
-    project: ProjectId,
-    request: FHIRRequest,
-    user: Option<String>,
+#[derive(Debug)]
+struct PolicyEnvironment<'a> {
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
+    request: &'a FHIRRequest,
+    user: &'a UserTokenClaims,
 }
 
-struct PolicyContext<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
+struct PolicyContext<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
     client: Client,
     client_context: CTX,
 
-    environment: PolicyEnvironment,
+    environment: PolicyEnvironment<'a>,
 }
 
-pub fn evaluate_policy<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    context: &PolicyContext<CTX, Client>,
+pub fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+    context: &PolicyContext<'a, CTX, Client>,
     policy: &AccessPolicyV2,
 ) -> Result<(), OperationOutcomeError> {
     match &*policy.engine {

@@ -1,5 +1,6 @@
 use crate::{ProjectId, ResourceId, TenantId, VersionId};
 use oxidized_reflect::MetaValue;
+use std::any::Any;
 
 impl MetaValue for TenantId {
     fn fields(&self) -> Vec<&'static str> {
