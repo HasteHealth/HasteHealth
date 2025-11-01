@@ -952,7 +952,7 @@ mod tests {
     #[test]
     fn test_variable_resolution() {
         let engine = FPEngine::new();
-        let mut patient = Patient {
+        let patient = Patient {
             id: Some("my-patient".to_string()),
             ..Default::default()
         };
@@ -972,6 +972,12 @@ mod tests {
         let p = result.values[0].as_any().downcast_ref::<Patient>().unwrap();
 
         assert_eq!(p.id, patient.id);
+
+        let result_failed = engine
+            .evaluate_with_config("%nobody", vec![], &config)
+            .unwrap();
+
+        assert_eq!(result_failed.values.len(), 0);
     }
 
     #[test]
