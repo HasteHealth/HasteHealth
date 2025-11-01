@@ -9,21 +9,22 @@ mod engine;
 mod utilities;
 
 #[derive(Debug)]
-struct PolicyEnvironment<'a> {
+pub struct PolicyEnvironment<'a> {
     tenant: &'a TenantId,
     project: &'a ProjectId,
     request: &'a FHIRRequest,
     user: &'a UserTokenClaims,
 }
 
-struct PolicyContext<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
-    client: Client,
-    client_context: CTX,
+#[derive(Debug)]
+pub struct PolicyContext<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
+    pub client: &'a Client,
+    pub client_context: CTX,
 
-    environment: PolicyEnvironment<'a>,
+    pub environment: Option<PolicyEnvironment<'a>>,
 }
 
-pub fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     context: &PolicyContext<'a, CTX, Client>,
     policy: &AccessPolicyV2,
 ) -> Result<(), OperationOutcomeError> {

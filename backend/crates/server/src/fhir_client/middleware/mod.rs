@@ -8,6 +8,7 @@ use oxidized_fhir_client::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
+pub mod access_control;
 pub mod capabilities;
 pub mod check_project;
 pub mod custom_models;
