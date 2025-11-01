@@ -758,7 +758,7 @@ enum ExternalConstantResolver<'a> {
     Variable(HashMap<String, &'a dyn MetaValue>),
 }
 
-struct Config<'a> {
+pub struct Config<'a> {
     variable_resolver: Option<ExternalConstantResolver<'a>>,
 }
 
@@ -860,6 +860,41 @@ impl FPEngine {
 
         Ok(result)
     }
+
+    /// Evaluate a FHIRPath expression against a context.
+    /// The context is a vector of references to MetaValue objects.
+    /// The path is a FHIRPath expression.
+    /// The result is a vector of references to MetaValue objects.
+    ///
+    pub fn evaluate_with_config<'a, 'b>(
+        &self,
+        path: &str,
+        values: Vec<&'a dyn MetaValue>,
+        config: &'b Option<Config<'b>>,
+    ) -> Result<Context<'b>, FHIRPathError>
+    where
+        'a: 'b,
+    {
+        let ast: dashmap::mapref::one::Ref<'_, String, Expression> =
+            if let Some(ast) = self.ast.get(path) {
+                ast
+            } else {
+                self.ast.insert(path.to_string(), parser::parse(path)?);
+                let ast = self.ast.get(path).ok_or_else(|| {
+                    FHIRPathError::InternalError("Failed to find path post insert".to_string())
+                })?;
+                ast
+            };
+
+        // Store created.
+        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
+
+        let context = Context::new(values, allocator.clone());
+
+        let result = evaluate_expression(&ast, context, config)?;
+
+        Ok(result)
+    }
 }
 
 #[cfg(test)]
@@ -912,6 +947,31 @@ mod tests {
             .collect();
 
         search_parameters
+    }
+
+    #[test]
+    fn test_variable_resolution() {
+        let engine = FPEngine::new();
+        let mut patient = Patient {
+            id: Some("my-patient".to_string()),
+            ..Default::default()
+        };
+        let config = Some(Config {
+            variable_resolver: Some(ExternalConstantResolver::Variable(
+                vec![("patient".to_string(), &patient as &dyn MetaValue)]
+                    .into_iter()
+                    .collect(),
+            )),
+        });
+
+        let result = engine
+            .evaluate_with_config("%patient", vec![], &config)
+            .unwrap();
+
+        assert_eq!(result.values.len(), 1);
+        let p = result.values[0].as_any().downcast_ref::<Patient>().unwrap();
+
+        assert_eq!(p.id, patient.id);
     }
 
     #[test]
