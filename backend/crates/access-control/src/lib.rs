@@ -8,6 +8,7 @@ use oxidized_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 mod engine;
 mod utilities;
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct PolicyEnvironment<'a> {
     tenant: &'a TenantId,
@@ -25,7 +26,7 @@ pub struct PolicyContext<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>
 }
 
 pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    context: &PolicyContext<'a, CTX, Client>,
+    _context: &PolicyContext<'a, CTX, Client>,
     policy: &AccessPolicyV2,
 ) -> Result<(), OperationOutcomeError> {
     match &*policy.engine {
