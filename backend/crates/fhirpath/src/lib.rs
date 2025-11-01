@@ -10,7 +10,7 @@ use dashmap::DashMap;
 pub use error::FHIRPathError;
 use std::{
     cell::RefCell,
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     marker::PhantomData,
     rc::Rc,
     sync::{Arc, LazyLock, Mutex},
@@ -99,14 +99,15 @@ fn evaluate_literal<'b>(
     }
 }
 
-fn evaluate_invocation<'b>(
+fn evaluate_invocation<'a>(
     invocation: &Invocation,
-    context: Context<'b>,
-) -> Result<Context<'b>, FHIRPathError> {
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+) -> Result<Context<'a>, FHIRPathError> {
     match invocation {
         Invocation::This => Ok(context),
         Invocation::Index(index_expression) => {
-            let index = evaluate_expression(index_expression, context.clone())?;
+            let index = evaluate_expression(index_expression, context.clone(), config)?;
             if index.values.len() != 1 {
                 return Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
@@ -132,20 +133,24 @@ fn evaluate_invocation<'b>(
                 })
                 .collect(),
         )),
-        Invocation::Function(function) => evaluate_function(function, context),
+        Invocation::Function(function) => evaluate_function(function, context, config),
     }
 }
 
-fn evaluate_term<'a>(term: &Term, context: Context<'a>) -> Result<Context<'a>, FHIRPathError> {
+fn evaluate_term<'a>(
+    term: &Term,
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Literal(literal) => evaluate_literal(literal, context),
-        Term::ExternalConstant(_constant) => {
-            return Err(FHIRPathError::NotImplemented(
-                "external constant".to_string(),
-            ));
-        }
-        Term::Parenthesized(expression) => evaluate_expression(expression, context),
-        Term::Invocation(invocation) => evaluate_invocation(invocation, context),
+        Term::ExternalConstant(constant) => resolve_external_constant(
+            constant,
+            config.as_ref().and_then(|c| c.variable_resolver.as_ref()),
+            context,
+        ),
+        Term::Parenthesized(expression) => evaluate_expression(expression, context, config),
+        Term::Invocation(invocation) => evaluate_invocation(invocation, context, config),
     }
 }
 
@@ -154,6 +159,7 @@ fn evaluate_term<'a>(term: &Term, context: Context<'a>) -> Result<Context<'a>, F
 fn evaluate_first_term<'a>(
     term: &Term,
     context: Context<'a>,
+    config: &'a Option<Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Invocation(invocation) => match invocation {
@@ -162,42 +168,44 @@ fn evaluate_first_term<'a>(
                 if !type_filter.values.is_empty() {
                     Ok(type_filter)
                 } else {
-                    evaluate_invocation(invocation, context)
+                    evaluate_invocation(invocation, context, config)
                 }
             }
-            _ => evaluate_invocation(invocation, context),
+            _ => evaluate_invocation(invocation, context, config),
         },
-        _ => evaluate_term(term, context),
+        _ => evaluate_term(term, context, config),
     }
 }
 
-fn evaluate_singular<'b>(
+fn evaluate_singular<'a>(
     expression: &Vec<Term>,
-    context: Context<'b>,
-) -> Result<Context<'b>, FHIRPathError> {
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+) -> Result<Context<'a>, FHIRPathError> {
     let mut current_context = context;
 
     let mut term_iterator = expression.iter();
     let first_term = term_iterator.next();
     if let Some(first_term) = first_term {
-        current_context = evaluate_first_term(first_term, current_context)?;
+        current_context = evaluate_first_term(first_term, current_context, config)?;
     }
 
     for term in term_iterator {
-        current_context = evaluate_term(term, current_context)?;
+        current_context = evaluate_term(term, current_context, config)?;
     }
 
     Ok(current_context)
 }
 
-fn operation_1<'b>(
+fn operation_1<'a>(
     left: &Expression,
     right: &Expression,
-    context: Context<'b>,
-    executor: impl Fn(Context<'b>, Context<'b>) -> Result<Context<'b>, FHIRPathError>,
-) -> Result<Context<'b>, FHIRPathError> {
-    let left = evaluate_expression(left, context.clone())?;
-    let right = evaluate_expression(right, context)?;
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+    executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let left = evaluate_expression(left, context.clone(), config)?;
+    let right = evaluate_expression(right, context, config)?;
 
     // If one of operands is empty per spec return an empty collection
     if (left.values.len() == 0 || right.values.len() == 0) {
@@ -213,14 +221,15 @@ fn operation_1<'b>(
     executor(left, right)
 }
 
-fn operation_n<'b>(
+fn operation_n<'a>(
     left: &Expression,
     right: &Expression,
-    context: Context<'b>,
-    executor: impl Fn(Context<'b>, Context<'b>) -> Result<Context<'b>, FHIRPathError>,
-) -> Result<Context<'b>, FHIRPathError> {
-    let left = evaluate_expression(left, context.clone())?;
-    let right = evaluate_expression(right, context)?;
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+    executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let left = evaluate_expression(left, context.clone(), config)?;
+    let right = evaluate_expression(right, context, config)?;
     executor(left, right)
 }
 
@@ -400,6 +409,7 @@ struct Reflection {
 fn evaluate_function<'b>(
     function: &FunctionInvocation,
     context: Context<'b>,
+    config: &'b Option<Config<'b>>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match function.name.0.as_str() {
         // Faking resolve to just return current context.
@@ -408,8 +418,11 @@ fn evaluate_function<'b>(
             let where_condition = &args[0];
             let mut new_context = vec![];
             for value in context.values.iter() {
-                let result =
-                    evaluate_expression(where_condition, context.new_context_from(vec![*value]))?;
+                let result = evaluate_expression(
+                    where_condition,
+                    context.new_context_from(vec![*value]),
+                    config,
+                )?;
 
                 if result.values.len() > 1 {
                     return Err(FHIRPathError::InternalError(
@@ -438,7 +451,7 @@ fn evaluate_function<'b>(
             }
 
             let context = if args.len() == 1 {
-                evaluate_expression(&args[0], context)?
+                evaluate_expression(&args[0], context, config)?
             } else {
                 context
             };
@@ -469,7 +482,7 @@ fn evaluate_function<'b>(
             let mut cur = context;
 
             while (cur.values.len() != 0) {
-                cur = evaluate_expression(projection, cur)?;
+                cur = evaluate_expression(projection, cur, config)?;
                 end_result.extend_from_slice(cur.values.as_slice());
             }
 
@@ -490,6 +503,7 @@ fn evaluate_function<'b>(
                     },
                 ))]),
                 context,
+                config,
             )?;
 
             Ok(result)
@@ -547,12 +561,13 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
     }
 }
 
-fn evaluate_operation<'b>(
+fn evaluate_operation<'a>(
     operation: &Operation,
-    context: Context<'b>,
-) -> Result<Context<'b>, FHIRPathError> {
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+) -> Result<Context<'a>, FHIRPathError> {
     match operation {
-        Operation::Add(left, right) => operation_1(left, right, context, |left, right| {
+        Operation::Add(left, right) => operation_1(left, right, context, config, |left, right| {
             if NUMBER_TYPES.contains(left.values[0].typename())
                 && NUMBER_TYPES.contains(right.values[0].typename())
             {
@@ -574,59 +589,69 @@ fn evaluate_operation<'b>(
                 )))
             }
         }),
-        Operation::Subtraction(left, right) => operation_1(left, right, context, |left, right| {
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+        Operation::Subtraction(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let left_value = downcast_number(left.values[0])?;
+                let right_value = downcast_number(right.values[0])?;
 
-            Ok(left.new_context_from(vec![left.allocate(Box::new(left_value - right_value))]))
-        }),
+                Ok(left.new_context_from(vec![left.allocate(Box::new(left_value - right_value))]))
+            })
+        }
         Operation::Multiplication(left, right) => {
-            operation_1(left, right, context, |left, right| {
+            operation_1(left, right, context, config, |left, right| {
                 let left_value = downcast_number(left.values[0])?;
                 let right_value = downcast_number(right.values[0])?;
 
                 Ok(left.new_context_from(vec![left.allocate(Box::new(left_value * right_value))]))
             })
         }
-        Operation::Division(left, right) => operation_1(left, right, context, |left, right| {
-            let left_value = downcast_number(left.values[0])?;
-            let right_value = downcast_number(right.values[0])?;
+        Operation::Division(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let left_value = downcast_number(left.values[0])?;
+                let right_value = downcast_number(right.values[0])?;
 
-            Ok(left.new_context_from(vec![left.allocate(Box::new(left_value / right_value))]))
-        }),
-        Operation::Equal(left, right) => operation_1(left, right, context, |left, right| {
-            let are_equal = equal_check(&left, &right)?;
-            Ok(left.new_context_from(vec![left.allocate(Box::new(are_equal))]))
-        }),
-        Operation::NotEqual(left, right) => operation_1(left, right, context, |left, right| {
-            let are_equal = equal_check(&left, &right)?;
-            Ok(left.new_context_from(vec![left.allocate(Box::new(!are_equal))]))
-        }),
-        Operation::And(left, right) => operation_1(left, right, context, |left, right| {
+                Ok(left.new_context_from(vec![left.allocate(Box::new(left_value / right_value))]))
+            })
+        }
+        Operation::Equal(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let are_equal = equal_check(&left, &right)?;
+                Ok(left.new_context_from(vec![left.allocate(Box::new(are_equal))]))
+            })
+        }
+        Operation::NotEqual(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let are_equal = equal_check(&left, &right)?;
+                Ok(left.new_context_from(vec![left.allocate(Box::new(!are_equal))]))
+            })
+        }
+        Operation::And(left, right) => operation_1(left, right, context, config, |left, right| {
             let left_value = downcast_bool(left.values[0])?;
             let right_value = downcast_bool(right.values[0])?;
 
             Ok(left.new_context_from(vec![left.allocate(Box::new(left_value && right_value))]))
         }),
-        Operation::Or(left, right) => operation_1(left, right, context, |left, right| {
+        Operation::Or(left, right) => operation_1(left, right, context, config, |left, right| {
             let left_value = downcast_bool(left.values[0])?;
             let right_value = downcast_bool(right.values[0])?;
 
             Ok(left.new_context_from(vec![left.allocate(Box::new(left_value || right_value))]))
         }),
-        Operation::Union(left, right) => operation_n(left, right, context, |left, right| {
-            let mut union = vec![];
-            union.extend(left.values.iter());
-            union.extend(right.values.iter());
-            Ok(left.new_context_from(union))
-        }),
+        Operation::Union(left, right) => {
+            operation_n(left, right, context, config, |left, right| {
+                let mut union = vec![];
+                union.extend(left.values.iter());
+                union.extend(right.values.iter());
+                Ok(left.new_context_from(union))
+            })
+        }
         Operation::Polarity(_, _) => Err(FHIRPathError::NotImplemented("Polarity".to_string())),
         Operation::DivisionTruncated(_, _) => Err(FHIRPathError::NotImplemented(
             "DivisionTruncated".to_string(),
         )),
         Operation::Modulo(_, _) => Err(FHIRPathError::NotImplemented("Modulo".to_string())),
         Operation::Is(expression, type_name) => {
-            let left = evaluate_expression(expression, context)?;
+            let left = evaluate_expression(expression, context, config)?;
             if left.values.len() > 1 {
                 Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
@@ -643,7 +668,7 @@ fn evaluate_operation<'b>(
             }
         }
         Operation::As(expression, type_name) => {
-            let left = evaluate_expression(expression, context)?;
+            let left = evaluate_expression(expression, context, config)?;
             if left.values.len() > 1 {
                 Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
@@ -689,13 +714,14 @@ fn evaluate_operation<'b>(
     }
 }
 
-fn evaluate_expression<'b>(
+fn evaluate_expression<'a>(
     ast: &Expression,
-    context: Context<'b>,
-) -> Result<Context<'b>, FHIRPathError> {
+    context: Context<'a>,
+    config: &'a Option<Config<'a>>,
+) -> Result<Context<'a>, FHIRPathError> {
     match ast {
-        Expression::Operation(operation) => evaluate_operation(operation, context),
-        Expression::Singular(singular_ast) => evaluate_singular(singular_ast, context),
+        Expression::Operation(operation) => evaluate_operation(operation, context, config),
+        Expression::Singular(singular_ast) => evaluate_singular(singular_ast, context, config),
     }
 }
 
@@ -725,6 +751,40 @@ impl<'a> Allocator<'a> {
 pub struct Context<'a> {
     allocator: Arc<Mutex<Allocator<'a>>>,
     values: Arc<Vec<&'a dyn MetaValue>>,
+}
+
+enum ExternalConstantResolver<'a> {
+    Function(Box<dyn Fn(&str) -> Option<Box<dyn MetaValue>>>),
+    Variable(HashMap<String, &'a dyn MetaValue>),
+}
+
+struct Config<'a> {
+    variable_resolver: Option<ExternalConstantResolver<'a>>,
+}
+
+fn resolve_external_constant<'a>(
+    name: &str,
+    resolver: Option<&'a ExternalConstantResolver<'a>>,
+    context: Context<'a>,
+) -> Result<Context<'a>, FHIRPathError> {
+    let external_constant = match resolver {
+        Some(ExternalConstantResolver::Function(func)) => {
+            let result = func(name);
+            if let Some(result) = result {
+                Some(context.allocate(result))
+            } else {
+                None
+            }
+        }
+        Some(ExternalConstantResolver::Variable(map)) => map.get(name).map(|s| *s),
+        None => None,
+    };
+
+    if let Some(result) = external_constant {
+        return Ok(context.new_context_from(vec![result]));
+    } else {
+        return Ok(context.new_context_from(vec![]));
+    }
 }
 
 impl<'a> Context<'a> {
@@ -796,7 +856,7 @@ impl FPEngine {
 
         let context = Context::new(values, allocator.clone());
 
-        let result = evaluate_expression(&ast, context)?;
+        let result = evaluate_expression(&ast, context, &None)?;
 
         Ok(result)
     }
