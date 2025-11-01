@@ -7,88 +7,88 @@ use thiserror::Error;
 
 use crate::ParsedParameter;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRCreateRequest {
     pub resource_type: ResourceType,
     pub resource: Resource,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRReadRequest {
     pub resource_type: ResourceType,
     pub id: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRVersionReadRequest {
     pub resource_type: ResourceType,
     pub id: String,
     pub version_id: VersionId,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRUpdateInstanceRequest {
     pub resource_type: ResourceType,
     pub id: String,
     pub resource: Resource,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRConditionalUpdateRequest {
     pub resource_type: ResourceType,
     pub parameters: Vec<ParsedParameter>,
     pub resource: Resource,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRPatchRequest {
     pub resource_type: ResourceType,
     pub id: String,
     pub patch: Patch,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRHistoryInstanceRequest {
     pub resource_type: ResourceType,
     pub id: String,
     pub parameters: Vec<ParsedParameter>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRHistoryTypeRequest {
     pub resource_type: ResourceType,
     pub parameters: Vec<ParsedParameter>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRHistorySystemRequest {
     pub parameters: Vec<ParsedParameter>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRDeleteInstanceRequest {
     pub resource_type: ResourceType,
     pub id: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRDeleteTypeRequest {
     pub resource_type: ResourceType,
     pub parameters: Vec<ParsedParameter>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRDeleteSystemRequest {
     pub parameters: Vec<ParsedParameter>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRSearchTypeRequest {
     pub resource_type: ResourceType,
     pub parameters: Vec<ParsedParameter>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRSearchSystemRequest {
     pub parameters: Vec<ParsedParameter>,
 }
@@ -99,7 +99,7 @@ pub enum OperationParseError {
     Invalid,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Operation(String);
 impl Operation {
     pub fn new(name: &str) -> Result<Self, OperationParseError> {
@@ -111,7 +111,7 @@ impl Operation {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRInvokeInstanceRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
@@ -119,30 +119,30 @@ pub struct FHIRInvokeInstanceRequest {
     pub parameters: Parameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRInvokeTypeRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
     pub parameters: Parameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRInvokeSystemRequest {
     pub operation: Operation,
     pub parameters: Parameters,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRBatchRequest {
     pub resource: Bundle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRTransactionRequest {
     pub resource: Bundle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum FHIRRequest {
     Create(FHIRCreateRequest),
 
@@ -174,87 +174,87 @@ pub enum FHIRRequest {
     Batch(FHIRBatchRequest),
     Transaction(FHIRTransactionRequest),
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRCreateResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRReadResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRVersionReadResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRUpdateResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRPatchResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRDeleteInstanceResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRDeleteTypeResponse {
     pub resource: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRDeleteSystemResponse {
     pub resource: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRCapabilitiesResponse {
     pub capabilities: CapabilityStatement,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRSearchTypeResponse {
     pub total: Option<i64>,
     pub resources: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRSearchSystemResponse {
     pub total: Option<i64>,
     pub resources: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRHistoryInstanceResponse {
     pub resources: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRHistoryTypeResponse {
     pub resources: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRHistorySystemResponse {
     pub resources: Vec<Resource>,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRInvokeInstanceResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRInvokeTypeResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRInvokeSystemResponse {
     pub resource: Resource,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRBatchResponse {
     pub resource: Bundle,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FHIRTransactionResponse {
     pub resource: Bundle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum FHIRResponse {
     Create(FHIRCreateResponse),
 
