@@ -10,7 +10,7 @@ use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId, VersionIdRef};
+use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -20,18 +20,21 @@ struct ReturnV {
     resource: FHIRJson<Resource>,
 }
 
-async fn read_version_ids_from_cache(
+async fn read_version_ids_from_cache<'a>(
     cache: &Cache<VersionId, Resource>,
-    version_ids: &[VersionIdRef<'_>],
-) -> (Vec<Resource>, Vec<VersionIdRef<'_>>) {
-    let remaining_version_ids = vec![];
+    version_ids: &'a Vec<&VersionId>,
+) -> (Vec<Resource>, Vec<&'a VersionId>) {
+    let mut remaining_version_ids = vec![];
+    let mut cached_resources = vec![];
     for version_id in version_ids.iter() {
-        if let Some(_resource) = cache.get(VersionId::from(version_id)).await {
-            // Found in cache
+        if let Some(resource) = cache.get(*version_id).await {
+            cached_resources.push(resource)
         } else {
-            remaining_version_ids.push(version_id.clone());
+            remaining_version_ids.push(*version_id);
         }
     }
+
+    (cached_resources, remaining_version_ids)
 }
 
 impl FHIRRepository for PGConnection {
@@ -124,22 +127,30 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: Vec<VersionIdRef<'_>>,
+        version_ids: Vec<&VersionId>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         if version_ids.is_empty() {
             return Ok(vec![]);
         }
 
+        let (cached_resources, remaining_version_ids) =
+            read_version_ids_from_cache(self.cache(), &version_ids).await;
+
         match self {
-            PGConnection::Pool(pool, cache_resources) => {
-                let res = read_by_version_ids(pool, tenant_id, project_id, version_ids).await?;
+            PGConnection::Pool(pool, _) => {
+                let mut res =
+                    read_by_version_ids(pool, tenant_id, project_id, remaining_version_ids).await?;
+                res.extend(cached_resources);
                 Ok(res)
             }
-            PGConnection::Transaction(tx, cached_resources) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
-                let res =
-                    read_by_version_ids(&mut *conn, tenant_id, project_id, version_ids).await?;
+                let mut res =
+                    read_by_version_ids(&mut *conn, tenant_id, project_id, remaining_version_ids)
+                        .await?;
+                res.extend(cached_resources);
+
                 Ok(res)
             }
         }
@@ -379,7 +390,7 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
     connection: Connection,
     tenant_id: &'a TenantId,
     project_id: &'a ProjectId,
-    version_ids: Vec<VersionIdRef<'a>>,
+    version_ids: Vec<&'a VersionId>,
 ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;

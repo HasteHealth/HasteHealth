@@ -2,6 +2,7 @@ use json_patch::Patch;
 use oxidized_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
+use oxidized_jwt::VersionId;
 use thiserror::Error;
 
 use crate::ParsedParameter;
@@ -22,7 +23,7 @@ pub struct FHIRReadRequest {
 pub struct FHIRVersionReadRequest {
     pub resource_type: ResourceType,
     pub id: String,
-    pub version_id: String,
+    pub version_id: VersionId,
 }
 
 #[derive(Debug, Clone)]

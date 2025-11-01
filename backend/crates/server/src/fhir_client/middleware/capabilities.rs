@@ -77,11 +77,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
         .read_by_version_ids(
             &TenantId::System,
             &ProjectId::System,
-            sd_results
-                .entries
-                .iter()
-                .map(|v| VersionIdRef::new(v.version_id.as_ref()))
-                .collect(),
+            sd_results.entries.iter().map(|v| &v.version_id).collect(),
         )
         .await?
         .into_iter()

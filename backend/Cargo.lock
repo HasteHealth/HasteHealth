@@ -2178,6 +2178,7 @@ dependencies = [
  "json-patch",
  "oxidized-fhir-model",
  "oxidized-fhir-serialization-json",
+ "oxidized-jwt",
  "reqwest",
  "thiserror 2.0.15",
  "tokio",

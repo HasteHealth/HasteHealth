@@ -80,7 +80,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                         .read_by_version_ids(
                             &TenantId::System,
                             &ProjectId::System,
-                            vec![VersionIdRef::new(entry.version_id.as_ref())],
+                            vec![&entry.version_id()],
                         )
                         .await?
                         .pop()

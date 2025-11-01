@@ -261,7 +261,7 @@ impl<
                             search_results
                                 .entries
                                 .iter()
-                                .map(|v| VersionIdRef::new(v.version_id.as_ref()))
+                                .map(|v| &v.version_id)
                                 .collect(),
                         )
                         .await?;
@@ -291,7 +291,7 @@ impl<
                             search_results
                                 .entries
                                 .iter()
-                                .map(|v| VersionIdRef::new(v.version_id.as_ref()))
+                                .map(|v| &v.version_id)
                                 .collect(),
                         )
                         .await?;

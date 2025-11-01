@@ -42,6 +42,13 @@ impl PGConnection {
     pub fn pool(pool: sqlx::Pool<Postgres>) -> Self {
         PGConnection::Pool(pool, Cache::new(1000))
     }
+
+    pub fn cache(&self) -> &Cache<VersionId, Resource> {
+        match self {
+            PGConnection::Pool(_, cache) => cache,
+            PGConnection::Transaction(_, cache) => cache,
+        }
+    }
 }
 
 impl Repository for PGConnection {}

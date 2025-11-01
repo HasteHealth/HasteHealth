@@ -6,7 +6,7 @@ use oxidized_fhir_client::request::{
 use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionIdRef};
+use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId};
 
 pub struct ResourcePollingValue {
     pub id: ResourceId,
@@ -59,7 +59,7 @@ pub trait FHIRRepository: Sized {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_id: Vec<VersionIdRef>,
+        version_id: Vec<&VersionId>,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
         &self,
