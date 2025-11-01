@@ -4,12 +4,13 @@ use crate::{
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
 };
+use moka::future::Cache;
 use oxidized_fhir_model::r4::{
     generated::resources::{Resource, ResourceType},
     sqlx::{FHIRJson, FHIRJsonRef},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionIdRef};
+use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId, VersionIdRef};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -17,6 +18,20 @@ use tokio::sync::Mutex;
 #[derive(sqlx::FromRow, Debug)]
 struct ReturnV {
     resource: FHIRJson<Resource>,
+}
+
+async fn read_version_ids_from_cache(
+    cache: &Cache<VersionId, Resource>,
+    version_ids: &[VersionIdRef<'_>],
+) -> (Vec<Resource>, Vec<VersionIdRef<'_>>) {
+    let remaining_version_ids = vec![];
+    for version_id in version_ids.iter() {
+        if let Some(_resource) = cache.get(VersionId::from(version_id)).await {
+            // Found in cache
+        } else {
+            remaining_version_ids.push(version_id.clone());
+        }
+    }
 }
 
 impl FHIRRepository for PGConnection {
@@ -116,11 +131,11 @@ impl FHIRRepository for PGConnection {
         }
 
         match self {
-            PGConnection::Pool(pool, _) => {
+            PGConnection::Pool(pool, cache_resources) => {
                 let res = read_by_version_ids(pool, tenant_id, project_id, version_ids).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx, _) => {
+            PGConnection::Transaction(tx, cached_resources) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
