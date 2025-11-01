@@ -1,4 +1,4 @@
-use crate::{ProjectId, ResourceId, TenantId, VersionIdRef, scopes::Scopes};
+use crate::{ProjectId, ResourceId, TenantId, VersionId, VersionIdRef, scopes::Scopes};
 use sqlx::{Database, Decode, Encode, Postgres, postgres::PgArgumentBuffer};
 use std::{error::Error, io::Write};
 
@@ -86,6 +86,34 @@ impl<'r> Encode<'r, Postgres> for VersionIdRef<'r> {
     ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
         buf.write(self.0.as_bytes())?;
         Ok(sqlx::encode::IsNull::No)
+    }
+}
+
+impl<'r> Encode<'r, Postgres> for VersionId {
+    fn encode_by_ref(
+        &self,
+        buf: &mut PgArgumentBuffer,
+    ) -> Result<sqlx::encode::IsNull, sqlx::error::BoxDynError> {
+        buf.write(self.0.as_bytes())?;
+        Ok(sqlx::encode::IsNull::No)
+    }
+}
+
+impl<'r, DB: Database> Decode<'r, DB> for VersionId
+where
+    &'r str: Decode<'r, DB>,
+{
+    fn decode(
+        value: <DB as Database>::ValueRef<'r>,
+    ) -> Result<VersionId, Box<dyn Error + 'static + Send + Sync>> {
+        let value = <&str as Decode<DB>>::decode(value)?;
+        Ok(VersionId::new(value.to_string()))
+    }
+}
+
+impl sqlx::Type<Postgres> for VersionId {
+    fn type_info() -> sqlx::postgres::PgTypeInfo {
+        <&str as sqlx::Type<Postgres>>::type_info()
     }
 }
 
