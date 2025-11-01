@@ -244,11 +244,11 @@ impl<Key: AsRef<str> + Send + Sync>
         authorization_code: CreateAuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = create_code(pool, tenant, None, authorization_code).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = create_code(&mut *tx, tenant, None, authorization_code).await?;
@@ -263,11 +263,11 @@ impl<Key: AsRef<str> + Send + Sync>
         code: &Key,
     ) -> Result<Option<AuthorizationCode>, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = read_code(pool, tenant, None, code.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = read_code(&mut *tx, tenant, None, code.as_ref()).await?;
@@ -293,11 +293,11 @@ impl<Key: AsRef<str> + Send + Sync>
         code: &Key,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = delete_code(pool, tenant, None, code.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = delete_code(&mut *tx, tenant, None, code.as_ref()).await?;
@@ -312,11 +312,11 @@ impl<Key: AsRef<str> + Send + Sync>
         clauses: &AuthorizationCodeSearchClaims,
     ) -> Result<Vec<AuthorizationCode>, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = search_codes(pool, tenant, None, clauses).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = search_codes(&mut *tx, tenant, None, clauses).await?;
@@ -342,11 +342,11 @@ impl<Key: AsRef<str> + Send + Sync>
         authorization_code: CreateAuthorizationCode,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = create_code(pool, tenant, Some(project), authorization_code).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = create_code(&mut *tx, tenant, Some(project), authorization_code).await?;
@@ -362,11 +362,11 @@ impl<Key: AsRef<str> + Send + Sync>
         code: &Key,
     ) -> Result<Option<AuthorizationCode>, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = read_code(pool, tenant, Some(project), code.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = read_code(&mut *tx, tenant, Some(project), code.as_ref()).await?;
@@ -394,11 +394,11 @@ impl<Key: AsRef<str> + Send + Sync>
         code: &Key,
     ) -> Result<AuthorizationCode, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = delete_code(pool, tenant, Some(project), code.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = delete_code(&mut *tx, tenant, Some(project), code.as_ref()).await?;
@@ -414,11 +414,11 @@ impl<Key: AsRef<str> + Send + Sync>
         clauses: &AuthorizationCodeSearchClaims,
     ) -> Result<Vec<AuthorizationCode>, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = search_codes(pool, tenant, Some(project), clauses).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = search_codes(&mut *tx, tenant, Some(project), clauses).await?;

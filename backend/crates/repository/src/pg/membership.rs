@@ -195,11 +195,11 @@ impl<Key: AsRef<str> + Send + Sync>
         new_membership: CreateMembership,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = create_membership(pool, tenant, project, new_membership).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = create_membership(&mut *tx, tenant, project, new_membership).await?;
                 Ok(res)
@@ -214,11 +214,11 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<Option<Membership>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = read_membership(pool, tenant, project, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = read_membership(&mut *tx, tenant, project, id.as_ref()).await?;
                 Ok(res)
@@ -233,11 +233,11 @@ impl<Key: AsRef<str> + Send + Sync>
         model: UpdateMembership,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = update_membership(pool, tenant, project, model).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = update_membership(&mut *tx, tenant, project, model).await?;
                 Ok(res)
@@ -252,11 +252,11 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = delete_membership(pool, tenant, project, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = delete_membership(&mut *tx, tenant, project, id.as_ref()).await?;
                 Ok(res)
@@ -271,11 +271,11 @@ impl<Key: AsRef<str> + Send + Sync>
         clauses: &MembershipSearchClaims,
     ) -> Result<Vec<Membership>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = search_memberships(pool, tenant, project, clauses).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = search_memberships(&mut *tx, tenant, project, clauses).await?;
                 Ok(res)

@@ -29,11 +29,11 @@ impl FHIRRepository for PGConnection {
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = create(pool, tenant, project, author, fhir_version, resource).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = create(&mut *tx, tenant, project, author, fhir_version, resource).await?;
                 Ok(res)
@@ -51,11 +51,11 @@ impl FHIRRepository for PGConnection {
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = delete(pool, tenant, project, author, fhir_version, resource, id).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = delete(
@@ -83,11 +83,11 @@ impl FHIRRepository for PGConnection {
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = update(pool, tenant, project, author, fhir_version, resource, id).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = update(
@@ -116,11 +116,11 @@ impl FHIRRepository for PGConnection {
         }
 
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = read_by_version_ids(pool, tenant_id, project_id, version_ids).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
@@ -138,12 +138,12 @@ impl FHIRRepository for PGConnection {
         resource_id: &ResourceId,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res =
                     read_latest(pool, tenant_id, project_id, resource_type, resource_id).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = read_latest(
@@ -166,11 +166,11 @@ impl FHIRRepository for PGConnection {
         request: HistoryRequest<'_>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = history(pool, tenant_id, project_id, request).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = history(&mut *conn, tenant_id, project_id, request).await?;
@@ -186,11 +186,11 @@ impl FHIRRepository for PGConnection {
         count: Option<u64>,
     ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = get_sequence(pool, tenant_id, sequence_id, count).await?;
                 Ok(res)
             }
-            PGConnection::Transaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
@@ -201,25 +201,28 @@ impl FHIRRepository for PGConnection {
 
     fn in_transaction(&self) -> bool {
         match self {
-            PGConnection::Transaction(_tx) => true,
+            PGConnection::Transaction(_tx, _) => true,
             _ => false,
         }
     }
 
     async fn transaction<'a>(&'a self) -> Result<Self, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool) => {
+            PGConnection::Pool(pool, cache) => {
                 let tx = pool.begin().await.map_err(StoreError::from)?;
-                Ok(PGConnection::Transaction(Arc::new(Mutex::new(tx))))
+                Ok(PGConnection::Transaction(
+                    Arc::new(Mutex::new(tx)),
+                    cache.clone(),
+                ))
             }
-            PGConnection::Transaction(_) => Ok(self.clone()), // Transaction doesn't live long enough so cannot create.
+            PGConnection::Transaction(_tx, _) => Ok(self.clone()), // Transaction doesn't live long enough so cannot create.
         }
     }
 
     async fn commit(self) -> Result<(), OperationOutcomeError> {
         match self {
-            PGConnection::Pool(_pool) => Err(StoreError::NotTransaction.into()),
-            PGConnection::Transaction(tx) => {
+            PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
+            PGConnection::Transaction(tx, _) => {
                 let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
                     println!("Error during commit: {:?}", e);
                     StoreError::FailedCommitTransaction
@@ -234,8 +237,8 @@ impl FHIRRepository for PGConnection {
 
     async fn rollback(self) -> Result<(), OperationOutcomeError> {
         match self {
-            PGConnection::Pool(_pool) => Err(StoreError::NotTransaction.into()),
-            PGConnection::Transaction(tx) => {
+            PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
+            PGConnection::Transaction(tx, _) => {
                 let conn = Mutex::into_inner(
                     Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
                 );

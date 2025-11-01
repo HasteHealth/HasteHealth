@@ -210,7 +210,7 @@ pub async fn run_worker() {
     .await
     .expect("Failed to connect to the database");
 
-    let repo = Arc::new(oxidized_repository::pg::PGConnection::Pool(pg_pool.clone()));
+    let repo = Arc::new(oxidized_repository::pg::PGConnection::pool(pg_pool.clone()));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 
