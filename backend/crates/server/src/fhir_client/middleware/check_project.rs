@@ -34,7 +34,7 @@ impl<
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -43,9 +43,9 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext,
+        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput {
+    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         let project_id = self.project_id.clone();
         Box::pin(async move {
             if let Some(next) = next
@@ -80,7 +80,7 @@ impl<
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -89,9 +89,9 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext,
+        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput {
+    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         let project_id = self.project_id.clone();
         Box::pin(async move {
             if let Some(next) = next {
@@ -105,6 +105,7 @@ impl<
                             project: project_id,
                             fhir_version: context.ctx.fhir_version.clone(),
                             author: context.ctx.author.clone(),
+                            client: context.ctx.client.clone(),
                         });
                         next(state, context).await
                     }

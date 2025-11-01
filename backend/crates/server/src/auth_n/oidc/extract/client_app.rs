@@ -45,7 +45,11 @@ pub async fn find_client_app<
         let client_app = state
             .fhir_client
             .read(
-                Arc::new(ServerCTX::system(tenant, project)),
+                Arc::new(ServerCTX::system(
+                    tenant,
+                    project,
+                    state.fhir_client.clone(),
+                )),
                 ResourceType::ClientApplication,
                 client_id,
             )

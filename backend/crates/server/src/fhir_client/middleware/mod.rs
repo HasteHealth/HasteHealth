@@ -19,10 +19,12 @@ pub mod transaction;
 
 pub type ServerMiddlewareState<Repository, Search, Terminology> =
     Arc<ClientState<Repository, Search, Terminology>>;
-pub type ServerMiddlewareContext = Context<Arc<ServerCTX>, FHIRRequest, FHIRResponse>;
+pub type ServerMiddlewareContext<Repo, Search, Terminology> =
+    Context<Arc<ServerCTX<Repo, Search, Terminology>>, FHIRRequest, FHIRResponse>;
 pub type ServerMiddlewareNext<Repo, Search, Terminology> = Next<
     Arc<ClientState<Repo, Search, Terminology>>,
-    ServerMiddlewareContext,
+    ServerMiddlewareContext<Repo, Search, Terminology>,
     OperationOutcomeError,
 >;
-pub type ServerMiddlewareOutput = MiddlewareOutput<ServerMiddlewareContext, OperationOutcomeError>;
+pub type ServerMiddlewareOutput<Repo, Search, Terminology> =
+    MiddlewareOutput<ServerMiddlewareContext<Repo, Search, Terminology>, OperationOutcomeError>;

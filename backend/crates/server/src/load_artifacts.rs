@@ -109,6 +109,7 @@ pub async fn load_artifacts(
             id: AuthorId::System,
             kind: AuthorKind::System,
         },
+        client: services.fhir_client.clone(),
     });
 
     let mut hashes = HashSet::new();

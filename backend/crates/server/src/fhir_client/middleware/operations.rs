@@ -165,7 +165,7 @@ impl<
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -175,9 +175,9 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext,
+        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
         _next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput {
+    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         let executors = self.operations.clone();
         Box::pin(async move {
             if let Some(code) = get_request_operation_code(&context.request)

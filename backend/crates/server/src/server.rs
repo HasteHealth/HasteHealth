@@ -88,6 +88,7 @@ async fn fhir_handler<
                 id: claims.sub.clone(),
                 kind: claims.resource_type.clone(),
             },
+            client: state.fhir_client.clone(),
         });
 
         let response = state.fhir_client.request(ctx, fhir_request).await?;

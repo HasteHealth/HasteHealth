@@ -58,7 +58,11 @@ pub async fn create_tenant<
     services
         .fhir_client
         .create(
-            Arc::new(ServerCTX::system(new_tenant.id, ProjectId::System)),
+            Arc::new(ServerCTX::system(
+                new_tenant.id,
+                ProjectId::System,
+                services.fhir_client.clone(),
+            )),
             ResourceType::Project,
             Resource::Project(Project {
                 id: Some(ProjectId::System.to_string()),
