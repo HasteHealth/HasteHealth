@@ -4,19 +4,43 @@ use crate::{
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
 };
+use moka::future::Cache;
 use oxidized_fhir_model::r4::{
     generated::resources::{Resource, ResourceType},
     sqlx::{FHIRJson, FHIRJsonRef},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionIdRef};
+use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 #[derive(sqlx::FromRow, Debug)]
-struct ReturnV {
+struct ReturnSingularResource {
     resource: FHIRJson<Resource>,
+}
+
+#[derive(sqlx::FromRow, Debug)]
+struct ReturnVersionedResource {
+    resource: FHIRJson<Resource>,
+    version_id: VersionId,
+}
+
+async fn read_version_ids_from_cache<'a>(
+    cache: &Cache<VersionId, Resource>,
+    version_ids: &'a Vec<&VersionId>,
+) -> (Vec<Resource>, Vec<&'a VersionId>) {
+    let mut remaining_version_ids = vec![];
+    let mut cached_resources = vec![];
+    for version_id in version_ids.iter() {
+        if let Some(resource) = cache.get(*version_id).await {
+            cached_resources.push(resource)
+        } else {
+            remaining_version_ids.push(*version_id);
+        }
+    }
+
+    (cached_resources, remaining_version_ids)
 }
 
 impl FHIRRepository for PGConnection {
@@ -29,11 +53,11 @@ impl FHIRRepository for PGConnection {
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         match &self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = create(pool, tenant, project, author, fhir_version, resource).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = create(&mut *tx, tenant, project, author, fhir_version, resource).await?;
                 Ok(res)
@@ -51,11 +75,11 @@ impl FHIRRepository for PGConnection {
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = delete(pool, tenant, project, author, fhir_version, resource, id).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = delete(
@@ -83,11 +107,11 @@ impl FHIRRepository for PGConnection {
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = update(pool, tenant, project, author, fhir_version, resource, id).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = update(
@@ -109,23 +133,51 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: Vec<VersionIdRef<'_>>,
+        version_ids: Vec<&VersionId>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         if version_ids.is_empty() {
             return Ok(vec![]);
         }
 
+        let (cached_result, remaining_version_ids) =
+            read_version_ids_from_cache(self.cache(), &version_ids).await;
+
+        if remaining_version_ids.is_empty() {
+            return Ok(cached_result);
+        }
+
         match self {
-            PGConnection::PgPool(pool) => {
-                let res = read_by_version_ids(pool, tenant_id, project_id, version_ids).await?;
-                Ok(res)
+            PGConnection::Pool(pool, cache) => {
+                let res =
+                    read_by_version_ids(pool, tenant_id, project_id, remaining_version_ids).await?;
+                for v in res.iter() {
+                    cache
+                        .insert(v.version_id.clone(), v.resource.0.clone())
+                        .await;
+                }
+
+                Ok(cached_result
+                    .into_iter()
+                    .chain(res.into_iter().map(|r| r.resource.0))
+                    .collect::<Vec<_>>())
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, cache) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
-                    read_by_version_ids(&mut *conn, tenant_id, project_id, version_ids).await?;
-                Ok(res)
+                    read_by_version_ids(&mut *conn, tenant_id, project_id, remaining_version_ids)
+                        .await?;
+
+                for v in res.iter() {
+                    cache
+                        .insert(v.version_id.clone(), v.resource.0.clone())
+                        .await;
+                }
+
+                Ok(cached_result
+                    .into_iter()
+                    .chain(res.into_iter().map(|r| r.resource.0))
+                    .collect::<Vec<_>>())
             }
         }
     }
@@ -138,12 +190,12 @@ impl FHIRRepository for PGConnection {
         resource_id: &ResourceId,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res =
                     read_latest(pool, tenant_id, project_id, resource_type, resource_id).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = read_latest(
@@ -166,11 +218,11 @@ impl FHIRRepository for PGConnection {
         request: HistoryRequest<'_>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = history(pool, tenant_id, project_id, request).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = history(&mut *conn, tenant_id, project_id, request).await?;
@@ -186,11 +238,11 @@ impl FHIRRepository for PGConnection {
         count: Option<u64>,
     ) -> Result<Vec<ResourcePollingValue>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = get_sequence(pool, tenant_id, sequence_id, count).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
@@ -201,25 +253,28 @@ impl FHIRRepository for PGConnection {
 
     fn in_transaction(&self) -> bool {
         match self {
-            PGConnection::PgTransaction(_tx) => true,
+            PGConnection::Transaction(_tx, _) => true,
             _ => false,
         }
     }
 
     async fn transaction<'a>(&'a self) -> Result<Self, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, cache) => {
                 let tx = pool.begin().await.map_err(StoreError::from)?;
-                Ok(PGConnection::PgTransaction(Arc::new(Mutex::new(tx))))
+                Ok(PGConnection::Transaction(
+                    Arc::new(Mutex::new(tx)),
+                    cache.clone(),
+                ))
             }
-            PGConnection::PgTransaction(_) => Ok(self.clone()), // Transaction doesn't live long enough so cannot create.
+            PGConnection::Transaction(_tx, _) => Ok(self.clone()), // Transaction doesn't live long enough so cannot create.
         }
     }
 
     async fn commit(self) -> Result<(), OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
+            PGConnection::Transaction(tx, _) => {
                 let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
                     println!("Error during commit: {:?}", e);
                     StoreError::FailedCommitTransaction
@@ -234,8 +289,8 @@ impl FHIRRepository for PGConnection {
 
     async fn rollback(self) -> Result<(), OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(_pool) => Err(StoreError::NotTransaction.into()),
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
+            PGConnection::Transaction(tx, _) => {
                 let conn = Mutex::into_inner(
                     Arc::try_unwrap(tx).map_err(|_e| StoreError::FailedCommitTransaction)?,
                 );
@@ -261,7 +316,7 @@ fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         utilities::set_version_id(resource)?;
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let result = sqlx::query_as!(
-                ReturnV,
+                ReturnSingularResource,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
@@ -295,7 +350,7 @@ fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         utilities::set_version_id(resource)?;
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let result = sqlx::query_as!(
-                ReturnV,
+                ReturnSingularResource,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
@@ -331,7 +386,7 @@ fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
         let query = sqlx::query_as!(
-            ReturnV,
+            ReturnSingularResource,
             r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
@@ -361,13 +416,13 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
     connection: Connection,
     tenant_id: &'a TenantId,
     project_id: &'a ProjectId,
-    version_ids: Vec<VersionIdRef<'a>>,
-) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
+    version_ids: Vec<&'a VersionId>,
+) -> impl Future<Output = Result<Vec<ReturnVersionedResource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
         let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT resource FROM resources WHERE tenant = "#);
+            QueryBuilder::new(r#"SELECT resource, version_id FROM resources WHERE tenant = "#);
 
         query_builder
             .push_bind(tenant_id.as_ref())
@@ -391,12 +446,12 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
         query_builder.push("], version_id)");
 
         let query = query_builder.build_query_as();
-        let response: Vec<ReturnV> = query
+        let response: Vec<ReturnVersionedResource> = query
             .fetch_all(&mut *conn)
             .await
             .map_err(StoreError::from)?;
 
-        Ok(response.into_iter().map(|r| r.resource.0).collect())
+        Ok(response)
     }
 }
 
@@ -431,7 +486,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
         match history_request {
             HistoryRequest::Instance(history_instance_request) => {
-                let response = sqlx::query_as!(ReturnV,
+                let response = sqlx::query_as!(ReturnSingularResource,
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
@@ -442,7 +497,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 Ok(response.into_iter().map(|r| r.resource.0).collect())
             }
             HistoryRequest::Type(history_type_request) => {
-                let response = sqlx::query_as!(ReturnV,
+                let response = sqlx::query_as!(ReturnSingularResource,
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str,
@@ -452,7 +507,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 Ok(response.into_iter().map(|r| r.resource.0).collect())
             }
             HistoryRequest::System(_request) => {
-                let response = sqlx::query_as!(ReturnV,
+                let response = sqlx::query_as!(ReturnSingularResource,
                     r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC LIMIT 100"#,
                         tenant_id.as_ref()  as &str,
                         project_id.as_ref() as &str

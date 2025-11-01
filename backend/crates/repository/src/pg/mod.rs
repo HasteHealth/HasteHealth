@@ -1,4 +1,7 @@
+use moka::future::Cache;
+use oxidized_fhir_model::r4::generated::resources::Resource;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
+use oxidized_jwt::VersionId;
 use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -28,8 +31,24 @@ pub enum StoreError {
 /// Connection types supported by the repository traits.
 #[derive(Debug, Clone)]
 pub enum PGConnection {
-    PgPool(sqlx::Pool<Postgres>),
-    PgTransaction(Arc<Mutex<sqlx::Transaction<'static, Postgres>>>),
+    Pool(sqlx::Pool<Postgres>, Cache<VersionId, Resource>),
+    Transaction(
+        Arc<Mutex<sqlx::Transaction<'static, Postgres>>>,
+        Cache<VersionId, Resource>,
+    ),
+}
+
+impl PGConnection {
+    pub fn pool(pool: sqlx::Pool<Postgres>) -> Self {
+        PGConnection::Pool(pool, Cache::new(1000))
+    }
+
+    pub fn cache(&self) -> &Cache<VersionId, Resource> {
+        match self {
+            PGConnection::Pool(_, cache) => cache,
+            PGConnection::Transaction(_, cache) => cache,
+        }
+    }
 }
 
 impl Repository for PGConnection {}

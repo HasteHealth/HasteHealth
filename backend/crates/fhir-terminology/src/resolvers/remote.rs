@@ -5,7 +5,7 @@ use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::{SearchEngine, SearchRequest};
-use oxidized_jwt::{ProjectId, TenantId, VersionIdRef};
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_repository::Repository;
 use oxidized_repository::types::SupportedFHIRVersions::R4;
 use std::pin::Pin;
@@ -80,7 +80,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                         .read_by_version_ids(
                             &TenantId::System,
                             &ProjectId::System,
-                            vec![VersionIdRef::new(entry.version_id.as_ref())],
+                            vec![&entry.version_id],
                         )
                         .await?
                         .pop()

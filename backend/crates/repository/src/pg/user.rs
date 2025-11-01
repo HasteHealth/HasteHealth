@@ -53,11 +53,11 @@ impl Login for PGConnection {
         method: &LoginMethod,
     ) -> Result<LoginResult, oxidized_fhir_operation_error::OperationOutcomeError> {
         match &self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = login(pool, tenant, method).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
 
                 let res = login(&mut *tx, tenant, method).await?;
@@ -276,11 +276,11 @@ impl<Key: AsRef<str> + Send + Sync>
         new_user: CreateUser,
     ) -> Result<User, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = create_user(pool, tenant, new_user).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = create_user(&mut *tx, tenant, new_user).await?;
                 Ok(res)
@@ -294,11 +294,11 @@ impl<Key: AsRef<str> + Send + Sync>
         id: &Key,
     ) -> Result<Option<User>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = read_user(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = read_user(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
@@ -312,11 +312,11 @@ impl<Key: AsRef<str> + Send + Sync>
         user: UpdateUser,
     ) -> Result<User, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = update_user(pool, &tenant, user).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = update_user(&mut *tx, &tenant, user).await?;
                 Ok(res)
@@ -326,11 +326,11 @@ impl<Key: AsRef<str> + Send + Sync>
 
     async fn delete(&self, tenant: &TenantId, id: &Key) -> Result<User, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = delete_user(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = delete_user(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
@@ -344,11 +344,11 @@ impl<Key: AsRef<str> + Send + Sync>
         clauses: &UserSearchClauses,
     ) -> Result<Vec<User>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool, _) => {
                 let res = search_user(pool, tenant, clauses).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = search_user(&mut *tx, tenant, clauses).await?;
                 Ok(res)

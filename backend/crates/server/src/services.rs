@@ -154,7 +154,7 @@ pub async fn create_services(
         .expect("Failed to create Elasticsearch client"),
     );
 
-    let repo = Arc::new(PGConnection::PgPool(pool.clone()));
+    let repo = Arc::new(PGConnection::pool(pool.clone()));
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new(
         resolvers::remote::LRUCanonicalRemoteResolver::new(repo.clone(), search_engine.clone()),
