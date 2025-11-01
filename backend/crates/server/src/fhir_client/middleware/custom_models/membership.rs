@@ -51,7 +51,7 @@ impl<
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -60,9 +60,9 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext,
+        context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput {
+    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {
             if let Some(next) = next {
                 if let Some(resource_type) = request_to_resource_type(&context.request)

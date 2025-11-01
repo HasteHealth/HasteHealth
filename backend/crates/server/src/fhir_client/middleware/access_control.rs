@@ -1,17 +1,17 @@
 #![allow(unused)]
 use crate::fhir_client::{
-    ServerCTX,
+    FHIRServerClient, ServerCTX, ServerClientConfig,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+        ServerMiddlewareState, access_control,
     },
 };
+use oxidized_access_control::{PolicyContext, evaluate_policy};
 use oxidized_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
-
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_model::r4::generated::{resources::AccessPolicyV2, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
@@ -65,10 +65,10 @@ impl<
     }
 }
 
-pub struct SetProjectReadOnlyMiddleware {
+pub struct AccessControlMiddleware {
     project_id: ProjectId,
 }
-impl SetProjectReadOnlyMiddleware {
+impl AccessControlMiddleware {
     pub fn new(project_id: ProjectId) -> Self {
         Self { project_id }
     }
@@ -84,7 +84,7 @@ impl<
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
-    > for SetProjectReadOnlyMiddleware
+    > for AccessControlMiddleware
 {
     fn call(
         &self,
@@ -94,29 +94,17 @@ impl<
     ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         let project_id = self.project_id.clone();
         Box::pin(async move {
-            if let Some(next) = next {
-                match &context.request {
-                    FHIRRequest::Read(_)
-                    | FHIRRequest::VersionRead(_)
-                    | FHIRRequest::SearchSystem(_)
-                    | FHIRRequest::SearchType(_) => {
-                        context.ctx = Arc::new(ServerCTX {
-                            tenant: context.ctx.tenant.clone(),
-                            project: project_id,
-                            fhir_version: context.ctx.fhir_version.clone(),
-                            author: context.ctx.author.clone(),
-                            client: context.ctx.client.clone(),
-                        });
-                        next(state, context).await
-                    }
-                    _ => next(state, context).await,
-                }
-            } else {
-                Err(OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
-                    "No next middleware found".to_string(),
-                ))
-            }
+            access_control::evaluate_policy(
+                &PolicyContext {
+                    client: context.ctx.client.as_ref(),
+                    client_context: context.ctx.clone(),
+                    environment: None,
+                },
+                &AccessPolicyV2 {
+                    ..Default::default()
+                },
+            );
+            todo!();
         })
     }
 }

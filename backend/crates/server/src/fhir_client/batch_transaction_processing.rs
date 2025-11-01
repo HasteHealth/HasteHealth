@@ -203,7 +203,7 @@ pub async fn process_batch_bundle<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX>,
+    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<Bundle, OperationOutcomeError> {
     let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
@@ -267,7 +267,7 @@ pub async fn process_transaction_bundle<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX>,
+    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<Bundle, OperationOutcomeError> {
     let fp_engine = oxidized_fhirpath::FPEngine::new();

@@ -178,7 +178,11 @@ async fn main() -> Result<(), OperationOutcomeError> {
 
                 let tenant = TenantId::new(tenant.clone());
 
-                let ctx = Arc::new(ServerCTX::system(tenant.clone(), ProjectId::System));
+                let ctx = Arc::new(ServerCTX::system(
+                    tenant.clone(),
+                    ProjectId::System,
+                    services.fhir_client.clone(),
+                ));
 
                 let user = services
                     .fhir_client

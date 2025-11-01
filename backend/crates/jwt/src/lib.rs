@@ -2,6 +2,9 @@ use oxidized_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
+#[cfg(feature = "reflect")]
+pub mod reflect;
+
 #[cfg(feature = "sqlx")]
 pub mod sqlx;
 

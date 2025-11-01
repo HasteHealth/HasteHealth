@@ -2061,6 +2061,8 @@ dependencies = [
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
  "oxidized-fhirpath",
+ "oxidized-jwt",
+ "oxidized-reflect",
 ]
 
 [[package]]
@@ -2299,6 +2301,7 @@ version = "0.1.0"
 dependencies = [
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-reflect",
  "serde",
  "sqlx",
 ]
@@ -2369,6 +2372,7 @@ dependencies = [
  "json-patch",
  "jsonwebtoken",
  "maud",
+ "oxidized-access-control",
  "oxidized-artifacts",
  "oxidized-config",
  "oxidized-fhir-client",

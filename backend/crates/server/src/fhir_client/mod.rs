@@ -49,29 +49,45 @@ pub enum StorageError {
     InvalidType,
 }
 
-pub struct ServerCTX {
+pub struct ServerCTX<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> {
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
     pub author: Author,
+    pub client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
 }
 
-impl ServerCTX {
+impl<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> ServerCTX<Repo, Search, Terminology>
+{
     pub fn new(
         tenant: TenantId,
         project: ProjectId,
         fhir_version: SupportedFHIRVersions,
         author: Author,
+        client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     ) -> Self {
         ServerCTX {
             tenant,
             project,
             fhir_version,
             author,
+            client,
         }
     }
 
-    pub fn system(tenant: TenantId, project: ProjectId) -> Self {
+    pub fn system(
+        tenant: TenantId,
+        project: ProjectId,
+        client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+    ) -> Self {
         ServerCTX {
             tenant,
             project,
@@ -80,6 +96,7 @@ impl ServerCTX {
                 id: AuthorId::System,
                 kind: AuthorKind::System,
             },
+            client,
         }
     }
 }
@@ -102,7 +119,7 @@ pub struct Route<
     filter: Box<dyn Fn(&FHIRRequest) -> bool + Send + Sync>,
     middleware: Middleware<
         Arc<ClientState<Repo, Search, Terminology>>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -117,7 +134,7 @@ pub struct FHIRServerClient<
     state: Arc<ClientState<Repo, Search, Terminology>>,
     middleware: Middleware<
         Arc<ClientState<Repo, Search, Terminology>>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -150,7 +167,7 @@ impl<
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -159,9 +176,9 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext,
+        context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput {
+    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         let routes = self.routes.clone();
         Box::pin(async move {
             let route = routes.iter().find(|r| (r.filter)(&context.request));
@@ -380,12 +397,12 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-> FHIRClient<Arc<ServerCTX>, OperationOutcomeError>
+> FHIRClient<Arc<ServerCTX<Repo, Search, Terminology>>, OperationOutcomeError>
     for FHIRServerClient<Repo, Search, Terminology>
 {
     async fn request(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         request: FHIRRequest,
     ) -> Result<FHIRResponse, OperationOutcomeError> {
         let response = self
@@ -398,13 +415,16 @@ impl<
             .ok_or_else(|| StorageError::NoResponse.into())
     }
 
-    async fn capabilities(&self, _ctx: Arc<ServerCTX>) -> CapabilityStatement {
+    async fn capabilities(
+        &self,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    ) -> CapabilityStatement {
         todo!()
     }
 
     async fn search_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
@@ -412,7 +432,7 @@ impl<
 
     async fn search_type(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
         parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
@@ -436,7 +456,7 @@ impl<
 
     async fn create(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
@@ -460,7 +480,7 @@ impl<
 
     async fn update(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
         _resource: Resource,
@@ -470,7 +490,7 @@ impl<
 
     async fn conditional_update(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
         parameters: Vec<ParsedParameter>,
         resource: Resource,
@@ -497,7 +517,7 @@ impl<
 
     async fn patch(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
         _patches: json_patch::Patch,
@@ -507,7 +527,7 @@ impl<
 
     async fn read(
         &self,
-        ctx: Arc<ServerCTX>,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
         id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
@@ -528,7 +548,7 @@ impl<
 
     async fn vread(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
         _version_id: String,
@@ -538,7 +558,7 @@ impl<
 
     async fn delete_instance(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
     ) -> Result<(), OperationOutcomeError> {
@@ -547,7 +567,7 @@ impl<
 
     async fn delete_type(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
@@ -556,7 +576,7 @@ impl<
 
     async fn delete_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
         todo!()
@@ -564,7 +584,7 @@ impl<
 
     async fn history_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
@@ -572,7 +592,7 @@ impl<
 
     async fn history_type(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _parameters: Vec<ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
@@ -581,7 +601,7 @@ impl<
 
     async fn history_instance(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
         _parameters: Vec<ParsedParameter>,
@@ -591,7 +611,7 @@ impl<
 
     async fn invoke_instance(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
         _operation: String,
@@ -602,7 +622,7 @@ impl<
 
     async fn invoke_type(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _operation: String,
         _parameters: Parameters,
@@ -612,7 +632,7 @@ impl<
 
     async fn invoke_system(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _operation: String,
         _parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
@@ -621,7 +641,7 @@ impl<
 
     async fn transaction(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _bundle: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         todo!()
@@ -629,7 +649,7 @@ impl<
 
     async fn batch(
         &self,
-        _ctx: Arc<ServerCTX>,
+        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _bundle: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         todo!()

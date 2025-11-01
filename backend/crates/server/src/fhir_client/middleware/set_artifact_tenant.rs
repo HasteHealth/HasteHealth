@@ -31,7 +31,7 @@ impl<
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX>,
+        Arc<ServerCTX<Repo, Search, Terminology>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -40,15 +40,16 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext,
+        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput {
+    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {
             let ctx = Arc::new(ServerCTX {
                 tenant: TenantId::System,
                 project: ProjectId::System,
                 fhir_version: context.ctx.fhir_version.clone(),
                 author: context.ctx.author.clone(),
+                client: context.ctx.client.clone(),
             });
 
             context.ctx = ctx;
