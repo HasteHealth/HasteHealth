@@ -183,11 +183,11 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         new_scope: CreateScope,
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = create_scope(pool, tenant, project, new_scope).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = create_scope(&mut *tx, tenant, project, new_scope).await?;
                 Ok(res)
@@ -202,11 +202,11 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         key: &ScopeKey,
     ) -> Result<Option<Scope>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = read_scope(pool, tenant, project, key).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = read_scope(&mut *tx, tenant, project, key).await?;
                 Ok(res)
@@ -221,11 +221,11 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         model: UpdateScope,
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = update_scope(pool, tenant, project, model).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = update_scope(&mut *tx, tenant, project, model).await?;
                 Ok(res)
@@ -240,11 +240,11 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         key: &ScopeKey,
     ) -> Result<Scope, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = delete_scope(pool, tenant, project, key).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = delete_scope(&mut *tx, tenant, project, key).await?;
                 Ok(res)
@@ -259,11 +259,11 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         clauses: &ScopeSearchClaims,
     ) -> Result<Vec<Scope>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = search_scopes(pool, tenant, project, clauses).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = search_scopes(&mut *tx, tenant, project, clauses).await?;
                 Ok(res)

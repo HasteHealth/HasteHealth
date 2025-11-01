@@ -133,11 +133,11 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         new_project: CreateProject,
     ) -> Result<Project, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = create_project(pool, tenant, new_project).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = create_project(&mut *tx, tenant, new_project).await?;
                 Ok(res)
@@ -151,11 +151,11 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         id: &Key,
     ) -> Result<Option<Project>, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = read_project(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = read_project(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
@@ -180,11 +180,11 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         id: &Key,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = delete_project(pool, tenant, id.as_ref()).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = delete_project(&mut *tx, tenant, id.as_ref()).await?;
                 Ok(res)
@@ -198,11 +198,11 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         claims: &ProjectSearchClaims,
     ) -> Result<Vec<Project>, OperationOutcomeError> {
         match self {
-            PGConnection::PgPool(pool) => {
+            PGConnection::Pool(pool) => {
                 let res = search_project(pool, tenant, claims).await?;
                 Ok(res)
             }
-            PGConnection::PgTransaction(tx) => {
+            PGConnection::Transaction(tx) => {
                 let mut tx = tx.lock().await;
                 let res = search_project(&mut *tx, tenant, claims).await?;
                 Ok(res)
