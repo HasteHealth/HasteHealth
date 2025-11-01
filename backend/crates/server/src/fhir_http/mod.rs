@@ -16,6 +16,7 @@ use oxidized_fhir_model::r4::generated::terminology::BundleType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_operation_error::derive::OperationOutcomeError;
 use oxidized_fhir_serialization_json::errors::DeserializeError;
+use oxidized_jwt::VersionId;
 use oxidized_repository::types::SupportedFHIRVersions;
 
 #[derive(Debug)]
@@ -440,7 +441,7 @@ fn parse_request_4(
         Ok(FHIRRequest::VersionRead(FHIRVersionReadRequest {
             resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
             id: url_chunks[1].to_string(),
-            version_id: url_chunks[3].to_string(),
+            version_id: VersionId::new(url_chunks[3].to_string()),
         }))
     } else {
         Err(FHIRRequestParsingError::Unsupported(

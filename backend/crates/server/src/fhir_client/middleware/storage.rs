@@ -135,7 +135,7 @@ impl<
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            vec![VersionIdRef::new(&vread_request.version_id)],
+                            vec![&vread_request.version_id],
                         )
                         .await?;
 
