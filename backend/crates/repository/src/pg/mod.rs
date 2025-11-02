@@ -38,9 +38,11 @@ pub enum PGConnection {
     ),
 }
 
+static TOTAL_CACHE_SIZE: u64 = 1000 * 10;
+
 impl PGConnection {
     pub fn pool(pool: sqlx::Pool<Postgres>) -> Self {
-        PGConnection::Pool(pool, Cache::new(1000))
+        PGConnection::Pool(pool, Cache::new(TOTAL_CACHE_SIZE))
     }
 
     pub fn cache(&self) -> &Cache<VersionId, Resource> {

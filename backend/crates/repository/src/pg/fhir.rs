@@ -1,5 +1,5 @@
 use crate::{
-    fhir::{FHIRRepository, HistoryRequest, ResourcePollingValue},
+    fhir::{CachePolicy, FHIRRepository, HistoryRequest, ResourcePollingValue},
     pg::{PGConnection, StoreError},
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
@@ -134,6 +134,7 @@ impl FHIRRepository for PGConnection {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         version_ids: Vec<&VersionId>,
+        cache_policy: CachePolicy,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         if version_ids.is_empty() {
             return Ok(vec![]);
@@ -150,10 +151,13 @@ impl FHIRRepository for PGConnection {
             PGConnection::Pool(pool, cache) => {
                 let res =
                     read_by_version_ids(pool, tenant_id, project_id, remaining_version_ids).await?;
-                for v in res.iter() {
-                    cache
-                        .insert(v.version_id.clone(), v.resource.0.clone())
-                        .await;
+
+                if cache_policy == CachePolicy::Cache {
+                    for v in res.iter() {
+                        cache
+                            .insert(v.version_id.clone(), v.resource.0.clone())
+                            .await;
+                    }
                 }
 
                 Ok(cached_result
@@ -168,10 +172,12 @@ impl FHIRRepository for PGConnection {
                     read_by_version_ids(&mut *conn, tenant_id, project_id, remaining_version_ids)
                         .await?;
 
-                for v in res.iter() {
-                    cache
-                        .insert(v.version_id.clone(), v.resource.0.clone())
-                        .await;
+                if cache_policy == CachePolicy::Cache {
+                    for v in res.iter() {
+                        cache
+                            .insert(v.version_id.clone(), v.resource.0.clone())
+                            .await;
+                    }
                 }
 
                 Ok(cached_result

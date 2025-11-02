@@ -136,6 +136,7 @@ impl<
                             &context.ctx.tenant,
                             &context.ctx.project,
                             vec![&vread_request.version_id],
+                            oxidized_repository::fhir::CachePolicy::Cache,
                         )
                         .await?;
 
@@ -263,6 +264,7 @@ impl<
                                 .iter()
                                 .map(|v| &v.version_id)
                                 .collect(),
+                            oxidized_repository::fhir::CachePolicy::NoCache,
                         )
                         .await?;
 
@@ -293,6 +295,7 @@ impl<
                                 .iter()
                                 .map(|v| &v.version_id)
                                 .collect(),
+                            oxidized_repository::fhir::CachePolicy::NoCache,
                         )
                         .await?;
 
