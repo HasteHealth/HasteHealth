@@ -6,7 +6,7 @@ use oxidized_fhir_client::request::{
 use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use oxidized_fhir_model::r4::sqlx::FHIRJson;
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId};
+use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 
 pub struct ResourcePollingValue {
     pub id: ResourceId,
@@ -36,7 +36,7 @@ pub trait FHIRRepository: Sized {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        author: &Author,
+        user: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
     ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send;
@@ -45,7 +45,7 @@ pub trait FHIRRepository: Sized {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        author: &Author,
+        user: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,
@@ -55,7 +55,7 @@ pub trait FHIRRepository: Sized {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        author: &Author,
+        user: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,

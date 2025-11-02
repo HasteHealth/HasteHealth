@@ -63,7 +63,7 @@ pub struct ServerCTX<
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
-    pub user: oxidized_jwt::claims::UserTokenClaims,
+    pub user: Arc<oxidized_jwt::claims::UserTokenClaims>,
     pub client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
 }
 
@@ -77,7 +77,7 @@ impl<
         tenant: TenantId,
         project: ProjectId,
         fhir_version: SupportedFHIRVersions,
-        user: oxidized_jwt::claims::UserTokenClaims,
+        user: Arc<oxidized_jwt::claims::UserTokenClaims>,
         client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     ) -> Self {
         ServerCTX {
@@ -98,7 +98,7 @@ impl<
             tenant: tenant.clone(),
             project: project.clone(),
             fhir_version: SupportedFHIRVersions::R4,
-            user: oxidized_jwt::claims::UserTokenClaims {
+            user: Arc::new(oxidized_jwt::claims::UserTokenClaims {
                 sub: AuthorId::System,
                 exp: 0,
                 aud: AuthorKind::System.to_string(),
@@ -122,7 +122,7 @@ impl<
                 resource_type: AuthorKind::ClientApplication,
                 access_policy_version_ids: vec![],
                 membership: None,
-            },
+            }),
             client,
         }
     }

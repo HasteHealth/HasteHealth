@@ -13,8 +13,8 @@ use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{Author, ProjectId, TenantId};
-use oxidized_repository::Repository;
+use oxidized_jwt::{ProjectId, TenantId};
+use oxidized_repository::{Repository, types::tenant};
 use std::sync::Arc;
 
 pub struct Middleware {}
@@ -44,13 +44,13 @@ impl<
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {
-            let ctx = Arc::new(ServerCTX {
-                tenant: TenantId::System,
-                project: ProjectId::System,
-                fhir_version: context.ctx.fhir_version.clone(),
-                author: context.ctx.author.clone(),
-                client: context.ctx.client.clone(),
-            });
+            let ctx = Arc::new(ServerCTX::new(
+                TenantId::System,
+                ProjectId::System,
+                context.ctx.fhir_version.clone(),
+                context.ctx.user.clone(),
+                context.ctx.client.clone(),
+            ));
 
             context.ctx = ctx;
 

@@ -10,7 +10,7 @@ use oxidized_fhir_model::r4::{
     sqlx::{FHIRJson, FHIRJsonRef},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, ProjectId, ResourceId, TenantId, VersionId};
+use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -48,7 +48,7 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        author: &Author,
+        author: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
@@ -69,7 +69,7 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        author: &Author,
+        author: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,
@@ -101,7 +101,7 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        author: &Author,
+        author: &UserTokenClaims,
         fhir_version: &SupportedFHIRVersions,
         resource: &mut Resource,
         id: &str,
@@ -313,7 +313,7 @@ fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     project: &'a ProjectId,
-    author: &'a Author,
+    author: &'a UserTokenClaims,
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
 ) -> impl Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a {
@@ -328,14 +328,14 @@ fn create<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
                 tenant.as_ref() as &str,
                 project.as_ref() as &str,
-                author.id.as_ref() as &str,
+                author.sub.as_ref() as &str,
                 // Useless cast so that macro has access to the type information.
                 // Otherwise it will not compile on type check.
                 fhir_version as &SupportedFHIRVersions,
                 &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
                 false, // deleted
                 "POST",
-                author.kind.as_ref() as &str,
+                author.resource_type.as_ref() as &str,
                 &FHIRMethod::Create as &FHIRMethod,
             ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
         Ok(result.resource.0)
@@ -346,7 +346,7 @@ fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     project: &'a ProjectId,
-    author: &'a Author,
+    author: &'a UserTokenClaims,
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
     id: &'a str,
@@ -362,14 +362,14 @@ fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
                 tenant.as_ref() as &str,
                 project.as_ref() as &str,
-                author.id.as_ref() as &str,
+                author.sub.as_ref() as &str,
                 // Useless cast so that macro has access to the type information.
                 // Otherwise it will not compile on type check.
                 fhir_version as &SupportedFHIRVersions,
                 &FHIRJsonRef(resource) as &FHIRJsonRef<'_ , Resource>,
                 true, // deleted
                 "DELETE",
-                author.kind.as_ref() as &str,
+                author.resource_type.as_ref() as &str,
                 &FHIRMethod::Delete as &FHIRMethod,
             ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
         Ok(result.resource.0)
@@ -380,7 +380,7 @@ fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
     project: &'a ProjectId,
-    author: &'a Author,
+    author: &'a UserTokenClaims,
     fhir_version: &'a SupportedFHIRVersions,
     resource: &'a mut Resource,
     id: &'a str,
@@ -398,14 +398,14 @@ fn update<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
             tenant.as_ref() as &str,
             project.as_ref() as &str,
-            author.id.as_ref() as &str,
+            author.sub.as_ref() as &str,
             // Useless cast so that macro has access to the type information.
             // Otherwise it will not compile on type check.
             fhir_version as &SupportedFHIRVersions,
             &FHIRJsonRef(resource) as &FHIRJsonRef<'_, Resource>,
             false, // deleted
             "PUT",
-            author.kind.as_ref() as &str,
+            author.resource_type.as_ref() as &str,
             &FHIRMethod::Update as &FHIRMethod,
         );
 
