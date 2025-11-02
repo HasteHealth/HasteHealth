@@ -81,6 +81,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                             &TenantId::System,
                             &ProjectId::System,
                             vec![&entry.version_id],
+                            oxidized_repository::fhir::CachePolicy::Cache,
                         )
                         .await?
                         .pop()
