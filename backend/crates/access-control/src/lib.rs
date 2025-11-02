@@ -1,6 +1,7 @@
 use oxidized_fhir_client::{FHIRClient, request::FHIRRequest};
 use oxidized_fhir_model::r4::generated::{
-    resources::AccessPolicyV2, terminology::AccessPolicyv2Engine,
+    resources::AccessPolicyV2,
+    terminology::{AccessPolicyv2Engine, IssueType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
@@ -40,4 +41,23 @@ pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeEr
             "Access policy denies access.".to_string(),
         )),
     }
+}
+
+pub async fn evaluate_policies<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+    _context: &PolicyContext<'a, CTX, Client>,
+    policies: &Vec<AccessPolicyV2>,
+) -> Result<(), OperationOutcomeError> {
+    let mut outcomes = vec![];
+    for policy in policies {
+        if let Err(e) = evaluate_policy(_context, policy).await {
+            outcomes.push(e);
+        } else {
+            return Ok(());
+        }
+    }
+
+    Err(OperationOutcomeError::error(
+        IssueType::Forbidden(None),
+        format!("No policy has granted access to your request."),
+    ))
 }
