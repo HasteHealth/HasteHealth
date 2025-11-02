@@ -18,15 +18,19 @@ use axum::{
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
 use jsonwebtoken::{Algorithm, Header};
+use oxidized_fhir_client::{
+    request::FHIRSearchTypeRequest,
+    url::{Parameter, ParsedParameter},
+};
 use oxidized_fhir_model::r4::generated::{
-    resources::ClientApplication,
+    resources::{ClientApplication, ResourceType},
     terminology::{ClientapplicationGrantType, IssueType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
+use oxidized_fhir_search::{SearchEngine, SearchRequest};
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_jwt::{
-    AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
+    AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
     claims::UserTokenClaims,
     scopes::{OIDCScope, Scope, Scopes},
 };
@@ -34,6 +38,7 @@ use oxidized_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::{
+        SupportedFHIRVersions,
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
     },
@@ -69,6 +74,7 @@ struct TokenResponseArguments {
     tenant: TenantId,
     project: ProjectId,
     membership: Option<String>,
+    access_policy_version_ids: Vec<VersionId>,
 }
 
 async fn create_token_response<Repo: Repository>(
@@ -89,7 +95,7 @@ async fn create_token_response<Repo: Repository>(
             project: Some(args.project.clone()),
             user_role: UserRole::Member,
             user_id: AuthorId::new(args.user_id.clone()),
-            membership_id: args.membership.clone(),
+            membership: args.membership.clone(),
             resource_type: args.user_kind,
             access_policy_version_ids: vec![],
         },
@@ -251,6 +257,38 @@ fn verify_client(
     Ok(())
 }
 
+async fn find_users_access_policy_version_ids<Search: SearchEngine>(
+    search: &Search,
+    tenant: &TenantId,
+    project: &ProjectId,
+    user_id: &str,
+    user_type: &ResourceType,
+) -> Result<Vec<VersionId>, OperationOutcomeError> {
+    let access_policies = search
+        .search(
+            &SupportedFHIRVersions::R4,
+            &tenant,
+            &project,
+            SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
+                resource_type: ResourceType::AccessPolicyV2,
+                parameters: vec![ParsedParameter::Resource(Parameter {
+                    name: "link".to_string(),
+                    value: vec![format!("{}/{}", user_type.as_ref(), user_id)],
+                    modifier: None,
+                    chains: None,
+                })],
+            }),
+            None,
+        )
+        .await?;
+
+    Ok(access_policies
+        .entries
+        .into_iter()
+        .map(|ap| ap.version_id)
+        .collect())
+}
+
 pub async fn token<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -294,6 +332,14 @@ pub async fn token<
                     tenant: tenant.clone(),
                     project: project.clone(),
                     membership: None,
+                    access_policy_version_ids: find_users_access_policy_version_ids(
+                        state.search.as_ref(),
+                        &tenant,
+                        &project,
+                        client_id,
+                        &ResourceType::ClientApplication,
+                    )
+                    .await?,
                 },
             )
             .await?;
@@ -361,13 +407,26 @@ pub async fn token<
                 &client_app,
                 &token_body.grant_type,
                 TokenResponseArguments {
-                    membership: code.membership,
                     user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
                     project: project.clone(),
+                    access_policy_version_ids: match code.membership.as_ref() {
+                        Some(membership) => {
+                            find_users_access_policy_version_ids(
+                                state.search.as_ref(),
+                                &tenant,
+                                &project,
+                                &membership,
+                                &ResourceType::Membership,
+                            )
+                            .await?
+                        }
+                        None => vec![],
+                    },
+                    membership: code.membership,
                 },
             )
             .await?;
@@ -448,13 +507,26 @@ pub async fn token<
                 &client_app,
                 &token_body.grant_type,
                 TokenResponseArguments {
-                    membership: code.membership,
                     user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
                     project: project.clone(),
+                    access_policy_version_ids: match code.membership.as_ref() {
+                        Some(membership) => {
+                            find_users_access_policy_version_ids(
+                                state.search.as_ref(),
+                                &tenant,
+                                &project,
+                                &membership,
+                                &ResourceType::Membership,
+                            )
+                            .await?
+                        }
+                        None => vec![],
+                    },
+                    membership: code.membership,
                 },
             )
             .await?;
