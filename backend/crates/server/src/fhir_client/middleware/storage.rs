@@ -135,7 +135,7 @@ impl<
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            vec![&vread_request.version_id],
+                            &vec![&vread_request.version_id],
                             oxidized_repository::fhir::CachePolicy::Cache,
                         )
                         .await?;
@@ -259,7 +259,7 @@ impl<
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            search_results
+                            &search_results
                                 .entries
                                 .iter()
                                 .map(|v| &v.version_id)
@@ -290,7 +290,7 @@ impl<
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            search_results
+                            &search_results
                                 .entries
                                 .iter()
                                 .map(|v| &v.version_id)

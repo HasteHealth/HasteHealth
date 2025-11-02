@@ -45,6 +45,20 @@ impl<
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {
+            let policies = state
+                .repo
+                .read_by_version_ids(
+                    &context.ctx.tenant,
+                    &context.ctx.project,
+                    &context
+                        .ctx
+                        .user
+                        .access_policy_version_ids
+                        .iter()
+                        .collect::<Vec<_>>(),
+                    oxidized_repository::fhir::CachePolicy::Cache,
+                )
+                .await?;
             access_control::evaluate_policy(
                 &PolicyContext {
                     client: context.ctx.client.as_ref(),

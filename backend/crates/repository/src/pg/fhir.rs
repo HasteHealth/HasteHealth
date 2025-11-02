@@ -133,7 +133,7 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: Vec<&VersionId>,
+        version_ids: &Vec<&VersionId>,
         cache_policy: CachePolicy,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         if version_ids.is_empty() {
@@ -149,8 +149,8 @@ impl FHIRRepository for PGConnection {
 
         match self {
             PGConnection::Pool(pool, cache) => {
-                let res =
-                    read_by_version_ids(pool, tenant_id, project_id, remaining_version_ids).await?;
+                let res = read_by_version_ids(pool, tenant_id, project_id, &remaining_version_ids)
+                    .await?;
 
                 if cache_policy == CachePolicy::Cache {
                     for v in res.iter() {
@@ -169,7 +169,7 @@ impl FHIRRepository for PGConnection {
                 let mut conn = tx.lock().await;
                 // Handle PgConnection connection
                 let res =
-                    read_by_version_ids(&mut *conn, tenant_id, project_id, remaining_version_ids)
+                    read_by_version_ids(&mut *conn, tenant_id, project_id, &remaining_version_ids)
                         .await?;
 
                 if cache_policy == CachePolicy::Cache {
@@ -422,7 +422,7 @@ fn read_by_version_ids<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Se
     connection: Connection,
     tenant_id: &'a TenantId,
     project_id: &'a ProjectId,
-    version_ids: Vec<&'a VersionId>,
+    version_ids: &'a Vec<&'a VersionId>,
 ) -> impl Future<Output = Result<Vec<ReturnVersionedResource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;

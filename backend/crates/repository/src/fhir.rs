@@ -65,7 +65,7 @@ pub trait FHIRRepository: Sized {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_id: Vec<&VersionId>,
+        version_id: &Vec<&VersionId>,
         cache_policy: CachePolicy,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn read_latest(
