@@ -135,7 +135,7 @@ impl<
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            &vec![&vread_request.version_id],
+                            &[&vread_request.version_id],
                             oxidized_repository::fhir::CachePolicy::Cache,
                         )
                         .await?;
@@ -253,17 +253,18 @@ impl<
                             None,
                         )
                         .await?;
+                    let version_ids = search_results
+                        .entries
+                        .iter()
+                        .map(|v| &v.version_id)
+                        .collect::<Vec<_>>();
 
                     let resources = state
                         .repo
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            &search_results
-                                .entries
-                                .iter()
-                                .map(|v| &v.version_id)
-                                .collect(),
+                            version_ids.as_slice(),
                             oxidized_repository::fhir::CachePolicy::NoCache,
                         )
                         .await?;
@@ -284,17 +285,18 @@ impl<
                             None,
                         )
                         .await?;
+                    let version_ids = search_results
+                        .entries
+                        .iter()
+                        .map(|v| &v.version_id)
+                        .collect::<Vec<_>>();
 
                     let resources = state
                         .repo
                         .read_by_version_ids(
                             &context.ctx.tenant,
                             &context.ctx.project,
-                            &search_results
-                                .entries
-                                .iter()
-                                .map(|v| &v.version_id)
-                                .collect(),
+                            version_ids.as_slice(),
                             oxidized_repository::fhir::CachePolicy::NoCache,
                         )
                         .await?;

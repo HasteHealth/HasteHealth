@@ -28,7 +28,7 @@ struct ReturnVersionedResource {
 
 async fn read_version_ids_from_cache<'a>(
     cache: &Cache<VersionId, Resource>,
-    version_ids: &'a Vec<&VersionId>,
+    version_ids: &'a [&VersionId],
 ) -> (Vec<Resource>, Vec<&'a VersionId>) {
     let mut remaining_version_ids = vec![];
     let mut cached_resources = vec![];
@@ -133,7 +133,7 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        version_ids: &Vec<&VersionId>,
+        version_ids: &[&VersionId],
         cache_policy: CachePolicy,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         if version_ids.is_empty() {

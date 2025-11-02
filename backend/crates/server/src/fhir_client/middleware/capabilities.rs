@@ -73,11 +73,17 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
         )
         .await?;
 
+    let version_ids = sd_results
+        .entries
+        .iter()
+        .map(|v| &v.version_id)
+        .collect::<Vec<_>>();
+
     let sds = repo
         .read_by_version_ids(
             &TenantId::System,
             &ProjectId::System,
-            &sd_results.entries.iter().map(|v| &v.version_id).collect(),
+            version_ids.as_slice(),
             CachePolicy::NoCache,
         )
         .await?
