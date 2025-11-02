@@ -14,8 +14,8 @@ use oxidized_fhir_model::r4::generated::{
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{Author, AuthorId, AuthorKind, ProjectId, TenantId};
-use oxidized_repository::types::SupportedFHIRVersions;
+use oxidized_jwt::{ProjectId, TenantId};
+
 use sha1::{Digest, Sha1};
 
 fn generate_sha256_hash(value: &Resource) -> String {
@@ -101,16 +101,11 @@ pub async fn load_artifacts(
 ) -> Result<(), OperationOutcomeError> {
     let services = create_services(config.clone()).await?;
 
-    let ctx = Arc::new(ServerCTX {
-        tenant: TenantId::System,
-        project: ProjectId::System,
-        fhir_version: SupportedFHIRVersions::R4,
-        author: Author {
-            id: AuthorId::System,
-            kind: AuthorKind::System,
-        },
-        client: services.fhir_client.clone(),
-    });
+    let ctx = Arc::new(ServerCTX::system(
+        TenantId::System,
+        ProjectId::System,
+        services.fhir_client.clone(),
+    ));
 
     let mut hashes = HashSet::new();
 

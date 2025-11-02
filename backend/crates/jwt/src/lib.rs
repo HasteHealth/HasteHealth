@@ -112,12 +112,6 @@ impl Display for AuthorKind {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Author {
-    pub id: AuthorId,
-    pub kind: AuthorKind,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum TenantId {
     System,

@@ -20,7 +20,13 @@ use oxidized_fhir_model::r4::generated::resources::{
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{Author, AuthorId, AuthorKind, ProjectId, TenantId};
+use oxidized_jwt::{
+    AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
+    scopes::{
+        SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermissions,
+        SmartResourceScopeUser, SmartScope,
+    },
+};
 use oxidized_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 
@@ -57,7 +63,7 @@ pub struct ServerCTX<
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
-    pub author: Author,
+    pub user: Arc<oxidized_jwt::claims::UserTokenClaims>,
     pub client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
 }
 
@@ -71,14 +77,14 @@ impl<
         tenant: TenantId,
         project: ProjectId,
         fhir_version: SupportedFHIRVersions,
-        author: Author,
+        user: Arc<oxidized_jwt::claims::UserTokenClaims>,
         client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     ) -> Self {
         ServerCTX {
             tenant,
             project,
             fhir_version,
-            author,
+            user,
             client,
         }
     }
@@ -89,13 +95,34 @@ impl<
         client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     ) -> Self {
         ServerCTX {
-            tenant,
-            project,
+            tenant: tenant.clone(),
+            project: project.clone(),
             fhir_version: SupportedFHIRVersions::R4,
-            author: Author {
-                id: AuthorId::System,
-                kind: AuthorKind::System,
-            },
+            user: Arc::new(oxidized_jwt::claims::UserTokenClaims {
+                sub: AuthorId::System,
+                exp: 0,
+                aud: AuthorKind::System.to_string(),
+                user_role: UserRole::Owner,
+                project: Some(project),
+                tenant,
+                scope: Scopes(vec![Scope::SMART(SmartScope::Resource(
+                    SMARTResourceScope {
+                        user: SmartResourceScopeUser::System,
+                        level: SmartResourceScopeLevel::AllResources,
+                        permissions: SmartResourceScopePermissions {
+                            create: true,
+                            read: true,
+                            update: true,
+                            delete: true,
+                            search: true,
+                        },
+                    },
+                ))]),
+                user_id: AuthorId::System,
+                resource_type: AuthorKind::ClientApplication,
+                access_policy_version_ids: vec![],
+                membership: None,
+            }),
             client,
         }
     }
@@ -386,6 +413,7 @@ impl<
                 terminology: config.terminology,
             }),
             middleware: Middleware::new(vec![
+                Box::new(middleware::access_control::AccessControlMiddleware::new()),
                 Box::new(route_middleware),
                 Box::new(middleware::capabilities::Middleware::new()),
             ]),

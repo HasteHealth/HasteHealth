@@ -90,7 +90,7 @@ impl<
                                         id: Some(ProjectId::new(id.clone())),
                                         tenant: context.ctx.tenant.clone(),
                                         fhir_version,
-                                        system_created: context.ctx.author.kind
+                                        system_created: context.ctx.user.resource_type
                                             == AuthorKind::System,
                                     },
                                 )

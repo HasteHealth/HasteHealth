@@ -21,7 +21,7 @@ use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{Author, ProjectId, TenantId, claims::UserTokenClaims};
+use oxidized_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use oxidized_repository::{Repository, types::SupportedFHIRVersions};
 use serde::Deserialize;
 use std::{path::PathBuf, sync::Arc, time::Instant};
@@ -80,16 +80,13 @@ async fn fhir_handler<
 
         let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;
 
-        let ctx = Arc::new(ServerCTX {
-            tenant: path.tenant,
-            project: path.project,
-            fhir_version: path.fhir_version,
-            author: Author {
-                id: claims.sub.clone(),
-                kind: claims.resource_type.clone(),
-            },
-            client: state.fhir_client.clone(),
-        });
+        let ctx = Arc::new(ServerCTX::new(
+            path.tenant,
+            path.project,
+            path.fhir_version,
+            claims.clone(),
+            state.fhir_client.clone(),
+        ));
 
         let response = state.fhir_client.request(ctx, fhir_request).await?;
 

@@ -100,13 +100,13 @@ impl<
                     | FHIRRequest::VersionRead(_)
                     | FHIRRequest::SearchSystem(_)
                     | FHIRRequest::SearchType(_) => {
-                        context.ctx = Arc::new(ServerCTX {
-                            tenant: context.ctx.tenant.clone(),
-                            project: project_id,
-                            fhir_version: context.ctx.fhir_version.clone(),
-                            author: context.ctx.author.clone(),
-                            client: context.ctx.client.clone(),
-                        });
+                        context.ctx = Arc::new(ServerCTX::new(
+                            context.ctx.tenant.clone(),
+                            project_id,
+                            context.ctx.fhir_version.clone(),
+                            context.ctx.user.clone(),
+                            context.ctx.client.clone(),
+                        ));
                         next(state, context).await
                     }
                     _ => next(state, context).await,

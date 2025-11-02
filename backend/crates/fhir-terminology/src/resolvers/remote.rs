@@ -80,7 +80,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                         .read_by_version_ids(
                             &TenantId::System,
                             &ProjectId::System,
-                            vec![&entry.version_id],
+                            &[&entry.version_id],
                             oxidized_repository::fhir::CachePolicy::Cache,
                         )
                         .await?
