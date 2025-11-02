@@ -36,11 +36,12 @@ use oxidized_jwt::{
 };
 use oxidized_repository::{
     Repository,
-    admin::ProjectAuthAdmin,
+    admin::{ProjectAuthAdmin, TenantAuthAdmin},
     types::{
         SupportedFHIRVersions,
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
+        user::{User, UserRole as RepoUserRole},
     },
 };
 use serde::{Deserialize, Serialize};
@@ -68,6 +69,7 @@ pub struct TokenResponse {
 
 struct TokenResponseArguments {
     user_id: String,
+    user_role: UserRole,
     user_kind: AuthorKind,
     client_id: String,
     scopes: Scopes,
@@ -93,7 +95,7 @@ async fn create_token_response<Repo: Repository>(
             scope: args.scopes.clone(),
             tenant: args.tenant.clone(),
             project: Some(args.project.clone()),
-            user_role: UserRole::Member,
+            user_role: args.user_role,
             user_id: AuthorId::new(args.user_id.clone()),
             membership: args.membership.clone(),
             resource_type: args.user_kind,
@@ -326,6 +328,7 @@ pub async fn token<
                 &token_body.grant_type,
                 TokenResponseArguments {
                     user_id: client_app.id.clone().unwrap_or_default(),
+                    user_role: UserRole::Member,
                     user_kind: AuthorKind::ClientApplication,
                     client_id: client_app.id.clone().unwrap_or_default(),
                     scopes: requested_scopes,
@@ -402,6 +405,10 @@ pub async fn token<
             )
             .await?;
 
+            let user =
+                TenantAuthAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
+                    .await?;
+
             let response = create_token_response(
                 &*state.repo,
                 &client_app,
@@ -409,6 +416,12 @@ pub async fn token<
                 TokenResponseArguments {
                     user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
+                    user_role: match user.map(|u| u.role) {
+                        Some(RepoUserRole::Admin) => UserRole::Admin,
+                        Some(RepoUserRole::Member) => UserRole::Member,
+                        Some(RepoUserRole::Owner) => UserRole::Owner,
+                        None => UserRole::Member,
+                    },
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
@@ -502,6 +515,10 @@ pub async fn token<
             )
             .await?;
 
+            let user =
+                TenantAuthAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
+                    .await?;
+
             let response = create_token_response(
                 &*state.repo,
                 &client_app,
@@ -509,6 +526,12 @@ pub async fn token<
                 TokenResponseArguments {
                     user_id: code.user_id,
                     user_kind: AuthorKind::Membership,
+                    user_role: match user.map(|u| u.role) {
+                        Some(RepoUserRole::Admin) => UserRole::Admin,
+                        Some(RepoUserRole::Member) => UserRole::Member,
+                        Some(RepoUserRole::Owner) => UserRole::Owner,
+                        None => UserRole::Member,
+                    },
                     client_id: client_id.clone(),
                     scopes: approved_scopes.clone(),
                     tenant: tenant.clone(),
