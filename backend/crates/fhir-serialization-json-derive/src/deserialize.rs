@@ -204,7 +204,6 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
         }
          _ => panic!("Value set serialization only works for enums"),
     }
-
 }
 
 pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {

@@ -489,6 +489,7 @@ pub struct Age {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "author"]
 pub enum AnnotationAuthorTypeChoice {
+    # [reference (targets = ["Practitioner" , "Patient" , "RelatedPerson" , "Organization"])]
     Reference(Box<Reference>),
     String(Box<FHIRString>),
 }
@@ -513,7 +514,6 @@ pub struct Annotation {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension."]
     pub extension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["authorReference"] , primitive = ["authorString"])]
-    # [reference (target_profiles = ["Practitioner" , "Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "The individual responsible for making the annotation."]
     pub author: Option<AnnotationAuthorTypeChoice>,
     #[primitive]
@@ -734,6 +734,7 @@ pub struct Count {
 #[type_choice_field_name = "subject"]
 pub enum DataRequirementSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for DataRequirementSubjectTypeChoice {
@@ -857,7 +858,6 @@ pub struct DataRequirement {
     #[doc = "The profile of the required data, specified as the uri of the profile definition."]
     pub profile: Option<Vec<Box<FHIRString>>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "The intended subjects of the data requirement. If this element is not provided, a Patient subject is assumed."]
     pub subject: Option<DataRequirementSubjectTypeChoice>,
     #[primitive]
@@ -1893,7 +1893,7 @@ pub struct Identifier {
     pub value: Option<Box<FHIRString>>,
     #[doc = "Time period during which identifier is/was valid for use."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Organization that issued/manages the identifier."]
     pub assigner: Option<Box<Reference>>,
 }
@@ -2374,10 +2374,10 @@ pub struct Signature {
     #[primitive]
     #[doc = "When the digital signature was signed."]
     pub when: Box<FHIRInstant>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
     #[doc = "A reference to an application-usable description of the identity that signed  (e.g. the signature used their private key)."]
     pub who: Box<Reference>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
     #[doc = "A reference to an application-usable description of the identity that is represented by the signature."]
     pub onBehalfOf: Option<Box<Reference>>,
     #[primitive]
@@ -2573,6 +2573,7 @@ pub struct Timing {
 #[type_choice_field_name = "timing"]
 pub enum TriggerDefinitionTimingTypeChoice {
     Timing(Box<Timing>),
+    # [reference (targets = ["Schedule"])]
     Reference(Box<Reference>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -2605,7 +2606,6 @@ pub struct TriggerDefinition {
     #[doc = "A formal name for the event. This may be an absolute URI that identifies the event formally (e.g. from a trigger registry), or a simple relative URI that identifies the event in a local context."]
     pub name: Option<Box<FHIRString>>,
     # [type_choice_variants (complex = ["timingTiming" , "timingReference"] , primitive = ["timingDate" , "timingDateTime"])]
-    # [reference (target_profiles = ["Schedule"])]
     #[doc = "The timing of the event (if this is a periodic trigger)."]
     pub timing: Option<TriggerDefinitionTimingTypeChoice>,
     #[doc = "The triggering data of the event (if this is a data trigger). If more than one data is requirement is specified, then all the data requirements must be true."]
@@ -2626,6 +2626,7 @@ pub enum UsageContextValueTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Quantity(Box<Quantity>),
     Range(Box<Range>),
+    # [reference (targets = ["PlanDefinition" , "ResearchStudy" , "InsurancePlan" , "HealthcareService" , "Group" , "Location" , "Organization"])]
     Reference(Box<Reference>),
 }
 impl Default for UsageContextValueTypeChoice {
@@ -2651,7 +2652,6 @@ pub struct UsageContext {
     #[doc = "A code that identifies the type of context being specified by this usage context."]
     pub code: Box<Coding>,
     # [type_choice_variants (complex = ["valueCodeableConcept" , "valueQuantity" , "valueRange" , "valueReference"] , primitive = [])]
-    # [reference (target_profiles = ["PlanDefinition" , "ResearchStudy" , "InsurancePlan" , "HealthcareService" , "Group" , "Location" , "Organization"])]
     #[doc = "A value that defines the context specified in this context of use. The interpretation of the value is defined by the code."]
     pub value: UsageContextValueTypeChoice,
 }
