@@ -39,7 +39,8 @@ fn get_attribute_serialization_type(attrs: &[Attribute]) -> Option<String> {
         primitive,
         code,
         // For validation on vector min maxes.
-        cardinality
+        cardinality,
+        reference
     )
 )]
 pub fn serialize(input: TokenStream) -> TokenStream {
@@ -88,7 +89,8 @@ enum DeserializeComplexType {
         determine_by,
 
         // For validation on vector min maxes.
-        cardinality
+        cardinality,
+        reference
     )
 )]
 pub fn deserialize(input: TokenStream) -> TokenStream {
