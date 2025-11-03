@@ -1,4 +1,4 @@
-use crate::{DeserializeComplexType, utilities::{ get_attribute_value, get_cardinality_attributes, get_reference_target_attribute, get_type_choice_attribute, is_attribute_present}};
+use crate::{DeserializeComplexType, utilities::{ get_attribute_value, get_cardinality_attributes,  get_type_choice_attribute, is_attribute_present}};
 use core::panic;
 
 use proc_macro2::TokenStream;
@@ -209,7 +209,9 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
 /// Not using currently as need a way to handle bundle local references.
 /// IE Transactions could have reference to bundle entry that is not in Resourcetype/id format but instead
 /// a pointer to a bundle entry.
-/// 
+/// Additionally no guarantees around the reference targets instead a true implementation would require a resolution
+/// to resolve target and verify it's type.
+#[allow(unused)]
 fn reference_validator(targets: &Vec<String>, reference_id: &Ident) -> TokenStream{
     if targets.len() == 0 {
         quote! {}

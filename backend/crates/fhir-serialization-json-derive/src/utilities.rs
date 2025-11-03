@@ -162,6 +162,7 @@ pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttrib
     }
 }
 
+#[allow(unused)]
 pub fn get_reference_target_attribute(attrs: &[Attribute]) -> Vec<String> {
     if let Some(attribute_list) = get_attribute_list(attrs, "reference") {
         let parsed_arguments = attribute_list
