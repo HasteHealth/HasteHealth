@@ -4,7 +4,7 @@ use self::super::resources::Resource;
 use self::super::terminology;
 use oxidized_fhir_serialization_json;
 use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
-use oxidized_reflect::{MetaValue, derive::Reflect};
+use oxidized_reflect::{derive::Reflect, MetaValue};
 use std::io::Write;
 #[derive(
     Clone,
