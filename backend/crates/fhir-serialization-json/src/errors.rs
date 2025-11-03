@@ -24,4 +24,6 @@ pub enum DeserializeError {
     InvalidTypeChoiceVariant(String),
     #[error("Cardinality violation: field '{0}' has invalid length.")]
     CardinalityViolation(String),
+    #[error("Reference target validation failed: expected one of '{0:?}', found '{1}'")]
+    ReferenceTargetValidationFailed(Vec<String>, String),
 }

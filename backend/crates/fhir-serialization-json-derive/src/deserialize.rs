@@ -1,4 +1,4 @@
-use crate::{utilities::{ get_attribute_value, get_cardinality_attributes, get_type_choice_attribute, is_attribute_present}, DeserializeComplexType};
+use crate::{DeserializeComplexType, utilities::{ get_attribute_value, get_cardinality_attributes, get_reference_target_attribute, get_type_choice_attribute, is_attribute_present}};
 use core::panic;
 
 use proc_macro2::TokenStream;
@@ -206,6 +206,19 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
     }
 }
 
+
+fn reference_validator(targets: &Vec<String>, reference_id: &Ident) -> TokenStream{
+   quote! {
+        if (let Some(reference)  = #reference_id.reference && ![#(#targets),*].iter().any(|target| reference.starts_with(target))) || 
+           (let Some(reference_type) = #reference_id.type_ && ![#(#targets),*,].iter().any(|target| reference_type.value == Some(target))) {
+            return Err(oxidized_fhir_serialization_json::errors::DeserializeError::ReferenceTargetValidationFailed(
+                vec![#(#targets.to_string()),*],
+                reference.to_string(),
+            ));
+        }
+   }
+}
+
 pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
     let name = input.ident;
 
@@ -220,10 +233,20 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                 let field: &Field = variant.fields.iter().next().unwrap();
                 
                 let variant_type = get_field_type(field);
+                let value_variable_name = format_ident!("value");
+
+                 let reference_validation = if variant_type == "Reference" {
+                    let targets = get_reference_target_attribute(&variant.attrs);
+                    reference_validator(&targets, &value_variable_name)
+                 } else {
+                    quote!{}
+                 };
 
                 quote! {
                     #field_name => {
-                        Ok(Self::#name(#variant_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsField(context))?))
+                        let #value_variable_name = #variant_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsField(context))?;
+                        #reference_validation
+                        Ok(Self::#name(value))
                     }
                 }
             });
