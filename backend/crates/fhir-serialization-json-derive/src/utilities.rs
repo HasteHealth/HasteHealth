@@ -187,7 +187,7 @@ pub fn get_reference_target_attribute(attrs: &[Attribute]) -> Vec<String> {
                                 })
                                 .collect();
                             match path.path.get_ident().to_token_stream().to_string().as_str() {
-                                "target" => targets = variants,
+                                "targets" => targets = variants,
 
                                 _ => panic!(
                                     "reference must be in format like #[reference(target =[\"Resource\"])]"

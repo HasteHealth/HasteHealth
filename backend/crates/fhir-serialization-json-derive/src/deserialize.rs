@@ -206,17 +206,24 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
     }
 }
 
-
+/// Not using currently as need a way to handle bundle local references.
+/// IE Transactions could have reference to bundle entry that is not in Resourcetype/id format but instead
+/// a pointer to a bundle entry.
+/// 
 fn reference_validator(targets: &Vec<String>, reference_id: &Ident) -> TokenStream{
-   quote! {
-        if (let Some(reference)  = #reference_id.reference && ![#(#targets),*].iter().any(|target| reference.starts_with(target))) || 
-           (let Some(reference_type) = #reference_id.type_ && ![#(#targets),*,].iter().any(|target| reference_type.value == Some(target))) {
-            return Err(oxidized_fhir_serialization_json::errors::DeserializeError::ReferenceTargetValidationFailed(
-                vec![#(#targets.to_string()),*],
-                reference.to_string(),
-            ));
+    if targets.len() == 0 {
+        quote! {}
+    } else {
+        quote! {
+                if let Some(reference)  = #reference_id.reference.as_ref() && let Some(reference) = reference.value.as_ref() && ![#(#targets),*].iter().any(|target| reference.starts_with(target))
+                    {
+                    return Err(oxidized_fhir_serialization_json::errors::DeserializeError::ReferenceTargetValidationFailed(
+                        vec![#(#targets.to_string()),*],
+                        reference.to_string(),
+                    ));
+                }
         }
-   }
+    }
 }
 
 pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
@@ -232,20 +239,21 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                 let field_name = format!("{}{}", typechoice_name, name);
                 let field: &Field = variant.fields.iter().next().unwrap();
                 
+                let full_value_type = &field.ty;
                 let variant_type = get_field_type(field);
                 let value_variable_name = format_ident!("value");
 
-                 let reference_validation = if variant_type == "Reference" {
-                    let targets = get_reference_target_attribute(&variant.attrs);
-                    reference_validator(&targets, &value_variable_name)
-                 } else {
-                    quote!{}
-                 };
+                //  let reference_validation = if name == "Reference" {
+                //     let targets = get_reference_target_attribute(&variant.attrs);
+                //     reference_validator(&targets, &value_variable_name)
+                //  } else {
+                //     quote!{}
+                //  };
 
                 quote! {
                     #field_name => {
-                        let #value_variable_name = #variant_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsField(context))?;
-                        #reference_validation
+                        let #value_variable_name: #full_value_type = #variant_type::from_serde_value(json, oxidized_fhir_serialization_json::Context::AsField(context))?;
+                        // #reference_validation
                         Ok(Self::#name(value))
                     }
                 }
@@ -274,6 +282,8 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                 }
             };
 
+
+            // println!("{}", expanded.to_string());
             expanded.into()
         }
         _ => panic!("Only enums can be deserialized for typechoice serializer."),
