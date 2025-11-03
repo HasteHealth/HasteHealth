@@ -162,6 +162,60 @@ pub fn get_type_choice_attribute(attrs: &[Attribute]) -> Option<TypeChoiceAttrib
     }
 }
 
+#[allow(unused)]
+pub fn get_reference_target_attribute(attrs: &[Attribute]) -> Vec<String> {
+    if let Some(attribute_list) = get_attribute_list(attrs, "reference") {
+        let parsed_arguments = attribute_list
+            .parse_args_with(Punctuated::<Expr, Token![,]>::parse_terminated)
+            .unwrap();
+
+        let mut targets: Vec<String> = Vec::new();
+
+        for expression in parsed_arguments {
+            match expression {
+                Expr::Assign(expr_assign) => {
+                    match (expr_assign.left.as_ref(), expr_assign.right.as_ref()) {
+                        (Expr::Path(path), Expr::Array(type_choices)) => {
+                            let variants: Vec<String> = type_choices
+                                .elems
+                                .iter()
+                                .map(|lit| match lit {
+                                    Expr::Lit(lit) => match &lit.lit {
+                                        Lit::Str(lit_str) => lit_str.value(),
+                                        _ => panic!("Expected a string literal for typechoice"),
+                                    },
+                                    _ => panic!("Expected a string literal for typechoice"),
+                                })
+                                .collect();
+                            match path.path.get_ident().to_token_stream().to_string().as_str() {
+                                "targets" => targets = variants,
+
+                                _ => panic!(
+                                    "reference must be in format like #[reference(target =[\"Resource\"])]"
+                                ),
+                            }
+                        }
+                        (k, v) => {
+                            println!("{:?}", k);
+                            panic!(
+                                "reference must be in format like #[reference(target =[\"Resource\"])] but found {:?} = {:?}",
+                                k, v
+                            );
+                        }
+                    }
+                }
+                _ => {
+                    panic!("reference must be in format like #[reference(target =[\"Resource\"])]")
+                }
+            }
+        }
+
+        targets
+    } else {
+        vec![]
+    }
+}
+
 fn get_attribute_list(attrs: &[Attribute], attribute: &str) -> Option<MetaList> {
     attrs.iter().find_map(|attr| match &attr.meta {
         Meta::List(meta_list) if meta_list.path.is_ident(attribute) => {
