@@ -1694,7 +1694,6 @@ pub mod ValueSetValidateCode {
         pub message: Option<FHIRString>,
         pub display: Option<FHIRString>,
     }
-
     impl From<Output> for Resource {
         fn from(value: Output) -> Self {
             let parameters: Vec<ParametersParameter> = value.into();
