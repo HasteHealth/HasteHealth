@@ -81,9 +81,9 @@ fn get_reference_target_attribute(element: &ElementDefinition) -> TokenStream {
         && let Some(reference_type) = type_vec
             .iter()
             .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some("Reference"))
-        && let Some(target_profiles) = reference_type.targetProfile.as_ref()
+        && let Some(targets) = reference_type.targetProfile.as_ref()
     {
-        let profiles = target_profiles
+        let profiles = targets
             .iter()
             .filter_map(
                 |tp: &Box<oxidized_fhir_model::r4::generated::types::FHIRString>| tp.value.as_ref(),
@@ -91,7 +91,7 @@ fn get_reference_target_attribute(element: &ElementDefinition) -> TokenStream {
             .filter_map(|tp| tp.split("/").last())
             .collect::<Vec<_>>();
         quote! {
-            #[reference(target_profiles = [#(#profiles),*])]
+            #[reference(targets = [#(#profiles),*])]
         }
     } else {
         quote! {}

@@ -115,10 +115,10 @@ pub struct Membership {
     pub id: Option<String>,
     #[doc = "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource."]
     pub meta: Option<Box<Meta>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
     #[doc = ""]
     pub link: Option<Box<Reference>>,
-    # [reference (target_profiles = ["User"])]
+    # [reference (targets = ["User"])]
     #[doc = ""]
     pub user: Box<Reference>,
 }
@@ -250,7 +250,7 @@ pub struct AccessPolicyV2Rule {
 #[fhir_serialize_type = "complex"]
 #[doc = "Who the access policy applies to."]
 pub struct AccessPolicyV2Target {
-    # [reference (target_profiles = ["ClientApplication" , "Membership" , "OperationDefinition"])]
+    # [reference (targets = ["ClientApplication" , "Membership" , "OperationDefinition"])]
     #[doc = "Who the access policy applies to."]
     pub link: Box<Reference>,
 }
@@ -365,7 +365,7 @@ pub struct User {
     #[primitive]
     #[doc = ""]
     pub role: Box<terminology::UserRole>,
-    # [reference (target_profiles = ["IdentityProvider"])]
+    # [reference (targets = ["IdentityProvider"])]
     #[doc = ""]
     pub federated: Option<Box<Reference>>,
 }
@@ -386,7 +386,7 @@ pub struct AccountCoverage {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "The party(s) that contribute to payment (or part of) of the charges applied to this account (including self-pay).\n\nA coverage may only be responsible for specific types of charges, and the sequence of the coverages in the account could be important when processing billing."]
     pub coverage: Box<Reference>,
     #[primitive]
@@ -410,7 +410,7 @@ pub struct AccountGuarantor {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "The entity who is responsible."]
     pub party: Box<Reference>,
     #[primitive]
@@ -460,14 +460,14 @@ pub struct Account {
     #[primitive]
     #[doc = "Name used for the account when displaying it to humans in reports, etc."]
     pub name: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Patient" , "Device" , "Practitioner" , "PractitionerRole" , "Location" , "HealthcareService" , "Organization"])]
+    # [reference (targets = ["Patient" , "Device" , "Practitioner" , "PractitionerRole" , "Location" , "HealthcareService" , "Organization"])]
     #[doc = "Identifies the entity which incurs the expenses. While the immediate recipients of services or goods might be entities related to the subject, the expenses were ultimately incurred by the subject of the Account."]
     pub subject: Option<Vec<Box<Reference>>>,
     #[doc = "The date range of services associated with this account."]
     pub servicePeriod: Option<Box<Period>>,
     #[doc = "The party(s) that are responsible for covering the payment of this account, and what order should they be applied to the account."]
     pub coverage: Option<Vec<AccountCoverage>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Indicates the service area, hospital, department, etc. with responsibility for managing the Account."]
     pub owner: Option<Box<Reference>>,
     #[primitive]
@@ -475,7 +475,7 @@ pub struct Account {
     pub description: Option<Box<FHIRString>>,
     #[doc = "The parties responsible for balancing the account if other payment options fall short."]
     pub guarantor: Option<Vec<AccountGuarantor>>,
-    # [reference (target_profiles = ["Account"])]
+    # [reference (targets = ["Account"])]
     #[doc = "Reference to a parent Account."]
     pub partOf: Option<Box<Reference>>,
 }
@@ -490,7 +490,7 @@ pub struct Account {
 #[type_choice_field_name = "subject"]
 pub enum ActivityDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for ActivityDefinitionSubjectTypeChoice {
@@ -554,7 +554,7 @@ pub struct ActivityDefinitionParticipant {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
 pub enum ActivityDefinitionProductTypeChoice {
-    # [reference (target_profiles = ["Medication" , "Substance"])]
+    # [reference (targets = ["Medication" , "Substance"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -709,7 +709,7 @@ pub struct ActivityDefinition {
     # [type_choice_variants (complex = ["timingTiming" , "timingAge" , "timingPeriod" , "timingRange" , "timingDuration"] , primitive = ["timingDateTime"])]
     #[doc = "The period, timing or frequency upon which the described activity is to occur."]
     pub timing: Option<ActivityDefinitionTimingTypeChoice>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Identifies the facility where the activity will occur; e.g. home, hospital, specific clinic, etc."]
     pub location: Option<Box<Reference>>,
     #[doc = "Indicates who should participate in performing the action described."]
@@ -723,13 +723,13 @@ pub struct ActivityDefinition {
     pub dosage: Option<Vec<Box<Dosage>>>,
     #[doc = "Indicates the sites on the subject's body where the procedure should be performed (I.e. the target sites)."]
     pub bodySite: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["SpecimenDefinition"])]
+    # [reference (targets = ["SpecimenDefinition"])]
     #[doc = "Defines specimen requirements for the action to be performed, such as required specimens for a lab test."]
     pub specimenRequirement: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ObservationDefinition"])]
+    # [reference (targets = ["ObservationDefinition"])]
     #[doc = "Defines observation requirements for the action to be performed, such as body weight or surface area."]
     pub observationRequirement: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ObservationDefinition"])]
+    # [reference (targets = ["ObservationDefinition"])]
     #[doc = "Defines the observations that are expected to be produced by the action."]
     pub observationResultRequirement: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -760,7 +760,7 @@ pub struct AdverseEventSuspectEntityCausality {
     #[primitive]
     #[doc = "AdverseEvent.suspectEntity.causalityProductRelatedness."]
     pub productRelatedness: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "AdverseEvent.suspectEntity.causalityAuthor."]
     pub author: Option<Box<Reference>>,
     #[doc = "ProbabilityScale | Bayesian | Checklist."]
@@ -783,7 +783,7 @@ pub struct AdverseEventSuspectEntity {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Immunization" , "Procedure" , "Substance" , "Medication" , "MedicationAdministration" , "MedicationStatement" , "Device"])]
+    # [reference (targets = ["Immunization" , "Procedure" , "Substance" , "Medication" , "MedicationAdministration" , "MedicationStatement" , "Device"])]
     #[doc = "Identifies the actual instance of what caused the adverse event.  May be a substance, medication, medication administration, medication statement or a device."]
     pub instance: Box<Reference>,
     #[doc = "Information on the possible cause of the event."]
@@ -828,10 +828,10 @@ pub struct AdverseEvent {
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "This element defines the specific type of event that occurred or that was prevented from occurring."]
     pub event: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Practitioner" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "Group" , "Practitioner" , "RelatedPerson"])]
     #[doc = "This subject or group impacted by the event."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which AdverseEvent was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
@@ -843,10 +843,10 @@ pub struct AdverseEvent {
     #[primitive]
     #[doc = "The date on which the existence of the AdverseEvent was first recorded."]
     pub recordedDate: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     #[doc = "Includes information about the reaction that occurred as a result of exposure to a substance (for example, a drug or a chemical)."]
     pub resultingCondition: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The information about where the adverse event occurred."]
     pub location: Option<Box<Reference>>,
     #[doc = "Assessment whether this event was of real importance."]
@@ -855,21 +855,21 @@ pub struct AdverseEvent {
     pub severity: Option<Box<CodeableConcept>>,
     #[doc = "Describes the type of outcome from the adverse event."]
     pub outcome: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Information on who recorded the adverse event.  May be the patient or a practitioner."]
     pub recorder: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Device"])]
     #[doc = "Parties that may or should contribute or have contributed information to the adverse event, which can consist of one or more activities.  Such information includes information leading to the decision to perform the activity and how to perform the activity (e.g. consultant), information that the activity itself seeks to reveal (e.g. informant of clinical history), or information about what activity was performed (e.g. informant witness)."]
     pub contributor: Option<Vec<Box<Reference>>>,
     #[doc = "Describes the entity that is suspected to have caused the adverse event."]
     pub suspectEntity: Option<Vec<AdverseEventSuspectEntity>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "AllergyIntolerance" , "FamilyMemberHistory" , "Immunization" , "Procedure" , "Media" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "AllergyIntolerance" , "FamilyMemberHistory" , "Immunization" , "Procedure" , "Media" , "DocumentReference"])]
     #[doc = "AdverseEvent.subjectMedicalHistory."]
     pub subjectMedicalHistory: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "AdverseEvent.referenceDocument."]
     pub referenceDocument: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ResearchStudy"])]
+    # [reference (targets = ["ResearchStudy"])]
     #[doc = "AdverseEvent.study."]
     pub study: Option<Vec<Box<Reference>>>,
 }
@@ -978,10 +978,10 @@ pub struct AllergyIntolerance {
     pub criticality: Option<Box<terminology::AllergyIntoleranceCriticality>>,
     #[doc = "Code for an allergy or intolerance statement (either a positive or a negated/excluded statement).  This may be a code for a substance or pharmaceutical product that is considered to be responsible for the adverse reaction risk (e.g., \"Latex\"), an allergy or intolerance condition (e.g., \"Latex allergy\"), or a negated/excluded code for a specific substance or class (e.g., \"No latex allergy\") or a general or categorical negated statement (e.g.,  \"No known allergy\", \"No known drug allergies\").  Note: the substance for a specific reaction may be different from the substance identified as the cause of the risk, but it must be consistent with it. For instance, it may be a more specific substance (e.g. a brand medication) or a composite product that includes the identified substance. It must be clinically safe to only process the 'code' and ignore the 'reaction.substance'.  If a receiving system is unable to confirm that AllergyIntolerance.reaction.substance falls within the semantic scope of AllergyIntolerance.code, then the receiving system should ignore AllergyIntolerance.reaction.substance."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient who has the allergy or intolerance."]
     pub patient: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The encounter when the allergy or intolerance was asserted."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["onsetAge" , "onsetPeriod" , "onsetRange"] , primitive = ["onsetDateTime" , "onsetString"])]
@@ -990,10 +990,10 @@ pub struct AllergyIntolerance {
     #[primitive]
     #[doc = "The recordedDate represents when this particular AllergyIntolerance record was created in the system, which is often a system-generated date."]
     pub recordedDate: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson"])]
     #[doc = "Individual who recorded the record and takes responsibility for its content."]
     pub recorder: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
     #[doc = "The source of the information about the allergy that is recorded."]
     pub asserter: Option<Box<Reference>>,
     #[primitive]
@@ -1024,7 +1024,7 @@ pub struct AppointmentParticipant {
     #[rename_field = "type"]
     #[doc = "Role of participant in the appointment."]
     pub type_: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device" , "HealthcareService" , "Location"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device" , "HealthcareService" , "Location"])]
     #[doc = "A Person, Location/HealthcareService or Device that is participating in the appointment."]
     pub actor: Option<Box<Reference>>,
     #[primitive]
@@ -1083,7 +1083,7 @@ pub struct Appointment {
     pub appointmentType: Option<Box<CodeableConcept>>,
     #[doc = "The coded reason that this appointment is being scheduled. This is more clinical than administrative."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Procedure" , "Observation" , "ImmunizationRecommendation"])]
+    # [reference (targets = ["Condition" , "Procedure" , "Observation" , "ImmunizationRecommendation"])]
     #[doc = "Reason the appointment has been scheduled to take place, as specified using information from another resource. When the patient arrives and the encounter begins it may be used as the admission diagnosis. The indication will typically be a Condition (with other resources referenced in the evidence.detail), or a Procedure."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -1092,7 +1092,7 @@ pub struct Appointment {
     #[primitive]
     #[doc = "The brief description of the appointment as would be shown on a subject line in a meeting request, or appointment list. Detailed or expanded information should be put in the comment field."]
     pub description: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Additional information to support the appointment provided when making the appointment."]
     pub supportingInformation: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -1104,7 +1104,7 @@ pub struct Appointment {
     #[primitive]
     #[doc = "Number of minutes that the appointment is to take. This can be less than the duration between the start and end times.  For example, where the actual time of appointment is only an estimate or if a 30 minute appointment is being requested, but any time would work.  Also, if there is, for example, a planned 15 minute break in the middle of a long appointment, the duration may be 15 minutes less than the difference between the start and end."]
     pub minutesDuration: Option<Box<FHIRPositiveInt>>,
-    # [reference (target_profiles = ["Slot"])]
+    # [reference (targets = ["Slot"])]
     #[doc = "The slots from the participants' schedules that will be filled by the appointment."]
     pub slot: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -1116,7 +1116,7 @@ pub struct Appointment {
     #[primitive]
     #[doc = "While Appointment.comment contains information for internal use, Appointment.patientInstructions is used to capture patient facing information about the Appointment (e.g. please bring your referral or fast from 8pm night before)."]
     pub patientInstruction: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "The service request this appointment is allocated to assess (e.g. incoming referral or procedure request)."]
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[cardinality(min = 1usize)]
@@ -1157,7 +1157,7 @@ pub struct AppointmentResponse {
     #[rename_field = "identifier"]
     #[doc = "This records identifiers associated with this appointment response concern that are defined by business processes and/ or used to refer to it when a direct URL reference to the resource itself is not appropriate."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["Appointment"])]
+    # [reference (targets = ["Appointment"])]
     #[doc = "Appointment that this response is replying to."]
     pub appointment: Box<Reference>,
     #[primitive]
@@ -1168,7 +1168,7 @@ pub struct AppointmentResponse {
     pub end: Option<Box<FHIRInstant>>,
     #[doc = "Role of participant in the appointment."]
     pub participantType: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device" , "HealthcareService" , "Location"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device" , "HealthcareService" , "Location"])]
     #[doc = "A Person, Location, HealthcareService, or Device that is participating in the appointment."]
     pub actor: Option<Box<Reference>>,
     #[primitive]
@@ -1225,7 +1225,7 @@ pub struct AuditEventAgent {
     pub type_: Option<Box<CodeableConcept>>,
     #[doc = "The security role that the user was acting under, that come from local codes defined by the access control security system (e.g. RBAC, ABAC) used in the local context."]
     pub role: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["PractitionerRole" , "Practitioner" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["PractitionerRole" , "Practitioner" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
     #[doc = "Reference to who this agent is that was involved in the event."]
     pub who: Option<Box<Reference>>,
     #[primitive]
@@ -1237,7 +1237,7 @@ pub struct AuditEventAgent {
     #[primitive]
     #[doc = "Indicator that the user is or is not the requestor, or initiator, for the event being audited."]
     pub requestor: Box<FHIRBoolean>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Where the event occurred."]
     pub location: Option<Box<Reference>>,
     #[primitive]
@@ -1270,7 +1270,7 @@ pub struct AuditEventSource {
     #[primitive]
     #[doc = "Logical source location within the healthcare enterprise network.  For example, a hospital or other provider location within a multi-entity provider group."]
     pub site: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["PractitionerRole" , "Practitioner" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["PractitionerRole" , "Practitioner" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
     #[doc = "Identifier of the source where the event was detected."]
     pub observer: Box<Reference>,
     #[rename_field = "type"]
@@ -1337,7 +1337,7 @@ pub struct AuditEventEntity {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Identifies a specific instance of the entity. The reference should be version specific."]
     pub what: Option<Box<Reference>>,
     #[rename_field = "type"]
@@ -1453,13 +1453,13 @@ pub struct Basic {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[doc = "Identifies the 'type' of resource - equivalent to the resource name for other resources."]
     pub code: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Identifies the patient, practitioner, device or any other resource that is the \"focus\" of this resource."]
     pub subject: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Identifies when the resource was first created."]
     pub created: Option<Box<FHIRDate>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "Indicates who was responsible for creating the resource instance."]
     pub author: Option<Box<Reference>>,
 }
@@ -1487,7 +1487,7 @@ pub struct Binary {
     #[primitive]
     #[doc = "MimeType of the binary content represented as a standard MimeType (BCP 13)."]
     pub contentType: Box<FHIRCode>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "This element identifies another resource that can be used as a proxy of the security sensitivity to use when deciding and enforcing access control rules for the Binary resource. Given that the Binary resource contains very few elements that can be used to determine the sensitivity of the data and relationships to individuals, the referenced resource stands in as a proxy equivalent for this purpose. This referenced resource may be related to the Binary (e.g. Media, DocumentReference), or may be some non-related Resource purely as a security proxy. E.g. to identify that the binary resource relates to a patient, and access should only be granted to applications that have access to the patient."]
     pub securityContext: Option<Box<Reference>>,
     #[primitive]
@@ -1531,10 +1531,10 @@ pub struct BiologicallyDerivedProductCollection {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Healthcare professional who is performing the collection."]
     pub collector: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "Organization"])]
+    # [reference (targets = ["Patient" , "Organization"])]
     #[doc = "The patient or entity, such as a hospital or vendor in the case of a processed/manipulated/manufactured product, providing the product."]
     pub source: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["collectedPeriod"] , primitive = ["collectedDateTime"])]
@@ -1581,7 +1581,7 @@ pub struct BiologicallyDerivedProductProcessing {
     pub description: Option<Box<FHIRString>>,
     #[doc = "Procesing code."]
     pub procedure: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Substance"])]
+    # [reference (targets = ["Substance"])]
     #[doc = "Substance added during processing."]
     pub additive: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["timePeriod"] , primitive = ["timeDateTime"])]
@@ -1699,13 +1699,13 @@ pub struct BiologicallyDerivedProduct {
     #[primitive]
     #[doc = "Whether the product is currently available."]
     pub status: Option<Box<terminology::ProductStatus>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "Procedure request to obtain this biologically derived product."]
     pub request: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "Number of discrete units within this product."]
     pub quantity: Option<Box<FHIRInteger>>,
-    # [reference (target_profiles = ["BiologicallyDerivedProduct"])]
+    # [reference (targets = ["BiologicallyDerivedProduct"])]
     #[doc = "Parent product (if any)."]
     pub parent: Option<Vec<Box<Reference>>>,
     #[doc = "How this product was collected."]
@@ -1763,7 +1763,7 @@ pub struct BodyStructure {
     pub description: Option<Box<FHIRString>>,
     #[doc = "Image or images used to identify a location."]
     pub image: Option<Vec<Box<Attachment>>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The person to which the body site belongs."]
     pub patient: Box<Reference>,
 }
@@ -2005,7 +2005,7 @@ pub struct CapabilityStatementImplementation {
     #[primitive]
     #[doc = "An absolute base URL for the implementation.  This forms the base for REST interfaces as well as the mailbox and document interfaces."]
     pub url: Option<Box<FHIRUrl>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization responsible for the management of the instance and oversight of the data on the server at the specified URL."]
     pub custodian: Option<Box<Reference>>,
 }
@@ -2478,7 +2478,7 @@ impl Default for CarePlanActivityDetailScheduledTypeChoice {
 #[type_choice_field_name = "product"]
 pub enum CarePlanActivityDetailProductTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication" , "Substance"])]
+    # [reference (targets = ["Medication" , "Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for CarePlanActivityDetailProductTypeChoice {
@@ -2516,10 +2516,10 @@ pub struct CarePlanActivityDetail {
     pub code: Option<Box<CodeableConcept>>,
     #[doc = "Provides the rationale that drove the inclusion of this particular activity as part of the plan or the reason why the activity was prohibited."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates another resource, such as the health condition(s), whose existence justifies this request and drove the inclusion of this particular activity as part of the plan."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Goal"])]
+    # [reference (targets = ["Goal"])]
     #[doc = "Internal reference that identifies the goals that this activity is intended to contribute towards meeting."]
     pub goal: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -2533,10 +2533,10 @@ pub struct CarePlanActivityDetail {
     # [type_choice_variants (complex = ["scheduledTiming" , "scheduledPeriod"] , primitive = ["scheduledString"])]
     #[doc = "The period, timing or frequency upon which the described activity is to occur."]
     pub scheduled: Option<CarePlanActivityDetailScheduledTypeChoice>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Identifies the facility where the activity will occur; e.g. home, hospital, specific clinic, etc."]
     pub location: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "RelatedPerson" , "Patient" , "CareTeam" , "HealthcareService" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "RelatedPerson" , "Patient" , "CareTeam" , "HealthcareService" , "Device"])]
     #[doc = "Identifies who's expected to be involved in the activity."]
     pub performer: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["productCodeableConcept" , "productReference"] , primitive = [])]
@@ -2569,12 +2569,12 @@ pub struct CarePlanActivity {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Identifies the outcome at the point when the status of the activity is assessed.  For example, the outcome of an education activity could be patient understands (or not)."]
     pub outcomeCodeableConcept: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Details of the outcome or action resulting from the activity.  The reference to an \"event\" resource, such as Procedure or Encounter or Observation, is the result/outcome of the activity itself.  The activity can be conveyed using CarePlan.activity.detail OR using the CarePlan.activity.reference (a reference to a “request” resource)."]
     pub outcomeReference: Option<Vec<Box<Reference>>>,
     #[doc = "Notes about the adherence/status/progress of the activity."]
     pub progress: Option<Vec<Box<Annotation>>>,
-    # [reference (target_profiles = ["Appointment" , "CommunicationRequest" , "DeviceRequest" , "MedicationRequest" , "NutritionOrder" , "Task" , "ServiceRequest" , "VisionPrescription" , "RequestGroup"])]
+    # [reference (targets = ["Appointment" , "CommunicationRequest" , "DeviceRequest" , "MedicationRequest" , "NutritionOrder" , "Task" , "ServiceRequest" , "VisionPrescription" , "RequestGroup"])]
     #[doc = "The details of the proposed activity represented in a specific resource."]
     pub reference: Option<Box<Reference>>,
     #[doc = "A simple summary of a planned activity suitable for a general care plan system (e.g. form driven) that doesn't know about specific resources such as procedure etc."]
@@ -2618,13 +2618,13 @@ pub struct CarePlan {
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["CarePlan"])]
+    # [reference (targets = ["CarePlan"])]
     #[doc = "A care plan that is fulfilled in whole or in part by this care plan."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["CarePlan"])]
+    # [reference (targets = ["CarePlan"])]
     #[doc = "Completed or terminated care plan whose function is taken by this new care plan."]
     pub replaces: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["CarePlan"])]
+    # [reference (targets = ["CarePlan"])]
     #[doc = "A larger care plan of which this particular care plan is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -2641,10 +2641,10 @@ pub struct CarePlan {
     #[primitive]
     #[doc = "A description of the scope and nature of the plan."]
     pub description: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "Identifies the patient or group whose intended care is described by the plan."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this CarePlan was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[doc = "Indicates when the plan did (or is intended to) come into effect and end."]
@@ -2652,22 +2652,22 @@ pub struct CarePlan {
     #[primitive]
     #[doc = "Represents when this particular CarePlan record was created in the system, which is often a system-generated date."]
     pub created: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "Device" , "RelatedPerson" , "Organization" , "CareTeam"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Device" , "RelatedPerson" , "Organization" , "CareTeam"])]
     #[doc = "When populated, the author is responsible for the care plan.  The care plan is attributed to the author."]
     pub author: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "Device" , "RelatedPerson" , "Organization" , "CareTeam"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Device" , "RelatedPerson" , "Organization" , "CareTeam"])]
     #[doc = "Identifies the individual(s) or organization who provided the contents of the care plan."]
     pub contributor: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["CareTeam"])]
+    # [reference (targets = ["CareTeam"])]
     #[doc = "Identifies all people and organizations who are expected to be involved in the care envisioned by this plan."]
     pub careTeam: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     #[doc = "Identifies the conditions/problems/concerns/diagnoses/etc. whose management and/or mitigation are handled by this plan."]
     pub addresses: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Identifies portions of the patient's record that specifically influenced the formation of the plan.  These might include comorbidities, recent procedures, limitations, recent assessments, etc."]
     pub supportingInfo: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Goal"])]
+    # [reference (targets = ["Goal"])]
     #[doc = "Describes the intended objective(s) of carrying out the care plan."]
     pub goal: Option<Vec<Box<Reference>>>,
     #[doc = "Identifies a planned action to occur as part of the plan.  For example, a medication to be used, lab tests to perform, self-monitoring, education, etc."]
@@ -2694,10 +2694,10 @@ pub struct CareTeamParticipant {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Indicates specific responsibility of an individual within the care team, such as \"Primary care physician\", \"Trained social worker counselor\", \"Caregiver\", etc."]
     pub role: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Organization" , "CareTeam"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Organization" , "CareTeam"])]
     #[doc = "The specific person or organization who is participating/expected to participate in the care team."]
     pub member: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization of the practitioner."]
     pub onBehalfOf: Option<Box<Reference>>,
     #[doc = "Indicates when the specific member or organization did (or is intended to) come into effect and end."]
@@ -2743,10 +2743,10 @@ pub struct CareTeam {
     #[primitive]
     #[doc = "A label for human use intended to distinguish like teams.  E.g. the \"red\" vs. \"green\" trauma teams."]
     pub name: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "Identifies the patient or group whose intended care is handled by the team."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this CareTeam was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[doc = "Indicates when the team did (or is intended to) come into effect and end."]
@@ -2755,10 +2755,10 @@ pub struct CareTeam {
     pub participant: Option<Vec<CareTeamParticipant>>,
     #[doc = "Describes why the care team exists."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     #[doc = "Condition(s) that this care team addresses."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization responsible for the care team."]
     pub managingOrganization: Option<Vec<Box<Reference>>>,
     #[doc = "A central contact detail for the care team (that applies to all members)."]
@@ -2786,7 +2786,7 @@ pub struct CatalogEntryRelatedEntry {
     #[primitive]
     #[doc = "The type of relation to the related item: child, parent, packageContent, containerPackage, usedIn, uses, requires, etc."]
     pub relationtype: Box<terminology::RelationType>,
-    # [reference (target_profiles = ["CatalogEntry"])]
+    # [reference (targets = ["CatalogEntry"])]
     #[doc = "The reference to the related item."]
     pub item: Box<Reference>,
 }
@@ -2828,7 +2828,7 @@ pub struct CatalogEntry {
     #[primitive]
     #[doc = "Whether the entry represents an orderable item."]
     pub orderable: Box<FHIRBoolean>,
-    # [reference (target_profiles = ["Medication" , "Device" , "Organization" , "Practitioner" , "PractitionerRole" , "HealthcareService" , "ActivityDefinition" , "PlanDefinition" , "SpecimenDefinition" , "ObservationDefinition" , "Binary"])]
+    # [reference (targets = ["Medication" , "Device" , "Organization" , "Practitioner" , "PractitionerRole" , "HealthcareService" , "ActivityDefinition" , "PlanDefinition" , "SpecimenDefinition" , "ObservationDefinition" , "Binary"])]
     #[doc = "The item in a catalog or definition."]
     pub referencedItem: Box<Reference>,
     #[doc = "Used in supporting related concepts, e.g. NDC to RxNorm."]
@@ -2891,7 +2891,7 @@ pub struct ChargeItemPerformer {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Describes the type of performance or participation(e.g. primary surgeon, anesthesiologiest, etc.)."]
     pub function: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "The device, practitioner, etc. who performed or participated in the service."]
     pub actor: Box<Reference>,
 }
@@ -2905,7 +2905,7 @@ pub struct ChargeItemPerformer {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
 pub enum ChargeItemProductTypeChoice {
-    # [reference (target_profiles = ["Device" , "Medication" , "Substance"])]
+    # [reference (targets = ["Device" , "Medication" , "Substance"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -2955,15 +2955,15 @@ pub struct ChargeItem {
     #[primitive]
     #[doc = "The current state of the ChargeItem."]
     pub status: Box<terminology::ChargeitemStatus>,
-    # [reference (target_profiles = ["ChargeItem"])]
+    # [reference (targets = ["ChargeItem"])]
     #[doc = "ChargeItems can be grouped to larger ChargeItems covering the whole set."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[doc = "A code that identifies the charge, like a billing code."]
     pub code: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The individual or set of individuals the action is being or was performed on."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter" , "EpisodeOfCare"])]
+    # [reference (targets = ["Encounter" , "EpisodeOfCare"])]
     #[doc = "The encounter or episode of care that establishes the context for this event."]
     pub context: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["occurrencePeriod" , "occurrenceTiming"] , primitive = ["occurrenceDateTime"])]
@@ -2971,13 +2971,13 @@ pub struct ChargeItem {
     pub occurrence: Option<ChargeItemOccurrenceTypeChoice>,
     #[doc = "Indicates who or what performed or participated in the charged service."]
     pub performer: Option<Vec<ChargeItemPerformer>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization requesting the service."]
     pub performingOrganization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization performing the service."]
     pub requestingOrganization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The financial cost center permits the tracking of charge attribution."]
     pub costCenter: Option<Box<Reference>>,
     #[doc = "Quantity of which the charge item has been serviced."]
@@ -2992,7 +2992,7 @@ pub struct ChargeItem {
     #[primitive]
     #[doc = "If the list price or the rule-based factor associated with the code is overridden, this attribute can capture a text to indicate the  reason for this action."]
     pub overrideReason: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "The device, practitioner, etc. who entered the charge item."]
     pub enterer: Option<Box<Reference>>,
     #[primitive]
@@ -3000,18 +3000,18 @@ pub struct ChargeItem {
     pub enteredDate: Option<Box<FHIRDateTime>>,
     #[doc = "Describes why the event occurred in coded or textual form."]
     pub reason: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["DiagnosticReport" , "ImagingStudy" , "Immunization" , "MedicationAdministration" , "MedicationDispense" , "Observation" , "Procedure" , "SupplyDelivery"])]
+    # [reference (targets = ["DiagnosticReport" , "ImagingStudy" , "Immunization" , "MedicationAdministration" , "MedicationDispense" , "Observation" , "Procedure" , "SupplyDelivery"])]
     #[doc = "Indicated the rendered service that caused this charge."]
     pub service: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["productReference" , "productCodeableConcept"] , primitive = [])]
     #[doc = "Identifies the device, food, drug or other product being charged either by type code or reference to an instance."]
     pub product: Option<ChargeItemProductTypeChoice>,
-    # [reference (target_profiles = ["Account"])]
+    # [reference (targets = ["Account"])]
     #[doc = "Account into which this ChargeItems belongs."]
     pub account: Option<Vec<Box<Reference>>>,
     #[doc = "Comments made about the event by the performer, subject or other participants."]
     pub note: Option<Vec<Box<Annotation>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Further information supporting this charge."]
     pub supportingInformation: Option<Vec<Box<Reference>>>,
 }
@@ -3177,7 +3177,7 @@ pub struct ChargeItemDefinition {
     pub effectivePeriod: Option<Box<Period>>,
     #[doc = "The defined billing details in this resource pertain to the given billing code."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
+    # [reference (targets = ["Medication" , "Substance" , "Device"])]
     #[doc = "The defined billing details in this resource pertain to the given product instance(s)."]
     pub instance: Option<Vec<Box<Reference>>>,
     #[doc = "Expressions that describe applicability criteria for the billing code."]
@@ -3202,7 +3202,7 @@ pub struct ClaimRelated {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Claim"])]
+    # [reference (targets = ["Claim"])]
     #[doc = "Reference to a related claim."]
     pub claim: Option<Box<Reference>>,
     #[doc = "A code to convey how the claims are related."]
@@ -3230,7 +3230,7 @@ pub struct ClaimPayee {
     #[rename_field = "type"]
     #[doc = "Type of Party to be reimbursed: subscriber, provider, other."]
     pub type_: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson"])]
     #[doc = "Reference to the individual or organization to whom any payment will be made."]
     pub party: Option<Box<Reference>>,
 }
@@ -3254,7 +3254,7 @@ pub struct ClaimCareTeam {
     #[primitive]
     #[doc = "A number to uniquely identify care team entries."]
     pub sequence: Box<FHIRPositiveInt>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Member of the team who provided the product or service."]
     pub provider: Box<Reference>,
     #[primitive]
@@ -3297,7 +3297,7 @@ pub enum ClaimSupportingInfoValueTypeChoice {
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimSupportingInfoValueTypeChoice {
@@ -3349,7 +3349,7 @@ pub struct ClaimSupportingInfo {
 #[type_choice_field_name = "diagnosis"]
 pub enum ClaimDiagnosisDiagnosisTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimDiagnosisDiagnosisTypeChoice {
@@ -3399,7 +3399,7 @@ pub struct ClaimDiagnosis {
 #[type_choice_field_name = "procedure"]
 pub enum ClaimProcedureProcedureTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Procedure"])]
+    # [reference (targets = ["Procedure"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimProcedureProcedureTypeChoice {
@@ -3436,7 +3436,7 @@ pub struct ClaimProcedure {
     # [type_choice_variants (complex = ["procedureCodeableConcept" , "procedureReference"] , primitive = [])]
     #[doc = "The code or reference to a Procedure resource which identifies the clinical intervention performed."]
     pub procedure: ClaimProcedureProcedureTypeChoice,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
 }
@@ -3466,7 +3466,7 @@ pub struct ClaimInsurance {
     #[rename_field = "identifier"]
     #[doc = "The business identifier to be used when the claim is sent for adjudication against this insurance policy."]
     pub identifier_: Option<Box<Identifier>>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system."]
     pub coverage: Box<Reference>,
     #[primitive]
@@ -3475,7 +3475,7 @@ pub struct ClaimInsurance {
     #[primitive]
     #[doc = "Reference numbers previously provided by the insurer to the provider to be quoted on subsequent claims containing services or products related to the prior authorization."]
     pub preAuthRef: Option<Vec<Box<FHIRString>>>,
-    # [reference (target_profiles = ["ClaimResponse"])]
+    # [reference (targets = ["ClaimResponse"])]
     #[doc = "The result of the adjudication of the line items for the Coverage specified in this insurance."]
     pub claimResponse: Option<Box<Reference>>,
 }
@@ -3490,7 +3490,7 @@ pub struct ClaimInsurance {
 #[type_choice_field_name = "location"]
 pub enum ClaimAccidentLocationTypeChoice {
     Address(Box<Address>),
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimAccidentLocationTypeChoice {
@@ -3555,7 +3555,7 @@ impl Default for ClaimItemServicedTypeChoice {
 pub enum ClaimItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimItemLocationTypeChoice {
@@ -3602,7 +3602,7 @@ pub struct ClaimItemDetailSubDetail {
     pub factor: Option<Box<FHIRDecimal>>,
     #[doc = "The quantity times the unit price for an additional service or product or charge."]
     pub net: Option<Box<Money>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
 }
@@ -3645,7 +3645,7 @@ pub struct ClaimItemDetail {
     pub factor: Option<Box<FHIRDecimal>>,
     #[doc = "The quantity times the unit price for an additional service or product or charge."]
     pub net: Option<Box<Money>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
     #[doc = "A claim detail line. Either a simple (a product or service) or a 'group' of sub-details which are simple items."]
@@ -3708,14 +3708,14 @@ pub struct ClaimItem {
     pub factor: Option<Box<FHIRDecimal>>,
     #[doc = "The quantity times the unit price for an additional service or product or charge."]
     pub net: Option<Box<Money>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
     #[doc = "Physical service site on the patient (limb, tooth, etc.)."]
     pub bodySite: Option<Box<CodeableConcept>>,
     #[doc = "A region or surface of the bodySite, e.g. limb region or tooth surface(s)."]
     pub subSite: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounters during which this Claim was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Vec<Box<Reference>>>,
     #[doc = "A claim detail line. Either a simple (a product or service) or a 'group' of sub-details which are simple items."]
@@ -3765,7 +3765,7 @@ pub struct Claim {
     #[primitive]
     #[doc = "A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future."]
     pub use_: Box<terminology::ClaimUse>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The party to whom the professional services and/or products have been supplied or are being considered and for whom actual or forecast reimbursement is sought."]
     pub patient: Box<Reference>,
     #[doc = "The period for which charges are being submitted."]
@@ -3773,13 +3773,13 @@ pub struct Claim {
     #[primitive]
     #[doc = "The date this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Individual who created the claim, predetermination or preauthorization."]
     pub enterer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The Insurer who is target of the request."]
     pub insurer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The provider which is responsible for the claim, predetermination or preauthorization."]
     pub provider: Box<Reference>,
     #[doc = "The provider-required urgency of processing the request. Typical values include: stat, routine deferred."]
@@ -3788,18 +3788,18 @@ pub struct Claim {
     pub fundsReserve: Option<Box<CodeableConcept>>,
     #[doc = "Other claims which are related to this claim such as prior submissions or claims for related services or for the same event."]
     pub related: Option<Vec<ClaimRelated>>,
-    # [reference (target_profiles = ["DeviceRequest" , "MedicationRequest" , "VisionPrescription"])]
+    # [reference (targets = ["DeviceRequest" , "MedicationRequest" , "VisionPrescription"])]
     #[doc = "Prescription to support the dispensing of pharmacy, device or vision products."]
     pub prescription: Option<Box<Reference>>,
-    # [reference (target_profiles = ["DeviceRequest" , "MedicationRequest" , "VisionPrescription"])]
+    # [reference (targets = ["DeviceRequest" , "MedicationRequest" , "VisionPrescription"])]
     #[doc = "Original prescription which has been superseded by this prescription to support the dispensing of pharmacy services, medications or products."]
     pub originalPrescription: Option<Box<Reference>>,
     #[doc = "The party to be reimbursed for cost of the products and services according to the terms of the policy."]
     pub payee: Option<ClaimPayee>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "A reference to a referral resource."]
     pub referral: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Facility where the services were provided."]
     pub facility: Option<Box<Reference>>,
     #[doc = "The members of the team who provided the products and services."]
@@ -3961,7 +3961,7 @@ impl Default for ClaimResponseAddItemServicedTypeChoice {
 pub enum ClaimResponseAddItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimResponseAddItemLocationTypeChoice {
@@ -4071,7 +4071,7 @@ pub struct ClaimResponseAddItem {
     #[primitive]
     #[doc = "The sequence number of the sub-details within the details within the claim item which this line is intended to replace."]
     pub subdetailSequence: Option<Vec<Box<FHIRPositiveInt>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The providers who are authorized for the services rendered to the patient."]
     pub provider: Option<Vec<Box<Reference>>>,
     #[doc = "When the value is a group code then this item collects a set of related claim details, otherwise this contains the product, service, drug or other billing code for the item."]
@@ -4216,13 +4216,13 @@ pub struct ClaimResponseInsurance {
     #[primitive]
     #[doc = "A flag to indicate that this Coverage is to be used for adjudication of this claim when set to true."]
     pub focal: Box<FHIRBoolean>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system."]
     pub coverage: Box<Reference>,
     #[primitive]
     #[doc = "A business agreement number established between the provider and the insurer for special business processing purposes."]
     pub businessArrangement: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["ClaimResponse"])]
+    # [reference (targets = ["ClaimResponse"])]
     #[doc = "The result of the adjudication of the line items for the Coverage specified in this insurance."]
     pub claimResponse: Option<Box<Reference>>,
 }
@@ -4299,19 +4299,19 @@ pub struct ClaimResponse {
     #[primitive]
     #[doc = "A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future."]
     pub use_: Box<terminology::ClaimUse>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The party to whom the professional services and/or products have been supplied or are being considered and for whom actual for facast reimbursement is sought."]
     pub patient: Box<Reference>,
     #[primitive]
     #[doc = "The date this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The party responsible for authorization, adjudication and reimbursement."]
     pub insurer: Box<Reference>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The provider which is responsible for the claim, predetermination or preauthorization."]
     pub requestor: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Claim"])]
+    # [reference (targets = ["Claim"])]
     #[doc = "Original request resource reference."]
     pub request: Option<Box<Reference>>,
     #[primitive]
@@ -4345,7 +4345,7 @@ pub struct ClaimResponse {
     pub form: Option<Box<Attachment>>,
     #[doc = "A note that describes or explains adjudication results in a human readable form."]
     pub processNote: Option<Vec<ClaimResponseProcessNote>>,
-    # [reference (target_profiles = ["CommunicationRequest"])]
+    # [reference (targets = ["CommunicationRequest"])]
     #[doc = "Request for additional supporting or authorizing information."]
     pub communicationRequest: Option<Vec<Box<Reference>>>,
     #[doc = "Financial instruments for reimbursement for the health care products and services specified on the claim."]
@@ -4390,7 +4390,7 @@ pub struct ClinicalImpressionInvestigation {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "A name/code for the group (\"set\") of investigations. Typically, this will be something like \"signs\", \"symptoms\", \"clinical\", \"diagnostic\", but the list is not constrained, and others such groups such as (exposure|family|travel|nutritional) history may be used."]
     pub code: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Observation" , "QuestionnaireResponse" , "FamilyMemberHistory" , "DiagnosticReport" , "RiskAssessment" , "ImagingStudy" , "Media"])]
+    # [reference (targets = ["Observation" , "QuestionnaireResponse" , "FamilyMemberHistory" , "DiagnosticReport" , "RiskAssessment" , "ImagingStudy" , "Media"])]
     #[doc = "A record of a specific investigation that was undertaken."]
     pub item: Option<Vec<Box<Reference>>>,
 }
@@ -4413,7 +4413,7 @@ pub struct ClinicalImpressionFinding {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Specific text or code for finding or diagnosis, which may include ruled-out or resolved conditions."]
     pub itemCodeableConcept: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "Media"])]
+    # [reference (targets = ["Condition" , "Observation" , "Media"])]
     #[doc = "Specific reference for finding or diagnosis, which may include ruled-out or resolved conditions."]
     pub itemReference: Option<Box<Reference>>,
     #[primitive]
@@ -4462,10 +4462,10 @@ pub struct ClinicalImpression {
     #[primitive]
     #[doc = "A summary of the context and/or cause of the assessment - why / where it was performed, and what patient events/status prompted it."]
     pub description: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient or group of individuals assessed as part of this record."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this ClinicalImpression was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["effectivePeriod"] , primitive = ["effectiveDateTime"])]
@@ -4474,13 +4474,13 @@ pub struct ClinicalImpression {
     #[primitive]
     #[doc = "Indicates when the documentation of the assessment was complete."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The clinician performing the assessment."]
     pub assessor: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ClinicalImpression"])]
+    # [reference (targets = ["ClinicalImpression"])]
     #[doc = "A reference to the last assessment that was conducted on this patient. Assessments are often/usually ongoing in nature; a care provider (practitioner or team) will make new assessments on an ongoing basis as new data arises or the patient's conditions changes."]
     pub previous: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Condition" , "AllergyIntolerance"])]
+    # [reference (targets = ["Condition" , "AllergyIntolerance"])]
     #[doc = "A list of the relevant problems/conditions for a patient."]
     pub problem: Option<Vec<Box<Reference>>>,
     #[doc = "One or more sets of investigations (signs, symptoms, etc.). The actual grouping of investigations varies greatly depending on the type and context of the assessment. These investigations may include data generated during the assessment process, or data previously generated and recorded that is pertinent to the outcomes."]
@@ -4495,10 +4495,10 @@ pub struct ClinicalImpression {
     pub finding: Option<Vec<ClinicalImpressionFinding>>,
     #[doc = "Estimate of likely outcome."]
     pub prognosisCodeableConcept: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["RiskAssessment"])]
+    # [reference (targets = ["RiskAssessment"])]
     #[doc = "RiskAssessment expressing likely outcome."]
     pub prognosisReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Information supporting the clinical impression."]
     pub supportingInfo: Option<Vec<Box<Reference>>>,
     #[doc = "Commentary about the impression, typically recorded after the impression itself was made, though supplemental notes by the original author could also appear."]
@@ -4787,7 +4787,7 @@ pub struct CodeSystem {
 pub enum CommunicationPayloadContentTypeChoice {
     String(Box<FHIRString>),
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for CommunicationPayloadContentTypeChoice {
@@ -4854,13 +4854,13 @@ pub struct Communication {
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Communication."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "An order, proposal or plan fulfilled in whole or in part by this Communication."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Part of this action."]
     pub partOf: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Communication"])]
+    # [reference (targets = ["Communication"])]
     #[doc = "Prior communication that this communication is in response to."]
     pub inResponseTo: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -4875,15 +4875,15 @@ pub struct Communication {
     pub priority: Option<Box<terminology::RequestPriority>>,
     #[doc = "A channel that was used for this communication (e.g. email, fax)."]
     pub medium: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient or group that was the focus of this communication."]
     pub subject: Option<Box<Reference>>,
     #[doc = "Description of the purpose/content, similar to a subject line in an email."]
     pub topic: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Other resources that pertain to this communication and to which this communication should be associated."]
     pub about: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this Communication was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
@@ -4892,15 +4892,15 @@ pub struct Communication {
     #[primitive]
     #[doc = "The time when this communication arrived at the destination."]
     pub received: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Group" , "CareTeam" , "HealthcareService"])]
+    # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Group" , "CareTeam" , "HealthcareService"])]
     #[doc = "The entity (e.g. person, organization, clinical information system, care team or device) which was the target of the communication. If receipts need to be tracked by an individual, a separate resource instance will need to be created for each recipient.  Multiple recipient communications are intended where either receipts are not tracked (e.g. a mass mail-out) or a receipt is captured in aggregate (all emails confirmed received by a particular time)."]
     pub recipient: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "HealthcareService"])]
+    # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "HealthcareService"])]
     #[doc = "The entity (e.g. person, organization, clinical information system, or device) which was the source of the communication."]
     pub sender: Option<Box<Reference>>,
     #[doc = "The reason or justification for the communication."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates another resource whose existence justifies this communication."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Text, attachment(s), or resource(s) that was communicated to the recipient."]
@@ -4920,7 +4920,7 @@ pub struct Communication {
 pub enum CommunicationRequestPayloadContentTypeChoice {
     String(Box<FHIRString>),
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for CommunicationRequestPayloadContentTypeChoice {
@@ -4999,10 +4999,10 @@ pub struct CommunicationRequest {
     #[rename_field = "identifier"]
     #[doc = "Business identifiers assigned to this communication request by the performer or other systems which remain constant as the resource is updated and propagates from server to server."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A plan or proposal that is fulfilled in whole or in part by this request."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["CommunicationRequest"])]
+    # [reference (targets = ["CommunicationRequest"])]
     #[doc = "Completed or terminated request(s) whose function is taken by this new request."]
     pub replaces: Option<Vec<Box<Reference>>>,
     #[doc = "A shared identifier common to all requests that were authorized more or less simultaneously by a single author, representing the identifier of the requisition, prescription or similar form."]
@@ -5022,13 +5022,13 @@ pub struct CommunicationRequest {
     pub doNotPerform: Option<Box<FHIRBoolean>>,
     #[doc = "A channel that was used for this communication (e.g. email, fax)."]
     pub medium: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient or group that is the focus of this communication request."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Other resources that pertain to this communication request and to which this communication request should be associated."]
     pub about: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this CommunicationRequest was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[doc = "Text, attachment(s), or resource(s) to be communicated to the recipient."]
@@ -5039,18 +5039,18 @@ pub struct CommunicationRequest {
     #[primitive]
     #[doc = "For draft requests, indicates the date of initial creation.  For requests with other statuses, indicates the date of activation."]
     pub authoredOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
     #[doc = "The device, individual, or organization who initiated the request and has responsibility for its activation."]
     pub requester: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Group" , "CareTeam" , "HealthcareService"])]
+    # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Group" , "CareTeam" , "HealthcareService"])]
     #[doc = "The entity (e.g. person, organization, clinical information system, device, group, or care team) which is the intended target of the communication."]
     pub recipient: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "HealthcareService"])]
+    # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "HealthcareService"])]
     #[doc = "The entity (e.g. person, organization, clinical information system, or device) which is to be the source of the communication."]
     pub sender: Option<Box<Reference>>,
     #[doc = "Describes why the request is being made in coded or textual form."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates another resource whose existence justifies this request."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Comments made about the request by the requester, sender, recipient, subject or other participants."]
@@ -5175,7 +5175,7 @@ pub struct CompositionAttester {
     #[primitive]
     #[doc = "When the composition was attested by the party."]
     pub time: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Who attested the composition in the specified way."]
     pub party: Option<Box<Reference>>,
 }
@@ -5190,7 +5190,7 @@ pub struct CompositionAttester {
 #[type_choice_field_name = "target"]
 pub enum CompositionRelatesToTargetTypeChoice {
     Identifier(Box<Identifier>),
-    # [reference (target_profiles = ["Composition"])]
+    # [reference (targets = ["Composition"])]
     Reference(Box<Reference>),
 }
 impl Default for CompositionRelatesToTargetTypeChoice {
@@ -5243,7 +5243,7 @@ pub struct CompositionEvent {
     pub code: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The period of time covered by the documentation. There is no assertion that the documentation is a complete representation for this period, only that it documents events during this time."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The description and/or reference of the event(s) being documented. For example, this could be used to document such a colonoscopy or an appendectomy."]
     pub detail: Option<Vec<Box<Reference>>>,
 }
@@ -5269,10 +5269,10 @@ pub struct CompositionSection {
     pub title: Option<Box<FHIRString>>,
     #[doc = "A code identifying the kind of content contained within the section. This must be consistent with the section title."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Device" , "Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Device" , "Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "Identifies who is responsible for the information in this section, not necessarily who typed it in."]
     pub author: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The actual focus of the section when it is not the subject of the composition, but instead represents something or someone associated with the subject such as (for a patient subject) a spouse, parent, fetus, or donor. If not focus is specified, the focus is assumed to be focus of the parent section, or, for a section in the Composition itself, the subject of the composition. Sections with a focus SHALL only include resources where the logical subject (patient, subject, focus, etc.) matches the section focus, or the resources have no logical subject (few resources)."]
     pub focus: Option<Box<Reference>>,
     #[doc = "A human-readable narrative that contains the attested content of the section, used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it \"clinically safe\" for a human to just read the narrative."]
@@ -5282,7 +5282,7 @@ pub struct CompositionSection {
     pub mode: Option<Box<terminology::ListMode>>,
     #[doc = "Specifies the order applied to the items in the section entries."]
     pub orderedBy: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A reference to the actual resource from which the narrative in the section is derived."]
     pub entry: Option<Vec<Box<Reference>>>,
     #[doc = "If the section is empty, why the list is empty. An empty section typically has some text explaining the empty reason."]
@@ -5330,17 +5330,17 @@ pub struct Composition {
     pub type_: Box<CodeableConcept>,
     #[doc = "A categorization for the type of the composition - helps for indexing and searching. This may be implied by or derived from the code specified in the Composition Type."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Who or what the composition is about. The composition can be about a person, (patient or healthcare practitioner), a device (e.g. a machine) or even a group of subjects (such as a document about a herd of livestock, or a set of patients that share a common exposure)."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "Describes the clinical encounter or type of care this documentation is associated with."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The composition editing time, when the composition was last logically changed by the author."]
     pub date: Box<FHIRDateTime>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Device" , "Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Device" , "Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "Identifies who is responsible for the information in the composition, not necessarily who typed it in."]
     pub author: Vec<Box<Reference>>,
     #[primitive]
@@ -5351,7 +5351,7 @@ pub struct Composition {
     pub confidentiality: Option<Box<terminology::V3ConfidentialityClassification>>,
     #[doc = "A participant who has attested to the accuracy of the composition/document."]
     pub attester: Option<Vec<CompositionAttester>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Identifies the organization or group who is responsible for ongoing maintenance of and access to the composition/document information."]
     pub custodian: Option<Box<Reference>>,
     #[doc = "Relationships that this composition has with other compositions or documents that already exist."]
@@ -5693,7 +5693,7 @@ pub struct ConditionStage {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "A simple summary of the stage such as \"Stage 3\". The determination of the stage is disease-specific."]
     pub summary: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["ClinicalImpression" , "DiagnosticReport" , "Observation"])]
+    # [reference (targets = ["ClinicalImpression" , "DiagnosticReport" , "Observation"])]
     #[doc = "Reference to a formal record of the evidence on which the staging assessment is based."]
     pub assessment: Option<Vec<Box<Reference>>>,
     #[rename_field = "type"]
@@ -5719,7 +5719,7 @@ pub struct ConditionEvidence {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "A manifestation or symptom that led to the recording of this condition."]
     pub code: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Links to other relevant information, including pathology reports."]
     pub detail: Option<Vec<Box<Reference>>>,
 }
@@ -5767,10 +5767,10 @@ pub struct Condition {
     pub code: Option<Box<CodeableConcept>>,
     #[doc = "The anatomical location where this condition manifests itself."]
     pub bodySite: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "Indicates the patient or group who the condition record is associated with."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this Condition was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["onsetAge" , "onsetPeriod" , "onsetRange"] , primitive = ["onsetDateTime" , "onsetString"])]
@@ -5782,10 +5782,10 @@ pub struct Condition {
     #[primitive]
     #[doc = "The recordedDate represents when this particular Condition record was created in the system, which is often a system-generated date."]
     pub recordedDate: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson"])]
     #[doc = "Individual who recorded the record and takes responsibility for its content."]
     pub recorder: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson"])]
     #[doc = "Individual who is making the condition statement."]
     pub asserter: Option<Box<Reference>>,
     #[doc = "Clinical stage or grade of a condition. May include formal severity assessments."]
@@ -5806,7 +5806,7 @@ pub struct Condition {
 #[type_choice_field_name = "source"]
 pub enum ConsentSourceTypeChoice {
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Consent" , "DocumentReference" , "Contract" , "QuestionnaireResponse"])]
+    # [reference (targets = ["Consent" , "DocumentReference" , "Contract" , "QuestionnaireResponse"])]
     Reference(Box<Reference>),
 }
 impl Default for ConsentSourceTypeChoice {
@@ -5858,7 +5858,7 @@ pub struct ConsentVerification {
     #[primitive]
     #[doc = "Has the instruction been verified."]
     pub verified: Box<FHIRBoolean>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "RelatedPerson"])]
     #[doc = "Who verified the instruction (Patient, Relative or other Authorized Person)."]
     pub verifiedWith: Option<Box<Reference>>,
     #[primitive]
@@ -5884,7 +5884,7 @@ pub struct ConsentProvisionActor {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "How the individual is involved in the resources content that is described in the exception."]
     pub role: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Device" , "Group" , "CareTeam" , "Organization" , "Patient" , "Practitioner" , "RelatedPerson" , "PractitionerRole"])]
+    # [reference (targets = ["Device" , "Group" , "CareTeam" , "Organization" , "Patient" , "Practitioner" , "RelatedPerson" , "PractitionerRole"])]
     #[doc = "The resource that identifies the actor. To identify actors by type, use group to identify a set of actors by some property they share (e.g. 'admitting officers')."]
     pub reference: Box<Reference>,
 }
@@ -5908,7 +5908,7 @@ pub struct ConsentProvisionData {
     #[primitive]
     #[doc = "How the resource reference is interpreted when testing consent restrictions."]
     pub meaning: Box<terminology::ConsentDataMeaning>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A reference to a specific resource that defines which resources are covered by this consent."]
     pub reference: Box<Reference>,
 }
@@ -5994,16 +5994,16 @@ pub struct Consent {
     #[cardinality(min = 1usize)]
     #[doc = "A classification of the type of consents found in the statement. This element supports indexing and retrieval of consent statements."]
     pub category: Vec<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient/healthcare consumer to whom this consent applies."]
     pub patient: Option<Box<Reference>>,
     #[primitive]
     #[doc = "When this  Consent was issued / created / indexed."]
     pub dateTime: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Organization" , "Patient" , "Practitioner" , "RelatedPerson" , "PractitionerRole"])]
+    # [reference (targets = ["Organization" , "Patient" , "Practitioner" , "RelatedPerson" , "PractitionerRole"])]
     #[doc = "Either the Grantor, which is the entity responsible for granting the rights listed in a Consent Directive or the Grantee, which is the entity responsible for complying with the Consent Directive, including any obligations or limitations on authorizations and enforcement of prohibitions."]
     pub performer: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization that manages the consent, and the framework within which it is executed."]
     pub organization: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["sourceAttachment" , "sourceReference"] , primitive = [])]
@@ -6029,7 +6029,7 @@ pub struct Consent {
 #[type_choice_field_name = "topic"]
 pub enum ContractTopicTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTopicTypeChoice {
@@ -6059,7 +6059,7 @@ pub struct ContractContentDefinition {
     pub type_: Box<CodeableConcept>,
     #[doc = "Detailed Precusory content type."]
     pub subType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The  individual or organization that published the Contract precursor content."]
     pub publisher: Option<Box<Reference>>,
     #[primitive]
@@ -6083,7 +6083,7 @@ pub struct ContractContentDefinition {
 #[type_choice_field_name = "topic"]
 pub enum ContractTermTopicTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTermTopicTypeChoice {
@@ -6136,7 +6136,7 @@ pub struct ContractTermOfferParty {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Device" , "Group" , "Organization"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Device" , "Group" , "Organization"])]
     #[doc = "Participant in the offer."]
     pub reference: Vec<Box<Reference>>,
     #[doc = "How the party participates in the offer."]
@@ -6163,7 +6163,7 @@ pub enum ContractTermOfferAnswerValueTypeChoice {
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTermOfferAnswerValueTypeChoice {
@@ -6214,7 +6214,7 @@ pub struct ContractTermOffer {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[doc = "Offer Recipient."]
     pub party: Option<Vec<ContractTermOfferParty>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The owner of an asset has the residual control rights over the asset: the right to decide all usages of the asset in any way not inconsistent with a prior contract, custom, or law (Hart, 1995, p. 30)."]
     pub topic: Option<Box<Reference>>,
     #[rename_field = "type"]
@@ -6253,7 +6253,7 @@ pub struct ContractTermAssetContext {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Asset context reference may include the creator, custodian, or owning Person or Organization (e.g., bank, repository),  location held, e.g., building,  jurisdiction."]
     pub reference: Option<Box<Reference>>,
     #[doc = "Coded representation of the context generally or of the Referenced entity, such as the asset holder type or location."]
@@ -6273,7 +6273,7 @@ pub struct ContractTermAssetContext {
 #[type_choice_field_name = "entity"]
 pub enum ContractTermAssetValuedItemEntityTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTermAssetValuedItemEntityTypeChoice {
@@ -6325,10 +6325,10 @@ pub struct ContractTermAssetValuedItem {
     #[primitive]
     #[doc = "When payment is due."]
     pub paymentDate: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Who will make payment."]
     pub responsible: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Who will receive payment."]
     pub recipient: Option<Box<Reference>>,
     #[primitive]
@@ -6360,7 +6360,7 @@ pub struct ContractTermAsset {
     #[rename_field = "type"]
     #[doc = "Target entity type about which the term may be concerned."]
     pub type_: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Associated entities."]
     pub typeReference: Option<Vec<Box<Reference>>>,
     #[doc = "May be a subtype or part of an offered asset."]
@@ -6410,7 +6410,7 @@ pub struct ContractTermActionSubject {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Device" , "Group" , "Organization"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Device" , "Group" , "Organization"])]
     #[doc = "The entity the action is performed or not performed on or for."]
     pub reference: Vec<Box<Reference>>,
     #[doc = "Role type of agent assigned roles in this Contract."]
@@ -6467,7 +6467,7 @@ pub struct ContractTermAction {
     pub linkId: Option<Vec<Box<FHIRString>>>,
     #[doc = "Current state of the term action."]
     pub status: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Encounter" , "EpisodeOfCare"])]
+    # [reference (targets = ["Encounter" , "EpisodeOfCare"])]
     #[doc = "Encounter or Episode with primary association to specified term activity."]
     pub context: Option<Box<Reference>>,
     #[primitive]
@@ -6476,7 +6476,7 @@ pub struct ContractTermAction {
     # [type_choice_variants (complex = ["occurrencePeriod" , "occurrenceTiming"] , primitive = ["occurrenceDateTime"])]
     #[doc = "When action happens."]
     pub occurrence: Option<ContractTermActionOccurrenceTypeChoice>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Device" , "Group" , "Organization"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole" , "Device" , "Group" , "Organization"])]
     #[doc = "Who or what initiated the action and has responsibility for its activation."]
     pub requester: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -6486,7 +6486,7 @@ pub struct ContractTermAction {
     pub performerType: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The type of role or competency of an individual desired or required to perform or not perform the action."]
     pub performerRole: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["RelatedPerson" , "Patient" , "Practitioner" , "PractitionerRole" , "CareTeam" , "Device" , "Substance" , "Organization" , "Location"])]
+    # [reference (targets = ["RelatedPerson" , "Patient" , "Practitioner" , "PractitionerRole" , "CareTeam" , "Device" , "Substance" , "Organization" , "Location"])]
     #[doc = "Indicates who or what is being asked to perform (or not perform) the ction."]
     pub performer: Option<Box<Reference>>,
     #[primitive]
@@ -6494,7 +6494,7 @@ pub struct ContractTermAction {
     pub performerLinkId: Option<Vec<Box<FHIRString>>>,
     #[doc = "Rationale for the action to be performed or not performed. Describes why the action is permitted or prohibited."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference" , "Questionnaire" , "QuestionnaireResponse"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference" , "Questionnaire" , "QuestionnaireResponse"])]
     #[doc = "Indicates another resource whose existence justifies permitting or not permitting this action."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -6576,7 +6576,7 @@ pub struct ContractSigner {
     #[rename_field = "type"]
     #[doc = "Role of this Contract signer, e.g. notary, grantee."]
     pub type_: Box<Coding>,
-    # [reference (target_profiles = ["Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Party which is a signator to this Contract."]
     pub party: Box<Reference>,
     #[cardinality(min = 1usize)]
@@ -6594,7 +6594,7 @@ pub struct ContractSigner {
 #[type_choice_field_name = "content"]
 pub enum ContractFriendlyContentTypeChoice {
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
+    # [reference (targets = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractFriendlyContentTypeChoice {
@@ -6634,7 +6634,7 @@ pub struct ContractFriendly {
 #[type_choice_field_name = "content"]
 pub enum ContractLegalContentTypeChoice {
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
+    # [reference (targets = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractLegalContentTypeChoice {
@@ -6674,7 +6674,7 @@ pub struct ContractLegal {
 #[type_choice_field_name = "content"]
 pub enum ContractRuleContentTypeChoice {
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractRuleContentTypeChoice {
@@ -6714,7 +6714,7 @@ pub struct ContractRule {
 #[type_choice_field_name = "legallyBinding"]
 pub enum ContractLegallyBindingTypeChoice {
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse" , "Contract"])]
+    # [reference (targets = ["Composition" , "DocumentReference" , "QuestionnaireResponse" , "Contract"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractLegallyBindingTypeChoice {
@@ -6765,7 +6765,7 @@ pub struct Contract {
     pub status: Option<Box<terminology::ContractStatus>>,
     #[doc = "Legal states of the formation of a legal instrument, which is a formally executed written document that can be formally attributed to its author, records and formally expresses a legally enforceable act, process, or contractual duty, obligation, or right, and therefore evidences that act, process, or agreement."]
     pub legalState: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Contract"])]
+    # [reference (targets = ["Contract"])]
     #[doc = "The URL pointing to a FHIR-defined Contract Definition that is adhered to in whole or part by this Contract."]
     pub instantiatesCanonical: Option<Box<Reference>>,
     #[primitive]
@@ -6780,16 +6780,16 @@ pub struct Contract {
     pub applies: Option<Box<Period>>,
     #[doc = "Event resulting in discontinuation or termination of this Contract instance by one or more parties to the contract."]
     pub expirationType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The target entity impacted by or of interest to parties to the agreement."]
     pub subject: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "A formally or informally recognized grouping of people, principals, organizations, or jurisdictions formed for the purpose of achieving some form of collective action such as the promulgation, administration and enforcement of contracts and policies."]
     pub authority: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Recognized governance framework or system operating with a circumscribed scope in accordance with specified principles, policies, processes or procedures for managing rights, actions, or behaviors of parties or principals relative to resources."]
     pub domain: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Sites in which the contract is complied with,  exercised, or in force."]
     pub site: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -6804,7 +6804,7 @@ pub struct Contract {
     #[primitive]
     #[doc = "Alternative representation of the title for this Contract definition, derivative, or instance in any legal state., e.g., a domain specific contract number related to legislation."]
     pub alias: Option<Vec<Box<FHIRString>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The individual or organization that authored the Contract definition, derivative, or instance in any legal state."]
     pub author: Option<Box<Reference>>,
     #[doc = "A selector of legal concerns for this Contract definition, derivative, or instance in any legal state."]
@@ -6821,10 +6821,10 @@ pub struct Contract {
     pub contentDefinition: Option<ContractContentDefinition>,
     #[doc = "One or more Contract Provisions, which may be related and conveyed as a group, and may contain nested groups."]
     pub term: Option<Vec<ContractTerm>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Information that may be needed by/relevant to the performer in their execution of this term action."]
     pub supportingInfo: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provence.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity."]
     pub relevantHistory: Option<Vec<Box<Reference>>>,
     #[doc = "Parties with legal standing in the Contract, including the principal parties, the grantor(s) and grantee(s), which are any person or organization bound by the contract, and any ancillary parties, which facilitate the execution of the contract such as a notary or witness."]
@@ -6971,16 +6971,16 @@ pub struct Coverage {
     #[rename_field = "type"]
     #[doc = "The type of coverage: social program, medical plan, accident coverage (workers compensation, auto), group health or payment by an individual or organization."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "The party who 'owns' the insurance policy."]
     pub policyHolder: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "RelatedPerson"])]
     #[doc = "The party who has signed-up for or 'owns' the contractual relationship to the policy or to whom the benefit of the policy for services rendered to them or their family is due."]
     pub subscriber: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The insurer assigned ID for the Subscriber."]
     pub subscriberId: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The party who benefits from the insurance coverage; the patient when products and/or services are provided."]
     pub beneficiary: Box<Reference>,
     #[primitive]
@@ -6991,7 +6991,7 @@ pub struct Coverage {
     #[doc = "Time period during which the coverage is in force. A missing start date indicates the start date isn't known, a missing end date means the coverage is continuing to be in force."]
     pub period: Option<Box<Period>>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Organization" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Organization" , "Patient" , "RelatedPerson"])]
     #[doc = "The program or plan underwriter or payor including both insurance and non-insurance agreements, such as patient-pay agreements."]
     pub payor: Vec<Box<Reference>>,
     #[doc = "A suite of underwriter specific classifiers."]
@@ -7007,7 +7007,7 @@ pub struct Coverage {
     #[primitive]
     #[doc = "When 'subrogation=true' this insurance instance has been included not for adjudication but to provide insurers with the details to recover costs."]
     pub subrogation: Option<Box<FHIRBoolean>>,
-    # [reference (target_profiles = ["Contract"])]
+    # [reference (targets = ["Contract"])]
     #[doc = "The policy(s) which constitute this insurance coverage."]
     pub contract: Option<Vec<Box<Reference>>>,
 }
@@ -7049,7 +7049,7 @@ pub struct CoverageEligibilityRequestSupportingInfo {
     #[primitive]
     #[doc = "A number to uniquely identify supporting information entries."]
     pub sequence: Box<FHIRPositiveInt>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Additional data or information such as resources, documents, images etc. including references to the data or the actual inclusion of the data."]
     pub information: Box<Reference>,
     #[primitive]
@@ -7076,7 +7076,7 @@ pub struct CoverageEligibilityRequestInsurance {
     #[primitive]
     #[doc = "A flag to indicate that this Coverage is to be used for evaluation of this request when set to true."]
     pub focal: Option<Box<FHIRBoolean>>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system."]
     pub coverage: Box<Reference>,
     #[primitive]
@@ -7094,7 +7094,7 @@ pub struct CoverageEligibilityRequestInsurance {
 #[type_choice_field_name = "diagnosis"]
 pub enum CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     Reference(Box<Reference>),
 }
 impl Default for CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
@@ -7151,19 +7151,19 @@ pub struct CoverageEligibilityRequestItem {
     pub productOrService: Option<Box<CodeableConcept>>,
     #[doc = "Item typification or modifiers codes to convey additional context for the product or service."]
     pub modifier: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The practitioner who is responsible for the product or service to be rendered to the patient."]
     pub provider: Option<Box<Reference>>,
     #[doc = "The number of repetitions of a service or product."]
     pub quantity: Option<Box<Quantity>>,
     #[doc = "The amount charged to the patient by the provider for a single unit."]
     pub unitPrice: Option<Box<Money>>,
-    # [reference (target_profiles = ["Location" , "Organization"])]
+    # [reference (targets = ["Location" , "Organization"])]
     #[doc = "Facility where the services will be provided."]
     pub facility: Option<Box<Reference>>,
     #[doc = "Patient diagnosis for which care is sought."]
     pub diagnosis: Option<Vec<CoverageEligibilityRequestItemDiagnosis>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The plan/proposal/order describing the proposed service in detail."]
     pub detail: Option<Vec<Box<Reference>>>,
 }
@@ -7208,7 +7208,7 @@ pub struct CoverageEligibilityRequest {
     #[cardinality(min = 1usize)]
     #[doc = "Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified."]
     pub purpose: Vec<Box<terminology::EligibilityrequestPurpose>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The party who is the beneficiary of the supplied coverage and for whom eligibility is sought."]
     pub patient: Box<Reference>,
     # [type_choice_variants (complex = ["servicedPeriod"] , primitive = ["servicedDate"])]
@@ -7217,16 +7217,16 @@ pub struct CoverageEligibilityRequest {
     #[primitive]
     #[doc = "The date when this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Person who created the request."]
     pub enterer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The provider which is responsible for the request."]
     pub provider: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The Insurer who issued the coverage in question and is the recipient of the request."]
     pub insurer: Box<Reference>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Facility where the services are intended to be provided."]
     pub facility: Option<Box<Reference>>,
     #[doc = "Additional information codes regarding exceptions, special considerations, the condition, situation, prior or concurrent issues."]
@@ -7346,7 +7346,7 @@ pub struct CoverageEligibilityResponseInsuranceItem {
     pub productOrService: Option<Box<CodeableConcept>>,
     #[doc = "Item typification or modifiers codes to convey additional context for the product or service."]
     pub modifier: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The practitioner who is eligible for the provision of the product or service."]
     pub provider: Option<Box<Reference>>,
     #[primitive]
@@ -7392,7 +7392,7 @@ pub struct CoverageEligibilityResponseInsurance {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system."]
     pub coverage: Box<Reference>,
     #[primitive]
@@ -7462,7 +7462,7 @@ pub struct CoverageEligibilityResponse {
     #[cardinality(min = 1usize)]
     #[doc = "Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified."]
     pub purpose: Vec<Box<terminology::EligibilityresponsePurpose>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The party who is the beneficiary of the supplied coverage and for whom eligibility is sought."]
     pub patient: Box<Reference>,
     # [type_choice_variants (complex = ["servicedPeriod"] , primitive = ["servicedDate"])]
@@ -7471,10 +7471,10 @@ pub struct CoverageEligibilityResponse {
     #[primitive]
     #[doc = "The date this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The provider which is responsible for the request."]
     pub requestor: Option<Box<Reference>>,
-    # [reference (target_profiles = ["CoverageEligibilityRequest"])]
+    # [reference (targets = ["CoverageEligibilityRequest"])]
     #[doc = "Reference to the original request resource."]
     pub request: Box<Reference>,
     #[primitive]
@@ -7483,7 +7483,7 @@ pub struct CoverageEligibilityResponse {
     #[primitive]
     #[doc = "A human readable description of the status of the adjudication."]
     pub disposition: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The Insurer who issued the coverage in question and is the author of the response."]
     pub insurer: Box<Reference>,
     #[doc = "Financial instruments for reimbursement for the health care products and services."]
@@ -7533,7 +7533,7 @@ pub struct DetectedIssueEvidence {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "A manifestation that led to the recording of this detected issue."]
     pub code: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Links to resources that constitute evidence for the detected issue such as a GuidanceResponse or MeasureReport."]
     pub detail: Option<Vec<Box<Reference>>>,
 }
@@ -7559,7 +7559,7 @@ pub struct DetectedIssueMitigation {
     #[primitive]
     #[doc = "Indicates when the mitigating action was documented."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Identifies the practitioner who determined the mitigation and takes responsibility for the mitigation step occurring."]
     pub author: Option<Box<Reference>>,
 }
@@ -7603,16 +7603,16 @@ pub struct DetectedIssue {
     #[primitive]
     #[doc = "Indicates the degree of importance associated with the identified issue based on the potential impact on the patient."]
     pub severity: Option<Box<terminology::DetectedissueSeverity>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "Indicates the patient whose record the detected issue is associated with."]
     pub patient: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["identifiedPeriod"] , primitive = ["identifiedDateTime"])]
     #[doc = "The date or period when the detected issue was initially identified."]
     pub identified: Option<DetectedIssueIdentifiedTypeChoice>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Device"])]
     #[doc = "Individual or device responsible for the issue being raised.  For example, a decision support application or a pharmacist conducting a medication review."]
     pub author: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Indicates the resource representing the current activity or proposed activity that is potentially problematic."]
     pub implicated: Option<Vec<Box<Reference>>>,
     #[doc = "Supporting evidence or manifestations that provide the basis for identifying the detected issue such as a GuidanceResponse or MeasureReport."]
@@ -7793,7 +7793,7 @@ pub struct Device {
     #[rename_field = "identifier"]
     #[doc = "Unique instance identifiers assigned to a device by manufacturers other organizations or owners."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["DeviceDefinition"])]
+    # [reference (targets = ["DeviceDefinition"])]
     #[doc = "The reference to the definition for the device."]
     pub definition: Option<Box<Reference>>,
     #[doc = "Unique device identifier (UDI) assigned to device label or package.  Note that the Device may include multiple udiCarriers as it either may include just the udiCarrier for the jurisdiction it is sold, or for multiple jurisdictions it could have been sold."]
@@ -7838,15 +7838,15 @@ pub struct Device {
     pub version: Option<Vec<DeviceVersion>>,
     #[doc = "The actual configuration settings of a device as it actually operates, e.g., regulation status, time properties."]
     pub property: Option<Vec<DeviceProperty>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "Patient information, If the device is affixed to a person."]
     pub patient: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "An organization that is responsible for the provision and ongoing maintenance of the device."]
     pub owner: Option<Box<Reference>>,
     #[doc = "Contact details for an organization or a particular human that is responsible for the device."]
     pub contact: Option<Vec<Box<ContactPoint>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The place where the device can be found."]
     pub location: Option<Box<Reference>>,
     #[primitive]
@@ -7856,7 +7856,7 @@ pub struct Device {
     pub note: Option<Vec<Box<Annotation>>>,
     #[doc = "Provides additional safety characteristics about a medical device.  For example devices containing latex."]
     pub safety: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "The parent device."]
     pub parent: Option<Box<Reference>>,
 }
@@ -7898,7 +7898,7 @@ pub struct DeviceDefinitionUdiDeviceIdentifier {
 #[type_choice_field_name = "manufacturer"]
 pub enum DeviceDefinitionManufacturerTypeChoice {
     String(Box<FHIRString>),
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     Reference(Box<Reference>),
 }
 impl Default for DeviceDefinitionManufacturerTypeChoice {
@@ -8091,7 +8091,7 @@ pub struct DeviceDefinition {
     pub capability: Option<Vec<DeviceDefinitionCapability>>,
     #[doc = "The actual configuration settings of a device as it actually operates, e.g., regulation status, time properties."]
     pub property: Option<Vec<DeviceDefinitionProperty>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "An organization that is responsible for the provision and ongoing maintenance of the device."]
     pub owner: Option<Box<Reference>>,
     #[doc = "Contact details for an organization or a particular human that is responsible for the device."]
@@ -8106,7 +8106,7 @@ pub struct DeviceDefinition {
     pub note: Option<Vec<Box<Annotation>>>,
     #[doc = "The quantity of the device present in the packaging (e.g. the number of devices present in a pack, or the number of devices in the same package of the medicinal product)."]
     pub quantity: Option<Box<Quantity>>,
-    # [reference (target_profiles = ["DeviceDefinition"])]
+    # [reference (targets = ["DeviceDefinition"])]
     #[doc = "The parent device it can be part of."]
     pub parentDevice: Option<Box<Reference>>,
     #[doc = "A substance used to create the material(s) of which the device is made."]
@@ -8177,10 +8177,10 @@ pub struct DeviceMetric {
     pub type_: Box<CodeableConcept>,
     #[doc = "Describes the unit that an observed value determined for this metric will have. For example: Percent, Seconds, etc."]
     pub unit: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Describes the link to the  Device that this DeviceMetric belongs to and that contains administrative device information such as manufacturer, serial number, etc."]
     pub source: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Describes the link to the  Device that this DeviceMetric belongs to and that provide information about the location of this DeviceMetric in the containment structure of the parent Device. An example would be a Device that represents a Channel. This reference can be used by a client application to distinguish DeviceMetrics that have the same type, but should be interpreted based on their containment location."]
     pub parent: Option<Box<Reference>>,
     #[primitive]
@@ -8207,7 +8207,7 @@ pub struct DeviceMetric {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "code"]
 pub enum DeviceRequestCodeTypeChoice {
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -8316,10 +8316,10 @@ pub struct DeviceRequest {
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this DeviceRequest."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Plan/proposal/order fulfilled by this request."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The request takes the place of the referenced completed or terminated request(s)."]
     pub priorRequest: Option<Vec<Box<Reference>>>,
     #[doc = "Composite request this is part of."]
@@ -8338,10 +8338,10 @@ pub struct DeviceRequest {
     pub code: DeviceRequestCodeTypeChoice,
     #[doc = "Specific parameters for the ordered item.  For example, the prism value for lenses."]
     pub parameter: Option<Vec<DeviceRequestParameter>>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Location" , "Device"])]
+    # [reference (targets = ["Patient" , "Group" , "Location" , "Device"])]
     #[doc = "The patient who will use the device."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "An encounter that provides additional context in which this request is made."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["occurrencePeriod" , "occurrenceTiming"] , primitive = ["occurrenceDateTime"])]
@@ -8350,28 +8350,28 @@ pub struct DeviceRequest {
     #[primitive]
     #[doc = "When the request transitioned to being actionable."]
     pub authoredOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Device" , "Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Device" , "Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The individual who initiated the request and has responsibility for its activation."]
     pub requester: Option<Box<Reference>>,
     #[doc = "Desired type of performer for doing the diagnostic testing."]
     pub performerType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "HealthcareService" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "HealthcareService" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "The desired performer for doing the diagnostic testing."]
     pub performer: Option<Box<Reference>>,
     #[doc = "Reason or justification for the use of this device."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Reason or justification for the use of this device."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Coverage" , "ClaimResponse"])]
+    # [reference (targets = ["Coverage" , "ClaimResponse"])]
     #[doc = "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be required for delivering the requested service."]
     pub insurance: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site)."]
     pub supportingInfo: Option<Vec<Box<Reference>>>,
     #[doc = "Details about this request that were not represented at all or sufficiently in one of the attributes provided in a class. These may include for example a comment, an instruction, or a note associated with the statement."]
     pub note: Option<Vec<Box<Annotation>>>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "Key events in the history of the request."]
     pub relevantHistory: Option<Vec<Box<Reference>>>,
 }
@@ -8426,16 +8426,16 @@ pub struct DeviceUseStatement {
     #[rename_field = "identifier"]
     #[doc = "An external identifier for this statement such as an IRI."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "A plan, proposal or order that is fulfilled in whole or in part by this DeviceUseStatement."]
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code representing the patient or other source's judgment about the state of the device used that this statement is about.  Generally this will be active or completed."]
     pub status: Box<terminology::DeviceStatementStatus>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient who used the device."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["ServiceRequest" , "Procedure" , "Claim" , "Observation" , "QuestionnaireResponse" , "DocumentReference"])]
+    # [reference (targets = ["ServiceRequest" , "Procedure" , "Claim" , "Observation" , "QuestionnaireResponse" , "DocumentReference"])]
     #[doc = "Allows linking the DeviceUseStatement to the underlying Request, or to other information that supports or is used to derive the DeviceUseStatement."]
     pub derivedFrom: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["timingTiming" , "timingPeriod"] , primitive = ["timingDateTime"])]
@@ -8444,15 +8444,15 @@ pub struct DeviceUseStatement {
     #[primitive]
     #[doc = "The time at which the statement was made/recorded."]
     pub recordedOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Who reported the device was being used by the patient."]
     pub source: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "The details of the device used."]
     pub device: Box<Reference>,
     #[doc = "Reason or justification for the use of the device."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference" , "Media"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference" , "Media"])]
     #[doc = "Indicates another resource whose existence justifies this DeviceUseStatement."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Indicates the anotomic location on the subject's body where the device was used ( i.e. the target)."]
@@ -8498,7 +8498,7 @@ pub struct DiagnosticReportMedia {
     #[primitive]
     #[doc = "A comment about the image. Typically, this is used to provide an explanation for why the image is included, or to draw the viewer's attention to important features."]
     pub comment: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Media"])]
+    # [reference (targets = ["Media"])]
     #[doc = "Reference to the image source."]
     pub link: Box<Reference>,
 }
@@ -8534,7 +8534,7 @@ pub struct DiagnosticReport {
     #[rename_field = "identifier"]
     #[doc = "Identifiers assigned to this report by the performer or other systems."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["CarePlan" , "ImmunizationRecommendation" , "MedicationRequest" , "NutritionOrder" , "ServiceRequest"])]
+    # [reference (targets = ["CarePlan" , "ImmunizationRecommendation" , "MedicationRequest" , "NutritionOrder" , "ServiceRequest"])]
     #[doc = "Details concerning a service requested."]
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -8544,10 +8544,10 @@ pub struct DiagnosticReport {
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "A code or name that describes this diagnostic report."]
     pub code: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Device" , "Location"])]
+    # [reference (targets = ["Patient" , "Group" , "Device" , "Location"])]
     #[doc = "The subject of the report. Usually, but not always, this is a patient. However, diagnostic services also perform analyses on specimens collected from a variety of other sources."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The healthcare event  (e.g. a patient and healthcare provider interaction) which this DiagnosticReport is about."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["effectivePeriod"] , primitive = ["effectiveDateTime"])]
@@ -8556,19 +8556,19 @@ pub struct DiagnosticReport {
     #[primitive]
     #[doc = "The date and time that this version of the report was made available to providers, typically after the report was reviewed and verified."]
     pub issued: Option<Box<FHIRInstant>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam"])]
     #[doc = "The diagnostic service that is responsible for issuing the report."]
     pub performer: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam"])]
     #[doc = "The practitioner or organization that is responsible for the report's conclusions and interpretations."]
     pub resultsInterpreter: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Specimen"])]
+    # [reference (targets = ["Specimen"])]
     #[doc = "Details about the specimens on which this diagnostic report is based."]
     pub specimen: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Observation"])]
+    # [reference (targets = ["Observation"])]
     #[doc = "[Observations](observation.html)  that are part of this diagnostic report."]
     pub result: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ImagingStudy"])]
+    # [reference (targets = ["ImagingStudy"])]
     #[doc = "One or more links to full details of any imaging performed during the diagnostic investigation. Typically, this is imaging performed by DICOM enabled modalities, but this is not required. A fully enabled PACS viewer can use this information to provide views of the source images."]
     pub imagingStudy: Option<Vec<Box<Reference>>>,
     #[doc = "A list of key images associated with this report. The images are generally created during the diagnostic process, and may be directly of the patient, or of treated specimens (i.e. slides of interest)."]
@@ -8602,7 +8602,7 @@ pub struct DocumentManifestRelated {
     #[doc = "Related identifier to this DocumentManifest.  For example, Order numbers, accession numbers, XDW workflow numbers."]
     pub identifier_: Option<Box<Identifier>>,
     #[rename_field = "ref"]
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Related Resource to this DocumentManifest. For example, Order, ServiceRequest,  Procedure, EligibilityRequest, etc."]
     pub ref_: Option<Box<Reference>>,
 }
@@ -8646,16 +8646,16 @@ pub struct DocumentManifest {
     #[rename_field = "type"]
     #[doc = "The code specifying the type of clinical activity that resulted in placing the associated content into the DocumentManifest."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "Group" , "Device"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "Group" , "Device"])]
     #[doc = "Who or what the set of documents is about. The documents can be about a person, (patient or healthcare practitioner), a device (i.e. machine) or even a group of subjects (such as a document about a herd of farm animals, or a set of patients that share a common exposure). If the documents cross more than one subject, then more than one subject is allowed here (unusual use case)."]
     pub subject: Option<Box<Reference>>,
     #[primitive]
     #[doc = "When the document manifest was created for submission to the server (not necessarily the same thing as the actual resource last modified time, since it may be modified, replicated, etc.)."]
     pub created: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
     #[doc = "Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included."]
     pub author: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
     #[doc = "A patient, practitioner, or organization for which this set of documents is intended."]
     pub recipient: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -8665,7 +8665,7 @@ pub struct DocumentManifest {
     #[doc = "Human-readable description of the source document. This is sometimes known as the \"title\"."]
     pub description: Option<Box<FHIRString>>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The list of Resources that consist of the parts of this manifest."]
     pub content: Vec<Box<Reference>>,
     #[doc = "Related identifiers or resources associated with the DocumentManifest."]
@@ -8691,7 +8691,7 @@ pub struct DocumentReferenceRelatesTo {
     #[primitive]
     #[doc = "The type of relationship that this document has with anther document."]
     pub code: Box<terminology::DocumentRelationshipType>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "The target document of this relationship."]
     pub target: Box<Reference>,
 }
@@ -8734,7 +8734,7 @@ pub struct DocumentReferenceContext {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Encounter" , "EpisodeOfCare"])]
+    # [reference (targets = ["Encounter" , "EpisodeOfCare"])]
     #[doc = "Describes the clinical encounter or type of care that the document content is associated with."]
     pub encounter: Option<Vec<Box<Reference>>>,
     #[doc = "This list of codes represents the main clinical acts, such as a colonoscopy or an appendectomy, being documented. In some cases, the event is inherent in the type Code, such as a \"History and Physical Report\" in which the procedure being documented is necessarily a \"History and Physical\" act."]
@@ -8745,10 +8745,10 @@ pub struct DocumentReferenceContext {
     pub facilityType: Option<Box<CodeableConcept>>,
     #[doc = "This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty."]
     pub practiceSetting: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The Patient Information as known when the document was published. May be a reference to a version specific, or contained."]
     pub sourcePatientInfo: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Related identifiers or resources associated with the DocumentReference."]
     pub related: Option<Vec<Box<Reference>>>,
 }
@@ -8797,19 +8797,19 @@ pub struct DocumentReference {
     pub type_: Option<Box<CodeableConcept>>,
     #[doc = "A categorization for the type of document referenced - helps for indexing and searching. This may be implied by or derived from the code specified in the DocumentReference.type."]
     pub category: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "Group" , "Device"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "Group" , "Device"])]
     #[doc = "Who or what the document is about. The document can be about a person, (patient or healthcare practitioner), a device (e.g. a machine) or even a group of subjects (such as a document about a herd of farm animals, or a set of patients that share a common exposure)."]
     pub subject: Option<Box<Reference>>,
     #[primitive]
     #[doc = "When the document reference was created."]
     pub date: Option<Box<FHIRInstant>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Device" , "Patient" , "RelatedPerson"])]
     #[doc = "Identifies who is responsible for adding the information to the document."]
     pub author: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Which person or organization authenticates that this document is valid."]
     pub authenticator: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Identifies the organization or group who is responsible for ongoing maintenance of and access to the document."]
     pub custodian: Option<Box<Reference>>,
     #[doc = "Relationships that this document has with other document references that already exist."]
@@ -8877,7 +8877,7 @@ pub struct EffectEvidenceSynthesisResultsByExposure {
     pub exposureState: Option<Box<terminology::ExposureState>>,
     #[doc = "Used to define variant exposure states such as low-risk state."]
     pub variantState: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["RiskEvidenceSynthesis"])]
+    # [reference (targets = ["RiskEvidenceSynthesis"])]
     #[doc = "Reference to a RiskEvidenceSynthesis resource."]
     pub riskEvidenceSynthesis: Box<Reference>,
 }
@@ -9084,16 +9084,16 @@ pub struct EffectEvidenceSynthesis {
     pub synthesisType: Option<Box<CodeableConcept>>,
     #[doc = "Type of study eg randomized trial."]
     pub studyType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the population for the research."]
     pub population: Box<Reference>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the exposure for the research."]
     pub exposure: Box<Reference>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the comparison exposure for the research."]
     pub exposureAlternative: Box<Reference>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resomece that defines the outcome for the research."]
     pub outcome: Box<Reference>,
     #[doc = "A description of the size of the sample involved in the synthesis."]
@@ -9172,7 +9172,7 @@ pub struct EncounterParticipant {
     pub type_: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The period of time that the specified participant participated in the encounter. These can overlap or be sub-sets of the overall encounter's period."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Persons involved in the encounter other than the patient."]
     pub individual: Option<Box<Reference>>,
 }
@@ -9193,7 +9193,7 @@ pub struct EncounterDiagnosis {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Condition" , "Procedure"])]
+    # [reference (targets = ["Condition" , "Procedure"])]
     #[doc = "Reason the encounter takes place, as specified using information from another resource. For admissions, this is the admission diagnosis. The indication will typically be a Condition (with other resources referenced in the evidence.detail), or a Procedure."]
     pub condition: Box<Reference>,
     #[rename_field = "use"]
@@ -9222,7 +9222,7 @@ pub struct EncounterHospitalization {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Pre-admission identifier."]
     pub preAdmissionIdentifier: Option<Box<Identifier>>,
-    # [reference (target_profiles = ["Location" , "Organization"])]
+    # [reference (targets = ["Location" , "Organization"])]
     #[doc = "The location/organization from which the patient came before admission."]
     pub origin: Option<Box<Reference>>,
     #[doc = "From where patient was admitted (physician referral, transfer)."]
@@ -9235,7 +9235,7 @@ pub struct EncounterHospitalization {
     pub specialCourtesy: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Any special requests that have been made for this hospitalization encounter, such as the provision of specific equipment or other things."]
     pub specialArrangement: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Location" , "Organization"])]
+    # [reference (targets = ["Location" , "Organization"])]
     #[doc = "Location/organization to which the patient is discharged."]
     pub destination: Option<Box<Reference>>,
     #[doc = "Category or kind of location after discharge."]
@@ -9258,7 +9258,7 @@ pub struct EncounterLocation {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The location where the encounter takes place."]
     pub location: Box<Reference>,
     #[primitive]
@@ -9317,18 +9317,18 @@ pub struct Encounter {
     pub serviceType: Option<Box<CodeableConcept>>,
     #[doc = "Indicates the urgency of the encounter."]
     pub priority: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient or group present at the encounter."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["EpisodeOfCare"])]
+    # [reference (targets = ["EpisodeOfCare"])]
     #[doc = "Where a specific encounter should be classified as a part of a specific episode(s) of care this field should be used. This association can facilitate grouping of related encounters together for a specific purpose, such as government reporting, issue tracking, association via a common problem.  The association is recorded on the encounter as these are typically created after the episode of care and grouped on entry rather than editing the episode of care to append another encounter to it (the episode of care could span years)."]
     pub episodeOfCare: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "The request this encounter satisfies (e.g. incoming referral or procedure request)."]
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[doc = "The list of people responsible for providing the service."]
     pub participant: Option<Vec<EncounterParticipant>>,
-    # [reference (target_profiles = ["Appointment"])]
+    # [reference (targets = ["Appointment"])]
     #[doc = "The appointment that scheduled this encounter."]
     pub appointment: Option<Vec<Box<Reference>>>,
     #[doc = "The start and end time of the encounter."]
@@ -9337,22 +9337,22 @@ pub struct Encounter {
     pub length: Option<Box<Duration>>,
     #[doc = "Reason the encounter takes place, expressed as a code. For admissions, this can be used for a coded admission diagnosis."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Procedure" , "Observation" , "ImmunizationRecommendation"])]
+    # [reference (targets = ["Condition" , "Procedure" , "Observation" , "ImmunizationRecommendation"])]
     #[doc = "Reason the encounter takes place, expressed as a code. For admissions, this can be used for a coded admission diagnosis."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "The list of diagnosis relevant to this encounter."]
     pub diagnosis: Option<Vec<EncounterDiagnosis>>,
-    # [reference (target_profiles = ["Account"])]
+    # [reference (targets = ["Account"])]
     #[doc = "The set of accounts that may be used for billing for this Encounter."]
     pub account: Option<Vec<Box<Reference>>>,
     #[doc = "Details about the admission to a healthcare service."]
     pub hospitalization: Option<EncounterHospitalization>,
     #[doc = "List of locations where  the patient has been during this encounter."]
     pub location: Option<Vec<EncounterLocation>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed seperately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy."]
     pub serviceProvider: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "Another Encounter of which this encounter is a part of (administratively or in time)."]
     pub partOf: Option<Box<Reference>>,
 }
@@ -9396,7 +9396,7 @@ pub struct Endpoint {
     #[primitive]
     #[doc = "A friendly name that this endpoint can be referred to with."]
     pub name: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization that manages this endpoint (even if technically another organization is hosting this in the cloud, it is the organization associated with the data)."]
     pub managingOrganization: Option<Box<Reference>>,
     #[doc = "Contact details for a human to contact about the subscription. The primary use of this for system administrator troubleshooting."]
@@ -9454,16 +9454,16 @@ pub struct EnrollmentRequest {
     #[primitive]
     #[doc = "The date when this resource was created."]
     pub created: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The Insurer who is target  of the request."]
     pub insurer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The practitioner who is responsible for the services rendered to the patient."]
     pub provider: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "Patient Resource."]
     pub candidate: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the program or plan identification, underwriter or payor."]
     pub coverage: Option<Box<Reference>>,
 }
@@ -9502,7 +9502,7 @@ pub struct EnrollmentResponse {
     #[primitive]
     #[doc = "The status of the resource instance."]
     pub status: Option<Box<terminology::FmStatus>>,
-    # [reference (target_profiles = ["EnrollmentRequest"])]
+    # [reference (targets = ["EnrollmentRequest"])]
     #[doc = "Original request resource reference."]
     pub request: Option<Box<Reference>>,
     #[primitive]
@@ -9514,10 +9514,10 @@ pub struct EnrollmentResponse {
     #[primitive]
     #[doc = "The date when the enclosed suite of services were performed or completed."]
     pub created: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The Insurer who produced this adjudicated response."]
     pub organization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The practitioner who is responsible for the services rendered to the patient."]
     pub requestProvider: Option<Box<Reference>>,
 }
@@ -9561,7 +9561,7 @@ pub struct EpisodeOfCareDiagnosis {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     #[doc = "A list of conditions/problems/diagnoses that this episode of care is intended to be providing care for."]
     pub condition: Box<Reference>,
     #[doc = "Role that this diagnosis has within the episode of care (e.g. admission, billing, discharge …)."]
@@ -9612,24 +9612,24 @@ pub struct EpisodeOfCare {
     pub type_: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The list of diagnosis relevant to this episode of care."]
     pub diagnosis: Option<Vec<EpisodeOfCareDiagnosis>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient who is the focus of this episode of care."]
     pub patient: Box<Reference>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization that has assumed the specific responsibilities for the specified duration."]
     pub managingOrganization: Option<Box<Reference>>,
     #[doc = "The interval during which the managing organization assumes the defined responsibility."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "Referral Request(s) that are fulfilled by this EpisodeOfCare, incoming referrals."]
     pub referralRequest: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The practitioner that is the care manager/care coordinator for this patient."]
     pub careManager: Option<Box<Reference>>,
-    # [reference (target_profiles = ["CareTeam"])]
+    # [reference (targets = ["CareTeam"])]
     #[doc = "The list of practitioners that may be facilitating this episode of care for specific purposes."]
     pub team: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Account"])]
+    # [reference (targets = ["Account"])]
     #[doc = "The set of accounts that may be used for billing for this EpisodeOfCare."]
     pub account: Option<Vec<Box<Reference>>>,
 }
@@ -9644,7 +9644,7 @@ pub struct EpisodeOfCare {
 #[type_choice_field_name = "subject"]
 pub enum EventDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for EventDefinitionSubjectTypeChoice {
@@ -9849,13 +9849,13 @@ pub struct Evidence {
     pub endorser: Option<Vec<Box<ContactDetail>>>,
     #[doc = "Related artifacts such as additional documentation, justification, or bibliographic references."]
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the population for the research."]
     pub exposureBackground: Box<Reference>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the exposure for the research."]
     pub exposureVariant: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resomece that defines the outcome for the research."]
     pub outcome: Option<Vec<Box<Reference>>>,
 }
@@ -9869,7 +9869,7 @@ pub struct Evidence {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
 pub enum EvidenceVariableCharacteristicDefinitionTypeChoice {
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
     Canonical(Box<FHIRString>),
     CodeableConcept(Box<CodeableConcept>),
@@ -10379,7 +10379,7 @@ pub struct ExplanationOfBenefitRelated {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Claim"])]
+    # [reference (targets = ["Claim"])]
     #[doc = "Reference to a related claim."]
     pub claim: Option<Box<Reference>>,
     #[doc = "A code to convey how the claims are related."]
@@ -10407,7 +10407,7 @@ pub struct ExplanationOfBenefitPayee {
     #[rename_field = "type"]
     #[doc = "Type of Party to be reimbursed: Subscriber, provider, other."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson"])]
     #[doc = "Reference to the individual or organization to whom any payment will be made."]
     pub party: Option<Box<Reference>>,
 }
@@ -10431,7 +10431,7 @@ pub struct ExplanationOfBenefitCareTeam {
     #[primitive]
     #[doc = "A number to uniquely identify care team entries."]
     pub sequence: Box<FHIRPositiveInt>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Member of the team who provided the product or service."]
     pub provider: Box<Reference>,
     #[primitive]
@@ -10474,7 +10474,7 @@ pub enum ExplanationOfBenefitSupportingInfoValueTypeChoice {
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
     Attachment(Box<Attachment>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitSupportingInfoValueTypeChoice {
@@ -10526,7 +10526,7 @@ pub struct ExplanationOfBenefitSupportingInfo {
 #[type_choice_field_name = "diagnosis"]
 pub enum ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
@@ -10578,7 +10578,7 @@ pub struct ExplanationOfBenefitDiagnosis {
 #[type_choice_field_name = "procedure"]
 pub enum ExplanationOfBenefitProcedureProcedureTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Procedure"])]
+    # [reference (targets = ["Procedure"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitProcedureProcedureTypeChoice {
@@ -10617,7 +10617,7 @@ pub struct ExplanationOfBenefitProcedure {
     # [type_choice_variants (complex = ["procedureCodeableConcept" , "procedureReference"] , primitive = [])]
     #[doc = "The code or reference to a Procedure resource which identifies the clinical intervention performed."]
     pub procedure: ExplanationOfBenefitProcedureProcedureTypeChoice,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
 }
@@ -10641,7 +10641,7 @@ pub struct ExplanationOfBenefitInsurance {
     #[primitive]
     #[doc = "A flag to indicate that this Coverage is to be used for adjudication of this claim when set to true."]
     pub focal: Box<FHIRBoolean>,
-    # [reference (target_profiles = ["Coverage"])]
+    # [reference (targets = ["Coverage"])]
     #[doc = "Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system."]
     pub coverage: Box<Reference>,
     #[primitive]
@@ -10659,7 +10659,7 @@ pub struct ExplanationOfBenefitInsurance {
 #[type_choice_field_name = "location"]
 pub enum ExplanationOfBenefitAccidentLocationTypeChoice {
     Address(Box<Address>),
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitAccidentLocationTypeChoice {
@@ -10724,7 +10724,7 @@ impl Default for ExplanationOfBenefitItemServicedTypeChoice {
 pub enum ExplanationOfBenefitItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitItemLocationTypeChoice {
@@ -10798,7 +10798,7 @@ pub struct ExplanationOfBenefitItemDetailSubDetail {
     pub factor: Option<Box<FHIRDecimal>>,
     #[doc = "The quantity times the unit price for an additional service or product or charge."]
     pub net: Option<Box<Money>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -10846,7 +10846,7 @@ pub struct ExplanationOfBenefitItemDetail {
     pub factor: Option<Box<FHIRDecimal>>,
     #[doc = "The quantity times the unit price for an additional service or product or charge."]
     pub net: Option<Box<Money>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -10914,14 +10914,14 @@ pub struct ExplanationOfBenefitItem {
     pub factor: Option<Box<FHIRDecimal>>,
     #[doc = "The quantity times the unit price for an additional service or product or charge."]
     pub net: Option<Box<Money>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Unique Device Identifiers associated with this line item."]
     pub udi: Option<Vec<Box<Reference>>>,
     #[doc = "Physical service site on the patient (limb, tooth, etc.)."]
     pub bodySite: Option<Box<CodeableConcept>>,
     #[doc = "A region or surface of the bodySite, e.g. limb region or tooth surface(s)."]
     pub subSite: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "A billed item may include goods or services provided in multiple encounters."]
     pub encounter: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -10962,7 +10962,7 @@ impl Default for ExplanationOfBenefitAddItemServicedTypeChoice {
 pub enum ExplanationOfBenefitAddItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitAddItemLocationTypeChoice {
@@ -11070,7 +11070,7 @@ pub struct ExplanationOfBenefitAddItem {
     #[primitive]
     #[doc = "The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace."]
     pub subDetailSequence: Option<Vec<Box<FHIRPositiveInt>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The providers who are authorized for the services rendered to the patient."]
     pub provider: Option<Vec<Box<Reference>>>,
     #[doc = "When the value is a group code then this item collects a set of related claim details, otherwise this contains the product, service, drug or other billing code for the item."]
@@ -11340,7 +11340,7 @@ pub struct ExplanationOfBenefit {
     #[primitive]
     #[doc = "A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future."]
     pub use_: Box<terminology::ClaimUse>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The party to whom the professional services and/or products have been supplied or are being considered and for whom actual for forecast reimbursement is sought."]
     pub patient: Box<Reference>,
     #[doc = "The period for which charges are being submitted."]
@@ -11348,13 +11348,13 @@ pub struct ExplanationOfBenefit {
     #[primitive]
     #[doc = "The date this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Individual who created the claim, predetermination or preauthorization."]
     pub enterer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The party responsible for authorization, adjudication and reimbursement."]
     pub insurer: Box<Reference>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The provider which is responsible for the claim, predetermination or preauthorization."]
     pub provider: Box<Reference>,
     #[doc = "The provider-required urgency of processing the request. Typical values include: stat, routine deferred."]
@@ -11365,24 +11365,24 @@ pub struct ExplanationOfBenefit {
     pub fundsReserve: Option<Box<CodeableConcept>>,
     #[doc = "Other claims which are related to this claim such as prior submissions or claims for related services or for the same event."]
     pub related: Option<Vec<ExplanationOfBenefitRelated>>,
-    # [reference (target_profiles = ["MedicationRequest" , "VisionPrescription"])]
+    # [reference (targets = ["MedicationRequest" , "VisionPrescription"])]
     #[doc = "Prescription to support the dispensing of pharmacy, device or vision products."]
     pub prescription: Option<Box<Reference>>,
-    # [reference (target_profiles = ["MedicationRequest"])]
+    # [reference (targets = ["MedicationRequest"])]
     #[doc = "Original prescription which has been superseded by this prescription to support the dispensing of pharmacy services, medications or products."]
     pub originalPrescription: Option<Box<Reference>>,
     #[doc = "The party to be reimbursed for cost of the products and services according to the terms of the policy."]
     pub payee: Option<ExplanationOfBenefitPayee>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "A reference to a referral resource."]
     pub referral: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Facility where the services were provided."]
     pub facility: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Claim"])]
+    # [reference (targets = ["Claim"])]
     #[doc = "The business identifier for the instance of the adjudication request: claim predetermination or preauthorization."]
     pub claim: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ClaimResponse"])]
+    # [reference (targets = ["ClaimResponse"])]
     #[doc = "The business identifier for the instance of the adjudication response: claim, predetermination or preauthorization response."]
     pub claimResponse: Option<Box<Reference>>,
     #[primitive]
@@ -11585,7 +11585,7 @@ pub struct FamilyMemberHistory {
     pub status: Box<terminology::HistoryStatus>,
     #[doc = "Describes why the family member's history is not available."]
     pub dataAbsentReason: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The person who this history concerns."]
     pub patient: Box<Reference>,
     #[primitive]
@@ -11612,7 +11612,7 @@ pub struct FamilyMemberHistory {
     pub deceased: Option<FamilyMemberHistoryDeceasedTypeChoice>,
     #[doc = "Describes why the family member history occurred in coded or textual form."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "AllergyIntolerance" , "QuestionnaireResponse" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "AllergyIntolerance" , "QuestionnaireResponse" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates a Condition, Observation, AllergyIntolerance, or QuestionnaireResponse that justifies this family member history event."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "This property allows a non condition-specific note to the made about the related person. Ideally, the note would be in the condition property, but this is not always possible."]
@@ -11659,15 +11659,15 @@ pub struct Flag {
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The coded value or textual component of the flag to display to the user."]
     pub code: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Patient" , "Location" , "Group" , "Organization" , "Practitioner" , "PlanDefinition" , "Medication" , "Procedure"])]
+    # [reference (targets = ["Patient" , "Location" , "Group" , "Organization" , "Practitioner" , "PlanDefinition" , "Medication" , "Procedure"])]
     #[doc = "The patient, location, group, organization, or practitioner etc. this is about record this flag is associated with."]
     pub subject: Box<Reference>,
     #[doc = "The period of time from the activation of the flag to inactivation of the flag. If the flag is active, the end of the period should be unspecified."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "This alert is only relevant during the encounter."]
     pub encounter: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole"])]
     #[doc = "The person, organization or device that created the flag."]
     pub author: Option<Box<Reference>>,
 }
@@ -11799,7 +11799,7 @@ pub struct Goal {
     pub priority: Option<Box<CodeableConcept>>,
     #[doc = "Human-readable and/or coded description of a specific desired objective of care, such as \"control blood pressure\" or \"negotiate an obstacle course\" or \"dance with child at wedding\"."]
     pub description: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Organization"])]
+    # [reference (targets = ["Patient" , "Group" , "Organization"])]
     #[doc = "Identifies the patient, group or organization for whom the goal is being established."]
     pub subject: Box<Reference>,
     # [type_choice_variants (complex = ["startCodeableConcept"] , primitive = ["startDate"])]
@@ -11813,17 +11813,17 @@ pub struct Goal {
     #[primitive]
     #[doc = "Captures the reason for the current status."]
     pub statusReason: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "Indicates whose goal this is - patient goal, practitioner goal, etc."]
     pub expressedBy: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "MedicationStatement" , "NutritionOrder" , "ServiceRequest" , "RiskAssessment"])]
+    # [reference (targets = ["Condition" , "Observation" , "MedicationStatement" , "NutritionOrder" , "ServiceRequest" , "RiskAssessment"])]
     #[doc = "The identified conditions and other health record elements that are intended to be addressed by the goal."]
     pub addresses: Option<Vec<Box<Reference>>>,
     #[doc = "Any comments related to the goal."]
     pub note: Option<Vec<Box<Annotation>>>,
     #[doc = "Identifies the change (or lack of change) at the point when the status of the goal is assessed."]
     pub outcomeCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Observation"])]
+    # [reference (targets = ["Observation"])]
     #[doc = "Details of what's changed (or not changed)."]
     pub outcomeReference: Option<Vec<Box<Reference>>>,
 }
@@ -12065,7 +12065,7 @@ pub struct GroupMember {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "Device" , "Medication" , "Substance" , "Group"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Device" , "Medication" , "Substance" , "Group"])]
     #[doc = "A reference to the entity that is a member of the group. Must be consistent with Group.type. If the entity is another group, then the type must be the same."]
     pub entity: Box<Reference>,
     #[doc = "The period that the member was in the group, if known."]
@@ -12124,7 +12124,7 @@ pub struct Group {
     #[primitive]
     #[doc = "A count of the number of resource instances that are part of the group."]
     pub quantity: Option<Box<FHIRUnsignedInt>>,
-    # [reference (target_profiles = ["Organization" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Organization" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
     #[doc = "Entity responsible for defining and maintaining Group characteristics and/or registered members."]
     pub managingEntity: Option<Box<Reference>>,
     #[doc = "Identifies traits whose presence r absence is shared by members of the group."]
@@ -12191,32 +12191,32 @@ pub struct GuidanceResponse {
     #[primitive]
     #[doc = "The status of the response. If the evaluation is completed successfully, the status will indicate success. However, in order to complete the evaluation, the engine may require more information. In this case, the status will be data-required, and the response will contain a description of the additional required information. If the evaluation completed successfully, but the engine determines that a potentially more accurate response could be provided if more data was available, the status will be data-requested, and the response will contain a description of the additional requested information."]
     pub status: Box<terminology::GuidanceResponseStatus>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient for which the request was processed."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The encounter during which this response was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Indicates when the guidance response was processed."]
     pub occurrenceDateTime: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Provides a reference to the device that performed the guidance."]
     pub performer: Option<Box<Reference>>,
     #[doc = "Describes the reason for the guidance response in coded or textual form."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates the reason the request was initiated. This is typically provided as a parameter to the evaluation and echoed by the service, although for some use cases, such as subscription- or event-based scenarios, it may provide an indication of the cause for the response."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Provides a mechanism to communicate additional information about the response."]
     pub note: Option<Vec<Box<Annotation>>>,
-    # [reference (target_profiles = ["OperationOutcome"])]
+    # [reference (targets = ["OperationOutcome"])]
     #[doc = "Messages resulting from the evaluation of the artifact or artifacts. As part of evaluating the request, the engine may produce informational or warning messages. These messages will be provided by this element."]
     pub evaluationMessage: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Parameters"])]
+    # [reference (targets = ["Parameters"])]
     #[doc = "The output parameters of the evaluation, if any. Many modules will result in the return of specific resources such as procedure or communication requests that are returned as part of the operation result. However, modules may define specific outputs that would be returned as the result of the evaluation, and these would be returned in this element."]
     pub outputParameters: Option<Box<Reference>>,
-    # [reference (target_profiles = ["CarePlan" , "RequestGroup"])]
+    # [reference (targets = ["CarePlan" , "RequestGroup"])]
     #[doc = "The actions, if any, produced by the evaluation of the artifact."]
     pub result: Option<Box<Reference>>,
     #[doc = "If the evaluation could not be completed due to lack of information, or additional information would potentially result in a more accurate response, this element will a description of the data required in order to proceed with the evaluation. A subsequent request to the service should include this data."]
@@ -12333,7 +12333,7 @@ pub struct HealthcareService {
     #[primitive]
     #[doc = "This flag is used to mark the record to not be used. This is not used when a center is closed for maintenance, or for holidays, the notAvailable period is to be used for this."]
     pub active: Option<Box<FHIRBoolean>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization that provides this healthcare service."]
     pub providedBy: Option<Box<Reference>>,
     #[doc = "Identifies the broad category of service being performed or delivered."]
@@ -12343,7 +12343,7 @@ pub struct HealthcareService {
     pub type_: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Collection of specialties handled by the service site. This is more of a medical term."]
     pub specialty: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The location(s) where this healthcare service may be provided."]
     pub location: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -12359,7 +12359,7 @@ pub struct HealthcareService {
     pub photo: Option<Box<Attachment>>,
     #[doc = "List of contacts related to this specific healthcare service."]
     pub telecom: Option<Vec<Box<ContactPoint>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The location(s) that this service is available to (not where the service is provided)."]
     pub coverageArea: Option<Vec<Box<Reference>>>,
     #[doc = "The code(s) that detail the conditions under which the healthcare service is available/offered."]
@@ -12384,7 +12384,7 @@ pub struct HealthcareService {
     #[primitive]
     #[doc = "A description of site availability exceptions, e.g. public holiday availability. Succinctly describing all possible exceptions to normal site availability as details in the available Times and not available Times."]
     pub availabilityExceptions: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the specific healthcare services defined at this resource."]
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
@@ -12407,7 +12407,7 @@ pub struct ImagingStudySeriesPerformer {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Distinguishes the type of involvement of the performer in the series."]
     pub function: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "Indicates who or what performed the series."]
     pub actor: Box<Reference>,
 }
@@ -12471,14 +12471,14 @@ pub struct ImagingStudySeries {
     #[primitive]
     #[doc = "Number of SOP Instances in the Study. The value given may be larger than the number of instance elements this resource contains due to resource availability, security, or other factors. This element should be present if any instance elements are present."]
     pub numberOfInstances: Option<Box<FHIRUnsignedInt>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "The network service providing access (e.g., query, view, or retrieval) for this series. See implementation notes for information about using DICOM endpoints. A series-level endpoint, if present, has precedence over a study-level endpoint with the same Endpoint.connectionType."]
     pub endpoint: Option<Vec<Box<Reference>>>,
     #[doc = "The anatomic structures examined. See DICOM Part 16 Annex L (http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality."]
     pub bodySite: Option<Box<Coding>>,
     #[doc = "The laterality of the (possibly paired) anatomic structures examined. E.g., the left knee, both lungs, or unpaired abdomen. If present, shall be consistent with any laterality information indicated in ImagingStudy.series.bodySite."]
     pub laterality: Option<Box<Coding>>,
-    # [reference (target_profiles = ["Specimen"])]
+    # [reference (targets = ["Specimen"])]
     #[doc = "The specimen imaged, e.g., for whole slide imaging of a biopsy."]
     pub specimen: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -12526,25 +12526,25 @@ pub struct ImagingStudy {
     pub status: Box<terminology::ImagingstudyStatus>,
     #[doc = "A list of all the series.modality values that are actual acquisition modalities, i.e. those in the DICOM Context Group 29 (value set OID 1.2.840.10008.6.1.19)."]
     pub modality: Option<Vec<Box<Coding>>>,
-    # [reference (target_profiles = ["Patient" , "Device" , "Group"])]
+    # [reference (targets = ["Patient" , "Device" , "Group"])]
     #[doc = "The subject, typically a patient, of the imaging study."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The healthcare event (e.g. a patient and healthcare provider interaction) during which this ImagingStudy is made."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Date and time the study started."]
     pub started: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["CarePlan" , "ServiceRequest" , "Appointment" , "AppointmentResponse" , "Task"])]
+    # [reference (targets = ["CarePlan" , "ServiceRequest" , "Appointment" , "AppointmentResponse" , "Task"])]
     #[doc = "A list of the diagnostic requests that resulted in this imaging study being performed."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The requesting/referring physician."]
     pub referrer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Who read the study and interpreted the images or other content."]
     pub interpreter: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "The network service providing access (e.g., query, view, or retrieval) for the study. See implementation notes for information about using DICOM endpoints. A study-level endpoint applies to each series in the study, unless overridden by a series-level endpoint with the same Endpoint.connectionType."]
     pub endpoint: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -12553,17 +12553,17 @@ pub struct ImagingStudy {
     #[primitive]
     #[doc = "Number of SOP Instances in Study. This value given may be larger than the number of instance elements this resource contains due to resource availability, security, or other factors. This element should be present if any instance elements are present."]
     pub numberOfInstances: Option<Box<FHIRUnsignedInt>>,
-    # [reference (target_profiles = ["Procedure"])]
+    # [reference (targets = ["Procedure"])]
     #[doc = "The procedure which this ImagingStudy was part of."]
     pub procedureReference: Option<Box<Reference>>,
     #[doc = "The code for the performed procedure type."]
     pub procedureCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The principal physical location where the ImagingStudy was performed."]
     pub location: Option<Box<Reference>>,
     #[doc = "Description of clinical condition indicating why the ImagingStudy was requested."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "Media" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "Media" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates another resource whose existence justifies this Study."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Per the recommended DICOM mapping, this element is derived from the Study Description attribute (0008,1030). Observations or findings about the imaging study should be recorded in another resource, e.g. Observation, and not in this element."]
@@ -12611,7 +12611,7 @@ pub struct ImmunizationPerformer {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Describes the type of performance (e.g. ordering provider, administering provider, etc.)."]
     pub function: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The practitioner or organization who performed the action."]
     pub actor: Box<Reference>,
 }
@@ -12665,7 +12665,7 @@ pub struct ImmunizationReaction {
     #[primitive]
     #[doc = "Date of reaction to the immunization."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Observation"])]
+    # [reference (targets = ["Observation"])]
     #[doc = "Details of the reaction."]
     pub detail: Option<Box<Reference>>,
     #[primitive]
@@ -12728,7 +12728,7 @@ pub struct ImmunizationProtocolApplied {
     #[primitive]
     #[doc = "One possible path to achieve presumed immunity against a disease - within the context of an authority."]
     pub series: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Indicates the authority who published the protocol (e.g. ACIP) that is being followed."]
     pub authority: Option<Box<Reference>>,
     #[doc = "The vaccine preventable disease the dose is being administered against."]
@@ -12779,10 +12779,10 @@ pub struct Immunization {
     pub statusReason: Option<Box<CodeableConcept>>,
     #[doc = "Vaccine that was administered or was to be administered."]
     pub vaccineCode: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient who either received or did not receive the immunization."]
     pub patient: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The visit or admission or other contact between patient and health care provider the immunization was performed as part of."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = [] , primitive = ["occurrenceDateTime" , "occurrenceString"])]
@@ -12796,10 +12796,10 @@ pub struct Immunization {
     pub primarySource: Option<Box<FHIRBoolean>>,
     #[doc = "The source of the data when the report of the immunization event is not based on information from the person who administered the vaccine."]
     pub reportOrigin: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The service delivery location where the vaccine administration occurred."]
     pub location: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Name of vaccine manufacturer."]
     pub manufacturer: Option<Box<Reference>>,
     #[primitive]
@@ -12820,7 +12820,7 @@ pub struct Immunization {
     pub note: Option<Vec<Box<Annotation>>>,
     #[doc = "Reasons why the vaccine was administered."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport"])]
     #[doc = "Condition, Observation or DiagnosticReport that supports why the immunization was administered."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -12910,18 +12910,18 @@ pub struct ImmunizationEvaluation {
     #[primitive]
     #[doc = "Indicates the current status of the evaluation of the vaccination administration event."]
     pub status: Box<terminology::ImmunizationEvaluationStatus>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The individual for whom the evaluation is being done."]
     pub patient: Box<Reference>,
     #[primitive]
     #[doc = "The date the evaluation of the vaccine administration event was performed."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Indicates the authority who published the protocol (e.g. ACIP)."]
     pub authority: Option<Box<Reference>>,
     #[doc = "The vaccine preventable disease the dose is being evaluated against."]
     pub targetDisease: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Immunization"])]
+    # [reference (targets = ["Immunization"])]
     #[doc = "The vaccine administration event being evaluated."]
     pub immunizationEvent: Box<Reference>,
     #[doc = "Indicates if the dose is valid or not valid with respect to the published recommendations."]
@@ -13045,10 +13045,10 @@ pub struct ImmunizationRecommendationRecommendation {
     # [type_choice_variants (complex = [] , primitive = ["seriesDosesPositiveInt" , "seriesDosesString"])]
     #[doc = "The recommended number of doses to achieve immunity."]
     pub seriesDoses: Option<ImmunizationRecommendationRecommendationSeriesDosesTypeChoice>,
-    # [reference (target_profiles = ["Immunization" , "ImmunizationEvaluation"])]
+    # [reference (targets = ["Immunization" , "ImmunizationEvaluation"])]
     #[doc = "Immunization event history and/or evaluation that supports the status and recommendation."]
     pub supportingImmunization: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Patient Information that supports the status and recommendation.  This includes patient observations, adverse reactions and allergy/intolerance information."]
     pub supportingPatientInformation: Option<Vec<Box<Reference>>>,
 }
@@ -13084,13 +13084,13 @@ pub struct ImmunizationRecommendation {
     #[rename_field = "identifier"]
     #[doc = "A unique identifier assigned to this particular recommendation record."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient the recommendation(s) are for."]
     pub patient: Box<Reference>,
     #[primitive]
     #[doc = "The date the immunization recommendation(s) were created."]
     pub date: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Indicates the authority who published the protocol (e.g. ACIP)."]
     pub authority: Option<Box<Reference>>,
     #[cardinality(min = 1usize)]
@@ -13210,7 +13210,7 @@ pub struct ImplementationGuideDefinitionResource {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Where this resource is found."]
     pub reference: Box<Reference>,
     #[primitive]
@@ -13240,7 +13240,7 @@ pub struct ImplementationGuideDefinitionResource {
 #[type_choice_field_name = "name"]
 pub enum ImplementationGuideDefinitionPageNameTypeChoice {
     Url(Box<FHIRUrl>),
-    # [reference (target_profiles = ["Binary"])]
+    # [reference (targets = ["Binary"])]
     Reference(Box<Reference>),
 }
 impl Default for ImplementationGuideDefinitionPageNameTypeChoice {
@@ -13392,7 +13392,7 @@ pub struct ImplementationGuideManifestResource {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Where this resource is found."]
     pub reference: Box<Reference>,
     # [type_choice_variants (complex = [] , primitive = ["exampleBoolean" , "exampleCanonical"])]
@@ -13639,7 +13639,7 @@ pub struct InsurancePlanCoverage {
     #[rename_field = "type"]
     #[doc = "Type of coverage  (Medical; Dental; Mental Health; Substance Abuse; Vision; Drug; Short Term; Long Term Care; Hospice; Home Health)."]
     pub type_: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Reference to the network that providing the type of coverage."]
     pub network: Option<Vec<Box<Reference>>>,
     #[cardinality(min = 1usize)]
@@ -13770,10 +13770,10 @@ pub struct InsurancePlanPlan {
     #[rename_field = "type"]
     #[doc = "Type of plan. For example, \"Platinum\" or \"High Deductable\"."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The geographic region in which a health insurance plan's benefits apply."]
     pub coverageArea: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Reference to the network that providing the type of coverage."]
     pub network: Option<Vec<Box<Reference>>>,
     #[doc = "Overall costs associated with the plan."]
@@ -13827,21 +13827,21 @@ pub struct InsurancePlan {
     pub alias: Option<Vec<Box<FHIRString>>>,
     #[doc = "The period of time that the health insurance product is available."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'."]
     pub ownedBy: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "An organization which administer other services such as underwriting, customer service and/or claims processing on behalf of the health insurance product owner."]
     pub administeredBy: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The geographic region in which a health insurance product's benefits apply."]
     pub coverageArea: Option<Vec<Box<Reference>>>,
     #[doc = "The contact for the health insurance product for a certain purpose."]
     pub contact: Option<Vec<InsurancePlanContact>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "The technical endpoints providing access to services operated for the health insurance product."]
     pub endpoint: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Reference to the network included in the health insurance product."]
     pub network: Option<Vec<Box<Reference>>>,
     #[doc = "Details about the coverage offered by the insurance product."]
@@ -13868,7 +13868,7 @@ pub struct InvoiceParticipant {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Describes the type of involvement (e.g. transcriptionist, creator etc.). If the invoice has been created automatically, the Participant may be a billing engine or another kind of device."]
     pub role: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "Organization" , "Patient" , "PractitionerRole" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "Organization" , "Patient" , "PractitionerRole" , "Device" , "RelatedPerson"])]
     #[doc = "The device, practitioner, etc. who performed or participated in the service."]
     pub actor: Box<Reference>,
 }
@@ -13882,7 +13882,7 @@ pub struct InvoiceParticipant {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "chargeItem"]
 pub enum InvoiceLineItemChargeItemTypeChoice {
-    # [reference (target_profiles = ["ChargeItem"])]
+    # [reference (targets = ["ChargeItem"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -13987,10 +13987,10 @@ pub struct Invoice {
     #[rename_field = "type"]
     #[doc = "Type of Invoice depending on domain, realm an usage (e.g. internal/external, dental, preliminary)."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The individual or set of individuals receiving the goods and services billed in this invoice."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Organization" , "Patient" , "RelatedPerson"])]
     #[doc = "The individual or Organization responsible for balancing of this invoice."]
     pub recipient: Option<Box<Reference>>,
     #[primitive]
@@ -13998,10 +13998,10 @@ pub struct Invoice {
     pub date: Option<Box<FHIRDateTime>>,
     #[doc = "Indicates who or what performed or participated in the charged service."]
     pub participant: Option<Vec<InvoiceParticipant>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organizationissuing the Invoice."]
     pub issuer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Account"])]
+    # [reference (targets = ["Account"])]
     #[doc = "Account which is supposed to be balanced with this Invoice."]
     pub account: Option<Box<Reference>>,
     #[doc = "Each line item represents one charge for goods and services rendered. Details such as date, code and amount are found in the referenced ChargeItem resource."]
@@ -14029,7 +14029,7 @@ pub struct Invoice {
 #[type_choice_field_name = "subject"]
 pub enum LibrarySubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for LibrarySubjectTypeChoice {
@@ -14168,7 +14168,7 @@ pub struct LinkageItem {
     #[primitive]
     #[doc = "Distinguishes which item is \"source of truth\" (if any) and which items are no longer considered to be current representations."]
     pub type_: Box<terminology::LinkageType>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The resource instance being linked as part of the group."]
     pub resource: Box<Reference>,
 }
@@ -14204,7 +14204,7 @@ pub struct Linkage {
     #[primitive]
     #[doc = "Indicates whether the asserted set of linkages are considered to be \"in effect\"."]
     pub active: Option<Box<FHIRBoolean>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Identifies the user or organization responsible for asserting the linkages as well as the user or organization who establishes the context in which the nature of each linkage is evaluated."]
     pub author: Option<Box<Reference>>,
     #[cardinality(min = 1usize)]
@@ -14236,7 +14236,7 @@ pub struct ListEntry {
     #[primitive]
     #[doc = "When this item was added to the list."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A reference to the actual resource from which data was derived."]
     pub item: Box<Reference>,
 }
@@ -14283,16 +14283,16 @@ pub struct List {
     pub title: Option<Box<FHIRString>>,
     #[doc = "This code defines the purpose of the list - why it was created."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Device" , "Location"])]
+    # [reference (targets = ["Patient" , "Group" , "Device" , "Location"])]
     #[doc = "The common subject (or patient) of the resources that are in the list if there is one."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The encounter that is the context in which this list was created."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date that the list was prepared."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Patient" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Patient" , "Device"])]
     #[doc = "The entity responsible for deciding what the contents of the list were. Where the list was created by a human, this is the same as the author of the list."]
     pub source: Option<Box<Reference>>,
     #[doc = "What order applies to the items in the list."]
@@ -14421,10 +14421,10 @@ pub struct Location {
     pub physicalType: Option<Box<CodeableConcept>>,
     #[doc = "The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same co-ordinate system used in KML)."]
     pub position: Option<LocationPosition>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization responsible for the provisioning and upkeep of the location."]
     pub managingOrganization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Another Location of which this Location is physically a part of."]
     pub partOf: Option<Box<Reference>>,
     #[doc = "What days/times during a week is this location usually open."]
@@ -14432,7 +14432,7 @@ pub struct Location {
     #[primitive]
     #[doc = "A description of when the locations opening ours are different to normal, e.g. public holiday availability. Succinctly describing all possible exceptions to normal site availability as detailed in the opening hours Times."]
     pub availabilityExceptions: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the location."]
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
@@ -14447,7 +14447,7 @@ pub struct Location {
 #[type_choice_field_name = "subject"]
 pub enum MeasureSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for MeasureSubjectTypeChoice {
@@ -14746,7 +14746,7 @@ pub struct MeasureReportGroupPopulation {
     #[primitive]
     #[doc = "The number of members of the population."]
     pub count: Option<Box<FHIRInteger>>,
-    # [reference (target_profiles = ["List"])]
+    # [reference (targets = ["List"])]
     #[doc = "This element refers to a List of subject level MeasureReport resources, one for each subject in this population."]
     pub subjectResults: Option<Box<Reference>>,
 }
@@ -14794,7 +14794,7 @@ pub struct MeasureReportGroupStratifierStratumPopulation {
     #[primitive]
     #[doc = "The number of members of the population in this stratum."]
     pub count: Option<Box<FHIRInteger>>,
-    # [reference (target_profiles = ["List"])]
+    # [reference (targets = ["List"])]
     #[doc = "This element refers to a List of subject level MeasureReport resources, one for each subject in this population in this stratum."]
     pub subjectResults: Option<Box<Reference>>,
 }
@@ -14914,13 +14914,13 @@ pub struct MeasureReport {
     #[primitive]
     #[doc = "A reference to the Measure that was calculated to produce this report."]
     pub measure: Box<FHIRString>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "Location" , "Device" , "RelatedPerson" , "Group"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Location" , "Device" , "RelatedPerson" , "Group"])]
     #[doc = "Optional subject identifying the individual or individuals the report is for."]
     pub subject: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date this measure report was generated."]
     pub date: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Location" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Location" , "Organization"])]
     #[doc = "The individual, location, or organization that is reporting the data."]
     pub reporter: Option<Box<Reference>>,
     #[doc = "The reporting period for which the report was calculated."]
@@ -14929,7 +14929,7 @@ pub struct MeasureReport {
     pub improvementNotation: Option<Box<CodeableConcept>>,
     #[doc = "The results of the calculation, one for each population group in the measure."]
     pub group: Option<Vec<MeasureReportGroup>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A reference to a Bundle containing the Resources that were used in the calculation of this measure."]
     pub evaluatedResource: Option<Vec<Box<Reference>>>,
 }
@@ -14983,10 +14983,10 @@ pub struct Media {
     #[rename_field = "identifier"]
     #[doc = "Identifiers associated with the image - these may include identifiers for the image itself, identifiers for the context of its collection (e.g. series ids) and context ids such as accession numbers or other workflow identifiers."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["ServiceRequest" , "CarePlan"])]
+    # [reference (targets = ["ServiceRequest" , "CarePlan"])]
     #[doc = "A procedure that is fulfilled in whole or in part by the creation of this media."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A larger event of which this particular event is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -14999,10 +14999,10 @@ pub struct Media {
     pub modality: Option<Box<CodeableConcept>>,
     #[doc = "The name of the imaging view e.g. Lateral or Antero-posterior (AP)."]
     pub view: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "Group" , "Device" , "Specimen" , "Location"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Group" , "Device" , "Specimen" , "Location"])]
     #[doc = "Who/What this Media is a record of."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The encounter that establishes the context for this media."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["createdPeriod"] , primitive = ["createdDateTime"])]
@@ -15011,7 +15011,7 @@ pub struct Media {
     #[primitive]
     #[doc = "The date and time this version of the media was made available to providers, typically after having been reviewed."]
     pub issued: Option<Box<FHIRInstant>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "The person who administered the collection of the image."]
     pub operator: Option<Box<Reference>>,
     #[doc = "Describes why the event occurred in coded or textual form."]
@@ -15021,7 +15021,7 @@ pub struct Media {
     #[primitive]
     #[doc = "The name of the device / manufacturer of the device  that was used to make the recording."]
     pub deviceName: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Device" , "DeviceMetric" , "Device"])]
+    # [reference (targets = ["Device" , "DeviceMetric" , "Device"])]
     #[doc = "The device used to collect the media."]
     pub device: Option<Box<Reference>>,
     #[primitive]
@@ -15052,7 +15052,7 @@ pub struct Media {
 #[type_choice_field_name = "item"]
 pub enum MedicationIngredientItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Substance" , "Medication"])]
+    # [reference (targets = ["Substance" , "Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationIngredientItemTypeChoice {
@@ -15147,7 +15147,7 @@ pub struct Medication {
     #[primitive]
     #[doc = "A code to indicate if the medication is in active use."]
     pub status: Option<Box<terminology::MedicationStatus>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Describes the details of the manufacturer of the medication product.  This is not intended to represent the distributor of a medication product."]
     pub manufacturer: Option<Box<Reference>>,
     #[doc = "Describes the form of the item.  Powder; tablets; capsule."]
@@ -15170,7 +15170,7 @@ pub struct Medication {
 #[type_choice_field_name = "medication"]
 pub enum MedicationAdministrationMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication"])]
+    # [reference (targets = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationAdministrationMedicationTypeChoice {
@@ -15215,7 +15215,7 @@ pub struct MedicationAdministrationPerformer {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Distinguishes the type of involvement of the performer in the medication administration."]
     pub function: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson" , "Device"])]
     #[doc = "Indicates who or what performed the medication administration."]
     pub actor: Box<Reference>,
 }
@@ -15304,7 +15304,7 @@ pub struct MedicationAdministration {
     #[primitive]
     #[doc = "A protocol, guideline, orderset, or other definition that was adhered to in whole or in part by this event."]
     pub instantiates: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["MedicationAdministration" , "Procedure"])]
+    # [reference (targets = ["MedicationAdministration" , "Procedure"])]
     #[doc = "A larger event of which this particular event is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -15317,13 +15317,13 @@ pub struct MedicationAdministration {
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
     #[doc = "Identifies the medication that was administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationAdministrationMedicationTypeChoice,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The person or animal or group receiving the medication."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter" , "EpisodeOfCare"])]
+    # [reference (targets = ["Encounter" , "EpisodeOfCare"])]
     #[doc = "The visit, admission, or other contact between patient and health care provider during which the medication administration was performed."]
     pub context: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Additional information (for example, patient height and weight) that supports the administration of the medication."]
     pub supportingInformation: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["effectivePeriod"] , primitive = ["effectiveDateTime"])]
@@ -15333,20 +15333,20 @@ pub struct MedicationAdministration {
     pub performer: Option<Vec<MedicationAdministrationPerformer>>,
     #[doc = "A code indicating why the medication was given."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport"])]
     #[doc = "Condition or observation that supports why the medication was administered."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["MedicationRequest"])]
+    # [reference (targets = ["MedicationRequest"])]
     #[doc = "The original request, instruction or authority to perform the administration."]
     pub request: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "The device used in administering the medication to the patient.  For example, a particular infusion pump."]
     pub device: Option<Vec<Box<Reference>>>,
     #[doc = "Extra information about the medication administration that is not conveyed by the other attributes."]
     pub note: Option<Vec<Box<Annotation>>>,
     #[doc = "Describes the medication dosage information details e.g. dose, rate, site, route, etc."]
     pub dosage: Option<MedicationAdministrationDosage>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "A summary of the events of interest that have occurred, such as when the administration was verified."]
     pub eventHistory: Option<Vec<Box<Reference>>>,
 }
@@ -15361,7 +15361,7 @@ pub struct MedicationAdministration {
 #[type_choice_field_name = "statusReason"]
 pub enum MedicationDispenseStatusReasonTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["DetectedIssue"])]
+    # [reference (targets = ["DetectedIssue"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationDispenseStatusReasonTypeChoice {
@@ -15380,7 +15380,7 @@ impl Default for MedicationDispenseStatusReasonTypeChoice {
 #[type_choice_field_name = "medication"]
 pub enum MedicationDispenseMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication"])]
+    # [reference (targets = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationDispenseMedicationTypeChoice {
@@ -15407,7 +15407,7 @@ pub struct MedicationDispensePerformer {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Distinguishes the type of performer in the dispense.  For example, date enterer, packager, final checker."]
     pub function: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "The device, practitioner, etc. who performed the action.  It should be assumed that the actor is the dispenser of the medication."]
     pub actor: Box<Reference>,
 }
@@ -15436,7 +15436,7 @@ pub struct MedicationDispenseSubstitution {
     pub type_: Option<Box<CodeableConcept>>,
     #[doc = "Indicates the reason for the substitution (or lack of substitution) from what was prescribed."]
     pub reason: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The person or organization that has primary responsibility for the substitution."]
     pub responsibleParty: Option<Vec<Box<Reference>>>,
 }
@@ -15472,7 +15472,7 @@ pub struct MedicationDispense {
     #[rename_field = "identifier"]
     #[doc = "Identifiers associated with this Medication Dispense that are defined by business processes and/or used to refer to it when a direct URL reference to the resource itself is not appropriate. They are business identifiers assigned to this resource by the performer or other systems and remain constant as the resource is updated and propagates from server to server."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["Procedure"])]
+    # [reference (targets = ["Procedure"])]
     #[doc = "The procedure that trigger the dispense."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -15486,21 +15486,21 @@ pub struct MedicationDispense {
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
     #[doc = "Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationDispenseMedicationTypeChoice,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "A link to a resource representing the person or the group to whom the medication will be given."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter" , "EpisodeOfCare"])]
+    # [reference (targets = ["Encounter" , "EpisodeOfCare"])]
     #[doc = "The encounter or episode of care that establishes the context for this event."]
     pub context: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Additional information that supports the medication being dispensed."]
     pub supportingInformation: Option<Vec<Box<Reference>>>,
     #[doc = "Indicates who or what performed the event."]
     pub performer: Option<Vec<MedicationDispensePerformer>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The principal physical location where the dispense was performed."]
     pub location: Option<Box<Reference>>,
-    # [reference (target_profiles = ["MedicationRequest"])]
+    # [reference (targets = ["MedicationRequest"])]
     #[doc = "Indicates the medication order that is being dispensed against."]
     pub authorizingPrescription: Option<Vec<Box<Reference>>>,
     #[rename_field = "type"]
@@ -15516,10 +15516,10 @@ pub struct MedicationDispense {
     #[primitive]
     #[doc = "The time the dispensed product was provided to the patient or their representative."]
     pub whenHandedOver: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Identification of the facility/location where the medication was shipped to, as part of the dispense event."]
     pub destination: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner"])]
+    # [reference (targets = ["Patient" , "Practitioner"])]
     #[doc = "Identifies the person who picked up the medication.  This will usually be a patient or their caregiver, but some cases exist where it can be a healthcare professional."]
     pub receiver: Option<Vec<Box<Reference>>>,
     #[doc = "Extra information about the dispense that could not be conveyed in the other attributes."]
@@ -15528,10 +15528,10 @@ pub struct MedicationDispense {
     pub dosageInstruction: Option<Vec<Box<Dosage>>>,
     #[doc = "Indicates whether or not substitution was made as part of the dispense.  In some cases, substitution will be expected but does not happen, in other cases substitution is not expected but does happen.  This block explains what substitution did or did not happen and why.  If nothing is specified, substitution was not done."]
     pub substitution: Option<MedicationDispenseSubstitution>,
-    # [reference (target_profiles = ["DetectedIssue"])]
+    # [reference (targets = ["DetectedIssue"])]
     #[doc = "Indicates an actual or potential clinical issue with or between one or more active or proposed clinical actions for a patient; e.g. drug-drug interaction, duplicate therapy, dosage alert etc."]
     pub detectedIssue: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "A summary of the events of interest that have occurred, such as when the dispense was verified."]
     pub eventHistory: Option<Vec<Box<Reference>>>,
 }
@@ -15556,7 +15556,7 @@ pub struct MedicationKnowledgeRelatedMedicationKnowledge {
     #[doc = "The category of the associated medication knowledge reference."]
     pub type_: Box<CodeableConcept>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["MedicationKnowledge"])]
+    # [reference (targets = ["MedicationKnowledge"])]
     #[doc = "Associated documentation about the associated medication knowledge."]
     pub reference: Vec<Box<Reference>>,
 }
@@ -15580,7 +15580,7 @@ pub struct MedicationKnowledgeMonograph {
     #[rename_field = "type"]
     #[doc = "The category of documentation about the medication. (e.g. professional monograph, patient education monograph)."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["DocumentReference" , "Media"])]
+    # [reference (targets = ["DocumentReference" , "Media"])]
     #[doc = "Associated documentation about the medication."]
     pub source: Option<Box<Reference>>,
 }
@@ -15595,7 +15595,7 @@ pub struct MedicationKnowledgeMonograph {
 #[type_choice_field_name = "item"]
 pub enum MedicationKnowledgeIngredientItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Substance"])]
+    # [reference (targets = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationKnowledgeIngredientItemTypeChoice {
@@ -15714,7 +15714,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesDosage {
 #[type_choice_field_name = "indication"]
 pub enum MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["ObservationDefinition"])]
+    # [reference (targets = ["ObservationDefinition"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice {
@@ -15970,7 +15970,7 @@ pub struct MedicationKnowledgeRegulatory {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The authority that is specifying the regulations."]
     pub regulatoryAuthority: Box<Reference>,
     #[doc = "Specifies if changes are allowed when dispensing a medication from a regulatory perspective."]
@@ -16038,7 +16038,7 @@ pub struct MedicationKnowledge {
     #[primitive]
     #[doc = "A code to indicate if the medication is in active use.  The status refers to the validity about the information of the medication and not to its medicinal properties."]
     pub status: Option<Box<terminology::MedicationknowledgeStatus>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Describes the details of the manufacturer of the medication product.  This is not intended to represent the distributor of a medication product."]
     pub manufacturer: Option<Box<Reference>>,
     #[doc = "Describes the form of the item.  Powder; tablets; capsule."]
@@ -16050,7 +16050,7 @@ pub struct MedicationKnowledge {
     pub synonym: Option<Vec<Box<FHIRString>>>,
     #[doc = "Associated or related knowledge about a medication."]
     pub relatedMedicationKnowledge: Option<Vec<MedicationKnowledgeRelatedMedicationKnowledge>>,
-    # [reference (target_profiles = ["Medication"])]
+    # [reference (targets = ["Medication"])]
     #[doc = "Associated or related medications.  For example, if the medication is a branded product (e.g. Crestor), this is the Therapeutic Moeity (e.g. Rosuvastatin) or if this is a generic medication (e.g. Rosuvastatin), this would link to a branded product (e.g. Crestor)."]
     pub associatedMedication: Option<Vec<Box<Reference>>>,
     #[doc = "Category of the medication or product (e.g. branded product, therapeutic moeity, generic product, innovator product, etc.)."]
@@ -16076,7 +16076,7 @@ pub struct MedicationKnowledge {
     pub packaging: Option<MedicationKnowledgePackaging>,
     #[doc = "Specifies descriptive properties of the medicine, such as color, shape, imprints, etc."]
     pub drugCharacteristic: Option<Vec<MedicationKnowledgeDrugCharacteristic>>,
-    # [reference (target_profiles = ["DetectedIssue"])]
+    # [reference (targets = ["DetectedIssue"])]
     #[doc = "Potential clinical issue with or between medication(s) (for example, drug-drug interaction, drug-disease contraindication, drug-allergy interaction, etc.)."]
     pub contraindication: Option<Vec<Box<Reference>>>,
     #[doc = "Regulatory information about a medication."]
@@ -16095,7 +16095,7 @@ pub struct MedicationKnowledge {
 #[type_choice_field_name = "reported"]
 pub enum MedicationRequestReportedTypeChoice {
     Boolean(Box<FHIRBoolean>),
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationRequestReportedTypeChoice {
@@ -16114,7 +16114,7 @@ impl Default for MedicationRequestReportedTypeChoice {
 #[type_choice_field_name = "medication"]
 pub enum MedicationRequestMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication"])]
+    # [reference (targets = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationRequestMedicationTypeChoice {
@@ -16174,7 +16174,7 @@ pub struct MedicationRequestDispenseRequest {
     pub quantity: Option<Box<Quantity>>,
     #[doc = "Identifies the period time over which the supplied product is expected to be used, or the length of time the dispense is expected to last."]
     pub expectedSupplyDuration: Option<Box<Duration>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Indicates the intended dispensing Organization specified by the prescriber."]
     pub performer: Option<Box<Reference>>,
 }
@@ -16273,32 +16273,32 @@ pub struct MedicationRequest {
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
     #[doc = "Identifies the medication being requested. This is a link to a resource that represents the medication which may be the details of the medication or simply an attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationRequestMedicationTypeChoice,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "A link to a resource representing the person or set of individuals to whom the medication will be given."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this [x] was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Include additional information (for example, patient height and weight) that supports the ordering of the medication."]
     pub supportingInformation: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The date (and perhaps time) when the prescription was initially written or authored on."]
     pub authoredOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
     #[doc = "The individual, organization, or device that initiated the request and has responsibility for its activation."]
     pub requester: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "Device" , "RelatedPerson" , "CareTeam"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "Device" , "RelatedPerson" , "CareTeam"])]
     #[doc = "The specified desired performer of the medication treatment (e.g. the performer of the medication administration)."]
     pub performer: Option<Box<Reference>>,
     #[doc = "Indicates the type of performer of the administration of the medication."]
     pub performerType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The person who entered the order on behalf of another individual for example in the case of a verbal or a telephone order."]
     pub recorder: Option<Box<Reference>>,
     #[doc = "The reason or the indication for ordering or not ordering the medication."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation"])]
+    # [reference (targets = ["Condition" , "Observation"])]
     #[doc = "Condition or observation that supports why the medication was ordered."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -16307,14 +16307,14 @@ pub struct MedicationRequest {
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this MedicationRequest."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["CarePlan" , "MedicationRequest" , "ServiceRequest" , "ImmunizationRecommendation"])]
+    # [reference (targets = ["CarePlan" , "MedicationRequest" , "ServiceRequest" , "ImmunizationRecommendation"])]
     #[doc = "A plan or request that is fulfilled in whole or in part by this medication request."]
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[doc = "A shared identifier common to all requests that were authorized more or less simultaneously by a single author, representing the identifier of the requisition or prescription."]
     pub groupIdentifier: Option<Box<Identifier>>,
     #[doc = "The description of the overall patte3rn of the administration of the medication to the patient."]
     pub courseOfTherapyType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Coverage" , "ClaimResponse"])]
+    # [reference (targets = ["Coverage" , "ClaimResponse"])]
     #[doc = "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be required for delivering the requested service."]
     pub insurance: Option<Vec<Box<Reference>>>,
     #[doc = "Extra information about the prescription that could not be conveyed by the other attributes."]
@@ -16325,13 +16325,13 @@ pub struct MedicationRequest {
     pub dispenseRequest: Option<MedicationRequestDispenseRequest>,
     #[doc = "Indicates whether or not substitution can or should be part of the dispense. In some cases, substitution must happen, in other cases substitution must not happen. This block explains the prescriber's intent. If nothing is specified substitution may be done."]
     pub substitution: Option<MedicationRequestSubstitution>,
-    # [reference (target_profiles = ["MedicationRequest"])]
+    # [reference (targets = ["MedicationRequest"])]
     #[doc = "A link to a resource representing an earlier order related order or prescription."]
     pub priorPrescription: Option<Box<Reference>>,
-    # [reference (target_profiles = ["DetectedIssue"])]
+    # [reference (targets = ["DetectedIssue"])]
     #[doc = "Indicates an actual or potential clinical issue with or between one or more active or proposed clinical actions for a patient; e.g. Drug-drug interaction, duplicate therapy, dosage alert etc."]
     pub detectedIssue: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "Links to Provenance records for past versions of this resource or fulfilling request or event resources that identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the resource."]
     pub eventHistory: Option<Vec<Box<Reference>>>,
 }
@@ -16346,7 +16346,7 @@ pub struct MedicationRequest {
 #[type_choice_field_name = "medication"]
 pub enum MedicationStatementMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication"])]
+    # [reference (targets = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationStatementMedicationTypeChoice {
@@ -16404,10 +16404,10 @@ pub struct MedicationStatement {
     #[rename_field = "identifier"]
     #[doc = "Identifiers associated with this Medication Statement that are defined by business processes and/or used to refer to it when a direct URL reference to the resource itself is not appropriate. They are business identifiers assigned to this resource by the performer or other systems and remain constant as the resource is updated and propagates from server to server."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["MedicationRequest" , "CarePlan" , "ServiceRequest"])]
+    # [reference (targets = ["MedicationRequest" , "CarePlan" , "ServiceRequest"])]
     #[doc = "A plan, proposal or order that is fulfilled in whole or in part by this event."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["MedicationAdministration" , "MedicationDispense" , "MedicationStatement" , "Procedure" , "Observation"])]
+    # [reference (targets = ["MedicationAdministration" , "MedicationDispense" , "MedicationStatement" , "Procedure" , "Observation"])]
     #[doc = "A larger event of which this particular event is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -16420,10 +16420,10 @@ pub struct MedicationStatement {
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
     #[doc = "Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationStatementMedicationTypeChoice,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The person, animal or group who is/was taking the medication."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter" , "EpisodeOfCare"])]
+    # [reference (targets = ["Encounter" , "EpisodeOfCare"])]
     #[doc = "The encounter or episode of care that establishes the context for this MedicationStatement."]
     pub context: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["effectivePeriod"] , primitive = ["effectiveDateTime"])]
@@ -16432,15 +16432,15 @@ pub struct MedicationStatement {
     #[primitive]
     #[doc = "The date when the medication statement was asserted by the information source."]
     pub dateAsserted: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
     #[doc = "The person or organization that provided the information about the taking of this medication. Note: Use derivedFrom when a MedicationStatement is derived from other resources, e.g. Claim or MedicationRequest."]
     pub informationSource: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Allows linking the MedicationStatement to the underlying MedicationRequest, or to other information that supports or is used to derive the MedicationStatement."]
     pub derivedFrom: Option<Vec<Box<Reference>>>,
     #[doc = "A reason for why the medication is being/was taken."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport"])]
     #[doc = "Condition or observation that supports why the medication is being/was taken."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Provides extra information about the medication statement that is not conveyed by the other attributes."]
@@ -16547,10 +16547,10 @@ pub struct MedicinalProductManufacturingBusinessOperation {
     pub effectiveDate: Option<Box<FHIRDateTime>>,
     #[doc = "To indicate if this proces is commercially confidential."]
     pub confidentialityIndicator: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The manufacturer or establishment associated with the process."]
     pub manufacturer: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "A regulator which oversees the operation."]
     pub regulator: Option<Box<Reference>>,
 }
@@ -16565,7 +16565,7 @@ pub struct MedicinalProductManufacturingBusinessOperation {
 #[type_choice_field_name = "indication"]
 pub enum MedicinalProductSpecialDesignationIndicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["MedicinalProductIndication"])]
+    # [reference (targets = ["MedicinalProductIndication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicinalProductSpecialDesignationIndicationTypeChoice {
@@ -16663,22 +16663,22 @@ pub struct MedicinalProduct {
     pub productClassification: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Marketing status of the medicinal product, in contrast to marketing authorizaton."]
     pub marketingStatus: Option<Vec<Box<MarketingStatus>>>,
-    # [reference (target_profiles = ["MedicinalProductPharmaceutical"])]
+    # [reference (targets = ["MedicinalProductPharmaceutical"])]
     #[doc = "Pharmaceutical aspects of product."]
     pub pharmaceuticalProduct: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["MedicinalProductPackaged"])]
+    # [reference (targets = ["MedicinalProductPackaged"])]
     #[doc = "Package representation for the product."]
     pub packagedMedicinalProduct: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Supporting documentation, typically for regulatory submission."]
     pub attachedDocument: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "A master file for to the medicinal product (e.g. Pharmacovigilance System Master File)."]
     pub masterFile: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization" , "PractitionerRole"])]
+    # [reference (targets = ["Organization" , "PractitionerRole"])]
     #[doc = "A product specific contact, person (in a role), or an organization."]
     pub contact: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ResearchStudy"])]
+    # [reference (targets = ["ResearchStudy"])]
     #[doc = "Clinical trials or studies that this product is involved in."]
     pub clinicalTrial: Option<Vec<Box<Reference>>>,
     #[cardinality(min = 1usize)]
@@ -16799,7 +16799,7 @@ pub struct MedicinalProductAuthorization {
     #[rename_field = "identifier"]
     #[doc = "Business identifier for the marketing authorization, as assigned by a regulator."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["MedicinalProduct" , "MedicinalProductPackaged"])]
+    # [reference (targets = ["MedicinalProduct" , "MedicinalProductPackaged"])]
     #[doc = "The medicinal product that is being authorized."]
     pub subject: Option<Box<Reference>>,
     #[doc = "The country in which the marketing authorization has been granted."]
@@ -16829,10 +16829,10 @@ pub struct MedicinalProductAuthorization {
     #[doc = "Authorization in areas within a country."]
     pub jurisdictionalAuthorization:
         Option<Vec<MedicinalProductAuthorizationJurisdictionalAuthorization>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Marketing Authorization Holder."]
     pub holder: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Medicines Regulatory Agency."]
     pub regulator: Option<Box<Reference>>,
     #[doc = "The regulatory procedure for granting or amending a marketing authorization."]
@@ -16849,7 +16849,7 @@ pub struct MedicinalProductAuthorization {
 #[type_choice_field_name = "medication"]
 pub enum MedicinalProductContraindicationOtherTherapyMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicinalProductContraindicationOtherTherapyMedicationTypeChoice {
@@ -16911,7 +16911,7 @@ pub struct MedicinalProductContraindication {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication"])]
     #[doc = "The medication for which this is an indication."]
     pub subject: Option<Vec<Box<Reference>>>,
     #[doc = "The disease, symptom or procedure for the contraindication."]
@@ -16920,7 +16920,7 @@ pub struct MedicinalProductContraindication {
     pub diseaseStatus: Option<Box<CodeableConcept>>,
     #[doc = "A comorbidity (concurrent condition) or coinfection."]
     pub comorbidity: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["MedicinalProductIndication"])]
+    # [reference (targets = ["MedicinalProductIndication"])]
     #[doc = "Information about the use of the medicinal product in relation to other therapies as part of the indication."]
     pub therapeuticIndication: Option<Vec<Box<Reference>>>,
     #[doc = "Information about the use of the medicinal product in relation to other therapies described as part of the indication."]
@@ -16939,7 +16939,7 @@ pub struct MedicinalProductContraindication {
 #[type_choice_field_name = "medication"]
 pub enum MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
@@ -17001,7 +17001,7 @@ pub struct MedicinalProductIndication {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication"])]
     #[doc = "The medication for which this is an indication."]
     pub subject: Option<Vec<Box<Reference>>>,
     #[doc = "The disease, symptom or procedure that is the indication for treatment."]
@@ -17016,7 +17016,7 @@ pub struct MedicinalProductIndication {
     pub duration: Option<Box<Quantity>>,
     #[doc = "Information about the use of the medicinal product in relation to other therapies described as part of the indication."]
     pub otherTherapy: Option<Vec<MedicinalProductIndicationOtherTherapy>>,
-    # [reference (target_profiles = ["MedicinalProductUndesirableEffect"])]
+    # [reference (targets = ["MedicinalProductUndesirableEffect"])]
     #[doc = "Describe the undesirable effects of the medicinal product."]
     pub undesirableEffect: Option<Vec<Box<Reference>>>,
     #[doc = "The population group to which this applies."]
@@ -17170,7 +17170,7 @@ pub struct MedicinalProductIngredient {
     #[primitive]
     #[doc = "If the ingredient is a known or suspected allergen."]
     pub allergenicIndicator: Option<Box<FHIRBoolean>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Manufacturer of this Ingredient."]
     pub manufacturer: Option<Vec<Box<Reference>>>,
     #[doc = "A specified substance that comprises this ingredient."]
@@ -17188,7 +17188,7 @@ pub struct MedicinalProductIngredient {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
 pub enum MedicinalProductInteractionInteractantItemTypeChoice {
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "ObservationDefinition"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication" , "Substance" , "ObservationDefinition"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -17249,7 +17249,7 @@ pub struct MedicinalProductInteraction {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication" , "Substance"])]
     #[doc = "The medication for which this is a described interaction."]
     pub subject: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -17302,10 +17302,10 @@ pub struct MedicinalProductManufactured {
     pub unitOfPresentation: Option<Box<CodeableConcept>>,
     #[doc = "The quantity or \"count number\" of the manufactured item."]
     pub quantity: Box<Quantity>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Manufacturer of the item (Note that this should be named \"manufacturer\" but it currently causes technical issues)."]
     pub manufacturer: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["MedicinalProductIngredient"])]
+    # [reference (targets = ["MedicinalProductIngredient"])]
     #[doc = "Ingredient."]
     pub ingredient: Option<Vec<Box<Reference>>>,
     #[doc = "Dimensions, color etc."]
@@ -17364,10 +17364,10 @@ pub struct MedicinalProductPackagedPackageItem {
     pub material: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "A possible alternate material for the packaging."]
     pub alternateMaterial: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["DeviceDefinition"])]
+    # [reference (targets = ["DeviceDefinition"])]
     #[doc = "A device accompanying a medicinal product."]
     pub device: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["MedicinalProductManufactured"])]
+    # [reference (targets = ["MedicinalProductManufactured"])]
     #[doc = "The manufactured item as contained in the packaged medicinal product."]
     pub manufacturedItem: Option<Vec<Box<Reference>>>,
     #[doc = "Allows containers within containers."]
@@ -17378,7 +17378,7 @@ pub struct MedicinalProductPackagedPackageItem {
     pub otherCharacteristics: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Shelf Life and storage information."]
     pub shelfLifeStorage: Option<Vec<Box<ProductShelfLife>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Manufacturer of this Package Item."]
     pub manufacturer: Option<Vec<Box<Reference>>>,
 }
@@ -17414,7 +17414,7 @@ pub struct MedicinalProductPackaged {
     #[rename_field = "identifier"]
     #[doc = "Unique identifier."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["MedicinalProduct"])]
+    # [reference (targets = ["MedicinalProduct"])]
     #[doc = "The product with this is a pack for."]
     pub subject: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -17424,10 +17424,10 @@ pub struct MedicinalProductPackaged {
     pub legalStatusOfSupply: Option<Box<CodeableConcept>>,
     #[doc = "Marketing information."]
     pub marketingStatus: Option<Vec<Box<MarketingStatus>>>,
-    # [reference (target_profiles = ["MedicinalProductAuthorization"])]
+    # [reference (targets = ["MedicinalProductAuthorization"])]
     #[doc = "Manufacturer of this Package Item."]
     pub marketingAuthorization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Manufacturer of this Package Item."]
     pub manufacturer: Option<Vec<Box<Reference>>>,
     #[doc = "Batch numbering."]
@@ -17576,10 +17576,10 @@ pub struct MedicinalProductPharmaceutical {
     pub administrableDoseForm: Box<CodeableConcept>,
     #[doc = "Todo."]
     pub unitOfPresentation: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["MedicinalProductIngredient"])]
+    # [reference (targets = ["MedicinalProductIngredient"])]
     #[doc = "Ingredient."]
     pub ingredient: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["DeviceDefinition"])]
+    # [reference (targets = ["DeviceDefinition"])]
     #[doc = "Accompanying device."]
     pub device: Option<Vec<Box<Reference>>>,
     #[doc = "Characteristics e.g. a products onset of action."]
@@ -17617,7 +17617,7 @@ pub struct MedicinalProductUndesirableEffect {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication"])]
+    # [reference (targets = ["MedicinalProduct" , "Medication"])]
     #[doc = "The medication for which this is an indication."]
     pub subject: Option<Vec<Box<Reference>>>,
     #[doc = "The symptom, condition or undesirable effect."]
@@ -17836,13 +17836,13 @@ pub struct MessageHeaderDestination {
     #[primitive]
     #[doc = "Human-readable name for the target system."]
     pub name: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "Identifies the target end system in situations where the initial message transmission is to an intermediary system."]
     pub target: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Indicates where the message should be routed to."]
     pub endpoint: Box<FHIRUrl>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Allows data conveyed by a message to be addressed to a particular person or department when routing to a specific application isn't sufficient."]
     pub receiver: Option<Box<Reference>>,
 }
@@ -17902,7 +17902,7 @@ pub struct MessageHeaderResponse {
     #[primitive]
     #[doc = "Code that identifies the type of response to the message - whether it was successful or not, and whether it should be resent or not."]
     pub code: Box<terminology::ResponseCode>,
-    # [reference (target_profiles = ["OperationOutcome"])]
+    # [reference (targets = ["OperationOutcome"])]
     #[doc = "Full details of any issues found in the message."]
     pub details: Option<Box<Reference>>,
 }
@@ -17940,25 +17940,25 @@ pub struct MessageHeader {
     pub event: MessageHeaderEventTypeChoice,
     #[doc = "The destination application which the message is intended for."]
     pub destination: Option<Vec<MessageHeaderDestination>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "Identifies the sending system to allow the use of a trust relationship."]
     pub sender: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The person or device that performed the data entry leading to this message. When there is more than one candidate, pick the most proximal to the message. Can provide other enterers in extensions."]
     pub enterer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The logical author of the message - the person or device that decided the described event should happen. When there is more than one candidate, pick the most proximal to the MessageHeader. Can provide other authors in extensions."]
     pub author: Option<Box<Reference>>,
     #[doc = "The source application from which this message originated."]
     pub source: MessageHeaderSource,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The person or organization that accepts overall responsibility for the contents of the message. The implication is that the message event happened under the policies of the responsible party."]
     pub responsible: Option<Box<Reference>>,
     #[doc = "Coded indication of the cause for the event - indicates  a reason for the occurrence of the event that is a focus of this message."]
     pub reason: Option<Box<CodeableConcept>>,
     #[doc = "Information about the message that this message is a response to.  Only present if this message is a response."]
     pub response: Option<MessageHeaderResponse>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The actual data of the message - a reference to the root/focus class of the event."]
     pub focus: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -17992,7 +17992,7 @@ pub struct MolecularSequenceReferenceSeq {
     pub orientation: Option<Box<terminology::OrientationType>>,
     #[doc = "Reference identifier of reference sequence submitted to NCBI. It must match the type in the MolecularSequence.type field. For example, the prefix, “NG_” identifies reference sequence for genes, “NM_” for messenger RNA transcripts, and “NP_” for amino acid sequences."]
     pub referenceSeqId: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["MolecularSequence"])]
+    # [reference (targets = ["MolecularSequence"])]
     #[doc = "A pointer to another MolecularSequence entity as reference sequence."]
     pub referenceSeqPointer: Option<Box<Reference>>,
     #[primitive]
@@ -18040,7 +18040,7 @@ pub struct MolecularSequenceVariant {
     #[primitive]
     #[doc = "Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm)."]
     pub cigar: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Observation"])]
+    # [reference (targets = ["Observation"])]
     #[doc = "A pointer to an Observation containing variant information."]
     pub variantPointer: Option<Box<Reference>>,
 }
@@ -18297,16 +18297,16 @@ pub struct MolecularSequence {
     #[primitive]
     #[doc = "Whether the sequence is numbered starting at 0 (0-based numbering or coordinates, inclusive start, exclusive end) or starting at 1 (1-based numbering, inclusive start and inclusive end)."]
     pub coordinateSystem: Box<FHIRInteger>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient whose sequencing results are described by this resource."]
     pub patient: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Specimen"])]
+    # [reference (targets = ["Specimen"])]
     #[doc = "Specimen used for sequencing."]
     pub specimen: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "The method for sequencing, for example, chip information."]
     pub device: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization or lab that should be responsible for this result."]
     pub performer: Option<Box<Reference>>,
     #[doc = "The number of copies of the sequence of interest. (RNASeq)."]
@@ -18325,7 +18325,7 @@ pub struct MolecularSequence {
     pub readCoverage: Option<Box<FHIRInteger>>,
     #[doc = "Configurations of the external repository. The repository shall store target's observedSeq or records related with target's observedSeq."]
     pub repository: Option<Vec<MolecularSequenceRepository>>,
-    # [reference (target_profiles = ["MolecularSequence"])]
+    # [reference (targets = ["MolecularSequence"])]
     #[doc = "Pointer to next atomic sequence which at most contains one variant."]
     pub pointer: Option<Vec<Box<Reference>>>,
     #[doc = "Information about chromosome structure variation."]
@@ -18668,19 +18668,19 @@ pub struct NutritionOrder {
     #[primitive]
     #[doc = "Indicates the level of authority/intentionality associated with the NutrionOrder and where the request fits into the workflow chain."]
     pub intent: Box<terminology::RequestIntent>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The person (patient) who needs the nutrition order for an oral diet, nutritional supplement and/or enteral or formula feeding."]
     pub patient: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "An encounter that provides additional information about the healthcare context in which this request is made."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date and time that this nutrition order was requested."]
     pub dateTime: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The practitioner that holds legal responsibility for ordering the diet, nutritional supplement, or formula feedings."]
     pub orderer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["AllergyIntolerance"])]
+    # [reference (targets = ["AllergyIntolerance"])]
     #[doc = "A link to a record of allergies or intolerances  which should be included in the nutrition order."]
     pub allergyIntolerance: Option<Vec<Box<Reference>>>,
     #[doc = "This modifier is used to convey order-specific modifiers about the type of food that should be given. These can be derived from patient allergies, intolerances, or preferences such as Halal, Vegan or Kosher. This modifier applies to the entire nutrition order inclusive of the oral diet, nutritional supplements and enteral formula feedings."]
@@ -18863,10 +18863,10 @@ pub struct Observation {
     #[rename_field = "identifier"]
     #[doc = "A unique identifier assigned to this observation."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["CarePlan" , "DeviceRequest" , "ImmunizationRecommendation" , "MedicationRequest" , "NutritionOrder" , "ServiceRequest"])]
+    # [reference (targets = ["CarePlan" , "DeviceRequest" , "ImmunizationRecommendation" , "MedicationRequest" , "NutritionOrder" , "ServiceRequest"])]
     #[doc = "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["MedicationAdministration" , "MedicationDispense" , "MedicationStatement" , "Procedure" , "Immunization" , "ImagingStudy"])]
+    # [reference (targets = ["MedicationAdministration" , "MedicationDispense" , "MedicationStatement" , "Procedure" , "Immunization" , "ImagingStudy"])]
     #[doc = "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -18876,13 +18876,13 @@ pub struct Observation {
     pub category: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Describes what was observed. Sometimes this is called the observation \"name\"."]
     pub code: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Device" , "Location"])]
+    # [reference (targets = ["Patient" , "Group" , "Device" , "Location"])]
     #[doc = "The patient, or group of patients, location, or device this observation is about and into whose record the observation is placed. If the actual focus of the observation is different from the subject (or a sample of, part, or region of the subject), the `focus` element or the `code` itself specifies the actual focus of the observation."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The actual focus of an observation when it is not the patient of record representing something or someone associated with the patient such as a spouse, parent, fetus, or donor. For example, fetus observations in a mother's record.  The focus of an observation could also be an existing condition,  an intervention, the subject's diet,  another observation of the subject,  or a body structure such as tumor or implanted device.   An example use case would be using the Observation resource to capture whether the mother is trained to change her child's tracheostomy tube. In this example, the child is the patient of record and the mother is the focus."]
     pub focus: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The healthcare event  (e.g. a patient and healthcare provider interaction) during which this observation is made."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["effectivePeriod" , "effectiveTiming"] , primitive = ["effectiveDateTime" , "effectiveInstant"])]
@@ -18891,7 +18891,7 @@ pub struct Observation {
     #[primitive]
     #[doc = "The date and time this version of the observation was made available to providers, typically after the results have been reviewed and verified."]
     pub issued: Option<Box<FHIRInstant>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "Patient" , "RelatedPerson"])]
     #[doc = "Who was responsible for asserting the observed value as \"true\"."]
     pub performer: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["valueQuantity" , "valueCodeableConcept" , "valueRange" , "valueRatio" , "valueSampledData" , "valuePeriod"] , primitive = ["valueString" , "valueBoolean" , "valueInteger" , "valueTime" , "valueDateTime"])]
@@ -18907,18 +18907,18 @@ pub struct Observation {
     pub bodySite: Option<Box<CodeableConcept>>,
     #[doc = "Indicates the mechanism used to perform the observation."]
     pub method: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Specimen"])]
+    # [reference (targets = ["Specimen"])]
     #[doc = "The specimen that was used when this observation was made."]
     pub specimen: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Device" , "DeviceMetric"])]
+    # [reference (targets = ["Device" , "DeviceMetric"])]
     #[doc = "The device used to generate the observation data."]
     pub device: Option<Box<Reference>>,
     #[doc = "Guidance on how to interpret the value by comparison to a normal or recommended range.  Multiple reference ranges are interpreted as an \"OR\".   In other words, to represent two distinct target populations, two `referenceRange` elements would be used."]
     pub referenceRange: Option<Vec<ObservationReferenceRange>>,
-    # [reference (target_profiles = ["Observation" , "QuestionnaireResponse" , "MolecularSequence"])]
+    # [reference (targets = ["Observation" , "QuestionnaireResponse" , "MolecularSequence"])]
     #[doc = "This observation is a group observation (e.g. a battery, a panel of tests, a set of vital sign measurements) that includes the target as a member of the group."]
     pub hasMember: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["DocumentReference" , "ImagingStudy" , "Media" , "QuestionnaireResponse" , "Observation" , "MolecularSequence"])]
+    # [reference (targets = ["DocumentReference" , "ImagingStudy" , "Media" , "QuestionnaireResponse" , "Observation" , "MolecularSequence"])]
     #[doc = "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image."]
     pub derivedFrom: Option<Vec<Box<Reference>>>,
     #[doc = "Some observations have multiple component observations.  These component observations are expressed as separate code value pairs that share the same attributes.  Examples include systolic and diastolic component observations for blood pressure measurement and multiple component observations for genetics observations."]
@@ -19040,16 +19040,16 @@ pub struct ObservationDefinition {
     pub quantitativeDetails: Option<ObservationDefinitionQuantitativeDetails>,
     #[doc = "Multiple  ranges of results qualified by different contexts for ordinal or continuous observations conforming to this ObservationDefinition."]
     pub qualifiedInterval: Option<Vec<ObservationDefinitionQualifiedInterval>>,
-    # [reference (target_profiles = ["ValueSet"])]
+    # [reference (targets = ["ValueSet"])]
     #[doc = "The set of valid coded results for the observations  conforming to this ObservationDefinition."]
     pub validCodedValueSet: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ValueSet"])]
+    # [reference (targets = ["ValueSet"])]
     #[doc = "The set of normal coded results for the observations conforming to this ObservationDefinition."]
     pub normalCodedValueSet: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ValueSet"])]
+    # [reference (targets = ["ValueSet"])]
     #[doc = "The set of abnormal coded results for the observation conforming to this ObservationDefinition."]
     pub abnormalCodedValueSet: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ValueSet"])]
+    # [reference (targets = ["ValueSet"])]
     #[doc = "The set of critical coded results for the observation conforming to this ObservationDefinition."]
     pub criticalCodedValueSet: Option<Box<Reference>>,
 }
@@ -19421,12 +19421,12 @@ pub struct Organization {
     pub telecom: Option<Vec<Box<ContactPoint>>>,
     #[doc = "An address for the organization."]
     pub address: Option<Vec<Box<Address>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization of which this organization forms a part."]
     pub partOf: Option<Box<Reference>>,
     #[doc = "Contact for the organization for a certain purpose."]
     pub contact: Option<Vec<OrganizationContact>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the organization."]
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
@@ -19467,28 +19467,28 @@ pub struct OrganizationAffiliation {
     pub active: Option<Box<FHIRBoolean>>,
     #[doc = "The period during which the participatingOrganization is affiliated with the primary organization."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Organization where the role is available (primary organization/has members)."]
     pub organization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The Participating Organization provides/performs the role(s) defined by the code to the Primary Organization (e.g. providing services or is a member of)."]
     pub participatingOrganization: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Health insurance provider network in which the participatingOrganization provides the role's services (if defined) at the indicated locations (if defined)."]
     pub network: Option<Vec<Box<Reference>>>,
     #[doc = "Definition of the role the participatingOrganization plays in the association."]
     pub code: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Specific specialty of the participatingOrganization in the context of the role."]
     pub specialty: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The location(s) at which the role occurs."]
     pub location: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["HealthcareService"])]
+    # [reference (targets = ["HealthcareService"])]
     #[doc = "Healthcare services provided through the role."]
     pub healthcareService: Option<Vec<Box<Reference>>>,
     #[doc = "Contact details at the participatingOrganization relevant to this Affiliation."]
     pub telecom: Option<Vec<Box<ContactPoint>>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for this role."]
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
@@ -19674,7 +19674,7 @@ pub struct PatientContact {
     #[primitive]
     #[doc = "Administrative Gender - the gender that the contact person is considered to have for administration and record keeping purposes."]
     pub gender: Option<Box<terminology::AdministrativeGender>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Organization on behalf of which the contact is acting or for which the contact is working."]
     pub organization: Option<Box<Reference>>,
     #[doc = "The period during which this contact person or organization is valid to be contacted relating to this patient."]
@@ -19720,7 +19720,7 @@ pub struct PatientLink {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "RelatedPerson"])]
     #[doc = "The other patient resource that the link refers to."]
     pub other: Box<Reference>,
     #[rename_field = "type"]
@@ -19789,10 +19789,10 @@ pub struct Patient {
     pub contact: Option<Vec<PatientContact>>,
     #[doc = "A language which may be used to communicate with the patient about his or her health."]
     pub communication: Option<Vec<PatientCommunication>>,
-    # [reference (target_profiles = ["Organization" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Organization" , "Practitioner" , "PractitionerRole"])]
     #[doc = "Patient's nominated care provider."]
     pub generalPractitioner: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Organization that is the custodian of the patient record."]
     pub managingOrganization: Option<Box<Reference>>,
     #[doc = "Link to another patient resource that concerns the same actual patient."]
@@ -19833,28 +19833,28 @@ pub struct PaymentNotice {
     #[primitive]
     #[doc = "The status of the resource instance."]
     pub status: Box<terminology::FmStatus>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Reference of resource for which payment is being made."]
     pub request: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Reference of response to resource for which payment is being made."]
     pub response: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date when this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The practitioner who is responsible for the services rendered to the patient."]
     pub provider: Option<Box<Reference>>,
-    # [reference (target_profiles = ["PaymentReconciliation"])]
+    # [reference (targets = ["PaymentReconciliation"])]
     #[doc = "A reference to the payment which is the subject of this notice."]
     pub payment: Box<Reference>,
     #[primitive]
     #[doc = "The date when the above payment action occurred."]
     pub paymentDate: Option<Box<FHIRDate>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The party who will receive or has received payment that is the subject of this notification."]
     pub payee: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The party who is notified of the payment status."]
     pub recipient: Box<Reference>,
     #[doc = "The amount sent to the payee."]
@@ -19887,22 +19887,22 @@ pub struct PaymentReconciliationDetail {
     #[rename_field = "type"]
     #[doc = "Code to indicate the nature of the payment."]
     pub type_: Box<CodeableConcept>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A resource, such as a Claim, the evaluation of which could lead to payment."]
     pub request: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The party which submitted the claim or financial transaction."]
     pub submitter: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A resource, such as a ClaimResponse, which contains a commitment to payment."]
     pub response: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date from the response resource containing a commitment to pay."]
     pub date: Option<Box<FHIRDate>>,
-    # [reference (target_profiles = ["PractitionerRole"])]
+    # [reference (targets = ["PractitionerRole"])]
     #[doc = "A reference to the individual who is responsible for inquiries regarding the response and its payment."]
     pub responsible: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The party which is receiving the payment."]
     pub payee: Option<Box<Reference>>,
     #[doc = "The monetary amount allocated from the total payment to the payable."]
@@ -19973,13 +19973,13 @@ pub struct PaymentReconciliation {
     #[primitive]
     #[doc = "The date when the resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The party who generated the payment."]
     pub paymentIssuer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Task"])]
+    # [reference (targets = ["Task"])]
     #[doc = "Original request resource reference."]
     pub request: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The practitioner who is responsible for the services rendered to the patient."]
     pub requestor: Option<Box<Reference>>,
     #[primitive]
@@ -20019,7 +20019,7 @@ pub struct PersonLink {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "RelatedPerson" , "Person"])]
     #[doc = "The resource to which this actual person is associated."]
     pub target: Box<Reference>,
     #[primitive]
@@ -20072,7 +20072,7 @@ pub struct Person {
     pub address: Option<Vec<Box<Address>>>,
     #[doc = "An image that can be displayed as a thumbnail of the person to enhance the identification of the individual."]
     pub photo: Option<Box<Attachment>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization that is the custodian of the person record."]
     pub managingOrganization: Option<Box<Reference>>,
     #[primitive]
@@ -20092,7 +20092,7 @@ pub struct Person {
 #[type_choice_field_name = "subject"]
 pub enum PlanDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for PlanDefinitionSubjectTypeChoice {
@@ -20187,7 +20187,7 @@ pub struct PlanDefinitionGoal {
 #[type_choice_field_name = "subject"]
 pub enum PlanDefinitionActionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for PlanDefinitionActionSubjectTypeChoice {
@@ -20573,7 +20573,7 @@ pub struct PractitionerQualification {
     pub code: Box<CodeableConcept>,
     #[doc = "Period during which the qualification is valid."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Organization that regulates and issues the qualification."]
     pub issuer: Option<Box<Reference>>,
 }
@@ -20721,20 +20721,20 @@ pub struct PractitionerRole {
     pub active: Option<Box<FHIRBoolean>>,
     #[doc = "The period during which the person is authorized to act as a practitioner in these role(s) for the organization."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Practitioner"])]
+    # [reference (targets = ["Practitioner"])]
     #[doc = "Practitioner that is able to provide the defined services for the organization."]
     pub practitioner: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization where the Practitioner performs the roles associated."]
     pub organization: Option<Box<Reference>>,
     #[doc = "Roles which this practitioner is authorized to perform for the organization."]
     pub code: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "Specific specialty of the practitioner."]
     pub specialty: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The location(s) at which this practitioner provides care."]
     pub location: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["HealthcareService"])]
+    # [reference (targets = ["HealthcareService"])]
     #[doc = "The list of healthcare services that this worker provides for this role's Organization/Location(s)."]
     pub healthcareService: Option<Vec<Box<Reference>>>,
     #[doc = "Contact details that are specific to the role/location/service."]
@@ -20746,7 +20746,7 @@ pub struct PractitionerRole {
     #[primitive]
     #[doc = "A description of site availability exceptions, e.g. public holiday availability. Succinctly describing all possible exceptions to normal site availability as details in the available Times and not available Times."]
     pub availabilityExceptions: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Endpoint"])]
+    # [reference (targets = ["Endpoint"])]
     #[doc = "Technical endpoints providing access to services operated for the practitioner with this role."]
     pub endpoint: Option<Vec<Box<Reference>>>,
 }
@@ -20790,10 +20790,10 @@ pub struct ProcedurePerformer {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "Distinguishes the type of involvement of the performer in the procedure. For example, surgeon, anaesthetist, endoscopist."]
     pub function: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
     #[doc = "The practitioner who was involved in the procedure."]
     pub actor: Box<Reference>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "The organization the device or practitioner was acting on behalf of."]
     pub onBehalfOf: Option<Box<Reference>>,
 }
@@ -20816,7 +20816,7 @@ pub struct ProcedureFocalDevice {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[doc = "The kind of change that happened to the device during the procedure."]
     pub action: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Device"])]
+    # [reference (targets = ["Device"])]
     #[doc = "The device that was manipulated (changed) during the procedure."]
     pub manipulated: Box<Reference>,
 }
@@ -20858,10 +20858,10 @@ pub struct Procedure {
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, order set or other definition that is adhered to in whole or in part by this Procedure."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["CarePlan" , "ServiceRequest"])]
+    # [reference (targets = ["CarePlan" , "ServiceRequest"])]
     #[doc = "A reference to a resource that contains details of the request for this procedure."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Procedure" , "Observation" , "MedicationAdministration"])]
+    # [reference (targets = ["Procedure" , "Observation" , "MedicationAdministration"])]
     #[doc = "A larger event of which this particular procedure is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -20873,41 +20873,41 @@ pub struct Procedure {
     pub category: Option<Box<CodeableConcept>>,
     #[doc = "The specific procedure that is performed. Use text if the exact nature of the procedure cannot be coded (e.g. \"Laparoscopic Appendectomy\")."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The person, animal or group on which the procedure was performed."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this Procedure was created or performed or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["performedPeriod" , "performedAge" , "performedRange"] , primitive = ["performedDateTime" , "performedString"])]
     #[doc = "Estimated or actual date, date-time, period, or age when the procedure was performed.  Allows a period to support complex procedures that span more than one date, and also allows for the length of the procedure to be captured."]
     pub performed: Option<ProcedurePerformedTypeChoice>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
     #[doc = "Individual who recorded the record and takes responsibility for its content."]
     pub recorder: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Patient" , "RelatedPerson" , "Practitioner" , "PractitionerRole"])]
     #[doc = "Individual who is making the procedure statement."]
     pub asserter: Option<Box<Reference>>,
     #[doc = "Limited to \"real\" people rather than equipment."]
     pub performer: Option<Vec<ProcedurePerformer>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "The location where the procedure actually happened.  E.g. a newborn at home, a tracheostomy at a restaurant."]
     pub location: Option<Box<Reference>>,
     #[doc = "The coded reason why the procedure was performed. This may be a coded entity of some type, or may simply be present as text."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "Procedure" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "Procedure" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "The justification of why the procedure was performed."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Detailed and structured anatomical location information. Multiple locations are allowed - e.g. multiple punch biopsies of a lesion."]
     pub bodySite: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The outcome of the procedure - did it resolve the reasons for the procedure being performed?"]
     pub outcome: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["DiagnosticReport" , "DocumentReference" , "Composition"])]
+    # [reference (targets = ["DiagnosticReport" , "DocumentReference" , "Composition"])]
     #[doc = "This could be a histology result, pathology report, surgical report, etc."]
     pub report: Option<Vec<Box<Reference>>>,
     #[doc = "Any complications that occurred during the procedure, or in the immediate post-performance period. These are generally tracked separately from the notes, which will typically describe the procedure itself rather than any 'post procedure' issues."]
     pub complication: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     #[doc = "Any complications that occurred during the procedure, or in the immediate post-performance period."]
     pub complicationDetail: Option<Vec<Box<Reference>>>,
     #[doc = "If the procedure required specific follow up - e.g. removal of sutures. The follow up may be represented as a simple note or could potentially be more complex, in which case the CarePlan resource can be used."]
@@ -20916,7 +20916,7 @@ pub struct Procedure {
     pub note: Option<Vec<Box<Annotation>>>,
     #[doc = "A device that is implanted, removed or otherwise manipulated (calibration, battery replacement, fitting a prosthesis, attaching a wound-vac, etc.) as a focal portion of the Procedure."]
     pub focalDevice: Option<Vec<ProcedureFocalDevice>>,
-    # [reference (target_profiles = ["Device" , "Medication" , "Substance"])]
+    # [reference (targets = ["Device" , "Medication" , "Substance"])]
     #[doc = "Identifies medications, devices and any other substance used as part of the procedure."]
     pub usedReference: Option<Vec<Box<Reference>>>,
     #[doc = "Identifies coded items that were used as part of the procedure."]
@@ -20962,10 +20962,10 @@ pub struct ProvenanceAgent {
     pub type_: Option<Box<CodeableConcept>>,
     #[doc = "The function of the agent with respect to the activity. The security role enabling the agent with respect to the activity."]
     pub role: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
     #[doc = "The individual, device or organization that participated in the event."]
     pub who: Box<Reference>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
     #[doc = "The individual, device, or organization for whom the change was made."]
     pub onBehalfOf: Option<Box<Reference>>,
 }
@@ -20989,7 +20989,7 @@ pub struct ProvenanceEntity {
     #[primitive]
     #[doc = "How the entity was used during the activity."]
     pub role: Box<terminology::ProvenanceEntityRole>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Identity of the  Entity used. May be a logical or physical uri and maybe absolute or relative."]
     pub what: Box<Reference>,
     #[doc = "The entity is attributed to an agent to express the agent's responsibility for that entity, possibly along with other agents. This description can be understood as shorthand for saying that the agent was responsible for the activity which generated the entity."]
@@ -21025,7 +21025,7 @@ pub struct Provenance {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The Reference(s) that were generated or updated by  the activity described in this resource. A provenance can point to more than one target if multiple resources were created/updated by the same activity."]
     pub target: Vec<Box<Reference>>,
     # [type_choice_variants (complex = ["occurredPeriod"] , primitive = ["occurredDateTime"])]
@@ -21037,7 +21037,7 @@ pub struct Provenance {
     #[primitive]
     #[doc = "Policy or plan the activity was defined by. Typically, a single activity may have multiple applicable policy documents, such as patient consent, guarantor funding, etc."]
     pub policy: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Where the activity occurred, if relevant."]
     pub location: Option<Box<Reference>>,
     #[doc = "The reason that the activity was taking place."]
@@ -21071,7 +21071,7 @@ pub enum QuestionnaireItemEnableWhenAnswerTypeChoice {
     String(Box<FHIRString>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireItemEnableWhenAnswerTypeChoice {
@@ -21121,7 +21121,7 @@ pub enum QuestionnaireItemAnswerOptionValueTypeChoice {
     Time(Box<FHIRTime>),
     String(Box<FHIRString>),
     Coding(Box<Coding>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireItemAnswerOptionValueTypeChoice {
@@ -21174,7 +21174,7 @@ pub enum QuestionnaireItemInitialValueTypeChoice {
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireItemInitialValueTypeChoice {
@@ -21376,7 +21376,7 @@ pub enum QuestionnaireResponseItemAnswerValueTypeChoice {
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireResponseItemAnswerValueTypeChoice {
@@ -21470,10 +21470,10 @@ pub struct QuestionnaireResponse {
     #[rename_field = "identifier"]
     #[doc = "A business identifier assigned to a particular completed (or partially completed) questionnaire."]
     pub identifier_: Option<Box<Identifier>>,
-    # [reference (target_profiles = ["CarePlan" , "ServiceRequest"])]
+    # [reference (targets = ["CarePlan" , "ServiceRequest"])]
     #[doc = "The order, proposal or plan that is fulfilled in whole or in part by this QuestionnaireResponse.  For example, a ServiceRequest seeking an intake assessment or a decision support recommendation to assess for post-partum depression."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Observation" , "Procedure"])]
+    # [reference (targets = ["Observation" , "Procedure"])]
     #[doc = "A procedure or observation that this questionnaire was performed as part of the execution of.  For example, the surgery a checklist was executed as part of."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -21482,19 +21482,19 @@ pub struct QuestionnaireResponse {
     #[primitive]
     #[doc = "The position of the questionnaire response within its overall lifecycle."]
     pub status: Box<terminology::QuestionnaireAnswersStatus>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The subject of the questionnaire response.  This could be a patient, organization, practitioner, device, etc.  This is who/what the answers apply to, but is not necessarily the source of information."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The Encounter during which this questionnaire response was created or to which the creation of this record is tightly associated."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date and/or time that this set of answers were last changed."]
     pub authored: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Device" , "Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Device" , "Practitioner" , "PractitionerRole" , "Patient" , "RelatedPerson" , "Organization"])]
     #[doc = "Person who received the answers to the questions in the QuestionnaireResponse and recorded them in the system."]
     pub author: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "The person who answered the questions about the subject."]
     pub source: Option<Box<Reference>>,
     #[doc = "A group or question item from the original questionnaire for which answers are provided."]
@@ -21558,7 +21558,7 @@ pub struct RelatedPerson {
     #[primitive]
     #[doc = "Whether this related person record is in active use."]
     pub active: Option<Box<FHIRBoolean>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The patient this person is related to."]
     pub patient: Box<Reference>,
     #[doc = "The nature of the relationship between a patient and the related person."]
@@ -21715,7 +21715,7 @@ pub struct RequestGroupAction {
     # [type_choice_variants (complex = ["timingAge" , "timingPeriod" , "timingDuration" , "timingRange" , "timingTiming"] , primitive = ["timingDateTime"])]
     #[doc = "An optional value describing when the action should be performed."]
     pub timing: Option<RequestGroupActionTimingTypeChoice>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device"])]
     #[doc = "The participant that should perform or be responsible for this action."]
     pub participant: Option<Vec<Box<Reference>>>,
     #[rename_field = "type"]
@@ -21736,7 +21736,7 @@ pub struct RequestGroupAction {
     #[primitive]
     #[doc = "Defines whether the action can be selected multiple times."]
     pub cardinalityBehavior: Option<Box<terminology::ActionCardinalityBehavior>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The resource that is the target of the action (e.g. CommunicationRequest)."]
     pub resource: Option<Box<Reference>>,
     #[doc = "Sub actions."]
@@ -21780,10 +21780,10 @@ pub struct RequestGroup {
     #[primitive]
     #[doc = "A URL referencing an externally defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this request."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A plan, proposal or order that is fulfilled in whole or in part by this request."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Completed or terminated request(s) whose function is taken by this new request."]
     pub replaces: Option<Vec<Box<Reference>>>,
     #[doc = "A shared identifier common to all requests that were authorized more or less simultaneously by a single author, representing the identifier of the requisition, prescription or similar form."]
@@ -21799,21 +21799,21 @@ pub struct RequestGroup {
     pub priority: Option<Box<terminology::RequestPriority>>,
     #[doc = "A code that identifies what the overall request group is."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The subject for which the request group was created."]
     pub subject: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "Describes the context of the request group, if any."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Indicates when the request group was created."]
     pub authoredOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Device" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Device" , "Practitioner" , "PractitionerRole"])]
     #[doc = "Provides a reference to the author of the request group."]
     pub author: Option<Box<Reference>>,
     #[doc = "Describes the reason for the request group in coded or textual form."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates another resource whose existence justifies this request group."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[doc = "Provides a mechanism to communicate additional information about the response."]
@@ -21832,7 +21832,7 @@ pub struct RequestGroup {
 #[type_choice_field_name = "subject"]
 pub enum ResearchDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for ResearchDefinitionSubjectTypeChoice {
@@ -21949,16 +21949,16 @@ pub struct ResearchDefinition {
     #[primitive]
     #[doc = "A reference to a Library resource containing the formal logic used by the ResearchDefinition."]
     pub library: Option<Vec<Box<FHIRString>>>,
-    # [reference (target_profiles = ["ResearchElementDefinition"])]
+    # [reference (targets = ["ResearchElementDefinition"])]
     #[doc = "A reference to a ResearchElementDefinition resource that defines the population for the research."]
     pub population: Box<Reference>,
-    # [reference (target_profiles = ["ResearchElementDefinition"])]
+    # [reference (targets = ["ResearchElementDefinition"])]
     #[doc = "A reference to a ResearchElementDefinition resource that defines the exposure for the research."]
     pub exposure: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ResearchElementDefinition"])]
+    # [reference (targets = ["ResearchElementDefinition"])]
     #[doc = "A reference to a ResearchElementDefinition resource that defines the exposureAlternative for the research."]
     pub exposureAlternative: Option<Box<Reference>>,
-    # [reference (target_profiles = ["ResearchElementDefinition"])]
+    # [reference (targets = ["ResearchElementDefinition"])]
     #[doc = "A reference to a ResearchElementDefinition resomece that defines the outcome for the research."]
     pub outcome: Option<Box<Reference>>,
 }
@@ -21973,7 +21973,7 @@ pub struct ResearchDefinition {
 #[type_choice_field_name = "subject"]
 pub enum ResearchElementDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for ResearchElementDefinitionSubjectTypeChoice {
@@ -22304,10 +22304,10 @@ pub struct ResearchStudy {
     #[primitive]
     #[doc = "A short, descriptive user-friendly label for the study."]
     pub title: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["PlanDefinition"])]
+    # [reference (targets = ["PlanDefinition"])]
     #[doc = "The set of steps expected to be performed as part of the execution of the study."]
     pub protocol: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ResearchStudy"])]
+    # [reference (targets = ["ResearchStudy"])]
     #[doc = "A larger research study of which this particular study is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -22334,18 +22334,18 @@ pub struct ResearchStudy {
     #[primitive]
     #[doc = "A full description of how the study is being conducted."]
     pub description: Option<Box<FHIRMarkdown>>,
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     #[doc = "Reference to a Group that defines the criteria for and quantity of subjects participating in the study.  E.g. \" 200 female Europeans between the ages of 20 and 45 with early onset diabetes\"."]
     pub enrollment: Option<Vec<Box<Reference>>>,
     #[doc = "Identifies the start date and the expected (or actual, depending on status) end date for the study."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "An organization that initiates the investigation and is legally responsible for the study."]
     pub sponsor: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "A researcher in a study who oversees multiple aspects of the study, such as concept development, protocol writing, protocol submission for IRB approval, participant recruitment, informed consent, data collection, analysis, interpretation and presentation."]
     pub principalInvestigator: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "A facility in which study activities are conducted."]
     pub site: Option<Vec<Box<Reference>>>,
     #[doc = "A description and/or code explaining the premature termination of the study."]
@@ -22394,10 +22394,10 @@ pub struct ResearchSubject {
     pub status: Box<terminology::ResearchSubjectStatus>,
     #[doc = "The dates the subject began and ended their participation in the study."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["ResearchStudy"])]
+    # [reference (targets = ["ResearchStudy"])]
     #[doc = "Reference to the study the subject is participating in."]
     pub study: Box<Reference>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "The record of the person or animal who is involved in the study."]
     pub individual: Box<Reference>,
     #[primitive]
@@ -22406,7 +22406,7 @@ pub struct ResearchSubject {
     #[primitive]
     #[doc = "The name of the arm in the study the subject actually followed as part of this study."]
     pub actualArm: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Consent"])]
+    # [reference (targets = ["Consent"])]
     #[doc = "A record of the patient's informed agreement to participate in the study."]
     pub consent: Option<Box<Reference>>,
 }
@@ -22530,10 +22530,10 @@ pub struct RiskAssessment {
     #[rename_field = "identifier"]
     #[doc = "Business identifier assigned to the risk assessment."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A reference to the request that is fulfilled by this risk assessment."]
     pub basedOn: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A reference to a resource that this risk assessment is part of, such as a Procedure."]
     pub parent: Option<Box<Reference>>,
     #[primitive]
@@ -22543,27 +22543,27 @@ pub struct RiskAssessment {
     pub method: Option<Box<CodeableConcept>>,
     #[doc = "The type of the risk assessment performed."]
     pub code: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group"])]
+    # [reference (targets = ["Patient" , "Group"])]
     #[doc = "The patient or group the risk assessment applies to."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The encounter where the assessment was performed."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["occurrencePeriod"] , primitive = ["occurrenceDateTime"])]
     #[doc = "The date (and possibly time) the risk assessment was performed."]
     pub occurrence: Option<RiskAssessmentOccurrenceTypeChoice>,
-    # [reference (target_profiles = ["Condition"])]
+    # [reference (targets = ["Condition"])]
     #[doc = "For assessments or prognosis specific to a particular condition, indicates the condition being assessed."]
     pub condition: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Device"])]
     #[doc = "The provider or software application that performed the assessment."]
     pub performer: Option<Box<Reference>>,
     #[doc = "The reason the risk assessment was performed."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Resources supporting the reason the risk assessment was performed."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Indicates the source data considered as part of the assessment (for example, FamilyHistory, Observations, Procedures, Conditions, etc.)."]
     pub basis: Option<Vec<Box<Reference>>>,
     #[doc = "Describes the expected outcome for the subject."]
@@ -22808,13 +22808,13 @@ pub struct RiskEvidenceSynthesis {
     pub synthesisType: Option<Box<CodeableConcept>>,
     #[doc = "Type of study eg randomized trial."]
     pub studyType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the population for the research."]
     pub population: Box<Reference>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resource that defines the exposure for the research."]
     pub exposure: Option<Box<Reference>>,
-    # [reference (target_profiles = ["EvidenceVariable"])]
+    # [reference (targets = ["EvidenceVariable"])]
     #[doc = "A reference to a EvidenceVariable resomece that defines the outcome for the research."]
     pub outcome: Box<Reference>,
     #[doc = "A description of the size of the sample involved in the synthesis."]
@@ -22866,7 +22866,7 @@ pub struct Schedule {
     #[doc = "The specialty of a practitioner that would be required to perform the service requested in this appointment."]
     pub specialty: Option<Vec<Box<CodeableConcept>>>,
     #[cardinality(min = 1usize)]
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device" , "HealthcareService" , "Location"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Device" , "HealthcareService" , "Location"])]
     #[doc = "Slots that reference this schedule resource provide the availability details to these referenced resource(s)."]
     pub actor: Vec<Box<Reference>>,
     #[doc = "The period of time that the slots that reference this Schedule resource cover (even if none exist). These  cover the amount of time that an organization's planning horizon; the interval for which they are currently accepting appointments. This does not define a \"template\" for planning outside these dates."]
@@ -23099,10 +23099,10 @@ pub struct ServiceRequest {
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this ServiceRequest."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
-    # [reference (target_profiles = ["CarePlan" , "ServiceRequest" , "MedicationRequest"])]
+    # [reference (targets = ["CarePlan" , "ServiceRequest" , "MedicationRequest"])]
     #[doc = "Plan/proposal/order fulfilled by this request."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "The request takes the place of the referenced completed or terminated request(s)."]
     pub replaces: Option<Vec<Box<Reference>>>,
     #[doc = "A shared identifier common to all service requests that were authorized more or less simultaneously by a single author, representing the composite or group identifier."]
@@ -23128,10 +23128,10 @@ pub struct ServiceRequest {
     # [type_choice_variants (complex = ["quantityQuantity" , "quantityRatio" , "quantityRange"] , primitive = [])]
     #[doc = "An amount of service being requested which can be a quantity ( for example $1,500 home modification), a ratio ( for example, 20 half day visits per month), or a range (2.0 to 1.8 Gy per fraction)."]
     pub quantity: Option<ServiceRequestQuantityTypeChoice>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Location" , "Device"])]
+    # [reference (targets = ["Patient" , "Group" , "Location" , "Device"])]
     #[doc = "On whom or what the service is to be performed. This is usually a human patient, but can also be requested on animals, groups of humans or animals, devices such as dialysis machines, or even locations (typically for environmental scans)."]
     pub subject: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "An encounter that provides additional information about the healthcare context in which this request is made."]
     pub encounter: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["occurrencePeriod" , "occurrenceTiming"] , primitive = ["occurrenceDateTime"])]
@@ -23143,31 +23143,31 @@ pub struct ServiceRequest {
     #[primitive]
     #[doc = "When the request transitioned to being actionable."]
     pub authoredOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
     #[doc = "The individual who initiated the request and has responsibility for its activation."]
     pub requester: Option<Box<Reference>>,
     #[doc = "Desired type of performer for doing the requested service."]
     pub performerType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "HealthcareService" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "HealthcareService" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "The desired performer for doing the requested service.  For example, the surgeon, dermatopathologist, endoscopist, etc."]
     pub performer: Option<Vec<Box<Reference>>>,
     #[doc = "The preferred location(s) where the procedure should actually happen in coded or free text form. E.g. at home or nursing day care center."]
     pub locationCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "A reference to the the preferred location(s) where the procedure should actually happen. E.g. at home or nursing day care center."]
     pub locationReference: Option<Vec<Box<Reference>>>,
     #[doc = "An explanation or justification for why this service is being requested in coded or textual form.   This is often for billing purposes.  May relate to the resources referred to in `supportingInfo`."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "Indicates another resource that provides a justification for why this service is being requested.   May relate to the resources referred to in `supportingInfo`."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Coverage" , "ClaimResponse"])]
+    # [reference (targets = ["Coverage" , "ClaimResponse"])]
     #[doc = "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be needed for delivering the requested service."]
     pub insurance: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Additional clinical information about the patient or specimen that may influence the services or their interpretations.     This information includes diagnosis, clinical findings and other observations.  In laboratory ordering these are typically referred to as \"ask at order entry questions (AOEs)\".  This includes observations explicitly requested by the producer (filler) to provide context or supporting information needed to complete the order. For example,  reporting the amount of inspired oxygen for blood gas measurements."]
     pub supportingInfo: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Specimen"])]
+    # [reference (targets = ["Specimen"])]
     #[doc = "One or more specimens that the laboratory procedure will use."]
     pub specimen: Option<Vec<Box<Reference>>>,
     #[doc = "Anatomic location where the procedure should be performed. This is the target site."]
@@ -23177,7 +23177,7 @@ pub struct ServiceRequest {
     #[primitive]
     #[doc = "Instructions in terms that are understood by the patient or consumer."]
     pub patientInstruction: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "Key events in the history of the request."]
     pub relevantHistory: Option<Vec<Box<Reference>>>,
 }
@@ -23221,7 +23221,7 @@ pub struct Slot {
     pub specialty: Option<Vec<Box<CodeableConcept>>>,
     #[doc = "The style of appointment or patient that may be booked in the slot (not service type)."]
     pub appointmentType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Schedule"])]
+    # [reference (targets = ["Schedule"])]
     #[doc = "The schedule resource that this slot defines an interval of status information."]
     pub schedule: Box<Reference>,
     #[primitive]
@@ -23293,7 +23293,7 @@ pub struct SpecimenCollection {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Person who collected the specimen."]
     pub collector: Option<Box<Reference>>,
     # [type_choice_variants (complex = ["collectedPeriod"] , primitive = ["collectedDateTime"])]
@@ -23351,7 +23351,7 @@ pub struct SpecimenProcessing {
     pub description: Option<Box<FHIRString>>,
     #[doc = "A coded value specifying the procedure used to process the specimen."]
     pub procedure: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Substance"])]
+    # [reference (targets = ["Substance"])]
     #[doc = "Material used in the processing step."]
     pub additive: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["timePeriod"] , primitive = ["timeDateTime"])]
@@ -23369,7 +23369,7 @@ pub struct SpecimenProcessing {
 #[type_choice_field_name = "additive"]
 pub enum SpecimenContainerAdditiveTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Substance"])]
+    # [reference (targets = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for SpecimenContainerAdditiveTypeChoice {
@@ -23451,16 +23451,16 @@ pub struct Specimen {
     #[rename_field = "type"]
     #[doc = "The kind of material that forms the specimen."]
     pub type_: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Patient" , "Group" , "Device" , "Substance" , "Location"])]
+    # [reference (targets = ["Patient" , "Group" , "Device" , "Substance" , "Location"])]
     #[doc = "Where the specimen came from. This may be from patient(s), from a location (e.g., the source of an environmental sample), or a sampling of a substance or a device."]
     pub subject: Option<Box<Reference>>,
     #[primitive]
     #[doc = "Time when specimen was received for processing or testing."]
     pub receivedTime: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Specimen"])]
+    # [reference (targets = ["Specimen"])]
     #[doc = "Reference to the parent (source) specimen which is used when the specimen was either derived from or a component of another specimen."]
     pub parent: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["ServiceRequest"])]
+    # [reference (targets = ["ServiceRequest"])]
     #[doc = "Details concerning a service request that required a specimen to be collected."]
     pub request: Option<Vec<Box<Reference>>>,
     #[doc = "Details concerning the specimen collection."]
@@ -23505,7 +23505,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
 #[type_choice_field_name = "additive"]
 pub enum SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Substance"])]
+    # [reference (targets = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice {
@@ -24440,7 +24440,7 @@ pub struct SubstanceInstance {
 #[type_choice_field_name = "substance"]
 pub enum SubstanceIngredientSubstanceTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Substance"])]
+    # [reference (targets = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for SubstanceIngredientSubstanceTypeChoice {
@@ -24953,7 +24953,7 @@ pub struct SubstanceReferenceInformationGene {
     pub geneSequenceOrigin: Option<Box<CodeableConcept>>,
     #[doc = "Todo."]
     pub gene: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Todo."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -24979,7 +24979,7 @@ pub struct SubstanceReferenceInformationGeneElement {
     pub type_: Option<Box<CodeableConcept>>,
     #[doc = "Todo."]
     pub element: Option<Box<Identifier>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Todo."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -25006,7 +25006,7 @@ pub struct SubstanceReferenceInformationClassification {
     pub classification: Option<Box<CodeableConcept>>,
     #[doc = "Todo."]
     pub subtype: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Todo."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -25062,7 +25062,7 @@ pub struct SubstanceReferenceInformationTarget {
     pub amount: Option<SubstanceReferenceInformationTargetAmountTypeChoice>,
     #[doc = "Todo."]
     pub amountType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Todo."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -25391,7 +25391,7 @@ pub struct SubstanceSpecificationMoiety {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definingSubstance"]
 pub enum SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
-    # [reference (target_profiles = ["SubstanceSpecification" , "Substance"])]
+    # [reference (targets = ["SubstanceSpecification" , "Substance"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -25562,7 +25562,7 @@ pub struct SubstanceSpecificationStructure {
     pub isotope: Option<Vec<SubstanceSpecificationStructureIsotope>>,
     #[doc = "The molecular weight or weight range (for proteins, polymers or nucleic acids)."]
     pub molecularWeight: Option<SubstanceSpecificationStructureIsotopeMolecularWeight>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Supporting literature."]
     pub source: Option<Vec<Box<Reference>>>,
     #[doc = "Molecular structural representation."]
@@ -25595,7 +25595,7 @@ pub struct SubstanceSpecificationCode {
     #[primitive]
     #[doc = "Any comment can be provided in this field, if necessary."]
     pub comment: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Supporting literature."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -25664,7 +25664,7 @@ pub struct SubstanceSpecificationName {
     pub translation: Option<Vec<SubstanceSpecificationName>>,
     #[doc = "Details of the official nature of this name."]
     pub official: Option<Vec<SubstanceSpecificationNameOfficial>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Supporting literature."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -25678,7 +25678,7 @@ pub struct SubstanceSpecificationName {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "substance"]
 pub enum SubstanceSpecificationRelationshipSubstanceTypeChoice {
-    # [reference (target_profiles = ["SubstanceSpecification"])]
+    # [reference (targets = ["SubstanceSpecification"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -25741,7 +25741,7 @@ pub struct SubstanceSpecificationRelationship {
     pub amountRatioLowLimit: Option<Box<Ratio>>,
     #[doc = "An operator for the amount, for example \"average\", \"approximately\", \"less than\"."]
     pub amountType: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Supporting literature."]
     pub source: Option<Vec<Box<Reference>>>,
 }
@@ -25787,7 +25787,7 @@ pub struct SubstanceSpecification {
     #[primitive]
     #[doc = "Textual description of the substance."]
     pub description: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["DocumentReference"])]
+    # [reference (targets = ["DocumentReference"])]
     #[doc = "Supporting literature."]
     pub source: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -25797,7 +25797,7 @@ pub struct SubstanceSpecification {
     pub moiety: Option<Vec<SubstanceSpecificationMoiety>>,
     #[doc = "General specifications for this substance, including how it is related to other substances."]
     pub property: Option<Vec<SubstanceSpecificationProperty>>,
-    # [reference (target_profiles = ["SubstanceReferenceInformation"])]
+    # [reference (targets = ["SubstanceReferenceInformation"])]
     #[doc = "General information detailing this substance."]
     pub referenceInformation: Option<Box<Reference>>,
     #[doc = "Structural information."]
@@ -25810,16 +25810,16 @@ pub struct SubstanceSpecification {
     pub molecularWeight: Option<Vec<SubstanceSpecificationStructureIsotopeMolecularWeight>>,
     #[doc = "A link between this substance and another, with details of the relationship."]
     pub relationship: Option<Vec<SubstanceSpecificationRelationship>>,
-    # [reference (target_profiles = ["SubstanceNucleicAcid"])]
+    # [reference (targets = ["SubstanceNucleicAcid"])]
     #[doc = "Data items specific to nucleic acids."]
     pub nucleicAcid: Option<Box<Reference>>,
-    # [reference (target_profiles = ["SubstancePolymer"])]
+    # [reference (targets = ["SubstancePolymer"])]
     #[doc = "Data items specific to polymers."]
     pub polymer: Option<Box<Reference>>,
-    # [reference (target_profiles = ["SubstanceProtein"])]
+    # [reference (targets = ["SubstanceProtein"])]
     #[doc = "Data items specific to proteins."]
     pub protein: Option<Box<Reference>>,
-    # [reference (target_profiles = ["SubstanceSourceMaterial"])]
+    # [reference (targets = ["SubstanceSourceMaterial"])]
     #[doc = "Material or taxonomic/anatomical source for the substance."]
     pub sourceMaterial: Option<Box<Reference>>,
 }
@@ -25834,7 +25834,7 @@ pub struct SubstanceSpecification {
 #[type_choice_field_name = "item"]
 pub enum SupplyDeliverySuppliedItemItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
+    # [reference (targets = ["Medication" , "Substance" , "Device"])]
     Reference(Box<Reference>),
 }
 impl Default for SupplyDeliverySuppliedItemItemTypeChoice {
@@ -25916,16 +25916,16 @@ pub struct SupplyDelivery {
     #[rename_field = "identifier"]
     #[doc = "Identifier for the supply delivery event that is used to identify it across multiple disparate systems."]
     pub identifier_: Option<Vec<Box<Identifier>>>,
-    # [reference (target_profiles = ["SupplyRequest"])]
+    # [reference (targets = ["SupplyRequest"])]
     #[doc = "A plan, proposal or order that is fulfilled in whole or in part by this event."]
     pub basedOn: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["SupplyDelivery" , "Contract"])]
+    # [reference (targets = ["SupplyDelivery" , "Contract"])]
     #[doc = "A larger event of which this particular event is a component or step."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A code specifying the state of the dispense event."]
     pub status: Option<Box<terminology::SupplydeliveryStatus>>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "A link to a resource representing the person whom the delivered item is for."]
     pub patient: Option<Box<Reference>>,
     #[rename_field = "type"]
@@ -25936,13 +25936,13 @@ pub struct SupplyDelivery {
     # [type_choice_variants (complex = ["occurrencePeriod" , "occurrenceTiming"] , primitive = ["occurrenceDateTime"])]
     #[doc = "The date or time(s) the activity occurred."]
     pub occurrence: Option<SupplyDeliveryOccurrenceTypeChoice>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The individual responsible for dispensing the medication, supplier or device."]
     pub supplier: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Identification of the facility/location where the Supply was shipped to, as part of the dispense event."]
     pub destination: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "Identifies the person who picked up the Supply."]
     pub receiver: Option<Vec<Box<Reference>>>,
 }
@@ -25957,7 +25957,7 @@ pub struct SupplyDelivery {
 #[type_choice_field_name = "item"]
 pub enum SupplyRequestItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
+    # [reference (targets = ["Medication" , "Substance" , "Device"])]
     Reference(Box<Reference>),
 }
 impl Default for SupplyRequestItemTypeChoice {
@@ -26080,21 +26080,21 @@ pub struct SupplyRequest {
     #[primitive]
     #[doc = "When the request was made."]
     pub authoredOn: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "Patient" , "RelatedPerson" , "Device"])]
     #[doc = "The device, practitioner, etc. who initiated the request."]
     pub requester: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization" , "HealthcareService"])]
+    # [reference (targets = ["Organization" , "HealthcareService"])]
     #[doc = "Who is intended to fulfill the request."]
     pub supplier: Option<Vec<Box<Reference>>>,
     #[doc = "The reason why the supply item was requested."]
     pub reasonCode: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
+    # [reference (targets = ["Condition" , "Observation" , "DiagnosticReport" , "DocumentReference"])]
     #[doc = "The reason why the supply item was requested."]
     pub reasonReference: Option<Vec<Box<Reference>>>,
-    # [reference (target_profiles = ["Organization" , "Location"])]
+    # [reference (targets = ["Organization" , "Location"])]
     #[doc = "Where the supply is expected to come from."]
     pub deliverFrom: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization" , "Location" , "Patient"])]
+    # [reference (targets = ["Organization" , "Location" , "Patient"])]
     #[doc = "Where the supply is destined to go."]
     pub deliverTo: Option<Box<Reference>>,
 }
@@ -26120,7 +26120,7 @@ pub struct TaskRestriction {
     pub repetitions: Option<Box<FHIRPositiveInt>>,
     #[doc = "Over what time-period is fulfillment sought."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Group" , "Organization"])]
+    # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Group" , "Organization"])]
     #[doc = "For requests that are targeted to more than on potential recipient/target, for whom is fulfillment sought?"]
     pub recipient: Option<Vec<Box<Reference>>>,
 }
@@ -26342,12 +26342,12 @@ pub struct Task {
     #[primitive]
     #[doc = "The URL pointing to an *externally* maintained  protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Task."]
     pub instantiatesUri: Option<Box<FHIRUri>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "BasedOn refers to a higher-level authorization that triggered the creation of the task.  It references a \"request\" resource such as a ServiceRequest, MedicationRequest, ServiceRequest, CarePlan, etc. which is distinct from the \"request\" resource the task is seeking to fulfill.  This latter resource is referenced by FocusOn.  For example, based on a ServiceRequest (= BasedOn), a task is created to fulfill a procedureRequest ( = FocusOn ) to collect a specimen from a patient."]
     pub basedOn: Option<Vec<Box<Reference>>>,
     #[doc = "An identifier that links together multiple tasks and other requests that were created in the same context."]
     pub groupIdentifier: Option<Box<Identifier>>,
-    # [reference (target_profiles = ["Task"])]
+    # [reference (targets = ["Task"])]
     #[doc = "Task that this particular task is part of."]
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -26368,14 +26368,14 @@ pub struct Task {
     #[primitive]
     #[doc = "A free-text description of what is to be performed."]
     pub description: Option<Box<FHIRString>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The request being actioned or the resource being manipulated by this task."]
     pub focus: Option<Box<Reference>>,
     #[rename_field = "for"]
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "The entity who benefits from the performance of the service specified in the task (e.g., the patient)."]
     pub for_: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "The healthcare event  (e.g. a patient and healthcare provider interaction) during which this task was created."]
     pub encounter: Option<Box<Reference>>,
     #[doc = "Identifies the time action was first taken against the task (start) and/or the time final action was taken against the task prior to marking it as completed (end)."]
@@ -26386,28 +26386,28 @@ pub struct Task {
     #[primitive]
     #[doc = "The date and time of last modification to this task."]
     pub lastModified: Option<Box<FHIRDateTime>>,
-    # [reference (target_profiles = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
+    # [reference (targets = ["Device" , "Organization" , "Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson"])]
     #[doc = "The creator of the task."]
     pub requester: Option<Box<Reference>>,
     #[doc = "The kind of participant that should perform the task."]
     pub performerType: Option<Vec<Box<CodeableConcept>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "HealthcareService" , "Patient" , "Device" , "RelatedPerson"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization" , "CareTeam" , "HealthcareService" , "Patient" , "Device" , "RelatedPerson"])]
     #[doc = "Individual organization or Device currently responsible for task execution."]
     pub owner: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Location"])]
+    # [reference (targets = ["Location"])]
     #[doc = "Principal physical location where the this task is performed."]
     pub location: Option<Box<Reference>>,
     #[doc = "A description or code indicating why this task needs to be performed."]
     pub reasonCode: Option<Box<CodeableConcept>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A resource reference indicating why this task needs to be performed."]
     pub reasonReference: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Coverage" , "ClaimResponse"])]
+    # [reference (targets = ["Coverage" , "ClaimResponse"])]
     #[doc = "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task."]
     pub insurance: Option<Vec<Box<Reference>>>,
     #[doc = "Free-text information captured about the task as it progresses."]
     pub note: Option<Vec<Box<Annotation>>>,
-    # [reference (target_profiles = ["Provenance"])]
+    # [reference (targets = ["Provenance"])]
     #[doc = "Links to Provenance records for past versions of this Task that identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the task."]
     pub relevantHistory: Option<Vec<Box<Reference>>>,
     #[doc = "If the Task.focus is a request resource and the task is seeking fulfillment (i.e. is asking for the request to be actioned), this element identifies any limitations on what parts of the referenced request should be actioned."]
@@ -27015,7 +27015,7 @@ pub struct TestReport {
     #[primitive]
     #[doc = "The current state of this test report."]
     pub status: Box<terminology::ReportStatusCodes>,
-    # [reference (target_profiles = ["TestScript"])]
+    # [reference (targets = ["TestScript"])]
     #[doc = "Ideally this is an absolute URL that is used to identify the version-specific TestScript that was executed, matching the `TestScript.url`."]
     pub testScript: Box<Reference>,
     #[primitive]
@@ -27194,7 +27194,7 @@ pub struct TestScriptFixture {
     #[primitive]
     #[doc = "Whether or not to implicitly delete the fixture during teardown. If true, the fixture is automatically deleted on each server being tested during teardown, therefore no delete operation is required for this fixture in the TestScript.teardown section."]
     pub autodelete: Box<FHIRBoolean>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Reference to the resource (containing the contents of the resource needed for operations)."]
     pub resource: Option<Box<Reference>>,
 }
@@ -27628,7 +27628,7 @@ pub struct TestScript {
     pub metadata: Option<TestScriptMetadata>,
     #[doc = "Fixture in the test script - by reference (uri). All fixtures are required for the test script to execute."]
     pub fixture: Option<Vec<TestScriptFixture>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "Reference to the profile to be used for validation."]
     pub profile: Option<Vec<Box<Reference>>>,
     #[doc = "Variable is set based either on element value in response body or on header field value in the response headers."]
@@ -27999,7 +27999,7 @@ pub struct VerificationResultPrimarySource {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Organization" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Organization" , "Practitioner" , "PractitionerRole"])]
     #[doc = "Reference to the primary source."]
     pub who: Option<Box<Reference>>,
     #[rename_field = "type"]
@@ -28034,10 +28034,10 @@ pub struct VerificationResultAttestation {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "Organization"])]
     #[doc = "The individual or organization attesting to information."]
     pub who: Option<Box<Reference>>,
-    # [reference (target_profiles = ["Organization" , "Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Organization" , "Practitioner" , "PractitionerRole"])]
     #[doc = "When the who is asserting on behalf of another (organization or individual)."]
     pub onBehalfOf: Option<Box<Reference>>,
     #[doc = "The method by which attested information was submitted/retrieved (manual; API; Push)."]
@@ -28073,7 +28073,7 @@ pub struct VerificationResultValidator {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Reference to the organization validating information."]
     pub organization: Box<Reference>,
     #[primitive]
@@ -28111,7 +28111,7 @@ pub struct VerificationResult {
     pub extension: Option<Vec<Box<Extension>>>,
     #[doc = "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
-    # [reference (target_profiles = ["Resource"])]
+    # [reference (targets = ["Resource"])]
     #[doc = "A resource that was validated."]
     pub target: Option<Vec<Box<Reference>>>,
     #[primitive]
@@ -28264,16 +28264,16 @@ pub struct VisionPrescription {
     #[primitive]
     #[doc = "The date this resource was created."]
     pub created: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Patient"])]
+    # [reference (targets = ["Patient"])]
     #[doc = "A resource reference to the person to whom the vision prescription applies."]
     pub patient: Box<Reference>,
-    # [reference (target_profiles = ["Encounter"])]
+    # [reference (targets = ["Encounter"])]
     #[doc = "A reference to a resource that identifies the particular occurrence of contact between patient and health care provider during which the prescription was issued."]
     pub encounter: Option<Box<Reference>>,
     #[primitive]
     #[doc = "The date (and perhaps time) when the prescription was written."]
     pub dateWritten: Box<FHIRDateTime>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole"])]
     #[doc = "The healthcare professional responsible for authorizing the prescription."]
     pub prescriber: Box<Reference>,
     #[cardinality(min = 1usize)]

@@ -489,7 +489,7 @@ pub struct Age {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "author"]
 pub enum AnnotationAuthorTypeChoice {
-    # [reference (target_profiles = ["Practitioner" , "Patient" , "RelatedPerson" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "Patient" , "RelatedPerson" , "Organization"])]
     Reference(Box<Reference>),
     String(Box<FHIRString>),
 }
@@ -734,7 +734,7 @@ pub struct Count {
 #[type_choice_field_name = "subject"]
 pub enum DataRequirementSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    # [reference (target_profiles = ["Group"])]
+    # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for DataRequirementSubjectTypeChoice {
@@ -1893,7 +1893,7 @@ pub struct Identifier {
     pub value: Option<Box<FHIRString>>,
     #[doc = "Time period during which identifier is/was valid for use."]
     pub period: Option<Box<Period>>,
-    # [reference (target_profiles = ["Organization"])]
+    # [reference (targets = ["Organization"])]
     #[doc = "Organization that issued/manages the identifier."]
     pub assigner: Option<Box<Reference>>,
 }
@@ -2374,10 +2374,10 @@ pub struct Signature {
     #[primitive]
     #[doc = "When the digital signature was signed."]
     pub when: Box<FHIRInstant>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
     #[doc = "A reference to an application-usable description of the identity that signed  (e.g. the signature used their private key)."]
     pub who: Box<Reference>,
-    # [reference (target_profiles = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
+    # [reference (targets = ["Practitioner" , "PractitionerRole" , "RelatedPerson" , "Patient" , "Device" , "Organization"])]
     #[doc = "A reference to an application-usable description of the identity that is represented by the signature."]
     pub onBehalfOf: Option<Box<Reference>>,
     #[primitive]
@@ -2573,7 +2573,7 @@ pub struct Timing {
 #[type_choice_field_name = "timing"]
 pub enum TriggerDefinitionTimingTypeChoice {
     Timing(Box<Timing>),
-    # [reference (target_profiles = ["Schedule"])]
+    # [reference (targets = ["Schedule"])]
     Reference(Box<Reference>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -2626,7 +2626,7 @@ pub enum UsageContextValueTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Quantity(Box<Quantity>),
     Range(Box<Range>),
-    # [reference (target_profiles = ["PlanDefinition" , "ResearchStudy" , "InsurancePlan" , "HealthcareService" , "Group" , "Location" , "Organization"])]
+    # [reference (targets = ["PlanDefinition" , "ResearchStudy" , "InsurancePlan" , "HealthcareService" , "Group" , "Location" , "Organization"])]
     Reference(Box<Reference>),
 }
 impl Default for UsageContextValueTypeChoice {
