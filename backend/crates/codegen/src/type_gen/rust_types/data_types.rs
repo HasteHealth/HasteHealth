@@ -118,6 +118,26 @@ fn get_struct_key_value(
         quote! {}
     };
 
+    let target_types = if let Some(type_vec) = element.type_.as_ref()
+        && let Some(reference_type) = type_vec
+            .iter()
+            .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some("Reference"))
+        && let Some(target_profiles) = reference_type.targetProfile.as_ref()
+    {
+        let profiles = target_profiles
+            .iter()
+            .filter_map(
+                |tp: &Box<oxidized_fhir_model::r4::generated::types::FHIRString>| tp.value.as_ref(),
+            )
+            .filter_map(|tp| tp.split("/").last())
+            .collect::<Vec<_>>();
+        quote! {
+            #[reference(target_profiles = [#(#profiles),*])]
+        }
+    } else {
+        quote! {}
+    };
+
     let cardinality_attribute = min_max_attribute(element);
 
     let field_value = wrap_cardinality_and_optionality(element, field_value_type_name);
@@ -127,6 +147,7 @@ fn get_struct_key_value(
         #reflect_attribute
         #primitive_attribute
         #cardinality_attribute
+        #target_types
         #[doc = #description]
         pub #field_name_ident: #field_value
     }
