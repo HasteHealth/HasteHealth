@@ -2174,6 +2174,7 @@ dependencies = [
  "oxidized-codegen",
  "oxidized-fhir-model",
  "oxidized-fhir-operation-error",
+ "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
  "quote",
  "serde_json",

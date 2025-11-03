@@ -45,3 +45,4 @@ oxidized-fhir-model = { path = "./crates/fhir-model" }
 oxidized-fhirpath = { path = "./crates/fhirpath" }
 oxidized-codegen = { path = "./crates/codegen" }
 oxidized-fhir-operation-error = { path = "./crates/fhir-operation-error" }
+oxidized-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }

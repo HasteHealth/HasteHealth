@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use oxidized_codegen::type_gen;
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use oxidized_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use quote::quote;
 use std::{
@@ -25,11 +25,10 @@ enum GenerateLevel {
 
 #[derive(Subcommand)]
 enum CLICommand {
+    /// Data gets pulled from stdin.
     FHIRPath {
         /// lists test values
         fhirpath: String,
-        /// FHIR data to evaluate the FHIRPath on
-        data: String,
     },
     Generate {
         /// Input FHIR StructureDefinition file (JSON)
@@ -58,10 +57,26 @@ enum CodeGen {
     },
 }
 
-fn parse_fhir_data(data: &str) -> Result<serde_json::Value, OperationOutcomeError> {
-    let data: serde_json::Value = serde_json::from_str(data)
-        .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e.to_string()))?;
-    Ok(data)
+fn parse_fhir_data() -> Result<Resource, OperationOutcomeError> {
+    let mut buffer = String::new();
+    std::io::stdin().read_line(&mut buffer).map_err(|_| {
+        OperationOutcomeError::fatal(
+            IssueType::Exception(None),
+            "Failed to read from stdin.".into(),
+        )
+    })?;
+    let resource =
+        oxidized_fhir_serialization_json::from_str::<Resource>(&buffer).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!(
+                    "Failed to parse FHIR data must be a FHIR R4 Resource: {}",
+                    e
+                ),
+            )
+        })?;
+
+    Ok(resource)
 }
 
 fn format_code(rust_code: String) -> String {
@@ -91,13 +106,18 @@ fn format_code(rust_code: String) -> String {
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
     match &cli.command {
-        CLICommand::FHIRPath { fhirpath, data } => {
-            let data = parse_fhir_data(data)?;
-            println!("FHIRPath: {} {}", fhirpath, data);
+        CLICommand::FHIRPath { fhirpath } => {
+            let data = parse_fhir_data()?;
+            let engine = oxidized_fhirpath::FPEngine::new();
 
-            // let result = engine.evaluate(fhirpath, vec![&data])?;
+            let result = engine.evaluate(fhirpath, vec![&data]).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Exception(None),
+                    format!("Failed to evaluate FHIRPath: {}", e),
+                )
+            })?;
 
-            // println!("{:#?}", result.iter().collect::<Vec<_>>());
+            println!("{:#?}", result.iter().collect::<Vec<_>>());
 
             Ok(())
         }
