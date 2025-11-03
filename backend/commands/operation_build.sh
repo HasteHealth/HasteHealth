@@ -1,0 +1,1 @@
+cargo run generate operations -i ./crates/artifacts/artifacts/r4/oxidized_health/operation -i ./crates/artifacts/artifacts/r4/hl7/original/profiles-resources.json -o ./crates/fhir-generated-ops/src/generated.rs
