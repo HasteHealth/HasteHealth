@@ -490,6 +490,7 @@ pub struct Account {
 #[type_choice_field_name = "subject"]
 pub enum ActivityDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for ActivityDefinitionSubjectTypeChoice {
@@ -553,6 +554,7 @@ pub struct ActivityDefinitionParticipant {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
 pub enum ActivityDefinitionProductTypeChoice {
+    # [reference (target_profiles = ["Medication" , "Substance"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -638,7 +640,6 @@ pub struct ActivityDefinition {
     #[doc = "A Boolean value to indicate that this activity definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "A code or group definition that describes the intended subject of the activity being defined."]
     pub subject: Option<ActivityDefinitionSubjectTypeChoice>,
     #[primitive]
@@ -714,7 +715,6 @@ pub struct ActivityDefinition {
     #[doc = "Indicates who should participate in performing the action described."]
     pub participant: Option<Vec<ActivityDefinitionParticipant>>,
     # [type_choice_variants (complex = ["productReference" , "productCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["Medication" , "Substance"])]
     #[doc = "Identifies the food, drug or other product being consumed or supplied in the activity."]
     pub product: Option<ActivityDefinitionProductTypeChoice>,
     #[doc = "Identifies the quantity expected to be consumed at once (per dose, per meal, etc.)."]
@@ -2478,6 +2478,7 @@ impl Default for CarePlanActivityDetailScheduledTypeChoice {
 #[type_choice_field_name = "product"]
 pub enum CarePlanActivityDetailProductTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication" , "Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for CarePlanActivityDetailProductTypeChoice {
@@ -2539,7 +2540,6 @@ pub struct CarePlanActivityDetail {
     #[doc = "Identifies who's expected to be involved in the activity."]
     pub performer: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["productCodeableConcept" , "productReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication" , "Substance"])]
     #[doc = "Identifies the food, drug or other product to be consumed or supplied in the activity."]
     pub product: Option<CarePlanActivityDetailProductTypeChoice>,
     #[doc = "Identifies the quantity expected to be consumed in a given day."]
@@ -2905,6 +2905,7 @@ pub struct ChargeItemPerformer {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "product"]
 pub enum ChargeItemProductTypeChoice {
+    # [reference (target_profiles = ["Device" , "Medication" , "Substance"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -3003,7 +3004,6 @@ pub struct ChargeItem {
     #[doc = "Indicated the rendered service that caused this charge."]
     pub service: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["productReference" , "productCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["Device" , "Medication" , "Substance"])]
     #[doc = "Identifies the device, food, drug or other product being charged either by type code or reference to an instance."]
     pub product: Option<ChargeItemProductTypeChoice>,
     # [reference (target_profiles = ["Account"])]
@@ -3297,6 +3297,7 @@ pub enum ClaimSupportingInfoValueTypeChoice {
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimSupportingInfoValueTypeChoice {
@@ -3332,7 +3333,6 @@ pub struct ClaimSupportingInfo {
     #[doc = "The date when or period to which this information refers."]
     pub timing: Option<ClaimSupportingInfoTimingTypeChoice>,
     # [type_choice_variants (complex = ["valueQuantity" , "valueAttachment" , "valueReference"] , primitive = ["valueBoolean" , "valueString"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "Additional data or information such as resources, documents, images etc. including references to the data or the actual inclusion of the data."]
     pub value: Option<ClaimSupportingInfoValueTypeChoice>,
     #[doc = "Provides the reason in the situation where a reason code is required in addition to the content."]
@@ -3349,6 +3349,7 @@ pub struct ClaimSupportingInfo {
 #[type_choice_field_name = "diagnosis"]
 pub enum ClaimDiagnosisDiagnosisTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Condition"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimDiagnosisDiagnosisTypeChoice {
@@ -3377,7 +3378,6 @@ pub struct ClaimDiagnosis {
     #[doc = "A number to uniquely identify diagnosis entries."]
     pub sequence: Box<FHIRPositiveInt>,
     # [type_choice_variants (complex = ["diagnosisCodeableConcept" , "diagnosisReference"] , primitive = [])]
-    # [reference (target_profiles = ["Condition"])]
     #[doc = "The nature of illness or problem in a coded form or as a reference to an external defined Condition."]
     pub diagnosis: ClaimDiagnosisDiagnosisTypeChoice,
     #[rename_field = "type"]
@@ -3399,6 +3399,7 @@ pub struct ClaimDiagnosis {
 #[type_choice_field_name = "procedure"]
 pub enum ClaimProcedureProcedureTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Procedure"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimProcedureProcedureTypeChoice {
@@ -3433,7 +3434,6 @@ pub struct ClaimProcedure {
     #[doc = "Date and optionally time the procedure was performed."]
     pub date: Option<Box<FHIRDateTime>>,
     # [type_choice_variants (complex = ["procedureCodeableConcept" , "procedureReference"] , primitive = [])]
-    # [reference (target_profiles = ["Procedure"])]
     #[doc = "The code or reference to a Procedure resource which identifies the clinical intervention performed."]
     pub procedure: ClaimProcedureProcedureTypeChoice,
     # [reference (target_profiles = ["Device"])]
@@ -3490,6 +3490,7 @@ pub struct ClaimInsurance {
 #[type_choice_field_name = "location"]
 pub enum ClaimAccidentLocationTypeChoice {
     Address(Box<Address>),
+    # [reference (target_profiles = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimAccidentLocationTypeChoice {
@@ -3521,7 +3522,6 @@ pub struct ClaimAccident {
     #[doc = "The type or context of the accident event for the purposes of selection of potential insurance coverages and determination of coordination between insurers."]
     pub type_: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["locationAddress" , "locationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Location"])]
     #[doc = "The physical location of the accident event."]
     pub location: Option<ClaimAccidentLocationTypeChoice>,
 }
@@ -3555,6 +3555,7 @@ impl Default for ClaimItemServicedTypeChoice {
 pub enum ClaimItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
+    # [reference (target_profiles = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimItemLocationTypeChoice {
@@ -3696,7 +3697,6 @@ pub struct ClaimItem {
     #[doc = "The date or dates when the service or product was supplied, performed or completed."]
     pub serviced: Option<ClaimItemServicedTypeChoice>,
     # [type_choice_variants (complex = ["locationCodeableConcept" , "locationAddress" , "locationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Location"])]
     #[doc = "Where the product or service was provided."]
     pub location: Option<ClaimItemLocationTypeChoice>,
     #[doc = "The number of repetitions of a service or product."]
@@ -3961,6 +3961,7 @@ impl Default for ClaimResponseAddItemServicedTypeChoice {
 pub enum ClaimResponseAddItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
+    # [reference (target_profiles = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ClaimResponseAddItemLocationTypeChoice {
@@ -4083,7 +4084,6 @@ pub struct ClaimResponseAddItem {
     #[doc = "The date or dates when the service or product was supplied, performed or completed."]
     pub serviced: Option<ClaimResponseAddItemServicedTypeChoice>,
     # [type_choice_variants (complex = ["locationCodeableConcept" , "locationAddress" , "locationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Location"])]
     #[doc = "Where the product or service was provided."]
     pub location: Option<ClaimResponseAddItemLocationTypeChoice>,
     #[doc = "The number of repetitions of a service or product."]
@@ -4787,6 +4787,7 @@ pub struct CodeSystem {
 pub enum CommunicationPayloadContentTypeChoice {
     String(Box<FHIRString>),
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for CommunicationPayloadContentTypeChoice {
@@ -4812,7 +4813,6 @@ pub struct CommunicationPayload {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["contentAttachment" , "contentReference"] , primitive = ["contentString"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "A communicated content (or for multi-part communications, one portion of the communication)."]
     pub content: CommunicationPayloadContentTypeChoice,
 }
@@ -4920,6 +4920,7 @@ pub struct Communication {
 pub enum CommunicationRequestPayloadContentTypeChoice {
     String(Box<FHIRString>),
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for CommunicationRequestPayloadContentTypeChoice {
@@ -4945,7 +4946,6 @@ pub struct CommunicationRequestPayload {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["contentAttachment" , "contentReference"] , primitive = ["contentString"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "The communicated content (or for multi-part communications, one portion of the communication)."]
     pub content: CommunicationRequestPayloadContentTypeChoice,
 }
@@ -5190,6 +5190,7 @@ pub struct CompositionAttester {
 #[type_choice_field_name = "target"]
 pub enum CompositionRelatesToTargetTypeChoice {
     Identifier(Box<Identifier>),
+    # [reference (target_profiles = ["Composition"])]
     Reference(Box<Reference>),
 }
 impl Default for CompositionRelatesToTargetTypeChoice {
@@ -5218,7 +5219,6 @@ pub struct CompositionRelatesTo {
     #[doc = "The type of relationship that this composition has with anther composition or document."]
     pub code: Box<terminology::DocumentRelationshipType>,
     # [type_choice_variants (complex = ["targetIdentifier" , "targetReference"] , primitive = [])]
-    # [reference (target_profiles = ["Composition"])]
     #[doc = "The target composition/document of this relationship."]
     pub target: CompositionRelatesToTargetTypeChoice,
 }
@@ -5806,6 +5806,7 @@ pub struct Condition {
 #[type_choice_field_name = "source"]
 pub enum ConsentSourceTypeChoice {
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Consent" , "DocumentReference" , "Contract" , "QuestionnaireResponse"])]
     Reference(Box<Reference>),
 }
 impl Default for ConsentSourceTypeChoice {
@@ -6006,7 +6007,6 @@ pub struct Consent {
     #[doc = "The organization that manages the consent, and the framework within which it is executed."]
     pub organization: Option<Vec<Box<Reference>>>,
     # [type_choice_variants (complex = ["sourceAttachment" , "sourceReference"] , primitive = [])]
-    # [reference (target_profiles = ["Consent" , "DocumentReference" , "Contract" , "QuestionnaireResponse"])]
     #[doc = "The source on which this consent statement is based. The source might be a scanned original paper form, or a reference to a consent that links back to such a source, a reference to a document repository (e.g. XDS) that stores the original consent document."]
     pub source: Option<ConsentSourceTypeChoice>,
     #[doc = "The references to the policies that are included in this consent scope. Policies may be organizational, but are often defined jurisdictionally, or in law."]
@@ -6029,6 +6029,7 @@ pub struct Consent {
 #[type_choice_field_name = "topic"]
 pub enum ContractTopicTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTopicTypeChoice {
@@ -6082,6 +6083,7 @@ pub struct ContractContentDefinition {
 #[type_choice_field_name = "topic"]
 pub enum ContractTermTopicTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTermTopicTypeChoice {
@@ -6161,6 +6163,7 @@ pub enum ContractTermOfferAnswerValueTypeChoice {
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTermOfferAnswerValueTypeChoice {
@@ -6186,7 +6189,6 @@ pub struct ContractTermOfferAnswer {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["valueAttachment" , "valueCoding" , "valueQuantity" , "valueReference"] , primitive = ["valueBoolean" , "valueDecimal" , "valueInteger" , "valueDate" , "valueDateTime" , "valueTime" , "valueString" , "valueUri"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "Response to an offer clause or question text,  which enables selection of values to be agreed to, e.g., the period of participation, the date of occupancy of a rental, warrently duration, or whether biospecimen may be used for further research."]
     pub value: ContractTermOfferAnswerValueTypeChoice,
 }
@@ -6271,6 +6273,7 @@ pub struct ContractTermAssetContext {
 #[type_choice_field_name = "entity"]
 pub enum ContractTermAssetValuedItemEntityTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractTermAssetValuedItemEntityTypeChoice {
@@ -6296,7 +6299,6 @@ pub struct ContractTermAssetValuedItem {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["entityCodeableConcept" , "entityReference"] , primitive = [])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "Specific type of Contract Valued Item that may be priced."]
     pub entity: Option<ContractTermAssetValuedItemEntityTypeChoice>,
     #[rename_field = "identifier"]
@@ -6533,7 +6535,6 @@ pub struct ContractTerm {
     #[doc = "Relevant time or time-period when this Contract Provision is applicable."]
     pub applies: Option<Box<Period>>,
     # [type_choice_variants (complex = ["topicCodeableConcept" , "topicReference"] , primitive = [])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "The entity that the term applies to."]
     pub topic: Option<ContractTermTopicTypeChoice>,
     #[rename_field = "type"]
@@ -6593,6 +6594,7 @@ pub struct ContractSigner {
 #[type_choice_field_name = "content"]
 pub enum ContractFriendlyContentTypeChoice {
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractFriendlyContentTypeChoice {
@@ -6618,7 +6620,6 @@ pub struct ContractFriendly {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["contentAttachment" , "contentReference"] , primitive = [])]
-    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
     #[doc = "Human readable rendering of this Contract in a format and representation intended to enhance comprehension and ensure understandability."]
     pub content: ContractFriendlyContentTypeChoice,
 }
@@ -6633,6 +6634,7 @@ pub struct ContractFriendly {
 #[type_choice_field_name = "content"]
 pub enum ContractLegalContentTypeChoice {
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractLegalContentTypeChoice {
@@ -6658,7 +6660,6 @@ pub struct ContractLegal {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["contentAttachment" , "contentReference"] , primitive = [])]
-    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse"])]
     #[doc = "Contract legal text in human renderable form."]
     pub content: ContractLegalContentTypeChoice,
 }
@@ -6673,6 +6674,7 @@ pub struct ContractLegal {
 #[type_choice_field_name = "content"]
 pub enum ContractRuleContentTypeChoice {
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["DocumentReference"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractRuleContentTypeChoice {
@@ -6698,7 +6700,6 @@ pub struct ContractRule {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["contentAttachment" , "contentReference"] , primitive = [])]
-    # [reference (target_profiles = ["DocumentReference"])]
     #[doc = "Computable Contract conveyed using a policy rule language (e.g. XACML, DKAL, SecPal)."]
     pub content: ContractRuleContentTypeChoice,
 }
@@ -6713,6 +6714,7 @@ pub struct ContractRule {
 #[type_choice_field_name = "legallyBinding"]
 pub enum ContractLegallyBindingTypeChoice {
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse" , "Contract"])]
     Reference(Box<Reference>),
 }
 impl Default for ContractLegallyBindingTypeChoice {
@@ -6808,7 +6810,6 @@ pub struct Contract {
     #[doc = "A selector of legal concerns for this Contract definition, derivative, or instance in any legal state."]
     pub scope: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["topicCodeableConcept" , "topicReference"] , primitive = [])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "Narrows the range of legal concerns to focus on the achievement of specific contractual objectives."]
     pub topic: Option<ContractTopicTypeChoice>,
     #[rename_field = "type"]
@@ -6835,7 +6836,6 @@ pub struct Contract {
     #[doc = "List of Computable Policy Rule Language Representations of this Contract."]
     pub rule: Option<Vec<ContractRule>>,
     # [type_choice_variants (complex = ["legallyBindingAttachment" , "legallyBindingReference"] , primitive = [])]
-    # [reference (target_profiles = ["Composition" , "DocumentReference" , "QuestionnaireResponse" , "Contract"])]
     #[doc = "Legally binding Contract: This is the signed and legally recognized representation of the Contract, which is considered the \"source of truth\" and which would be the basis for legal action related to enforcement of this Contract."]
     pub legallyBinding: Option<ContractLegallyBindingTypeChoice>,
 }
@@ -7094,6 +7094,7 @@ pub struct CoverageEligibilityRequestInsurance {
 #[type_choice_field_name = "diagnosis"]
 pub enum CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Condition"])]
     Reference(Box<Reference>),
 }
 impl Default for CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice {
@@ -7121,7 +7122,6 @@ pub struct CoverageEligibilityRequestItemDiagnosis {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["diagnosisCodeableConcept" , "diagnosisReference"] , primitive = [])]
-    # [reference (target_profiles = ["Condition"])]
     #[doc = "The nature of illness or problem in a coded form or as a reference to an external defined Condition."]
     pub diagnosis: Option<CoverageEligibilityRequestItemDiagnosisDiagnosisTypeChoice>,
 }
@@ -7898,6 +7898,7 @@ pub struct DeviceDefinitionUdiDeviceIdentifier {
 #[type_choice_field_name = "manufacturer"]
 pub enum DeviceDefinitionManufacturerTypeChoice {
     String(Box<FHIRString>),
+    # [reference (target_profiles = ["Organization"])]
     Reference(Box<Reference>),
 }
 impl Default for DeviceDefinitionManufacturerTypeChoice {
@@ -8063,7 +8064,6 @@ pub struct DeviceDefinition {
     #[doc = "Unique device identifier (UDI) assigned to device label or package.  Note that the Device may include multiple udiCarriers as it either may include just the udiCarrier for the jurisdiction it is sold, or for multiple jurisdictions it could have been sold."]
     pub udiDeviceIdentifier: Option<Vec<DeviceDefinitionUdiDeviceIdentifier>>,
     # [type_choice_variants (complex = ["manufacturerReference"] , primitive = ["manufacturerString"])]
-    # [reference (target_profiles = ["Organization"])]
     #[doc = "A name of the manufacturer."]
     pub manufacturer: Option<DeviceDefinitionManufacturerTypeChoice>,
     #[doc = "A name given to the device to identify it."]
@@ -8207,6 +8207,7 @@ pub struct DeviceMetric {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "code"]
 pub enum DeviceRequestCodeTypeChoice {
+    # [reference (target_profiles = ["Device"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -8333,7 +8334,6 @@ pub struct DeviceRequest {
     #[doc = "Indicates how quickly the {{title}} should be addressed with respect to other requests."]
     pub priority: Option<Box<terminology::RequestPriority>>,
     # [type_choice_variants (complex = ["codeReference" , "codeCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["Device"])]
     #[doc = "The details of the device to be used."]
     pub code: DeviceRequestCodeTypeChoice,
     #[doc = "Specific parameters for the ordered item.  For example, the prism value for lenses."]
@@ -9644,6 +9644,7 @@ pub struct EpisodeOfCare {
 #[type_choice_field_name = "subject"]
 pub enum EventDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for EventDefinitionSubjectTypeChoice {
@@ -9705,7 +9706,6 @@ pub struct EventDefinition {
     #[doc = "A Boolean value to indicate that this event definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "A code or group definition that describes the intended subject of the event definition."]
     pub subject: Option<EventDefinitionSubjectTypeChoice>,
     #[primitive]
@@ -9869,6 +9869,7 @@ pub struct Evidence {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
 pub enum EvidenceVariableCharacteristicDefinitionTypeChoice {
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
     Canonical(Box<FHIRString>),
     CodeableConcept(Box<CodeableConcept>),
@@ -9924,7 +9925,6 @@ pub struct EvidenceVariableCharacteristic {
     #[doc = "A short, natural language description of the characteristic that could be used to communicate the criteria to an end-user."]
     pub description: Option<Box<FHIRString>>,
     # [type_choice_variants (complex = ["definitionReference" , "definitionCodeableConcept" , "definitionExpression" , "definitionDataRequirement" , "definitionTriggerDefinition"] , primitive = ["definitionCanonical"])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "Define members of the evidence element using Codes (such as condition, medication, or observation), Expressions ( using an expression language such as FHIRPath or CQL) or DataRequirements (such as Diabetes diagnosis onset in the last year)."]
     pub definition: EvidenceVariableCharacteristicDefinitionTypeChoice,
     #[doc = "Use UsageContext to define the members of the population, such as Age Ranges, Genders, Settings."]
@@ -10474,6 +10474,7 @@ pub enum ExplanationOfBenefitSupportingInfoValueTypeChoice {
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
     Attachment(Box<Attachment>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitSupportingInfoValueTypeChoice {
@@ -10509,7 +10510,6 @@ pub struct ExplanationOfBenefitSupportingInfo {
     #[doc = "The date when or period to which this information refers."]
     pub timing: Option<ExplanationOfBenefitSupportingInfoTimingTypeChoice>,
     # [type_choice_variants (complex = ["valueQuantity" , "valueAttachment" , "valueReference"] , primitive = ["valueBoolean" , "valueString"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "Additional data or information such as resources, documents, images etc. including references to the data or the actual inclusion of the data."]
     pub value: Option<ExplanationOfBenefitSupportingInfoValueTypeChoice>,
     #[doc = "Provides the reason in the situation where a reason code is required in addition to the content."]
@@ -10526,6 +10526,7 @@ pub struct ExplanationOfBenefitSupportingInfo {
 #[type_choice_field_name = "diagnosis"]
 pub enum ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Condition"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitDiagnosisDiagnosisTypeChoice {
@@ -10556,7 +10557,6 @@ pub struct ExplanationOfBenefitDiagnosis {
     #[doc = "A number to uniquely identify diagnosis entries."]
     pub sequence: Box<FHIRPositiveInt>,
     # [type_choice_variants (complex = ["diagnosisCodeableConcept" , "diagnosisReference"] , primitive = [])]
-    # [reference (target_profiles = ["Condition"])]
     #[doc = "The nature of illness or problem in a coded form or as a reference to an external defined Condition."]
     pub diagnosis: ExplanationOfBenefitDiagnosisDiagnosisTypeChoice,
     #[rename_field = "type"]
@@ -10578,6 +10578,7 @@ pub struct ExplanationOfBenefitDiagnosis {
 #[type_choice_field_name = "procedure"]
 pub enum ExplanationOfBenefitProcedureProcedureTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Procedure"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitProcedureProcedureTypeChoice {
@@ -10614,7 +10615,6 @@ pub struct ExplanationOfBenefitProcedure {
     #[doc = "Date and optionally time the procedure was performed."]
     pub date: Option<Box<FHIRDateTime>>,
     # [type_choice_variants (complex = ["procedureCodeableConcept" , "procedureReference"] , primitive = [])]
-    # [reference (target_profiles = ["Procedure"])]
     #[doc = "The code or reference to a Procedure resource which identifies the clinical intervention performed."]
     pub procedure: ExplanationOfBenefitProcedureProcedureTypeChoice,
     # [reference (target_profiles = ["Device"])]
@@ -10659,6 +10659,7 @@ pub struct ExplanationOfBenefitInsurance {
 #[type_choice_field_name = "location"]
 pub enum ExplanationOfBenefitAccidentLocationTypeChoice {
     Address(Box<Address>),
+    # [reference (target_profiles = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitAccidentLocationTypeChoice {
@@ -10690,7 +10691,6 @@ pub struct ExplanationOfBenefitAccident {
     #[doc = "The type or context of the accident event for the purposes of selection of potential insurance coverages and determination of coordination between insurers."]
     pub type_: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["locationAddress" , "locationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Location"])]
     #[doc = "The physical location of the accident event."]
     pub location: Option<ExplanationOfBenefitAccidentLocationTypeChoice>,
 }
@@ -10724,6 +10724,7 @@ impl Default for ExplanationOfBenefitItemServicedTypeChoice {
 pub enum ExplanationOfBenefitItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
+    # [reference (target_profiles = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitItemLocationTypeChoice {
@@ -10902,7 +10903,6 @@ pub struct ExplanationOfBenefitItem {
     #[doc = "The date or dates when the service or product was supplied, performed or completed."]
     pub serviced: Option<ExplanationOfBenefitItemServicedTypeChoice>,
     # [type_choice_variants (complex = ["locationCodeableConcept" , "locationAddress" , "locationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Location"])]
     #[doc = "Where the product or service was provided."]
     pub location: Option<ExplanationOfBenefitItemLocationTypeChoice>,
     #[doc = "The number of repetitions of a service or product."]
@@ -10962,6 +10962,7 @@ impl Default for ExplanationOfBenefitAddItemServicedTypeChoice {
 pub enum ExplanationOfBenefitAddItemLocationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Address(Box<Address>),
+    # [reference (target_profiles = ["Location"])]
     Reference(Box<Reference>),
 }
 impl Default for ExplanationOfBenefitAddItemLocationTypeChoice {
@@ -11082,7 +11083,6 @@ pub struct ExplanationOfBenefitAddItem {
     #[doc = "The date or dates when the service or product was supplied, performed or completed."]
     pub serviced: Option<ExplanationOfBenefitAddItemServicedTypeChoice>,
     # [type_choice_variants (complex = ["locationCodeableConcept" , "locationAddress" , "locationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Location"])]
     #[doc = "Where the product or service was provided."]
     pub location: Option<ExplanationOfBenefitAddItemLocationTypeChoice>,
     #[doc = "The number of repetitions of a service or product."]
@@ -13240,6 +13240,7 @@ pub struct ImplementationGuideDefinitionResource {
 #[type_choice_field_name = "name"]
 pub enum ImplementationGuideDefinitionPageNameTypeChoice {
     Url(Box<FHIRUrl>),
+    # [reference (target_profiles = ["Binary"])]
     Reference(Box<Reference>),
 }
 impl Default for ImplementationGuideDefinitionPageNameTypeChoice {
@@ -13265,7 +13266,6 @@ pub struct ImplementationGuideDefinitionPage {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["nameReference"] , primitive = ["nameUrl"])]
-    # [reference (target_profiles = ["Binary"])]
     #[doc = "The source address for the page."]
     pub name: ImplementationGuideDefinitionPageNameTypeChoice,
     #[primitive]
@@ -13882,6 +13882,7 @@ pub struct InvoiceParticipant {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "chargeItem"]
 pub enum InvoiceLineItemChargeItemTypeChoice {
+    # [reference (target_profiles = ["ChargeItem"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -13940,7 +13941,6 @@ pub struct InvoiceLineItem {
     #[doc = "Sequence in which the items appear on the invoice."]
     pub sequence: Option<Box<FHIRPositiveInt>>,
     # [type_choice_variants (complex = ["chargeItemReference" , "chargeItemCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["ChargeItem"])]
     #[doc = "The ChargeItem contains information such as the billing code, date, amount etc. If no further details are required for the lineItem, inline billing codes can be added using the CodeableConcept data type instead of the Reference."]
     pub chargeItem: InvoiceLineItemChargeItemTypeChoice,
     #[doc = "The price for a ChargeItem may be calculated as a base price with surcharges/deductions that apply in certain conditions. A ChargeItemDefinition resource that defines the prices, factors and conditions that apply to a billing code is currently under development. The priceComponent element can be used to offer transparency to the recipient of the Invoice as to how the prices have been calculated."]
@@ -14029,6 +14029,7 @@ pub struct Invoice {
 #[type_choice_field_name = "subject"]
 pub enum LibrarySubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for LibrarySubjectTypeChoice {
@@ -14093,7 +14094,6 @@ pub struct Library {
     #[doc = "Identifies the type of library such as a Logic Library, Model Definition, Asset Collection, or Module Definition."]
     pub type_: Box<CodeableConcept>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "A code or group definition that describes the intended subject of the contents of the library."]
     pub subject: Option<LibrarySubjectTypeChoice>,
     #[primitive]
@@ -14447,6 +14447,7 @@ pub struct Location {
 #[type_choice_field_name = "subject"]
 pub enum MeasureSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for MeasureSubjectTypeChoice {
@@ -14639,7 +14640,6 @@ pub struct Measure {
     #[doc = "A Boolean value to indicate that this measure is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "The intended subjects for the measure. If this element is not provided, a Patient subject is assumed, but the subject of the measure can be anything."]
     pub subject: Option<MeasureSubjectTypeChoice>,
     #[primitive]
@@ -15052,6 +15052,7 @@ pub struct Media {
 #[type_choice_field_name = "item"]
 pub enum MedicationIngredientItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Substance" , "Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationIngredientItemTypeChoice {
@@ -15077,7 +15078,6 @@ pub struct MedicationIngredient {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["itemCodeableConcept" , "itemReference"] , primitive = [])]
-    # [reference (target_profiles = ["Substance" , "Medication"])]
     #[doc = "The actual ingredient - either a substance (simple ingredient) or another medication of a medication."]
     pub item: MedicationIngredientItemTypeChoice,
     #[primitive]
@@ -15170,6 +15170,7 @@ pub struct Medication {
 #[type_choice_field_name = "medication"]
 pub enum MedicationAdministrationMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationAdministrationMedicationTypeChoice {
@@ -15314,7 +15315,6 @@ pub struct MedicationAdministration {
     #[doc = "Indicates where the medication is expected to be consumed or administered."]
     pub category: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication"])]
     #[doc = "Identifies the medication that was administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationAdministrationMedicationTypeChoice,
     # [reference (target_profiles = ["Patient" , "Group"])]
@@ -15361,6 +15361,7 @@ pub struct MedicationAdministration {
 #[type_choice_field_name = "statusReason"]
 pub enum MedicationDispenseStatusReasonTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["DetectedIssue"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationDispenseStatusReasonTypeChoice {
@@ -15379,6 +15380,7 @@ impl Default for MedicationDispenseStatusReasonTypeChoice {
 #[type_choice_field_name = "medication"]
 pub enum MedicationDispenseMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationDispenseMedicationTypeChoice {
@@ -15477,13 +15479,11 @@ pub struct MedicationDispense {
     #[doc = "A code specifying the state of the set of dispense events."]
     pub status: Box<terminology::MedicationdispenseStatus>,
     # [type_choice_variants (complex = ["statusReasonCodeableConcept" , "statusReasonReference"] , primitive = [])]
-    # [reference (target_profiles = ["DetectedIssue"])]
     #[doc = "Indicates the reason why a dispense was not performed."]
     pub statusReason: Option<MedicationDispenseStatusReasonTypeChoice>,
     #[doc = "Indicates the type of medication dispense (for example, where the medication is expected to be consumed or administered (i.e. inpatient or outpatient))."]
     pub category: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication"])]
     #[doc = "Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationDispenseMedicationTypeChoice,
     # [reference (target_profiles = ["Patient" , "Group"])]
@@ -15595,6 +15595,7 @@ pub struct MedicationKnowledgeMonograph {
 #[type_choice_field_name = "item"]
 pub enum MedicationKnowledgeIngredientItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationKnowledgeIngredientItemTypeChoice {
@@ -15620,7 +15621,6 @@ pub struct MedicationKnowledgeIngredient {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["itemCodeableConcept" , "itemReference"] , primitive = [])]
-    # [reference (target_profiles = ["Substance"])]
     #[doc = "The actual ingredient - either a substance (simple ingredient) or another medication."]
     pub item: MedicationKnowledgeIngredientItemTypeChoice,
     #[primitive]
@@ -15714,6 +15714,7 @@ pub struct MedicationKnowledgeAdministrationGuidelinesDosage {
 #[type_choice_field_name = "indication"]
 pub enum MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["ObservationDefinition"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice {
@@ -15788,7 +15789,6 @@ pub struct MedicationKnowledgeAdministrationGuidelines {
     #[doc = "Dosage for the medication for the specific guidelines."]
     pub dosage: Option<Vec<MedicationKnowledgeAdministrationGuidelinesDosage>>,
     # [type_choice_variants (complex = ["indicationCodeableConcept" , "indicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["ObservationDefinition"])]
     #[doc = "Indication for use that apply to the specific administration guidelines."]
     pub indication: Option<MedicationKnowledgeAdministrationGuidelinesIndicationTypeChoice>,
     #[doc = "Characteristics of the patient that are relevant to the administration guidelines (for example, height, weight, gender, etc.)."]
@@ -16095,6 +16095,7 @@ pub struct MedicationKnowledge {
 #[type_choice_field_name = "reported"]
 pub enum MedicationRequestReportedTypeChoice {
     Boolean(Box<FHIRBoolean>),
+    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationRequestReportedTypeChoice {
@@ -16113,6 +16114,7 @@ impl Default for MedicationRequestReportedTypeChoice {
 #[type_choice_field_name = "medication"]
 pub enum MedicationRequestMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationRequestMedicationTypeChoice {
@@ -16266,11 +16268,9 @@ pub struct MedicationRequest {
     #[doc = "If true indicates that the provider is asking for the medication request not to occur."]
     pub doNotPerform: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["reportedReference"] , primitive = ["reportedBoolean"])]
-    # [reference (target_profiles = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
     #[doc = "Indicates if this record was captured as a secondary 'reported' record rather than as an original primary source-of-truth record.  It may also indicate the source of the report."]
     pub reported: Option<MedicationRequestReportedTypeChoice>,
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication"])]
     #[doc = "Identifies the medication being requested. This is a link to a resource that represents the medication which may be the details of the medication or simply an attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationRequestMedicationTypeChoice,
     # [reference (target_profiles = ["Patient" , "Group"])]
@@ -16346,6 +16346,7 @@ pub struct MedicationRequest {
 #[type_choice_field_name = "medication"]
 pub enum MedicationStatementMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicationStatementMedicationTypeChoice {
@@ -16417,7 +16418,6 @@ pub struct MedicationStatement {
     #[doc = "Indicates where the medication is expected to be consumed or administered."]
     pub category: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication"])]
     #[doc = "Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications."]
     pub medication: MedicationStatementMedicationTypeChoice,
     # [reference (target_profiles = ["Patient" , "Group"])]
@@ -16565,6 +16565,7 @@ pub struct MedicinalProductManufacturingBusinessOperation {
 #[type_choice_field_name = "indication"]
 pub enum MedicinalProductSpecialDesignationIndicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["MedicinalProductIndication"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicinalProductSpecialDesignationIndicationTypeChoice {
@@ -16600,7 +16601,6 @@ pub struct MedicinalProductSpecialDesignation {
     #[doc = "The intended use of the product, e.g. prevention, treatment."]
     pub intendedUse: Option<Box<CodeableConcept>>,
     # [type_choice_variants (complex = ["indicationCodeableConcept" , "indicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["MedicinalProductIndication"])]
     #[doc = "Condition for which the medicinal use applies."]
     pub indication: Option<MedicinalProductSpecialDesignationIndicationTypeChoice>,
     #[doc = "For example granted, pending, expired or withdrawn."]
@@ -16849,6 +16849,7 @@ pub struct MedicinalProductAuthorization {
 #[type_choice_field_name = "medication"]
 pub enum MedicinalProductContraindicationOtherTherapyMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicinalProductContraindicationOtherTherapyMedicationTypeChoice {
@@ -16878,7 +16879,6 @@ pub struct MedicinalProductContraindicationOtherTherapy {
     #[doc = "The type of relationship between the medicinal product indication or contraindication and another therapy."]
     pub therapyRelationshipType: Box<CodeableConcept>,
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
     #[doc = "Reference to a specific medication (active substance, medicinal product or class of products) as part of an indication or contraindication."]
     pub medication: MedicinalProductContraindicationOtherTherapyMedicationTypeChoice,
 }
@@ -16939,6 +16939,7 @@ pub struct MedicinalProductContraindication {
 #[type_choice_field_name = "medication"]
 pub enum MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
     Reference(Box<Reference>),
 }
 impl Default for MedicinalProductIndicationOtherTherapyMedicationTypeChoice {
@@ -16968,7 +16969,6 @@ pub struct MedicinalProductIndicationOtherTherapy {
     #[doc = "The type of relationship between the medicinal product indication or contraindication and another therapy."]
     pub therapyRelationshipType: Box<CodeableConcept>,
     # [type_choice_variants (complex = ["medicationCodeableConcept" , "medicationReference"] , primitive = [])]
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "SubstanceSpecification"])]
     #[doc = "Reference to a specific medication (active substance, medicinal product or class of products) as part of an indication or contraindication."]
     pub medication: MedicinalProductIndicationOtherTherapyMedicationTypeChoice,
 }
@@ -17188,6 +17188,7 @@ pub struct MedicinalProductIngredient {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "item"]
 pub enum MedicinalProductInteractionInteractantItemTypeChoice {
+    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "ObservationDefinition"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -17216,7 +17217,6 @@ pub struct MedicinalProductInteractionInteractant {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["itemReference" , "itemCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["MedicinalProduct" , "Medication" , "Substance" , "ObservationDefinition"])]
     #[doc = "The specific medication, food or laboratory test that interacts."]
     pub item: MedicinalProductInteractionInteractantItemTypeChoice,
 }
@@ -20092,6 +20092,7 @@ pub struct Person {
 #[type_choice_field_name = "subject"]
 pub enum PlanDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for PlanDefinitionSubjectTypeChoice {
@@ -20186,6 +20187,7 @@ pub struct PlanDefinitionGoal {
 #[type_choice_field_name = "subject"]
 pub enum PlanDefinitionActionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for PlanDefinitionActionSubjectTypeChoice {
@@ -20390,7 +20392,6 @@ pub struct PlanDefinitionAction {
     #[doc = "Identifies goals that this action supports. The reference must be to a goal element defined within this plan definition."]
     pub goalId: Option<Vec<Box<FHIRId>>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "A code or group definition that describes the intended subject of the action and its children, if any."]
     pub subject: Option<PlanDefinitionActionSubjectTypeChoice>,
     #[doc = "A description of when the action should be triggered."]
@@ -20494,7 +20495,6 @@ pub struct PlanDefinition {
     #[doc = "A Boolean value to indicate that this plan definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "A code or group definition that describes the intended subject of the plan definition."]
     pub subject: Option<PlanDefinitionSubjectTypeChoice>,
     #[primitive]
@@ -21071,6 +21071,7 @@ pub enum QuestionnaireItemEnableWhenAnswerTypeChoice {
     String(Box<FHIRString>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireItemEnableWhenAnswerTypeChoice {
@@ -21102,7 +21103,6 @@ pub struct QuestionnaireItemEnableWhen {
     #[doc = "Specifies the criteria by which the question is enabled."]
     pub operator: Box<terminology::QuestionnaireEnableOperator>,
     # [type_choice_variants (complex = ["answerCoding" , "answerQuantity" , "answerReference"] , primitive = ["answerBoolean" , "answerDecimal" , "answerInteger" , "answerDate" , "answerDateTime" , "answerTime" , "answerString"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "A value that the referenced question is tested using the specified operator in order for the item to be enabled."]
     pub answer: QuestionnaireItemEnableWhenAnswerTypeChoice,
 }
@@ -21121,6 +21121,7 @@ pub enum QuestionnaireItemAnswerOptionValueTypeChoice {
     Time(Box<FHIRTime>),
     String(Box<FHIRString>),
     Coding(Box<Coding>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireItemAnswerOptionValueTypeChoice {
@@ -21146,7 +21147,6 @@ pub struct QuestionnaireItemAnswerOption {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["valueCoding" , "valueReference"] , primitive = ["valueInteger" , "valueDate" , "valueTime" , "valueString"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "A potential answer that's allowed as the answer to this question."]
     pub value: QuestionnaireItemAnswerOptionValueTypeChoice,
     #[primitive]
@@ -21174,6 +21174,7 @@ pub enum QuestionnaireItemInitialValueTypeChoice {
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireItemInitialValueTypeChoice {
@@ -21199,7 +21200,6 @@ pub struct QuestionnaireItemInitial {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["valueAttachment" , "valueCoding" , "valueQuantity" , "valueReference"] , primitive = ["valueBoolean" , "valueDecimal" , "valueInteger" , "valueDate" , "valueDateTime" , "valueTime" , "valueString" , "valueUri"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "The actual value to for an initial answer."]
     pub value: QuestionnaireItemInitialValueTypeChoice,
 }
@@ -21376,6 +21376,7 @@ pub enum QuestionnaireResponseItemAnswerValueTypeChoice {
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
+    # [reference (target_profiles = ["Resource"])]
     Reference(Box<Reference>),
 }
 impl Default for QuestionnaireResponseItemAnswerValueTypeChoice {
@@ -21401,7 +21402,6 @@ pub struct QuestionnaireResponseItemAnswer {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["valueAttachment" , "valueCoding" , "valueQuantity" , "valueReference"] , primitive = ["valueBoolean" , "valueDecimal" , "valueInteger" , "valueDate" , "valueDateTime" , "valueTime" , "valueString" , "valueUri"])]
-    # [reference (target_profiles = ["Resource"])]
     #[doc = "The answer (or one of the answers) provided by the respondent to the question."]
     pub value: Option<QuestionnaireResponseItemAnswerValueTypeChoice>,
     #[doc = "Nested groups and/or questions found within this particular answer."]
@@ -21832,6 +21832,7 @@ pub struct RequestGroup {
 #[type_choice_field_name = "subject"]
 pub enum ResearchDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for ResearchDefinitionSubjectTypeChoice {
@@ -21896,7 +21897,6 @@ pub struct ResearchDefinition {
     #[doc = "A Boolean value to indicate that this research definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "The intended subjects for the ResearchDefinition. If this element is not provided, a Patient subject is assumed, but the subject of the ResearchDefinition can be anything."]
     pub subject: Option<ResearchDefinitionSubjectTypeChoice>,
     #[primitive]
@@ -21973,6 +21973,7 @@ pub struct ResearchDefinition {
 #[type_choice_field_name = "subject"]
 pub enum ResearchElementDefinitionSubjectTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Group"])]
     Reference(Box<Reference>),
 }
 impl Default for ResearchElementDefinitionSubjectTypeChoice {
@@ -22154,7 +22155,6 @@ pub struct ResearchElementDefinition {
     #[doc = "A Boolean value to indicate that this research element definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage."]
     pub experimental: Option<Box<FHIRBoolean>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
-    # [reference (target_profiles = ["Group"])]
     #[doc = "The intended subjects for the ResearchElementDefinition. If this element is not provided, a Patient subject is assumed, but the subject of the ResearchElementDefinition can be anything."]
     pub subject: Option<ResearchElementDefinitionSubjectTypeChoice>,
     #[primitive]
@@ -23369,6 +23369,7 @@ pub struct SpecimenProcessing {
 #[type_choice_field_name = "additive"]
 pub enum SpecimenContainerAdditiveTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for SpecimenContainerAdditiveTypeChoice {
@@ -23407,7 +23408,6 @@ pub struct SpecimenContainer {
     #[doc = "The quantity of specimen in the container; may be volume, dimensions, or other appropriate measurements, depending on the specimen type."]
     pub specimenQuantity: Option<Box<Quantity>>,
     # [type_choice_variants (complex = ["additiveCodeableConcept" , "additiveReference"] , primitive = [])]
-    # [reference (target_profiles = ["Substance"])]
     #[doc = "Introduced substance to preserve, maintain or enhance the specimen. Examples: Formalin, Citrate, EDTA."]
     pub additive: Option<SpecimenContainerAdditiveTypeChoice>,
 }
@@ -23505,6 +23505,7 @@ impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
 #[type_choice_field_name = "additive"]
 pub enum SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice {
@@ -23532,7 +23533,6 @@ pub struct SpecimenDefinitionTypeTestedContainerAdditive {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["additiveCodeableConcept" , "additiveReference"] , primitive = [])]
-    # [reference (target_profiles = ["Substance"])]
     #[doc = "Substance introduced in the kind of container to preserve, maintain or enhance the specimen. Examples: Formalin, Citrate, EDTA."]
     pub additive: SpecimenDefinitionTypeTestedContainerAdditiveAdditiveTypeChoice,
 }
@@ -24440,6 +24440,7 @@ pub struct SubstanceInstance {
 #[type_choice_field_name = "substance"]
 pub enum SubstanceIngredientSubstanceTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Substance"])]
     Reference(Box<Reference>),
 }
 impl Default for SubstanceIngredientSubstanceTypeChoice {
@@ -24467,7 +24468,6 @@ pub struct SubstanceIngredient {
     #[doc = "The amount of the ingredient in the substance - a concentration ratio."]
     pub quantity: Option<Box<Ratio>>,
     # [type_choice_variants (complex = ["substanceCodeableConcept" , "substanceReference"] , primitive = [])]
-    # [reference (target_profiles = ["Substance"])]
     #[doc = "Another substance that is a component of this substance."]
     pub substance: SubstanceIngredientSubstanceTypeChoice,
 }
@@ -25391,6 +25391,7 @@ pub struct SubstanceSpecificationMoiety {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definingSubstance"]
 pub enum SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
+    # [reference (target_profiles = ["SubstanceSpecification" , "Substance"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -25444,7 +25445,6 @@ pub struct SubstanceSpecificationProperty {
     #[doc = "Parameters that were used in the measurement of a property (e.g. for viscosity: measured at 20C with a pH of 7.1)."]
     pub parameters: Option<Box<FHIRString>>,
     # [type_choice_variants (complex = ["definingSubstanceReference" , "definingSubstanceCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["SubstanceSpecification" , "Substance"])]
     #[doc = "A substance upon which a defining property depends (e.g. for solubility: in water, in alcohol)."]
     pub definingSubstance: Option<SubstanceSpecificationPropertyDefiningSubstanceTypeChoice>,
     # [type_choice_variants (complex = ["amountQuantity"] , primitive = ["amountString"])]
@@ -25678,6 +25678,7 @@ pub struct SubstanceSpecificationName {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "substance"]
 pub enum SubstanceSpecificationRelationshipSubstanceTypeChoice {
+    # [reference (target_profiles = ["SubstanceSpecification"])]
     Reference(Box<Reference>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -25726,7 +25727,6 @@ pub struct SubstanceSpecificationRelationship {
     #[doc = "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself)."]
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     # [type_choice_variants (complex = ["substanceReference" , "substanceCodeableConcept"] , primitive = [])]
-    # [reference (target_profiles = ["SubstanceSpecification"])]
     #[doc = "A pointer to another substance, as a resource or just a representational code."]
     pub substance: Option<SubstanceSpecificationRelationshipSubstanceTypeChoice>,
     #[doc = "For example \"salt to parent\", \"active moiety\", \"starting material\"."]
@@ -25834,6 +25834,7 @@ pub struct SubstanceSpecification {
 #[type_choice_field_name = "item"]
 pub enum SupplyDeliverySuppliedItemItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
     Reference(Box<Reference>),
 }
 impl Default for SupplyDeliverySuppliedItemItemTypeChoice {
@@ -25861,7 +25862,6 @@ pub struct SupplyDeliverySuppliedItem {
     #[doc = "The amount of supply that has been dispensed. Includes unit of measure."]
     pub quantity: Option<Box<Quantity>>,
     # [type_choice_variants (complex = ["itemCodeableConcept" , "itemReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
     #[doc = "Identifies the medication, substance or device being dispensed. This is either a link to a resource representing the details of the item or a code that identifies the item from a known list."]
     pub item: Option<SupplyDeliverySuppliedItemItemTypeChoice>,
 }
@@ -25957,6 +25957,7 @@ pub struct SupplyDelivery {
 #[type_choice_field_name = "item"]
 pub enum SupplyRequestItemTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
     Reference(Box<Reference>),
 }
 impl Default for SupplyRequestItemTypeChoice {
@@ -26067,7 +26068,6 @@ pub struct SupplyRequest {
     #[doc = "Indicates how quickly this SupplyRequest should be addressed with respect to other requests."]
     pub priority: Option<Box<terminology::RequestPriority>>,
     # [type_choice_variants (complex = ["itemCodeableConcept" , "itemReference"] , primitive = [])]
-    # [reference (target_profiles = ["Medication" , "Substance" , "Device"])]
     #[doc = "The item that is requested to be supplied. This is either a link to a resource representing the details of the item or a code that identifies the item from a known list."]
     pub item: SupplyRequestItemTypeChoice,
     #[doc = "The amount that is being ordered of the indicated item."]
