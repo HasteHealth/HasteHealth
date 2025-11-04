@@ -6,6 +6,9 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v5
