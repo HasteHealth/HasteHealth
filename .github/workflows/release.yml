@@ -12,12 +12,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      #   - name: Build
-      #     run: cd backend && cargo build --release
-      #   - name: Test
-      #     run: mv backend/target/release/oxidized-health ./oxidized-health_linux_${{ github.ref_name }}
-      - name: fake_artifact
-        run: echo "This is a fake artifact for testing purposes." > oxidized-health_linux_${{ github.ref_name }}
+      - name: Build
+        run: cd backend && cargo build --release
+      - name: Test
+        run: mv backend/target/release/oxidized-health ./oxidized-health_linux_${{ github.ref_name }}
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
