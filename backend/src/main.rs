@@ -1,8 +1,7 @@
 use clap::{Parser, Subcommand};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 
-mod codegen_commands;
-mod fhirpath_commands;
+mod commands;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from `Cargo.toml`
@@ -21,7 +20,7 @@ enum CLICommand {
     Generate {
         /// Input FHIR StructureDefinition file (JSON)
         #[command(subcommand)]
-        command: codegen_commands::CodeGen,
+        command: commands::codegen::CodeGen,
     },
 }
 
@@ -29,7 +28,7 @@ enum CLICommand {
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
     match &cli.command {
-        CLICommand::FHIRPath { fhirpath } => fhirpath_commands::fhirpath(fhirpath),
-        CLICommand::Generate { command } => codegen_commands::codegen(command).await,
+        CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath),
+        CLICommand::Generate { command } => commands::codegen::codegen(command).await,
     }
 }
