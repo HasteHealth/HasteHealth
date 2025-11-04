@@ -1,7 +1,7 @@
 use axum::http::Uri;
 use maud::{Markup, html};
 
-use crate::server::asset_route;
+use crate::static_assets::asset_route;
 
 pub fn base(uri: &Uri, children: Markup) -> Markup {
     let img_url = Uri::builder()

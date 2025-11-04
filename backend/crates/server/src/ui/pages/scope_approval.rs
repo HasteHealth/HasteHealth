@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::routes::{route_string::oidc_route_string, scope::ScopeForm},
-    server::asset_route,
+    static_assets::asset_route,
     ui::components::{app_header_html, page_html},
 };
 use maud::{Markup, html};

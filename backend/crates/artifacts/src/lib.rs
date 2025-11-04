@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::generated::resources::Resource;
-use oxidized_macro_loads::load_artifacts;
+use rust_embed::Embed;
 
 pub mod search_parameters;
 
@@ -16,23 +16,26 @@ fn flatten_if_bundle(resource: Resource) -> Vec<Box<Resource>> {
     }
 }
 
-fn load_resources(data_strings: &[&str]) -> Vec<Box<Resource>> {
+fn load_resources() -> Vec<Box<Resource>> {
     let mut resources = vec![];
 
-    for data_str in data_strings.into_iter() {
-        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(data_str)
-            .expect("Failed to parse artifact parameters JSON");
+    for path in EmbededResourceAssets::iter() {
+        let data = EmbededResourceAssets::get(path.as_ref()).unwrap();
+        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(
+            str::from_utf8(&data.data).unwrap(),
+        )
+        .expect("Failed to parse artifact parameters JSON");
         resources.extend(flatten_if_bundle(resource));
     }
 
     resources
 }
 
-pub static ARTIFACT_RESOURCES: Lazy<Vec<Box<Resource>>> = Lazy::new(|| {
-    let data_strings = load_artifacts!(
-        "../artifacts/r4/hl7/minified"
-        "../artifacts/r4/oxidized_health"
-    );
+#[derive(Embed)]
+#[folder = "./artifacts/r4"]
+#[include = "oxidized_health/**/*.json"]
+#[include = "hl7/minified/**/*.json"]
 
-    load_resources(data_strings)
-});
+struct EmbededResourceAssets;
+
+pub static ARTIFACT_RESOURCES: Lazy<Vec<Box<Resource>>> = Lazy::new(|| load_resources());
