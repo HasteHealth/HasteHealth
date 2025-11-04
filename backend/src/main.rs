@@ -22,6 +22,10 @@ enum CLICommand {
         #[command(subcommand)]
         command: commands::codegen::CodeGen,
     },
+    Server {
+        #[command(subcommand)]
+        command: commands::server::ServerCommands,
+    },
 }
 
 #[tokio::main]
@@ -30,5 +34,6 @@ async fn main() -> Result<(), OperationOutcomeError> {
     match &cli.command {
         CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath),
         CLICommand::Generate { command } => commands::codegen::codegen(command).await,
+        CLICommand::Server { command } => commands::server::server(command).await,
     }
 }

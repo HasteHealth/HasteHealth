@@ -9,7 +9,8 @@ use crate::{
     services::{AppState, ConfigError, create_services, get_pool},
 };
 use axum::{
-    Extension, Json, Router,
+    Extension, Json, Router, ServiceExt,
+    body::Body,
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::{Method, Uri},
     middleware::from_fn,
@@ -226,4 +227,23 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .nest(root_asset_route().to_str().unwrap(), assets_router);
 
     Ok(NormalizePathLayer::trim_trailing_slash().layer(app))
+}
+
+pub async fn serve(port: u16) -> Result<(), OperationOutcomeError> {
+    let server = server().await?;
+
+    let addr = format!("0.0.0.0:{}", port);
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+
+    tracing::info!("Server started");
+    axum::serve(
+        listener,
+        <tower_http::normalize_path::NormalizePath<Router> as ServiceExt<
+            axum::http::Request<Body>,
+        >>::into_make_service(server),
+    )
+    .await
+    .unwrap();
+
+    Ok(())
 }

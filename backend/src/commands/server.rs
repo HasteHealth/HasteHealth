@@ -1,5 +1,4 @@
-use axum::{Router, ServiceExt, body::Body};
-use clap::{Parser, Subcommand};
+use clap::Subcommand;
 use oxidized_config::{Config, get_config};
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
@@ -10,26 +9,18 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_jwt::{ProjectId, TenantId};
+use oxidized_repository::admin::Migrate;
 use oxidized_server::{
     ServerEnvironmentVariables,
     auth_n::oidc::utilities::set_user_password,
     fhir_client::ServerCTX,
-    load_artifacts, server,
-    services::{self, get_pool},
+    load_artifacts, server, services,
     tenants::{SubscriptionTier, create_tenant},
 };
 use std::sync::Arc;
 
-/// CLI for Oxidized Health Server
-#[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
-
 #[derive(Subcommand, Debug)]
-enum Commands {
+pub enum ServerCommands {
     Start {
         #[arg(short, long)]
         port: Option<u16>,
@@ -52,7 +43,7 @@ enum Commands {
 }
 
 #[derive(Subcommand, Debug)]
-enum MigrationCommands {
+pub enum MigrationCommands {
     Artifacts {},
     RepoSchema {},
     SearchSchema {},
@@ -60,7 +51,7 @@ enum MigrationCommands {
 }
 
 #[derive(Subcommand, Debug)]
-enum TenantCommands {
+pub enum TenantCommands {
     Create {
         #[arg(short, long)]
         id: String,
@@ -70,7 +61,7 @@ enum TenantCommands {
 }
 
 #[derive(Subcommand, Debug)]
-enum UserCommands {
+pub enum UserCommands {
     Create {
         #[arg(short, long)]
         email: String,
@@ -82,12 +73,10 @@ enum UserCommands {
 }
 
 async fn migrate_repo(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
 ) -> Result<(), OperationOutcomeError> {
-    sqlx::migrate!("./migrations")
-        .run(get_pool(config).await)
-        .await
-        .unwrap();
+    let services = services::create_services(config).await?;
+    services.repo.migrate().await?;
     Ok(())
 }
 
@@ -102,32 +91,12 @@ async fn migrate_search(
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> Result<(), OperationOutcomeError> {
-    let cli = Cli::parse();
-
+pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
     let config = get_config::<ServerEnvironmentVariables>("environment".into());
 
-    match &cli.command {
-        Commands::Start { port } => {
-            let server = server::server().await?;
-            // run our app with hyper, listening globally on port 3000
-            let addr = format!("0.0.0.0:{}", port.unwrap_or(3000));
-            let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-
-            tracing::info!("Server started");
-            axum::serve(
-                listener,
-                <tower_http::normalize_path::NormalizePath<Router> as ServiceExt<
-                    axum::http::Request<Body>,
-                >>::into_make_service(server),
-            )
-            .await
-            .unwrap();
-
-            Ok(())
-        }
-        Commands::Migrate { command } => match command {
+    match &command {
+        ServerCommands::Start { port } => server::serve(port.unwrap_or(3000)).await,
+        ServerCommands::Migrate { command } => match command {
             MigrationCommands::Artifacts {} => {
                 let initial = config
                     .get(ServerEnvironmentVariables::AllowArtifactMutations)
@@ -140,15 +109,15 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 config.set(ServerEnvironmentVariables::AllowArtifactMutations, initial)?;
                 Ok(())
             }
-            MigrationCommands::RepoSchema {} => migrate_repo(config.as_ref()).await,
+            MigrationCommands::RepoSchema {} => migrate_repo(config).await,
             MigrationCommands::SearchSchema {} => migrate_search(config).await,
             MigrationCommands::All => {
-                migrate_repo(config.as_ref()).await?;
+                migrate_repo(config.clone()).await?;
                 migrate_search(config).await?;
                 Ok(())
             }
         },
-        Commands::Tenant { command } => match command {
+        ServerCommands::Tenant { command } => match command {
             TenantCommands::Create {
                 id,
                 subscription_tier,
@@ -165,7 +134,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
                 Ok(())
             }
         },
-        Commands::User { command } => match command {
+        ServerCommands::User { command } => match command {
             UserCommands::Create {
                 email,
                 password,
