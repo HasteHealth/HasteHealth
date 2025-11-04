@@ -12,9 +12,9 @@ jobs:
       - name: Build
         run: cd backend && cargo build --release
       - name: Test
-        run: mv backend/target/release/oxidized-health ./oxidized-health_linux_${{ github.ref }}
+        run: mv backend/target/release/oxidized-health ./oxidized-health_linux_${{ github.ref_name }}
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            oxidized-health_linux_${{ github.ref }}
+            oxidized-health_linux_${{ github.ref_name }}
