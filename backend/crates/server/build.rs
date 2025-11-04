@@ -1,23 +1,24 @@
 fn main() {
     println!("cargo::rerun-if-changed=css");
     println!("cargo::rerun-if-changed=src");
+    println!("cargo::rerun-if-changed=public");
 
-    let mut tailwindcss_process = match std::env::consts::OS {
-        "macos" => std::process::Command::new("./tools/tailwindcss-macos")
-            .args(["-i", "./css/app.css"])
-            .args(["-o", "./public/css/app.css"])
-            .spawn()
-            .expect("Failed to spawn child process"),
-        "windows" => panic!("Unsupported OS"),
-        "linux" => {
-             std::process::Command::new("./tools/tailwindcss-linux-x64")
-            .args(["-i", "./css/app.css"])
-            .args(["-o", "./public/css/app.css"])
-            .spawn()
-            .expect("Failed to spawn child process"),
-        }
-        _ => panic!("Unsupported OS"),
-    };
+    let mut npm_install = std::process::Command::new("npm")
+        .arg("i")
+        .spawn()
+        .expect("Failed to install node packages.");
+
+    npm_install
+        .wait()
+        .expect("Failed to install node packages.");
+
+    let mut tailwindcss_process = std::process::Command::new("npx")
+        .arg("@tailwindcss/cli")
+        .args(["-i", "./css/app.css"])
+        .args(["-o", "./public/css/app.css"])
+        .args(["--minify"])
+        .spawn()
+        .expect("Failed to spawn child process");
 
     let result = tailwindcss_process.wait().expect("TAILWIND FAILED");
 
