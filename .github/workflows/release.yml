@@ -21,3 +21,37 @@ jobs:
         with:
           files: |
             oxidized-health_linux_${{ github.ref_name }}
+  windows:
+    runs-on: windows-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Build
+        run: cd backend && cargo build --release
+      - name: Test
+        run: mv backend/target/release/oxidized-health ./oxidized-health_windows_${{ github.ref_name }}
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            oxidized-health_windows_${{ github.ref_name }}
+  mac:
+    runs-on: macos-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Build
+        run: cd backend && cargo build --release
+      - name: Test
+        run: mv backend/target/release/oxidized-health ./oxidized-health_macos_${{ github.ref_name }}
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            oxidized-health_macos_${{ github.ref_name }}
