@@ -2179,6 +2179,7 @@ dependencies = [
  "oxidized-fhir-search",
  "oxidized-fhir-serialization-json",
  "oxidized-fhirpath",
+ "oxidized-indexing-worker",
  "oxidized-jwt",
  "oxidized-repository",
  "oxidized-server",

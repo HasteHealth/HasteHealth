@@ -166,7 +166,7 @@ impl From<IndexingWorkerEnvironmentVariables> for String {
     }
 }
 
-pub async fn run_worker() {
+pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();

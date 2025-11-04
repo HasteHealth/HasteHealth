@@ -55,3 +55,4 @@ oxidized-fhir-client = { path = "./crates/fhir-client", features = [
 oxidized-server = { path = "./crates/server" }
 oxidized-config = { path = "./crates/config" }
 oxidized-repository = { path = "./crates/repository" }
+oxidized-indexing-worker = { path = "./crates/indexing-worker" }
