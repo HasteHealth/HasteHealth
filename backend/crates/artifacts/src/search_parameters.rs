@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
-use oxidized_macro_loads::load_artifacts;
+use rust_embed::Embed;
 use std::{collections::HashMap, sync::Arc};
 
 #[derive(Debug)]
@@ -83,16 +83,22 @@ fn index_parameter(
     }
 }
 
+#[derive(Embed)]
+#[folder = "./artifacts/r4"]
+#[include = "oxidized_health/search_parameter/"]
+#[include = "hl7/minified/search-parameters.min.json"]
+
+struct EmbededSearchParameterAssets;
+
 static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
     let mut index = SearchParametersIndex::default();
-    let search_parameter_data_strings = load_artifacts!(
-        "../artifacts/r4/hl7/minified/search-parameters.min.json"
-        "../artifacts/r4/oxidized_health/search_parameter"
-    );
 
-    for search_str in search_parameter_data_strings {
-        let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(search_str)
-            .expect("Failed to parse search parameters JSON");
+    for path in EmbededSearchParameterAssets::iter() {
+        let data = EmbededSearchParameterAssets::get(path.as_ref()).unwrap();
+        let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(
+            std::str::from_utf8(&data.data).unwrap(),
+        )
+        .expect("Failed to parse search parameters JSON");
         index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
     }
     index
