@@ -11,6 +11,10 @@ pub trait Login {
     ) -> impl Future<Output = Result<LoginResult, OperationOutcomeError>> + Send;
 }
 
+pub trait Migrate {
+    fn migrate(&self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
+}
+
 pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
     fn create(
         &self,

@@ -46,3 +46,13 @@ oxidized-fhirpath = { path = "./crates/fhirpath" }
 oxidized-codegen = { path = "./crates/codegen" }
 oxidized-fhir-operation-error = { path = "./crates/fhir-operation-error" }
 oxidized-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
+oxidized-fhir-search = { path = "./crates/fhir-search" }
+oxidized-jwt = { path = "./crates/jwt" }
+oxidized-fhir-client = { path = "./crates/fhir-client", features = [
+    "http",
+    "axum",
+] }
+oxidized-server = { path = "./crates/server" }
+oxidized-config = { path = "./crates/config" }
+oxidized-repository = { path = "./crates/repository" }
+oxidized-indexing-worker = { path = "./crates/indexing-worker" }

@@ -1,5 +1,5 @@
 use crate::{
-    admin::{Login, ProjectAuthAdmin, TenantAuthAdmin},
+    admin::{Login, Migrate, ProjectAuthAdmin, TenantAuthAdmin},
     fhir::FHIRRepository,
     types::{
         authorization_code::{
@@ -39,5 +39,6 @@ pub trait Repository: FHIRRepository
     > + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, String>
     + ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     + Login
+    + Migrate
 {
 }
