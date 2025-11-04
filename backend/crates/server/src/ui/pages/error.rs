@@ -1,4 +1,4 @@
-use crate::{server::asset_route, ui::components::page_html};
+use crate::{static_assets::asset_route, ui::components::page_html};
 use maud::{Markup, html};
 use oxidized_jwt::TenantId;
 

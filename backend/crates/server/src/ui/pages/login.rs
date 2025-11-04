@@ -1,5 +1,5 @@
 use crate::{
-    auth_n::oidc::routes::route_string::oidc_route_string, server::asset_route,
+    auth_n::oidc::routes::route_string::oidc_route_string, static_assets::asset_route,
     ui::components::page_html,
 };
 use maud::{Markup, html};

@@ -7,6 +7,7 @@ pub mod load_artifacts;
 mod middleware;
 pub mod server;
 pub mod services;
+mod static_assets;
 pub mod tenants;
 mod ui;
 
