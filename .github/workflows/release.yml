@@ -1,0 +1,20 @@
+name: Main
+on:
+  release:
+    types: [published]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Build
+        run: cd backend && cargo build --release
+      - name: Test
+        run: mv backend/target/release/oxidized-health ./oxidized-health_linux_${{ github.ref }}
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            oxidized-health_linux_${{ github.ref }}
