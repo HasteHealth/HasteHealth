@@ -10,7 +10,10 @@ use axum::extract::{OriginalUri, State};
 use axum_extra::{extract::Cached, routing::TypedPath};
 use maud::Markup;
 use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use oxidized_fhir_model::r4::generated::{
+    resources::{Project as FHIRProject, Resource, ResourceType},
+    terminology::IssueType,
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
@@ -21,6 +24,25 @@ use serde::Deserialize;
 #[typed_path("/{identity_provider_id}")]
 pub struct FederatedInitiate {
     pub identity_provider_id: String,
+}
+
+fn validate_identity_provider_in_project(
+    identity_provider_id: &str,
+    project: &FHIRProject,
+) -> Result<(), OperationOutcomeError> {
+    if let Some(identity_providers) = &project.identityProvider {
+        for ip_ref in identity_providers {
+            if let Some(ref_id) = &ip_ref.reference.as_ref().and_then(|r| r.value.as_ref()) {
+                if ref_id.as_str() == &format!("IdentityProvider/{}", identity_provider_id) {
+                    return Ok(());
+                }
+            }
+        }
+    }
+    Err(OperationOutcomeError::new_issue(
+        IssueType::Forbidden(None),
+        "The specified identity provider is not associated with the project.",
+    ))
 }
 
 pub async fn federated_initiate<
@@ -38,6 +60,8 @@ pub async fn federated_initiate<
     OIDCClientApplication(client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
+    validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
+
     let identity_provider = state
         .fhir_client
         .read(
