@@ -15,12 +15,12 @@ jobs:
       - name: Build
         run: cd backend && cargo build --release
       - name: Test
-        run: mv backend/target/release/oxidized-health ./oxidized-health_linux_${{ github.ref_name }}
+        run: mv backend/target/release/oxidized-health ./oxidized-health_linux
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            oxidized-health_linux_${{ github.ref_name }}
+            oxidized-health_linux
   #   windows:
   #     runs-on: windows-latest
   #     permissions:
@@ -32,12 +32,12 @@ jobs:
   #       - name: Build
   #         run: cd backend && cargo build --release
   #       - name: Test
-  #         run: mv backend/target/release/oxidized-health ./oxidized-health_windows_${{ github.ref_name }}
+  #         run: mv backend/target/release/oxidized-health ./oxidized-health_windows
   #       - name: Release
   #         uses: softprops/action-gh-release@v2
   #         with:
   #           files: |
-  #             oxidized-health_windows_${{ github.ref_name }}
+  #             oxidized-health_windows
   mac:
     runs-on: macos-latest
     permissions:
@@ -49,9 +49,9 @@ jobs:
       - name: Build
         run: cd backend && cargo build --release
       - name: Test
-        run: mv backend/target/release/oxidized-health ./oxidized-health_macos_${{ github.ref_name }}
+        run: mv backend/target/release/oxidized-health ./oxidized-health_macos
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            oxidized-health_macos_${{ github.ref_name }}
+            oxidized-health_macos
