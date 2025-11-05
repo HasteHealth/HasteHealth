@@ -39,12 +39,13 @@ fn validate_identity_provider_in_project(
             }
         }
     }
-    Err(OperationOutcomeError::new_issue(
+    Err(OperationOutcomeError::error(
         IssueType::Forbidden(None),
-        "The specified identity provider is not associated with the project.",
+        "The specified identity provider is not associated with the project.".to_string(),
     ))
 }
 
+#[allow(dead_code)]
 pub async fn federated_initiate<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -57,12 +58,12 @@ pub async fn federated_initiate<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
-    OIDCClientApplication(client_app): OIDCClientApplication,
-    uri: OriginalUri,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
+    _uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
     validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
 
-    let identity_provider = state
+    let _identity_provider = state
         .fhir_client
         .read(
             Arc::new(ServerCTX::system(
