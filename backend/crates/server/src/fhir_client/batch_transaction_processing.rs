@@ -259,20 +259,17 @@ fn get_resource_type_from_fhir_request(request: &FHIRRequest) -> Option<Resource
     }
 }
 
-/// Process a transaction bundle, ensuring that references between entries are resolved correctly.
-/// Sorts transactions using topological sort to ensure that dependencies are processed first.
-pub async fn process_transaction_bundle<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->(
-    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+pub struct SortedTransaction<'a> {
+    graph: DiGraph<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>,
+    topo_sort_ordering: Vec<NodeIndex>,
+}
+
+pub fn build_sorted_transaction_graph<'a>(
     request_bundle_entries: Vec<BundleEntry>,
-) -> Result<Bundle, OperationOutcomeError> {
+) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
     let fp_engine = oxidized_fhirpath::FPEngine::new();
 
-    let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&mut Reference>>>::new();
+    let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>::new();
     // Used for index lookup when mutating.
     let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
 
@@ -294,11 +291,13 @@ pub async fn process_transaction_bundle<
     let edges = graph
         .node_indices()
         .flat_map(|cur_index| {
+            let entry = if let Some(bundle_entry) = &graph[cur_index] {
+                vec![bundle_entry as &dyn MetaValue]
+            } else {
+                return vec![];
+            };
             let fp_result = fp_engine
-                .evaluate(
-                    "$this.descendants().ofType(Reference)",
-                    vec![&graph[cur_index]],
-                )
+                .evaluate("$this.descendants().ofType(Reference)", entry)
                 .unwrap();
 
             fp_result
@@ -340,16 +339,38 @@ pub async fn process_transaction_bundle<
         )
     })?;
 
+    Ok(SortedTransaction {
+        graph,
+        topo_sort_ordering,
+    })
+}
+
+/// Process a transaction bundle, ensuring that references between entries are resolved correctly.
+/// Sorts transactions using topological sort to ensure that dependencies are processed first.
+pub async fn process_transaction_bundle<
+    'a,
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+>(
+    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
+    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    mut sorted_transaction: SortedTransaction<'a>,
+) -> Result<Bundle, OperationOutcomeError> {
     let mut response_entries = vec![];
 
-    for index in topo_sort_ordering.iter() {
-        let targets = graph.edges(*index).map(|e| e.id()).collect::<Vec<_>>();
+    for index in sorted_transaction.topo_sort_ordering.iter() {
+        let targets = sorted_transaction
+            .graph
+            .edges(*index)
+            .map(|e| e.id())
+            .collect::<Vec<_>>();
         let edges = targets
             .into_iter()
             // Do memswap as actual removal alters edge locations of graph.
             // So next set of edges would be invalid (although could possibly go in reverse order).
             .filter_map(|i| {
-                if let Some(edge_weight) = graph.edge_weight_mut(i) {
+                if let Some(edge_weight) = sorted_transaction.graph.edge_weight_mut(i) {
                     let mut placeholder = None;
                     std::mem::swap(&mut placeholder, edge_weight);
 
@@ -361,7 +382,7 @@ pub async fn process_transaction_bundle<
             .collect::<Vec<_>>();
 
         let mut entry = None;
-        std::mem::swap(&mut graph[*index], &mut entry);
+        std::mem::swap(&mut sorted_transaction.graph[*index], &mut entry);
 
         let entry = entry.ok_or_else(|| {
             OperationOutcomeError::fatal(
