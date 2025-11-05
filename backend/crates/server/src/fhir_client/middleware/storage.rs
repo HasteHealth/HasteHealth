@@ -452,6 +452,9 @@ impl<
                         &mut transaction_entries,
                     );
 
+                    // Run sort before creating transaction.
+                    // So that transaction is only used for the direct submission of the sorted entries.
+                    // We want to limit time within a transaction as much as possible.
                     let sorted_transaction =
                         build_sorted_transaction_graph(transaction_entries.unwrap_or_default())?;
 

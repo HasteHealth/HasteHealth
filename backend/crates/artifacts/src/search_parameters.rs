@@ -85,7 +85,7 @@ fn index_parameter(
 
 #[derive(Embed)]
 #[folder = "./artifacts/r4"]
-#[include = "oxidized_health/search_parameter/"]
+#[include = "oxidized_health/search_parameter/*.json"]
 #[include = "hl7/minified/search-parameters.min.json"]
 
 struct EmbededSearchParameterAssets;
