@@ -21,6 +21,7 @@ use tower::ServiceBuilder;
 use url::Url;
 
 mod authorize;
+mod federated;
 mod interactions;
 pub mod route_string;
 pub mod scope;

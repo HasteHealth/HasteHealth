@@ -143,6 +143,10 @@ pub struct Project {
     #[primitive]
     #[doc = ""]
     pub fhirVersion: Box<terminology::SupportedFhirVersion>,
+    #[cardinality(max = 3usize)]
+    # [reference (targets = ["IdentityProvider"])]
+    #[doc = ""]
+    pub identityProvider: Option<Vec<Box<Reference>>>,
 }
 #[derive(
     Clone,

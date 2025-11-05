@@ -45,7 +45,7 @@ impl IndexLockProvider for PGConnection {
                     separated.push_bind(tenant_id);
                 }
 
-                separated.push_unseparated(") FOR UPDATE SKIP LOCKED");
+                separated.push_unseparated(") FOR NO KEY UPDATE SKIP LOCKED");
 
                 let query = query_builder.build_query_as();
                 // println!("Executing query: '{:?}'", query.sql());
