@@ -259,6 +259,92 @@ fn get_resource_type_from_fhir_request(request: &FHIRRequest) -> Option<Resource
     }
 }
 
+struct SortedTransaction<'a> {
+    graph: DiGraph<Option<&'a mut BundleEntry>, Option<Pin<&'a mut Reference>>>,
+    topo_sort_ordering: Vec<NodeIndex>,
+}
+
+pub fn build_graph<'a>(
+    request_bundle_entries: Vec<&'a mut BundleEntry>,
+) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
+    let fp_engine = oxidized_fhirpath::FPEngine::new();
+
+    let mut graph = DiGraph::<Option<&'a mut BundleEntry>, Option<Pin<&'a mut Reference>>>::new();
+    // Used for index lookup when mutating.
+    let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
+
+    // Instantiate the nodes. See [https://hl7.org/fhir/R4/bundle.html#references] for handling of refernces in bundle.
+    // Currently we will resolve only internal references (i.e. those that reference other entries in the bundle via fullUrl).
+    request_bundle_entries.into_iter().for_each(|entry| {
+        let full_url = entry
+            .fullUrl
+            .as_ref()
+            .and_then(|fu| fu.value.as_ref())
+            .map(|s| s.to_string());
+        let node_index = graph.add_node(Some(entry));
+        if let Some(full_url) = full_url {
+            indices_map.insert(full_url, node_index);
+        }
+    });
+
+    // Avoid borrow issue process as tupple collection than add to graph.
+    let edges = graph
+        .node_indices()
+        .flat_map(|cur_index| {
+            let entry = if let Some(bundle_entry) = &graph[cur_index] {
+                vec![&**bundle_entry as &dyn MetaValue]
+            } else {
+                return vec![];
+            };
+            let fp_result = fp_engine
+                .evaluate("$this.descendants().ofType(Reference)", entry)
+                .unwrap();
+
+            fp_result
+                .iter()
+                .filter_map(|mv| mv.as_any().downcast_ref::<Reference>())
+                .filter_map(|reference| {
+                    if let Some(reference_string) =
+                        reference.reference.as_ref().and_then(|r| r.value.as_ref())
+                        && let Some(reference_index) = indices_map.get(reference_string.as_str())
+                    {
+                        // Convert because need to mutate it.
+                        let r = reference as *const Reference;
+                        let mut_ptr = r as *mut Reference;
+                        let mutable_reference = unsafe { mut_ptr.as_mut().unwrap() };
+                        Some((
+                            *reference_index,
+                            cur_index,
+                            Some(Pin::new(mutable_reference)),
+                        ))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<(NodeIndex, NodeIndex, Option<Pin<&mut Reference>>)>>()
+        })
+        .collect::<Vec<_>>();
+
+    for edge in edges {
+        graph.add_edge(edge.0, edge.1, edge.2);
+    }
+
+    let topo_sort_ordering = toposort(&graph, None).map_err(|e| {
+        OperationOutcomeError::fatal(
+            IssueType::Exception(None),
+            format!(
+                "Cyclic dependency detected in transaction bundle at node {:?}",
+                e.node_id()
+            ),
+        )
+    })?;
+
+    Ok(SortedTransaction {
+        graph,
+        topo_sort_ordering,
+    })
+}
+
 /// Process a transaction bundle, ensuring that references between entries are resolved correctly.
 /// Sorts transactions using topological sort to ensure that dependencies are processed first.
 pub async fn process_transaction_bundle<
