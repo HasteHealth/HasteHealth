@@ -1,7 +1,9 @@
 use crate::{
     fhir_client::{
         ClientState, FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
-        batch_transaction_processing::{process_batch_bundle, process_transaction_bundle},
+        batch_transaction_processing::{
+            build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
+        },
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
             ServerMiddlewareState,
@@ -450,6 +452,9 @@ impl<
                         &mut transaction_entries,
                     );
 
+                    let sorted_transaction =
+                        build_sorted_transaction_graph(transaction_entries.unwrap_or_default())?;
+
                     let transaction_repo = Arc::new(state.repo.transaction().await?);
 
                     let bundle_response: Result<Bundle, OperationOutcomeError> = {
@@ -459,13 +464,10 @@ impl<
                             state.terminology.clone(),
                         ));
 
-                        let fp_test_data = transaction_entries.clone().unwrap_or_default();
-                        let now = Instant::now();
-
                         Ok(process_transaction_bundle(
                             &transaction_client,
                             context.ctx.clone(),
-                            transaction_entries.unwrap_or_else(Vec::new),
+                            sorted_transaction,
                         )
                         .await?)
                     };

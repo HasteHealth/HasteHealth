@@ -259,17 +259,17 @@ fn get_resource_type_from_fhir_request(request: &FHIRRequest) -> Option<Resource
     }
 }
 
-struct SortedTransaction<'a> {
-    graph: DiGraph<Option<&'a mut BundleEntry>, Option<Pin<&'a mut Reference>>>,
+pub struct SortedTransaction<'a> {
+    graph: DiGraph<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>,
     topo_sort_ordering: Vec<NodeIndex>,
 }
 
-pub fn build_graph<'a>(
-    request_bundle_entries: Vec<&'a mut BundleEntry>,
+pub fn build_sorted_transaction_graph<'a>(
+    request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
     let fp_engine = oxidized_fhirpath::FPEngine::new();
 
-    let mut graph = DiGraph::<Option<&'a mut BundleEntry>, Option<Pin<&'a mut Reference>>>::new();
+    let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>::new();
     // Used for index lookup when mutating.
     let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
 
@@ -292,7 +292,7 @@ pub fn build_graph<'a>(
         .node_indices()
         .flat_map(|cur_index| {
             let entry = if let Some(bundle_entry) = &graph[cur_index] {
-                vec![&**bundle_entry as &dyn MetaValue]
+                vec![bundle_entry as &dyn MetaValue]
             } else {
                 return vec![];
             };
@@ -348,94 +348,29 @@ pub fn build_graph<'a>(
 /// Process a transaction bundle, ensuring that references between entries are resolved correctly.
 /// Sorts transactions using topological sort to ensure that dependencies are processed first.
 pub async fn process_transaction_bundle<
+    'a,
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-    request_bundle_entries: Vec<BundleEntry>,
+    mut sorted_transaction: SortedTransaction<'a>,
 ) -> Result<Bundle, OperationOutcomeError> {
-    let fp_engine = oxidized_fhirpath::FPEngine::new();
-
-    let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&mut Reference>>>::new();
-    // Used for index lookup when mutating.
-    let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
-
-    // Instantiate the nodes. See [https://hl7.org/fhir/R4/bundle.html#references] for handling of refernces in bundle.
-    // Currently we will resolve only internal references (i.e. those that reference other entries in the bundle via fullUrl).
-    request_bundle_entries.into_iter().for_each(|entry| {
-        let full_url = entry
-            .fullUrl
-            .as_ref()
-            .and_then(|fu| fu.value.as_ref())
-            .map(|s| s.to_string());
-        let node_index = graph.add_node(Some(entry));
-        if let Some(full_url) = full_url {
-            indices_map.insert(full_url, node_index);
-        }
-    });
-
-    // Avoid borrow issue process as tupple collection than add to graph.
-    let edges = graph
-        .node_indices()
-        .flat_map(|cur_index| {
-            let fp_result = fp_engine
-                .evaluate(
-                    "$this.descendants().ofType(Reference)",
-                    vec![&graph[cur_index]],
-                )
-                .unwrap();
-
-            fp_result
-                .iter()
-                .filter_map(|mv| mv.as_any().downcast_ref::<Reference>())
-                .filter_map(|reference| {
-                    if let Some(reference_string) =
-                        reference.reference.as_ref().and_then(|r| r.value.as_ref())
-                        && let Some(reference_index) = indices_map.get(reference_string.as_str())
-                    {
-                        // Convert because need to mutate it.
-                        let r = reference as *const Reference;
-                        let mut_ptr = r as *mut Reference;
-                        let mutable_reference = unsafe { mut_ptr.as_mut().unwrap() };
-                        Some((
-                            *reference_index,
-                            cur_index,
-                            Some(Pin::new(mutable_reference)),
-                        ))
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<(NodeIndex, NodeIndex, Option<Pin<&mut Reference>>)>>()
-        })
-        .collect::<Vec<_>>();
-
-    for edge in edges {
-        graph.add_edge(edge.0, edge.1, edge.2);
-    }
-
-    let topo_sort_ordering = toposort(&graph, None).map_err(|e| {
-        OperationOutcomeError::fatal(
-            IssueType::Exception(None),
-            format!(
-                "Cyclic dependency detected in transaction bundle at node {:?}",
-                e.node_id()
-            ),
-        )
-    })?;
-
     let mut response_entries = vec![];
 
-    for index in topo_sort_ordering.iter() {
-        let targets = graph.edges(*index).map(|e| e.id()).collect::<Vec<_>>();
+    for index in sorted_transaction.topo_sort_ordering.iter() {
+        let targets = sorted_transaction
+            .graph
+            .edges(*index)
+            .map(|e| e.id())
+            .collect::<Vec<_>>();
         let edges = targets
             .into_iter()
             // Do memswap as actual removal alters edge locations of graph.
             // So next set of edges would be invalid (although could possibly go in reverse order).
             .filter_map(|i| {
-                if let Some(edge_weight) = graph.edge_weight_mut(i) {
+                if let Some(edge_weight) = sorted_transaction.graph.edge_weight_mut(i) {
                     let mut placeholder = None;
                     std::mem::swap(&mut placeholder, edge_weight);
 
@@ -447,7 +382,7 @@ pub async fn process_transaction_bundle<
             .collect::<Vec<_>>();
 
         let mut entry = None;
-        std::mem::swap(&mut graph[*index], &mut entry);
+        std::mem::swap(&mut sorted_transaction.graph[*index], &mut entry);
 
         let entry = entry.ok_or_else(|| {
             OperationOutcomeError::fatal(
