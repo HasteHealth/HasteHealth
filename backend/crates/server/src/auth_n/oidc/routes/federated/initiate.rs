@@ -19,6 +19,7 @@ use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
 use serde::Deserialize;
+use url::Url;
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/{identity_provider_id}")]
@@ -63,7 +64,7 @@ pub async fn federated_initiate<
 ) -> Result<Markup, OperationOutcomeError> {
     validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
 
-    let _identity_provider = state
+    let identity_provider = state
         .fhir_client
         .read(
             Arc::new(ServerCTX::system(
@@ -80,5 +81,46 @@ pub async fn federated_initiate<
             _ => None,
         });
 
-    todo!();
+    if let Some(identity_provider) = identity_provider
+        && let Some(oidc) = &identity_provider.oidc
+    {
+        let mut authorization_url = oidc
+            .authorization_endpoint
+            .value
+            .as_ref()
+            .and_then(|s| Url::parse(s).ok())
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid authorization endpoint URL for identity provider".to_string(),
+                )
+            })?;
+        let client_id = oidc.client.clientId.value.as_ref().ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Missing client ID for identity provider.".to_string(),
+            )
+        })?;
+
+        let scopes = oidc.scopes.as_ref().map(|s| {
+            s.iter()
+                .filter_map(|v| v.value.as_ref())
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .join(" ")
+        });
+
+        authorization_url.set_query(Some("response_type=code"));
+        authorization_url
+            .query_pairs_mut()
+            .append_pair("client_id", client_id)
+            .append_pair("scope", &scopes.unwrap_or_default());
+
+        todo!();
+    } else {
+        return Err(OperationOutcomeError::error(
+            IssueType::NotFound(None),
+            "The specified identity provider was not found.".to_string(),
+        ));
+    }
 }

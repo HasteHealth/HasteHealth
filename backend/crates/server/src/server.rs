@@ -1,8 +1,5 @@
 use crate::{
-    auth_n::{
-        self,
-        certificates::{JSONWebKeySet, JWK_SET},
-    },
+    auth_n,
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     middleware::errors::{log_operationoutcome_errors, operation_outcome_error_handle},
@@ -10,13 +7,13 @@ use crate::{
     static_assets::{create_static_server, root_asset_route},
 };
 use axum::{
-    Extension, Json, Router, ServiceExt,
+    Extension, Router, ServiceExt,
     body::Body,
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::{Method, Uri},
     middleware::from_fn,
     response::{IntoResponse, Response},
-    routing::{self, any},
+    routing::any,
 };
 use oxidized_config::get_config;
 use oxidized_fhir_client::FHIRClient;
@@ -144,10 +141,6 @@ async fn fhir_type_handler<
     fhir_handler(user, method, uri, path, state, body).await
 }
 
-async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeError> {
-    Ok(Json(&*JWK_SET))
-}
-
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
     auth_n::certificates::create_certifications(&*config).unwrap();
@@ -183,10 +176,16 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         auth_n::oidc::routes::create_router(shared_state.clone()),
     );
 
-    let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
+    let tenant_router = Router::new()
+        .nest("/api/v1/{project}", project_router)
+        .layer(
+            // Relies on tenant for html so moving operation outcome error handling to here.
+            ServiceBuilder::new()
+                .layer(from_fn(operation_outcome_error_handle))
+                .layer(from_fn(log_operationoutcome_errors)),
+        );
 
     let app = Router::new()
-        .route("/certs/jwks", routing::get(jwks_get))
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
@@ -206,9 +205,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                         // allow requests from any origin
                         .allow_origin(Any)
                         .allow_headers(Any),
-                )
-                .layer(from_fn(operation_outcome_error_handle))
-                .layer(from_fn(log_operationoutcome_errors)),
+                ),
         )
         .with_state(shared_state)
         .nest(root_asset_route().to_str().unwrap(), create_static_server());

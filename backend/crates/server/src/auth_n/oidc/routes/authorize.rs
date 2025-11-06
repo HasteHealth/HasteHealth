@@ -67,14 +67,14 @@ pub async fn find_membership<Repo: Repository>(
 
 #[derive(TypedPath)]
 #[typed_path("/authorize")]
-pub struct Authorize;
+pub struct AuthorizePath;
 
 pub async fn authorize<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    _: Authorize,
+    _: AuthorizePath,
     Scopes(scopes): Scopes,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
