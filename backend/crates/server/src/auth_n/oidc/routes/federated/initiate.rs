@@ -46,6 +46,7 @@ fn validate_identity_provider_in_project(
     ))
 }
 
+#[allow(dead_code)]
 pub async fn federated_initiate<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
