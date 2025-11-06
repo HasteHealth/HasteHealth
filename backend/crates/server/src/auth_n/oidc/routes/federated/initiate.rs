@@ -45,7 +45,6 @@ fn validate_identity_provider_in_project(
     ))
 }
 
-#[allow(dead_code)]
 pub async fn federated_initiate<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -80,5 +79,12 @@ pub async fn federated_initiate<
             _ => None,
         });
 
-    todo!();
+    if let Some(identity_provider) = _identity_provider {
+        todo!();
+    } else {
+        return Err(OperationOutcomeError::error(
+            IssueType::NotFound(None),
+            "The specified identity provider was not found.".to_string(),
+        ));
+    }
 }
