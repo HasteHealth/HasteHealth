@@ -23,6 +23,7 @@ use url::Url;
 mod authorize;
 mod federated;
 mod interactions;
+mod jwks;
 pub mod route_string;
 pub mod scope;
 mod token;
@@ -75,14 +76,18 @@ async fn openid_configuration<
     let path = uri.path();
     let well_known_path = WellKnown.to_string();
 
-    let authorize_path = path.replace(&well_known_path, "/auth/authorize");
-    let token_path = path.replace(&well_known_path, "/auth/token");
+    let authorize_path = path.replace(
+        &well_known_path,
+        authorize::AuthorizePath.to_string().as_str(),
+    );
+    let token_path = path.replace(&well_known_path, token::TokenPath.to_string().as_str());
+    let jwks_path = path.replace(&well_known_path, jwks::JWKSPath.to_string().as_str());
 
     let oidc_response = OIDCResponse {
         issuer: api_url.to_string(),
         authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
         token_endpoint: api_url.join(&token_path).unwrap().to_string(),
-        jwks_uri: api_url.join("certs/jwks").unwrap().to_string(),
+        jwks_uri: api_url.join(&jwks_path).unwrap().to_string(),
         scopes_supported: vec![
             "openid".to_string(),
             "profile".to_string(),
@@ -135,6 +140,7 @@ pub fn create_router<
     state: Arc<AppState<Repo, Search, Terminology>>,
 ) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     Router::new()
+        .merge(Router::new().typed_get(jwks::jwks_get))
         .merge(Router::new().typed_get(openid_configuration))
         .nest(
             "/auth",

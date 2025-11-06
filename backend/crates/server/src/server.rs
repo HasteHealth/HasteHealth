@@ -1,8 +1,5 @@
 use crate::{
-    auth_n::{
-        self,
-        certificates::{JSONWebKeySet, JWK_SET},
-    },
+    auth_n,
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     middleware::errors::{log_operationoutcome_errors, operation_outcome_error_handle},
@@ -10,13 +7,13 @@ use crate::{
     static_assets::{create_static_server, root_asset_route},
 };
 use axum::{
-    Extension, Json, Router, ServiceExt,
+    Extension, Router, ServiceExt,
     body::Body,
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
     http::{Method, Uri},
     middleware::from_fn,
     response::{IntoResponse, Response},
-    routing::{self, any},
+    routing::any,
 };
 use oxidized_config::get_config;
 use oxidized_fhir_client::FHIRClient;
@@ -144,10 +141,6 @@ async fn fhir_type_handler<
     fhir_handler(user, method, uri, path, state, body).await
 }
 
-async fn jwks_get() -> Result<Json<&'static JSONWebKeySet>, OperationOutcomeError> {
-    Ok(Json(&*JWK_SET))
-}
-
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
     auth_n::certificates::create_certifications(&*config).unwrap();
@@ -186,7 +179,6 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
 
     let app = Router::new()
-        .route("/certs/jwks", routing::get(jwks_get))
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
