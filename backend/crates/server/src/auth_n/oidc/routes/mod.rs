@@ -45,6 +45,8 @@ pub struct OIDCResponse {
 #[typed_path("/.well-known/openid-configuration")]
 pub struct WellKnown;
 
+static AUTH_NESTED_PATH: &str = "/auth";
+
 async fn openid_configuration<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -78,9 +80,12 @@ async fn openid_configuration<
 
     let authorize_path = path.replace(
         &well_known_path,
-        authorize::AuthorizePath.to_string().as_str(),
+        &(AUTH_NESTED_PATH.to_string() + authorize::AuthorizePath.to_string().as_str()),
     );
-    let token_path = path.replace(&well_known_path, token::TokenPath.to_string().as_str());
+    let token_path = path.replace(
+        &well_known_path,
+        &(AUTH_NESTED_PATH.to_string() + token::TokenPath.to_string().as_str()),
+    );
     let jwks_path = path.replace(&well_known_path, jwks::JWKSPath.to_string().as_str());
 
     let oidc_response = OIDCResponse {
@@ -143,7 +148,7 @@ pub fn create_router<
         .merge(Router::new().typed_get(jwks::jwks_get))
         .merge(Router::new().typed_get(openid_configuration))
         .nest(
-            "/auth",
+            AUTH_NESTED_PATH,
             Router::new()
                 .merge(Router::new().typed_post(token::token))
                 .merge(

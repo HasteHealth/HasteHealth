@@ -176,7 +176,14 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         auth_n::oidc::routes::create_router(shared_state.clone()),
     );
 
-    let tenant_router = Router::new().nest("/api/v1/{project}", project_router);
+    let tenant_router = Router::new()
+        .nest("/api/v1/{project}", project_router)
+        .layer(
+            // Relies on tenant for html so moving operation outcome error handling to here.
+            ServiceBuilder::new()
+                .layer(from_fn(operation_outcome_error_handle))
+                .layer(from_fn(log_operationoutcome_errors)),
+        );
 
     let app = Router::new()
         .nest("/w/{tenant}", tenant_router)
@@ -198,9 +205,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                         // allow requests from any origin
                         .allow_origin(Any)
                         .allow_headers(Any),
-                )
-                .layer(from_fn(operation_outcome_error_handle))
-                .layer(from_fn(log_operationoutcome_errors)),
+                ),
         )
         .with_state(shared_state)
         .nest(root_asset_route().to_str().unwrap(), create_static_server());
