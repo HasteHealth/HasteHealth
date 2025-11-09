@@ -58,3 +58,4 @@ oxidized-repository = { path = "./crates/repository" }
 oxidized-indexing-worker = { path = "./crates/indexing-worker" }
 toml = "0.9.8"
 serde = "1.0.228"
+dialoguer = "0.12.0"

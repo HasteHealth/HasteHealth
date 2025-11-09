@@ -1,4 +1,4 @@
-use clap::{Subcommand, ValueEnum};
+use clap::Subcommand;
 
 #[derive(Subcommand, Debug)]
 pub enum ApiCommands {

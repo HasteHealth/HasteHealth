@@ -65,14 +65,12 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
     let config = CLI_CONFIG.clone();
 
-    println!("config {:#?}", config.lock().unwrap());
-
     match &cli.command {
         CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath),
         CLICommand::Generate { command } => commands::codegen::codegen(command).await,
         CLICommand::Server { command } => commands::server::server(command).await,
         CLICommand::Worker {} => commands::worker::worker().await,
-        CLICommand::Config { command } => todo!(),
+        CLICommand::Config { command } => commands::config::config(&config, command).await,
         CLICommand::Api { command } => todo!(),
     }
 }
