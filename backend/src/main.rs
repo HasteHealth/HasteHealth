@@ -44,18 +44,19 @@ enum CLICommand {
     Worker {},
 }
 
-static CONFIG_DIRECTORY: LazyLock<PathBuf> = LazyLock::new(|| {
+static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
     let config_dir = std::env::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join(".oxidized_health")
-        .join("config");
+        .join(".oxidized_health");
+
     std::fs::create_dir_all(&config_dir).expect("Failed to create config directory");
-    config_dir
+
+    config_dir.join("config.toml")
 });
 
 static CLI_CONFIG: LazyLock<Arc<Mutex<CLIConfiguration>>> = LazyLock::new(|| {
-    let config_path = CONFIG_DIRECTORY.join("config.toml");
-    let config = load_config(&config_path).unwrap_or_default();
+    let config = load_config(&CONFIG_LOCATION);
+
     Arc::new(Mutex::new(config))
 });
 
@@ -64,7 +65,8 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
     let config = CLI_CONFIG.clone();
 
-    println!("Using config {:#?}", config);
+    println!("config {:#?}", config.lock().unwrap());
+
     match &cli.command {
         CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath),
         CLICommand::Generate { command } => commands::codegen::codegen(command).await,

@@ -45,45 +45,56 @@ pub enum ConfigCommands {
     },
 }
 
-pub fn load_config(location: &PathBuf) -> Result<CLIConfiguration, OperationOutcomeError> {
-    let config: Result<CLIConfiguration, OperationOutcomeError> = {
-        let config_str = std::fs::read_to_string(location).map_err(|_| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!(
-                    "Failed to read config file at location '{}'",
-                    location.to_string_lossy()
-                ),
-            )
-        })?;
-        let config = toml::from_str::<CLIConfiguration>(&config_str).map_err(|_| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!(
-                    "Failed to parse config file at location '{}'",
-                    location.to_string_lossy()
-                ),
-            )
-        })?;
+fn read_existing_config(location: &PathBuf) -> Result<CLIConfiguration, OperationOutcomeError> {
+    let config_str = std::fs::read_to_string(location).map_err(|_| {
+        OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!(
+                "Failed to read config file at location '{}'",
+                location.to_string_lossy()
+            ),
+        )
+    })?;
 
-        Ok(config)
-    };
+    println!("Config file contents:\n{}", config_str);
+    let config = toml::from_str::<CLIConfiguration>(&config_str).map_err(|_| {
+        OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!(
+                "Failed to parse config file at location '{}'",
+                location.to_string_lossy()
+            ),
+        )
+    })?;
+
+    Ok(config)
+}
+
+pub fn load_config(location: &PathBuf) -> CLIConfiguration {
+    let config: Result<CLIConfiguration, OperationOutcomeError> = read_existing_config(location);
 
     if let Ok(config) = config {
-        Ok(config)
+        config
     } else {
         let config = CLIConfiguration::default();
 
-        std::fs::write(location, toml::to_string(&config).unwrap()).map_err(|_| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!(
-                    "Failed to write default config file at location '{}'",
-                    location.to_string_lossy()
-                ),
-            )
-        })?;
+        println!(
+            "Creating default config at location '{}'",
+            location.to_string_lossy()
+        );
 
-        Ok(config)
+        std::fs::write(location, toml::to_string(&config).unwrap())
+            .map_err(|_| {
+                OperationOutcomeError::error(
+                    IssueType::Exception(None),
+                    format!(
+                        "Failed to write default config file at location '{}'",
+                        location.to_string_lossy()
+                    ),
+                )
+            })
+            .expect("Failed to write default config file");
+
+        config
     }
 }
