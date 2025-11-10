@@ -19,6 +19,11 @@ pub struct ResourcePollingValue {
     pub fhir_method: FHIRMethod,
 }
 
+pub enum IsolationLevel {
+    ReadCommitted,
+    RepeatableRead,
+}
+
 pub enum HistoryRequest<'a> {
     System(&'a FHIRHistorySystemRequest),
     Type(&'a FHIRHistoryTypeRequest),
@@ -89,6 +94,8 @@ pub trait FHIRRepository: Sized {
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
     fn transaction<'a>(
         &'a self,
+        isolation_level: Option<&'a IsolationLevel>,
+        register: bool,
     ) -> impl Future<Output = Result<Self, OperationOutcomeError>> + Send;
     fn in_transaction(&self) -> bool;
     fn commit(self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;

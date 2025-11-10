@@ -83,7 +83,7 @@ impl<
 > AppState<Repo, Search, Terminology>
 {
     pub async fn transaction(&self) -> Result<Self, OperationOutcomeError> {
-        self.repo.transaction().await.map(|tx_repo| {
+        self.repo.transaction(None, true).await.map(|tx_repo| {
             let tx_repo = Arc::new(tx_repo);
             AppState {
                 terminology: self.terminology.clone(),

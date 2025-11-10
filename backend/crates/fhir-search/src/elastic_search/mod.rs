@@ -1,5 +1,6 @@
 use crate::{
     IndexResource, SearchEngine, SearchEntry, SearchOptions, SearchReturn,
+    SuccessfullyIndexedCount,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -247,7 +248,8 @@ impl SearchEngine for ElasticSearchEngine {
         tenant: &TenantId,
 
         resources: Vec<IndexResource<'a>>,
-    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<SuccessfullyIndexedCount, oxidized_fhir_operation_error::OperationOutcomeError>
+    {
         // Iterator used to evaluate all of the search expressions for indexing.
 
         let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
@@ -332,9 +334,12 @@ impl SearchEngine for ElasticSearchEngine {
                 );
                 return Err(SearchError::Fatal(500).into());
             }
+            Ok(SuccessfullyIndexedCount(
+                response_body["items"].as_array().unwrap().len(),
+            ))
+        } else {
+            Ok(SuccessfullyIndexedCount(0))
         }
-
-        Ok(())
     }
 
     async fn migrate(

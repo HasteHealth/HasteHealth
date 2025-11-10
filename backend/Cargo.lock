@@ -2581,6 +2581,7 @@ dependencies = [
  "sqlx",
  "sqlx-postgres",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

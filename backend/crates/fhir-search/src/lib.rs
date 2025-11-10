@@ -46,6 +46,8 @@ pub struct SearchOptions {
     pub count_limit: bool,
 }
 
+pub struct SuccessfullyIndexedCount(pub usize);
+
 pub trait SearchEngine: Send + Sync {
     fn search(
         &self,
@@ -61,7 +63,7 @@ pub trait SearchEngine: Send + Sync {
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
         resource: Vec<IndexResource>,
-    ) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync;
 
     fn migrate(
         &self,

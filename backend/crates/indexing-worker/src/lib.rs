@@ -5,9 +5,13 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
 use oxidized_jwt::TenantId;
-use oxidized_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
+use oxidized_repository::{
+    fhir::{FHIRRepository, IsolationLevel},
+    types::SupportedFHIRVersions,
+};
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 mod indexing_lock;
 
@@ -61,16 +65,20 @@ async fn get_tenants(
     Ok(result)
 }
 
+static TOTAL_INDEXED: std::sync::LazyLock<Mutex<usize>> =
+    std::sync::LazyLock::new(|| Mutex::new(0));
+
 async fn index_tenant_next_sequence<
     Repo: FHIRRepository + IndexLockProvider,
     Engine: SearchEngine,
 >(
     search_client: Arc<Engine>,
     tx: &Repo,
+    repo: &Repo,
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let start = std::time::Instant::now();
-    let tenant_locks = tx.get_available_locks(vec![tenant_id.as_ref()]).await?;
+    let tenant_locks = tx.get_available_locks(vec![tenant_id]).await?;
 
     if tenant_locks.is_empty() {
         return Ok(());
@@ -86,7 +94,7 @@ async fn index_tenant_next_sequence<
 
     // Perform indexing if there are resources to index.
     if !resources.is_empty() {
-        search_client
+        let result = search_client
             .index(
                 &SupportedFHIRVersions::R4,
                 &tenant_id,
@@ -104,19 +112,50 @@ async fn index_tenant_next_sequence<
             )
             .await?;
 
+        if result.0 != resources.len() {
+            tracing::error!(
+                "Indexed resource count '{}' does not match retrieved resource count '{}'",
+                result.0,
+                resources.len()
+            );
+            return Err(IndexingWorkerError::Fatal);
+        }
+
         if let Some(resource) = resources.last() {
+            // println!(
+            //     "safe_seq: {} first_seq: {} -> last_seq: {} <total: {}, sequence_diff: {}>",
+            //     resource.max_safe_seq.unwrap_or(0),
+            //     resources[0].sequence,
+            //     resource.sequence,
+            //     resources.len(),
+            //     resource.sequence - resources[0].sequence
+            // );
+
+            let diff = (resource.sequence + 1) - resources[0].sequence;
+            let total = resources.len();
+
+            if total != diff as usize {
+                tracing::event!(
+                    tracing::Level::INFO,
+                    // safe_seq = resource.max_safe_seq.unwrap_or(0),
+                    first_seq = resources[0].sequence,
+                    last_seq = resource.sequence,
+                    total = resources.len(),
+                    diff = (resource.sequence + 1) - resources[0].sequence
+                );
+            }
+
             tx.update_lock(tenant_id.as_ref(), resource.sequence as usize)
                 .await?;
+            // get the id of the last resource indexed
+            // tracing::info!(
+            //     "LAST RESOURCE INDEXED {} {:#?} ",
+            //     resource.sequence,
+            //     resource.resource.0
+            // );
         }
-    }
 
-    if !resources.is_empty() {
-        tracing::info!(
-            "Tenant '{}' Indexing '{}' resources in {:?}",
-            tenant_id,
-            resources.len(),
-            start.elapsed()
-        );
+        *(TOTAL_INDEXED.lock().await) += result.0;
     }
 
     Ok(())
@@ -128,9 +167,13 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let search_client = search_client.clone();
-    let tx = repo.transaction().await.unwrap();
 
-    let res = index_tenant_next_sequence(search_client, &tx, &tenant_id).await;
+    let tx = repo
+        .transaction(Some(&IsolationLevel::RepeatableRead), false)
+        .await
+        .unwrap();
+
+    let res = index_tenant_next_sequence(search_client, &tx, &*repo, &tenant_id).await;
 
     match res {
         Ok(res) => {
@@ -216,6 +259,8 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
 
     tracing::info!("Starting indexing worker...");
 
+    let mut k = *TOTAL_INDEXED.lock().await;
+
     loop {
         let tenants_to_check = get_tenants(&pg_pool, &cursor, tenants_limit).await;
         if let Ok(tenants_to_check) = tenants_to_check {
@@ -239,6 +284,11 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
             }
         } else if let Err(error) = tenants_to_check {
             tracing::error!("Failed to retrieve tenants: {:?}", error);
+        }
+
+        if k != *TOTAL_INDEXED.lock().await {
+            k = *TOTAL_INDEXED.lock().await;
+            tracing::info!("TOTAL INDEXED SO FAR: {}", k);
         }
     }
 }
