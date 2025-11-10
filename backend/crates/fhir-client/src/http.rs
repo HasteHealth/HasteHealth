@@ -1,62 +1,88 @@
-use std::{pin::Pin, sync::Arc};
-
-use oxidized_fhir_model::r4::generated::resources::{
-    CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType,
-};
-use oxidized_fhir_serialization_json::errors::DeserializeError;
-use reqwest::Url;
-use thiserror::Error;
-
 use crate::{
     FHIRClient,
     middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{self, FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
+use http::HeaderValue;
+use oxidized_fhir_model::r4::generated::{
+    resources::{
+        Bundle, CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType,
+    },
+    terminology::IssueType,
+};
+use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use reqwest::Url;
+use std::{pin::Pin, sync::Arc};
 
 pub struct FHIRHttpState {
     client: reqwest::Client,
     api_url: Url,
+    get_access_token: Option<
+        Arc<
+            dyn Fn() -> Pin<
+                    Box<dyn Future<Output = Result<String, OperationOutcomeError>> + Send + Sync>,
+                > + Sync
+                + Send,
+        >,
+    >,
 }
 
 impl FHIRHttpState {
-    pub fn new(api_url: &str) -> Result<Self, FHIRHTTPError> {
+    pub fn new(
+        api_url: &str,
+        get_access_token: Option<
+            Arc<
+                dyn Fn() -> Pin<
+                        Box<
+                            dyn Future<Output = Result<String, OperationOutcomeError>>
+                                + Send
+                                + Sync,
+                        >,
+                    > + Sync
+                    + Send,
+            >,
+        >,
+    ) -> Result<Self, OperationOutcomeError> {
         let url =
             Url::parse(api_url).map_err(|_| FHIRHTTPError::UrlParseError(api_url.to_string()))?;
         Ok(FHIRHttpState {
             client: reqwest::Client::new(),
             api_url: url,
+            get_access_token,
         })
     }
 }
 
 pub struct FHIRHttpClient<CTX> {
     state: Arc<FHIRHttpState>,
-    middleware: Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>,
+    middleware:
+        Middleware<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>,
 }
 
-#[derive(Error, Debug)]
+#[derive(Debug, OperationOutcomeError)]
 pub enum FHIRHTTPError {
-    #[error("Remote error: {0}")]
-    RequestError(#[from] reqwest::Error),
-    #[error("Not supported operation")]
+    #[error(code = "exception", diagnostic = "Reqwest failed.")]
+    ReqwestError(#[from] reqwest::Error),
+    #[error(code = "not-supported", diagnostic = "Operation not supported.")]
     NotSupported,
-    #[error("No response received")]
+    #[fatal(code = "exception", diagnostic = "No response received.")]
     NoResponse,
-    #[error("Failed to parse URL for: '{0}'")]
+    #[fatal(
+        code = "exception",
+        diagnostic = "Invalid url that could not be parsed {arg0}"
+    )]
     UrlParseError(String),
-    #[error("Failed to parse FHIR serialization: {0}")]
-    FHIRSerializationError(#[from] DeserializeError),
-    #[error("Remote error: {0}, request: {1}")]
-    RemoteError(reqwest::StatusCode, String),
-    #[error("Operation Error")]
-    OperationError(OperationOutcome),
+    #[error(code = "invalid", diagnostic = "FHIR Deserialization Error.")]
+    DeserializeError(#[from] oxidized_fhir_serialization_json::errors::DeserializeError),
+    #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
+    SerializeError(#[from] oxidized_fhir_serialization_json::SerializeError),
 }
 
-fn fhir_request_to_http_request(
+async fn fhir_request_to_http_request(
     state: &FHIRHttpState,
     request: &FHIRRequest,
-) -> Result<reqwest::Request, FHIRHTTPError> {
-    match request {
+) -> Result<reqwest::Request, OperationOutcomeError> {
+    let mut request = match request {
         FHIRRequest::Read(read_request) => {
             let read_request_url = state
                 .api_url
@@ -73,41 +99,118 @@ fn fhir_request_to_http_request(
                 .get(read_request_url)
                 .header("Accept", "application/fhir+json")
                 .header("Content-Type", "application/fhir+json, application/json")
-                .build()?;
+                .build()
+                .map_err(FHIRHTTPError::from)?;
+
+            Ok(request)
+        }
+        FHIRRequest::Transaction(transaction_request) => {
+            let body = oxidized_fhir_serialization_json::to_string(&transaction_request.resource)
+                .map_err(FHIRHTTPError::from)?;
+
+            let request = state
+                .client
+                .post(state.api_url.clone())
+                .header("Accept", "application/fhir+json")
+                .header("Content-Type", "application/fhir+json, application/json")
+                .body(body)
+                .build()
+                .map_err(FHIRHTTPError::from)?;
+
             Ok(request)
         }
         _ => Err(FHIRHTTPError::NotSupported),
+    }?;
+
+    if let Some(get_access_token) = state.get_access_token.as_ref() {
+        let token = get_access_token().await?;
+
+        request.headers_mut().insert(
+            "Authorization",
+            HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Failed to create Authorization header.".to_string(),
+                )
+            })?,
+        );
     }
+
+    Ok(request)
+}
+
+async fn check_for_errors(
+    status: &reqwest::StatusCode,
+    body: Option<&[u8]>,
+) -> Result<(), OperationOutcomeError> {
+    if !status.is_success() {
+        if let Some(body) = body
+            && let Ok(operation_outcome) =
+                oxidized_fhir_serialization_json::from_bytes::<OperationOutcome>(&body)
+        {
+            return Err(OperationOutcomeError::new(None, operation_outcome));
+        }
+
+        return Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!("HTTP returned error '{}'.", status),
+        ));
+    }
+    Ok(())
 }
 
 async fn http_response_to_fhir_response(
     fhir_request: &FHIRRequest,
     response: reqwest::Response,
-) -> Result<FHIRResponse, FHIRHTTPError> {
+) -> Result<FHIRResponse, OperationOutcomeError> {
     match fhir_request {
         FHIRRequest::Read(_) => {
             let status = response.status();
             let body = response
                 .bytes()
                 .await
-                .map_err(FHIRHTTPError::RequestError)?;
+                .map_err(FHIRHTTPError::ReqwestError)?;
 
-            if !status.is_success() {
-                if let Ok(operation_outcome) =
-                    oxidized_fhir_serialization_json::from_bytes::<OperationOutcome>(&body)
-                {
-                    return Err(FHIRHTTPError::OperationError(operation_outcome));
-                }
-                return Err(FHIRHTTPError::RemoteError(
-                    status,
-                    "Failed to read resource".to_string(),
-                ));
-            }
+            check_for_errors(&status, Some(&body)).await?;
 
-            let resource = oxidized_fhir_serialization_json::from_bytes::<Resource>(&body)?;
+            let resource = oxidized_fhir_serialization_json::from_bytes::<Resource>(&body)
+                .map_err(FHIRHTTPError::from)?;
             Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
         }
-        _ => Err(FHIRHTTPError::NotSupported),
+        FHIRRequest::Create(_) => todo!(),
+        FHIRRequest::VersionRead(_) => todo!(),
+        FHIRRequest::UpdateInstance(_) => todo!(),
+        FHIRRequest::ConditionalUpdate(_) => todo!(),
+        FHIRRequest::Patch(_) => todo!(),
+        FHIRRequest::DeleteInstance(_) => todo!(),
+        FHIRRequest::DeleteType(_) => todo!(),
+        FHIRRequest::DeleteSystem(_) => todo!(),
+        FHIRRequest::Capabilities => todo!(),
+        FHIRRequest::SearchType(_) => todo!(),
+        FHIRRequest::SearchSystem(_) => todo!(),
+        FHIRRequest::HistoryInstance(_) => todo!(),
+        FHIRRequest::HistoryType(_) => todo!(),
+        FHIRRequest::HistorySystem(_) => todo!(),
+        FHIRRequest::InvokeInstance(_) => todo!(),
+        FHIRRequest::InvokeType(_) => todo!(),
+        FHIRRequest::InvokeSystem(_) => todo!(),
+        FHIRRequest::Batch(_) => todo!(),
+        FHIRRequest::Transaction(_) => {
+            let status = response.status();
+            let body = response
+                .bytes()
+                .await
+                .map_err(FHIRHTTPError::ReqwestError)?;
+
+            check_for_errors(&status, Some(&body)).await?;
+
+            let resource = oxidized_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                .map_err(FHIRHTTPError::from)?;
+
+            Ok(FHIRResponse::Transaction(
+                request::FHIRTransactionResponse { resource },
+            ))
+        }
     }
 }
 
@@ -118,7 +221,7 @@ impl HTTPMiddleware {
     }
 }
 impl<CTX: Send + 'static>
-    MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, FHIRHTTPError>
+    MiddlewareChain<Arc<FHIRHttpState>, CTX, FHIRRequest, FHIRResponse, OperationOutcomeError>
     for HTTPMiddleware
 {
     fn call(
@@ -126,21 +229,29 @@ impl<CTX: Send + 'static>
         state: Arc<FHIRHttpState>,
         context: Context<CTX, FHIRRequest, FHIRResponse>,
         _next: Option<
-            Arc<Next<Arc<FHIRHttpState>, Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>>,
+            Arc<
+                Next<
+                    Arc<FHIRHttpState>,
+                    Context<CTX, FHIRRequest, FHIRResponse>,
+                    OperationOutcomeError,
+                >,
+            >,
         >,
     ) -> Pin<
         Box<
-            dyn Future<Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, FHIRHTTPError>>
-                + Send,
+            dyn Future<
+                    Output = Result<Context<CTX, FHIRRequest, FHIRResponse>, OperationOutcomeError>,
+                > + Send,
         >,
     > {
         Box::pin(async move {
-            let http_request = fhir_request_to_http_request(&state, &context.request)?;
+            let http_request = fhir_request_to_http_request(&state, &context.request).await?;
             let response = state
                 .client
                 .execute(http_request)
                 .await
-                .map_err(FHIRHTTPError::RequestError)?;
+                .map_err(FHIRHTTPError::ReqwestError)?;
+
             let mut next_context = context;
             let fhir_response =
                 http_response_to_fhir_response(&next_context.request, response).await?;
@@ -161,18 +272,20 @@ impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
     }
 }
 
-impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClient<CTX> {
+impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIRHttpClient<CTX> {
     async fn request(
         &self,
         _ctx: CTX,
         request: crate::request::FHIRRequest,
-    ) -> Result<crate::request::FHIRResponse, FHIRHTTPError> {
+    ) -> Result<crate::request::FHIRResponse, OperationOutcomeError> {
         let response = self
             .middleware
             .call(self.state.clone(), _ctx, request)
             .await?;
 
-        response.response.ok_or_else(|| FHIRHTTPError::NoResponse)
+        response
+            .response
+            .ok_or_else(|| FHIRHTTPError::NoResponse.into())
     }
 
     async fn capabilities(&self, _ctx: CTX) -> CapabilityStatement {
@@ -183,7 +296,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self,
         _ctx: CTX,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
@@ -192,7 +305,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _ctx: CTX,
         _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
@@ -201,7 +314,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _ctx: CTX,
         _resource_type: ResourceType,
         _resource: Resource,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -211,7 +324,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _resource_type: ResourceType,
         _id: String,
         _resource: Resource,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -221,7 +334,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
         _resource: Resource,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -231,7 +344,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _resource_type: ResourceType,
         _id: String,
         _patches: json_patch::Patch,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -240,7 +353,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         ctx: CTX,
         resource_type: ResourceType,
         id: String,
-    ) -> Result<Option<Resource>, FHIRHTTPError> {
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -252,7 +365,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
 
         match res.response {
             Some(FHIRResponse::Read(read_response)) => Ok(Some(read_response.resource)),
-            _ => Err(FHIRHTTPError::NoResponse),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
 
@@ -262,7 +375,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _resource_type: ResourceType,
         _id: String,
         _version_id: String,
-    ) -> Result<Option<Resource>, FHIRHTTPError> {
+    ) -> Result<Option<Resource>, OperationOutcomeError> {
         todo!()
     }
 
@@ -271,7 +384,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _ctx: CTX,
         _resource_type: ResourceType,
         _id: String,
-    ) -> Result<(), FHIRHTTPError> {
+    ) -> Result<(), OperationOutcomeError> {
         todo!()
     }
 
@@ -280,7 +393,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _ctx: CTX,
         _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<(), FHIRHTTPError> {
+    ) -> Result<(), OperationOutcomeError> {
         todo!()
     }
 
@@ -288,7 +401,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self,
         _ctx: CTX,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<(), FHIRHTTPError> {
+    ) -> Result<(), OperationOutcomeError> {
         todo!()
     }
 
@@ -296,7 +409,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         &self,
         _ctx: CTX,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
@@ -305,7 +418,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _ctx: CTX,
         _resource_type: ResourceType,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
@@ -315,7 +428,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _resource_type: ResourceType,
         _id: String,
         _parameters: Vec<crate::ParsedParameter>,
-    ) -> Result<Vec<Resource>, FHIRHTTPError> {
+    ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
 
@@ -326,7 +439,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _id: String,
         _operation: String,
         _parameters: Parameters,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -336,7 +449,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _resource_type: ResourceType,
         _operation: String,
         _parameters: Parameters,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
@@ -345,43 +458,29 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, FHIRHTTPError> for FHIRHttpClie
         _ctx: CTX,
         _operation: String,
         _parameters: Parameters,
-    ) -> Result<Resource, FHIRHTTPError> {
+    ) -> Result<Resource, OperationOutcomeError> {
         todo!()
     }
 
-    async fn transaction(&self, _ctx: CTX, _bundle: Resource) -> Result<Resource, FHIRHTTPError> {
-        todo!()
+    async fn transaction(&self, ctx: CTX, bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Transaction(request::FHIRTransactionRequest { resource: bundle }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Transaction(transaction_response)) => {
+                Ok(transaction_response.resource)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
-    async fn batch(&self, _ctx: CTX, _bundle: Resource) -> Result<Resource, FHIRHTTPError> {
+    async fn batch(&self, _ctx: CTX, _bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use oxidized_fhir_model::r4::generated::resources::ResourceType;
-
-//     use super::*;
-
-//     #[tokio::test]
-//     async fn test_fhir_http_client() {
-//         let client: FHIRHttpClient<()> =
-//             FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
-
-//         let read_response = client
-//             .read((), ResourceType::Patient, "48426182".to_string())
-//             .await
-//             .unwrap();
-
-//         assert_eq!(
-//             Some("48426182".to_string()),
-//             read_response.as_ref().map(|r| match r {
-//                 Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
-//                 _ => panic!("Expected Patient resource"),
-//             })
-//         );
-
-//         println!("Read response: {:?}", read_response);
-//     }
-// }

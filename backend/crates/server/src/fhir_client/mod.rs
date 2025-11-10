@@ -15,7 +15,7 @@ use oxidized_fhir_client::{
     url::ParsedParameter,
 };
 use oxidized_fhir_model::r4::generated::resources::{
-    CapabilityStatement, Parameters, Resource, ResourceType,
+    Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use oxidized_fhir_search::SearchEngine;
@@ -670,16 +670,16 @@ impl<
     async fn transaction(
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _bundle: Resource,
-    ) -> Result<Resource, OperationOutcomeError> {
+        _bundle: Bundle,
+    ) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 
     async fn batch(
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _bundle: Resource,
-    ) -> Result<Resource, OperationOutcomeError> {
+        _bundle: Bundle,
+    ) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 }
