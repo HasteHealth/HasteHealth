@@ -486,11 +486,6 @@ impl<
                     })?;
 
                     if let Ok(transaction_bundle) = bundle_response {
-                        tracing::info!(
-                            "Committing transaction {}",
-                            transaction_bundle.entry.clone().unwrap_or_default().len()
-                        );
-
                         repo.commit().await?;
                         Ok(Some(FHIRResponse::Transaction(FHIRTransactionResponse {
                             resource: transaction_bundle,
