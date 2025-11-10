@@ -3,31 +3,36 @@ use crate::{
     middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{self, FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
+use http::HeaderValue;
 use oxidized_fhir_model::r4::generated::{
     resources::{CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use reqwest::Url;
-use std::{
-    pin::Pin,
-    sync::{Arc, Mutex},
-};
+use std::{pin::Pin, sync::Arc};
 
 pub struct FHIRHttpState {
     client: reqwest::Client,
     api_url: Url,
     get_access_token: Option<
-        Arc<dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, String>>>> + Sync + Send>,
+        Arc<
+            dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + Sync>>
+                + Sync
+                + Send,
+        >,
     >,
-    token: Arc<Mutex<Option<String>>>,
 }
 
 impl FHIRHttpState {
     pub fn new(
         api_url: &str,
         get_access_token: Option<
-            Arc<dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, String>>>> + Sync + Send>,
+            Arc<
+                dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + Sync>>
+                    + Sync
+                    + Send,
+            >,
         >,
     ) -> Result<Self, OperationOutcomeError> {
         let url =
@@ -36,7 +41,6 @@ impl FHIRHttpState {
             client: reqwest::Client::new(),
             api_url: url,
             get_access_token,
-            token: Arc::new(Mutex::new(None)),
         })
     }
 }
@@ -64,11 +68,11 @@ pub enum FHIRHTTPError {
     DeserializeError(#[from] oxidized_fhir_serialization_json::errors::DeserializeError),
 }
 
-fn fhir_request_to_http_request(
+async fn fhir_request_to_http_request(
     state: &FHIRHttpState,
     request: &FHIRRequest,
 ) -> Result<reqwest::Request, OperationOutcomeError> {
-    match request {
+    let mut request = match request {
         FHIRRequest::Read(read_request) => {
             let read_request_url = state
                 .api_url
@@ -90,8 +94,25 @@ fn fhir_request_to_http_request(
 
             Ok(request)
         }
-        _ => Err(FHIRHTTPError::NotSupported.into()),
+        _ => Err(FHIRHTTPError::NotSupported),
+    }?;
+
+    if let Some(get_access_token) = state.get_access_token.as_ref() {
+        let token = get_access_token()
+            .await
+            .map_err(|e| OperationOutcomeError::error(IssueType::Forbidden(None), e))?;
+        request.headers_mut().insert(
+            "Authorization",
+            HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Failed to create Authorization header.".to_string(),
+                )
+            })?,
+        );
     }
+
+    Ok(request)
 }
 
 async fn check_for_errors(
@@ -188,7 +209,7 @@ impl<CTX: Send + 'static>
         >,
     > {
         Box::pin(async move {
-            let http_request = fhir_request_to_http_request(&state, &context.request)?;
+            let http_request = fhir_request_to_http_request(&state, &context.request).await?;
             let response = state
                 .client
                 .execute(http_request)
