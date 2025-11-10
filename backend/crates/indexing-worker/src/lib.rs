@@ -74,7 +74,6 @@ async fn index_tenant_next_sequence<
 >(
     search_client: Arc<Engine>,
     tx: &Repo,
-    repo: &Repo,
     tenant_id: &TenantId,
 ) -> Result<(), IndexingWorkerError> {
     let start = std::time::Instant::now();
@@ -122,15 +121,6 @@ async fn index_tenant_next_sequence<
         }
 
         if let Some(resource) = resources.last() {
-            // println!(
-            //     "safe_seq: {} first_seq: {} -> last_seq: {} <total: {}, sequence_diff: {}>",
-            //     resource.max_safe_seq.unwrap_or(0),
-            //     resources[0].sequence,
-            //     resource.sequence,
-            //     resources.len(),
-            //     resource.sequence - resources[0].sequence
-            // );
-
             let diff = (resource.sequence + 1) - resources[0].sequence;
             let total = resources.len();
 
@@ -147,12 +137,15 @@ async fn index_tenant_next_sequence<
 
             tx.update_lock(tenant_id.as_ref(), resource.sequence as usize)
                 .await?;
-            // get the id of the last resource indexed
-            // tracing::info!(
-            //     "LAST RESOURCE INDEXED {} {:#?} ",
-            //     resource.sequence,
-            //     resource.resource.0
-            // );
+
+            let elapsed = start.elapsed();
+            tracing::info!(
+                "Indexed {} resources for tenant '{}' in {:.2?} (up to sequence {})",
+                result.0,
+                tenant_id.as_ref(),
+                elapsed,
+                resource.sequence
+            );
         }
 
         *(TOTAL_INDEXED.lock().await) += result.0;
@@ -170,7 +163,7 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
 
     let tx = repo.transaction(false).await.unwrap();
 
-    let res = index_tenant_next_sequence(search_client, &tx, &*repo, &tenant_id).await;
+    let res = index_tenant_next_sequence(search_client, &tx, &tenant_id).await;
 
     match res {
         Ok(res) => {

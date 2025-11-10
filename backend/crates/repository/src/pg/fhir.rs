@@ -570,10 +570,6 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
-        let safe_sequence = sqlx::query!("SELECT max_safe_seq('resources_sequence_seq')")
-            .fetch_one(&mut *conn)
-            .await
-            .map_err(StoreError::from)?;
 
         let result = sqlx::query_as!(
             ResourcePollingValue,
@@ -585,19 +581,14 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
                        fhir_method as "fhir_method: FHIRMethod", 
                        sequence, 
                        resource as "resource: FHIRJson<Resource>"
-            FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= $3  ORDER BY sequence LIMIT $4 "#,
+            FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= max_safe_seq('resources_sequence_seq')  ORDER BY sequence LIMIT $3 "#,
             tenant_id.as_ref() as &str,
             cur_sequence as i64,
-            safe_sequence.max_safe_seq.unwrap_or(0).abs(),
             count.unwrap_or(100) as i64
         )
         .fetch_all(&mut *conn)
         .await
         .map_err(StoreError::from)?;
-
-        if !result.is_empty() {
-            println!("safe_sequence: {:?}", safe_sequence);
-        }
 
         Ok(result)
     }
