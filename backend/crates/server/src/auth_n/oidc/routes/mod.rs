@@ -29,7 +29,7 @@ pub mod scope;
 mod token;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct OIDCResponse {
+pub struct WellKnownDiscoveryDocument {
     pub issuer: String,
     pub authorization_endpoint: String,
     pub jwks_uri: String,
@@ -55,7 +55,7 @@ async fn openid_configuration<
     _: WellKnown,
     OriginalUri(uri): OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-) -> Result<Json<OIDCResponse>, OperationOutcomeError> {
+) -> Result<Json<WellKnownDiscoveryDocument>, OperationOutcomeError> {
     let api_url_string = state
         .config
         .get(crate::ServerEnvironmentVariables::APIURI)
@@ -88,7 +88,7 @@ async fn openid_configuration<
     );
     let jwks_path = path.replace(&well_known_path, jwks::JWKSPath.to_string().as_str());
 
-    let oidc_response = OIDCResponse {
+    let oidc_response = WellKnownDiscoveryDocument {
         issuer: api_url.to_string(),
         authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
         token_endpoint: api_url.join(&token_path).unwrap().to_string(),

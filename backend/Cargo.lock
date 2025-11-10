@@ -2502,6 +2502,7 @@ dependencies = [
  "oxidized-repository",
  "oxidized-server",
  "quote",
+ "reqwest",
  "serde",
  "serde_json",
  "thiserror 2.0.15",
