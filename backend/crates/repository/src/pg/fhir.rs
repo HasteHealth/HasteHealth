@@ -591,9 +591,9 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         .await
         .map_err(StoreError::from)?;
 
-        if !result.is_empty() {
-            println!("safe_sequence: {:?}", safe_sequence);
-        }
+        // if !result.is_empty() {
+        //     println!("safe_sequence: {:?}", safe_sequence);
+        // }
 
         Ok(result)
     }
