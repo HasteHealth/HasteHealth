@@ -296,8 +296,17 @@ impl FHIRRepository for PGConnection {
                     .await
                     .map_err(StoreError::from)?;
 
+                    let transaction_id =
+                        sqlx::query!(r#"SELECT pg_current_xact_id()::text as transaction_id"#)
+                            .fetch_one(&mut *tx)
+                            .await
+                            .map_err(StoreError::from)?;
+
                     tracing::info!(
-                        "Registered sequence transaction: {:?}",
+                        "transaction-id: {}, registerd_sequence: {:?}",
+                        transaction_id
+                            .transaction_id
+                            .unwrap_or("unknown".to_string()),
                         res.registerd_sequence.unwrap_or(0)
                     );
                 }
@@ -315,14 +324,14 @@ impl FHIRRepository for PGConnection {
         match self {
             PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
             PGConnection::Transaction(tx, _) => {
-                {
-                    let mut conn = tx.lock().await;
+                // {
+                //     let mut conn = tx.lock().await;
 
-                    // let res = sqlx::query!("SELECT PG_SLEEP(3600)")
-                    //     .fetch_one(conn.acquire().await.unwrap())
-                    //     .await
-                    //     .map_err(StoreError::from)?;
-                }
+                //     let res = sqlx::query!("SELECT PG_SLEEP(3600)")
+                //         .fetch_one(conn.acquire().await.unwrap())
+                //         .await
+                //         .map_err(StoreError::from)?;
+                // }
                 let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
                     println!("Error during commit: {:?}", e);
                     StoreError::FailedCommitTransaction
@@ -593,7 +602,7 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= $3  ORDER BY sequence LIMIT $4 "#,
             tenant_id.as_ref() as &str,
             cur_sequence as i64,
-            safe_sequence.max_safe_seq.unwrap_or(0),
+            safe_sequence.max_safe_seq.unwrap_or(0).abs(),
             count.unwrap_or(100) as i64
         )
         .fetch_all(&mut *conn)

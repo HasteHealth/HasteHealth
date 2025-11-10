@@ -169,7 +169,7 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
     let search_client = search_client.clone();
 
     let tx = repo
-        .transaction(Some(&IsolationLevel::RepeatableRead), false)
+        .transaction(Some(&IsolationLevel::ReadCommitted), false)
         .await
         .unwrap();
 

@@ -61,6 +61,8 @@ begin
         select last_value into max_seq
         from pg_sequences
         where sequencename = sequence_name;
+
+        select max_seq * -1 into max_seq;
         -- return -1;
     end if;
 
