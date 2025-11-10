@@ -461,7 +461,7 @@ impl<
                     let sorted_transaction =
                         build_sorted_transaction_graph(transaction_entries.unwrap_or_default())?;
 
-                    let transaction_repo = Arc::new(state.repo.transaction(None, true).await?);
+                    let transaction_repo = Arc::new(state.repo.transaction(true).await?);
 
                     let bundle_response: Result<Bundle, OperationOutcomeError> = {
                         let transaction_client = FHIRServerClient::new(ServerClientConfig::new(

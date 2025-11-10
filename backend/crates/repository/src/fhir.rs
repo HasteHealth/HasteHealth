@@ -94,7 +94,6 @@ pub trait FHIRRepository: Sized {
     ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send;
     fn transaction<'a>(
         &'a self,
-        isolation_level: Option<&'a IsolationLevel>,
         register: bool,
     ) -> impl Future<Output = Result<Self, OperationOutcomeError>> + Send;
     fn in_transaction(&self) -> bool;

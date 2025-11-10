@@ -265,50 +265,36 @@ impl FHIRRepository for PGConnection {
         }
     }
 
-    async fn transaction<'a>(
-        &'a self,
-        isolation_level: Option<&'a IsolationLevel>,
-        register: bool,
-    ) -> Result<Self, OperationOutcomeError> {
+    async fn transaction<'a>(&'a self, register: bool) -> Result<Self, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, cache) => {
-                // Register the sequence for the transaction.
-                // Used for safe access.
-
-                let isolation_level = match isolation_level {
-                    Some(IsolationLevel::RepeatableRead) => "REPEATABLE READ",
-                    Some(IsolationLevel::ReadCommitted) | None => "READ COMMITTED",
-                };
-
-                let transaction_statement =
-                    format!("BEGIN TRANSACTION ISOLATION LEVEL {};", isolation_level);
-
                 let mut tx = pool
-                    .begin_with(transaction_statement)
+                    .begin_with("BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;")
                     .await
                     .map_err(StoreError::from)?;
 
                 if register {
-                    let res = sqlx::query!(
+                    // Register the sequence for the transaction.
+                    // Used for safe access.
+                    sqlx::query!(
                         r#"SELECT register_sequence_transaction('resources_sequence_seq') as registerd_sequence"#
                     )
                     .fetch_one(&mut *tx)
                     .await
                     .map_err(StoreError::from)?;
+                    // let transaction_id =
+                    //     sqlx::query!(r#"SELECT pg_current_xact_id()::text as transaction_id"#)
+                    //         .fetch_one(&mut *tx)
+                    //         .await
+                    //         .map_err(StoreError::from)?;
 
-                    let transaction_id =
-                        sqlx::query!(r#"SELECT pg_current_xact_id()::text as transaction_id"#)
-                            .fetch_one(&mut *tx)
-                            .await
-                            .map_err(StoreError::from)?;
-
-                    tracing::info!(
-                        "transaction-id: {}, registerd_sequence: {:?}",
-                        transaction_id
-                            .transaction_id
-                            .unwrap_or("unknown".to_string()),
-                        res.registerd_sequence.unwrap_or(0)
-                    );
+                    // tracing::info!(
+                    //     "transaction-id: {}, registerd_sequence: {:?}",
+                    //     transaction_id
+                    //         .transaction_id
+                    //         .unwrap_or("unknown".to_string()),
+                    //     res.registerd_sequence.unwrap_or(0)
+                    // );
                 }
 
                 Ok(PGConnection::Transaction(

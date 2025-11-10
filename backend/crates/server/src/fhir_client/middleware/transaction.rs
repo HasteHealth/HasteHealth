@@ -41,7 +41,7 @@ pub async fn setup_transaction_context<
             if state.repo.in_transaction() {
                 return Ok(state);
             } else {
-                let transaction_client = Arc::new(state.repo.transaction(None, true).await?);
+                let transaction_client = Arc::new(state.repo.transaction(true).await?);
                 Ok(Arc::new(ClientState {
                     repo: transaction_client.clone(),
                     search: state.search.clone(),

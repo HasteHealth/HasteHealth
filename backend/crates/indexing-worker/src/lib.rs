@@ -168,10 +168,7 @@ async fn index_for_tenant<Search: SearchEngine, Repository: FHIRRepository + Ind
 ) -> Result<(), IndexingWorkerError> {
     let search_client = search_client.clone();
 
-    let tx = repo
-        .transaction(Some(&IsolationLevel::ReadCommitted), false)
-        .await
-        .unwrap();
+    let tx = repo.transaction(false).await.unwrap();
 
     let res = index_tenant_next_sequence(search_client, &tx, &*repo, &tenant_id).await;
 
