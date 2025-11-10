@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT  id as \"id: ResourceId\", \n                       tenant as \"tenant: TenantId\", \n                       project as \"project: ProjectId\", \n                       version_id, \n                       resource_type as \"resource_type: ResourceType\", \n                       fhir_method as \"fhir_method: FHIRMethod\", \n                       sequence, \n                       resource as \"resource: FHIRJson<Resource>\" \n            FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 ",
+  "query": "SELECT  id as \"id: ResourceId\", \n                       tenant as \"tenant: TenantId\", \n                       project as \"project: ProjectId\", \n                       version_id, \n                       resource_type as \"resource_type: ResourceType\", \n                       fhir_method as \"fhir_method: FHIRMethod\", \n                       sequence, \n                       resource as \"resource: FHIRJson<Resource>\"\n            FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= $3 ORDER BY sequence LIMIT $4 ",
   "describe": {
     "columns": [
       {
@@ -60,6 +60,7 @@
       "Left": [
         "Text",
         "Int8",
+        "Int8",
         "Int8"
       ]
     },
@@ -74,5 +75,5 @@
       false
     ]
   },
-  "hash": "09b543cd7c2af9a3e25dbd8a0cd25296bd27a6f40001378e74ae4acfd1baf246"
+  "hash": "92f19bf665be95d5ababb3037f7ab2130dea31baa58d350b4c2b75830506a407"
 }

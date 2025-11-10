@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT register_sequence_transaction('resources_sequence_seq') as registerd_sequence",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "registerd_sequence",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "578e549b931a66c00c5633ee870fb3f8cadda47272017ae6afb166307f208dbb"
+}
