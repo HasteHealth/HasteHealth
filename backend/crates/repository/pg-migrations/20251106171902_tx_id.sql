@@ -64,7 +64,6 @@ begin
 
         -- Negated so I could view in health checks.
         -- select max_seq * -1 into max_seq;
-        -- return -1;
     end if;
 
     perform pg_advisory_unlock(seq_id::int);

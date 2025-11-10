@@ -5,10 +5,7 @@ use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutc
 use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use oxidized_fhirpath::FHIRPathError;
 use oxidized_jwt::TenantId;
-use oxidized_repository::{
-    fhir::{FHIRRepository, IsolationLevel},
-    types::SupportedFHIRVersions,
-};
+use oxidized_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 use tokio::sync::Mutex;

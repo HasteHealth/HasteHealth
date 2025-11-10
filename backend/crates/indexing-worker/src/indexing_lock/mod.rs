@@ -5,6 +5,7 @@ pub mod postgres;
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct TenantLockIndex {
+    #[allow(dead_code)]
     pub id: String,
     pub index_sequence_position: i64,
 }

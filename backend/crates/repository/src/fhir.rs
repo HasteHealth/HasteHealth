@@ -19,11 +19,6 @@ pub struct ResourcePollingValue {
     pub fhir_method: FHIRMethod,
 }
 
-pub enum IsolationLevel {
-    ReadCommitted,
-    RepeatableRead,
-}
-
 pub enum HistoryRequest<'a> {
     System(&'a FHIRHistorySystemRequest),
     Type(&'a FHIRHistoryTypeRequest),

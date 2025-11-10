@@ -1,5 +1,5 @@
 use crate::{
-    fhir::{CachePolicy, FHIRRepository, HistoryRequest, IsolationLevel, ResourcePollingValue},
+    fhir::{CachePolicy, FHIRRepository, HistoryRequest, ResourcePollingValue},
     pg::{PGConnection, StoreError},
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
@@ -268,10 +268,7 @@ impl FHIRRepository for PGConnection {
     async fn transaction<'a>(&'a self, register: bool) -> Result<Self, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, cache) => {
-                let mut tx = pool
-                    .begin_with("BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;")
-                    .await
-                    .map_err(StoreError::from)?;
+                let mut tx = pool.begin().await.map_err(StoreError::from)?;
 
                 if register {
                     // Register the sequence for the transaction.
@@ -310,14 +307,6 @@ impl FHIRRepository for PGConnection {
         match self {
             PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
             PGConnection::Transaction(tx, _) => {
-                // {
-                //     let mut conn = tx.lock().await;
-
-                //     let res = sqlx::query!("SELECT PG_SLEEP(3600)")
-                //         .fetch_one(conn.acquire().await.unwrap())
-                //         .await
-                //         .map_err(StoreError::from)?;
-                // }
                 let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
                     println!("Error during commit: {:?}", e);
                     StoreError::FailedCommitTransaction
@@ -570,6 +559,17 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
+        // Run as a transaction to ensure safe sequence retrieval.
+        // Run as seperate query.
+        // Isolation level must be set to allowe dirty reads from pg_locks.
+        // This is to ensure that we can read the safe sequence even if other transactions are in progress.
+        let safe_sequence =
+            sqlx::query!("SELECT max_safe_seq('resources_sequence_seq') as max_safe_seq")
+                .fetch_one(&mut *conn)
+                .await
+                .map_err(StoreError::from)?
+                .max_safe_seq
+                .unwrap_or(0);
 
         let result = sqlx::query_as!(
             ResourcePollingValue,
@@ -581,14 +581,19 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
                        fhir_method as "fhir_method: FHIRMethod", 
                        sequence, 
                        resource as "resource: FHIRJson<Resource>"
-            FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= max_safe_seq('resources_sequence_seq')  ORDER BY sequence LIMIT $3 "#,
+            FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= $3 ORDER BY sequence LIMIT $4 "#,
             tenant_id.as_ref() as &str,
             cur_sequence as i64,
+            safe_sequence,
             count.unwrap_or(100) as i64
         )
         .fetch_all(&mut *conn)
         .await
         .map_err(StoreError::from)?;
+
+        if !result.is_empty() {
+            println!("safe_sequence: {:?}", safe_sequence);
+        }
 
         Ok(result)
     }
