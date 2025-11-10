@@ -1,6 +1,6 @@
 use json_patch::Patch;
 use oxidized_fhir_model::r4::generated::resources::{
-    CapabilityStatement, Parameters, Resource, ResourceType,
+    Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
 
 use crate::{
@@ -151,12 +151,9 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
     fn transaction(
         &self,
         ctx: CTX,
-        bundle: Resource,
-    ) -> impl Future<Output = Result<Resource, Error>> + Send;
+        bundle: Bundle,
+    ) -> impl Future<Output = Result<Bundle, Error>> + Send;
 
-    fn batch(
-        &self,
-        ctx: CTX,
-        bundle: Resource,
-    ) -> impl Future<Output = Result<Resource, Error>> + Send;
+    fn batch(&self, ctx: CTX, bundle: Bundle)
+    -> impl Future<Output = Result<Bundle, Error>> + Send;
 }

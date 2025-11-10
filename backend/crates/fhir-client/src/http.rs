@@ -5,7 +5,9 @@ use crate::{
 };
 use http::HeaderValue;
 use oxidized_fhir_model::r4::generated::{
-    resources::{CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType},
+    resources::{
+        Bundle, CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType,
+    },
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -72,6 +74,8 @@ pub enum FHIRHTTPError {
     UrlParseError(String),
     #[error(code = "invalid", diagnostic = "FHIR Deserialization Error.")]
     DeserializeError(#[from] oxidized_fhir_serialization_json::errors::DeserializeError),
+    #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
+    SerializeError(#[from] oxidized_fhir_serialization_json::SerializeError),
 }
 
 async fn fhir_request_to_http_request(
@@ -95,6 +99,21 @@ async fn fhir_request_to_http_request(
                 .get(read_request_url)
                 .header("Accept", "application/fhir+json")
                 .header("Content-Type", "application/fhir+json, application/json")
+                .build()
+                .map_err(FHIRHTTPError::from)?;
+
+            Ok(request)
+        }
+        FHIRRequest::Transaction(transaction_request) => {
+            let body = oxidized_fhir_serialization_json::to_string(&transaction_request.resource)
+                .map_err(FHIRHTTPError::from)?;
+
+            let request = state
+                .client
+                .post(state.api_url.clone())
+                .header("Accept", "application/fhir+json")
+                .header("Content-Type", "application/fhir+json, application/json")
+                .body(body)
                 .build()
                 .map_err(FHIRHTTPError::from)?;
 
@@ -158,10 +177,7 @@ async fn http_response_to_fhir_response(
                 .map_err(FHIRHTTPError::from)?;
             Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
         }
-        FHIRRequest::Create(_) => {
-            todo!();
-            // FHIRResponse::Create(request::FHIRCreateResponse { resource:  })
-        }
+        FHIRRequest::Create(_) => todo!(),
         FHIRRequest::VersionRead(_) => todo!(),
         FHIRRequest::UpdateInstance(_) => todo!(),
         FHIRRequest::ConditionalUpdate(_) => todo!(),
@@ -179,7 +195,22 @@ async fn http_response_to_fhir_response(
         FHIRRequest::InvokeType(_) => todo!(),
         FHIRRequest::InvokeSystem(_) => todo!(),
         FHIRRequest::Batch(_) => todo!(),
-        FHIRRequest::Transaction(_) => todo!(),
+        FHIRRequest::Transaction(_) => {
+            let status = response.status();
+            let body = response
+                .bytes()
+                .await
+                .map_err(FHIRHTTPError::ReqwestError)?;
+
+            check_for_errors(&status, Some(&body)).await?;
+
+            let resource = oxidized_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                .map_err(FHIRHTTPError::from)?;
+
+            Ok(FHIRResponse::Transaction(
+                request::FHIRTransactionResponse { resource },
+            ))
+        }
     }
 }
 
@@ -431,43 +462,25 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         todo!()
     }
 
-    async fn transaction(
-        &self,
-        _ctx: CTX,
-        _bundle: Resource,
-    ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+    async fn transaction(&self, ctx: CTX, bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Transaction(request::FHIRTransactionRequest { resource: bundle }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Transaction(transaction_response)) => {
+                Ok(transaction_response.resource)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
-    async fn batch(&self, _ctx: CTX, _bundle: Resource) -> Result<Resource, OperationOutcomeError> {
+    async fn batch(&self, _ctx: CTX, _bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use oxidized_fhir_model::r4::generated::resources::ResourceType;
-
-//     use super::*;
-
-//     #[tokio::test]
-//     async fn test_fhir_http_client() {
-//         let client: FHIRHttpClient<()> =
-//             FHIRHttpClient::new(FHIRHttpState::new("https://hapi.fhir.org/baseR4").unwrap());
-
-//         let read_response = client
-//             .read((), ResourceType::Patient, "48426182".to_string())
-//             .await
-//             .unwrap();
-
-//         assert_eq!(
-//             Some("48426182".to_string()),
-//             read_response.as_ref().map(|r| match r {
-//                 Resource::Patient(p) => p.id.as_ref().unwrap().clone(),
-//                 _ => panic!("Expected Patient resource"),
-//             })
-//         );
-
-//         println!("Read response: {:?}", read_response);
-//     }
-// }

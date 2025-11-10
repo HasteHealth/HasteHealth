@@ -5,6 +5,7 @@ use std::{
 
 use clap::{Parser, Subcommand};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
 use tokio::sync::Mutex;
 
 use crate::commands::config::{CLIConfiguration, load_config};
@@ -58,6 +59,7 @@ static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
 pub struct CLIState {
     config: CLIConfiguration,
     access_token: Option<String>,
+    well_known_document: Option<WellKnownDiscoveryDocument>,
 }
 
 impl CLIState {
@@ -65,6 +67,7 @@ impl CLIState {
         CLIState {
             config,
             access_token: None,
+            well_known_document: None,
         }
     }
 }
@@ -86,6 +89,6 @@ async fn main() -> Result<(), OperationOutcomeError> {
         CLICommand::Server { command } => commands::server::server(command).await,
         CLICommand::Worker {} => commands::worker::worker().await,
         CLICommand::Config { command } => commands::config::config(&config, command).await,
-        CLICommand::Api { command } => todo!(),
+        CLICommand::Api { command } => commands::api::api_commands(config, command).await,
     }
 }

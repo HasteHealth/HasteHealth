@@ -32,7 +32,7 @@ impl Default for CLIConfiguration {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Profile {
     pub name: String,
     pub r4_url: String,
@@ -40,7 +40,7 @@ pub struct Profile {
     pub auth: ProfileAuth,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ProfileAuth {
     ClientCredentails {
         client_id: String,
