@@ -4,10 +4,8 @@ use dialoguer::Select;
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
-use std::{
-    path::PathBuf,
-    sync::{Arc, Mutex},
-};
+use std::{path::PathBuf, sync::Arc};
+use tokio::sync::Mutex;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CLIConfiguration {
@@ -127,7 +125,7 @@ pub async fn config(
 ) -> Result<(), OperationOutcomeError> {
     match command {
         ConfigCommands::ShowProfile => {
-            let state = state.lock().unwrap();
+            let state = state.lock().await;
             if let Some(active_profile_id) = state.config.active_profile.as_ref()
                 && let Some(active_profile) = state
                     .config
@@ -149,7 +147,7 @@ pub async fn config(
             client_id,
             client_secret,
         } => {
-            let mut state = state.lock().unwrap();
+            let mut state = state.lock().await;
             if state
                 .config
                 .profiles
@@ -190,7 +188,7 @@ pub async fn config(
             Ok(())
         }
         ConfigCommands::DeleteProfile { name } => {
-            let mut state = state.lock().unwrap();
+            let mut state = state.lock().await;
             state
                 .config
                 .profiles
@@ -211,7 +209,7 @@ pub async fn config(
             Ok(())
         }
         ConfigCommands::SetActiveProfile => {
-            let mut state = state.lock().unwrap();
+            let mut state = state.lock().await;
             let user_profile_names = state
                 .config
                 .profiles

@@ -1,10 +1,11 @@
 use std::{
     path::PathBuf,
-    sync::{Arc, LazyLock, Mutex},
+    sync::{Arc, LazyLock},
 };
 
 use clap::{Parser, Subcommand};
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use tokio::sync::Mutex;
 
 use crate::commands::config::{CLIConfiguration, load_config};
 
