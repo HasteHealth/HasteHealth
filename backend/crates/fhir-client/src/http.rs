@@ -17,8 +17,9 @@ pub struct FHIRHttpState {
     api_url: Url,
     get_access_token: Option<
         Arc<
-            dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + Sync>>
-                + Sync
+            dyn Fn() -> Pin<
+                    Box<dyn Future<Output = Result<String, OperationOutcomeError>> + Send + Sync>,
+                > + Sync
                 + Send,
         >,
     >,
@@ -29,8 +30,13 @@ impl FHIRHttpState {
         api_url: &str,
         get_access_token: Option<
             Arc<
-                dyn Fn() -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + Sync>>
-                    + Sync
+                dyn Fn() -> Pin<
+                        Box<
+                            dyn Future<Output = Result<String, OperationOutcomeError>>
+                                + Send
+                                + Sync,
+                        >,
+                    > + Sync
                     + Send,
             >,
         >,
@@ -98,9 +104,8 @@ async fn fhir_request_to_http_request(
     }?;
 
     if let Some(get_access_token) = state.get_access_token.as_ref() {
-        let token = get_access_token()
-            .await
-            .map_err(|e| OperationOutcomeError::error(IssueType::Forbidden(None), e))?;
+        let token = get_access_token().await?;
+
         request.headers_mut().insert(
             "Authorization",
             HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {

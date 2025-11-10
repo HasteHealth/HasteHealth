@@ -54,16 +54,30 @@ static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
     config_dir.join("config.toml")
 });
 
-static CLI_CONFIG: LazyLock<Arc<Mutex<CLIConfiguration>>> = LazyLock::new(|| {
+pub struct CLIState {
+    config: CLIConfiguration,
+    access_token: Option<String>,
+}
+
+impl CLIState {
+    pub fn new(config: CLIConfiguration) -> Self {
+        CLIState {
+            config,
+            access_token: None,
+        }
+    }
+}
+
+static CLI_STATE: LazyLock<Arc<Mutex<CLIState>>> = LazyLock::new(|| {
     let config = load_config(&CONFIG_LOCATION);
 
-    Arc::new(Mutex::new(config))
+    Arc::new(Mutex::new(CLIState::new(config)))
 });
 
 #[tokio::main]
 async fn main() -> Result<(), OperationOutcomeError> {
     let cli = Cli::parse();
-    let config = CLI_CONFIG.clone();
+    let config = CLI_STATE.clone();
 
     match &cli.command {
         CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath),

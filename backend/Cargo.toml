@@ -48,10 +48,7 @@ oxidized-fhir-operation-error = { path = "./crates/fhir-operation-error" }
 oxidized-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
 oxidized-fhir-search = { path = "./crates/fhir-search" }
 oxidized-jwt = { path = "./crates/jwt" }
-oxidized-fhir-client = { path = "./crates/fhir-client", features = [
-    "http",
-    "axum",
-] }
+oxidized-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
 oxidized-server = { path = "./crates/server" }
 oxidized-config = { path = "./crates/config" }
 oxidized-repository = { path = "./crates/repository" }
@@ -59,3 +56,4 @@ oxidized-indexing-worker = { path = "./crates/indexing-worker" }
 toml = "0.9.8"
 serde = "1.0.228"
 dialoguer = "0.12.0"
+jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }

@@ -1,3 +1,4 @@
+use crate::{CLIState, CONFIG_LOCATION};
 use clap::Subcommand;
 use dialoguer::Select;
 use oxidized_fhir_model::r4::generated::terminology::IssueType;
@@ -8,12 +9,20 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::CONFIG_LOCATION;
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CLIConfiguration {
-    active_profile: Option<String>,
-    profiles: Vec<Profile>,
+    pub active_profile: Option<String>,
+    pub profiles: Vec<Profile>,
+}
+
+impl CLIConfiguration {
+    pub fn current_profile(&self) -> Option<&Profile> {
+        if let Some(active_profile_id) = self.active_profile.as_ref() {
+            self.profiles.iter().find(|p| &p.name == active_profile_id)
+        } else {
+            None
+        }
+    }
 }
 
 impl Default for CLIConfiguration {
@@ -27,10 +36,10 @@ impl Default for CLIConfiguration {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Profile {
-    name: String,
-    r4_url: String,
-    oidc_discovery_uri: String,
-    auth: ProfileAuth,
+    pub name: String,
+    pub r4_url: String,
+    pub oidc_discovery_uri: String,
+    pub auth: ProfileAuth,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -113,14 +122,15 @@ pub fn load_config(location: &PathBuf) -> CLIConfiguration {
 }
 
 pub async fn config(
-    config: &Arc<Mutex<CLIConfiguration>>,
+    state: &Arc<Mutex<CLIState>>,
     command: &ConfigCommands,
 ) -> Result<(), OperationOutcomeError> {
     match command {
         ConfigCommands::ShowProfile => {
-            let config = config.lock().unwrap();
-            if let Some(active_profile_id) = config.active_profile.as_ref()
-                && let Some(active_profile) = config
+            let state = state.lock().unwrap();
+            if let Some(active_profile_id) = state.config.active_profile.as_ref()
+                && let Some(active_profile) = state
+                    .config
                     .profiles
                     .iter()
                     .find(|p| &p.name == active_profile_id)
@@ -139,8 +149,13 @@ pub async fn config(
             client_id,
             client_secret,
         } => {
-            let mut config = config.lock().unwrap();
-            if config.profiles.iter().any(|profile| profile.name == *name) {
+            let mut state = state.lock().unwrap();
+            if state
+                .config
+                .profiles
+                .iter()
+                .any(|profile| profile.name == *name)
+            {
                 return Err(OperationOutcomeError::error(
                     IssueType::Exception(None),
                     format!("Profile with name '{}' already exists", name),
@@ -157,10 +172,10 @@ pub async fn config(
                 },
             };
 
-            config.profiles.push(profile);
-            config.active_profile = Some(name.clone());
+            state.config.profiles.push(profile);
+            state.config.active_profile = Some(name.clone());
 
-            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&*config).unwrap()).map_err(
+            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
                 |_| {
                     OperationOutcomeError::error(
                         IssueType::Exception(None),
@@ -175,10 +190,13 @@ pub async fn config(
             Ok(())
         }
         ConfigCommands::DeleteProfile { name } => {
-            let mut config = config.lock().unwrap();
-            config.profiles.retain(|profile| profile.name != *name);
+            let mut state = state.lock().unwrap();
+            state
+                .config
+                .profiles
+                .retain(|profile| profile.name != *name);
 
-            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&*config).unwrap()).map_err(
+            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
                 |_| {
                     OperationOutcomeError::error(
                         IssueType::Exception(None),
@@ -193,8 +211,9 @@ pub async fn config(
             Ok(())
         }
         ConfigCommands::SetActiveProfile => {
-            let mut config = config.lock().unwrap();
-            let user_profile_names = config
+            let mut state = state.lock().unwrap();
+            let user_profile_names = state
+                .config
                 .profiles
                 .iter()
                 .map(|p| p.name.as_str())
@@ -207,7 +226,8 @@ pub async fn config(
                 ));
             }
 
-            let active_profile_index = config
+            let active_profile_index = state
+                .config
                 .active_profile
                 .as_ref()
                 .and_then(|active_name| {
@@ -226,16 +246,21 @@ pub async fn config(
 
             let name = user_profile_names[selection];
 
-            if !config.profiles.iter().any(|profile| profile.name == *name) {
+            if !state
+                .config
+                .profiles
+                .iter()
+                .any(|profile| profile.name == *name)
+            {
                 return Err(OperationOutcomeError::error(
                     IssueType::Exception(None),
                     format!("Profile with name '{}' does not exist", name),
                 ));
             }
 
-            config.active_profile = Some(name.to_string());
+            state.config.active_profile = Some(name.to_string());
 
-            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&*config).unwrap()).map_err(
+            std::fs::write(&*CONFIG_LOCATION, toml::to_string(&state.config).unwrap()).map_err(
                 |_| {
                     OperationOutcomeError::error(
                         IssueType::Exception(None),
