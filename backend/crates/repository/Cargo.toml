@@ -24,3 +24,4 @@ tokio = { version = "1.47.1", features = ["sync"] }
 serde_json = "1.0.142"
 regex = "1.12.2"
 moka = { version = "0.12.11", features = ["future"] }
+tracing = "0.1.41"

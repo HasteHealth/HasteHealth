@@ -37,7 +37,11 @@ use oxidized_repository::{
     fhir::{FHIRRepository, HistoryRequest},
     types::SupportedFHIRVersions,
 };
-use std::{str::FromStr, sync::Arc, time::Instant};
+use std::{
+    str::FromStr,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 pub struct Middleware {}
 impl Middleware {
@@ -444,7 +448,6 @@ impl<
                 }
 
                 FHIRRequest::Transaction(transaction_request) => {
-                    let fp_engine = oxidized_fhirpath::FPEngine::new();
                     let mut transaction_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
                     std::mem::swap(
@@ -458,7 +461,7 @@ impl<
                     let sorted_transaction =
                         build_sorted_transaction_graph(transaction_entries.unwrap_or_default())?;
 
-                    let transaction_repo = Arc::new(state.repo.transaction().await?);
+                    let transaction_repo = Arc::new(state.repo.transaction(true).await?);
 
                     let bundle_response: Result<Bundle, OperationOutcomeError> = {
                         let transaction_client = FHIRServerClient::new(ServerClientConfig::new(
@@ -526,15 +529,7 @@ impl<
             }?;
 
             let mut next_context = if let Some(next_) = next {
-                next_(
-                    Arc::new(ClientState {
-                        repo: Arc::new(state.repo.transaction().await.unwrap()),
-                        search: state.search.clone(),
-                        terminology: state.terminology.clone(),
-                    }),
-                    context,
-                )
-                .await?
+                next_(state.clone(), context).await?
             } else {
                 context
             };

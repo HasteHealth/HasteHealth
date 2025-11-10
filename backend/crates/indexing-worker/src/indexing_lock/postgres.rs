@@ -1,15 +1,8 @@
 use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
 use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use oxidized_jwt::TenantId;
 use oxidized_repository::pg::PGConnection;
-use sqlx::{Acquire, Postgres, QueryBuilder, Transaction};
-
-pub struct PostgresIndexLockProvider();
-
-impl PostgresIndexLockProvider {
-    pub fn new() -> Self {
-        Self()
-    }
-}
+use sqlx::{Acquire, Postgres, QueryBuilder};
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum TenantLockIndexError {
@@ -25,7 +18,7 @@ pub enum TenantLockIndexError {
 impl IndexLockProvider for PGConnection {
     async fn get_available_locks(
         &self,
-        tenants: Vec<&str>,
+        tenants: Vec<&TenantId>,
     ) -> Result<Vec<TenantLockIndex>, OperationOutcomeError> {
         match self {
             PGConnection::Transaction(tx, _) => {
@@ -42,7 +35,7 @@ impl IndexLockProvider for PGConnection {
 
                 let mut separated = query_builder.separated(", ");
                 for tenant_id in tenants.iter() {
-                    separated.push_bind(tenant_id);
+                    separated.push_bind(tenant_id.as_ref());
                 }
 
                 separated.push_unseparated(") FOR NO KEY UPDATE SKIP LOCKED");

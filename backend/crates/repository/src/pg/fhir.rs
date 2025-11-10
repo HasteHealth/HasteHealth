@@ -250,6 +250,7 @@ impl FHIRRepository for PGConnection {
             }
             PGConnection::Transaction(tx, _) => {
                 let mut conn = tx.lock().await;
+
                 // Handle PgConnection connection
                 let res = get_sequence(&mut *conn, tenant_id, sequence_id, count).await?;
                 Ok(res)
@@ -264,10 +265,35 @@ impl FHIRRepository for PGConnection {
         }
     }
 
-    async fn transaction<'a>(&'a self) -> Result<Self, OperationOutcomeError> {
+    async fn transaction<'a>(&'a self, register: bool) -> Result<Self, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, cache) => {
-                let tx = pool.begin().await.map_err(StoreError::from)?;
+                let mut tx = pool.begin().await.map_err(StoreError::from)?;
+
+                if register {
+                    // Register the sequence for the transaction.
+                    // Used for safe access.
+                    sqlx::query!(
+                        r#"SELECT register_sequence_transaction('resources_sequence_seq') as registerd_sequence"#
+                    )
+                    .fetch_one(&mut *tx)
+                    .await
+                    .map_err(StoreError::from)?;
+                    // let transaction_id =
+                    //     sqlx::query!(r#"SELECT pg_current_xact_id()::text as transaction_id"#)
+                    //         .fetch_one(&mut *tx)
+                    //         .await
+                    //         .map_err(StoreError::from)?;
+
+                    // tracing::info!(
+                    //     "transaction-id: {}, registerd_sequence: {:?}",
+                    //     transaction_id
+                    //         .transaction_id
+                    //         .unwrap_or("unknown".to_string()),
+                    //     res.registerd_sequence.unwrap_or(0)
+                    // );
+                }
+
                 Ok(PGConnection::Transaction(
                     Arc::new(Mutex::new(tx)),
                     cache.clone(),
@@ -533,6 +559,18 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
 ) -> impl Future<Output = Result<Vec<ResourcePollingValue>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
+        // Run as a transaction to ensure safe sequence retrieval.
+        // Run as seperate query.
+        // Isolation level must be set to allowe dirty reads from pg_locks.
+        // This is to ensure that we can read the safe sequence even if other transactions are in progress.
+        let safe_sequence =
+            sqlx::query!("SELECT max_safe_seq('resources_sequence_seq') as max_safe_seq")
+                .fetch_one(&mut *conn)
+                .await
+                .map_err(StoreError::from)?
+                .max_safe_seq
+                .unwrap_or(0);
+
         let result = sqlx::query_as!(
             ResourcePollingValue,
             r#"SELECT  id as "id: ResourceId", 
@@ -542,15 +580,20 @@ fn get_sequence<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
                        resource_type as "resource_type: ResourceType", 
                        fhir_method as "fhir_method: FHIRMethod", 
                        sequence, 
-                       resource as "resource: FHIRJson<Resource>" 
-            FROM resources WHERE tenant = $1 AND sequence > $2 ORDER BY sequence LIMIT $3 "#,
+                       resource as "resource: FHIRJson<Resource>"
+            FROM resources WHERE tenant = $1 AND sequence > $2 AND sequence <= $3 ORDER BY sequence LIMIT $4 "#,
             tenant_id.as_ref() as &str,
             cur_sequence as i64,
+            safe_sequence,
             count.unwrap_or(100) as i64
         )
         .fetch_all(&mut *conn)
         .await
         .map_err(StoreError::from)?;
+
+        // if !result.is_empty() {
+        //     println!("safe_sequence: {:?}", safe_sequence);
+        // }
 
         Ok(result)
     }

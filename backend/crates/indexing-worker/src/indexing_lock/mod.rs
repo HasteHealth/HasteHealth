@@ -1,10 +1,11 @@
-#![allow(unused)]
 use oxidized_fhir_operation_error::OperationOutcomeError;
+use oxidized_jwt::TenantId;
 
 pub mod postgres;
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct TenantLockIndex {
+    #[allow(dead_code)]
     pub id: String,
     pub index_sequence_position: i64,
 }
@@ -16,7 +17,7 @@ pub trait IndexLockProvider {
     /// * `lock_ids` - Ids of locks to select
     fn get_available_locks(
         &self,
-        tenant_ids: Vec<&str>,
+        tenant_ids: Vec<&TenantId>,
     ) -> impl std::future::Future<Output = Result<Vec<TenantLockIndex>, OperationOutcomeError>> + Send;
     fn update_lock(
         &self,

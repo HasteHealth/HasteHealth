@@ -56,7 +56,7 @@ pub enum TokenType {
     Bearer,
 }
 
-pub static TOKEN_EXPIRATION: usize = 3600; // 1 hour
+pub static TOKEN_EXPIRATION: usize = 7200; // 2 hours 
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
