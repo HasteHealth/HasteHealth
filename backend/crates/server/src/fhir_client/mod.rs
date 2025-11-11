@@ -119,7 +119,7 @@ impl<
                     },
                 ))]),
                 user_id: AuthorId::System,
-                resource_type: AuthorKind::ClientApplication,
+                resource_type: AuthorKind::System,
                 access_policy_version_ids: vec![],
                 membership: None,
             }),

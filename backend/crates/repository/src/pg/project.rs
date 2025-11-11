@@ -25,7 +25,7 @@ fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
 
         let project = sqlx::query_as!(
             Project,
-            r#"INSERT INTO projects (tenant, id, fhir_version, system_created) VALUES ($1, $2, $3, $4) RETURNING tenant as "tenant: TenantId", id as "id: ProjectId", fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"INSERT INTO projects (tenant, id, fhir_version, system_created) VALUES ($1, $2, $3, $4) RETURNING tenant as "tenant: TenantId", system_created, id as "id: ProjectId", fhir_version as "fhir_version: SupportedFHIRVersions""#,
             tenant.as_ref(),
             id.as_ref(),
             project.fhir_version as SupportedFHIRVersions,
@@ -48,7 +48,7 @@ fn read_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let project = sqlx::query_as!(
             Project,
-            r#"SELECT id as "id: ProjectId", tenant as "tenant: TenantId", fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where tenant = $1 AND id = $2"#,
+            r#"SELECT id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions" FROM projects where tenant = $1 AND id = $2"#,
             tenant.as_ref(),    
             id
         )
@@ -69,7 +69,7 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let deleted_project = sqlx::query_as!(
             Project,
-            r#"DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id as "id: ProjectId", tenant as "tenant: TenantId", fhir_version as "fhir_version: SupportedFHIRVersions""#,
+            r#"DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             tenant.as_ref(),
             id
         )
@@ -115,6 +115,12 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
                 .push_bind_unseparated(fhir_version);
         }
 
+        if let Some(system_created) = clauses.system_created.as_ref() {
+            and_clauses
+                .push(" system_created = ")
+                .push_bind_unseparated(system_created);
+        }
+
         let query = query_builder.build_query_as();
 
         let projects: Vec<Project> = query
@@ -123,6 +129,23 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
             .map_err(StoreError::from)?;
 
         Ok(projects)
+    }
+}
+
+/// Not allowing updates on internal row just reading to confirm it's existance.
+fn update_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    model: Project,
+) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
+    async move {
+        read_project(connection, tenant, model.id.as_ref()).await?
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::NotFound(None),
+                    format!("Project '{}' not found.", model.id.as_ref()),
+                )
+            } )
     }
 }
 
@@ -165,13 +188,20 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
 
     async fn update(
         &self,
-        _tenant: &TenantId,
-        _model: Project,
+        tenant: &TenantId,
+        model: Project,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
-        Err(OperationOutcomeError::error(
-            IssueType::NotSupported(None),
-            "Projects cannot be updated.".to_string(),
-        ))
+        match self {
+            PGConnection::Pool(pool, _) => {
+                let res = update_project(pool, tenant, model).await?;
+                Ok(res)
+            }
+            PGConnection::Transaction(tx, _) => {
+                let mut tx = tx.lock().await;
+                let res = update_project(&mut *tx, tenant, model).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn delete(
