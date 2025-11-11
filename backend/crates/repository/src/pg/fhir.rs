@@ -68,6 +68,19 @@ async fn create_transaction(
     }
 }
 
+async fn commit_transaction(
+    tx: Arc<Mutex<Transaction<'static, Postgres>>>,
+) -> Result<(), OperationOutcomeError> {
+    let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
+        println!("Error during commit: {:?}", e);
+        StoreError::FailedCommitTransaction
+    })?);
+
+    // Handle PgConnection connection
+    let res = conn.commit().await.map_err(StoreError::from)?;
+    Ok(res)
+}
+
 impl FHIRRepository for PGConnection {
     async fn create(
         &self,
@@ -78,8 +91,15 @@ impl FHIRRepository for PGConnection {
         resource: &mut Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         match &self {
-            PGConnection::Pool(pool, _) => {
-                let res = create(pool, tenant, project, author, fhir_version, resource).await?;
+            PGConnection::Pool(_pool, _) => {
+                let tx = create_transaction(self, true).await?;
+                let res = {
+                    let mut conn = tx.lock().await;
+                    let res =
+                        create(&mut *conn, tenant, project, author, fhir_version, resource).await?;
+                    res
+                };
+                commit_transaction(tx).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
@@ -100,8 +120,22 @@ impl FHIRRepository for PGConnection {
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = delete(pool, tenant, project, author, fhir_version, resource, id).await?;
+            PGConnection::Pool(_pool, _) => {
+                let tx = create_transaction(self, true).await?;
+                let res = {
+                    let mut conn = tx.lock().await;
+                    let res = delete(
+                        &mut *conn,
+                        tenant,
+                        project,
+                        author,
+                        fhir_version,
+                        resource,
+                        id,
+                    )
+                    .await?;
+                    res
+                };
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
@@ -132,8 +166,24 @@ impl FHIRRepository for PGConnection {
         id: &str,
     ) -> Result<Resource, OperationOutcomeError> {
         match self {
-            PGConnection::Pool(pool, _) => {
-                let res = update(pool, tenant, project, author, fhir_version, resource, id).await?;
+            PGConnection::Pool(_pool, _) => {
+                let tx = create_transaction(self, true).await?;
+                let res = {
+                    let mut conn = tx.lock().await;
+                    let res = update(
+                        &mut *conn,
+                        tenant,
+                        project,
+                        author,
+                        fhir_version,
+                        resource,
+                        id,
+                    )
+                    .await?;
+                    res
+                };
+
+                commit_transaction(tx).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
@@ -301,16 +351,7 @@ impl FHIRRepository for PGConnection {
     async fn commit(self) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(_pool, _) => Err(StoreError::NotTransaction.into()),
-            PGConnection::Transaction(tx, _) => {
-                let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
-                    println!("Error during commit: {:?}", e);
-                    StoreError::FailedCommitTransaction
-                })?);
-
-                // Handle PgConnection connection
-                let res = conn.commit().await.map_err(StoreError::from)?;
-                Ok(res)
-            }
+            PGConnection::Transaction(tx, _) => commit_transaction(tx).await,
         }
     }
 
