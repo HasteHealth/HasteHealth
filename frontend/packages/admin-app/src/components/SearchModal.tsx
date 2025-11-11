@@ -96,10 +96,9 @@ function SearchModal(props: SearchModalProps) {
         return false;
       }
 
-      return (
-        r.type.toLowerCase().includes(search.toLowerCase()) ||
-        r.profile?.toLowerCase().includes(search.toLowerCase())
-      );
+      return r.type.toLowerCase().includes(search.toLowerCase());
+      // ||
+      // r.profile?.toLowerCase().includes(search.toLowerCase())
     });
   }, [search, capabilities]);
 
