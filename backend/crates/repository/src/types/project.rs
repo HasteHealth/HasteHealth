@@ -13,9 +13,11 @@ pub struct Project {
     pub tenant: TenantId,
     pub id: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
+    pub system_created: bool,
 }
 
 pub struct ProjectSearchClaims {
     pub id: Option<ProjectId>,
     pub fhir_version: Option<SupportedFHIRVersions>,
+    pub system_created: Option<bool>,
 }

@@ -169,6 +169,13 @@ impl<
                                     ));
                                 }
 
+                                if cur_model.system_created {
+                                    return Err(OperationOutcomeError::fatal(
+                                        IssueType::NotSupported(None),
+                                        "Cannot update system created projects.".to_string(),
+                                    ));
+                                }
+
                                 let project_model = TenantAuthAdmin::update(
                                     state.repo.as_ref(),
                                     &context.ctx.tenant,
@@ -176,6 +183,7 @@ impl<
                                         id: ProjectId::new(id.clone()),
                                         tenant: context.ctx.tenant.clone(),
                                         fhir_version: cur_model.fhir_version,
+                                        system_created: false,
                                     },
                                 )
                                 .await?;
