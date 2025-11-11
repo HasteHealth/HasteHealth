@@ -26,7 +26,7 @@ use oxidized_repository::{
     admin::TenantAuthAdmin,
     types::{
         SupportedFHIRVersions,
-        project::CreateProject,
+        project::{CreateProject, Project as ProjectModel},
         user::{AuthMethod, CreateUser, UpdateUser},
     },
     utilities::generate_id,
@@ -131,6 +131,74 @@ impl<
                             }
                         }
 
+                        FHIRRequest::UpdateInstance(update_request) => {
+                            if let Resource::Project(project) = &update_request.resource {
+                                let fhir_version = match &*project.fhirVersion {
+                                    SupportedFhirVersion::R4(_) => Ok(SupportedFHIRVersions::R4),
+                                    _ => Err(OperationOutcomeError::fatal(
+                                        IssueType::Invalid(None),
+                                        format!(
+                                            "Invalid FHIR Version '{:?}'",
+                                            &*project.fhirVersion
+                                        ),
+                                    )),
+                                }?;
+
+                                let name = project.name.clone();
+                                let id = update_request.id.clone();
+
+                                let Some(cur_model) =
+                                    TenantAuthAdmin::<CreateProject, _, _, _, _>::read(
+                                        state.repo.as_ref(),
+                                        &context.ctx.tenant,
+                                        &update_request.id,
+                                    )
+                                    .await?
+                                else {
+                                    return Err(OperationOutcomeError::fatal(
+                                        IssueType::NotFound(None),
+                                        "Project not found.".to_string(),
+                                    ));
+                                };
+
+                                if &cur_model.fhir_version != &fhir_version {
+                                    return Err(OperationOutcomeError::fatal(
+                                        IssueType::NotSupported(None),
+                                        "Changing FHIR version of existing project is not supported."
+                                            .to_string(),
+                                    ));
+                                }
+
+                                let project_model = TenantAuthAdmin::update(
+                                    state.repo.as_ref(),
+                                    &context.ctx.tenant,
+                                    ProjectModel {
+                                        id: ProjectId::new(id.clone()),
+                                        tenant: context.ctx.tenant.clone(),
+                                        fhir_version: cur_model.fhir_version,
+                                    },
+                                )
+                                .await?;
+
+                                let res = next(
+                                    state.clone(),
+                                    ServerMiddlewareContext {
+                                        ctx: context.ctx.clone(),
+                                        response: None,
+                                        request: context.request,
+                                    },
+                                )
+                                .await?;
+
+                                Ok(res)
+                            } else {
+                                Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Project resource is invalid.".to_string(),
+                                ))
+                            }
+                        }
+
                         FHIRRequest::DeleteInstance(delete_request) => {
                             TenantAuthAdmin::<CreateProject, _, _, _, _>::delete(
                                 state.repo.as_ref(),
@@ -158,6 +226,8 @@ impl<
                         }
 
                         FHIRRequest::SearchType(_) => next(state.clone(), context).await,
+
+                        FHIRRequest::Read(read_request) => next(state.clone(), context).await,
 
                         // Dissallow updates on project because could impact integrity of system. For example project has stored
                         // resources in a specific FHIR version, changing that version would cause issues.

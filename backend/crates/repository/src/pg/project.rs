@@ -126,6 +126,23 @@ fn search_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     }
 }
 
+/// Not allowing updates on internal row just reading to confirm it's existance.
+fn update_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    tenant: &'a TenantId,
+    model: Project,
+) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
+    async move {
+        read_project(connection, tenant, model.id.as_ref()).await?
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::NotFound(None),
+                    format!("Project '{}' not found.", model.id.as_ref()),
+                )
+            } )
+    }
+}
+
 impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, ProjectSearchClaims, Project, Key> for PGConnection {
     async fn create(
         &self,
@@ -165,13 +182,20 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
 
     async fn update(
         &self,
-        _tenant: &TenantId,
-        _model: Project,
+        tenant: &TenantId,
+        model: Project,
     ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
-        Err(OperationOutcomeError::error(
-            IssueType::NotSupported(None),
-            "Projects cannot be updated.".to_string(),
-        ))
+        match self {
+            PGConnection::Pool(pool, _) => {
+                let res = update_project(pool, tenant, model).await?;
+                Ok(res)
+            }
+            PGConnection::Transaction(tx, _) => {
+                let mut tx = tx.lock().await;
+                let res = update_project(&mut *tx, tenant, model).await?;
+                Ok(res)
+            }
+        }
     }
 
     async fn delete(

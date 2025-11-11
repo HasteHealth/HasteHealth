@@ -215,11 +215,6 @@ export default function ResourceEditorComponent({
               },
             ]
           : []),
-        // {
-        //   id: 1,
-        //   title: "Audit events",
-        //   content: <span> Audit Events </span>,
-        // },
         ...rightSide,
       ]}
       rightSide={

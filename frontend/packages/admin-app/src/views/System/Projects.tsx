@@ -83,10 +83,79 @@ function ProjectCreateModal({
   );
 }
 
+function ProjectUpdateModal({
+  id,
+  open,
+  setOpen,
+  setProjects,
+}: {
+  id: id;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+}) {
+  const client = useAtomValue(getClient);
+  const [project, setProject] = useState<Project | null>(null);
+  const sd = useAtomValue(
+    getResource({
+      resourceType: "StructureDefinition",
+      id: "Project" as id,
+    })
+  );
+  useEffect(() => {
+    client.read({}, R4, "Project", id).then((res) => {
+      setProject(res as Project);
+    });
+  }, [id]);
+
+  return (
+    <Modal open={open} setOpen={() => setOpen(false)}>
+      <div className="p-2">
+        <FHIRGenerativeForm
+          fhirVersion={R4}
+          value={project ?? undefined}
+          structureDefinition={sd as StructureDefinition}
+          setValue={(v) => {
+            const newProject = v(project!);
+            setProject(newProject as Project);
+          }}
+          client={client}
+        />
+
+        <Button
+          className="mt-4"
+          onClick={(_e) => {
+            const createPromise = client
+              .update({}, R4, "Project", id, project!)
+              .then((res) => {
+                setProjects((projects) => [
+                  ...projects.filter((p) => p.id !== res.id),
+                  res,
+                ]);
+              });
+
+            Toaster.promise(createPromise, {
+              loading: "Updating Project",
+              success: (success) => `Project updated`,
+              error: (error) => {
+                return getErrorMessage(error);
+              },
+            });
+            setOpen(false);
+          }}
+        >
+          Update
+        </Button>
+      </div>
+    </Modal>
+  );
+}
+
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const client = useAtomValue(getClient);
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openUpdateModalId, setOpenUpdateIdModal] = useState<string>("");
 
   useEffect(() => {
     client
@@ -113,6 +182,14 @@ export default function Projects() {
           setOpen={(bool) => {
             setOpenCreateModal(bool);
           }}
+          setProjects={setProjects}
+        />
+        <ProjectUpdateModal
+          open={openUpdateModalId !== ""}
+          setOpen={(bool) => {
+            if (!bool) setOpenUpdateIdModal("");
+          }}
+          id={openUpdateModalId as id}
           setProjects={setProjects}
         />
         <div className=" flex justify-center flex-col px-4  -top-[15px] mt-16">
@@ -149,7 +226,7 @@ export default function Projects() {
                     window.open(newUrl, "_blank");
                   }}
                   key={project.id}
-                  className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm"
+                  className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-1"
                 >
                   <div className="flex items-center space-x-1 mb-2">
                     <div className="flex-1">
@@ -166,40 +243,54 @@ export default function Projects() {
                   <p className="font-normal text-slate-400">
                     FHIR Version: {project.fhirVersion}
                   </p>
-                  <div className="flex">
-                    <span
-                      onClick={(e) => {
-                        if (
-                          confirm(
-                            "Do you want to delete project " + project.name
-                          )
-                        ) {
-                          if (confirm("Are you sure?")) {
-                            const deletePromise = client
-                              .delete_instance({}, R4, "Project", project.id!)
-                              .then(() => {
-                                setProjects(
-                                  projects.filter((p) => p.id !== project.id)
-                                );
+                  <div className="flex justify-center items-center">
+                    <div>
+                      <span
+                        onClick={(e) => {
+                          if (
+                            confirm(
+                              "Do you want to delete project " + project.name
+                            )
+                          ) {
+                            if (confirm("Are you sure?")) {
+                              const deletePromise = client
+                                .delete_instance({}, R4, "Project", project.id!)
+                                .then(() => {
+                                  setProjects(
+                                    projects.filter((p) => p.id !== project.id)
+                                  );
+                                });
+                              Toaster.promise(deletePromise, {
+                                loading: "Deleting Project",
+                                success: (success) => `Project deleted`,
+                                error: (error) => {
+                                  return getErrorMessage(error);
+                                },
                               });
-                            Toaster.promise(deletePromise, {
-                              loading: "Deleting Project",
-                              success: (success) => `Project deleted`,
-                              error: (error) => {
-                                return getErrorMessage(error);
-                              },
-                            });
+                            }
+                          } else {
+                            console.log("You pressed Cancel!");
                           }
-                        } else {
-                          console.log("You pressed Cancel!");
-                        }
-                        // Don't bubble up.
-                        e.stopPropagation();
-                      }}
-                      className="text-red-500 hover:text-red-600 cursor-pointer"
-                    >
-                      Delete
-                    </span>
+                          // Don't bubble up.
+                          e.stopPropagation();
+                        }}
+                        className="text-red-500 hover:text-red-600 cursor-pointer"
+                      >
+                        Delete
+                      </span>
+                    </div>
+                    <div className="flex-1" />
+                    <div>
+                      <span
+                        onClick={(e) => {
+                          setOpenUpdateIdModal(project.id!);
+                          e.stopPropagation();
+                        }}
+                        className="text-teal-500 hover:text-teal-600 cursor-pointer"
+                      >
+                        Update
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
