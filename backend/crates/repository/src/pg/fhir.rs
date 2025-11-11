@@ -11,7 +11,7 @@ use oxidized_fhir_model::r4::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{Acquire, Postgres, QueryBuilder, Transaction};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -41,6 +41,31 @@ async fn read_version_ids_from_cache<'a>(
     }
 
     (cached_resources, remaining_version_ids)
+}
+
+async fn create_transaction(
+    connection: &PGConnection,
+    is_updating_sequence: bool,
+) -> Result<Arc<Mutex<Transaction<'static, Postgres>>>, OperationOutcomeError> {
+    match connection {
+        PGConnection::Pool(pool, _cache) => {
+            let mut tx = pool.begin().await.map_err(StoreError::from)?;
+
+            if is_updating_sequence {
+                // Register the sequence for the transaction.
+                // Used for safe access.
+                sqlx::query!(
+                        r#"SELECT register_sequence_transaction('resources_sequence_seq') as registerd_sequence"#
+                    )
+                    .fetch_one(&mut *tx)
+                    .await
+                    .map_err(StoreError::from)?;
+            }
+
+            Ok(Arc::new(Mutex::new(tx)))
+        }
+        PGConnection::Transaction(tx, _) => Ok(tx.clone()), // Transaction doesn't live long enough so cannot create.
+    }
 }
 
 impl FHIRRepository for PGConnection {
@@ -265,42 +290,12 @@ impl FHIRRepository for PGConnection {
         }
     }
 
-    async fn transaction<'a>(&'a self, register: bool) -> Result<Self, OperationOutcomeError> {
-        match self {
-            PGConnection::Pool(pool, cache) => {
-                let mut tx = pool.begin().await.map_err(StoreError::from)?;
-
-                if register {
-                    // Register the sequence for the transaction.
-                    // Used for safe access.
-                    sqlx::query!(
-                        r#"SELECT register_sequence_transaction('resources_sequence_seq') as registerd_sequence"#
-                    )
-                    .fetch_one(&mut *tx)
-                    .await
-                    .map_err(StoreError::from)?;
-                    // let transaction_id =
-                    //     sqlx::query!(r#"SELECT pg_current_xact_id()::text as transaction_id"#)
-                    //         .fetch_one(&mut *tx)
-                    //         .await
-                    //         .map_err(StoreError::from)?;
-
-                    // tracing::info!(
-                    //     "transaction-id: {}, registerd_sequence: {:?}",
-                    //     transaction_id
-                    //         .transaction_id
-                    //         .unwrap_or("unknown".to_string()),
-                    //     res.registerd_sequence.unwrap_or(0)
-                    // );
-                }
-
-                Ok(PGConnection::Transaction(
-                    Arc::new(Mutex::new(tx)),
-                    cache.clone(),
-                ))
-            }
-            PGConnection::Transaction(_tx, _) => Ok(self.clone()), // Transaction doesn't live long enough so cannot create.
-        }
+    async fn transaction<'a>(
+        &'a self,
+        is_updating_sequence: bool,
+    ) -> Result<Self, OperationOutcomeError> {
+        let tx = create_transaction(self, is_updating_sequence).await?;
+        Ok(PGConnection::Transaction(tx, self.cache().clone()))
     }
 
     async fn commit(self) -> Result<(), OperationOutcomeError> {
