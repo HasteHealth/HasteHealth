@@ -3,13 +3,14 @@ use crate::{
     ui::components::page_html,
 };
 use maud::{Markup, html};
-use oxidized_fhir_model::r4::generated::resources::ClientApplication;
+use oxidized_fhir_model::r4::generated::resources::{ClientApplication, IdentityProvider};
 use oxidized_jwt::{ProjectId, TenantId};
 use std::borrow::Cow;
 
 pub fn login_form_html(
     tenant: &TenantId,
     project: &oxidized_fhir_model::r4::generated::resources::Project,
+    identity_providers: Option<&Vec<IdentityProvider>>,
     client_app: &ClientApplication,
     login_route: &str,
     errors: Option<Vec<String>>,
@@ -87,7 +88,18 @@ pub fn login_form_html(
                     }
                     button type="submit" class="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
                 }
-                div class="mt-4 space-y-2" {}
+
+                @if let Some(identity_providers) = identity_providers {
+                    div class="mb-4 space-y-2" {
+                        @for idp in identity_providers {
+                            a href="" class="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " {
+                                div { (format!("Sign in with {}", idp.name.value.as_ref().unwrap_or(&"Unknown".to_string()))) }
+                            }
+                        }
+                    }
+                }
+
+
             }
         }
     })

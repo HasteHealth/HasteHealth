@@ -7,6 +7,36 @@ wrk.body = [[
   "type": "transaction",
   "entry": [
     {
+      "fullUrl": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
+      "resource": {
+         "resourceType": "Practitioner"
+      },
+      "request": {
+        "method": "POST",
+        "url": "Practitioner"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
+      "resource": {
+         "resourceType": "Location"
+      },
+      "request": {
+        "method": "POST",
+        "url": "Location"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
+      "resource": {
+         "resourceType": "Organization"
+      },
+      "request": {
+        "method": "POST",
+        "url": "Organization"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa",
       "resource": {
         "resourceType": "Patient",
@@ -278,7 +308,7 @@ wrk.body = [[
               "end": "1954-04-03T12:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           }
@@ -290,13 +320,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         }
       },
@@ -358,7 +388,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           },
@@ -376,14 +406,14 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+              "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "managingOrganization": [
           {
-            "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+            "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
             "display": "MOUNT AUBURN HOSPITAL"
           }
         ]
@@ -556,7 +586,7 @@ wrk.body = [[
         "issued": "1954-04-03T12:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
@@ -620,12 +650,12 @@ wrk.body = [[
         "date": "1954-04-03T12:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "content": [
@@ -683,7 +713,7 @@ wrk.body = [[
         },
         "created": "1954-04-03T12:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "priority": {
@@ -695,7 +725,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "insurance": [
@@ -752,11 +782,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -809,13 +839,13 @@ wrk.body = [[
           "display": "UnitedHealthcare"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "claim": {
@@ -826,7 +856,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -977,7 +1007,7 @@ wrk.body = [[
               "end": "1954-04-20T08:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           }
@@ -989,13 +1019,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         }
       },
@@ -1106,7 +1136,7 @@ wrk.body = [[
         "issued": "1954-04-20T08:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
@@ -1170,12 +1200,12 @@ wrk.body = [[
         "date": "1954-04-20T08:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "content": [
@@ -1233,7 +1263,7 @@ wrk.body = [[
         },
         "created": "1954-04-20T08:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "priority": {
@@ -1245,7 +1275,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "insurance": [
@@ -1302,11 +1332,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -1359,13 +1389,13 @@ wrk.body = [[
           "display": "UnitedHealthcare"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "claim": {
@@ -1376,7 +1406,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -1527,7 +1557,7 @@ wrk.body = [[
               "end": "1959-06-03T15:33:08-04:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           }
@@ -1550,13 +1580,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         }
       },
@@ -1619,7 +1649,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           },
@@ -1637,7 +1667,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+              "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
@@ -1656,7 +1686,7 @@ wrk.body = [[
         ],
         "managingOrganization": [
           {
-            "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+            "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
             "display": "MOUNT AUBURN HOSPITAL"
           }
         ]
@@ -1812,7 +1842,7 @@ wrk.body = [[
         "issued": "1959-06-03T15:14:47.085-04:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
@@ -1876,12 +1906,12 @@ wrk.body = [[
         "date": "1959-06-03T15:14:47.085-04:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "content": [
@@ -1939,7 +1969,7 @@ wrk.body = [[
         },
         "created": "1959-06-03T15:33:08-04:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "priority": {
@@ -1951,7 +1981,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "insurance": [
@@ -2008,11 +2038,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -2065,13 +2095,13 @@ wrk.body = [[
           "display": "UnitedHealthcare"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "claim": {
@@ -2082,7 +2112,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -2233,7 +2263,7 @@ wrk.body = [[
               "end": "1971-01-29T03:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           }
@@ -2245,13 +2275,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "PCP58532"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         }
       },
@@ -2434,7 +2464,7 @@ wrk.body = [[
         "issued": "1971-01-29T03:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
@@ -2498,12 +2528,12 @@ wrk.body = [[
         "date": "1971-01-29T03:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "content": [
@@ -2561,7 +2591,7 @@ wrk.body = [[
         },
         "created": "1971-01-29T03:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "priority": {
@@ -2573,7 +2603,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "diagnosis": [
@@ -2676,11 +2706,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -2733,13 +2763,13 @@ wrk.body = [[
           "display": "Aetna"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "claim": {
@@ -2750,7 +2780,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -3011,7 +3041,7 @@ wrk.body = [[
               "end": "1977-10-25T04:29:47-04:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           }
@@ -3034,13 +3064,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         }
       },
@@ -3103,7 +3133,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           },
@@ -3121,7 +3151,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+              "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
@@ -3140,7 +3170,7 @@ wrk.body = [[
         ],
         "managingOrganization": [
           {
-            "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+            "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
             "display": "MOUNT AUBURN HOSPITAL"
           }
         ]
@@ -3296,7 +3326,7 @@ wrk.body = [[
         "issued": "1977-10-25T04:14:47.085-04:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
@@ -3360,12 +3390,12 @@ wrk.body = [[
         "date": "1977-10-25T04:14:47.085-04:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "content": [
@@ -3423,7 +3453,7 @@ wrk.body = [[
         },
         "created": "1977-10-25T04:29:47-04:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "priority": {
@@ -3435,7 +3465,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "insurance": [
@@ -3492,11 +3522,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -3549,13 +3579,13 @@ wrk.body = [[
           "display": "Humana"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "claim": {
@@ -3566,7 +3596,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -3717,7 +3747,7 @@ wrk.body = [[
               "end": "1978-02-10T03:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           }
@@ -3729,13 +3759,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "PCP58532"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         }
       },
@@ -3857,7 +3887,7 @@ wrk.body = [[
         "issued": "1978-02-10T03:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
@@ -3921,12 +3951,12 @@ wrk.body = [[
         "date": "1978-02-10T03:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "content": [
@@ -3984,7 +4014,7 @@ wrk.body = [[
         },
         "created": "1978-02-10T03:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "priority": {
@@ -3996,7 +4026,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "diagnosis": [
@@ -4077,11 +4107,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -4134,13 +4164,13 @@ wrk.body = [[
           "display": "Humana"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "claim": {
@@ -4151,7 +4181,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -4358,7 +4388,7 @@ wrk.body = [[
               "end": "1981-02-13T03:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           }
@@ -4370,13 +4400,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "PCP58532"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         }
       },
@@ -4498,7 +4528,7 @@ wrk.body = [[
         "issued": "1981-02-13T03:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
@@ -4562,12 +4592,12 @@ wrk.body = [[
         "date": "1981-02-13T03:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "content": [
@@ -4625,7 +4655,7 @@ wrk.body = [[
         },
         "created": "1981-02-13T03:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "priority": {
@@ -4637,7 +4667,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "diagnosis": [
@@ -4718,11 +4748,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -4775,13 +4805,13 @@ wrk.body = [[
           "display": "Cigna Health"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "claim": {
@@ -4792,7 +4822,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -4999,7 +5029,7 @@ wrk.body = [[
               "end": "1982-04-22T17:37:23-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           }
@@ -5022,13 +5052,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         }
       },
@@ -5091,7 +5121,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           },
@@ -5109,7 +5139,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+              "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
@@ -5128,7 +5158,7 @@ wrk.body = [[
         ],
         "managingOrganization": [
           {
-            "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+            "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
             "display": "MOUNT AUBURN HOSPITAL"
           }
         ]
@@ -5284,7 +5314,7 @@ wrk.body = [[
         "issued": "1982-04-22T17:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
@@ -5348,12 +5378,12 @@ wrk.body = [[
         "date": "1982-04-22T17:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Lesley194 Fisher429"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "content": [
@@ -5411,7 +5441,7 @@ wrk.body = [[
         },
         "created": "1982-04-22T17:37:23-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "priority": {
@@ -5423,7 +5453,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "insurance": [
@@ -5480,11 +5510,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -5537,13 +5567,13 @@ wrk.body = [[
           "display": "Cigna Health"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "MOUNT AUBURN HOSPITAL"
         },
         "claim": {
@@ -5554,7 +5584,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -5705,7 +5735,7 @@ wrk.body = [[
               "end": "1984-02-17T03:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           }
@@ -5717,13 +5747,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "PCP58532"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         }
       },
@@ -5907,7 +5937,7 @@ wrk.body = [[
         "issued": "1984-02-17T03:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
@@ -5971,12 +6001,12 @@ wrk.body = [[
         "date": "1984-02-17T03:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "content": [
@@ -6034,7 +6064,7 @@ wrk.body = [[
         },
         "created": "1984-02-17T03:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "priority": {
@@ -6046,7 +6076,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "diagnosis": [
@@ -6149,11 +6179,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -6206,13 +6236,13 @@ wrk.body = [[
           "display": "Humana"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "claim": {
@@ -6223,7 +6253,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -6484,7 +6514,7 @@ wrk.body = [[
               "end": "1987-02-20T03:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           }
@@ -6496,13 +6526,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "PCP58532"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         }
       },
@@ -6624,7 +6654,7 @@ wrk.body = [[
         "issued": "1987-02-20T03:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
@@ -6688,12 +6718,12 @@ wrk.body = [[
         "date": "1987-02-20T03:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "content": [
@@ -6751,7 +6781,7 @@ wrk.body = [[
         },
         "created": "1987-02-20T03:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "priority": {
@@ -6763,7 +6793,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "diagnosis": [
@@ -6844,11 +6874,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -6901,13 +6931,13 @@ wrk.body = [[
           "display": "UnitedHealthcare"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "claim": {
@@ -6918,7 +6948,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -7125,7 +7155,7 @@ wrk.body = [[
               "end": "1990-02-23T03:29:47-05:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           }
@@ -7137,13 +7167,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "PCP58532"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         }
       },
@@ -7390,7 +7420,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Sommer719 Hilpert278"
             }
           },
@@ -7408,7 +7438,7 @@ wrk.body = [[
               }
             ],
             "member": {
-              "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+              "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
               "display": "PCP58532"
             }
           }
@@ -7427,7 +7457,7 @@ wrk.body = [[
         ],
         "managingOrganization": [
           {
-            "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+            "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
             "display": "PCP58532"
           }
         ]
@@ -7587,7 +7617,7 @@ wrk.body = [[
         "issued": "1990-02-23T03:14:47.085-05:00",
         "performer": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
@@ -7651,12 +7681,12 @@ wrk.body = [[
         "date": "1990-02-23T03:14:47.085-05:00",
         "author": [
           {
-            "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019",
+            "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
             "display": "Dr. Sommer719 Hilpert278"
           }
         ],
         "custodian": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "content": [
@@ -7714,7 +7744,7 @@ wrk.body = [[
         },
         "created": "1990-02-23T03:29:47-05:00",
         "provider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|214935b6-3ba3-31a9-9d96-56095ee9654a",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "PCP58532"
         },
         "priority": {
@@ -7726,7 +7756,7 @@ wrk.body = [[
           ]
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "diagnosis": [
@@ -7851,11 +7881,11 @@ wrk.body = [[
               "reference": "urn:uuid:b0a06ead-cc42-aa48-dad6-841d4aa679fa"
             },
             "requester": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "performer": [
               {
-                "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+                "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
               }
             ]
           },
@@ -7908,13 +7938,13 @@ wrk.body = [[
           "display": "UnitedHealthcare"
         },
         "provider": {
-          "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+          "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
         },
         "referral": {
           "reference": "#referral"
         },
         "facility": {
-          "reference": "Location?identifier=https://github.com/synthetichealth/synthea|6904eaab-1bf5-39c4-9f22-53664c04f523",
+          "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
           "display": "PCP58532"
         },
         "claim": {
@@ -7925,7 +7955,7 @@ wrk.body = [[
           {
             "sequence": 1,
             "provider": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999968019"
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b"
             },
             "role": {
               "coding": [
@@ -8240,7 +8270,7 @@ wrk.body = [[
               "end": "1992-04-10T04:29:47-04:00"
             },
             "individual": {
-              "reference": "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999999989",
+              "reference": "urn:uuid:d14d5ef8-2e47-4a2d-a0c8-65244e23307b",
               "display": "Dr. Lesley194 Fisher429"
             }
           }
@@ -8252,13 +8282,13 @@ wrk.body = [[
         "location": [
           {
             "location": {
-              "reference": "Location?identifier=https://github.com/synthetichealth/synthea|27abf3f3-fa08-31e4-8bca-c4c9ade68709",
+              "reference": "urn:uuid:c95ba980-be4a-4404-b239-70bd6e23d271",
               "display": "MOUNT AUBURN HOSPITAL"
             }
           }
         ],
         "serviceProvider": {
-          "reference": "Organization?identifier=https://github.com/synthetichealth/synthea|69176529-fd1f-3b3f-abce-a0a3626769eb",
+          "reference": "urn:uuid:ea3170f6-0271-4231-a3f0-4af9d9565253",
           "display": "MOUNT AUBURN HOSPITAL"
         }
       },

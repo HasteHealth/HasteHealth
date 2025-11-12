@@ -1,6 +1,7 @@
 use crate::{
     auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
     extract::path_tenant::{Project, TenantIdentifier},
+    fhir_client::ServerCTX,
     services::AppState,
     ui::pages,
 };
@@ -11,9 +12,16 @@ use axum::{
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
 use maud::Markup;
+use oxidized_fhir_client::FHIRClient;
+use oxidized_fhir_model::r4::generated::{
+    resources::{Bundle, BundleEntry, BundleEntryRequest},
+    terminology::HttpVerb,
+    types::FHIRUri,
+};
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
+use oxidized_jwt::ProjectId;
 use oxidized_repository::{
     Repository,
     types::user::{LoginMethod, LoginResult},
@@ -26,15 +34,27 @@ use tower_sessions::Session;
 #[typed_path("/login")]
 pub struct Login;
 
-pub async fn login_get(
+pub async fn login_get<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
     _: Login,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(Project(project)): Cached<Project>,
+    Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
-    let response =
-        pages::login::login_form_html(&tenant, &project, &client_app, &uri.to_string(), None);
+    let idps = resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
+    let response = pages::login::login_form_html(
+        &tenant,
+        &project_resource,
+        idps.as_ref(),
+        &client_app,
+        &uri.to_string(),
+        None,
+    );
 
     Ok(response)
 }
@@ -45,6 +65,72 @@ pub struct LoginForm {
     pub password: String,
 }
 
+/// Resolves the IdentityProviders configured for the given Project resource.
+/// Uses a batch request to fetch all IdentityProvider resources referenced by the Project.
+async fn resolve_identity_providers<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    state: &Arc<AppState<Repo, Search, Terminology>>,
+    tenant: oxidized_jwt::TenantId,
+    project_resource: &oxidized_fhir_model::r4::generated::resources::Project,
+) -> Result<
+    Option<Vec<oxidized_fhir_model::r4::generated::resources::IdentityProvider>>,
+    OperationOutcomeError,
+> {
+    let identity_providers = if let Some(idps) = project_resource.identityProvider.as_ref() {
+        let res = state
+            .fhir_client
+            .batch(
+                Arc::new(ServerCTX::system(
+                    tenant,
+                    ProjectId::System,
+                    state.fhir_client.clone(),
+                )),
+                Bundle {
+                    entry: Some(
+                        idps.iter()
+                            .filter_map(|idp| idp.reference.as_ref())
+                            .filter_map(|idp_ref| idp_ref.value.as_ref())
+                            .map(|idp_ref| BundleEntry {
+                                request: Some(BundleEntryRequest {
+                                    method: Box::new(HttpVerb::GET(None)),
+                                    url: Box::new(FHIRUri {
+                                        value: Some(idp_ref.to_string()),
+                                        ..Default::default()
+                                    }),
+                                    ..Default::default()
+                                }),
+                                ..Default::default()
+                            })
+                            .collect::<Vec<_>>(),
+                    ),
+                    ..Default::default()
+                },
+            )
+            .await?;
+
+        Some(
+            res.entry
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|entry| entry.resource)
+                .filter_map(|res| match *res {
+                    oxidized_fhir_model::r4::generated::resources::Resource::IdentityProvider(
+                        idp,
+                    ) => Some(idp),
+                    _ => None,
+                })
+                .collect::<Vec<_>>(),
+        )
+    } else {
+        None
+    };
+
+    Ok(identity_providers)
+}
+
 pub async fn login_post<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -52,7 +138,7 @@ pub async fn login_post<
 >(
     _: Login,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(Project(project)): Cached<Project>,
+    Cached(Project(project_resource)): Cached<Project>,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(current_session): Cached<Session>,
@@ -84,13 +170,18 @@ pub async fn login_post<
 
             Ok(authorization_redirect.into_response())
         }
-        LoginResult::Failure => Ok(pages::login::login_form_html(
-            &tenant,
-            &project,
-            &client_app,
-            &uri.to_string(),
-            Some(vec!["Invalid credentials. Please try again.".to_string()]),
-        )
-        .into_response()),
+        LoginResult::Failure => {
+            let idps =
+                resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
+            Ok(pages::login::login_form_html(
+                &tenant,
+                &project_resource,
+                idps.as_ref(),
+                &client_app,
+                &uri.to_string(),
+                Some(vec!["Invalid credentials. Please try again.".to_string()]),
+            )
+            .into_response())
+        }
     }
 }

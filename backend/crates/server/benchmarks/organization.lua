@@ -40,11 +40,6 @@ wrk.body = [[
       "postalCode": "48104",
       "country": "USA"
     }
-  ],
-  "endpoint": [
-    {
-      "reference": "Endpoint/example"
-    }
   ]
 }
 ]]

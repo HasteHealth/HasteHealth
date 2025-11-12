@@ -9,8 +9,8 @@ use oxidized_fhir_client::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
     request::{
-        FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest, FHIRRequest,
-        FHIRResponse, FHIRSearchTypeRequest,
+        FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest,
+        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
     },
     url::ParsedParameter,
 };
@@ -677,9 +677,21 @@ impl<
 
     async fn batch(
         &self,
-        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _bundle: Bundle,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+        bundle: Bundle,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Batch(FHIRBatchRequest { resource: bundle }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Batch(batch_response)) => Ok(batch_response.resource),
+            _ => panic!("Unexpected response type"),
+        }
     }
 }

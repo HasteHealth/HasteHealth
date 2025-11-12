@@ -10,11 +10,7 @@ type ModalProps = {
 export default function Modal(props: ModalProps) {
   return (
     <Transition appear show={props.open} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-50"
-        onClose={() => props.setOpen()}
-      >
+      <Dialog as="div" className="relative z-50" onClose={() => {}}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"

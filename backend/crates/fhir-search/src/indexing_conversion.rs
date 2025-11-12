@@ -65,13 +65,14 @@ pub enum InsertableIndex {
     Reference(Vec<ReferenceIndex>),
     Quantity(Vec<QuantityRange>),
     Composite(Vec<String>),
+    Special(Vec<String>),
 }
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum InsertableIndexError {
     #[fatal(
         code = "exception",
-        diagnostic = "Invalid type for insertable index: {arg0}"
+        diagnostic = "Invalid type for insertable index: '{arg0}'"
     )]
     InvalidType(String),
     #[fatal(
@@ -876,6 +877,7 @@ pub fn to_insertable_index(
         }
         // Not Supported yet
         SearchParamType::Composite(_) => Ok(InsertableIndex::Composite(vec![])),
+        SearchParamType::Special(_) => Ok(InsertableIndex::Special(vec![])),
         _ => {
             let type_name: Option<String> = parameter.type_.as_ref().into();
             Err(

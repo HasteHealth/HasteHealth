@@ -19,7 +19,10 @@ export interface TableProps {
   isLoading?: boolean;
   columns: Columns[];
   data: unknown[];
-  onRowClick?: (row: unknown) => void;
+  onRowClick?: (
+    row: unknown,
+    e: React.MouseEvent<HTMLTableRowElement, MouseEvent>
+  ) => void;
 }
 
 async function extract(
@@ -87,7 +90,9 @@ export function Table({
                 <tr
                   key={index}
                   className="border cursor-pointer hover:bg-slate-100"
-                  onClick={() => onRowClick(row)}
+                  onClick={(e) => {
+                    onRowClick(row, e);
+                  }}
                 >
                   {columns.map((column) => (
                     <RenderCell key={column.id} row={row} column={column} />
