@@ -1,6 +1,7 @@
 use crate::{
     auth_n::oidc::{
-        code_verification::generate_code_verifier, extract::client_app::OIDCClientApplication,
+        code_verification::{generate_code_challenge, generate_code_verifier},
+        extract::client_app::OIDCClientApplication,
     },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
@@ -60,10 +61,10 @@ pub struct IDPSessionInfo {
 
 async fn set_session_info(
     session: &mut Session,
-    idp: IdentityProvider,
+    idp: &IdentityProvider,
     redirect_to: &str,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
-    let idp_id = idp.id.ok_or_else(|| {
+    let idp_id = idp.id.as_ref().ok_or_else(|| {
         OperationOutcomeError::error(
             IssueType::Invalid(None),
             "Identity Provider resource is missing an ID.".to_string(),
@@ -100,7 +101,8 @@ async fn set_session_info(
     Ok(info)
 }
 
-fn create_federated_authorization_url(
+async fn create_federated_authorization_url(
+    session: &mut Session,
     identity_provider: &IdentityProvider,
 ) -> Result<Url, OperationOutcomeError> {
     if let Some(oidc) = &identity_provider.oidc {
@@ -136,6 +138,32 @@ fn create_federated_authorization_url(
             .query_pairs_mut()
             .append_pair("client_id", client_id)
             .append_pair("scope", &scopes.unwrap_or_default());
+
+        let info = set_session_info(session, &identity_provider, "").await?;
+        authorization_url
+            .query_pairs_mut()
+            .append_pair("state", &info.state);
+        if let Some(code_verifier) = info.code_verifier {
+            let code_challenge = generate_code_challenge(
+                &code_verifier,
+                oidc.pkce
+                    .as_ref()
+                    .and_then(|pkce| pkce.code_challenge_method.clone()),
+            )?;
+            authorization_url
+                .query_pairs_mut()
+                .append_pair("code_challenge", &code_challenge);
+            if let Some(method) = oidc
+                .pkce
+                .as_ref()
+                .and_then(|pkce| pkce.code_challenge_method.clone())
+            {
+                authorization_url
+                    .query_pairs_mut()
+                    .append_pair("code_challenge_method", method.as_str());
+            }
+        }
+
         Ok(authorization_url)
     } else {
         return Err(OperationOutcomeError::error(
@@ -153,6 +181,7 @@ pub async fn federated_initiate<
     FederatedInitiate {
         identity_provider_id,
     }: FederatedInitiate,
+    Cached(mut current_session): Cached<Session>,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
@@ -185,7 +214,8 @@ pub async fn federated_initiate<
             )
         })?;
 
-    let federated_authorization_url = create_federated_authorization_url(&identity_provider)?;
+    let federated_authorization_url =
+        create_federated_authorization_url(&mut current_session, &identity_provider)?;
 
     Ok(Redirect::to(federated_authorization_url.as_str()))
 }
