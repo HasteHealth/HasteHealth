@@ -12,10 +12,11 @@ use oxidized_repository::{
 use sha2::{Digest, Sha256};
 
 pub fn verify_code_verifier(
-    code: &AuthorizationCode,
+    pkce_code_challenge: &Option<String>,
+    pkce_code_challenge_method: &Option<PKCECodeChallengeMethod>,
     code_verifier: &str,
 ) -> Result<(), OperationOutcomeError> {
-    match code.pkce_code_challenge_method {
+    match pkce_code_challenge_method {
         Some(PKCECodeChallengeMethod::S256) => {
             let mut hasher = Sha256::new();
             hasher.update(code_verifier.as_bytes());
@@ -25,9 +26,7 @@ pub fn verify_code_verifier(
             // Remove last character which is an equal.
             computed_challenge.pop();
 
-            if Some(computed_challenge.as_str())
-                != code.pkce_code_challenge.as_ref().map(|v| v.as_str())
-            {
+            if Some(computed_challenge) != *pkce_code_challenge {
                 return Err(OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "PKCE code verifier does not match the code challenge.".to_string(),
@@ -37,7 +36,7 @@ pub fn verify_code_verifier(
             Ok(())
         }
         Some(PKCECodeChallengeMethod::Plain) => {
-            if code_verifier != code.pkce_code_challenge.as_deref().unwrap_or("") {
+            if Some(code_verifier) != pkce_code_challenge.as_deref() {
                 return Err(OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "PKCE code verifier does not match the code challenge.".to_string(),
@@ -96,7 +95,12 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
         }
 
         if let Some(code_verifier) = code_verifier
-            && verify_code_verifier(&code, &code_verifier).is_err()
+            && verify_code_verifier(
+                &code.pkce_code_challenge,
+                &code.pkce_code_challenge_method,
+                &code_verifier,
+            )
+            .is_err()
         {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Invalid(None),
