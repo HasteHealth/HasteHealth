@@ -1,6 +1,6 @@
 use crate::{
     auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
-    extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+    extract::path_tenant::{Project, TenantIdentifier},
     fhir_client::ServerCTX,
     services::AppState,
     ui::pages,
@@ -42,14 +42,11 @@ pub async fn login_get<
     _: Login,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(client_app): OIDCClientApplication,
     uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
-    let idps =
-        resolve_identity_providers(&state, tenant.clone(), project.clone(), &project_resource)
-            .await?;
+    let idps = resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
     let response = pages::login::login_form_html(
         &tenant,
         &project_resource,
@@ -77,7 +74,6 @@ async fn resolve_identity_providers<
 >(
     state: &Arc<AppState<Repo, Search, Terminology>>,
     tenant: oxidized_jwt::TenantId,
-    project: oxidized_jwt::ProjectId,
     project_resource: &oxidized_fhir_model::r4::generated::resources::Project,
 ) -> Result<
     Option<Vec<oxidized_fhir_model::r4::generated::resources::IdentityProvider>>,
@@ -115,8 +111,6 @@ async fn resolve_identity_providers<
             )
             .await?;
 
-        println!("Batch response: {:?}", res);
-
         Some(
             res.entry
                 .unwrap_or_default()
@@ -144,7 +138,6 @@ pub async fn login_post<
 >(
     _: Login,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
@@ -178,13 +171,8 @@ pub async fn login_post<
             Ok(authorization_redirect.into_response())
         }
         LoginResult::Failure => {
-            let idps = resolve_identity_providers(
-                &state,
-                tenant.clone(),
-                project.clone(),
-                &project_resource,
-            )
-            .await?;
+            let idps =
+                resolve_identity_providers(&state, tenant.clone(), &project_resource).await?;
             Ok(pages::login::login_form_html(
                 &tenant,
                 &project_resource,
