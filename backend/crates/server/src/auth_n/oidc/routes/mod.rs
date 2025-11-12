@@ -168,6 +168,7 @@ pub fn create_router<
                         ),
                 ),
         )
+        .nest("/federated", federated::federated_router())
         .nest("/interactions", interactions::interactions_router())
         .route_layer(
             ServiceBuilder::new().layer(middleware::from_fn_with_state(state, project_exists)),

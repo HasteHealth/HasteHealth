@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{
     auth_n::oidc::extract::client_app::OIDCClientApplication,
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
@@ -19,6 +17,7 @@ use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_repository::Repository;
 use serde::Deserialize;
+use std::sync::Arc;
 use url::Url;
 
 #[derive(TypedPath, Deserialize)]
@@ -46,7 +45,6 @@ fn validate_identity_provider_in_project(
     ))
 }
 
-#[allow(dead_code)]
 pub async fn federated_initiate<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
