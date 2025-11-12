@@ -6,7 +6,10 @@ use crate::{
     fhir_client::ServerCTX,
     services::AppState,
 };
-use axum::extract::{OriginalUri, State};
+use axum::{
+    extract::{OriginalUri, State},
+    response::Redirect,
+};
 use axum_extra::{extract::Cached, routing::TypedPath};
 use maud::Markup;
 use oxidized_fhir_client::FHIRClient;
@@ -97,43 +100,10 @@ async fn set_session_info(
     Ok(info)
 }
 
-pub async fn federated_initiate<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
-    FederatedInitiate {
-        identity_provider_id,
-    }: FederatedInitiate,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    Cached(Project(project_resource)): Cached<Project>,
-    OIDCClientApplication(_client_app): OIDCClientApplication,
-    _uri: OriginalUri,
-) -> Result<Markup, OperationOutcomeError> {
-    validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
-
-    let identity_provider = state
-        .fhir_client
-        .read(
-            Arc::new(ServerCTX::system(
-                tenant,
-                project,
-                state.fhir_client.clone(),
-            )),
-            ResourceType::IdentityProvider,
-            identity_provider_id,
-        )
-        .await?
-        .and_then(|r| match r {
-            Resource::IdentityProvider(ip) => Some(ip),
-            _ => None,
-        });
-
-    if let Some(identity_provider) = identity_provider
-        && let Some(oidc) = &identity_provider.oidc
-    {
+fn create_federated_authorization_url(
+    identity_provider: &IdentityProvider,
+) -> Result<Url, OperationOutcomeError> {
+    if let Some(oidc) = &identity_provider.oidc {
         let mut authorization_url = oidc
             .authorization_endpoint
             .value
@@ -145,6 +115,7 @@ pub async fn federated_initiate<
                     "Invalid authorization endpoint URL for identity provider".to_string(),
                 )
             })?;
+
         let client_id = oidc.client.clientId.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
@@ -165,12 +136,56 @@ pub async fn federated_initiate<
             .query_pairs_mut()
             .append_pair("client_id", client_id)
             .append_pair("scope", &scopes.unwrap_or_default());
-
-        todo!();
+        Ok(authorization_url)
     } else {
         return Err(OperationOutcomeError::error(
             IssueType::NotFound(None),
             "The specified identity provider was not found.".to_string(),
         ));
     }
+}
+
+pub async fn federated_initiate<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    FederatedInitiate {
+        identity_provider_id,
+    }: FederatedInitiate,
+    uri: OriginalUri,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    Cached(Project(project_resource)): Cached<Project>,
+    OIDCClientApplication(_client_app): OIDCClientApplication,
+    _uri: OriginalUri,
+) -> Result<Redirect, OperationOutcomeError> {
+    validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
+    let identity_provider = state
+        .fhir_client
+        .read(
+            Arc::new(ServerCTX::system(
+                tenant,
+                project,
+                state.fhir_client.clone(),
+            )),
+            ResourceType::IdentityProvider,
+            identity_provider_id,
+        )
+        .await?
+        .and_then(|r| match r {
+            Resource::IdentityProvider(ip) => Some(ip),
+            _ => None,
+        })
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::NotFound(None),
+                "The specified identity provider was not found.".to_string(),
+            )
+        })?;
+
+    let federated_authorization_url = create_federated_authorization_url(&identity_provider)?;
+
+    Ok(Redirect::to(federated_authorization_url.as_str()))
 }

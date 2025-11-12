@@ -14,7 +14,7 @@ use crate::{
 };
 use axum::{
     Extension,
-    extract::State,
+    extract::{OriginalUri, State},
     http::{Uri, uri::Scheme},
     response::{IntoResponse, Redirect, Response},
 };
@@ -38,6 +38,14 @@ use oxidized_repository::{
 };
 use std::{sync::Arc, time::Duration};
 use tower_sessions::Session;
+
+pub fn redirect_authorize_uri(uri: &OriginalUri, replace_path: &str) -> String {
+    uri.path()
+        .to_string()
+        .replace(replace_path, "/auth/authorize")
+        + "?"
+        + uri.query().unwrap_or("")
+}
 
 pub async fn find_membership<Repo: Repository>(
     repo: &Repo,
