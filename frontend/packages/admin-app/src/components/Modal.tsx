@@ -13,7 +13,9 @@ export default function Modal(props: ModalProps) {
       <Dialog
         as="div"
         className="relative z-50"
-        onClose={() => props.setOpen()}
+        onClose={() => {
+          console.log("CLOSING");
+        }}
       >
         <Transition.Child
           as={Fragment}
