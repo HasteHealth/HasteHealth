@@ -1,5 +1,7 @@
 use crate::{
-    auth_n::oidc::extract::client_app::OIDCClientApplication,
+    auth_n::oidc::{
+        code_verification::generate_code_verifier, extract::client_app::OIDCClientApplication,
+    },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
     services::AppState,
@@ -9,15 +11,16 @@ use axum_extra::{extract::Cached, routing::TypedPath};
 use maud::Markup;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
-    resources::{Project as FHIRProject, Resource, ResourceType},
+    resources::{IdentityProvider, Project as FHIRProject, Resource, ResourceType},
     terminology::IssueType,
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::Repository;
-use serde::Deserialize;
+use oxidized_repository::{Repository, utilities::generate_id};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use tower_sessions::Session;
 use url::Url;
 
 #[derive(TypedPath, Deserialize)]
@@ -43,6 +46,55 @@ fn validate_identity_provider_in_project(
         IssueType::Forbidden(None),
         "The specified identity provider is not associated with the project.".to_string(),
     ))
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub struct IDPSessionInfo {
+    state: String,
+    redirect_to: String,
+    code_verifier: Option<String>,
+}
+
+async fn set_session_info(
+    session: &mut Session,
+    idp: IdentityProvider,
+    redirect_to: &str,
+) -> Result<IDPSessionInfo, OperationOutcomeError> {
+    let idp_id = idp.id.ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Identity Provider resource is missing an ID.".to_string(),
+        )
+    })?;
+
+    let state = generate_id(Some(20));
+
+    let mut info = IDPSessionInfo {
+        state,
+        redirect_to: redirect_to.to_string(),
+        code_verifier: None,
+    };
+
+    if let Some(oidc) = &idp.oidc {
+        if let Some(pkce) = &oidc.pkce {
+            if pkce.enabled.as_ref().and_then(|b| b.value).unwrap_or(false) {
+                let code_verifier = generate_code_verifier();
+                info.code_verifier = Some(code_verifier);
+            }
+        }
+    }
+
+    session
+        .insert(&format!("federated_initiate_{}", idp_id), &info)
+        .await
+        .map_err(|_| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                "Failed to set session information.".to_string(),
+            )
+        })?;
+
+    Ok(info)
 }
 
 pub async fn federated_initiate<
