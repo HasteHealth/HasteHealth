@@ -161,9 +161,16 @@ pub async fn password_reset_initiate_post<
             },
         );
 
+        let email = user.email.as_ref().ok_or_else(|| {
+            OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "User does not have an email associated.".to_string(),
+            )
+        })?;
+
         send_email(
             &*state.config,
-            &user.email,
+            email,
             "Password Reset",
             &password_reset_html.into_string(),
         )
@@ -301,7 +308,14 @@ pub async fn password_reset_verify_post<
             ));
         };
 
-        set_user_password(&*state.repo, &tenant, &user.email, &user.id, &body.password).await?;
+        let email = user.email.as_ref().ok_or_else(|| {
+            OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "User does not have an email associated.".to_string(),
+            )
+        })?;
+
+        set_user_password(&*state.repo, &tenant, &email, &user.id, &body.password).await?;
 
         Ok(message_html(
             &tenant,

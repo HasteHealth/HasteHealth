@@ -160,10 +160,10 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                         ResourceType::User,
                         Resource::User(User {
                             role: Box::new(UserRole::Admin(None)),
-                            email: Box::new(FHIRString {
+                            email: Some(Box::new(FHIRString {
                                 value: Some(email.clone()),
                                 ..Default::default()
-                            }),
+                            })),
                             ..Default::default()
                         }),
                     )
