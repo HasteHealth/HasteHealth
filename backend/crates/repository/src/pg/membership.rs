@@ -1,13 +1,11 @@
 use crate::{
     admin::ProjectAuthAdmin,
     pg::{PGConnection, StoreError},
-    types::membership::{
-        CreateMembership, Membership, MembershipRole, MembershipSearchClaims, UpdateMembership,
-    },
+    types::membership::{CreateMembership, Membership, MembershipRole, MembershipSearchClaims},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_jwt::{ProjectId, TenantId};
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{Acquire, Postgres, QueryBuilder, query::Query};
 
 fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
@@ -76,15 +74,26 @@ fn update_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
     connection: Connection,
     tenant: &'a TenantId,
     project: &'a ProjectId,
-    model: UpdateMembership,
+    model: Membership,
 ) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let mut query_builder = QueryBuilder::new(
             r#"
-                UPDATE memberships SET 
+                INSERT INTO memberships(tenant, project, user_id, role, resource_id) VALUES (
             "#,
         );
+
+        let mut seperator = query_builder.separated(", ");
+
+        seperator
+            .push_bind(tenant.as_ref())
+            .push_bind(project.as_ref())
+            .push_bind(&model.user_id)
+            .push_bind(model.role.clone() as MembershipRole)
+            .push_bind(&model.resource_id);
+
+        query_builder.push(r#") ON CONFLICT (tenant, project, user_id) DO UPDATE SET "#);
 
         let mut set_statements = query_builder.separated(", ");
 
@@ -92,18 +101,11 @@ fn update_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
             .push(" role = ")
             .push_bind_unseparated(model.role);
 
-        query_builder.push(" WHERE ");
+        set_statements
+            .push(" resource_id = ")
+            .push_bind_unseparated(&model.resource_id);
 
-        let mut where_statements = query_builder.separated(" AND ");
-        where_statements
-            .push(" tenant = ")
-            .push_bind_unseparated(tenant.as_ref())
-            .push(" project = ")
-            .push_bind_unseparated(project.as_ref())
-            .push(" user_id = ")
-            .push_bind_unseparated(&model.user_id);
-
-        query_builder.push(r#" RETURNING id, provider_id, email, role, method"#);
+        query_builder.push(r#" RETURNING tenant, project, user_id, role, resource_id"#);
 
         let query = query_builder.build_query_as();
 
@@ -121,10 +123,10 @@ fn delete_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
     tenant: &'a TenantId,
     project: &'a ProjectId,
     user_id: &'a str,
-) -> impl Future<Output = Result<Membership, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let membership = sqlx::query_as!(
+        let _membership = sqlx::query_as!(
             Membership,
             r#"
                 DELETE FROM memberships
@@ -135,11 +137,11 @@ fn delete_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send
             project.as_ref(),
             user_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(membership)
+        Ok(())
     }
 }
 
@@ -185,7 +187,7 @@ fn search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Sen
 }
 
 impl<Key: AsRef<str> + Send + Sync>
-    ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, Key>
+    ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, Key>
     for PGConnection
 {
     async fn create(
@@ -230,7 +232,7 @@ impl<Key: AsRef<str> + Send + Sync>
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-        model: UpdateMembership,
+        model: Membership,
     ) -> Result<Membership, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
@@ -250,7 +252,7 @@ impl<Key: AsRef<str> + Send + Sync>
         tenant: &TenantId,
         project: &ProjectId,
         id: &Key,
-    ) -> Result<Membership, OperationOutcomeError> {
+    ) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_membership(pool, tenant, project, id.as_ref()).await?;

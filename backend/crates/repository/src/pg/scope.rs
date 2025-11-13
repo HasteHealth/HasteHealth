@@ -108,10 +108,10 @@ fn delete_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
     tenant: &'a TenantId,
     project: &'a ProjectId,
     key: &'a ScopeKey,
-) -> impl Future<Output = Result<Scope, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let scope = sqlx::query_as!(
+        let _scope = sqlx::query_as!(
             Scope,
             r#"
                 DELETE FROM authorization_scopes
@@ -123,11 +123,11 @@ fn delete_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             key.0.as_ref(),
             key.1.as_ref(),
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(scope)
+        Ok(())
     }
 }
 
@@ -238,7 +238,7 @@ impl ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeK
         tenant: &TenantId,
         project: &ProjectId,
         key: &ScopeKey,
-    ) -> Result<Scope, OperationOutcomeError> {
+    ) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_scope(pool, tenant, project, key).await?;

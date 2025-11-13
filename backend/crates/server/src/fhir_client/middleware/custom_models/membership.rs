@@ -123,12 +123,16 @@ impl<
                         Some(FHIRResponse::Update(update_response)) => {
                             if let Resource::Membership(membership) = &update_response.resource
                                 && let Some(user_id) = get_user_id(membership)
+                                && let Some(membership_id) = membership.id.as_ref()
                             {
                                 ProjectAuthAdmin::update(
                                     state.repo.as_ref(),
                                     &res.ctx.tenant,
                                     &res.ctx.project,
-                                    m::UpdateMembership {
+                                    m::Membership {
+                                        tenant: res.ctx.tenant.clone(),
+                                        project: res.ctx.project.clone(),
+                                        resource_id: membership_id.clone(),
                                         role: m::MembershipRole::Member,
                                         user_id: user_id.to_string(),
                                     },

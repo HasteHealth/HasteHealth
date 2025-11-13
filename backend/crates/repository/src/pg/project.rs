@@ -64,16 +64,16 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
     connection: Connection,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<Project, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let deleted_project = sqlx::query_as!(
+        let _deleted_project = sqlx::query_as!(
             Project,
             r#"DELETE FROM projects WHERE tenant = $1 AND id = $2 and system_created = false RETURNING id as "id: ProjectId", tenant as "tenant: TenantId", system_created, fhir_version as "fhir_version: SupportedFHIRVersions""#,
             tenant.as_ref(),
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(|_e| {
             OperationOutcomeError::error(
@@ -82,7 +82,7 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
             )
         })?;
 
-        Ok(deleted_project)
+        Ok(())
     }
 }
 
@@ -208,7 +208,7 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         &self,
         tenant: &TenantId,
         id: &Key,
-    ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_project(pool, tenant, id.as_ref()).await?;
