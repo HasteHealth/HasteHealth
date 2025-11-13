@@ -135,7 +135,7 @@ async fn decode_using_jwk(
 
         OperationOutcomeError::error(
             IssueType::Invalid(None),
-            "Token verification failed".to_string(),
+            "Failed to decode and verify token. Ensure openid is in scope and claims contain a sub claim.".to_string(),
         )
     })?;
 
