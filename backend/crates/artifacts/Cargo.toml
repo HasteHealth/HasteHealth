@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 once_cell = "1.21.3"
+oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
 rust-embed = { version = "8.9.0", features = [
     "compression",
     "include-exclude",
