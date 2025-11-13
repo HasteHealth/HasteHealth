@@ -68,7 +68,7 @@ pub async fn federated_callback<
         tenant,
         app_state.fhir_client.clone(),
         &project_resource,
-        identity_provider_id,
+        identity_provider_id.clone(),
     )
     .await?;
 
@@ -92,7 +92,7 @@ pub async fn federated_callback<
 
     let idp_session_info = get_idp_session_info(&session, &identity_provider).await?;
 
-    let code_body = AuthorizationCodeBody {
+    let federated_token_body = AuthorizationCodeBody {
         grant_type: GrantType::AuthorizationCode,
         code: code,
         redirect_uri: create_federated_callback_url(
@@ -109,7 +109,48 @@ pub async fn federated_callback<
         code_verifier: idp_session_info.code_verifier,
     };
 
-    Ok(())
+    let token_url = identity_provider
+        .oidc
+        .as_ref()
+        .map(|oidc| oidc.token_endpoint)
+        .and_then(|uri| uri.value.as_ref())
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Identity Provider is missing token endpoint".to_string(),
+            )
+        })?;
+
+    let client = reqwest::Client::new();
+    let res = client
+        .post(token_url)
+        .form(&federated_token_body)
+        .send()
+        .await
+        .map_err(|_e| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Failed at sending request to identity provider token endpoint".to_string(),
+            )
+        })?;
+
+    let token_response_body = res.json::<serde_json::Value>().await.map_err(|_e| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Failed to parse token response from identity provider".to_string(),
+        )
+    })?;
+
+    let access_token = &token_response_body["access_token"];
+
+    let redirect_url = Url::parse(idp_session_info.redirect_to.as_str()).map_err(|_| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid redirect URL stored in session.".to_string(),
+        )
+    })?;
+
+    Ok(Redirect::to(redirect_url.as_str()))
 }
 
 pub fn create_federated_callback_url(

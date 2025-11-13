@@ -2588,7 +2588,6 @@ dependencies = [
 name = "oxidized-server"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "axum",
  "axum-extra",
  "base64",
@@ -2628,7 +2627,6 @@ dependencies = [
  "sha2",
  "sqlx",
  "sqlx-postgres",
- "thiserror 2.0.15",
  "tokio",
  "tower",
  "tower-http",
