@@ -2617,6 +2617,7 @@ dependencies = [
  "petgraph",
  "rand",
  "regex",
+ "reqwest",
  "rsa",
  "rust-embed",
  "sendgrid",

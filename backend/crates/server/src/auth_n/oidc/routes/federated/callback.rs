@@ -15,6 +15,7 @@ use tower_sessions::Session;
 use url::Url;
 
 use crate::{
+    ServerEnvironmentVariables,
     auth_n::oidc::routes::federated::initiate::{get_idp_session_info, validate_and_get_idp},
     extract::path_tenant::{Project, TenantIdentifier},
     services::AppState,
@@ -56,6 +57,7 @@ pub async fn federated_callback<
     FederatedInitiate {
         identity_provider_id,
     }: FederatedInitiate,
+    uri: OriginalUri,
     Query(CallbackQueryParams { code, state }): Query<CallbackQueryParams>,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
@@ -93,7 +95,15 @@ pub async fn federated_callback<
     let code_body = AuthorizationCodeBody {
         grant_type: GrantType::AuthorizationCode,
         code: code,
-        redirect_uri: idp_session_info.redirect_uri,
+        redirect_uri: create_federated_callback_url(
+            &app_state.config.get(ServerEnvironmentVariables::APIURI)?,
+            &uri,
+            &identity_provider_id,
+            &FederatedInitiate {
+                identity_provider_id: identity_provider_id.clone(),
+            }
+            .to_string(),
+        )?,
         client_id: client_id.clone(),
         client_secret: client_secret.cloned(),
         code_verifier: idp_session_info.code_verifier,

@@ -10,51 +10,51 @@ edition = "2024"
 [workspace]
 resolver = "3"
 members = [
-    "crates/server",
-    "crates/fhirpath",
+    "crates/access-control",
+    "crates/artifacts",
     "crates/codegen",
-    "crates/reflect",
-    "crates/reflect-derive",
-    "crates/fhir-model",
-    "crates/fhir-serialization-json",
-    "crates/fhir-serialization-json-derive",
+    "crates/config",
     "crates/fhir-client",
+    "crates/fhir-generated-ops",
+    "crates/fhir-model",
     "crates/fhir-operation-error",
     "crates/fhir-operation-error-derive",
-    "crates/indexing-worker",
-    "crates/config",
-    "crates/artifacts",
-    "crates/fhir-search",
-    "crates/repository",
-    "crates/macro-loads",
-    "crates/fhir-generated-ops",
-    "crates/fhir-terminology",
     "crates/fhir-ops",
     "crates/fhir-ops-derive",
-    "crates/access-control",
+    "crates/fhir-search",
+    "crates/fhir-serialization-json",
+    "crates/fhir-serialization-json-derive",
+    "crates/fhir-terminology",
+    "crates/fhirpath",
+    "crates/indexing-worker",
     "crates/jwt",
+    "crates/macro-loads",
+    "crates/reflect",
+    "crates/reflect-derive",
+    "crates/repository",
+    "crates/server",
 ]
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"] }
-thiserror = "2.0.12"
-serde_json = "1.0"
-tokio = { version = "1", features = ["full"] }
-quote = "1.0.40"
-oxidized-fhir-model = { path = "./crates/fhir-model" }
-oxidized-fhirpath = { path = "./crates/fhirpath" }
-oxidized-codegen = { path = "./crates/codegen" }
-oxidized-fhir-operation-error = { path = "./crates/fhir-operation-error" }
-oxidized-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
-oxidized-fhir-search = { path = "./crates/fhir-search" }
-oxidized-jwt = { path = "./crates/jwt" }
-oxidized-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
-oxidized-server = { path = "./crates/server" }
-oxidized-config = { path = "./crates/config" }
-oxidized-repository = { path = "./crates/repository" }
-oxidized-indexing-worker = { path = "./crates/indexing-worker" }
-toml = "0.9.8"
-serde = "1.0.228"
 dialoguer = "0.12.0"
 jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
+oxidized-codegen = { path = "./crates/codegen" }
+oxidized-config = { path = "./crates/config" }
+oxidized-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
+oxidized-fhir-model = { path = "./crates/fhir-model" }
+oxidized-fhir-operation-error = { path = "./crates/fhir-operation-error" }
+oxidized-fhir-search = { path = "./crates/fhir-search" }
+oxidized-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
+oxidized-fhirpath = { path = "./crates/fhirpath" }
+oxidized-indexing-worker = { path = "./crates/indexing-worker" }
+oxidized-jwt = { path = "./crates/jwt" }
+oxidized-repository = { path = "./crates/repository" }
+oxidized-server = { path = "./crates/server" }
+quote = "1.0.40"
 reqwest = { version = "0.12" }
+serde = "1.0.228"
+serde_json = "1.0"
+thiserror = "2.0.12"
+tokio = { version = "1", features = ["full"] }
+toml = "0.9.8"

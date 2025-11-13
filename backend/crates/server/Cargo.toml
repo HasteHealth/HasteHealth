@@ -68,3 +68,4 @@ zxcvbn = "3.1.0"
 petgraph = "0.8.3"
 rust-embed = { version = "8.9.0", features = ["axum-ex"] }
 mime_guess = "2.0.5"
+reqwest = { version = "0.12" }
