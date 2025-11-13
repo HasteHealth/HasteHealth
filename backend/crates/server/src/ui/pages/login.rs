@@ -1,5 +1,6 @@
 use crate::{
-    auth_n::oidc::routes::route_string::oidc_route_string, static_assets::asset_route,
+    auth_n::oidc::routes::{federated::FederatedInitiate, route_string::oidc_route_string},
+    static_assets::asset_route,
     ui::components::page_html,
 };
 use maud::{Markup, html};
@@ -92,7 +93,7 @@ pub fn login_form_html(
                 @if let Some(identity_providers) = identity_providers {
                     div class="mb-4 space-y-2" {
                         @for idp in identity_providers {
-                            a href="" class="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " {
+                            a href=(login_route.replace("/interactions/login", &FederatedInitiate{identity_provider_id: idp.id.clone().unwrap_or_default()}.to_string())) class="space-x-2 flex content-center justify-center text-white bg-slate-600 hover:bg-slate-700 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " {
                                 div { (format!("Sign in with {}", idp.name.value.as_ref().unwrap_or(&"Unknown".to_string()))) }
                             }
                         }

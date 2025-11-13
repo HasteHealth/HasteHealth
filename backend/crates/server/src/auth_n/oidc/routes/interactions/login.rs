@@ -1,5 +1,10 @@
 use crate::{
-    auth_n::{oidc::extract::client_app::OIDCClientApplication, session},
+    auth_n::{
+        oidc::{
+            extract::client_app::OIDCClientApplication, routes::authorize::redirect_authorize_uri,
+        },
+        session,
+    },
     extract::path_tenant::{Project, TenantIdentifier},
     fhir_client::ServerCTX,
     services::AppState,
@@ -159,14 +164,8 @@ pub async fn login_post<
     match login_result {
         LoginResult::Success { user } => {
             session::user::set_user(&current_session, &tenant, &user).await?;
-            let authorization_redirect = Redirect::to(
-                &(uri
-                    .path()
-                    .to_string()
-                    .replace("/interactions/login", "/auth/authorize")
-                    + "?"
-                    + uri.query().unwrap_or("")),
-            );
+            let authorization_redirect =
+                Redirect::to(&(redirect_authorize_uri(&uri, "/interactions/login")));
 
             Ok(authorization_redirect.into_response())
         }
