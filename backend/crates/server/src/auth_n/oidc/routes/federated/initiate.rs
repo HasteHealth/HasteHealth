@@ -1,9 +1,11 @@
 use crate::{
+    ServerEnvironmentVariables,
     auth_n::oidc::{
         code_verification::{generate_code_challenge, generate_code_verifier},
         extract::client_app::OIDCClientApplication,
+        routes::federated::callback::federated_callback_url,
     },
-    extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
+    extract::path_tenant::{Project, TenantIdentifier},
     fhir_client::ServerCTX,
     services::AppState,
 };
@@ -12,23 +14,25 @@ use axum::{
     response::Redirect,
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use maud::Markup;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
     resources::{IdentityProvider, Project as FHIRProject, Resource, ResourceType},
-    terminology::IssueType,
+    terminology::{IdentityProviderPkceChallengeMethod, IssueType},
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{Repository, utilities::generate_id};
+use oxidized_jwt::ProjectId;
+use oxidized_repository::{
+    Repository, types::authorization_code::PKCECodeChallengeMethod, utilities::generate_id,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower_sessions::Session;
 use url::Url;
 
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/{identity_provider_id}")]
+#[typed_path("/federated/{identity_provider_id}/initiate")]
 pub struct FederatedInitiate {
     pub identity_provider_id: String,
 }
@@ -101,8 +105,20 @@ async fn set_session_info(
     Ok(info)
 }
 
+fn oidc_pkce_challenge_method(
+    challenge: &IdentityProviderPkceChallengeMethod,
+) -> Option<PKCECodeChallengeMethod> {
+    match challenge {
+        IdentityProviderPkceChallengeMethod::S256(None) => Some(PKCECodeChallengeMethod::S256),
+        IdentityProviderPkceChallengeMethod::Plain(None) => Some(PKCECodeChallengeMethod::Plain),
+        _ => None,
+    }
+}
+
 async fn create_federated_authorization_url(
     session: &mut Session,
+    api_uri: &str,
+    original_uri: &OriginalUri,
     identity_provider: &IdentityProvider,
 ) -> Result<Url, OperationOutcomeError> {
     if let Some(oidc) = &identity_provider.oidc {
@@ -137,31 +153,38 @@ async fn create_federated_authorization_url(
         authorization_url
             .query_pairs_mut()
             .append_pair("client_id", client_id)
-            .append_pair("scope", &scopes.unwrap_or_default());
+            .append_pair("scope", &scopes.unwrap_or_default())
+            .append_pair(
+                "redirect_uri",
+                &federated_callback_url(
+                    api_uri,
+                    original_uri,
+                    &identity_provider.id.clone().unwrap_or_default(),
+                    &(FederatedInitiate {
+                        identity_provider_id: identity_provider.id.clone().unwrap_or_default(),
+                    }
+                    .to_string()),
+                )?,
+            );
 
         let info = set_session_info(session, &identity_provider, "").await?;
         authorization_url
             .query_pairs_mut()
             .append_pair("state", &info.state);
-        if let Some(code_verifier) = info.code_verifier {
-            let code_challenge = generate_code_challenge(
-                &code_verifier,
-                oidc.pkce
-                    .as_ref()
-                    .and_then(|pkce| pkce.code_challenge_method.clone()),
-            )?;
+        if let Some(code_verifier) = info.code_verifier
+            && let Some(challenge_method) = oidc
+                .pkce
+                .as_ref()
+                .and_then(|p| p.code_challenge_method.as_ref())
+                .and_then(|c| oidc_pkce_challenge_method(c))
+        {
+            let code_challenge = generate_code_challenge(&code_verifier, &challenge_method)?;
             authorization_url
                 .query_pairs_mut()
                 .append_pair("code_challenge", &code_challenge);
-            if let Some(method) = oidc
-                .pkce
-                .as_ref()
-                .and_then(|pkce| pkce.code_challenge_method.clone())
-            {
-                authorization_url
-                    .query_pairs_mut()
-                    .append_pair("code_challenge_method", method.as_str());
-            }
+            authorization_url
+                .query_pairs_mut()
+                .append_pair("code_challenge_method", &String::from(challenge_method));
         }
 
         Ok(authorization_url)
@@ -185,18 +208,18 @@ pub async fn federated_initiate<
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(_client_app): OIDCClientApplication,
     _uri: OriginalUri,
 ) -> Result<Redirect, OperationOutcomeError> {
+    let api_uri = state.config.get(ServerEnvironmentVariables::APIURI)?;
     validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
     let identity_provider = state
         .fhir_client
         .read(
             Arc::new(ServerCTX::system(
                 tenant,
-                project,
+                ProjectId::System,
                 state.fhir_client.clone(),
             )),
             ResourceType::IdentityProvider,
@@ -214,8 +237,13 @@ pub async fn federated_initiate<
             )
         })?;
 
-    let federated_authorization_url =
-        create_federated_authorization_url(&mut current_session, &identity_provider)?;
+    let federated_authorization_url = create_federated_authorization_url(
+        &mut current_session,
+        &api_uri,
+        &uri,
+        &identity_provider,
+    )
+    .await?;
 
     Ok(Redirect::to(federated_authorization_url.as_str()))
 }

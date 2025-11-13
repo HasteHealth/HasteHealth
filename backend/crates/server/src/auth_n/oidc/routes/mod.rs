@@ -21,7 +21,7 @@ use tower::ServiceBuilder;
 use url::Url;
 
 mod authorize;
-mod federated;
+pub mod federated;
 mod interactions;
 mod jwks;
 pub mod route_string;
@@ -147,6 +147,7 @@ pub fn create_router<
     Router::new()
         .merge(Router::new().typed_get(jwks::jwks_get))
         .merge(Router::new().typed_get(openid_configuration))
+        .merge(federated::federated_router())
         .nest(
             AUTH_NESTED_PATH,
             Router::new()
@@ -168,7 +169,6 @@ pub fn create_router<
                         ),
                 ),
         )
-        .nest("/federated", federated::federated_router())
         .nest("/interactions", interactions::interactions_router())
         .route_layer(
             ServiceBuilder::new().layer(middleware::from_fn_with_state(state, project_exists)),
