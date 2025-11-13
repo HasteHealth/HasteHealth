@@ -28,7 +28,7 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
             ..Default::default()
         },
         Ok(FHIRResponse::Read(res)) => BundleEntry {
-            resource: Some(Box::new(res.resource)),
+            resource: res.resource.map(|r| Box::new(r)),
             ..Default::default()
         },
         Ok(FHIRResponse::Update(res)) => BundleEntry {
@@ -224,7 +224,7 @@ pub async fn process_batch_bundle<
 fn get_resource_from_response<'a>(response: &'a FHIRResponse) -> Option<&'a Resource> {
     match response {
         FHIRResponse::Create(res) => Some(&res.resource),
-        FHIRResponse::Read(res) => Some(&res.resource),
+        FHIRResponse::Read(res) => res.resource.as_ref(),
         FHIRResponse::Update(res) => Some(&res.resource),
         FHIRResponse::VersionRead(res) => Some(&res.resource),
         FHIRResponse::Patch(res) => Some(&res.resource),

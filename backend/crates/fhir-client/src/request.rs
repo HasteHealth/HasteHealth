@@ -180,7 +180,7 @@ pub struct FHIRCreateResponse {
 }
 #[derive(Debug)]
 pub struct FHIRReadResponse {
-    pub resource: Resource,
+    pub resource: Option<Resource>,
 }
 #[derive(Debug)]
 pub struct FHIRVersionReadResponse {

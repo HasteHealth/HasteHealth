@@ -57,8 +57,8 @@ struct FederatedTokenBodyRequest {
 
 #[derive(Deserialize)]
 struct FederatedTokenBodyResponse {
-    pub access_token: String,
-    // pub id_token: String,
+    // pub access_token: String,
+    pub id_token: String,
 }
 
 #[derive(Deserialize)]
@@ -120,12 +120,19 @@ async fn decode_using_jwk(
         )
     })?;
 
+    tracing::info!("Decode key {:?}", jwk);
+
+    let mut token_validation_settings = jsonwebtoken::Validation::new(header.alg);
+    token_validation_settings.validate_aud = false;
+
     let result = jsonwebtoken::decode::<FederatedTokenClaims>(
         token,
         &decoding_key,
-        &jsonwebtoken::Validation::default(),
+        &token_validation_settings,
     )
-    .map_err(|_e| {
+    .map_err(|e| {
+        tracing::error!("Federated token decode error: {:?}", e);
+
         OperationOutcomeError::error(
             IssueType::Invalid(None),
             "Token verification failed".to_string(),
@@ -322,9 +329,9 @@ pub async fn federated_callback<
             )
         })?;
 
-    let access_token = token_response_body.access_token;
+    let id_token = token_response_body.id_token;
 
-    let claims = decode_using_jwk(&access_token, &jwk_url).await?;
+    let claims = decode_using_jwk(&id_token, &jwk_url).await?;
 
     let user = create_user_if_not_exists(
         &app_state.fhir_client,
