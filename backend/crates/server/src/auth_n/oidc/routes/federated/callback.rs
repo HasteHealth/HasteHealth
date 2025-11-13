@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use axum::{
     extract::{OriginalUri, Query, State},
     response::Redirect,
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use base64::{Engine as _, engine::general_purpose::URL_SAFE};
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use jsonwebtoken::DecodingKey;
 use oxidized_fhir_client::FHIRClient;
 use oxidized_fhir_model::r4::generated::{
@@ -19,6 +17,8 @@ use oxidized_fhir_terminology::FHIRTerminology;
 use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_repository::{Repository, admin::TenantAuthAdmin, types::user::CreateUser};
 use serde::{Deserialize, Serialize};
+use sha1::{Digest, Sha1};
+use std::sync::Arc;
 use tower_sessions::Session;
 use url::Url;
 
@@ -150,9 +150,11 @@ fn user_federated_id(idp: &IdentityProvider, sub: &str) -> Result<String, Operat
         ));
     };
 
-    let encoded_sub = URL_SAFE.encode(sub);
+    let mut sha_hasher = Sha1::new();
+    sha_hasher.update(sub.as_bytes());
+    let hashed_user_sub_claim = URL_SAFE_NO_PAD.encode(&sha_hasher.finalize());
 
-    Ok(format!("{}|{}", id_prefix, encoded_sub))
+    Ok(format!("{}|{}", id_prefix, hashed_user_sub_claim))
 }
 
 pub async fn create_user_if_not_exists<
