@@ -3,10 +3,10 @@ use crate::{
     auth_n::oidc::{
         code_verification::{generate_code_challenge, generate_code_verifier},
         extract::client_app::OIDCClientApplication,
-        routes::federated::callback::federated_callback_url,
+        routes::federated::callback::create_federated_callback_url,
     },
     extract::path_tenant::{Project, TenantIdentifier},
-    fhir_client::ServerCTX,
+    fhir_client::{FHIRServerClient, ServerCTX},
     services::AppState,
 };
 use axum::{
@@ -22,7 +22,7 @@ use oxidized_fhir_model::r4::generated::{
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_fhir_search::SearchEngine;
 use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::ProjectId;
+use oxidized_jwt::{ProjectId, TenantId};
 use oxidized_repository::{
     Repository, types::authorization_code::PKCECodeChallengeMethod, utilities::generate_id,
 };
@@ -56,11 +56,81 @@ fn validate_identity_provider_in_project(
     ))
 }
 
+pub async fn validate_and_get_idp<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    tenant: TenantId,
+    fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+    project: &FHIRProject,
+    identity_provider_id: String,
+) -> Result<IdentityProvider, OperationOutcomeError> {
+    validate_identity_provider_in_project(&identity_provider_id, &project)?;
+    let identity_provider = fhir_client
+        .read(
+            Arc::new(ServerCTX::system(
+                tenant,
+                ProjectId::System,
+                fhir_client.clone(),
+            )),
+            ResourceType::IdentityProvider,
+            identity_provider_id,
+        )
+        .await?
+        .and_then(|r| match r {
+            Resource::IdentityProvider(ip) => Some(ip),
+            _ => None,
+        })
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::NotFound(None),
+                "The specified identity provider was not found.".to_string(),
+            )
+        })?;
+
+    Ok(identity_provider)
+}
+
 #[derive(Deserialize, Serialize, Clone)]
 pub struct IDPSessionInfo {
-    state: String,
-    redirect_to: String,
-    code_verifier: Option<String>,
+    pub state: String,
+    pub redirect_to: String,
+    pub code_verifier: Option<String>,
+}
+
+fn federated_session_info_key(idp_id: &str) -> String {
+    format!("federated_initiate_{}", idp_id)
+}
+
+pub async fn get_idp_session_info(
+    session: &Session,
+    idp: &IdentityProvider,
+) -> Result<IDPSessionInfo, OperationOutcomeError> {
+    let idp_id = idp.id.as_ref().ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Identity Provider resource is missing an ID.".to_string(),
+        )
+    })?;
+
+    let info: IDPSessionInfo = session
+        .get(federated_session_info_key(idp_id).as_str())
+        .await
+        .map_err(|_| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                "Failed to retrieve session information.".to_string(),
+            )
+        })?
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::NotFound(None),
+                "No session information found for the specified identity provider.".to_string(),
+            )
+        })?;
+
+    Ok(info)
 }
 
 async fn set_session_info(
@@ -93,7 +163,7 @@ async fn set_session_info(
     }
 
     session
-        .insert(&format!("federated_initiate_{}", idp_id), &info)
+        .insert(federated_session_info_key(idp_id).as_str(), &info)
         .await
         .map_err(|_| {
             OperationOutcomeError::error(
@@ -156,7 +226,7 @@ async fn create_federated_authorization_url(
             .append_pair("scope", &scopes.unwrap_or_default())
             .append_pair(
                 "redirect_uri",
-                &federated_callback_url(
+                &create_federated_callback_url(
                     api_uri,
                     original_uri,
                     &identity_provider.id.clone().unwrap_or_default(),
@@ -213,30 +283,13 @@ pub async fn federated_initiate<
     _uri: OriginalUri,
 ) -> Result<Redirect, OperationOutcomeError> {
     let api_uri = state.config.get(ServerEnvironmentVariables::APIURI)?;
-    validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
-    let identity_provider = state
-        .fhir_client
-        .read(
-            Arc::new(ServerCTX::system(
-                tenant,
-                ProjectId::System,
-                state.fhir_client.clone(),
-            )),
-            ResourceType::IdentityProvider,
-            identity_provider_id,
-        )
-        .await?
-        .and_then(|r| match r {
-            Resource::IdentityProvider(ip) => Some(ip),
-            _ => None,
-        })
-        .ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::NotFound(None),
-                "The specified identity provider was not found.".to_string(),
-            )
-        })?;
-
+    let identity_provider = validate_and_get_idp(
+        tenant,
+        state.fhir_client.clone(),
+        &project_resource,
+        identity_provider_id,
+    )
+    .await?;
     let federated_authorization_url = create_federated_authorization_url(
         &mut current_session,
         &api_uri,
