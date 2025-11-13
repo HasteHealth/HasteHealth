@@ -3,7 +3,9 @@ use crate::{
     auth_n::oidc::{
         code_verification::{generate_code_challenge, generate_code_verifier},
         extract::client_app::OIDCClientApplication,
-        routes::federated::callback::create_federated_callback_url,
+        routes::{
+            authorize::redirect_authorize_uri, federated::callback::create_federated_callback_url,
+        },
     },
     extract::path_tenant::{Project, TenantIdentifier},
     fhir_client::{FHIRServerClient, ServerCTX},
@@ -61,7 +63,7 @@ pub async fn validate_and_get_idp<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    tenant: TenantId,
+    tenant: &TenantId,
     fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     project: &FHIRProject,
     identity_provider_id: String,
@@ -70,7 +72,7 @@ pub async fn validate_and_get_idp<
     let identity_provider = fhir_client
         .read(
             Arc::new(ServerCTX::system(
-                tenant,
+                tenant.clone(),
                 ProjectId::System,
                 fhir_client.clone(),
             )),
@@ -136,7 +138,7 @@ pub async fn get_idp_session_info(
 async fn set_session_info(
     session: &mut Session,
     idp: &IdentityProvider,
-    redirect_to: &str,
+    uri: &OriginalUri,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
     let idp_id = idp.id.as_ref().ok_or_else(|| {
         OperationOutcomeError::error(
@@ -149,7 +151,13 @@ async fn set_session_info(
 
     let mut info = IDPSessionInfo {
         state,
-        redirect_to: redirect_to.to_string(),
+        redirect_to: redirect_authorize_uri(
+            uri,
+            &FederatedInitiate {
+                identity_provider_id: idp_id.clone(),
+            }
+            .to_string(),
+        ),
         code_verifier: None,
     };
 
@@ -237,7 +245,7 @@ async fn create_federated_authorization_url(
                 )?,
             );
 
-        let info = set_session_info(session, &identity_provider, "").await?;
+        let info = set_session_info(session, &identity_provider, original_uri).await?;
         authorization_url
             .query_pairs_mut()
             .append_pair("state", &info.state);
@@ -284,7 +292,7 @@ pub async fn federated_initiate<
 ) -> Result<Redirect, OperationOutcomeError> {
     let api_uri = state.config.get(ServerEnvironmentVariables::APIURI)?;
     let identity_provider = validate_and_get_idp(
-        tenant,
+        &tenant,
         state.fhir_client.clone(),
         &project_resource,
         identity_provider_id,

@@ -22,6 +22,7 @@ pub fn federated_router<
 >() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     let router = Router::new()
         .typed_get(initiate::federated_initiate)
+        .typed_get(callback::federated_callback)
         .route_layer(ServiceBuilder::new().layer(OIDCParameterInjectLayer::new(
             (*AUTHORIZE_PARAMETERS).clone(),
         )));
