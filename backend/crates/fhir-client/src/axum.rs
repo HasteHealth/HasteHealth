@@ -2,9 +2,10 @@ use axum::response::IntoResponse;
 use http::{HeaderMap, StatusCode};
 use oxidized_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
-    terminology::BundleType,
+    terminology::{BundleType, IssueType},
     types::FHIRUnsignedInt,
 };
+use oxidized_fhir_operation_error::OperationOutcomeError;
 
 use crate::request::FHIRResponse;
 
@@ -44,13 +45,23 @@ impl IntoResponse for FHIRResponse {
                 oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
-            FHIRResponse::Read(response) => (
-                StatusCode::OK,
-                header,
-                // Unwrap should be safe here.
-                oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
-            )
-                .into_response(),
+            FHIRResponse::Read(response) => {
+                if let Some(resource) = response.resource {
+                    (
+                        StatusCode::OK,
+                        header,
+                        // Unwrap should be safe here.
+                        oxidized_fhir_serialization_json::to_string(&resource).unwrap(),
+                    )
+                        .into_response()
+                } else {
+                    OperationOutcomeError::error(
+                        IssueType::NotFound(None),
+                        "Resource not found.".to_string(),
+                    )
+                    .into_response()
+                }
+            }
             FHIRResponse::VersionRead(response) => (
                 StatusCode::OK,
                 header,
