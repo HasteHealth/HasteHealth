@@ -27,10 +27,29 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
             resource: Some(Box::new(res.resource)),
             ..Default::default()
         },
-        Ok(FHIRResponse::Read(res)) => BundleEntry {
-            resource: res.resource.map(|r| Box::new(r)),
-            ..Default::default()
-        },
+        Ok(FHIRResponse::Read(res)) => {
+            if let Some(resource) = res.resource {
+                BundleEntry {
+                    resource: Some(Box::new(resource)),
+                    ..Default::default()
+                }
+            } else {
+                BundleEntry {
+                    response: Some(BundleEntryResponse {
+                        outcome: Some(Box::new(Resource::OperationOutcome(
+                            OperationOutcomeError::error(
+                                IssueType::NotFound(None),
+                                "Resource not found".to_string(),
+                            )
+                            .outcome()
+                            .clone(),
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }
+            }
+        }
         Ok(FHIRResponse::Update(res)) => BundleEntry {
             resource: Some(Box::new(res.resource)),
             ..Default::default()

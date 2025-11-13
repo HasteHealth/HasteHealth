@@ -357,14 +357,8 @@ pub async fn federated_callback<
 
     session::user::set_user(&session, &tenant, &user_model).await?;
 
-    let redirect_url = Url::parse(idp_session_info.redirect_to.as_str()).map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "Invalid redirect URL stored in session.".to_string(),
-        )
-    })?;
-
-    Ok(Redirect::to(redirect_url.as_str()))
+    // Will redirect authorize_path
+    Ok(Redirect::to(&idp_session_info.redirect_to))
 }
 
 pub fn create_federated_callback_url(
