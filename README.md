@@ -108,4 +108,4 @@ wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http:/
 | Latency (percentile:time)       | Requests per Second                                            | Concurrent connections | Benchmark                                        |
 | ------------------------------- | -------------------------------------------------------------- | ---------------------- | ------------------------------------------------ |
 | 50%:1.2ms, 90%:1.8ms, 99%:3.38  | 7621.75                                                        | 10                     | backend/crates/server/benchmarks/observation.lua |
-| 50%:60ms, 90%:73ms, 99%:288,6ms | 152.63 (102 resources per transaction) (15,569 total requests) | 10                     | backend/crates/server/benchmarks/transaction.lua |
+| 50%:60ms, 90%:73ms, 99%:288.6ms | 152.63 (102 resources per transaction) (15,569 total requests) | 10                     | backend/crates/server/benchmarks/transaction.lua |
