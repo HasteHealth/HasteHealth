@@ -175,7 +175,9 @@ async fn http_response_to_fhir_response(
 
             let resource = oxidized_fhir_serialization_json::from_bytes::<Resource>(&body)
                 .map_err(FHIRHTTPError::from)?;
-            Ok(FHIRResponse::Read(FHIRReadResponse { resource }))
+            Ok(FHIRResponse::Read(FHIRReadResponse {
+                resource: Some(resource),
+            }))
         }
         FHIRRequest::Create(_) => todo!(),
         FHIRRequest::VersionRead(_) => todo!(),
@@ -364,7 +366,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .await?;
 
         match res.response {
-            Some(FHIRResponse::Read(read_response)) => Ok(Some(read_response.resource)),
+            Some(FHIRResponse::Read(read_response)) => Ok(read_response.resource),
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }

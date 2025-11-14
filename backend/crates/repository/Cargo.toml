@@ -4,14 +4,18 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+moka = { version = "0.12.11", features = ["future"] }
+nanoid = "0.4.0"
 oxidized-fhir-client = { path = "../fhir-client" }
+oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-reflect = { path = "../reflect", features = ["derive"] }
 oxidized-jwt = { path = "../jwt", features = ["sqlx"] }
+oxidized-reflect = { path = "../reflect", features = ["derive"] }
+regex = "1.12.2"
 serde = "1.0.219"
+serde_json = "1.0.142"
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
     "tls-native-tls",
@@ -19,9 +23,5 @@ sqlx = { version = "0.8", features = [
     "time",
 ] }
 sqlx-postgres = "0.8.6"
-nanoid = "0.4.0"
 tokio = { version = "1.47.1", features = ["sync"] }
-serde_json = "1.0.142"
-regex = "1.12.2"
-moka = { version = "0.12.11", features = ["future"] }
 tracing = "0.1.41"

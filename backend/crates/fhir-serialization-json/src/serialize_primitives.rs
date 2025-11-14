@@ -235,10 +235,10 @@ where
             let v = &self[i];
             if v.serialize_value(&mut tmp_buffer)? {
                 total += 1;
-                tmp_buffer.write_all(&[b','])?;
             } else {
                 tmp_buffer.write_all("null".as_bytes())?;
             }
+            tmp_buffer.write_all(&[b','])?;
         }
 
         // Last one don't want trailing comma.

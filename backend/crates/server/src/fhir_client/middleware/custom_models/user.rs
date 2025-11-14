@@ -75,7 +75,6 @@ impl<
                     match res.response.as_ref() {
                         Some(FHIRResponse::Create(create_response)) => {
                             if let Resource::User(user) = &create_response.resource
-                                && let Some(email) = user.email.value.as_ref()
                                 && let Some(id) = user.id.as_ref()
                             {
                                 TenantAuthAdmin::create(
@@ -83,7 +82,7 @@ impl<
                                     &res.ctx.tenant,
                                     CreateUser {
                                         id: id.clone(),
-                                        email: email.clone(),
+                                        email: user.email.clone().and_then(|e| e.value),
                                         role: (*user.role).clone().into(),
                                         method: get_user_method(user),
                                         provider_id: get_provider_id(user),
@@ -121,7 +120,6 @@ impl<
                         }
                         Some(FHIRResponse::Update(update_response)) => {
                             if let Resource::User(user) = &update_response.resource
-                                && let Some(email) = user.email.value.as_ref()
                                 && let Some(id) = user.id.as_ref()
                             {
                                 TenantAuthAdmin::<CreateUser, _, _, _, _>::update(
@@ -129,7 +127,7 @@ impl<
                                     &res.ctx.tenant,
                                     UpdateUser {
                                         id: id.clone(),
-                                        email: Some(email.clone()),
+                                        email: user.email.clone().and_then(|e| e.value),
                                         role: Some((*user.role).clone().into()),
                                         method: Some(get_user_method(user)),
                                         provider_id: get_provider_id(user),

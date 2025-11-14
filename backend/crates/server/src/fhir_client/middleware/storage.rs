@@ -92,13 +92,7 @@ impl<
                             &read_request.resource_type,
                             &ResourceId::new(read_request.id.to_string()),
                         )
-                        .await?
-                        .ok_or_else(|| {
-                            StorageError::NotFound(
-                                read_request.resource_type.clone(),
-                                read_request.id.clone(),
-                            )
-                        })?;
+                        .await?;
 
                     Ok(Some(FHIRResponse::Read(FHIRReadResponse {
                         resource: resource,

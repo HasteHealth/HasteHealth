@@ -4,19 +4,19 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhirpath = { path = "../fhirpath" }
+chrono = "0.4.41"
 elasticsearch = "9.0.0-alpha.1"
+oxidized-artifacts = { path = "../artifacts" }
 oxidized-fhir-client = { path = "../fhir-client" }
 oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
+oxidized-fhirpath = { path = "../fhirpath" }
 oxidized-jwt = { path = "../jwt" }
-oxidized-repository = { path = "../repository" }
-oxidized-artifacts = { path = "../artifacts" }
 oxidized-reflect = { path = "../reflect" }
-chrono = "0.4.41"
+oxidized-repository = { path = "../repository" }
+rayon = "1.10.0"
 serde = "1.0.219"
 serde_json = "1.0.140"
 tracing = "0.1.41"
-rayon = "1.10.0"

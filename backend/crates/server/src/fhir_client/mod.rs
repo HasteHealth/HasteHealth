@@ -10,7 +10,7 @@ use oxidized_fhir_client::{
     middleware::{Middleware, MiddlewareChain},
     request::{
         FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest,
-        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest,
+        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRUpdateInstanceRequest,
     },
     url::ParsedParameter,
 };
@@ -508,12 +508,29 @@ impl<
 
     async fn update(
         &self,
-        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _resource_type: ResourceType,
-        _id: String,
-        _resource: Resource,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+        resource_type: ResourceType,
+        id: String,
+        resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::UpdateInstance(FHIRUpdateInstanceRequest {
+                    resource_type,
+                    id,
+                    resource,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
+            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
+            _ => panic!("Unexpected response type {:?}", res.response),
+        }
     }
 
     async fn conditional_update(
@@ -569,7 +586,7 @@ impl<
             .await?;
 
         match res.response {
-            Some(FHIRResponse::Read(read_response)) => Ok(Some(read_response.resource)),
+            Some(FHIRResponse::Read(read_response)) => Ok(read_response.resource),
             _ => panic!("Unexpected response type"),
         }
     }

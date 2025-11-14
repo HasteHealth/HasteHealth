@@ -121,7 +121,7 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     tenant: &'a TenantId,
     project: Option<&'a ProjectId>,
     code: &'a str,
-) -> impl Future<Output = Result<AuthorizationCode, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
@@ -160,12 +160,12 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 
         let query = query_builder.build_query_as();
 
-        let authorization_code: AuthorizationCode = query
-            .fetch_one(&mut *conn)
+        let _authorization_code: Option<AuthorizationCode> = query
+            .fetch_optional(&mut *conn)
             .await
             .map_err(StoreError::SQLXError)?;
 
-        Ok(authorization_code)
+        Ok(())
     }
 }
 
@@ -287,11 +287,7 @@ impl<Key: AsRef<str> + Send + Sync>
         ))
     }
 
-    async fn delete(
-        &self,
-        tenant: &TenantId,
-        code: &Key,
-    ) -> Result<AuthorizationCode, OperationOutcomeError> {
+    async fn delete(&self, tenant: &TenantId, code: &Key) -> Result<(), OperationOutcomeError> {
         match &self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_code(pool, tenant, None, code.as_ref()).await?;
@@ -392,7 +388,7 @@ impl<Key: AsRef<str> + Send + Sync>
         tenant: &TenantId,
         project: &ProjectId,
         code: &Key,
-    ) -> Result<AuthorizationCode, OperationOutcomeError> {
+    ) -> Result<(), OperationOutcomeError> {
         match &self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_code(pool, tenant, Some(project), code.as_ref()).await?;

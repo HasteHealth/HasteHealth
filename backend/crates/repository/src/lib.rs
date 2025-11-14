@@ -5,7 +5,7 @@ use crate::{
         authorization_code::{
             AuthorizationCode, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
-        membership::{CreateMembership, Membership, MembershipSearchClaims, UpdateMembership},
+        membership::{CreateMembership, Membership, MembershipSearchClaims},
         project::{CreateProject, Project, ProjectSearchClaims},
         scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
         tenant::{CreateTenant, Tenant, TenantSearchClaims},
@@ -20,7 +20,8 @@ pub mod types;
 pub mod utilities;
 
 /// Repository trait which encompasses all repository operations.
-pub trait Repository: FHIRRepository
+pub trait Repository:
+    FHIRRepository
     + TenantAuthAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,
@@ -36,7 +37,7 @@ pub trait Repository: FHIRRepository
         AuthorizationCodeSearchClaims,
         AuthorizationCode,
         String,
-    > + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, UpdateMembership, String>
+    > + ProjectAuthAdmin<CreateMembership, Membership, MembershipSearchClaims, Membership, String>
     + ProjectAuthAdmin<CreateScope, Scope, ScopeSearchClaims, UpdateScope, ScopeKey>
     + Login
     + Migrate

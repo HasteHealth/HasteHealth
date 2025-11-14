@@ -11,11 +11,6 @@ pub struct Membership {
     pub role: MembershipRole,
 }
 
-pub struct UpdateMembership {
-    pub user_id: String,
-    pub role: MembershipRole,
-}
-
 pub struct MembershipSearchClaims {
     pub user_id: Option<UserId>,
     pub role: Option<MembershipRole>,

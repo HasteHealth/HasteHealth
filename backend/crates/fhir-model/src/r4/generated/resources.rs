@@ -360,7 +360,7 @@ pub struct User {
     pub meta: Option<Box<Meta>>,
     #[primitive]
     #[doc = ""]
-    pub email: Box<FHIRString>,
+    pub email: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = ""]
     pub emailVerified: Option<Box<FHIRBoolean>>,

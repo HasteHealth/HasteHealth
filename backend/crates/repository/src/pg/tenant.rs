@@ -73,19 +73,19 @@ fn update_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
 fn delete_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     id: &'a str,
-) -> impl Future<Output = Result<Tenant, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let deleted_tenant = sqlx::query_as!(
+        let _deleted_tenant = sqlx::query_as!(
             Tenant,
             r#"DELETE FROM tenants WHERE id = $1 RETURNING id as "id: TenantId", subscription_tier"#,
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(StoreError::SQLXError)?;
 
-        Ok(deleted_tenant)
+        Ok(())
     }
 }
 
@@ -176,7 +176,7 @@ impl<Key: AsRef<str> + Send + Sync>
         &self,
         _tenant: &TenantId,
         id: &Key,
-    ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_tenant(pool, id.as_ref()).await?;

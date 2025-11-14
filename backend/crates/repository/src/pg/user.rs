@@ -210,10 +210,10 @@ fn delete_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     connection: Connection,
     tenant: &'a TenantId,
     id: &'a str,
-) -> impl Future<Output = Result<User, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
-        let user = sqlx::query_as!(
+        let _user = sqlx::query_as!(
             User,
             r#"
                 DELETE FROM users
@@ -222,9 +222,9 @@ fn delete_user<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
             "#,
             tenant.as_ref(),
             id
-        ).fetch_one(&mut *conn).await.map_err(StoreError::SQLXError)?;
+        ).fetch_optional(&mut *conn).await.map_err(StoreError::SQLXError)?;
 
-        Ok(user)
+        Ok(())
     }
 }
 
@@ -324,7 +324,7 @@ impl<Key: AsRef<str> + Send + Sync>
         }
     }
 
-    async fn delete(&self, tenant: &TenantId, id: &Key) -> Result<User, OperationOutcomeError> {
+    async fn delete(&self, tenant: &TenantId, id: &Key) -> Result<(), OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_user(pool, tenant, id.as_ref()).await?;

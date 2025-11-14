@@ -8,9 +8,9 @@ derive = ["dep:oxidized-fhir-operation-error-derive"]
 axum = ["dep:axum", "dep:oxidized-fhir-serialization-json"]
 
 [dependencies]
-oxidized-fhir-serialization-json = { path = "../fhir-serialization-json", optional = true }
-oxidized-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", optional = true }
-oxidized-fhir-model = { path = "../fhir-model" }
-axum = { version = "0.8.4", optional = true }
 anyhow = "1.0.98"
+axum = { version = "0.8.4", optional = true }
+oxidized-fhir-model = { path = "../fhir-model" }
+oxidized-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", optional = true }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json", optional = true }
 tracing = "0.1.41"

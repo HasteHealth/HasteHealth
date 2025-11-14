@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhir-model = { path = "../fhir-model" }
+dashmap = "6.1.0"
+oxidized-fhir-client = { path = "../fhir-client" }
 oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
+oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-repository = { path = "../repository" }
 oxidized-fhir-search = { path = "../fhir-search" }
-oxidized-fhir-client = { path = "../fhir-client" }
 oxidized-jwt = { path = "../jwt" }
-dashmap = "6.1.0"
+oxidized-repository = { path = "../repository" }

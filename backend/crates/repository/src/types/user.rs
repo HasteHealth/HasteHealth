@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct User {
     pub id: String,
     pub tenant: TenantId,
-    pub email: String,
+    pub email: Option<String>,
     pub role: UserRole,
     pub method: AuthMethod,
     pub provider_id: Option<String>,
@@ -39,7 +39,7 @@ pub struct UserSearchClauses {
 
 pub struct CreateUser {
     pub id: String,
-    pub email: String,
+    pub email: Option<String>,
     pub role: UserRole,
     pub method: AuthMethod,
     pub provider_id: Option<String>,
@@ -51,6 +51,7 @@ pub struct CreateUser {
 pub enum AuthMethod {
     #[sqlx(rename = "email-password")]
     EmailPassword,
+    #[sqlx(rename = "oidc-provider")]
     OIDC,
 }
 

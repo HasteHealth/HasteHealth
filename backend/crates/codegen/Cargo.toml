@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
-oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
-oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-fhir-terminology = { path = "../fhir-terminology" }
-oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
 indexmap = "2.10.0"
 once_cell = "1.21.3"
+oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
+oxidized-fhir-model = { path = "../fhir-model" }
+oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
+oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
+oxidized-fhir-terminology = { path = "../fhir-terminology" }
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
 regex = "1.11.1"

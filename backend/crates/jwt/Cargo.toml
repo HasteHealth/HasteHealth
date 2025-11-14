@@ -8,8 +8,8 @@ sqlx = ["dep:sqlx"]
 reflect = ["dep:oxidized-reflect"]
 
 [dependencies]
-serde = "1.0.228"
 oxidized-fhir-model = { path = "../fhir-model" }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
 oxidized-reflect = { path = "../reflect", optional = true }
+serde = "1.0.228"
 sqlx = { version = "0.8", optional = true }

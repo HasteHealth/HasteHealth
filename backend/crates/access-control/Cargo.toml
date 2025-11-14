@@ -4,11 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhirpath = { path = "../fhirpath" }
+oxidized-fhir-client = { path = "../fhir-client" }
+oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
 oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-fhir-client = { path = "../fhir-client" }
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+oxidized-fhirpath = { path = "../fhirpath" }
 oxidized-jwt = { path = "../jwt", features = ["reflect"] }
 oxidized-reflect = { path = "../reflect", features = ["derive"] }
