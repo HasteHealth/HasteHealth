@@ -78,5 +78,5 @@ frontend/
 
 ## Compiled Binaries
 
-[Linux](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_linux)
-[MacOS](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_macos)
+- [Linux](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_linux)
+- [MacOS](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_macos)
