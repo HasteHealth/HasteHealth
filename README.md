@@ -9,6 +9,11 @@ cargo run server migrate artifacts
 cargo run server start && cargo run worker
 ```
 
+## Compiled Binaries
+
+- [Linux](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_linux)
+- [MacOS](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_macos)
+
 ## Repository Structure
 
 ```
@@ -87,8 +92,3 @@ cargo run server start && cargo run worker
     │   └── x-fhir-query
     └── yarn.lock
 ```
-
-## Compiled Binaries
-
-- [Linux](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_linux)
-- [MacOS](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_macos)
