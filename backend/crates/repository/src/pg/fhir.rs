@@ -136,6 +136,7 @@ impl FHIRRepository for PGConnection {
                     .await?;
                     res
                 };
+                commit_transaction(tx).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {
@@ -420,7 +421,7 @@ fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         let result = sqlx::query_as!(
                 ReturnSingularResource,
                 r#"INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
                 RETURNING resource as "resource: FHIRJson<Resource>""#,
                 tenant.as_ref() as &str,
                 project.as_ref() as &str,
@@ -434,6 +435,7 @@ fn delete<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                 author.resource_type.as_ref() as &str,
                 &FHIRMethod::Delete as &FHIRMethod,
             ).fetch_one(&mut *conn).await.map_err(StoreError::from)?;
+
         Ok(result.resource.0)
     }
 }
