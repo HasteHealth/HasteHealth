@@ -5,7 +5,7 @@ use crate::{
 };
 use oxidized_fhir_operation_error::OperationOutcomeError;
 use oxidized_jwt::{ProjectId, TenantId};
-use sqlx::{Acquire, Postgres, QueryBuilder, query::Query};
+use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
