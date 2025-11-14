@@ -120,8 +120,6 @@ async fn decode_using_jwk(
         )
     })?;
 
-    tracing::info!("Decode key {:?}", jwk);
-
     let mut token_validation_settings = jsonwebtoken::Validation::new(header.alg);
     token_validation_settings.validate_aud = false;
 
