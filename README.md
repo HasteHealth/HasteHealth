@@ -11,69 +11,81 @@ cargo run server start && cargo run worker
 
 ## Repository Structure
 
-```text
-# Repository structure
-
-/ (project root)
+```
+├── LICENSE
 ├── README.md
-├── rust-toolchain.toml
-├── cargo.toml
-├── backend/
-    └── crates/
-        ├── access-control/
-        ├── artifacts/
-        ├── codegen/
-        ├── fhir-client/
-        ├── fhir-generated-ops/
-        ├── fhir-model/
-        ├── fhir-operation-error/
-        ├── fhir-ops/
-        ├── fhir-operation-derive/
-        ├── fhir-search/
-        ├── fhir-serialization-json/
-        ├── fhir-serialization-json-derive/
-        ├── fhir-terminology/
-        ├── fhirpath/
-        ├── indexing-worker/
-        ├── jwt/
-        ├── macro-loads/
-        ├── reflect/
-        ├── reflect-derive/
-        ├── repository/
-        └── server/
-├── src/                           # Entry point for backend
-└── scripts/
-    ├── operation_build.sh.        # Generate OperationDefinition code
-    └── types_build.sh.            # Generate FHIR rust types
-frontend/
-    └── packages/
-        ├── admin-app
-        ├── artifacts
-        ├── cli
-        ├── client
-        ├── codegen
-        ├── components
-        ├── fhir-patch-building
-        ├── fhir-pointer
-        ├── fhir-types
-        ├── fhir-validation
-        ├── fhirpath
-        ├── generated-ops
-        ├── hl7v2-parsing
-        ├── jwt
-        ├── koa-multipart-form
-        ├── lang-fp-codemirror
-        ├── meta-value
-        ├── operation-execution
-        ├── operation-outcomes
-        ├── performance-testing
-        ├── smart-launch
-        ├── testscript-runner
-        ├── x-fhir-query
-
-├── .github/
-│ └── workflows/ # CI/CD workflows
-└── LICENSE
+├── backend # Backend entry point see above for commands
+│   ├── Cargo.lock
+│   ├── Cargo.toml
+│   ├── certifications
+│   ├── crates
+│   │   ├── access-control
+│   │   ├── artifacts
+│   │   ├── codegen
+│   │   ├── config
+│   │   ├── fhir-client
+│   │   ├── fhir-generated-ops
+│   │   ├── fhir-model
+│   │   ├── fhir-operation-error
+│   │   ├── fhir-operation-error-derive
+│   │   ├── fhir-ops
+│   │   ├── fhir-ops-derive
+│   │   ├── fhir-search
+│   │   ├── fhir-serialization-json
+│   │   ├── fhir-serialization-json-derive
+│   │   ├── fhir-terminology
+│   │   ├── fhirpath
+│   │   ├── indexing-worker
+│   │   ├── jwt
+│   │   ├── macro-loads
+│   │   ├── reflect
+│   │   ├── reflect-derive
+│   │   ├── repository
+│   │   └── server             # FHIR server.
+│   ├── documentation          # Documentation site.
+│   │   ├── book.toml
+│   │   └── src
+│   ├── rust-toolchain.toml
+│   ├── scripts
+│   │   ├── operation_build.sh # Generates code for parsing OperationDefinition parameters using codegen crate.
+│   │   └── types_build.sh     # Generates rust types using FHIR StructureDefinition resources.
+│   └── src
+│       ├── commands
+│       └── main.rs
+└── frontend
+    ├── README.md
+    ├── artifacts
+    │   ├── r4
+    │   └── r4b
+    ├── config
+    │   ├── base.tsconfig.json
+    │   └── jest.base.config.js
+    ├── package.json
+    ├── packages
+    │   ├── admin-app
+    │   ├── artifacts
+    │   ├── cli
+    │   ├── client
+    │   ├── codegen
+    │   ├── components
+    │   ├── fhir-patch-building
+    │   ├── fhir-pointer
+    │   ├── fhir-types
+    │   ├── fhir-validation
+    │   ├── fhirpath
+    │   ├── generated-ops
+    │   ├── hl7v2-parsing
+    │   ├── jwt
+    │   ├── koa-multipart-form
+    │   ├── lang-fp-codemirror
+    │   ├── meta-value
+    │   ├── operation-execution
+    │   ├── operation-outcomes
+    │   ├── performance-testing
+    │   ├── smart-launch
+    │   ├── testscript-runner
+    │   └── x-fhir-query
+    └── yarn.lock
 ```
 
 ## Compiled Binaries
