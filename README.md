@@ -105,7 +105,7 @@ wrk --latency -s crates/server/benchmarks/transaction.lua -t10 -c10 -d10s http:/
 
 ### M3 Macbook Air Local 10 threads
 
-| Latency (percentile:time)       | Requests per Second                                            | Concurrent connections | Benchmark                                        |
-| ------------------------------- | -------------------------------------------------------------- | ---------------------- | ------------------------------------------------ |
-| 50%:1.2ms, 90%:1.8ms, 99%:3.38  | 7621.75                                                        | 10                     | backend/crates/server/benchmarks/observation.lua |
-| 50%:60ms, 90%:73ms, 99%:288.6ms | 152.63 (102 resources per transaction) (15,569 total requests) | 10                     | backend/crates/server/benchmarks/transaction.lua |
+| Latency (percentile:time)       | Requests per Second                                         | Concurrent connections | Benchmark                                        |
+| ------------------------------- | ----------------------------------------------------------- | ---------------------- | ------------------------------------------------ |
+| 50%:1.2ms, 90%:1.8ms, 99%:3.38  | 8058.15                                                     | 10                     | backend/crates/server/benchmarks/observation.lua |
+| 50%:60ms, 90%:73ms, 99%:288.6ms | 167 (109 resources per transaction) (16,700 total requests) | 10                     | backend/crates/server/benchmarks/transaction.lua |
