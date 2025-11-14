@@ -49,18 +49,15 @@ async fn create_transaction(
 ) -> Result<Arc<Mutex<Transaction<'static, Postgres>>>, OperationOutcomeError> {
     match connection {
         PGConnection::Pool(pool, _cache) => {
-            let mut tx = pool.begin().await.map_err(StoreError::from)?;
-
-            if is_updating_sequence {
-                // Register the sequence for the transaction.
-                // Used for safe access.
-                sqlx::query!(
-                        r#"SELECT register_sequence_transaction('resources_sequence_seq') as registerd_sequence"#
-                    )
-                    .fetch_one(&mut *tx)
-                    .await
-                    .map_err(StoreError::from)?;
-            }
+            let tx = if is_updating_sequence {
+                pool.begin_with(
+                    "BEGIN; SELECT register_sequence_transaction('resources_sequence_seq')",
+                )
+                .await
+                .map_err(StoreError::from)?
+            } else {
+                pool.begin().await.map_err(StoreError::from)?
+            };
 
             Ok(Arc::new(Mutex::new(tx)))
         }
