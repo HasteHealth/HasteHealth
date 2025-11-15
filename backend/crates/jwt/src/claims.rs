@@ -8,18 +8,18 @@ pub struct UserTokenClaims {
     pub aud: String,
     pub scope: Scopes,
 
-    #[serde(rename = "https://oxidized-health.app/tenant")]
+    #[serde(rename = "https://haste-health.app/tenant")]
     pub tenant: TenantId,
-    #[serde(rename = "https://oxidized-health.app/project")]
+    #[serde(rename = "https://haste-health.app/project")]
     pub project: Option<ProjectId>,
-    #[serde(rename = "https://oxidized-health.app/user_role")]
+    #[serde(rename = "https://haste-health.app/user_role")]
     pub user_role: UserRole,
-    #[serde(rename = "https://oxidized-health.app/user_id")]
+    #[serde(rename = "https://haste-health.app/user_id")]
     pub user_id: AuthorId,
-    #[serde(rename = "https://oxidized-health.app/resource_type")]
+    #[serde(rename = "https://haste-health.app/resource_type")]
     pub resource_type: AuthorKind,
-    #[serde(rename = "https://oxidized-health.app/access_policies")]
+    #[serde(rename = "https://haste-health.app/access_policies")]
     pub access_policy_version_ids: Vec<VersionId>,
-    #[serde(rename = "https://oxidized-health.app/membership")]
+    #[serde(rename = "https://haste-health.app/membership")]
     pub membership: Option<String>,
 }

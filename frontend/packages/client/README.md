@@ -1,4 +1,4 @@
-# OxidizedHealth Client
+# HasteHealth Client
 
 HTTPClient and classes + middleware to define your own clients to conform to the FHIR specification.
 
@@ -41,8 +41,8 @@ Constructor that allows you to create asynchronous FHIR clients.
 import {
   createMiddlewareAsync,
   MiddlewareAsync,
-} from "@oxidized-health/client/lib/middleware/index.js";
-import { AsynchronousClient } from "@oxidized-health/client/lib/index.js";
+} from "@haste-health/client/lib/middleware/index.js";
+import { AsynchronousClient } from "@haste-health/client/lib/index.js";
 
 return new AsynchronousClient<StateType, CTX>(
   initialState,
@@ -189,9 +189,9 @@ export interface FHIRClientAsync<CTX> {
 ```typescript
 import { expect, test } from "@jest/globals";
 
-import HTTPClient from "@oxidized-health/client/http";
-import { OperationDefinition } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/version";
+import HTTPClient from "@haste-health/client/http";
+import { OperationDefinition } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/version";
 
 const client = HTTPClient({
   url: "FHIR_API_ROOT_URL",

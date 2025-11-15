@@ -1,10 +1,10 @@
 {
-  "name": "@oxidized-health/operation-execution",
+  "name": "@haste-health/operation-execution",
   "version": "0.14.3",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
   "description": "Package to create operation definition executables.",
   "type": "module",
@@ -16,16 +16,16 @@
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "dependencies": {
-    "@oxidized-health/fhir-pointer": "workspace:^",
-    "@oxidized-health/fhir-types": "workspace:^",
-    "@oxidized-health/fhir-validation": "workspace:^",
-    "@oxidized-health/operation-outcomes": "workspace:^"
+    "@haste-health/fhir-pointer": "workspace:^",
+    "@haste-health/fhir-types": "workspace:^",
+    "@haste-health/fhir-validation": "workspace:^",
+    "@haste-health/operation-outcomes": "workspace:^"
   },
   "devDependencies": {
+    "@haste-health/artifacts": "workspace:^",
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^",
+    "@haste-health/hl7.fhir.r4.core": "workspace:^",
     "@jest/globals": "^29.7.0",
-    "@oxidized-health/artifacts": "workspace:^",
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.2",
     "typescript": "5.9.2"

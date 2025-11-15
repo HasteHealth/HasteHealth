@@ -1,5 +1,5 @@
 use crate::{ProjectId, ResourceId, TenantId, VersionId};
-use oxidized_reflect::MetaValue;
+use haste_reflect::MetaValue;
 use std::any::Any;
 
 impl MetaValue for TenantId {

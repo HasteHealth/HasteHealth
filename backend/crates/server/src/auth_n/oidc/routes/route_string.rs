@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_jwt::{ProjectId, TenantId};
 
 fn tenant_route_path(tenant: &TenantId) -> PathBuf {
     ["/w", tenant.as_ref(), "api", "v1"].iter().collect()

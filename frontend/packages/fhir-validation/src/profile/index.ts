@@ -5,22 +5,19 @@ import {
   descend,
   pointer,
   toJSONPointer,
-} from "@oxidized-health/fhir-pointer";
+} from "@haste-health/fhir-pointer";
 import {
   OperationOutcomeIssue,
   canonical,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 import {
   AllDataTypes,
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
-} from "@oxidized-health/fhir-types/versions";
-import {
-  OperationError,
-  outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/fhir-types/versions";
+import { OperationError, outcomeFatal } from "@haste-health/operation-outcomes";
 
 import { ElementLoc, ValidationCTX } from "../types.js";
 import { validateProfileElement } from "./element.js";

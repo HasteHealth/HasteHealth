@@ -4,7 +4,7 @@ import React from "react";
 import {
   Annotation,
   markdown as fmarkdown,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 import { CodeMirror } from "../../base";
 import { InputContainer } from "../../base/containers";

@@ -1,11 +1,11 @@
 {
     "resourceType": "StructureDefinition",
     "id": "Membership",
-    "url": "https://oxidized-health.com/StructureDefinition/Membership",
+    "url": "https://haste-health.com/StructureDefinition/Membership",
     "version": "4.0.1",
     "name": "Membership",
     "status": "active",
-    "publisher": "oxidized-health",
+    "publisher": "haste-health",
     "fhirVersion": "4.0.1",
     "kind": "resource",
     "abstract": false,
@@ -111,7 +111,7 @@
                     {
                         "code": "Reference",
                         "targetProfile": [
-                            "https://oxidized-health.com/StructureDefinition/User"
+                            "https://haste-health.com/StructureDefinition/User"
                         ]
                     }
                 ],

@@ -1,25 +1,25 @@
 import { expect, test } from "@jest/globals";
 import { fileURLToPath } from "url";
 
-import { loadArtifacts } from "@oxidized-health/artifacts";
+import { loadArtifacts } from "@haste-health/artifacts";
 import {
   OperationDefinition,
   Parameters,
   canonical,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
 import {
   AllResourceTypes,
   FHIR_VERSION,
   R4,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/lib/versions";
+} from "@haste-health/fhir-types/lib/versions";
 import {
   OperationError,
   outcome,
   outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 import {
   IOperation,

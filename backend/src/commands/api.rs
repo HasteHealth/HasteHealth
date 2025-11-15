@@ -1,13 +1,13 @@
 use crate::CLIState;
 use clap::Subcommand;
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     FHIRClient,
     http::{FHIRHttpClient, FHIRHttpState},
 };
-use oxidized_fhir_model::r4::generated::{resources::Bundle, terminology::IssueType};
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_serialization_json::FHIRJSONDeserializer;
-use oxidized_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
+use haste_fhir_model::r4::generated::{resources::Bundle, terminology::IssueType};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_serialization_json::FHIRJSONDeserializer;
+use haste_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -173,7 +173,7 @@ async fn read_from_file_or_stin<Type: FHIRJSONDeserializer>(
             )
         })?;
 
-        oxidized_fhir_serialization_json::from_str::<Type>(&file_content).map_err(|e| {
+        haste_fhir_serialization_json::from_str::<Type>(&file_content).map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
                 format!("Failed to parse transaction file: {}", e),
@@ -190,7 +190,7 @@ async fn read_from_file_or_stin<Type: FHIRJSONDeserializer>(
             )
         })?;
 
-        oxidized_fhir_serialization_json::from_str::<Type>(&buffer).map_err(|e| {
+        haste_fhir_serialization_json::from_str::<Type>(&buffer).map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
                 format!("Failed to parse transaction from stdin: {}", e),
@@ -232,7 +232,7 @@ pub async fn api_commands(
                 if let Some(true) = output {
                     println!(
                         "{:?}",
-                        oxidized_fhir_serialization_json::to_string(&bundle)
+                        haste_fhir_serialization_json::to_string(&bundle)
                             .expect("Failed to serialize response")
                     );
                 }

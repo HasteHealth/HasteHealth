@@ -2,347 +2,347 @@
   "index-version": "1",
   "files": [
     {
-      "filename": "definitions/oxidized-health/operation/current_project.json",
+      "filename": "definitions/haste-health/operation/current_project.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/current_tenant.json",
+      "filename": "definitions/haste-health/operation/current_tenant.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/deploy.json",
+      "filename": "definitions/haste-health/operation/deploy.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/encrypt.json",
+      "filename": "definitions/haste-health/operation/encrypt.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/evaluate-policy.json",
+      "filename": "definitions/haste-health/operation/evaluate-policy.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/idp-registration-info.json",
+      "filename": "definitions/haste-health/operation/idp-registration-info.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/invite-user.json",
+      "filename": "definitions/haste-health/operation/invite-user.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/message-post.json",
+      "filename": "definitions/haste-health/operation/message-post.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/password-reset.json",
+      "filename": "definitions/haste-health/operation/password-reset.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/refresh-tokens/delete.json",
+      "filename": "definitions/haste-health/operation/refresh-tokens/delete.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/refresh-tokens/list.json",
+      "filename": "definitions/haste-health/operation/refresh-tokens/list.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/scopes/delete.json",
+      "filename": "definitions/haste-health/operation/scopes/delete.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/scopes/list.json",
+      "filename": "definitions/haste-health/operation/scopes/list.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/operation/usage-statistics.json",
+      "filename": "definitions/haste-health/operation/usage-statistics.json",
       "resourceType": "OperationDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/profiling/extensions/author.json",
+      "filename": "definitions/haste-health/profiling/extensions/author.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/profiling/extensions/subscription-channel.json",
+      "filename": "definitions/haste-health/profiling/extensions/subscription-channel.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/profiling/extensions/subscription-operation.json",
+      "filename": "definitions/haste-health/profiling/extensions/subscription-operation.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/profiling/resource/oxidizedhealth-subscription.json",
+      "filename": "definitions/haste-health/profiling/resource/hastehealth-subscription.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy-v2/engine.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy-v2/engine.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy-v2/link.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy-v2/link.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy-v2/name.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy-v2/name.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy/code.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy/code.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy/link.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy/link.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy/name.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy/name.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/access-policy/type.json",
+      "filename": "definitions/haste-health/searchParameter/access-policy/type.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/clientApplication/grantType.json",
+      "filename": "definitions/haste-health/searchParameter/clientApplication/grantType.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/clientApplication/name.json",
+      "filename": "definitions/haste-health/searchParameter/clientApplication/name.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/identity-provider/accessType.json",
+      "filename": "definitions/haste-health/searchParameter/identity-provider/accessType.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/identity-provider/name.json",
+      "filename": "definitions/haste-health/searchParameter/identity-provider/name.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/identity-provider/status.json",
+      "filename": "definitions/haste-health/searchParameter/identity-provider/status.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/membership/email.json",
+      "filename": "definitions/haste-health/searchParameter/membership/email.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/membership/federation.json",
+      "filename": "definitions/haste-health/searchParameter/membership/federation.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/membership/link.json",
+      "filename": "definitions/haste-health/searchParameter/membership/link.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/membership/name.json",
+      "filename": "definitions/haste-health/searchParameter/membership/name.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/membership/role.json",
+      "filename": "definitions/haste-health/searchParameter/membership/role.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/message-broker/host.json",
+      "filename": "definitions/haste-health/searchParameter/message-broker/host.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/message-broker/name.json",
+      "filename": "definitions/haste-health/searchParameter/message-broker/name.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/message-broker/type.json",
+      "filename": "definitions/haste-health/searchParameter/message-broker/type.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/message-topic/broker.json",
+      "filename": "definitions/haste-health/searchParameter/message-topic/broker.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/message-topic/topic.json",
+      "filename": "definitions/haste-health/searchParameter/message-topic/topic.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/searchParameter/resource-parameters.json",
+      "filename": "definitions/haste-health/searchParameter/resource-parameters.json",
       "resourceType": "SearchParameter"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/access_policy_v2.json",
+      "filename": "definitions/haste-health/structuredefinition/access_policy_v2.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/client_application.json",
+      "filename": "definitions/haste-health/structuredefinition/client_application.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/identity_provider.json",
+      "filename": "definitions/haste-health/structuredefinition/identity_provider.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/membership.json",
+      "filename": "definitions/haste-health/structuredefinition/membership.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/project.json",
+      "filename": "definitions/haste-health/structuredefinition/project.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/structuredefinition/user.json",
+      "filename": "definitions/haste-health/structuredefinition/user.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/accesspolicy-atttribute-operation-types.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-atttribute-operation-types.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/accesspolicy-atttribute-operation-types.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-atttribute-operation-types.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/accesspolicy-effect.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-effect.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/accesspolicy-effect.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-effect.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/accesspolicy-engine.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-engine.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/accesspolicy-engine.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/accesspolicy-engine.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/rule-combine-behavior.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-combine-behavior.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/rule-combine-behavior.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-combine-behavior.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/rule-condition-operators.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-condition-operators.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy-v2/rule-condition-operators.json",
+      "filename": "definitions/haste-health/terminology/access-policy-v2/rule-condition-operators.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authentication/grant_type.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/grant_type.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authentication/grant_type.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/grant_type.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authentication/membership_role.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/membership_role.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authentication/membership_role.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/membership_role.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authentication/response_types.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/response_types.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authentication/response_types.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authentication/response_types.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authorization/fhir-api-level.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-level.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authorization/fhir-api-level.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-level.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authorization/fhir-api-methods.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-methods.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authorization/fhir-api-methods.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-methods.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authorization/fhir-api-parameters.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-parameters.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/authorization/fhir-api-parameters.json",
+      "filename": "definitions/haste-health/terminology/access-policy/authorization/fhir-api-parameters.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/message-broker/types.json",
+      "filename": "definitions/haste-health/terminology/access-policy/message-broker/types.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/message-broker/types.json",
+      "filename": "definitions/haste-health/terminology/access-policy/message-broker/types.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/policy-types.json",
+      "filename": "definitions/haste-health/terminology/access-policy/policy-types.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/policy-types.json",
+      "filename": "definitions/haste-health/terminology/access-policy/policy-types.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/resource_type.json",
+      "filename": "definitions/haste-health/terminology/access-policy/resource_type.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/access-policy/resource_type.json",
+      "filename": "definitions/haste-health/terminology/access-policy/resource_type.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/external/bcp-13-codesystem.json",
+      "filename": "definitions/haste-health/terminology/external/bcp-13-codesystem.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/external/iso-3166-codesystem.json",
+      "filename": "definitions/haste-health/terminology/external/iso-3166-codesystem.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/external/iso-4217-codesystem.json",
+      "filename": "definitions/haste-health/terminology/external/iso-4217-codesystem.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/identity-provider/accessType.json",
+      "filename": "definitions/haste-health/terminology/identity-provider/accessType.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/identity-provider/accessType.json",
+      "filename": "definitions/haste-health/terminology/identity-provider/accessType.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/identity-provider/pkce-challenge-method.json",
+      "filename": "definitions/haste-health/terminology/identity-provider/pkce-challenge-method.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/identity-provider/pkce-challenge-method.json",
+      "filename": "definitions/haste-health/terminology/identity-provider/pkce-challenge-method.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/identity-provider/status.json",
+      "filename": "definitions/haste-health/terminology/identity-provider/status.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/identity-provider/status.json",
+      "filename": "definitions/haste-health/terminology/identity-provider/status.json",
       "resourceType": "ValueSet"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/supportedFhirVersion.json",
+      "filename": "definitions/haste-health/terminology/supportedFhirVersion.json",
       "resourceType": "CodeSystem"
     },
     {
-      "filename": "definitions/oxidized-health/terminology/supportedFhirVersion.json",
+      "filename": "definitions/haste-health/terminology/supportedFhirVersion.json",
       "resourceType": "ValueSet"
     }
   ]

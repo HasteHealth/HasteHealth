@@ -5,10 +5,10 @@ use axum::{
 };
 
 use axum_extra::extract::Cached;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{Repository, admin::TenantAuthAdmin, types::project::CreateProject};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_repository::{Repository, admin::TenantAuthAdmin, types::project::CreateProject};
 use std::sync::Arc;
 
 use crate::{
@@ -36,7 +36,7 @@ pub async fn project_exists<
     .await
     .map_err(|_| {
         OperationOutcomeError::fatal(
-            oxidized_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
             format!(
                 "Project '{}' not found for tenant '{}'",
                 project.as_ref(),

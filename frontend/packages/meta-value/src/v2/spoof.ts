@@ -1,11 +1,11 @@
 import {
   FPPrimitiveNode,
   MetaNode,
-} from "@oxidized-health/codegen/generate/meta-data";
-import { uri } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import * as r4sets from "@oxidized-health/fhir-types/r4/sets";
-import * as r4bsets from "@oxidized-health/fhir-types/r4b/sets";
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/codegen/generate/meta-data";
+import { uri } from "@haste-health/fhir-types/lib/generated/r4/types";
+import * as r4sets from "@haste-health/fhir-types/r4/sets";
+import * as r4bsets from "@haste-health/fhir-types/r4b/sets";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
 
 import {
   IMetaValue,

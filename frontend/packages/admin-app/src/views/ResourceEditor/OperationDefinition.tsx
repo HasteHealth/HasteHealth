@@ -13,16 +13,16 @@ import {
   Table,
   Tabs,
   Toaster,
-} from "@oxidized-health/components";
+} from "@haste-health/components";
 import {
   AuditEvent,
   OperationDefinition,
   ResourceType,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
-import { OxidizedHealthDeployOperation } from "@oxidized-health/generated-ops/lib/r4/ops";
-import { Operation } from "@oxidized-health/operation-execution";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
+import { HasteHealthDeployOperation } from "@haste-health/generated-ops/lib/r4/ops";
+import { Operation } from "@haste-health/operation-execution";
 
 import ResourceEditorComponent, {
   AdditionalContent,
@@ -52,7 +52,7 @@ function getOperationCode(operation: OperationDefinition | undefined): string {
     operation?.extension?.find(
       (e) =>
         e.url ===
-        "https://oxidized-health.github.io/fhir-operation-definition/operation-code"
+        "https://haste-health.github.io/fhir-operation-definition/operation-code"
     )?.valueString ?? "";
   return code;
 }
@@ -129,7 +129,7 @@ const DeployModal = ({
                 throw new Error("Must have operation to trigger invocation");
               }
               const invocation = client.invoke_instance(
-                OxidizedHealthDeployOperation.Op,
+                HasteHealthDeployOperation.Op,
                 {},
                 R4,
                 "OperationDefinition",
@@ -438,10 +438,10 @@ export default function OperationDefinitionView({
                     ...(resource?.extension?.filter(
                       (e) =>
                         e.url !==
-                        "https://oxidized-health.github.io/fhir-operation-definition/operation-code"
+                        "https://haste-health.github.io/fhir-operation-definition/operation-code"
                     ) || []),
                     {
-                      url: "https://oxidized-health.github.io/fhir-operation-definition/operation-code",
+                      url: "https://haste-health.github.io/fhir-operation-definition/operation-code",
                       valueString: v,
                     },
                   ],

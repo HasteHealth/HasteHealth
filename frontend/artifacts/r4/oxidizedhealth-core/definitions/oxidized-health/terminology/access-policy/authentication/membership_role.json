@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/MembershipRole",
+      "fullUrl": "https://haste-health.app/fhir/CodeSystem/MembershipRole",
       "resource": {
         "id": "membership-role-codesystem",
-        "url": "https://oxidized-health.app/fhir/CodeSystem/MembershipRole",
+        "url": "https://haste-health.app/fhir/CodeSystem/MembershipRole",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "MembershipRole",
         "title": "MembershipRole",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Grant types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://oxidized-health.app/fhir/ValueSet/MembershipRole",
+        "valueSet": "https://haste-health.app/fhir/ValueSet/MembershipRole",
         "content": "complete",
         "concept": [
           {
@@ -35,23 +35,23 @@
       }
     },
     {
-      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/MembershipRole",
+      "fullUrl": "https://haste-health.app/fhir/ValueSet/MembershipRole",
       "resource": {
         "resourceType": "ValueSet",
         "id": "membership-role-valueset",
-        "url": "https://oxidized-health.app/fhir/ValueSet/MembershipRole",
+        "url": "https://haste-health.app/fhir/ValueSet/MembershipRole",
         "version": "4.0.1",
         "name": "MembershipRole",
         "title": "MembershipRole",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Grant Types allowed.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://oxidized-health.app/fhir/CodeSystem/MembershipRole"
+              "system": "https://haste-health.app/fhir/CodeSystem/MembershipRole"
             }
           ]
         }

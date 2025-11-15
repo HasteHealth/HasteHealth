@@ -1,5 +1,5 @@
-import * as r4 from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION } from "@oxidized-health/fhir-types/versions";
+import * as r4 from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
 
 export type Location = (string | number)[];
 

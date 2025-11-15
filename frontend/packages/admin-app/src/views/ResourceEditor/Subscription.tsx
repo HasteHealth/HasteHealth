@@ -2,15 +2,15 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 
-import { FHIRCodeEditable, Input, Select } from "@oxidized-health/components";
+import { FHIRCodeEditable, Input, Select } from "@haste-health/components";
 import {
   ConcreteType,
   Subscription,
   code,
   id,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import ResourceEditorComponent, {
   AdditionalContent,
@@ -105,7 +105,7 @@ function ChannelParameters({
             </div>
             <div className="mt-1">
               <span
-                className="flex items-center cursor-pointer text-xs hover:text-teal-600 text-teal-500"
+                className="flex items-center cursor-pointer text-xs hover:text-orange-600 text-orange-500"
                 onClick={() => {
                   onChange({
                     ...resource,
@@ -134,7 +134,7 @@ function ChannelParameters({
               resource?.channel._type?.extension?.find(
                 (e) =>
                   e.url ===
-                  "https://oxidized-health.app/Subscription/operation-code"
+                  "https://haste-health.app/Subscription/operation-code"
               )?.valueCode
             }
             onChange={(e) =>
@@ -148,10 +148,10 @@ function ChannelParameters({
                       ...(resource?.channel._type?.extension ?? []).filter(
                         (e) =>
                           e.url !==
-                          "https://oxidized-health.app/Subscription/operation-code"
+                          "https://haste-health.app/Subscription/operation-code"
                       ),
                       {
-                        url: "https://oxidized-health.app/Subscription/operation-code" as id,
+                        url: "https://haste-health.app/Subscription/operation-code" as id,
                         valueCode: e.target.value as code,
                       },
                     ],
@@ -181,7 +181,7 @@ function SimpleSubscriptionView({
     const channel =
       resource?.channel?.type ??
       resource?.channel?._type?.extension?.find(
-        (e) => e.url === "https://oxidized-health.app/Subscription/channel-type"
+        (e) => e.url === "https://haste-health.app/Subscription/channel-type"
       )?.valueCode;
     setChannel(channel);
   }, [resource]);
@@ -253,7 +253,7 @@ function SimpleSubscriptionView({
                 _type: {
                   extension: [
                     {
-                      url: "https://oxidized-health.app/Subscription/channel-type" as id,
+                      url: "https://haste-health.app/Subscription/channel-type" as id,
                       valueCode: option.value as code,
                     },
                   ],
@@ -291,7 +291,7 @@ export default function SubscriptionView({
       return {
         resourceType: "Subscription",
         meta: {
-          profile: ["https://oxidized-health.app/resource/Subscription"],
+          profile: ["https://haste-health.app/resource/Subscription"],
         },
         status: "active",
         criteria: "",
@@ -306,7 +306,7 @@ export default function SubscriptionView({
       ...resource,
       meta: {
         ...resource?.meta,
-        profile: ["https://oxidized-health.app/resource/Subscription"],
+        profile: ["https://haste-health.app/resource/Subscription"],
       },
     } as Subscription;
   }, [resource]);

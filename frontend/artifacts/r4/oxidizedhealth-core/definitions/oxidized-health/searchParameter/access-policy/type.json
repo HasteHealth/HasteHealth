@@ -1,12 +1,12 @@
 {
   "resourceType": "SearchParameter",
   "id": "AccessPolicy-type",
-  "url": "https://oxidized-health.app/fhir/SearchParameter/AccessPolicy-type",
+  "url": "https://haste-health.app/fhir/SearchParameter/AccessPolicy-type",
   "version": "4.0.1",
   "name": "type",
   "status": "draft",
   "experimental": false,
-  "publisher": "OxidizedHealth",
+  "publisher": "HasteHealth",
   "description": "An access policies type.",
   "code": "type",
   "base": [

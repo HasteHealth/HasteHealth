@@ -4,8 +4,8 @@ import {
   ConceptMap,
   Patient,
   Practitioner,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { flatten } from "../utilities";
 import { metaValue } from "./index";

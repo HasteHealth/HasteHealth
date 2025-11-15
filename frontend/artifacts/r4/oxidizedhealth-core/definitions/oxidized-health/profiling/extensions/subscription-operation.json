@@ -1,12 +1,12 @@
 {
     "resourceType": "StructureDefinition",
-    "id": "oxidized-health-subscription-operation-extension",
-    "url": "https://oxidized-health.app/Subscription/operation-code",
+    "id": "haste-health-subscription-operation-extension",
+    "url": "https://haste-health.app/Subscription/operation-code",
     "version": "4.0.0",
-    "name": "OxidizedHealth Subscription operation",
-    "title": "OxidizedHealth Subscription operation Extension",
+    "name": "HasteHealth Subscription operation",
+    "title": "HasteHealth Subscription operation Extension",
     "status": "active",
-    "publisher": "OxidizedHealth",
+    "publisher": "HasteHealth",
     "description": "Extension for Subscription operation.",
     "fhirVersion": "4.0.1",
     "kind": "complex-type",
@@ -28,7 +28,7 @@
                 "path": "Extension.url",
                 "min": 1,
                 "max": "1",
-                "fixedUri": "https://oxidized-health.app/Subscription/operation-code"
+                "fixedUri": "https://haste-health.app/Subscription/operation-code"
             },
             {
                 "id": "Extension.valueCode",
@@ -211,7 +211,7 @@
                 ],
                 "isModifier": false,
                 "isSummary": false,
-                "fixedUri": "https://oxidized-health.app/Subscription/operation-code"
+                "fixedUri": "https://haste-health.app/Subscription/operation-code"
             },
             {
                 "id": "Extension.value[x]",

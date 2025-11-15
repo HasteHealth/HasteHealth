@@ -1,6 +1,4 @@
-use oxidized_fhir_model::r4::generated::{
-    resources::StructureDefinition, types::ElementDefinition,
-};
+use haste_fhir_model::r4::generated::{resources::StructureDefinition, types::ElementDefinition};
 use regex::Regex;
 
 fn ele_index_to_child_indices(
@@ -84,13 +82,13 @@ where
 #[cfg(test)]
 mod tests {
 
-    use oxidized_fhir_model::r4::generated::resources::{Bundle, Resource};
+    use haste_fhir_model::r4::generated::resources::{Bundle, Resource};
 
     use super::*;
 
     #[test]
     fn test_traversal() {
-        let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(
+        let bundle = haste_fhir_serialization_json::from_str::<Bundle>(
             &std::fs::read_to_string(
                 "../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json",
             )

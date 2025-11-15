@@ -19,14 +19,14 @@ import {
 } from "react-router-dom";
 
 import {
-  OxidizedHealthProvider,
+  HasteHealthProvider,
   Loading,
   ProfileDropdown,
   SideBar,
   Toaster,
-  useOxidizedHealth,
-} from "@oxidized-health/components";
-import "@oxidized-health/components/dist/index.css";
+  useHasteHealth,
+} from "@haste-health/components";
+import "@haste-health/components/dist/index.css";
 
 import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
@@ -43,39 +43,39 @@ import Resources from "./views/Project/Resources";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
 import { deriveProjectId, deriveTenantId } from "./utilities";
-import * as r4Types from "@oxidized-health/fhir-types/r4/types";
+import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
-import { ProjectInformation } from "@oxidized-health/generated-ops/r4";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { ProjectInformation } from "@haste-health/generated-ops/r4";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// Could potentially use HOST=oxidized-health.localhost but instead just going to default redirect to system.oxidized-health.localhost
+// Could potentially use HOST=haste-health.localhost but instead just going to default redirect to system.haste-health.localhost
 if (
   process.env.NODE_ENV === "development" &&
   window.location.hostname === "localhost"
 ) {
-  window.location.href = `http://system.oxidized-health.localhost:${window.location.port}`;
+  window.location.href = `http://system.haste-health.localhost:${window.location.port}`;
 }
 
 function LoginWrapper() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
 
   return (
     <>
-      {oxidizedHealth.loading ? (
+      {hasteHealth.loading ? (
         <div className="h-screen flex flex-1 justify-center items-center flex-col">
           <Loading />
           <div className="mt-1 ">Loading...</div>
         </div>
-      ) : oxidizedHealth.error ? (
+      ) : hasteHealth.error ? (
         <div className="h-screen flex">
           <div className="flex-1 flex items-center justify-center">
             <div className="p-4 bg-red-100 text-red-800 border border-red-400 rounded-md space-y-2">
               <div className="font-bold">
-                {oxidizedHealth.error.code.split("_").map(capitalize).join(" ")}
+                {hasteHealth.error.code.split("_").map(capitalize).join(" ")}
               </div>
-              <div>{oxidizedHealth.error.description}</div>
+              <div>{hasteHealth.error.description}</div>
             </div>
           </div>
         </div>
@@ -89,17 +89,15 @@ function LoginWrapper() {
 }
 
 function ServiceSetup() {
-  const oxidizedHealth = useOxidizedHealth();
-  const client = oxidizedHealth.isAuthenticated
-    ? oxidizedHealth.client
-    : undefined;
+  const hasteHealth = useHasteHealth();
+  const client = hasteHealth.isAuthenticated ? hasteHealth.client : undefined;
   const [c, setClient] = useAtom(getClient);
 
   React.useEffect(() => {
     if (client) {
       setClient(createAdminAppClient(client));
     }
-  }, [setClient, oxidizedHealth.isAuthenticated, oxidizedHealth.client]);
+  }, [setClient, hasteHealth.isAuthenticated, hasteHealth.client]);
 
   return (
     <>
@@ -112,11 +110,11 @@ function ServiceSetup() {
   );
 }
 
-function OxidizedHealthWrapper() {
+function HasteHealthWrapper() {
   const navigate = useNavigate();
 
   return (
-    <OxidizedHealthProvider
+    <HasteHealthProvider
       refresh
       authorize_method="GET"
       scope="offline_access openid email profile fhirUser system/*.*"
@@ -130,7 +128,7 @@ function OxidizedHealthWrapper() {
       }}
     >
       <Outlet />
-    </OxidizedHealthProvider>
+    </HasteHealthProvider>
   );
 }
 
@@ -154,9 +152,9 @@ function SystemBar() {
             className={classNames(
               "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
               {
-                ["bg-teal-600 hover:bg-teal-700 text-white"]:
+                ["bg-orange-600 hover:bg-orange-700 text-white"]:
                   params.resourceType === type,
-                [" bg-gray-100 hover:bg-teal-600 hover:text-white p-2"]:
+                [" bg-gray-100 hover:bg-orange-600 hover:text-white p-2"]:
                   params.resourceType !== type,
               }
             )}
@@ -174,8 +172,8 @@ const router =
   deriveProjectId() == "system"
     ? createBrowserRouter([
         {
-          id: "oxidized-health-wrapper",
-          element: <OxidizedHealthWrapper />,
+          id: "haste-health-wrapper",
+          element: <HasteHealthWrapper />,
           children: [
             {
               id: "empty-workspace",
@@ -234,8 +232,8 @@ const router =
       ])
     : createBrowserRouter([
         {
-          id: "oxidized-health-wrapper",
-          element: <OxidizedHealthWrapper />,
+          id: "haste-health-wrapper",
+          element: <HasteHealthWrapper />,
           children: [
             {
               id: "login",
@@ -300,7 +298,7 @@ const router =
       ]);
 
 function Navbar() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
   const navigate = useNavigate();
 
   return (
@@ -313,15 +311,14 @@ function Navbar() {
           <a
             target="_blank"
             className="cursor text-slate-500 hover:text-slate-600 hover:underline"
-            href="https://oxidized-health.app"
+            href="https://haste-health.app"
           >
             Documentation
           </a>
           <ProfileDropdown
             user={{
-              email: oxidizedHealth.user?.email,
-              name:
-                oxidizedHealth.user?.given_name || oxidizedHealth.user?.email,
+              email: hasteHealth.user?.email,
+              name: hasteHealth.user?.given_name || hasteHealth.user?.email,
               // imageUrl: auth0.user?.picture,
             }}
           >
@@ -329,7 +326,7 @@ function Navbar() {
               <div className="mt-2">
                 <a
                   className={classNames(
-                    "cursor-pointer block px-4 py-2 text-sm  hover:text-teal-800 hover:bg-teal-200"
+                    "cursor-pointer block px-4 py-2 text-sm  hover:text-orange-800 hover:bg-orange-200"
                   )}
                   onClick={() => {
                     navigate(generatePath("/settings", {}));
@@ -338,9 +335,9 @@ function Navbar() {
                   Settings
                 </a>
                 <a
-                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-teal-800 hover:bg-teal-200"
+                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-orange-800 hover:bg-orange-200"
                   onClick={() => {
-                    oxidizedHealth.logout(window.location.origin);
+                    hasteHealth.logout(window.location.origin);
                   }}
                 >
                   Sign out
@@ -377,13 +374,13 @@ function Page(props: PageProps) {
 }
 
 function ProjectRoot() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
   const navigate = useNavigate();
   const matches = useMatches();
   const [project, setProject] = React.useState<r4Types.Project | null>(null);
 
   useEffect(() => {
-    oxidizedHealth.client
+    hasteHealth.client
       .invoke_system(ProjectInformation.Op, {}, R4, {})
       .then((res) => {
         setProject(res.project);
@@ -403,9 +400,9 @@ function ProjectRoot() {
                 <div>
                   <span
                     className={classNames(
-                      "font-bold group-hover:text-teal-900 group-hover:underline",
+                      "font-bold group-hover:text-orange-900 group-hover:underline",
                       {
-                        "text-teal-900 underline":
+                        "text-orange-900 underline":
                           matches[matches.length - 1].id === "dashboard",
                       }
                     )}
@@ -414,9 +411,7 @@ function ProjectRoot() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400">
-                    {oxidizedHealth.tenant}
-                  </span>
+                  <span className="text-slate-400">{hasteHealth.tenant}</span>
                 </div>
               </div>
             }
@@ -625,7 +620,7 @@ function ProjectRoot() {
               <SideBar.SideBarItem
                 logo={<ArrowLeftOnRectangleIcon />}
                 onClick={() => {
-                  oxidizedHealth.logout(window.location.origin);
+                  hasteHealth.logout(window.location.origin);
                 }}
               >
                 Sign out

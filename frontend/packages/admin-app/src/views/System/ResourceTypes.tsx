@@ -1,10 +1,10 @@
-import { FHIRGenerativeSearchTable, Button } from "@oxidized-health/components";
+import { FHIRGenerativeSearchTable, Button } from "@haste-health/components";
 import {
   AllResourceTypes,
   R4,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";

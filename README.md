@@ -1,4 +1,4 @@
-# Oxidized Health
+# Haste Health
 
 ## Running for Development
 
@@ -11,8 +11,8 @@ cargo run server start && cargo run worker
 
 ## Compiled Binaries
 
-- [Linux](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_linux)
-- [MacOS](https://github.com/OxidizedHealth/oxidized-health/releases/latest/download/oxidized-health_macos)
+- [Linux](https://github.com/HasteHealth/haste-health/releases/latest/download/haste-health_linux)
+- [MacOS](https://github.com/HasteHealth/haste-health/releases/latest/download/haste-health_macos)
 
 ## Repository Structure
 

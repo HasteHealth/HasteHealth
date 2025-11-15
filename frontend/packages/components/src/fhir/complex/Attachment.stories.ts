@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Attachment } from "@oxidized-health/fhir-types/r4/types";
+import { Attachment } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRAttachmentEditable } from "./Attachment";
 

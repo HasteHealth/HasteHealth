@@ -1,10 +1,10 @@
 import { atom } from "jotai";
 import { atomFamily } from "jotai/utils";
 
-import { R4, ResourceType } from "@oxidized-health/fhir-types/versions";
-import { id } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { isResponseError } from "@oxidized-health/client/lib/http";
-import { Toaster } from "@oxidized-health/components";
+import { R4, ResourceType } from "@haste-health/fhir-types/versions";
+import { id } from "@haste-health/fhir-types/lib/generated/r4/types";
+import { isResponseError } from "@haste-health/client/lib/http";
+import { Toaster } from "@haste-health/components";
 
 import { getClient } from "./client";
 

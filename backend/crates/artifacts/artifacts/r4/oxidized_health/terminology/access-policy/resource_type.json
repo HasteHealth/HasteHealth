@@ -1,21 +1,21 @@
 {
   "resourceType": "Bundle",
-  "id": "oxidized-health-custom-types",
+  "id": "haste-health-custom-types",
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes",
+      "fullUrl": "https://haste-health.app/fhir/CodeSystem/HasteHealthCustomTypes",
       "resource": {
-        "id": "oxidized-health-custom-types",
-        "url": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes",
+        "id": "haste-health-custom-types",
+        "url": "https://haste-health.app/fhir/CodeSystem/HasteHealthCustomTypes",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "Custom types",
         "title": "Custom Types",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
-        "description": "OxidizedHealth custom types",
+        "publisher": "HasteHealth",
+        "description": "HasteHealth custom types",
         "caseSensitive": true,
         "content": "complete",
         "concept": [
@@ -38,18 +38,18 @@
       }
     },
     {
-      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
+      "fullUrl": "https://haste-health.app/fhir/ValueSet/ResourceTypes",
       "resource": {
         "resourceType": "ValueSet",
-        "id": "oxidized-health-types",
-        "url": "https://oxidized-health.app/fhir/ValueSet/ResourceTypes",
+        "id": "haste-health-types",
+        "url": "https://haste-health.app/fhir/ValueSet/ResourceTypes",
         "version": "4.0.1",
-        "name": "OxidizedHealth Resource Types",
-        "title": "OxidizedHealth Resource Types",
+        "name": "HasteHealth Resource Types",
+        "title": "HasteHealth Resource Types",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
-        "description": "Resource types on OxidizedHealth",
+        "publisher": "HasteHealth",
+        "description": "Resource types on HasteHealth",
         "immutable": true,
         "compose": {
           "include": [
@@ -57,7 +57,7 @@
               "system": "http://hl7.org/fhir/resource-types"
             },
             {
-              "system": "https://oxidized-health.app/fhir/CodeSystem/OxidizedHealthCustomTypes"
+              "system": "https://haste-health.app/fhir/CodeSystem/HasteHealthCustomTypes"
             }
           ]
         }

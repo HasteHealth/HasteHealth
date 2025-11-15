@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { code, id } from "@oxidized-health/fhir-types/r4/types";
+import { code, id } from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
-import type { IOperation } from "@oxidized-health/operation-execution";
-import {
-  OperationError,
-  outcomeError,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/fhir-types/versions";
+import type { IOperation } from "@haste-health/operation-execution";
+import { OperationError, outcomeError } from "@haste-health/operation-outcomes";
 
 import type { FHIRClientAsync, InvokeParameter } from "./interface.js";
 import { MiddlewareAsync } from "./middleware/index.js";

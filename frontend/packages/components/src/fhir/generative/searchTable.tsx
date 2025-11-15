@@ -7,8 +7,8 @@ import {
 import classNames from "classnames";
 import React, { useEffect, useMemo, useState } from "react";
 
-import { ResponseError } from "@oxidized-health/client/lib/http";
-import { ParsedParameter } from "@oxidized-health/client/url";
+import { ResponseError } from "@haste-health/client/lib/http";
+import { ParsedParameter } from "@haste-health/client/url";
 import {
   Address,
   CodeableConcept,
@@ -22,13 +22,13 @@ import {
   Timing,
   decimal,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { Button, Modal, Select, Tag, Toaster } from "../../base";
 import { Pagination } from "../../base/pagination";
@@ -195,7 +195,7 @@ function SearchColumnModalBody({
             );
           })}
           <div
-            className="cursor-pointer mt-1 text-xs hover:text-teal-500 text-slate-400"
+            className="cursor-pointer mt-1 text-xs hover:text-orange-500 text-slate-400"
             onClick={() => {
               props.onChange({
                 ...value,
@@ -464,7 +464,7 @@ function SearchParameterSortControl({
       return (
         <ArrowUpIcon
           className={classNames(
-            "cursor-pointer w-4 h-4 hover:text-teal-400 text-teal-400"
+            "cursor-pointer w-4 h-4 hover:text-orange-400 text-orange-400"
           )}
           onClick={() => {
             const values = [
@@ -489,11 +489,14 @@ function SearchParameterSortControl({
     default: {
       return (
         <ArrowDownIcon
-          className={classNames("cursor-pointer w-4 h-4 hover:text-teal-400", {
-            "text-teal-400": (sortParam?.value ?? []).includes(
-              `-${searchParameter.code}`
-            ),
-          })}
+          className={classNames(
+            "cursor-pointer w-4 h-4 hover:text-orange-400",
+            {
+              "text-orange-400": (sortParam?.value ?? []).includes(
+                `-${searchParameter.code}`
+              ),
+            }
+          )}
           onClick={() => {
             if (sortParam?.value.includes(`-${searchParameter.code}`)) {
               onChange({
@@ -622,7 +625,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                           }}
                         >
                           <div className="mr-2">{searchParameter.code}</div>
-                          <FunnelIcon className="hover:text-teal-400 cursor-pointer w-4 h-4" />
+                          <FunnelIcon className="hover:text-orange-400 cursor-pointer w-4 h-4" />
                         </div>
                         <div className="flex justify-end">
                           <SearchParameterSortControl

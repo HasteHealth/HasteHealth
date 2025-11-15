@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Quantity } from "@oxidized-health/fhir-types/r4/types";
+import { Quantity } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRSimpleQuantityEditable } from "./SimpleQuantity";
 

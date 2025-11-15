@@ -27,7 +27,7 @@ import {
   integer,
   uri,
   url,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 import * as ComplexTypes from "../complex";
 import * as Primitives from "../primitives";

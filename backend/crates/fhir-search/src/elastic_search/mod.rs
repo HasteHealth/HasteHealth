@@ -12,14 +12,14 @@ use elasticsearch::{
         transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, SearchParameter},
     terminology::IssueType,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhirpath::FPEngine;
-use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId};
-use oxidized_repository::types::{FHIRMethod, SupportedFHIRVersions};
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhirpath::FPEngine;
+use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
+use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use rayon::prelude::*;
 use serde::Deserialize;
 use std::{collections::HashMap, sync::Arc};
@@ -40,7 +40,7 @@ pub enum SearchError {
         code = "exception",
         diagnostic = "Failed to evaluate fhirpath expression."
     )]
-    FHIRPathError(#[from] oxidized_fhirpath::FHIRPathError),
+    FHIRPathError(#[from] haste_fhirpath::FHIRPathError),
     #[fatal(
         code = "exception",
         diagnostic = "Search does not support the fhir method: '{arg0:?}'"
@@ -204,7 +204,7 @@ impl SearchEngine for ElasticSearchEngine {
         project: &ProjectId,
         search_request: super::SearchRequest<'a>,
         options: Option<SearchOptions>,
-    ) -> Result<SearchReturn, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(tenant, project, &search_request, &options)?;
 
         let search_response = self
@@ -248,8 +248,7 @@ impl SearchEngine for ElasticSearchEngine {
         tenant: &TenantId,
 
         resources: Vec<IndexResource<'a>>,
-    ) -> Result<SuccessfullyIndexedCount, oxidized_fhir_operation_error::OperationOutcomeError>
-    {
+    ) -> Result<SuccessfullyIndexedCount, haste_fhir_operation_error::OperationOutcomeError> {
         // Iterator used to evaluate all of the search expressions for indexing.
 
         let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
@@ -263,7 +262,7 @@ impl SearchEngine for ElasticSearchEngine {
                     // Id is not sufficient because different Resourcetypes may have the same id.
                     let index_id = unique_index_id(tenant, r.project, &r.resource_type, &r.id);
                     let params =
-                        oxidized_artifacts::search_parameters::get_search_parameters_for_resource(
+                        haste_artifacts::search_parameters::get_search_parameters_for_resource(
                             &r.resource_type,
                         );
 
@@ -345,7 +344,7 @@ impl SearchEngine for ElasticSearchEngine {
     async fn migrate(
         &self,
         _fhir_version: &SupportedFHIRVersions,
-    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         migration::create_mapping(&self.client, get_index_name(_fhir_version)?).await?;
         Ok(())
     }

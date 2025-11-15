@@ -1,4 +1,4 @@
-import { FHIR_VERSION } from "@oxidized-health/fhir-types/versions";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
 
 import { AllInteractions, FHIRRequest, FHIRResponse } from "../types/index.js";
 

@@ -268,15 +268,13 @@ export default {
   TriggerDefinition:
     "http://hl7.org/fhir/StructureDefinition/TriggerDefinition",
   UsageContext: "http://hl7.org/fhir/StructureDefinition/UsageContext",
-  AccessPolicyV2:
-    "https://oxidized-health.com/StructureDefinition/AccessPolicyV2",
-  AccessPolicy: "https://oxidized-health.com/StructureDefinition/AccessPolicy",
+  AccessPolicyV2: "https://haste-health.com/StructureDefinition/AccessPolicyV2",
+  AccessPolicy: "https://haste-health.com/StructureDefinition/AccessPolicy",
   ClientApplication:
-    "https://oxidized-health.com/StructureDefinition/ClientApplication",
+    "https://haste-health.com/StructureDefinition/ClientApplication",
   IdentityProvider:
-    "https://oxidized-health.com/StructureDefinition/IdentityProvider",
-  Membership: "https://oxidized-health.com/StructureDefinition/Membership",
-  MessageBroker:
-    "https://oxidized-health.com/StructureDefinition/MessageBroker",
-  MessageTopic: "https://oxidized-health.com/StructureDefinition/MessageTopic",
+    "https://haste-health.com/StructureDefinition/IdentityProvider",
+  Membership: "https://haste-health.com/StructureDefinition/Membership",
+  MessageBroker: "https://haste-health.com/StructureDefinition/MessageBroker",
+  MessageTopic: "https://haste-health.com/StructureDefinition/MessageTopic",
 } as Record<string, string>;

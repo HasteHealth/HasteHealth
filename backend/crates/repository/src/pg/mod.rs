@@ -1,7 +1,7 @@
+use haste_fhir_model::r4::generated::resources::Resource;
+use haste_fhir_operation_error::derive::OperationOutcomeError;
+use haste_jwt::VersionId;
 use moka::future::Cache;
-use oxidized_fhir_model::r4::generated::resources::Resource;
-use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use oxidized_jwt::VersionId;
 use sqlx::Postgres;
 use std::sync::Arc;
 use tokio::sync::Mutex;

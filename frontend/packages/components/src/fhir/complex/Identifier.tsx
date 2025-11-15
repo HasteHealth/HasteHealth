@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Identifier, uri } from "@oxidized-health/fhir-types/r4/types";
+import { Identifier, uri } from "@haste-health/fhir-types/r4/types";
 
 import { InputContainer } from "../../base/containers";
 import { FHIRCodeEditable } from "../primitives/code";

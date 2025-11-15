@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as fpointer from "@oxidized-health/fhir-pointer";
-import { ElementDefinition } from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
-import { isObject } from "@oxidized-health/meta-value/utilities";
+import * as fpointer from "@haste-health/fhir-pointer";
+import { ElementDefinition } from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
+import { isObject } from "@haste-health/meta-value/utilities";
 import {
   OperationError,
   issueError,
   outcomeError,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 import { ValidationCTX } from "../types.js";
 

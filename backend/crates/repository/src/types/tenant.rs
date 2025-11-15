@@ -1,4 +1,4 @@
-use oxidized_jwt::TenantId;
+use haste_jwt::TenantId;
 
 pub struct CreateTenant {
     pub id: Option<TenantId>,

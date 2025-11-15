@@ -1,10 +1,10 @@
 {
-  "name": "@oxidized-health/generated-ops",
+  "name": "@haste-health/generated-ops",
   "version": "0.12.3",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
   "main": "./lib/index.js",
   "type": "module",
@@ -12,22 +12,22 @@
   "scripts": {
     "build": "tsc",
     "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "generate": "yarn node ../cli/lib/oxidizedhealth.js generate operations --output=./src/r4 && yarn prettier --write ./src/r4/**/*.ts",
+    "generate": "yarn node ../cli/lib/hastehealth.js generate operations --output=./src/r4 && yarn prettier --write ./src/r4/**/*.ts",
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "dependencies": {
-    "@oxidized-health/operation-execution": "workspace:^"
+    "@haste-health/operation-execution": "workspace:^"
   },
   "exports": {
     "./lib/r4/ops": "./lib/r4/ops.js",
     "./r4": "./lib/r4/ops.js"
   },
   "devDependencies": {
+    "@haste-health/artifacts": "workspace:^",
+    "@haste-health/fhir-types": "workspace:^",
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^",
+    "@haste-health/hl7.fhir.r4.core": "workspace:^",
     "@jest/globals": "^29.7.0",
-    "@oxidized-health/artifacts": "workspace:^",
-    "@oxidized-health/fhir-types": "workspace:^",
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
     "ts-jest": "^29.3.2",

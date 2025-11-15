@@ -1,4 +1,4 @@
-import * as fhirpath from "@oxidized-health/fhirpath";
+import * as fhirpath from "@haste-health/fhirpath";
 
 const EXPRESSION_REGEX = /{{([^}]*)}}/;
 

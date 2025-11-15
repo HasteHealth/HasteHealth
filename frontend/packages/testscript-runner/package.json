@@ -1,20 +1,20 @@
 {
-  "name": "@oxidized-health/testscript-runner",
+  "name": "@haste-health/testscript-runner",
   "version": "0.8.3",
   "target": "node",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "dependencies": {
-    "@oxidized-health/client": "workspace:^",
-    "@oxidized-health/fhir-pointer": "workspace:^",
-    "@oxidized-health/fhirpath": "workspace:^",
-    "@oxidized-health/operation-outcomes": "workspace:^",
-    "@oxidized-health/x-fhir-query": "workspace:^",
+    "@haste-health/client": "workspace:^",
+    "@haste-health/fhir-pointer": "workspace:^",
+    "@haste-health/fhirpath": "workspace:^",
+    "@haste-health/operation-outcomes": "workspace:^",
+    "@haste-health/x-fhir-query": "workspace:^",
     "pino": "^9.6.0"
   },
   "devDependencies": {
-    "@oxidized-health/fhir-types": "workspace:^",
+    "@haste-health/fhir-types": "workspace:^",
     "typescript": "5.9.2"
   },
   "scripts": {

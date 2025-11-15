@@ -1,7 +1,7 @@
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::AccessPolicyV2, terminology::AccessPolicyv2Engine,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::OperationOutcomeError;
 
 pub fn evaluate(policy: &AccessPolicyV2) -> Result<(), OperationOutcomeError> {
     // Sanity check to ensure we are only evaluating FullAccess policies here.
@@ -10,7 +10,7 @@ pub fn evaluate(policy: &AccessPolicyV2) -> Result<(), OperationOutcomeError> {
         Ok(())
     } else {
         Err(OperationOutcomeError::fatal(
-            oxidized_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
+            haste_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
             "Access policy denies access.".to_string(),
         ))
     }

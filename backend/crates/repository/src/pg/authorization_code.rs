@@ -7,9 +7,9 @@ use crate::{
     },
     utilities::generate_id,
 };
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId};
 use sqlx::{Acquire, Postgres, QueryBuilder, types::Json};
 use sqlx_postgres::types::PgInterval;
 

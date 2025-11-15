@@ -16,7 +16,7 @@ evaluate(
 
 ### evaluateWithMeta
 
-Returns a @oxidized-health/meta-value singular value which contains data along with metadata about the evaluation.
+Returns a @haste-health/meta-value singular value which contains data along with metadata about the evaluation.
 
 ```typescript
 function evaluateWithMeta(
@@ -41,7 +41,7 @@ function evaluateWithMeta(
 ## Usage
 
 ```typescript
-import * as fhirpath from "@oxidized-health/fhirpath";
+import * as fhirpath from "@haste-health/fhirpath";
 
 // Default returns javascript object.
 expect(fhirpath.evaluate("4 + 5", {})).toEqual([9]);

@@ -7,9 +7,9 @@ use crate::{
     },
     utilities::{generate_id, validate_id},
 };
-use oxidized_jwt::{ProjectId, TenantId};
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId};
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -172,7 +172,7 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         &self,
         tenant: &TenantId,
         id: &Key,
-    ) -> Result<Option<Project>, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<Option<Project>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = read_project(pool, tenant, id.as_ref()).await?;
@@ -190,7 +190,7 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         &self,
         tenant: &TenantId,
         model: Project,
-    ) -> Result<Project, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<Project, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = update_project(pool, tenant, model).await?;
@@ -208,7 +208,7 @@ impl<Key: AsRef<str> + Send + Sync> TenantAuthAdmin<CreateProject, Project, Proj
         &self,
         tenant: &TenantId,
         id: &Key,
-    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_project(pool, tenant, id.as_ref()).await?;

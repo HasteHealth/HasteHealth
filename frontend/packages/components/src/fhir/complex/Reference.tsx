@@ -6,12 +6,9 @@ import {
   Reference,
   Resource,
   StructureDefinition,
-} from "@oxidized-health/fhir-types/r4/types";
-import * as r4b from "@oxidized-health/fhir-types/r4b/types";
-import {
-  FHIR_VERSION,
-  ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import * as r4b from "@haste-health/fhir-types/r4b/types";
+import { FHIR_VERSION, ResourceType } from "@haste-health/fhir-types/versions";
 
 import { Loading, Select } from "../../base";
 import { InputContainer } from "../../base/containers";
@@ -96,7 +93,7 @@ const SearchResult = ({
 }) => {
   return (
     <div
-      className="hover:bg-teal-200 py-2 px-4 cursor-pointer border "
+      className="hover:bg-orange-200 py-2 px-4 cursor-pointer border "
       onClick={(_e) =>
         onChange?.call(this, {
           reference: `${resource.resourceType}/${resource.id}`,
@@ -203,13 +200,13 @@ export const FHIRReferenceEditable = ({
             >
               <div className="flex space-x-1">
                 <div onClick={() => openDisplay(true)}>
-                  <a className="text-teal-400 hover:text-teal-500 cursor-pointer">
+                  <a className="text-orange-400 hover:text-orange-500 cursor-pointer">
                     {value?.reference}
                   </a>
                 </div>
                 {!disabled && (
                   <span onClick={() => openSearch(true)}>
-                    <a className="text-slate-700 hover:text-teal-700 cursor-pointer font-semibold">
+                    <a className="text-slate-700 hover:text-orange-700 cursor-pointer font-semibold">
                       {<MagnifyingGlassCircleIcon className="w-5 h-5" />}
                     </a>
                   </span>

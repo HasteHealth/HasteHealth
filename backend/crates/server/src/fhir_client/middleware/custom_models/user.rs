@@ -6,18 +6,18 @@ use crate::fhir_client::{
     },
     utilities::request_to_resource_type,
 };
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, User},
     terminology::IssueType,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_repository::{
     Repository,
     admin::TenantAuthAdmin,
     types::user::{AuthMethod, CreateUser, UpdateUser},

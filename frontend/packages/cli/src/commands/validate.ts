@@ -1,12 +1,12 @@
 import { Command } from "commander";
 
-import { code } from "@oxidized-health/fhir-types/lib/generated/r4/types";
+import { code } from "@haste-health/fhir-types/lib/generated/r4/types";
 import {
   AllResourceTypes,
   R4,
   R4B,
   Resource,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { createClient } from "../client.js";
 import { CONFIG_LOCATION } from "../config.js";

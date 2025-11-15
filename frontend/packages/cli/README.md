@@ -1,1 +1,1 @@
-# OxidizedHealth CLI
+# HasteHealth CLI

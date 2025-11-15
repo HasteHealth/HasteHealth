@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "OAuth2TokenBody",
     "type": "object",
-    "$id": "https://oxidized-health.app/jsonschema/oauth2/token-body",
+    "$id": "https://haste-health.app/jsonschema/oauth2/token-body",
     "additionalProperties": false,
     "required": [
         "grant_type",

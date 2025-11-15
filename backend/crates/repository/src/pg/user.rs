@@ -6,8 +6,8 @@ use crate::{
         UserSearchClauses,
     },
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::TenantId;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::TenantId;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -51,7 +51,7 @@ impl Login for PGConnection {
         &self,
         tenant: &TenantId,
         method: &LoginMethod,
-    ) -> Result<LoginResult, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<LoginResult, haste_fhir_operation_error::OperationOutcomeError> {
         match &self {
             PGConnection::Pool(pool, _) => {
                 let res = login(pool, tenant, method).await?;

@@ -3,8 +3,8 @@ use crate::{
     pg::{PGConnection, StoreError},
     types::membership::{CreateMembership, Membership, MembershipRole, MembershipSearchClaims},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_membership<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(

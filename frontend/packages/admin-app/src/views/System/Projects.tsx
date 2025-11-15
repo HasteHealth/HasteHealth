@@ -6,14 +6,14 @@ import {
   Toaster,
   Loading,
   FHIRGenerativeForm,
-} from "@oxidized-health/components";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/components";
+import { R4 } from "@haste-health/fhir-types/versions";
 import {
   code,
   id,
   Project,
   StructureDefinition,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
 
 import { getClient } from "../../db/client";
 import {
@@ -286,7 +286,7 @@ export default function Projects() {
                           setOpenUpdateIdModal(project.id!);
                           e.stopPropagation();
                         }}
-                        className="text-teal-500 hover:text-teal-600 cursor-pointer"
+                        className="text-orange-500 hover:text-orange-600 cursor-pointer"
                       >
                         Update
                       </span>

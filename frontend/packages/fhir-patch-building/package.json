@@ -1,10 +1,10 @@
 {
-  "name": "@oxidized-health/fhir-patch-building",
+  "name": "@haste-health/fhir-patch-building",
   "version": "0.10.1",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
   "description": "JSON Patch building with typesafe fhir pointers.",
   "type": "module",
@@ -16,14 +16,14 @@
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "devDependencies": {
+    "@haste-health/fhir-types": "workspace:^",
     "@jest/globals": "^29.7.0",
-    "@oxidized-health/fhir-types": "workspace:^",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.2",
     "typescript": "5.9.2"
   },
   "dependencies": {
-    "@oxidized-health/fhir-pointer": "workspace:^",
+    "@haste-health/fhir-pointer": "workspace:^",
     "fast-json-patch": "^3.1.1",
     "immer": "^10.1.1"
   },

@@ -1,4 +1,4 @@
-import { FHIR_VERSIONS_SUPPORTED } from "@oxidized-health/fhir-types/versions";
+import { FHIR_VERSIONS_SUPPORTED } from "@haste-health/fhir-types/versions";
 
 export type RequestLevel = {
   instance: "instance";

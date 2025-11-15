@@ -3,8 +3,8 @@ use crate::{
     pg::{PGConnection, StoreError},
     types::scope::{CreateScope, Scope, ScopeKey, ScopeSearchClaims, UpdateScope},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, TenantId, scopes::Scopes};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId, scopes::Scopes};
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(

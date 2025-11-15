@@ -1,15 +1,15 @@
 [package]
-name = "oxidized-jwt"
+name = "haste-jwt"
 version = "0.1.0"
 edition = "2024"
 
 [features]
 sqlx = ["dep:sqlx"]
-reflect = ["dep:oxidized-reflect"]
+reflect = ["dep:haste-reflect"]
 
 [dependencies]
-oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
-oxidized-reflect = { path = "../reflect", optional = true }
+haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-operation-error = { path = "../fhir-operation-error" }
+haste-reflect = { path = "../reflect", optional = true }
 serde = "1.0.228"
 sqlx = { version = "0.8", optional = true }

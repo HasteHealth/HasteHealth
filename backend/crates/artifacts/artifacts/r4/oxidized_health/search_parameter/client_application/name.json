@@ -1,12 +1,12 @@
 {
   "resourceType": "SearchParameter",
   "id": "ClientApplication-name",
-  "url": "https://oxidized-health.app/fhir/SearchParameter/ClientApplication-name",
+  "url": "https://haste-health.app/fhir/SearchParameter/ClientApplication-name",
   "version": "4.0.1",
   "name": "Name",
   "status": "draft",
   "experimental": false,
-  "publisher": "oxidized-health",
+  "publisher": "haste-health",
   "description": "ClientApplication name",
   "code": "name",
   "base": [

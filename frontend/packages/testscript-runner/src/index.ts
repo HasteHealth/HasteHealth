@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from "pino";
 
-import createHTTPClient, {
-  isResponseError,
-} from "@oxidized-health/client/http";
+import createHTTPClient, { isResponseError } from "@haste-health/client/http";
 import {
   AllInteractions,
   FHIRRequest,
   FHIRResponse,
-} from "@oxidized-health/client/lib/types";
-import { parseQuery } from "@oxidized-health/client/url";
+} from "@haste-health/client/lib/types";
+import { parseQuery } from "@haste-health/client/url";
 import {
   Loc,
   NullGuard,
@@ -17,21 +15,21 @@ import {
   pointer as fhirPointer,
   get,
   root,
-} from "@oxidized-health/fhir-pointer";
-import { code, id, markdown } from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-pointer";
+import { code, id, markdown } from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   DataType,
   FHIR_VERSION,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
-import * as fhirpath from "@oxidized-health/fhirpath";
+} from "@haste-health/fhir-types/versions";
+import * as fhirpath from "@haste-health/fhirpath";
 import {
   OperationError,
   outcomeError,
   outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 type ResourceFixture<Version extends FHIR_VERSION> = {
   type: "resource";
@@ -1166,7 +1164,7 @@ async function resolveFixtures<Version extends FHIR_VERSION>(
 
 /**
  * Execute a TestScript and return results as TestReport.
- * @param client OxidizedHealth client instance
+ * @param client HasteHealth client instance
  * @param version FHIR Version
  * @param testScript The testscript to run.
  * @returns TestReport of results from testscript.

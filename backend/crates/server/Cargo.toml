@@ -1,5 +1,5 @@
 [package]
-name = "oxidized-server"
+name = "haste-server"
 version = "0.1.0"
 edition = "2024"
 
@@ -14,24 +14,24 @@ json-patch = "4.0.0"
 jsonwebtoken = "9.3.1"
 maud = { version = "0.27.0", features = ["axum"] }
 mime_guess = "2.0.5"
-oxidized-access-control = { path = "../access-control" }
-oxidized-artifacts = { path = "../artifacts" }
-oxidized-config = { path = "../config" }
-oxidized-fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
-oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-access-control = { path = "../access-control" }
+haste-artifacts = { path = "../artifacts" }
+haste-config = { path = "../config" }
+haste-fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
+haste-fhir-generated-ops = { path = "../fhir-generated-ops" }
+haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
     "axum",
 ] }
-oxidized-fhir-ops = { path = "../fhir-ops" }
-oxidized-fhir-search = { path = "../fhir-search" }
-oxidized-fhir-serialization-json = { path = "../fhir-serialization-json" }
-oxidized-fhir-terminology = { path = "../fhir-terminology" }
-oxidized-fhirpath = { path = "../fhirpath" }
-oxidized-jwt = { path = "../jwt" }
-oxidized-reflect = { path = "../reflect", features = ["derive"] }
-oxidized-repository = { path = "../repository" }
+haste-fhir-ops = { path = "../fhir-ops" }
+haste-fhir-search = { path = "../fhir-search" }
+haste-fhir-serialization-json = { path = "../fhir-serialization-json" }
+haste-fhir-terminology = { path = "../fhir-terminology" }
+haste-fhirpath = { path = "../fhirpath" }
+haste-jwt = { path = "../jwt" }
+haste-reflect = { path = "../reflect", features = ["derive"] }
+haste-repository = { path = "../repository" }
 petgraph = "0.8.3"
 rand = "0.8"
 regex = "1.11.1"

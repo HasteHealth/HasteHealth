@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Identifier } from "@oxidized-health/fhir-types/r4/types";
+import { Identifier } from "@haste-health/fhir-types/r4/types";
 
 export type FHIRIdentifierReadOnlyProps = {
   value: Identifier;

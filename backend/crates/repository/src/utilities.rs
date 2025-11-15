@@ -1,10 +1,10 @@
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::Resource,
     terminology::IssueType,
     types::{FHIRId, Meta},
 };
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_reflect::MetaValue;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_reflect::MetaValue;
 
 static ID_CHARACTERS: &[char] = &[
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',

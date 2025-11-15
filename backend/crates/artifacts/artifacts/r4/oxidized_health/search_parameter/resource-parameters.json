@@ -3,24 +3,24 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://oxidized-health.app/fhir/SearchParameter/author",
+      "fullUrl": "https://haste-health.app/fhir/SearchParameter/author",
       "resource": {
         "resourceType": "SearchParameter",
         "id": "author",
-        "url": "https://oxidized-health.app/fhir/SearchParameter/author",
+        "url": "https://haste-health.app/fhir/SearchParameter/author",
         "version": "4.0.1",
-        "name": "_oxidized-health-author",
+        "name": "_haste-health-author",
         "status": "draft",
         "experimental": false,
         "date": "2023-08-07T09:29:23+11:00",
-        "publisher": "oxidized-health",
+        "publisher": "haste-health",
         "description": "The author of the resource",
-        "code": "_oxidized-health-author",
+        "code": "_haste-health-author",
         "base": [
           "Resource"
         ],
         "type": "reference",
-        "expression": "Resource.meta.extension.where(url='https://oxidized-health.app/author').value",
+        "expression": "Resource.meta.extension.where(url='https://haste-health.app/author').value",
         "target": [
           "Membership",
           "ClientApplication",

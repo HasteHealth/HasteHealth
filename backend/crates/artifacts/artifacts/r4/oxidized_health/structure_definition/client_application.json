@@ -1,11 +1,11 @@
 {
     "resourceType": "StructureDefinition",
     "id": "ClientApplication",
-    "url": "https://oxidized-health.com/StructureDefinition/ClientApplication",
+    "url": "https://haste-health.com/StructureDefinition/ClientApplication",
     "version": "4.0.1",
     "name": "ClientApplication",
     "status": "active",
-    "publisher": "oxidized-health",
+    "publisher": "haste-health",
     "fhirVersion": "4.0.1",
     "description": "FHIR Implementation of Client Metadata from https://datatracker.ietf.org/doc/html/rfc7591#section-2",
     "kind": "resource",
@@ -121,7 +121,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType|4.0.1"
                 },
                 "min": 1,
                 "max": "*"
@@ -137,7 +137,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes|4.0.1"
                 },
                 "min": 1,
                 "max": "1"

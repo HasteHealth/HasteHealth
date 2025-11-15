@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { createStorybookClient } from "../stories.client";
 import { FHIRGenerativeSearchTable } from "./searchTable";

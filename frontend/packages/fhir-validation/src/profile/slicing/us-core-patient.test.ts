@@ -1,21 +1,21 @@
 import { expect, test } from "@jest/globals";
 import { fileURLToPath } from "url";
 
-import { loadArtifacts } from "@oxidized-health/artifacts";
-import { descend, get, pointer } from "@oxidized-health/fhir-pointer";
+import { loadArtifacts } from "@haste-health/artifacts";
+import { descend, get, pointer } from "@haste-health/fhir-pointer";
 import {
   Patient,
   StructureDefinition,
   canonical,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   FHIR_VERSION,
   R4,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { ElementLoc, ValidationCTX } from "../../types.js";
 import { validateProfile } from "../index.js";
@@ -39,9 +39,9 @@ function createMemoryDatabase(
       silence: true,
       currentDirectory: fileURLToPath(import.meta.url),
       onlyPackages: [
-        "@oxidized-health/hl7.fhir.us.core",
-        "@oxidized-health/hl7.fhir.r4.core",
-        "@oxidized-health/hl7.fhir.r4.test-data",
+        "@haste-health/hl7.fhir.us.core",
+        "@haste-health/hl7.fhir.r4.core",
+        "@haste-health/hl7.fhir.r4.test-data",
       ],
     });
     data[resourceType] = resources;

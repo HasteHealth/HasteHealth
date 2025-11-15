@@ -1,8 +1,8 @@
 import { atom } from "jotai";
 
-import { isResponseError } from "@oxidized-health/client/http";
-import { Toaster } from "@oxidized-health/components";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { isResponseError } from "@haste-health/client/http";
+import { Toaster } from "@haste-health/components";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "./client";
 

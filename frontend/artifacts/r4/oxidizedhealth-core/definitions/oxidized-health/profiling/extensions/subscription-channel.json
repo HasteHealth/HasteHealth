@@ -1,12 +1,12 @@
 {
     "resourceType": "StructureDefinition",
-    "id": "oxidized-health-subscription-channel-extension",
-    "url": "https://oxidized-health.app/Subscription/channel-type",
+    "id": "haste-health-subscription-channel-extension",
+    "url": "https://haste-health.app/Subscription/channel-type",
     "version": "4.0.0",
-    "name": "OxidizedHealth Subscription channel",
-    "title": "OxidizedHealth Subscription channel Extension",
+    "name": "HasteHealth Subscription channel",
+    "title": "HasteHealth Subscription channel Extension",
     "status": "active",
-    "publisher": "OxidizedHealth",
+    "publisher": "HasteHealth",
     "description": "Extension for additional Subscription channels.",
     "fhirVersion": "4.0.1",
     "kind": "complex-type",
@@ -28,7 +28,7 @@
                 "path": "Extension.url",
                 "min": 1,
                 "max": "1",
-                "fixedUri": "https://oxidized-health.app/Subscription/channel-type"
+                "fixedUri": "https://haste-health.app/Subscription/channel-type"
             },
             {
                 "id": "Extension.valueCode",
@@ -211,7 +211,7 @@
                 ],
                 "isModifier": false,
                 "isSummary": false,
-                "fixedUri": "https://oxidized-health.app/Subscription/channel-type"
+                "fixedUri": "https://haste-health.app/Subscription/channel-type"
             },
             {
                 "id": "Extension.value[x]",

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { FPPrimitiveNode } from "@oxidized-health/codegen/generate/meta-data";
+import { FPPrimitiveNode } from "@haste-health/codegen/generate/meta-data";
 import {
   Element,
   Resource as R4Resource,
   Reference,
   Resource,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { FHIR_VERSION, R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
+import { FHIR_VERSION, R4 } from "@haste-health/fhir-types/versions";
 
 import {
   IMetaValue,

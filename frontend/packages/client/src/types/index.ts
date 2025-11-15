@@ -1,10 +1,10 @@
-import { code, id } from "@oxidized-health/fhir-types/r4/types";
+import { code, id } from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import type { Parameters } from "../url.js";
 import {

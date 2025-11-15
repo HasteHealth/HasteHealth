@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Address } from "@oxidized-health/fhir-types/r4/types";
+import { Address } from "@haste-health/fhir-types/r4/types";
 
 export type FHIRAddressReadonlyProps = {
   value: Address;

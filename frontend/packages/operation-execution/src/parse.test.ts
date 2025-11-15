@@ -3,7 +3,7 @@ import { expect, test } from "@jest/globals";
 import {
   OperationDefinition,
   Parameters,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
 
 import { Operation } from "./index";
 
@@ -15,11 +15,11 @@ test("TEST Parse to object", async () => {
     meta: {
       extension: [
         {
-          url: "https://oxidized-health.app/version-sequence",
+          url: "https://haste-health.app/version-sequence",
           valueInteger: 7,
         },
         {
-          url: "https://oxidized-health.app/author",
+          url: "https://haste-health.app/author",
           valueString: "public-user",
         },
       ],
@@ -54,11 +54,11 @@ test("TEST Parse to object", async () => {
             meta: {
               extension: [
                 {
-                  url: "https://oxidized-health.app/version-sequence",
+                  url: "https://haste-health.app/version-sequence",
                   valueInteger: 20,
                 },
                 {
-                  url: "https://oxidized-health.app/author",
+                  url: "https://haste-health.app/author",
                   valueString: "public-user",
                 },
               ],
@@ -78,11 +78,11 @@ test("TEST Parse to object", async () => {
         meta: {
           extension: [
             {
-              url: "https://oxidized-health.app/version-sequence",
+              url: "https://haste-health.app/version-sequence",
               valueInteger: 20,
             },
             {
-              url: "https://oxidized-health.app/author",
+              url: "https://haste-health.app/author",
               valueString: "public-user",
             },
           ],

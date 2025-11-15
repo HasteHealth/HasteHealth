@@ -1,7 +1,4 @@
-import {
-  OperationError,
-  outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+import { OperationError, outcomeFatal } from "@haste-health/operation-outcomes";
 
 export type Hl7V2Component = string | string[];
 

@@ -1,27 +1,27 @@
 {
-  "name": "@oxidized-health/oxidized-health.fhir.r4b.core",
+  "name": "@haste-health/haste-health.fhir.r4b.core",
   "version": "0.5.14",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "canonical": "https://oxidized-health.app/fhir/ImplementationGuide/oxidized-health.fhir.r4b.core",
-  "url": "https://oxidized-health.app/fhir/ImplementationGuide/oxidized-health.fhir.r4b.core",
-  "title": "OxidizedHealth Core resources",
-  "description": "OxidizedHealth package that contains core oxidized-health R4B resources.",
+  "canonical": "https://haste-health.app/fhir/ImplementationGuide/haste-health.fhir.r4b.core",
+  "url": "https://haste-health.app/fhir/ImplementationGuide/haste-health.fhir.r4b.core",
+  "title": "HasteHealth Core resources",
+  "description": "HasteHealth package that contains core haste-health R4B resources.",
   "fhirVersions": [
     "4.3.0"
   ],
-  "author": "OxidizedHealth",
+  "author": "HasteHealth",
   "maintainers": [
     {
-      "name": "OxidizedHealth",
-      "email": "dev@oxidized-health.app"
+      "name": "HasteHealth",
+      "email": "dev@haste-health.app"
     }
   ],
   "scripts": {
-    "generate-index": "yarn node ../../../packages/cli/lib/oxidizedhealth.js generate index-file -p . -r definitions",
+    "generate-index": "yarn node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r definitions",
     "publish": "yarn npm publish --access public --tolerate-republish"
   },
   "files": [

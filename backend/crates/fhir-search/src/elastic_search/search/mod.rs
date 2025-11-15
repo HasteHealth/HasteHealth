@@ -1,11 +1,11 @@
 use crate::{SearchOptions, SearchRequest};
-use oxidized_fhir_client::url::{Parameter, ParsedParameter};
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_client::url::{Parameter, ParsedParameter};
+use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
     terminology::SearchParamType,
 };
-use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_fhir_operation_error::derive::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -191,7 +191,7 @@ pub fn build_elastic_search_query(
         match parameter {
             ParsedParameter::Resource(resource_param) => {
                 let search_param =
-                    oxidized_artifacts::search_parameters::get_search_parameter_for_name(
+                    haste_artifacts::search_parameters::get_search_parameter_for_name(
                         resource_type,
                         &resource_param.name,
                     )
@@ -247,7 +247,10 @@ pub fn build_elastic_search_query(
                     }
                 }
                 "_sort" => {
-                    sort = result_param.value.iter().map(|sort_param| {
+                    sort = result_param
+                        .value
+                        .iter()
+                        .map(|sort_param| {
                             let parameter_name = if sort_param.starts_with("-") {
                                 &sort_param[1..]
                             } else {
@@ -261,18 +264,17 @@ pub fn build_elastic_search_query(
                             };
 
                             let search_param =
-                                oxidized_artifacts::search_parameters::get_search_parameter_for_name(
+                                haste_artifacts::search_parameters::get_search_parameter_for_name(
                                     resource_type,
                                     parameter_name,
                                 )
                                 .ok_or_else(|| {
-                                    QueryBuildError::MissingParameter(
-                                        parameter_name.to_string(),
-                                    )
-                            })?;
+                                    QueryBuildError::MissingParameter(parameter_name.to_string())
+                                })?;
 
                             sort_build(search_param.as_ref(), &sort_direction)
-                        }).collect::<Result<Vec<_>, _>>()?;
+                        })
+                        .collect::<Result<Vec<_>, _>>()?;
                 }
                 _ => {
                     return Err(QueryBuildError::UnsupportedParameter(

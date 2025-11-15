@@ -8,7 +8,7 @@
       "program": "${workspaceRoot}/target/debug/server",
       "args": [],
       "env": {
-        "DATABASE_URL": "postgres://postgres:postgres@localhost/oxidized_health"
+        "DATABASE_URL": "postgres://postgres:postgres@localhost/haste_health"
       },
       "cwd": "${workspaceRoot}"
     }

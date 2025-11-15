@@ -4,8 +4,8 @@ use std::{
 };
 
 use clap::{Parser, Subcommand};
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
 use tokio::sync::Mutex;
 
 use crate::commands::config::{CLIConfiguration, load_config};
@@ -49,7 +49,7 @@ enum CLICommand {
 static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
     let config_dir = std::env::home_dir()
         .unwrap_or_else(|| std::path::PathBuf::from("."))
-        .join(".oxidized_health");
+        .join(".haste_health");
 
     std::fs::create_dir_all(&config_dir).expect("Failed to create config directory");
 

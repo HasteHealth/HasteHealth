@@ -1,9 +1,9 @@
 import { expect, test } from "@jest/globals";
 import jsonpatch from "fast-json-patch";
 
-import { descend, pointer } from "@oxidized-health/fhir-pointer";
-import { Patient, id } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { descend, pointer } from "@haste-health/fhir-pointer";
+import { Patient, id } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import buildPatches, { applyMutationImmutable } from "./index.js";
 

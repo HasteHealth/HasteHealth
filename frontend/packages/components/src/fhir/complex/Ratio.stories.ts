@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Ratio } from "@oxidized-health/fhir-types/r4/types";
+import { Ratio } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRRatioEditable } from "./Ratio";
 

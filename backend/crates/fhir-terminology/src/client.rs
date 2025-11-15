@@ -1,8 +1,6 @@
 use crate::{FHIRTerminology, resolvers::CanonicalResolver};
-use oxidized_fhir_generated_ops::generated::{
-    CodeSystemLookup, ValueSetExpand, ValueSetValidateCode,
-};
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_generated_ops::generated::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
+use haste_fhir_model::r4::generated::{
     resources::{
         CodeSystem, CodeSystemConcept, Resource, ResourceType, ValueSet, ValueSetComposeInclude,
         ValueSetComposeIncludeConceptDesignation, ValueSetExpansion, ValueSetExpansionContains,
@@ -10,7 +8,7 @@ use oxidized_fhir_model::r4::generated::{
     terminology::{CodesystemContentMode, IssueType},
     types::{FHIRString, FHIRUri},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::OperationOutcomeError;
 use std::{borrow::Cow, pin::Pin, sync::Arc};
 
 pub struct FHIRCanonicalTerminology<Resolver: CanonicalResolver> {

@@ -18,7 +18,7 @@ import {
 import {
   CapabilityStatementRestResource,
   ResourceType,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 import { getCapabilities } from "../db/capabilities";
 import Modal from "./Modal";

@@ -1,6 +1,6 @@
-import createHTTPClient from "@oxidized-health/client/http";
+import createHTTPClient from "@haste-health/client/http";
 
-const OPEN_URL = "https://open-api.oxidized-health.app/w/system";
+const OPEN_URL = "https://open-api.haste-health.app/w/system";
 export function createStorybookClient() {
   const client = createHTTPClient({
     url: OPEN_URL,

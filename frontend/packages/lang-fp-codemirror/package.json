@@ -1,5 +1,5 @@
 {
-  "name": "@oxidized-health/lang-fp",
+  "name": "@haste-health/lang-fp",
   "version": "0.2.3",
   "description": "FHIRPath language support for CodeMirror",
   "scripts": {

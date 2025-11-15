@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jsonpointer from "jsonpointer";
 
-import { id } from "@oxidized-health/fhir-types/r4/types";
+import { id } from "@haste-health/fhir-types/r4/types";
 import {
   AllDataTypes,
   Data,
   DataType,
   FHIR_VERSION,
   R4,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { toJSONPointer } from "./conversions.js";
 import { Loc, NullGuard, Parent } from "./types.js";

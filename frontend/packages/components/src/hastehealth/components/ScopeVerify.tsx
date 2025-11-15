@@ -30,7 +30,7 @@ export interface ScopeVerifyProps {
 }
 
 export const ScopeVerifyForm = ({
-  title = "OxidizedHealth",
+  title = "HasteHealth",
   authorizeParameters,
   client,
   logo,
@@ -108,7 +108,7 @@ export const ScopeVerifyForm = ({
           />
           <button
             type="submit"
-            className="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800"
+            className="w-full text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800"
           >
             Allow
           </button>

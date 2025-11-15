@@ -5,8 +5,8 @@ import {
   ValueSetExpansionContains,
   code,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import { ValueSetExpand } from "@oxidized-health/generated-ops/r4";
+} from "@haste-health/fhir-types/r4/types";
+import { ValueSetExpand } from "@haste-health/generated-ops/r4";
 
 import { Option, Select } from "../../base/select";
 import { ClientProps, EditableProps } from "../types";

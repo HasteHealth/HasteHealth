@@ -1,11 +1,11 @@
 {
     "resourceType": "StructureDefinition",
     "id": "IdentityProvider",
-    "url": "https://oxidized-health.com/StructureDefinition/IdentityProvider",
+    "url": "https://haste-health.com/StructureDefinition/IdentityProvider",
     "version": "4.0.1",
     "name": "IdentityProvider",
     "status": "active",
-    "publisher": "oxidized-health",
+    "publisher": "haste-health",
     "fhirVersion": "4.0.1",
     "kind": "resource",
     "abstract": false,
@@ -113,7 +113,7 @@
                 "max": "1",
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderStatus|4.0.1"
                 }
             },
             {
@@ -130,7 +130,7 @@
                 "max": "1",
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType|4.0.1"
                 }
             },
             {
@@ -275,7 +275,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1"
                 },
                 "min": 0,
                 "max": "1"

@@ -1,11 +1,11 @@
 {
     "resourceType": "StructureDefinition",
     "id": "User",
-    "url": "https://oxidized-health.com/StructureDefinition/User",
+    "url": "https://haste-health.com/StructureDefinition/User",
     "version": "4.0.1",
     "name": "User",
     "status": "active",
-    "publisher": "oxidized-health",
+    "publisher": "haste-health",
     "fhirVersion": "4.0.1",
     "kind": "resource",
     "abstract": false,
@@ -132,7 +132,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/UserRole|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/UserRole|4.0.1"
                 },
                 "min": 1,
                 "max": "1"
@@ -145,7 +145,7 @@
                     {
                         "code": "Reference",
                         "targetProfile": [
-                            "https://oxidized-health.com/StructureDefinition/IdentityProvider"
+                            "https://haste-health.com/StructureDefinition/IdentityProvider"
                         ]
                     }
                 ],

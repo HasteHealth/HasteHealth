@@ -9,7 +9,7 @@ import logger from "./logger.js";
 
 export const CONFIG_LOCATION = path.join(
   homedir(),
-  ".oxidized-health/config.toml"
+  ".haste-health/config.toml"
 );
 
 export interface Tenant extends JsonMap {

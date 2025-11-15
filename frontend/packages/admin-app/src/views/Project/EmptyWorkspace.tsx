@@ -1,9 +1,9 @@
 import React from "react";
 
-import { Button, useOxidizedHealth } from "@oxidized-health/components";
+import { Button, useHasteHealth } from "@haste-health/components";
 
 export default function EmptyWorkspace() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
 
   return (
     <div className="h-screen w-screen flex  flex-col items-center">
@@ -13,7 +13,7 @@ export default function EmptyWorkspace() {
         </h1>
         <Button
           buttonType="secondary"
-          onClick={() => oxidizedHealth.logout(window.location.origin)}
+          onClick={() => hasteHealth.logout(window.location.origin)}
         >
           Logout
         </Button>

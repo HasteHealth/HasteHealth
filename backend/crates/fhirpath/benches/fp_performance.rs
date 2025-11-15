@@ -1,9 +1,9 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::Patient,
     types::{FHIRString, HumanName},
 };
-use oxidized_fhirpath::FPEngine;
+use haste_fhirpath::FPEngine;
 
 fn fp_performance_simple(c: &mut Criterion) {
     let root = Patient {

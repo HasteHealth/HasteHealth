@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { integer } from "@oxidized-health/fhir-types/r4/types";
+import { integer } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRIntegerEditable } from "./integer";
 

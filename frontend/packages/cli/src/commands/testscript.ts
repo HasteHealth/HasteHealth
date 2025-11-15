@@ -3,9 +3,9 @@ import { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 
-import { code } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
-import * as ts from "@oxidized-health/testscript-runner";
+import { code } from "@haste-health/fhir-types/lib/generated/r4/types";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
+import * as ts from "@haste-health/testscript-runner";
 
 import { createClient } from "../client.js";
 import { CONFIG_LOCATION } from "../config.js";

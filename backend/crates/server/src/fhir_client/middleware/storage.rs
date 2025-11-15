@@ -12,7 +12,7 @@ use crate::{
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     FHIRClient,
     middleware::MiddlewareChain,
     request::{
@@ -23,16 +23,16 @@ use oxidized_fhir_client::{
     },
     url::ParsedParameter,
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryResponse, Resource},
     terminology::{BundleType, IssueType},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::{SearchEngine, SearchRequest};
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{ResourceId, VersionIdRef};
-use oxidized_reflect::MetaValue;
-use oxidized_repository::{
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{SearchEngine, SearchRequest};
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ResourceId, VersionIdRef};
+use haste_reflect::MetaValue;
+use haste_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
     types::SupportedFHIRVersions,
@@ -136,7 +136,7 @@ impl<
                             &context.ctx.tenant,
                             &context.ctx.project,
                             &[&vread_request.version_id],
-                            oxidized_repository::fhir::CachePolicy::Cache,
+                            haste_repository::fhir::CachePolicy::Cache,
                         )
                         .await?;
 
@@ -265,7 +265,7 @@ impl<
                             &context.ctx.tenant,
                             &context.ctx.project,
                             version_ids.as_slice(),
-                            oxidized_repository::fhir::CachePolicy::NoCache,
+                            haste_repository::fhir::CachePolicy::NoCache,
                         )
                         .await?;
 
@@ -297,7 +297,7 @@ impl<
                             &context.ctx.tenant,
                             &context.ctx.project,
                             version_ids.as_slice(),
-                            oxidized_repository::fhir::CachePolicy::NoCache,
+                            haste_repository::fhir::CachePolicy::NoCache,
                         )
                         .await?;
 

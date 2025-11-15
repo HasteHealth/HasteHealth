@@ -7,7 +7,7 @@ export function Add({
 }: Readonly<{ onChange: () => void; children?: React.ReactNode }>) {
   return (
     <span
-      className="flex items-center text-xs  text-teal-400 cursor-pointer hover:text-teal-500"
+      className="flex items-center text-xs  text-orange-400 cursor-pointer hover:text-orange-500"
       onClick={() => {
         onChange();
       }}

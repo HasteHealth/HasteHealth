@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
-import createHTTPClient from "@oxidized-health/client/lib/http";
+import createHTTPClient from "@haste-health/client/lib/http";
 import {
   Container,
   FHIRGenerativeSearchTable,
   Loading,
-} from "@oxidized-health/components";
+} from "@haste-health/components";
 
 declare global {
   interface Window {

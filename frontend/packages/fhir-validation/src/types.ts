@@ -1,15 +1,15 @@
-import { Loc } from "@oxidized-health/fhir-pointer";
+import { Loc } from "@haste-health/fhir-pointer";
 import {
   ElementDefinition,
   StructureDefinition,
   canonical,
-} from "@oxidized-health/fhir-types/r4/types";
-import * as r4b from "@oxidized-health/fhir-types/r4b/types";
+} from "@haste-health/fhir-types/r4/types";
+import * as r4b from "@haste-health/fhir-types/r4b/types";
 import {
   FHIR_VERSION,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 type IsTemplateKey<Pattern, T> = T extends Pattern ? T : never;
 

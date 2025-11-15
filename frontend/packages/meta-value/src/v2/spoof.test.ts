@@ -1,7 +1,7 @@
 import { expect, test } from "@jest/globals";
 
-import { uri } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { uri } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { flatten } from "../utilities";
 import metaValue from "./spoof";

@@ -4,20 +4,20 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
+            "fullUrl": "https://haste-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
             "resource": {
                 "id": "identity-provider-pkce-challenge-method-codesystem",
-                "url": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
+                "url": "https://haste-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderPKCEChallengeMethod",
                 "title": "IdentityProviderPKCEChallengeMethod",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "PKCE Challenge Methods",
                 "caseSensitive": true,
-                "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+                "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
                 "content": "complete",
                 "concept": [
                     {
@@ -32,23 +32,23 @@
             }
         },
         {
-            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+            "fullUrl": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-pkce-challenge-method-valueset",
-                "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+                "url": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
                 "version": "4.0.1",
                 "name": "IdentityProviderPKCEChallengeMethod",
                 "title": "IdentityProviderPKCEChallengeMethod",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "PKCE Challenge Methods",
                 "immutable": true,
                 "compose": {
                     "include": [
                         {
-                            "system": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod"
+                            "system": "https://haste-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod"
                         }
                     ]
                 }

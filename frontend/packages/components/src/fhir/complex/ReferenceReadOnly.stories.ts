@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Reference } from "@oxidized-health/fhir-types/r4/types";
+import { Reference } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRReferenceReadOnly } from "./ReferenceReadOnly";
 

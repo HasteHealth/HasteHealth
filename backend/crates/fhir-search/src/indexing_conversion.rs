@@ -1,5 +1,5 @@
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
-use oxidized_fhir_model::r4::{
+use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
     generated::{
         resources::{ResourceType, ResourceTypeError, SearchParameter},
@@ -12,8 +12,8 @@ use oxidized_fhir_model::r4::{
         },
     },
 };
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_reflect::MetaValue;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_reflect::MetaValue;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -891,7 +891,7 @@ pub fn to_insertable_index(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::generated::types::{
+    use haste_fhir_model::r4::generated::types::{
         FHIRDate, FHIRDateTime, Period, Reference, Timing,
     };
 

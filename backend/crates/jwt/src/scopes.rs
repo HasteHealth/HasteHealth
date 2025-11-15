@@ -1,5 +1,5 @@
-use oxidized_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
+use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -459,7 +459,7 @@ impl Serialize for Scopes {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::generated::resources::ResourceType;
+    use haste_fhir_model::r4::generated::resources::ResourceType;
 
     #[test]
     fn test_multiple_correct() {

@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
-use oxidized_fhir_model::r4::generated::resources::*;
-use oxidized_fhir_model::r4::generated::types::*;
-use oxidized_fhir_operation_error::*;
-use oxidized_fhir_ops::derive::{FromParameters, ToParameters};
+use haste_fhir_model::r4::generated::resources::*;
+use haste_fhir_model::r4::generated::types::*;
+use haste_fhir_operation_error::*;
+use haste_fhir_ops::derive::{FromParameters, ToParameters};
 pub mod ProjectInformation {
     use super::*;
     pub const CODE: &str = "current-project";

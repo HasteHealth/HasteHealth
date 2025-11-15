@@ -1,15 +1,15 @@
 import React, { useEffect, useReducer, useRef } from "react";
 
-import { code } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { ProjectId, TenantId } from "@oxidized-health/jwt/types";
+import { code } from "@haste-health/fhir-types/lib/generated/r4/types";
+import { ProjectId, TenantId } from "@haste-health/jwt/types";
 
 import { OperationOutcomeIssueDisplay } from "../../fhir/resources/OperationOutcome";
-import OxidizedHealthContext, {
+import HasteHealthContext, {
   AccessTokenResponse,
-  OxidizedHealthContextState,
+  HasteHealthContextState,
   InitialContext,
-} from "./OxidizedHealthContext";
-import { OIDC_WELL_KNOWN, OxidizedHealthReducer } from "./reducer";
+} from "./HasteHealthContext";
+import { OIDC_WELL_KNOWN, HasteHealthReducer } from "./reducer";
 import {
   conditionalAddTenant,
   generateRandomString,
@@ -18,9 +18,9 @@ import {
 } from "./utilities";
 
 const CODE_CHALLENGE_METHOD = "S256";
-const state_key = (client_id: string) => `oxidized-health_state_${client_id}`;
+const state_key = (client_id: string) => `haste-health_state_${client_id}`;
 const pkce_code_verifier_key = (client_id: string) =>
-  `oxidized-health_pkce_code_${client_id}`;
+  `haste-health_pkce_code_${client_id}`;
 
 function getParsedParameters(): Record<string, string> {
   const parameters = window.location.search
@@ -176,7 +176,7 @@ export async function refreshToken({
   return response as AccessTokenResponse;
 }
 
-export function OxidizedHealthProvider({
+export function HasteHealthProvider({
   clientId,
   tenant,
   project,
@@ -230,7 +230,7 @@ export function OxidizedHealthProvider({
    */
   onRedirectCallback?: (initialPath: string) => void;
 }>) {
-  const [state, dispatch] = useReducer(OxidizedHealthReducer, InitialContext);
+  const [state, dispatch] = useReducer(HasteHealthReducer, InitialContext);
   const isInitialized = useRef(false);
   const isRefreshing = useRef(false);
 
@@ -286,7 +286,7 @@ export function OxidizedHealthProvider({
               redirect_uri: redirectUrl,
               clientId,
             }),
-            reAuthenticate: async (state: OxidizedHealthContextState) => {
+            reAuthenticate: async (state: HasteHealthContextState) => {
               if (!state.payload) {
                 throw new Error("Payload is missing");
               }
@@ -360,7 +360,7 @@ export function OxidizedHealthProvider({
   }, [clientId, domain, redirectUrl]);
 
   return (
-    <OxidizedHealthContext.Provider value={state}>
+    <HasteHealthContext.Provider value={state}>
       {state.error ? (
         <OperationOutcomeIssueDisplay
           issue={{
@@ -372,6 +372,6 @@ export function OxidizedHealthProvider({
       ) : (
         children
       )}
-    </OxidizedHealthContext.Provider>
+    </HasteHealthContext.Provider>
   );
 }

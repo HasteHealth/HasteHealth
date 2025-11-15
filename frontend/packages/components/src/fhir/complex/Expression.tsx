@@ -1,8 +1,8 @@
 import { minimalSetup } from "codemirror";
 import React from "react";
 
-import { Expression, code } from "@oxidized-health/fhir-types/r4/types";
-import fp from "@oxidized-health/lang-fp";
+import { Expression, code } from "@haste-health/fhir-types/r4/types";
+import fp from "@haste-health/lang-fp";
 
 import { CodeMirror, InputContainer } from "../../base";
 import { EditableProps } from "../types";

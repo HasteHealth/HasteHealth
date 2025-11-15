@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Expression } from "@oxidized-health/fhir-types/r4/types";
+import { Expression } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRExpressionEditable } from "./Expression";
 

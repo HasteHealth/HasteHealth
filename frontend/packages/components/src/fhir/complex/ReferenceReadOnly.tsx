@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Reference } from "@oxidized-health/fhir-types/r4/types";
+import { Reference } from "@haste-health/fhir-types/r4/types";
 
 export type FHIRReferenceReadOnlyProps = {
   value: Reference;

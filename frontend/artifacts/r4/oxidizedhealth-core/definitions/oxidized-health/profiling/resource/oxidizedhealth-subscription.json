@@ -1,12 +1,12 @@
 {
   "resourceType": "StructureDefinition",
-  "id": "oxidized-health-subscription",
-  "url": "https://oxidized-health.app/resource/Subscription",
+  "id": "haste-health-subscription",
+  "url": "https://haste-health.app/resource/Subscription",
   "version": "4.0.0",
-  "name": "OxidizedHealth Subscription",
-  "title": "OxidizedHealth Subscription",
+  "name": "HasteHealth Subscription",
+  "title": "HasteHealth Subscription",
   "status": "active",
-  "publisher": "OxidizedHealth",
+  "publisher": "HasteHealth",
   "description": "Extends Subscription with additional channels and operations.",
   "fhirVersion": "4.0.1",
   "kind": "resource",
@@ -68,7 +68,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://oxidized-health.app/Subscription/channel-type"
+              "https://haste-health.app/Subscription/channel-type"
             ]
           }
         ],
@@ -84,7 +84,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://oxidized-health.app/Subscription/operation-code"
+              "https://haste-health.app/Subscription/operation-code"
             ]
           }
         ],
@@ -880,7 +880,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://oxidized-health.app/Subscription/channel-type"
+              "https://haste-health.app/Subscription/channel-type"
             ]
           }
         ],
@@ -896,7 +896,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://oxidized-health.app/Subscription/operation-code"
+              "https://haste-health.app/Subscription/operation-code"
             ]
           }
         ],

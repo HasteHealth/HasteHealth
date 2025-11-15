@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import * as fhirpath from "@oxidized-health/fhirpath";
+import * as fhirpath from "@haste-health/fhirpath";
 
 import { Loading } from "./loading";
 

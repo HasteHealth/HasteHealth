@@ -1,19 +1,16 @@
-import { uri } from "@oxidized-health/fhir-types/lib/generated/r4/types";
+import { uri } from "@haste-health/fhir-types/lib/generated/r4/types";
 import {
   AllDataTypes,
   Data,
   FHIR_VERSION,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 import {
   ElementNode,
   getMeta,
   getStartingMeta,
   resolveMeta,
-} from "@oxidized-health/meta-value/meta";
-import {
-  OperationError,
-  outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/meta-value/meta";
+import { OperationError, outcomeFatal } from "@haste-health/operation-outcomes";
 
 import { pathMeta } from "./index.js";
 import { Loc, Parent } from "./types.js";

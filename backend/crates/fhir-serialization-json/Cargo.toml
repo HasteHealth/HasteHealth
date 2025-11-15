@@ -1,12 +1,12 @@
 [package]
-name = "oxidized-fhir-serialization-json"
+name = "haste-fhir-serialization-json"
 version = "0.1.0"
 edition = "2024"
 
 [features]
-derive = ["dep:oxidized-fhir-serialization-json-derive"]
+derive = ["dep:haste-fhir-serialization-json-derive"]
 
 [dependencies]
-oxidized-fhir-serialization-json-derive = { path = "../fhir-serialization-json-derive", optional = true }
+haste-fhir-serialization-json-derive = { path = "../fhir-serialization-json-derive", optional = true }
 serde_json = "1.0.140"
 thiserror = "2.0.12"

@@ -31,7 +31,7 @@ fn is_optional(field: &Field) -> bool {
 }
 
 #[proc_macro_derive(Reflect, attributes(rename_field))]
-pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
+pub fn haste_reflect(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -86,7 +86,7 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl oxidized_reflect::MetaValue for #name {
+                impl haste_reflect::MetaValue for #name {
                     fn fields(&self) -> Vec<&'static str> {
                         vec![
                             #(#all_fields),*
@@ -193,7 +193,7 @@ pub fn oxidized_reflect(input: TokenStream) -> TokenStream {
             });
 
             let expanded = quote! {
-                impl oxidized_reflect::MetaValue for #enum_name {
+                impl haste_reflect::MetaValue for #enum_name {
                     fn fields(&self) -> Vec<&'static str> {
                         match self {
                             #(#variants_fields),*

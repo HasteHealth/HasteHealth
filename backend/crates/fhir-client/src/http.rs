@@ -3,14 +3,14 @@ use crate::{
     middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{self, FHIRReadResponse, FHIRRequest, FHIRResponse},
 };
-use http::HeaderValue;
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{
         Bundle, CapabilityStatement, OperationOutcome, Parameters, Resource, ResourceType,
     },
     terminology::IssueType,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use http::HeaderValue;
 use reqwest::Url;
 use std::{pin::Pin, sync::Arc};
 
@@ -73,9 +73,9 @@ pub enum FHIRHTTPError {
     )]
     UrlParseError(String),
     #[error(code = "invalid", diagnostic = "FHIR Deserialization Error.")]
-    DeserializeError(#[from] oxidized_fhir_serialization_json::errors::DeserializeError),
+    DeserializeError(#[from] haste_fhir_serialization_json::errors::DeserializeError),
     #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
-    SerializeError(#[from] oxidized_fhir_serialization_json::SerializeError),
+    SerializeError(#[from] haste_fhir_serialization_json::SerializeError),
 }
 
 async fn fhir_request_to_http_request(
@@ -105,7 +105,7 @@ async fn fhir_request_to_http_request(
             Ok(request)
         }
         FHIRRequest::Transaction(transaction_request) => {
-            let body = oxidized_fhir_serialization_json::to_string(&transaction_request.resource)
+            let body = haste_fhir_serialization_json::to_string(&transaction_request.resource)
                 .map_err(FHIRHTTPError::from)?;
 
             let request = state
@@ -146,7 +146,7 @@ async fn check_for_errors(
     if !status.is_success() {
         if let Some(body) = body
             && let Ok(operation_outcome) =
-                oxidized_fhir_serialization_json::from_bytes::<OperationOutcome>(&body)
+                haste_fhir_serialization_json::from_bytes::<OperationOutcome>(&body)
         {
             return Err(OperationOutcomeError::new(None, operation_outcome));
         }
@@ -173,7 +173,7 @@ async fn http_response_to_fhir_response(
 
             check_for_errors(&status, Some(&body)).await?;
 
-            let resource = oxidized_fhir_serialization_json::from_bytes::<Resource>(&body)
+            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
                 .map_err(FHIRHTTPError::from)?;
             Ok(FHIRResponse::Read(FHIRReadResponse {
                 resource: Some(resource),
@@ -206,7 +206,7 @@ async fn http_response_to_fhir_response(
 
             check_for_errors(&status, Some(&body)).await?;
 
-            let resource = oxidized_fhir_serialization_json::from_bytes::<Bundle>(&body)
+            let resource = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
                 .map_err(FHIRHTTPError::from)?;
 
             Ok(FHIRResponse::Transaction(

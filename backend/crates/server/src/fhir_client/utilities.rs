@@ -1,5 +1,5 @@
-use oxidized_fhir_client::request::FHIRRequest;
-use oxidized_fhir_model::r4::generated::resources::ResourceType;
+use haste_fhir_client::request::FHIRRequest;
+use haste_fhir_model::r4::generated::resources::ResourceType;
 
 /// Converts a FHIRRequest to its corresponding ResourceType if applicable.
 pub fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a ResourceType> {

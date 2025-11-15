@@ -1,10 +1,10 @@
 {
-  "name": "@oxidized-health/fhirpath",
+  "name": "@haste-health/fhirpath",
   "version": "0.12.2",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
   "description": "",
   "main": "lib/index.js",
@@ -16,7 +16,7 @@
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "dependencies": {
-    "@oxidized-health/meta-value": "workspace:^",
+    "@haste-health/meta-value": "workspace:^",
     "chevrotain": "^11.0.3"
   },
   "devDependencies": {
@@ -24,11 +24,11 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.26.0",
     "@chevrotain/types": "^11.0.3",
+    "@haste-health/artifacts": "workspace:^",
+    "@haste-health/fhir-types": "workspace:^",
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^",
+    "@haste-health/hl7.fhir.r4.core": "workspace:^",
     "@jest/globals": "^29.7.0",
-    "@oxidized-health/artifacts": "workspace:^",
-    "@oxidized-health/fhir-types": "workspace:^",
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^",
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^",
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.2",

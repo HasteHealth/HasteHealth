@@ -1,11 +1,11 @@
 {
-    "name": "@oxidized-health/performance-testing",
-    "homepage": "https://oxidized-health.app",
+    "name": "@haste-health/performance-testing",
+    "homepage": "https://haste-health.app",
     "repository": {
         "type": "git",
-        "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+        "url": "https://github.com/HasteHealth/HasteHealth.git"
     },
-    "description": "OxidizedHealth performance tests",
+    "description": "HasteHealth performance tests",
     "type": "module",
     "dependencies": {
         "artillery": "^2.0.22"

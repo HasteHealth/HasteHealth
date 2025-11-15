@@ -1,9 +1,9 @@
 import jsonpatch, { Operation } from "fast-json-patch";
 import { produce } from "immer";
 
-import * as fpt from "@oxidized-health/fhir-pointer";
-import { Resource, id } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import * as fpt from "@haste-health/fhir-pointer";
+import { Resource, id } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 export interface Mutation<T, R> {
   path: fpt.Loc<T, R, any>;

@@ -1,8 +1,5 @@
-import { ElementDefinition } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import {
-  OperationError,
-  outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+import { ElementDefinition } from "@haste-health/fhir-types/lib/generated/r4/types";
+import { OperationError, outcomeFatal } from "@haste-health/operation-outcomes";
 
 /**
  * Removes the type from the path.

@@ -1,10 +1,10 @@
-import { parseJwt } from "@oxidized-health/jwt/token";
-import { CUSTOM_CLAIMS, ProjectId, TenantId } from "@oxidized-health/jwt/types";
+import { parseJwt } from "@haste-health/jwt/token";
+import { CUSTOM_CLAIMS, ProjectId, TenantId } from "@haste-health/jwt/types";
 
 import type {
   AccessTokenResponse,
-  OxidizedHealthContextState,
-} from "./OxidizedHealthContext";
+  HasteHealthContextState,
+} from "./HasteHealthContext";
 import { conditionalAddTenant } from "./utilities";
 
 export type OIDC_WELL_KNOWN = {
@@ -27,7 +27,7 @@ type SUCCESS_ACTION = {
   project?: ProjectId;
   clientId: string;
   payload: AccessTokenResponse;
-  reAuthenticate: (context: OxidizedHealthContextState) => void;
+  reAuthenticate: (context: HasteHealthContextState) => void;
 };
 
 type REFRESH_ACTION = {
@@ -50,10 +50,10 @@ type LOADING_ACTION = {
 
 type ACTION = SUCCESS_ACTION | ERROR_ACTION | LOADING_ACTION | REFRESH_ACTION;
 
-export function OxidizedHealthReducer(
-  state: OxidizedHealthContextState,
+export function HasteHealthReducer(
+  state: HasteHealthContextState,
   action: ACTION
-): OxidizedHealthContextState {
+): HasteHealthContextState {
   switch (action.type) {
     case "SET_LOADING": {
       return { ...state, loading: action.loading };

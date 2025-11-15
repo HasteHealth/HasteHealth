@@ -1,5 +1,5 @@
 use crate::types::scope::UserId;
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_jwt::{ProjectId, TenantId};
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]

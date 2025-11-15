@@ -30,8 +30,8 @@ function DropDownMenu({ links, children }: DropdownMenuProps) {
                     className={classNames(
                       "cursor-pointer block px-4 py-2 text-sm",
                       active
-                        ? "bg-teal-600 text-white"
-                        : "text-teal-600 hover:bg-teal-600 hover:text-white",
+                        ? "bg-orange-600 text-white"
+                        : "text-orange-600 hover:bg-orange-600 hover:text-white",
                       link.className
                     )}
                   >

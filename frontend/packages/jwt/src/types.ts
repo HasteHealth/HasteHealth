@@ -8,7 +8,7 @@ import {
   Reference,
   canonical,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 import { CUSTOM_CLAIMS } from "./constants.js";
 
@@ -36,7 +36,7 @@ export type TOKEN_RESOURCE_TYPES =
   | ClientApplication["resourceType"]
   | Membership["resourceType"];
 
-export interface OxidizedHealthCustomClaims<role> {
+export interface HasteHealthCustomClaims<role> {
   /**
    * Token can be associated with an Operation, Client or Membership this claim distinguishes between the three.
    */
@@ -64,7 +64,7 @@ export interface SMARTPayload {
 }
 
 export interface AccessTokenPayload<role>
-  extends OxidizedHealthCustomClaims<role>,
+  extends HasteHealthCustomClaims<role>,
     SMARTPayload,
     jose.JWTPayload {
   /**

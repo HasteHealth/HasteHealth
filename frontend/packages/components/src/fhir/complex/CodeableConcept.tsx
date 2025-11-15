@@ -1,7 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import React from "react";
 
-import { CodeableConcept, Coding } from "@oxidized-health/fhir-types/r4/types";
+import { CodeableConcept, Coding } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRCodingEditable } from ".";
 import { Add } from "../../base";

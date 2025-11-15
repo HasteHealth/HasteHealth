@@ -4,20 +4,20 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/SupportedFHIRVersion",
+            "fullUrl": "https://haste-health.app/fhir/CodeSystem/SupportedFHIRVersion",
             "resource": {
                 "id": "supported-fhir-version",
-                "url": "https://oxidized-health.app/fhir/CodeSystem/SupportedFHIRVersion",
+                "url": "https://haste-health.app/fhir/CodeSystem/SupportedFHIRVersion",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "SupportedFHIRVersion",
                 "title": "SupportedFHIRVersion",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "Supported FHIR versions",
                 "caseSensitive": true,
-                "valueSet": "https://oxidized-health.app/fhir/ValueSet/SupportedFHIRVersion",
+                "valueSet": "https://haste-health.app/fhir/ValueSet/SupportedFHIRVersion",
                 "content": "complete",
                 "concept": [
                     {
@@ -29,23 +29,23 @@
             }
         },
         {
-            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/SupportedFHIRVersion",
+            "fullUrl": "https://haste-health.app/fhir/ValueSet/SupportedFHIRVersion",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "supported-fhir-version",
-                "url": "https://oxidized-health.app/fhir/ValueSet/SupportedFHIRVersion",
+                "url": "https://haste-health.app/fhir/ValueSet/SupportedFHIRVersion",
                 "version": "4.0.1",
                 "name": "SupportedFHIRVersion",
                 "title": "SupportedFHIRVersion",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "Supported FHIR versions",
                 "immutable": true,
                 "compose": {
                     "include": [
                         {
-                            "system": "https://oxidized-health.app/fhir/CodeSystem/SupportedFHIRVersion"
+                            "system": "https://haste-health.app/fhir/CodeSystem/SupportedFHIRVersion"
                         }
                     ]
                 }

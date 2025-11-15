@@ -1,11 +1,11 @@
 {
     "resourceType": "StructureDefinition",
     "id": "AccessPolicyV2",
-    "url": "https://oxidized-health.com/StructureDefinition/AccessPolicyV2",
+    "url": "https://haste-health.com/StructureDefinition/AccessPolicyV2",
     "version": "4.0.1",
     "name": "AccessPolicyV2",
     "status": "active",
-    "publisher": "oxidized-health",
+    "publisher": "haste-health",
     "fhirVersion": "4.0.1",
     "kind": "resource",
     "abstract": false,
@@ -126,7 +126,7 @@
                 "max": "1",
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyEngineV2|4.0.1"
                 }
             },
             {
@@ -183,7 +183,7 @@
                 "binding": {
                     "strength": "required",
                     "description": "The allowable operation code types.",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1"
                 }
             },
             {
@@ -265,7 +265,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1"
                 }
             },
             {
@@ -281,7 +281,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1"
+                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1"
                 }
             },
             {
@@ -363,8 +363,8 @@
                     {
                         "code": "Reference",
                         "targetProfile": [
-                            "https://oxidized-health.com/StructureDefinition/ClientApplication",
-                            "https://oxidized-health.com/StructureDefinition/Membership",
+                            "https://haste-health.com/StructureDefinition/ClientApplication",
+                            "https://haste-health.com/StructureDefinition/Membership",
                             "http://hl7.org/fhir/StructureDefinition/OperationDefinition"
                         ]
                     }

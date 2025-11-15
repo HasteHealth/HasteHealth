@@ -3,20 +3,20 @@ use crate::{
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     FHIRClient,
     request::{FHIRRequest, FHIRResponse},
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryResponse, Resource, ResourceType},
     terminology::{BundleType, IssueType},
     types::Reference,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_reflect::MetaValue;
-use oxidized_repository::{Repository, types::SupportedFHIRVersions};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_reflect::MetaValue;
+use haste_repository::{Repository, types::SupportedFHIRVersions};
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::{algo::toposort, visit::EdgeRef};
 use std::{pin::Pin, str::FromStr, sync::Arc};
@@ -71,40 +71,31 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
             ..Default::default()
         },
         Ok(FHIRResponse::HistoryInstance(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::History(None),
-                None,
-                res.resources,
-            );
+            let bundle =
+                haste_fhir_client::axum::to_bundle(BundleType::History(None), None, res.resources);
             BundleEntry {
                 resource: Some(Box::new(Resource::Bundle(bundle))),
                 ..Default::default()
             }
         }
         Ok(FHIRResponse::HistoryType(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::History(None),
-                None,
-                res.resources,
-            );
+            let bundle =
+                haste_fhir_client::axum::to_bundle(BundleType::History(None), None, res.resources);
             BundleEntry {
                 resource: Some(Box::new(Resource::Bundle(bundle))),
                 ..Default::default()
             }
         }
         Ok(FHIRResponse::HistorySystem(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
-                BundleType::History(None),
-                None,
-                res.resources,
-            );
+            let bundle =
+                haste_fhir_client::axum::to_bundle(BundleType::History(None), None, res.resources);
             BundleEntry {
                 resource: Some(Box::new(Resource::Bundle(bundle))),
                 ..Default::default()
             }
         }
         Ok(FHIRResponse::SearchSystem(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
+            let bundle = haste_fhir_client::axum::to_bundle(
                 BundleType::Searchset(None),
                 res.total,
                 res.resources,
@@ -115,7 +106,7 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
             }
         }
         Ok(FHIRResponse::SearchType(res)) => {
-            let bundle = oxidized_fhir_client::axum::to_bundle(
+            let bundle = haste_fhir_client::axum::to_bundle(
                 BundleType::Searchset(None),
                 res.total,
                 res.resources,
@@ -286,7 +277,7 @@ pub struct SortedTransaction<'a> {
 pub fn build_sorted_transaction_graph<'a>(
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
-    let fp_engine = oxidized_fhirpath::FPEngine::new();
+    let fp_engine = haste_fhirpath::FPEngine::new();
 
     let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>::new();
     // Used for index lookup when mutating.
@@ -427,7 +418,7 @@ pub async fn process_transaction_bundle<
                 for reference_pointer in edges.into_iter() {
                     let reference_pointing_entry = Pin::into_inner(reference_pointer);
                     reference_pointing_entry.reference = Some(Box::new(
-                        oxidized_fhir_model::r4::generated::types::FHIRString {
+                        haste_fhir_model::r4::generated::types::FHIRString {
                             value: Some(ref_string.clone()),
                             ..Default::default()
                         },

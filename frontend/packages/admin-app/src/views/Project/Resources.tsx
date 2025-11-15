@@ -2,8 +2,8 @@ import { useAtomValue } from "jotai";
 import React from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 
-import { Loading, Table } from "@oxidized-health/components";
-import { CapabilityStatementRestResource } from "@oxidized-health/fhir-types/r4/types";
+import { Loading, Table } from "@haste-health/components";
+import { CapabilityStatementRestResource } from "@haste-health/fhir-types/r4/types";
 
 import { getCapabilities } from "../../db/capabilities";
 

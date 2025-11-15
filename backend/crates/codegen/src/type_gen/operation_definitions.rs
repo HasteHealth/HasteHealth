@@ -1,7 +1,7 @@
 use std::{borrow::Cow, path::Path};
 
 use crate::utilities::{FHIR_PRIMITIVES, RUST_KEYWORDS, generate::capitalize, load};
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{OperationDefinition, OperationDefinitionParameter, Resource, ResourceType},
     terminology::OperationParameterUse,
 };
@@ -295,10 +295,10 @@ pub fn generate_operation_definitions_from_files(
 ) -> Result<String, String> {
     let mut generated_code = quote! {
         #![allow(non_snake_case)]
-        use oxidized_fhir_ops::derive::{FromParameters, ToParameters};
-        use oxidized_fhir_model::r4::generated::types::*;
-        use oxidized_fhir_model::r4::generated::resources::*;
-        use oxidized_fhir_operation_error::*;
+        use haste_fhir_ops::derive::{FromParameters, ToParameters};
+        use haste_fhir_model::r4::generated::types::*;
+        use haste_fhir_model::r4::generated::resources::*;
+        use haste_fhir_operation_error::*;
     };
 
     for dir_path in file_paths {

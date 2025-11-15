@@ -1,7 +1,7 @@
 import {
   ElementDefinition,
   StructureDefinition,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 function _resolveContentReferenceIndex(
   sd: StructureDefinition,

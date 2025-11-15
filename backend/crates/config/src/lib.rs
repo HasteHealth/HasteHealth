@@ -1,5 +1,5 @@
 use crate::environment::EnvironmentConfig;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 mod environment;

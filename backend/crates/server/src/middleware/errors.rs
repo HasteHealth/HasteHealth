@@ -5,8 +5,8 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::extract::Cached;
+use haste_fhir_operation_error::OperationOutcomeError;
 use maud::html;
-use oxidized_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 // Log operation outcome errors encountered during request processing.

@@ -1,4 +1,4 @@
-use oxidized_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
+use haste_fhir_model::r4::generated::terminology::UserRole as FHIRUserRole;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 

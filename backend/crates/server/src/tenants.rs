@@ -1,15 +1,15 @@
 use crate::{fhir_client::ServerCTX, services::AppState};
 use clap::ValueEnum;
-use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_client::FHIRClient;
+use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType},
     types::FHIRString,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{ProjectId, TenantId};
-use oxidized_repository::{
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ProjectId, TenantId};
+use haste_repository::{
     Repository, admin::TenantAuthAdmin, types::tenant::CreateTenant, utilities::generate_id,
 };
 use std::sync::Arc;
@@ -71,7 +71,7 @@ pub async fn create_tenant<
                     ..Default::default()
                 })),
                 fhirVersion: Box::new(
-                    oxidized_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(None),
+                    haste_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(None),
                 ),
                 ..Default::default()
             }),

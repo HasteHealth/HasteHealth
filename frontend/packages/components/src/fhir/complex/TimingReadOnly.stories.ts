@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Timing } from "@oxidized-health/fhir-types/r4/types";
+import { Timing } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRTimingReadOnly } from "./TimingReadOnly";
 

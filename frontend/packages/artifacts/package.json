@@ -1,10 +1,10 @@
 {
-  "name": "@oxidized-health/artifacts",
+  "name": "@haste-health/artifacts",
   "version": "0.11.1",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
   "description": "",
   "main": "lib/index.js",
@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@oxidized-health/fhir-types": "workspace:^",
+    "@haste-health/fhir-types": "workspace:^",
     "@types/node": "^22.15.17",
     "typescript": "5.9.2"
   },

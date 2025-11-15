@@ -183775,7 +183775,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyEngineV2|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyEngineV2|4.0.1",
         },
       },
       cardinality: "single",
@@ -183853,7 +183853,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1",
         },
       },
       cardinality: "single",
@@ -183963,7 +183963,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1",
         },
       },
       cardinality: "single",
@@ -183984,7 +183984,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1",
         },
       },
       cardinality: "single",
@@ -184101,8 +184101,8 @@ export default {
           {
             code: "Reference",
             targetProfile: [
-              "https://oxidized-health.com/StructureDefinition/ClientApplication",
-              "https://oxidized-health.com/StructureDefinition/Membership",
+              "https://haste-health.com/StructureDefinition/ClientApplication",
+              "https://haste-health.com/StructureDefinition/Membership",
               "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
             ],
           },
@@ -184245,7 +184245,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyType|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyType|4.0.1",
         },
       },
       cardinality: "single",
@@ -184281,8 +184281,8 @@ export default {
           {
             code: "Reference",
             targetProfile: [
-              "https://oxidized-health.com/StructureDefinition/ClientApplication",
-              "https://oxidized-health.com/StructureDefinition/Membership",
+              "https://haste-health.com/StructureDefinition/ClientApplication",
+              "https://haste-health.com/StructureDefinition/Membership",
               "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
             ],
           },
@@ -184346,7 +184346,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod|4.0.1",
         },
       },
       cardinality: "single",
@@ -184367,7 +184367,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/ResourceTypes|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/ResourceTypes|4.0.1",
         },
       },
       cardinality: "array",
@@ -184408,7 +184408,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter|4.0.1",
         },
       },
       cardinality: "single",
@@ -184554,7 +184554,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType|4.0.1",
         },
       },
       cardinality: "array",
@@ -184575,7 +184575,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes|4.0.1",
         },
       },
       cardinality: "single",
@@ -184809,7 +184809,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/IdentityProviderStatus|4.0.1",
         },
       },
       cardinality: "single",
@@ -184830,7 +184830,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType|4.0.1",
         },
       },
       cardinality: "single",
@@ -185028,7 +185028,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1",
         },
       },
       cardinality: "single",
@@ -185206,7 +185206,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/MembershipRole|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/MembershipRole|4.0.1",
         },
       },
       cardinality: "single",
@@ -185223,7 +185223,7 @@ export default {
           {
             code: "Reference",
             targetProfile: [
-              "https://oxidized-health.com/StructureDefinition/IdentityProvider",
+              "https://haste-health.com/StructureDefinition/IdentityProvider",
             ],
           },
         ],
@@ -185347,7 +185347,7 @@ export default {
         binding: {
           strength: "required",
           valueSet:
-            "https://oxidized-health.app/fhir/ValueSet/MessageBrokerType|4.0.1",
+            "https://haste-health.app/fhir/ValueSet/MessageBrokerType|4.0.1",
         },
       },
       cardinality: "single",
@@ -185516,7 +185516,7 @@ export default {
           {
             code: "Reference",
             targetProfile: [
-              "https://oxidized-health.com/StructureDefinition/MessageBroker",
+              "https://haste-health.com/StructureDefinition/MessageBroker",
             ],
           },
         ],

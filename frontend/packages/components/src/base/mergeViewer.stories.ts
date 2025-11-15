@@ -22,11 +22,11 @@ export const Primary: Story = {
       "meta": {
         "extension": [
           {
-            "url": "https://oxidized-health.app/version-sequence",
+            "url": "https://haste-health.app/version-sequence",
             "valueInteger": 4993
           },
           {
-            "url": "https://oxidized-health.app/author",
+            "url": "https://haste-health.app/author",
             "valueString": "public-user"
           }
         ],
@@ -52,11 +52,11 @@ export const Primary: Story = {
       "meta": {
         "extension": [
           {
-            "url": "https://oxidized-health.app/version-sequence",
+            "url": "https://haste-health.app/version-sequence",
             "valueInteger": 1942
           },
           {
-            "url": "https://oxidized-health.app/author",
+            "url": "https://haste-health.app/author",
             "valueString": "public-user"
           }
         ],

@@ -1,10 +1,10 @@
 import { atom } from "jotai";
 
-import { AsynchronousClient } from "@oxidized-health/client";
-import createHTTPClient, { HTTPContext } from "@oxidized-health/client/http";
-import { createMiddlewareAsync } from "@oxidized-health/client/middleware";
-import { AllInteractions, FHIRResponse } from "@oxidized-health/client/types";
-import { FHIR_VERSION } from "@oxidized-health/fhir-types/versions";
+import { AsynchronousClient } from "@haste-health/client";
+import createHTTPClient, { HTTPContext } from "@haste-health/client/http";
+import { createMiddlewareAsync } from "@haste-health/client/middleware";
+import { AllInteractions, FHIRResponse } from "@haste-health/client/types";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
 
 type CachedClient = AsynchronousClient<HTTPContext>;
 

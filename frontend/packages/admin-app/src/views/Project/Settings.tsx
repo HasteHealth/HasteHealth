@@ -1,24 +1,24 @@
 import { useAtomValue } from "jotai";
 import React from "react";
 
-import { deriveOxidizedHealthVersionedURL } from "@oxidized-health/client/http";
+import { deriveHasteHealthVersionedURL } from "@haste-health/client/http";
 import {
   Button,
   Input,
   Loading,
   Table,
   Toaster,
-  useOxidizedHealth,
-} from "@oxidized-health/components";
-import { OperationOutcome, id } from "@oxidized-health/fhir-types/r4/types";
-import { R4, R4B } from "@oxidized-health/fhir-types/versions";
+  useHasteHealth,
+} from "@haste-health/components";
+import { OperationOutcome, id } from "@haste-health/fhir-types/r4/types";
+import { R4, R4B } from "@haste-health/fhir-types/versions";
 import {
-  OxidizedHealthDeleteRefreshToken,
-  OxidizedHealthDeleteScope,
-  OxidizedHealthListRefreshTokens,
-  OxidizedHealthListScopes,
-} from "@oxidized-health/generated-ops/lib/r4/ops";
-import { IDTokenPayload } from "@oxidized-health/jwt/types";
+  HasteHealthDeleteRefreshToken,
+  HasteHealthDeleteScope,
+  HasteHealthListRefreshTokens,
+  HasteHealthListScopes,
+} from "@haste-health/generated-ops/lib/r4/ops";
+import { IDTokenPayload } from "@haste-health/jwt/types";
 
 import { getClient } from "../../db/client";
 
@@ -59,27 +59,25 @@ function Copyable({
 }
 
 function Scopes() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
   const client = useAtomValue(getClient);
   const [scopes, setScopes] = React.useState<
-    OxidizedHealthListScopes.Output["scopes"]
+    HasteHealthListScopes.Output["scopes"]
   >([]);
   const fetchScopes = React.useMemo(() => {
     return () => {
-      client
-        .invoke_system(OxidizedHealthListScopes.Op, {}, R4, {})
-        .then((res) => {
-          setScopes(res.scopes);
-        });
+      client.invoke_system(HasteHealthListScopes.Op, {}, R4, {}).then((res) => {
+        setScopes(res.scopes);
+      });
     };
-  }, [oxidizedHealth]);
+  }, [hasteHealth]);
   React.useEffect(() => {
     fetchScopes();
   }, []);
   const deleteScopes = React.useMemo(() => {
     return (client_id: id) => {
       const deletePromise = client
-        .invoke_system(OxidizedHealthDeleteScope.Op, {}, R4, {
+        .invoke_system(HasteHealthDeleteScope.Op, {}, R4, {
           client_id,
         })
         .then((res) => {
@@ -101,7 +99,7 @@ function Scopes() {
         },
       });
     };
-  }, [oxidizedHealth]);
+  }, [hasteHealth]);
 
   return (
     <div className="space-y-2">
@@ -134,7 +132,7 @@ function Scopes() {
               selector: "$this",
               renderer: (data) => {
                 const scope = data[0] as NonNullable<
-                  OxidizedHealthListScopes.Output["scopes"]
+                  HasteHealthListScopes.Output["scopes"]
                 >[number];
 
                 return (
@@ -158,27 +156,27 @@ function Scopes() {
 }
 
 function RefreshTokens() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
   const client = useAtomValue(getClient);
   const [refreshTokens, setRefreshTokens] = React.useState<
-    OxidizedHealthListRefreshTokens.Output["refresh-tokens"]
+    HasteHealthListRefreshTokens.Output["refresh-tokens"]
   >([]);
   const fetchRefreshTokens = React.useMemo(() => {
     return () => {
       client
-        .invoke_system(OxidizedHealthListRefreshTokens.Op, {}, R4, {})
+        .invoke_system(HasteHealthListRefreshTokens.Op, {}, R4, {})
         .then((res) => {
           setRefreshTokens(res["refresh-tokens"]);
         });
     };
-  }, [oxidizedHealth]);
+  }, [hasteHealth]);
   React.useEffect(() => {
     fetchRefreshTokens();
   }, []);
   const deleteRefreshToken = React.useMemo(() => {
     return (id: id) => {
       const deletePromise = client
-        .invoke_system(OxidizedHealthDeleteRefreshToken.Op, {}, R4, {
+        .invoke_system(HasteHealthDeleteRefreshToken.Op, {}, R4, {
           id,
         })
         .then((res) => {
@@ -200,7 +198,7 @@ function RefreshTokens() {
         },
       });
     };
-  }, [oxidizedHealth]);
+  }, [hasteHealth]);
 
   return (
     <div className="space-y-2">
@@ -233,7 +231,7 @@ function RefreshTokens() {
               selector: "$this",
               renderer: (data) => {
                 const refreshToken = data[0] as NonNullable<
-                  OxidizedHealthListRefreshTokens.Output["refresh-tokens"]
+                  HasteHealthListRefreshTokens.Output["refresh-tokens"]
                 >[number];
 
                 return (
@@ -257,7 +255,7 @@ function RefreshTokens() {
 }
 
 function SettingDisplay({ user }: Readonly<SettingProps>) {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
   return (
     <div className="flex flex-col flex-1 space-y-4 w-full">
       <h2 className="text-2xl font-semibold mb-0">Settings</h2>
@@ -285,11 +283,8 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
                   <Copyable
                     label="R4"
                     value={
-                      oxidizedHealth.rootURL
-                        ? deriveOxidizedHealthVersionedURL(
-                            oxidizedHealth.rootURL,
-                            R4
-                          )
+                      hasteHealth.rootURL
+                        ? deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4)
                         : ""
                     }
                   />
@@ -298,9 +293,9 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
                   <Copyable
                     label="R4B"
                     value={
-                      oxidizedHealth.rootURL
-                        ? deriveOxidizedHealthVersionedURL(
-                            oxidizedHealth.rootURL,
+                      hasteHealth.rootURL
+                        ? deriveHasteHealthVersionedURL(
+                            hasteHealth.rootURL,
                             R4B
                           )
                         : ""
@@ -315,19 +310,19 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
                 <div className="flex flex-col">
                   <Copyable
                     label="Discovery"
-                    value={oxidizedHealth.well_known_uri}
+                    value={hasteHealth.well_known_uri}
                   />
                 </div>
                 <div className="flex flex-col">
                   <Copyable
                     label="Token"
-                    value={oxidizedHealth.well_known?.token_endpoint}
+                    value={hasteHealth.well_known?.token_endpoint}
                   />
                 </div>
                 <div className="flex flex-col">
                   <Copyable
                     label="Authorization"
-                    value={oxidizedHealth.well_known?.authorization_endpoint}
+                    value={hasteHealth.well_known?.authorization_endpoint}
                   />
                 </div>
               </div>
@@ -342,7 +337,7 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
 }
 
 export default function Settings() {
-  const oxidizedHealth = useOxidizedHealth();
+  const hasteHealth = useHasteHealth();
   return (
     <React.Suspense
       fallback={
@@ -352,7 +347,7 @@ export default function Settings() {
         </div>
       }
     >
-      <SettingDisplay user={oxidizedHealth.user} />
+      <SettingDisplay user={hasteHealth.user} />
     </React.Suspense>
   );
 }

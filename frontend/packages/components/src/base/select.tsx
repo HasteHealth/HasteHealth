@@ -34,7 +34,7 @@ export const Select = ({
           option.label
             .toLowerCase()
             .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, "")),
+            .includes(query.toLowerCase().replace(/\s+/g, ""))
         );
 
   return (
@@ -64,14 +64,14 @@ export const Select = ({
                 inputClassNames({
                   hideBorder: false,
                   issues: issue ? [issue] : [],
-                }),
+                })
               )}
               displayValue={(option: Option) => option && option.label}
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button
               className={classNames(
-                "absolute inset-y-0 right-0 flex items-center pr-2",
+                "absolute inset-y-0 right-0 flex items-center pr-2"
               )}
             >
               <ChevronUpDownIcon
@@ -97,9 +97,9 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-2 pl-10 pr-4",
                     {
-                      "bg-teal-600 text-white": active,
+                      "bg-orange-600 text-white": active,
                       "text-gray-900": !active,
-                    },
+                    }
                   )
                 }
               >
@@ -113,9 +113,9 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-2 pl-10 pr-4",
                     {
-                      "bg-teal-600 text-white": active,
+                      "bg-orange-600 text-white": active,
                       "text-gray-900": !active,
-                    },
+                    }
                   )
                 }
                 value={option}
@@ -136,8 +136,8 @@ export const Select = ({
                           "absolute inset-y-0 left-0 flex items-center pl-3",
                           {
                             "text-white": active,
-                            "text-teal-600": !active,
-                          },
+                            "text-orange-600": !active,
+                          }
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />

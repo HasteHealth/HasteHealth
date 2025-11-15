@@ -2,8 +2,8 @@ use axum::{
     body::to_bytes,
     extract::{FromRequest, Request},
 };
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
 use serde::de::DeserializeOwned;
 
 /// Extracts and parses the request body into the specified type T.
@@ -51,7 +51,7 @@ where
             }
             _ => {
                 return Err(OperationOutcomeError::fatal(
-                    oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
                     "Invalid content type, expected 'application/json' or 'application/fhir+json'"
                         .to_string(),
                 ));

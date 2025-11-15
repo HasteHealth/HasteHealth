@@ -2,12 +2,12 @@ import {
   ElementDefinition,
   ElementDefinitionType,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 import {
   Data,
   FHIR_VERSION,
   Resource,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { traversalBottomUp } from "../sdTraversal.js";
 import { filterSDForTypes } from "../utilities.js";

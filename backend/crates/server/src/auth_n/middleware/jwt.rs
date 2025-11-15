@@ -1,7 +1,7 @@
 use crate::{auth_n::certificates, extract::bearer_token::AuthBearer};
 use axum::{extract::Request, http::StatusCode, middleware::Next, response::Response};
+use haste_jwt::claims::UserTokenClaims;
 use jsonwebtoken::Validation;
-use oxidized_jwt::claims::UserTokenClaims;
 use std::sync::{Arc, LazyLock};
 
 static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {

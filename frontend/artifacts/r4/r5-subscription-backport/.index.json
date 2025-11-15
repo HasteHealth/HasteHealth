@@ -98,27 +98,27 @@
       "resourceType": "SubscriptionTopic"
     },
     {
-      "filename": "oxidized-health/extensions/subscription-resource-trigger/index.json",
+      "filename": "haste-health/extensions/subscription-resource-trigger/index.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "oxidized-health/extensions/subscription-resource-trigger/resource.json",
+      "filename": "haste-health/extensions/subscription-resource-trigger/resource.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "oxidized-health/extensions/subscription-resource-trigger/supported-interaction.json",
+      "filename": "haste-health/extensions/subscription-resource-trigger/supported-interaction.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "oxidized-health/extensions/subscriptiontopic-status.json",
+      "filename": "haste-health/extensions/subscriptiontopic-status.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "oxidized-health/extensions/subscriptiontopic-url.json",
+      "filename": "haste-health/extensions/subscriptiontopic-url.json",
       "resourceType": "StructureDefinition"
     },
     {
-      "filename": "oxidized-health/resource/r4-subscription-topic-backport.json",
+      "filename": "haste-health/resource/r4-subscription-topic-backport.json",
       "resourceType": "StructureDefinition"
     },
     {

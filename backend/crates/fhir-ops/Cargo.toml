@@ -1,13 +1,13 @@
 [package]
-name = "oxidized-fhir-ops"
+name = "haste-fhir-ops"
 version = "0.1.0"
 edition = "2024"
 
 [features]
-derive = ["dep:oxidized-fhir-ops-derive"]
+derive = ["dep:haste-fhir-ops-derive"]
 
 [dependencies]
-oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
-oxidized-fhir-ops-derive = { path = "../fhir-ops-derive", optional = true }
-oxidized-jwt = { path = "../jwt" }
+haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-operation-error = { path = "../fhir-operation-error" }
+haste-fhir-ops-derive = { path = "../fhir-ops-derive", optional = true }
+haste-jwt = { path = "../jwt" }
