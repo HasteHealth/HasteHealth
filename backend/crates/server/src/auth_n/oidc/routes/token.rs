@@ -17,24 +17,23 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use jsonwebtoken::{Algorithm, Header};
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     request::FHIRSearchTypeRequest,
     url::{Parameter, ParsedParameter},
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{ClientApplication, ResourceType},
     terminology::{ClientapplicationGrantType, IssueType},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::{SearchEngine, SearchRequest};
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{SearchEngine, SearchRequest};
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
     claims::UserTokenClaims,
     scopes::{OIDCScope, Scope, Scopes},
 };
-use oxidized_repository::{
+use haste_repository::{
     Repository,
     admin::{ProjectAuthAdmin, TenantAuthAdmin},
     types::{
@@ -44,6 +43,7 @@ use oxidized_repository::{
         user::{User, UserRole as RepoUserRole},
     },
 };
+use jsonwebtoken::{Algorithm, Header};
 use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
 

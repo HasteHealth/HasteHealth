@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue},
     terminology::{IssueSeverity, IssueType},
     types::FHIRString,
@@ -51,7 +51,7 @@ impl OperationOutcomeError {
 
     pub fn push_issue(
         &mut self,
-        issue: oxidized_fhir_model::r4::generated::resources::OperationOutcomeIssue,
+        issue: haste_fhir_model::r4::generated::resources::OperationOutcomeIssue,
     ) {
         self.outcome.issue.push(issue);
     }
@@ -87,7 +87,7 @@ impl OperationOutcomeError {
 }
 
 fn get_issue_diagnostics<'a>(
-    issue: &'a oxidized_fhir_model::r4::generated::resources::OperationOutcomeIssue,
+    issue: &'a haste_fhir_model::r4::generated::resources::OperationOutcomeIssue,
 ) -> Option<&'a str> {
     issue
         .diagnostics

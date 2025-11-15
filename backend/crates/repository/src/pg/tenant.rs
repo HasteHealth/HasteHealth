@@ -4,8 +4,8 @@ use crate::{
     types::tenant::{CreateTenant, Tenant, TenantSearchClaims},
     utilities::{generate_id, validate_id},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::TenantId;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::TenantId;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
@@ -140,7 +140,7 @@ impl<Key: AsRef<str> + Send + Sync>
         &self,
         _tenant: &TenantId,
         id: &Key,
-    ) -> Result<Option<Tenant>, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<Option<Tenant>, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = read_tenant(pool, id.as_ref()).await?;
@@ -158,7 +158,7 @@ impl<Key: AsRef<str> + Send + Sync>
         &self,
         _tenant: &TenantId,
         model: Tenant,
-    ) -> Result<Tenant, oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<Tenant, haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = update_tenant(pool, model).await?;
@@ -176,7 +176,7 @@ impl<Key: AsRef<str> + Send + Sync>
         &self,
         _tenant: &TenantId,
         id: &Key,
-    ) -> Result<(), oxidized_fhir_operation_error::OperationOutcomeError> {
+    ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = delete_tenant(pool, id.as_ref()).await?;

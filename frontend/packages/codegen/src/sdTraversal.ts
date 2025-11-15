@@ -1,5 +1,5 @@
-import { ElementDefinition } from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
+import { ElementDefinition } from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
 
 type VisitorFunction<T> = (
   element: ElementDefinition,

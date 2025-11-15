@@ -1,10 +1,7 @@
 import { expect, test } from "@jest/globals";
 
-import {
-  Bundle,
-  code,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { FHIR_VERSION, R4 } from "@oxidized-health/fhir-types/lib/versions";
+import { Bundle, code } from "@haste-health/fhir-types/lib/generated/r4/types";
+import { FHIR_VERSION, R4 } from "@haste-health/fhir-types/lib/versions";
 
 import { AllInteractions, FHIRResponse } from "../types/index.js";
 import type { ParsedParameter } from "../url";

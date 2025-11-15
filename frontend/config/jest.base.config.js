@@ -9,7 +9,7 @@ const config = {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  transformIgnorePatterns: ["node_modules/(?!@oxidized-health)"],
+  transformIgnorePatterns: ["node_modules/(?!@haste-health)"],
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",

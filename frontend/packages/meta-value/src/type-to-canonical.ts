@@ -1,8 +1,8 @@
 import {
   canonical,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
 
 import r4TypeToCanonical from "./v2/generated/type-canonical/r4.js";
 import r4bTypeToCanonical from "./v2/generated/type-canonical/r4b.js";

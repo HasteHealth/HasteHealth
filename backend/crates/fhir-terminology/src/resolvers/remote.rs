@@ -1,13 +1,13 @@
 use dashmap::DashMap;
-use oxidized_fhir_client::request::FHIRSearchTypeRequest;
-use oxidized_fhir_client::url::{Parameter, ParsedParameter};
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::{SearchEngine, SearchRequest};
-use oxidized_jwt::{ProjectId, TenantId};
-use oxidized_repository::Repository;
-use oxidized_repository::types::SupportedFHIRVersions::R4;
+use haste_fhir_client::request::FHIRSearchTypeRequest;
+use haste_fhir_client::url::{Parameter, ParsedParameter};
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{SearchEngine, SearchRequest};
+use haste_jwt::{ProjectId, TenantId};
+use haste_repository::Repository;
+use haste_repository::types::SupportedFHIRVersions::R4;
 use std::pin::Pin;
 use std::sync::Arc;
 
@@ -81,7 +81,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                             &TenantId::System,
                             &ProjectId::System,
                             &[&entry.version_id],
-                            oxidized_repository::fhir::CachePolicy::Cache,
+                            haste_repository::fhir::CachePolicy::Cache,
                         )
                         .await?
                         .pop()

@@ -1,7 +1,7 @@
 import { confirm } from "@inquirer/prompts";
 import { Command } from "commander";
 
-import * as r4Sets from "@oxidized-health/fhir-types/r4/sets";
+import * as r4Sets from "@haste-health/fhir-types/r4/sets";
 import {
   Bundle,
   Parameters,
@@ -9,9 +9,9 @@ import {
   ResourceType,
   code,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
-import * as r4bSets from "@oxidized-health/fhir-types/r4b/sets";
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import * as r4bSets from "@haste-health/fhir-types/r4b/sets";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
 
 import { createClient } from "../client.js";
 import { CONFIG_LOCATION } from "../config.js";

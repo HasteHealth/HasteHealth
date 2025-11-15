@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "path";
 
-import { Bundle } from "@oxidized-health/fhir-types/r4/types";
+import { Bundle } from "@haste-health/fhir-types/r4/types";
 
 import { IndexFile } from "./types.js";
 

@@ -16,21 +16,21 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use maud::Markup;
-use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_client::FHIRClient;
+use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest},
     terminology::HttpVerb,
     types::FHIRUri,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::ProjectId;
-use oxidized_repository::{
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::ProjectId;
+use haste_repository::{
     Repository,
     types::user::{LoginMethod, LoginResult},
 };
+use maud::Markup;
 use serde::Deserialize;
 use std::sync::Arc;
 use tower_sessions::Session;
@@ -78,10 +78,10 @@ async fn resolve_identity_providers<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     state: &Arc<AppState<Repo, Search, Terminology>>,
-    tenant: oxidized_jwt::TenantId,
-    project_resource: &oxidized_fhir_model::r4::generated::resources::Project,
+    tenant: haste_jwt::TenantId,
+    project_resource: &haste_fhir_model::r4::generated::resources::Project,
 ) -> Result<
-    Option<Vec<oxidized_fhir_model::r4::generated::resources::IdentityProvider>>,
+    Option<Vec<haste_fhir_model::r4::generated::resources::IdentityProvider>>,
     OperationOutcomeError,
 > {
     let identity_providers = if let Some(idps) = project_resource.identityProvider.as_ref() {
@@ -122,9 +122,9 @@ async fn resolve_identity_providers<
                 .into_iter()
                 .filter_map(|entry| entry.resource)
                 .filter_map(|res| match *res {
-                    oxidized_fhir_model::r4::generated::resources::Resource::IdentityProvider(
-                        idp,
-                    ) => Some(idp),
+                    haste_fhir_model::r4::generated::resources::Resource::IdentityProvider(idp) => {
+                        Some(idp)
+                    }
                     _ => None,
                 })
                 .collect::<Vec<_>>(),

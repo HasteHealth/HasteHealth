@@ -1,9 +1,9 @@
 use crate::extract::path_tenant::{ProjectIdentifier, TenantIdentifier};
 use axum::{Extension, extract::Request, middleware::Next, response::Response};
 use axum_extra::extract::Cached;
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::claims::UserTokenClaims;
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::claims::UserTokenClaims;
 use std::sync::Arc;
 
 pub async fn project_access(

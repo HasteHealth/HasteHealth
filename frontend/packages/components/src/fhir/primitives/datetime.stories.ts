@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { dateTime } from "@oxidized-health/fhir-types/r4/types";
+import { dateTime } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRDateTimeEditable } from "./datetime";
 

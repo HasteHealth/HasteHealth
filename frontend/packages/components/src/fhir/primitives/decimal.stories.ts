@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { decimal } from "@oxidized-health/fhir-types/r4/types";
+import { decimal } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRDecimalEditable } from "./decimal";
 

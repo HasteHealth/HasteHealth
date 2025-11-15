@@ -1,14 +1,14 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
-import { Input } from "@oxidized-health/components";
+import { Input } from "@haste-health/components";
 import {
   IdentityProvider,
   ResourceType,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
-import { OxidizedHealthIdpRegistrationInfo } from "@oxidized-health/generated-ops/lib/r4/ops";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
+import { HasteHealthIdpRegistrationInfo } from "@haste-health/generated-ops/lib/r4/ops";
 
 import ResourceEditorComponent, {
   AdditionalContent,
@@ -23,13 +23,13 @@ interface IdentityProviderEditorProps extends AdditionalContent {
 function RegistrationInformation({ id }: Readonly<{ id: id }>) {
   const client = useAtomValue(getClient);
   const [registrationInformation, setRegistrationInformation] = useState<
-    OxidizedHealthIdpRegistrationInfo.Output | undefined
+    HasteHealthIdpRegistrationInfo.Output | undefined
   >();
 
   useEffect(() => {
     client
       .invoke_instance(
-        OxidizedHealthIdpRegistrationInfo.Op,
+        HasteHealthIdpRegistrationInfo.Op,
         {},
         R4,
         "IdentityProvider",
@@ -49,8 +49,8 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
           For more information on how to register an external IDP read the
           following{" "}
           <a
-            className="text-teal-500 hover:text-teal-600 cursor-pointer"
-            href="https://oxidized-health.app/documentation/Getting%20Started/Local_Development"
+            className="text-orange-500 hover:text-orange-600 cursor-pointer"
+            href="https://haste-health.app/documentation/Getting%20Started/Local_Development"
           >
             documentation
           </a>

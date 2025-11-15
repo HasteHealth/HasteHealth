@@ -1,10 +1,10 @@
-use oxidized_config::Config;
-use oxidized_fhir_model::r4::generated::{
+use haste_config::Config;
+use haste_fhir_model::r4::generated::{
     resources::ClientApplication,
     terminology::{ClientapplicationGrantType, ClientapplicationResponseTypes},
     types::FHIRString,
 };
-use oxidized_jwt::TenantId;
+use haste_jwt::TenantId;
 
 use crate::ServerEnvironmentVariables;
 
@@ -38,7 +38,6 @@ pub fn get_admin_app(config: &dyn Config<ServerEnvironmentVariables>) -> Option<
     }
 }
 
-#[allow(dead_code)]
 // Return the Admin app redirect url for the current tenant.
 pub fn redirect_url(
     config: &dyn Config<ServerEnvironmentVariables>,

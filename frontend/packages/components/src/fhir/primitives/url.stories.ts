@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { url } from "@oxidized-health/fhir-types/r4/types";
+import { url } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRUrlEditable } from "./url";
 

@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIParameter",
+      "fullUrl": "https://haste-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIParameter",
       "resource": {
         "id": "access-policy-fhir-api-parameter-codesystem",
-        "url": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIParameter",
+        "url": "https://haste-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIParameter",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIParameter",
         "title": "AccessPolicyFHIRAPIParameter",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Access Policy types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
+        "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
         "content": "complete",
         "concept": [
           {
@@ -35,23 +35,23 @@
       }
     },
     {
-      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
+      "fullUrl": "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
       "resource": {
         "resourceType": "ValueSet",
         "id": "access-policy-fhir-api-parameter-valueset",
-        "url": "https://oxidized-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
+        "url": "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIParameter",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIParameter",
         "title": "AccessPolicyFHIRAPIParameter",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Access Policy types allowed.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://oxidized-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIParameter"
+              "system": "https://haste-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIParameter"
             }
           ]
         }

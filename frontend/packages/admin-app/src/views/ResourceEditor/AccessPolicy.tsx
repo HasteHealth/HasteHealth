@@ -12,7 +12,7 @@ import {
   Modal,
   Tabs,
   Toaster,
-} from "@oxidized-health/components";
+} from "@haste-health/components";
 import {
   AccessPolicyV2,
   Reference,
@@ -20,9 +20,9 @@ import {
   code,
   id,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
-import { OxidizedHealthEvaluatePolicy } from "@oxidized-health/generated-ops/lib/r4/ops";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
+import { HasteHealthEvaluatePolicy } from "@haste-health/generated-ops/lib/r4/ops";
 
 import ResourceEditorComponent, {
   AdditionalContent,
@@ -141,7 +141,7 @@ const AccessPolicyInvoke = ({
             e.preventDefault();
             try {
               const invocation = client.invoke_instance(
-                OxidizedHealthEvaluatePolicy.Op,
+                HasteHealthEvaluatePolicy.Op,
                 {},
                 R4,
                 "AccessPolicyV2",

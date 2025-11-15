@@ -1,5 +1,5 @@
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use rust_embed::Embed;
 use std::{collections::HashMap, sync::Arc};
 
@@ -85,7 +85,7 @@ fn index_parameter(
 
 #[derive(Embed)]
 #[folder = "./artifacts/r4"]
-#[include = "oxidized_health/search_parameter/*.json"]
+#[include = "haste_health/search_parameter/*.json"]
 #[include = "hl7/minified/search-parameters.min.json"]
 
 struct EmbededSearchParameterAssets;
@@ -95,7 +95,7 @@ static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
 
     for path in EmbededSearchParameterAssets::iter() {
         let data = EmbededSearchParameterAssets::get(path.as_ref()).unwrap();
-        let bundle = oxidized_fhir_serialization_json::from_str::<Resource>(
+        let bundle = haste_fhir_serialization_json::from_str::<Resource>(
             std::str::from_utf8(&data.data).unwrap(),
         )
         .expect("Failed to parse search parameters JSON");

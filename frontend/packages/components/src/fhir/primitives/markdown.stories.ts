@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { markdown } from "@oxidized-health/fhir-types/r4/types";
+import { markdown } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRMarkdownEditable } from "./markdown";
 

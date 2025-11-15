@@ -1,5 +1,5 @@
-import httpClient from "@oxidized-health/client/http";
-import { R4, R4B } from "@oxidized-health/fhir-types/versions";
+import httpClient from "@haste-health/client/http";
+import { R4, R4B } from "@haste-health/fhir-types/versions";
 
 import { Tenant, getCurrentTenant, loadConfig } from "./config.js";
 

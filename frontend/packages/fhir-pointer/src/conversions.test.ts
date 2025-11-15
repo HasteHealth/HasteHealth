@@ -1,7 +1,7 @@
 import { expect, test } from "@jest/globals";
 
-import { id } from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { id } from "@haste-health/fhir-types/lib/generated/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { Loc, descend, pointer, toFHIRPath } from "./index.js";
 

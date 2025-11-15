@@ -1,21 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Loc, ascend } from "@oxidized-health/fhir-pointer";
-import { resourceTypes } from "@oxidized-health/fhir-types/r4/sets";
+import { Loc, ascend } from "@haste-health/fhir-pointer";
+import { resourceTypes } from "@haste-health/fhir-types/r4/sets";
 import {
   ElementDefinition,
   StructureDefinition,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
-import { resolveTypeToCanonical } from "@oxidized-health/meta-value";
-import {
-  isObject,
-  isPrimitiveType,
-} from "@oxidized-health/meta-value/utilities";
-import {
-  OperationError,
-  outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
+import { resolveTypeToCanonical } from "@haste-health/meta-value";
+import { isObject, isPrimitiveType } from "@haste-health/meta-value/utilities";
+import { OperationError, outcomeFatal } from "@haste-health/operation-outcomes";
 
 import { ElementLoc, ValidationCTX } from "./types.js";
 

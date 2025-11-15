@@ -2,25 +2,24 @@ use std::{collections::HashSet, sync::Arc};
 
 use crate::{ServerEnvironmentVariables, fhir_client::ServerCTX, services::create_services};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
-use oxidized_artifacts::ARTIFACT_RESOURCES;
-use oxidized_config::Config;
-use oxidized_fhir_client::{
+use haste_artifacts::ARTIFACT_RESOURCES;
+use haste_config::Config;
+use haste_fhir_client::{
     FHIRClient,
     url::{Parameter, ParsedParameter},
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
     terminology::IssueType,
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId};
 
 use sha1::{Digest, Sha1};
 
 fn generate_sha256_hash(value: &Resource) -> String {
-    let json =
-        oxidized_fhir_serialization_json::to_string(value).expect("failed to serialize value.");
+    let json = haste_fhir_serialization_json::to_string(value).expect("failed to serialize value.");
     let mut sha_hasher = Sha1::new();
     sha_hasher.update(json.as_bytes());
     let sha1 = sha_hasher.finalize();
@@ -30,7 +29,7 @@ fn generate_sha256_hash(value: &Resource) -> String {
     sha_string
 }
 
-static HASH_TAG_SYSTEM: &str = "https://oxidized-health.app/fhir/CodeSystem/hash";
+static HASH_TAG_SYSTEM: &str = "https://haste-health.app/fhir/CodeSystem/hash";
 
 fn _add_hash_tag(meta: &mut Option<Box<Meta>>, sha_hash: String) {
     let hash_tag = Box::new(Coding {

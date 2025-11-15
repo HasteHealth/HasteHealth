@@ -1,4 +1,4 @@
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
 
 export function filterSDForTypes<Version extends FHIR_VERSION>(
   sds: Resource<Version, "StructureDefinition">[]

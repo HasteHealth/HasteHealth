@@ -2,13 +2,13 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
-import { Bundle } from "@oxidized-health/fhir-types/r4/types";
-import * as r4b from "@oxidized-health/fhir-types/r4b/types";
+import { Bundle } from "@haste-health/fhir-types/r4/types";
+import * as r4b from "@haste-health/fhir-types/r4b/types";
 import {
   FHIR_VERSION,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { IndexFile, PackageJSON } from "./types.js";
 

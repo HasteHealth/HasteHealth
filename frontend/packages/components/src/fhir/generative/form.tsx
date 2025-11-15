@@ -7,19 +7,19 @@ import React, { useMemo } from "react";
 
 import generateJSONPatches, {
   Mutation,
-} from "@oxidized-health/fhir-patch-building";
+} from "@haste-health/fhir-patch-building";
 import {
   Loc,
   ascend,
   descend,
   pointer,
   root,
-} from "@oxidized-health/fhir-pointer";
+} from "@haste-health/fhir-pointer";
 import {
   complexTypes,
   primitiveTypes,
   resourceTypes,
-} from "@oxidized-health/fhir-types/r4/sets";
+} from "@haste-health/fhir-types/r4/sets";
 import {
   ElementDefinition,
   ElementDefinitionType,
@@ -27,7 +27,7 @@ import {
   ResourceType,
   StructureDefinition,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 import { Add, Select } from "../../base";
 import { ClientProps } from "../types";

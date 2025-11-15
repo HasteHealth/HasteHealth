@@ -1,5 +1,5 @@
-import type * as fhirTypes from "@oxidized-health/fhir-types/r4/types";
-import { Operation, IOperation } from "@oxidized-health/operation-execution";
+import type * as fhirTypes from "@haste-health/fhir-types/r4/types";
+import { Operation, IOperation } from "@haste-health/operation-execution";
 export namespace ActivityDefinitionApply {
   export type Input = {
     activityDefinition?: fhirTypes.ActivityDefinition;
@@ -5185,13 +5185,13 @@ export namespace ProjectInformation {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "project-information",
-    url: "https://oxidized-health.app/OperationDefinition/project-information",
+    url: "https://haste-health.app/OperationDefinition/project-information",
     version: "4.0.1",
     name: "Current Project Information",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Get Project resource for the current project.",
     code: "current-project",
     system: true,
@@ -5216,13 +5216,13 @@ export namespace TenantInformation {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "tenant-information",
-    url: "https://oxidized-health.app/OperationDefinition/tenant-information",
+    url: "https://haste-health.app/OperationDefinition/tenant-information",
     version: "4.0.1",
     name: "Current Tenant Information",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Get tenant information for the current tenant.",
     code: "current-tenant",
     system: true,
@@ -5248,7 +5248,7 @@ export namespace TenantInformation {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthDeployOperation {
+export namespace HasteHealthDeployOperation {
   export type Input = {
     code: fhirTypes.string;
     environment?: Array<{ name: fhirTypes.string; value: fhirTypes.string }>;
@@ -5257,14 +5257,14 @@ export namespace OxidizedHealthDeployOperation {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-deploy-operation",
-    url: "https://oxidized-health.app/OperationDefinition/deploy-operation",
+    id: "haste-health-deploy-operation",
+    url: "https://haste-health.app/OperationDefinition/deploy-operation",
     version: "4.0.1",
     name: "Deploy an operations code to the server.",
     status: "draft",
     kind: "operation",
     date: "2024-05-01T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Deploy an operations code to the server.",
     code: "deploy",
     system: false,
@@ -5295,20 +5295,20 @@ export namespace OxidizedHealthDeployOperation {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthEncrypt {
+export namespace HasteHealthEncrypt {
   export type Input = { value: fhirTypes.string };
   export type Output = { encryptedValue: fhirTypes.string };
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-encrypt",
-    url: "https://oxidized-health.app/OperationDefinition/encrypt",
+    id: "haste-health-encrypt",
+    url: "https://haste-health.app/OperationDefinition/encrypt",
     version: "4.0.1",
     name: "Encrypt a string value",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Encrypts a passed in string value",
     code: "encrypt",
     system: true,
@@ -5334,20 +5334,20 @@ export namespace OxidizedHealthEncrypt {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthEvaluatePolicy {
+export namespace HasteHealthEvaluatePolicy {
   export type Input = { user?: fhirTypes.Reference; request: fhirTypes.Bundle };
   export type Output = fhirTypes.OperationOutcome;
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-evaluate-policy",
-    url: "https://oxidized-health.app/OperationDefinition/evaluate-policy",
+    id: "haste-health-evaluate-policy",
+    url: "https://haste-health.app/OperationDefinition/evaluate-policy",
     version: "4.0.1",
     name: "EvaluateAccessPolicy",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Evaluate an Access Policy.",
     code: "evaluate-policy",
     system: false,
@@ -5383,7 +5383,7 @@ export namespace OxidizedHealthEvaluatePolicy {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthIdpRegistrationInfo {
+export namespace HasteHealthIdpRegistrationInfo {
   export type Input = Record<string, never>;
   export type Output = {
     information?: Array<{ name: fhirTypes.string; value: fhirTypes.string }>;
@@ -5391,13 +5391,13 @@ export namespace OxidizedHealthIdpRegistrationInfo {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-idp-registration-info",
-    url: "https://oxidized-health.app/OperationDefinition/identity-provider-registration-info",
+    id: "haste-health-idp-registration-info",
+    url: "https://haste-health.app/OperationDefinition/identity-provider-registration-info",
     version: "4.0.1",
     name: "IdentityProviderRegistrationInformation",
     status: "draft",
     kind: "operation",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Get the registration information for an identity provider.",
     code: "registration-info",
     system: false,
@@ -5433,7 +5433,7 @@ export namespace OxidizedHealthIdpRegistrationInfo {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthInviteUser {
+export namespace HasteHealthInviteUser {
   export type Input = {
     email: fhirTypes.string;
     role: fhirTypes.code;
@@ -5443,14 +5443,14 @@ export namespace OxidizedHealthInviteUser {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-invite-user",
-    url: "https://oxidized-health.app/OperationDefinition/invite-user",
+    id: "haste-health-invite-user",
+    url: "https://haste-health.app/OperationDefinition/invite-user",
     version: "4.0.1",
     name: "Invite a user and send an email.",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Invite a user to join tenant and send an email for invite.",
     code: "invite-user",
     system: false,
@@ -5493,20 +5493,20 @@ export namespace OxidizedHealthInviteUser {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthMessagePost {
+export namespace HasteHealthMessagePost {
   export type Input = { input: fhirTypes.Resource };
   export type Output = fhirTypes.OperationOutcome;
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-message-post",
-    url: "https://oxidized-health.app/OperationDefinition/message-post",
+    id: "haste-health-message-post",
+    url: "https://haste-health.app/OperationDefinition/message-post",
     version: "4.0.1",
     name: "Send a message to a given topic.",
     status: "draft",
     kind: "operation",
     date: "2024-05-01T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Posts a message to a given topic.",
     code: "message-post",
     system: false,
@@ -5533,7 +5533,7 @@ export namespace OxidizedHealthMessagePost {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthPasswordReset {
+export namespace HasteHealthPasswordReset {
   export type Input = {
     email: {
       subject: fhirTypes.string;
@@ -5545,14 +5545,14 @@ export namespace OxidizedHealthPasswordReset {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-password-reset",
-    url: "https://oxidized-health.app/OperationDefinition/password-reset",
+    id: "haste-health-password-reset",
+    url: "https://haste-health.app/OperationDefinition/password-reset",
     version: "4.0.1",
     name: "Password Reset",
     status: "draft",
     kind: "operation",
     date: "2025-01-08T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Password Reset for a user.",
     code: "password-reset",
     system: false,
@@ -5604,20 +5604,20 @@ export namespace OxidizedHealthPasswordReset {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthDeleteRefreshToken {
+export namespace HasteHealthDeleteRefreshToken {
   export type Input = { id: fhirTypes.id };
   export type Output = fhirTypes.OperationOutcome;
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-delete-refresh-token",
-    url: "https://oxidized-health.app/OperationDefinition/delete-refresh-tokens",
+    id: "haste-health-delete-refresh-token",
+    url: "https://haste-health.app/OperationDefinition/delete-refresh-tokens",
     version: "4.0.1",
     name: "Delete refresh token",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Delete refresh token from the user for the client.",
     code: "delete-refresh-token",
     system: true,
@@ -5643,7 +5643,7 @@ export namespace OxidizedHealthDeleteRefreshToken {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthListRefreshTokens {
+export namespace HasteHealthListRefreshTokens {
   export type Input = Record<string, never>;
   export type Output = {
     "refresh-tokens"?: Array<{
@@ -5655,14 +5655,14 @@ export namespace OxidizedHealthListRefreshTokens {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-list-refresh-tokens",
-    url: "https://oxidized-health.app/OperationDefinition/list-refresh-tokens",
+    id: "haste-health-list-refresh-tokens",
+    url: "https://haste-health.app/OperationDefinition/list-refresh-tokens",
     version: "4.0.1",
     name: "Show Refresh Tokens",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Show list of users refresh tokens.",
     code: "refresh-tokens",
     system: true,
@@ -5705,20 +5705,20 @@ export namespace OxidizedHealthListRefreshTokens {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthDeleteScope {
+export namespace HasteHealthDeleteScope {
   export type Input = { client_id: fhirTypes.id };
   export type Output = fhirTypes.OperationOutcome;
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-delete-scope",
-    url: "https://oxidized-health.app/OperationDefinition/delete-scopes",
+    id: "haste-health-delete-scope",
+    url: "https://haste-health.app/OperationDefinition/delete-scopes",
     version: "4.0.1",
     name: "Delete Scope",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Delete scope from user accepted scopes for the client.",
     code: "delete-scope",
     system: true,
@@ -5744,7 +5744,7 @@ export namespace OxidizedHealthDeleteScope {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthListScopes {
+export namespace HasteHealthListScopes {
   export type Input = Record<string, never>;
   export type Output = {
     scopes?: Array<{
@@ -5756,14 +5756,14 @@ export namespace OxidizedHealthListScopes {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-list-scopes",
-    url: "https://oxidized-health.app/OperationDefinition/list-scopes",
+    id: "haste-health-list-scopes",
+    url: "https://haste-health.app/OperationDefinition/list-scopes",
     version: "4.0.1",
     name: "Show Scopes",
     status: "draft",
     kind: "operation",
     date: "2023-11-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Show list of user accepted scopes for apps.",
     code: "scopes",
     system: true,
@@ -5806,7 +5806,7 @@ export namespace OxidizedHealthListScopes {
     ],
   } as fhirTypes.OperationDefinition);
 }
-export namespace OxidizedHealthUsageStatistics {
+export namespace HasteHealthUsageStatistics {
   export type Input = Record<string, never>;
   export type Output = {
     statistics?: Array<{
@@ -5820,14 +5820,14 @@ export namespace OxidizedHealthUsageStatistics {
   export type IOp = IOperation<Input, Output>;
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
-    id: "oxidized-health-usage-statistics",
-    url: "https://oxidized-health.app/OperationDefinition/usage-statistics",
+    id: "haste-health-usage-statistics",
+    url: "https://haste-health.app/OperationDefinition/usage-statistics",
     version: "4.0.1",
-    name: "OxidizedHealth Usage Statistics",
+    name: "HasteHealth Usage Statistics",
     status: "draft",
     kind: "operation",
     date: "2024-05-16T09:29:23+11:00",
-    publisher: "OxidizedHealth",
+    publisher: "HasteHealth",
     description: "Get current tenants limitations and usage.",
     code: "usage-statistics",
     system: true,

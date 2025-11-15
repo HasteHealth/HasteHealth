@@ -1,6 +1,6 @@
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_jwt::{ProjectId, TenantId};
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_jwt::{ProjectId, TenantId};
 use sqlx::types::Json;
 use std::time::Duration;
 

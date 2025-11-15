@@ -1,7 +1,7 @@
-use json_patch::Patch;
-use oxidized_fhir_model::r4::generated::resources::{
+use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
+use json_patch::Patch;
 
 use crate::{
     request::{FHIRRequest, FHIRResponse},

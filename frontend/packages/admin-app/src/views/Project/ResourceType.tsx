@@ -11,15 +11,15 @@ import {
   FHIRStringEditable,
   Modal,
   Toaster,
-} from "@oxidized-health/components";
-import { Reference, code, uri } from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/components";
+import { Reference, code, uri } from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   R4,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/versions";
-import { OxidizedHealthInviteUser } from "@oxidized-health/generated-ops/r4";
+} from "@haste-health/fhir-types/versions";
+import { HasteHealthInviteUser } from "@haste-health/generated-ops/r4";
 
 import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
@@ -47,7 +47,7 @@ function InviteModal({
       <FHIRCodeEditable
         label="Role"
         system={
-          "https://oxidized-health.app/fhir/ValueSet/MembershipRole|4.0.1" as uri
+          "https://haste-health.app/fhir/ValueSet/MembershipRole|4.0.1" as uri
         }
         fhirVersion={R4}
         client={client}
@@ -88,17 +88,11 @@ function InviteModal({
 
               Toaster.promise(
                 client
-                  .invoke_type(
-                    OxidizedHealthInviteUser.Op,
-                    {},
-                    R4,
-                    "Membership",
-                    {
-                      role,
-                      email,
-                      accessPolicy: accessPolicyRef,
-                    }
-                  )
+                  .invoke_type(HasteHealthInviteUser.Op, {}, R4, "Membership", {
+                    role,
+                    email,
+                    accessPolicy: accessPolicyRef,
+                  })
                   .then(() => {
                     refresh();
                     setOpen(false);

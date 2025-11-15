@@ -5,7 +5,7 @@ import {
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 
 import { getAllFiles } from "../utilities.js";
 

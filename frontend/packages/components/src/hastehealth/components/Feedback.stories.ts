@@ -1,36 +1,28 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { OperationOutcome } from "@oxidized-health/fhir-types/r4/types";
-
-import { PasswordResetForm } from "./PasswordReset";
+import { Feedback } from "./Feedback";
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
-  title: "OxidizedHealth/PasswordReset",
-  component: PasswordResetForm,
+  title: "HasteHealth/Feedback",
+  component: Feedback,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
     layout: "fullscreen",
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/react/writing-docs/autodocs
   tags: ["autodocs"],
-} satisfies Meta<typeof PasswordResetForm>;
+} satisfies Meta<typeof Feedback>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {
-  args: { code: "123", action: "#" },
-};
-
-export const OnError: Story = {
+export const Form: Story = {
   args: {
-    code: "123",
-    action: "#",
-    error: {
-      resourceType: "OperationOutcome",
-      issue: [{ code: "invalid", diagnostics: "Password is invalid." }],
-    } as OperationOutcome,
+    title: "HasteHealth",
+    header: "Email Verification",
+    content:
+      "We have sent an email to your email address. Please verify your email address to login.",
   },
 };

@@ -1,7 +1,7 @@
-import * as r4sets from "@oxidized-health/fhir-types/r4/sets";
-import { Element, uri } from "@oxidized-health/fhir-types/r4/types";
-import * as r4bsets from "@oxidized-health/fhir-types/r4b/sets";
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
+import * as r4sets from "@haste-health/fhir-types/r4/sets";
+import { Element, uri } from "@haste-health/fhir-types/r4/types";
+import * as r4bsets from "@haste-health/fhir-types/r4b/sets";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
 
 import { IMetaValue, IMetaValueArray } from "./interface.js";
 

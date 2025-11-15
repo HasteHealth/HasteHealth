@@ -1,14 +1,14 @@
 [package]
-name = "oxidized-access-control"
+name = "haste-access-control"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhir-client = { path = "../fhir-client" }
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-fhir-client = { path = "../fhir-client" }
+haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-fhirpath = { path = "../fhirpath" }
-oxidized-jwt = { path = "../jwt", features = ["reflect"] }
-oxidized-reflect = { path = "../reflect", features = ["derive"] }
+haste-fhirpath = { path = "../fhirpath" }
+haste-jwt = { path = "../jwt", features = ["reflect"] }
+haste-reflect = { path = "../reflect", features = ["derive"] }

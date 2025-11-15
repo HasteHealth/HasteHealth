@@ -2,17 +2,17 @@ use crate::{
     ServerEnvironmentVariables,
     fhir_client::{FHIRServerClient, ServerClientConfig},
 };
-use oxidized_config::Config;
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
-use oxidized_fhir_terminology::{
+use haste_config::Config;
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
+use haste_fhir_terminology::{
     FHIRTerminology,
     client::FHIRCanonicalTerminology,
     resolvers::{self, remote::LRUCanonicalRemoteResolver},
 };
-use oxidized_fhirpath::FPEngine;
-use oxidized_repository::{Repository, pg::PGConnection};
+use haste_fhirpath::FPEngine;
+use haste_repository::{Repository, pg::PGConnection};
 use sqlx::{Pool, Postgres};
 use sqlx_postgres::PgPoolOptions;
 use std::{env::VarError, sync::Arc};
@@ -57,7 +57,7 @@ pub enum ConfigError {
 #[derive(OperationOutcomeError, Debug)]
 pub enum CustomOpError {
     #[error(code = "invalid", diagnostic = "FHIRPath error")]
-    FHIRPath(#[from] oxidized_fhirpath::FHIRPathError),
+    FHIRPath(#[from] haste_fhirpath::FHIRPathError),
     #[error(code = "invalid", diagnostic = "Failed to deserialize resource")]
     Deserialize(#[from] serde_json::Error),
     #[error(code = "invalid", diagnostic = "Internal server error")]
@@ -130,7 +130,7 @@ pub async fn create_services(
 > {
     let pool = get_pool(config.as_ref()).await;
     let search_engine = Arc::new(
-        oxidized_fhir_search::elastic_search::ElasticSearchEngine::new(
+        haste_fhir_search::elastic_search::ElasticSearchEngine::new(
             Arc::new(FPEngine::new()),
             &config
                 .get(ServerEnvironmentVariables::ElasticSearchURL)

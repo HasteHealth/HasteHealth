@@ -1,6 +1,6 @@
-# OxidizedHealth Components
+# HasteHealth Components
 
-For storybook visit https://storybook.oxidized-health.app
+For storybook visit https://storybook.haste-health.app
 
 ## Supported data types
 

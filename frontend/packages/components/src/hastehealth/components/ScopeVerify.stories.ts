@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ClientApplication } from "@oxidized-health/fhir-types/lib/generated/r4/types";
+import { ClientApplication } from "@haste-health/fhir-types/lib/generated/r4/types";
 
 import { ScopeVerifyForm } from "./ScopeVerify";
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
-  title: "OxidizedHealth/ScopeVerify",
+  title: "HasteHealth/ScopeVerify",
   component: ScopeVerifyForm,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
@@ -27,7 +27,7 @@ export const Primary: Story = {
       logoUri:
         "https://www.gravatar.com/avatar/d23aeb14e1da44674f5e9036abdc9305?s=160&d=retro&r=g",
     } as ClientApplication,
-    title: "OxidizedHealth",
+    title: "HasteHealth",
     postURL: "#",
     authorizeParameters: {
       client_id: "",
@@ -70,7 +70,7 @@ export const NoImage: Story = {
     client: {
       name: "Admin App",
     } as ClientApplication,
-    title: "OxidizedHealth",
+    title: "HasteHealth",
     postURL: "#",
     authorizeParameters: {
       client_id: "",

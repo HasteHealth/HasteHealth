@@ -3,7 +3,7 @@ import React from "react";
 import {
   OperationOutcome,
   OperationOutcomeIssue,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);

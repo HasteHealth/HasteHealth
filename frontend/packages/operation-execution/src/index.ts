@@ -1,5 +1,5 @@
-import { descend, typedPointer } from "@oxidized-health/fhir-pointer";
-import { resourceTypes } from "@oxidized-health/fhir-types/r4/sets";
+import { descend, typedPointer } from "@haste-health/fhir-pointer";
+import { resourceTypes } from "@haste-health/fhir-types/r4/sets";
 import {
   OperationDefinition,
   OperationDefinitionParameter,
@@ -8,15 +8,15 @@ import {
   Resource,
   code,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4, ResourceType } from "@oxidized-health/fhir-types/versions";
-import validate from "@oxidized-health/fhir-validation";
-import type { ValidationCTX } from "@oxidized-health/fhir-validation/types";
+} from "@haste-health/fhir-types/r4/types";
+import { R4, ResourceType } from "@haste-health/fhir-types/versions";
+import validate from "@haste-health/fhir-validation";
+import type { ValidationCTX } from "@haste-health/fhir-validation/types";
 import {
   OperationError,
   issueError,
   outcomeError,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 type ParameterDefinitions = NonNullable<OperationDefinition["parameter"]>;
 

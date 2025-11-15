@@ -3771,6 +3771,522 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@haste-health/admin-app@workspace:packages/admin-app":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/admin-app@workspace:packages/admin-app"
+  dependencies:
+    "@codemirror/commands": "npm:^6.8.0"
+    "@codemirror/lang-javascript": "npm:^6.2.3"
+    "@codemirror/lang-json": "npm:^6.0.1"
+    "@codemirror/view": "npm:^6.36.4"
+    "@haste-health/client": "workspace:^"
+    "@haste-health/components": "workspace:^"
+    "@haste-health/fhir-patch-building": "workspace:^"
+    "@haste-health/fhir-pointer": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/fhirpath": "workspace:^"
+    "@haste-health/generated-ops": "workspace:^"
+    "@haste-health/jwt": "workspace:^"
+    "@haste-health/operation-execution": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@headlessui/react": "npm:^2.2.0"
+    "@heroicons/react": "npm:^2.2.0"
+    "@testing-library/jest-dom": "npm:^6.6.3"
+    "@testing-library/react": "npm:^16.2.0"
+    "@testing-library/user-event": "npm:^14.6.1"
+    "@types/jest": "npm:^29.5.14"
+    "@types/node": "npm:^22.15.17"
+    "@types/react": "npm:^19.2.2"
+    "@types/react-dom": "npm:^19.2.2"
+    "@types/react-window": "npm:^1.8.8"
+    classnames: "npm:^2.5.1"
+    codemirror: "npm:^6.0.1"
+    fast-deep-equal: "npm:^3.1.3"
+    jotai: "npm:^2.12.4"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    react-router-dom: "npm:^7.6.0"
+    react-scripts: "npm:^5.0.1"
+    react-window: "npm:^1.8.11"
+    tailwindcss: "npm:^3.4.17"
+    typescript: "npm:5.9.2"
+    web-vitals: "npm:^3.5.2"
+    wrangler: "npm:^4.20.1"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/artifacts@workspace:^, @haste-health/artifacts@workspace:packages/artifacts":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/artifacts@workspace:packages/artifacts"
+  dependencies:
+    "@haste-health/fhir-types": "workspace:^"
+    "@types/node": "npm:^22.15.17"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/cli@workspace:packages/cli"
+  dependencies:
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/client": "workspace:^"
+    "@haste-health/codegen": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/generated-ops": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4b.core": "workspace:^"
+    "@haste-health/testscript-runner": "workspace:^"
+    "@iarna/toml": "npm:^2.2.5"
+    "@inquirer/prompts": "npm:^5.5.0"
+    "@types/node": "npm:^22.15.17"
+    commander: "npm:^12.1.0"
+    pino: "npm:^9.6.0"
+    pino-pretty: "npm:^11.3.0"
+    typescript: "npm:5.9.2"
+  bin:
+    haste-health: lib/hastehealth.js
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/client@workspace:^, @haste-health/client@workspace:packages/client":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/client@workspace:packages/client"
+  dependencies:
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/operation-execution": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/codegen@workspace:^, @haste-health/codegen@workspace:packages/codegen":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/codegen@workspace:packages/codegen"
+  dependencies:
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@types/node": "npm:^22.15.17"
+    commander: "npm:^12.1.0"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/components@workspace:^, @haste-health/components@workspace:packages/components":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/components@workspace:packages/components"
+  dependencies:
+    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
+    "@babel/preset-env": "npm:^7.26.9"
+    "@babel/preset-react": "npm:^7.26.3"
+    "@babel/preset-typescript": "npm:^7.26.0"
+    "@chromatic-com/storybook": "npm:^1.6.1"
+    "@codemirror/lang-markdown": "npm:^6.3.2"
+    "@codemirror/merge": "npm:^6.10.0"
+    "@codemirror/state": "npm:^6.5.2"
+    "@codemirror/view": "npm:^6.36.4"
+    "@haste-health/client": "workspace:^"
+    "@haste-health/fhir-patch-building": "workspace:^"
+    "@haste-health/fhir-pointer": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/fhirpath": "workspace:^"
+    "@haste-health/generated-ops": "workspace:^"
+    "@haste-health/jwt": "workspace:^"
+    "@haste-health/lang-fp": "workspace:^"
+    "@headlessui/react": "npm:^2.2.0"
+    "@heroicons/react": "npm:^2.2.0"
+    "@rollup/plugin-commonjs": "npm:^26.0.3"
+    "@rollup/plugin-json": "npm:^6.1.0"
+    "@rollup/plugin-node-resolve": "npm:^15.3.1"
+    "@rollup/plugin-typescript": "npm:^11.1.6"
+    "@storybook/addon-essentials": "npm:^8.2.9"
+    "@storybook/addon-interactions": "npm:^8.2.9"
+    "@storybook/addon-links": "npm:^8.2.9"
+    "@storybook/addon-mdx-gfm": "npm:^8.2.9"
+    "@storybook/addon-onboarding": "npm:^8.2.9"
+    "@storybook/addon-styling": "npm:^1.3.7"
+    "@storybook/addon-webpack5-compiler-babel": "npm:^3.0.3"
+    "@storybook/blocks": "npm:^8.2.9"
+    "@storybook/manager-api": "npm:^8.2.9"
+    "@storybook/react": "npm:^8.2.9"
+    "@storybook/react-webpack5": "npm:^8.2.9"
+    "@storybook/test": "npm:^8.2.9"
+    "@storybook/theming": "npm:^8.2.9"
+    "@types/react": "npm:^19.1.4"
+    autoprefixer: "npm:^10.4.20"
+    classnames: "npm:^2.5.1"
+    codemirror: "npm:^6.0.1"
+    dayjs: "npm:^1.11.13"
+    fast-json-patch: "npm:^3.1.1"
+    immer: "npm:^10.1.1"
+    js-file-download: "npm:^0.4.12"
+    postcss: "npm:^8.5.3"
+    postcss-cli: "npm:^11.0.0"
+    react: "npm:^19.1.0"
+    react-dom: "npm:^19.1.0"
+    react-hot-toast: "npm:^2.5.2"
+    rollup: "npm:^4.34.9"
+    rollup-plugin-dts: "npm:^6.1.1"
+    rollup-plugin-peer-deps-external: "npm:^2.2.4"
+    rollup-plugin-postcss: "npm:^4.0.2"
+    rollup-plugin-terser: "npm:^7.0.2"
+    storybook: "npm:^8.2.9"
+    tailwindcss: "npm:^3.4.17"
+    tslib: "npm:^2.8.1"
+    typescript: "npm:5.9.2"
+    wrangler: "npm:^4.20.1"
+  peerDependencies:
+    "@codemirror/state": ">=6.0.0"
+    "@codemirror/theme-one-dark": ">=6.0.0"
+    "@codemirror/view": ">=6.0.0"
+    react: ^18.2.0
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/fhir-patch-building@workspace:^, @haste-health/fhir-patch-building@workspace:packages/fhir-patch-building":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/fhir-patch-building@workspace:packages/fhir-patch-building"
+  dependencies:
+    "@haste-health/fhir-pointer": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    fast-json-patch: "npm:^3.1.1"
+    immer: "npm:^10.1.1"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/fhir-pointer@workspace:^, @haste-health/fhir-pointer@workspace:packages/fhir-pointer":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/fhir-pointer@workspace:packages/fhir-pointer"
+  dependencies:
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/meta-value": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    jest: "npm:^29.7.0"
+    jsonpointer: "npm:^5.0.1"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/fhir-types@workspace:^, @haste-health/fhir-types@workspace:packages/fhir-types":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/fhir-types@workspace:packages/fhir-types"
+  dependencies:
+    "@types/node": "npm:^22.15.17"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/fhir-validation@workspace:^, @haste-health/fhir-validation@workspace:packages/fhir-validation":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/fhir-validation@workspace:packages/fhir-validation"
+  dependencies:
+    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
+    "@babel/preset-env": "npm:^7.26.9"
+    "@babel/preset-typescript": "npm:^7.26.0"
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/codegen": "workspace:^"
+    "@haste-health/fhir-pointer": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/fhirpath": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.test-data": "workspace:^"
+    "@haste-health/hl7.fhir.us.core": "npm:4.0.1"
+    "@haste-health/meta-value": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    "@types/babel__preset-env": "npm:^7.10.0"
+    "@types/jest": "npm:^29.5.14"
+    jest: "npm:^29.7.0"
+    jsonpointer: "npm:^5.0.1"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/fhirpath@workspace:^, @haste-health/fhirpath@workspace:packages/fhirpath":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/fhirpath@workspace:packages/fhirpath"
+  dependencies:
+    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
+    "@babel/preset-env": "npm:^7.26.9"
+    "@babel/preset-typescript": "npm:^7.26.0"
+    "@chevrotain/types": "npm:^11.0.3"
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+    "@haste-health/meta-value": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    "@types/jest": "npm:^29.5.14"
+    chevrotain: "npm:^11.0.3"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    tsx: "npm:4.11.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/frontend@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/frontend@workspace:."
+  dependencies:
+    "@yarnpkg/pnpify": "npm:^4.1.5"
+    typescript: "npm:^5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/generated-ops@workspace:^, @haste-health/generated-ops@workspace:packages/generated-ops":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/generated-ops@workspace:packages/generated-ops"
+  dependencies:
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+    "@haste-health/operation-execution": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    jest: "npm:^29.7.0"
+    prettier: "npm:^3.5.3"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/haste-health.fhir.r4.core@workspace:^, @haste-health/haste-health.fhir.r4.core@workspace:artifacts/r4/oxidizedhealth-core":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/haste-health.fhir.r4.core@workspace:artifacts/r4/oxidizedhealth-core"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/haste-health.fhir.r4b.core@workspace:artifacts/r4b/oxidizedhealth-core":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/haste-health.fhir.r4b.core@workspace:artifacts/r4b/oxidizedhealth-core"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7.fhir.r4.core@workspace:^, @haste-health/hl7.fhir.r4.core@workspace:artifacts/r4/hl7-core":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7.fhir.r4.core@workspace:artifacts/r4/hl7-core"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7.fhir.r4.test-data@workspace:^, @haste-health/hl7.fhir.r4.test-data@workspace:artifacts/r4/test-data":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7.fhir.r4.test-data@workspace:artifacts/r4/test-data"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7.fhir.r4b.core@workspace:^, @haste-health/hl7.fhir.r4b.core@workspace:artifacts/r4b/hl7-core":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7.fhir.r4b.core@workspace:artifacts/r4b/hl7-core"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7.fhir.r4b.test-data@workspace:artifacts/r4b/test-data":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7.fhir.r4b.test-data@workspace:artifacts/r4b/test-data"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7.fhir.us.core@npm:4.0.1, @haste-health/hl7.fhir.us.core@workspace:artifacts/r4/hl7.fhir.us.core":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7.fhir.us.core@workspace:artifacts/r4/hl7.fhir.us.core"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7.fhir.uv.subscriptions-backport.r4@workspace:artifacts/r4/r5-subscription-backport":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7.fhir.uv.subscriptions-backport.r4@workspace:artifacts/r4/r5-subscription-backport"
+  dependencies:
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/hl7v2-parsing@workspace:packages/hl7v2-parsing":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/hl7v2-parsing@workspace:packages/hl7v2-parsing"
+  dependencies:
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/jwt@workspace:^, @haste-health/jwt@workspace:packages/jwt":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/jwt@workspace:packages/jwt"
+  dependencies:
+    "@haste-health/fhir-types": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    "@types/jest": "npm:^29.5.14"
+    "@types/node": "npm:^24.3.0"
+    jest: "npm:^29.7.0"
+    jose: "npm:^6.0.11"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/koa-multipart-form@workspace:packages/koa-multipart-form":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/koa-multipart-form@workspace:packages/koa-multipart-form"
+  dependencies:
+    "@types/koa": "npm:^2.15.0"
+    "@types/multer": "npm:^1.4.12"
+    multer: "npm:^2.0.0"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/lang-fp@workspace:^, @haste-health/lang-fp@workspace:packages/lang-fp-codemirror":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/lang-fp@workspace:packages/lang-fp-codemirror"
+  dependencies:
+    "@codemirror/language": "npm:^6.10.8"
+    "@lezer/generator": "npm:^1.0.0"
+    "@lezer/highlight": "npm:^1.0.0"
+    "@lezer/lr": "npm:^1.0.0"
+    mocha: "npm:^9.2.2"
+    rollup: "npm:^2.79.2"
+    rollup-plugin-dts: "npm:^4.2.3"
+    rollup-plugin-ts: "npm:^3.4.5"
+    typescript: "npm:^4.9.5"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/meta-value@workspace:^, @haste-health/meta-value@workspace:packages/meta-value":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/meta-value@workspace:packages/meta-value"
+  dependencies:
+    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
+    "@babel/preset-env": "npm:^7.26.9"
+    "@babel/preset-typescript": "npm:^7.26.0"
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/codegen": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    "@types/jest": "npm:^29.5.14"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/operation-execution@workspace:^, @haste-health/operation-execution@workspace:packages/operation-execution":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/operation-execution@workspace:packages/operation-execution"
+  dependencies:
+    "@haste-health/artifacts": "workspace:^"
+    "@haste-health/fhir-pointer": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/fhir-validation": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
+    "@haste-health/hl7.fhir.r4.core": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/operation-outcomes@workspace:^, @haste-health/operation-outcomes@workspace:packages/operation-outcomes":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/operation-outcomes@workspace:packages/operation-outcomes"
+  dependencies:
+    "@haste-health/fhir-types": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    "@types/jest": "npm:^29.5.14"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/performance-testing@workspace:packages/performance-testing":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/performance-testing@workspace:packages/performance-testing"
+  dependencies:
+    artillery: "npm:^2.0.22"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/smart-launch@workspace:packages/smart-launch":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/smart-launch@workspace:packages/smart-launch"
+  dependencies:
+    "@babel/core": "npm:^7.26.9"
+    "@babel/preset-react": "npm:^7.26.3"
+    "@haste-health/client": "workspace:^"
+    "@haste-health/components": "workspace:^"
+    "@rollup/plugin-babel": "npm:^6.0.4"
+    "@rollup/plugin-commonjs": "npm:^26.0.3"
+    "@rollup/plugin-node-resolve": "npm:^15.3.1"
+    "@rollup/plugin-replace": "npm:^5.0.7"
+    "@rollup/plugin-terser": "npm:^0.4.4"
+    "@rollup/plugin-typescript": "npm:^11.1.6"
+    "@types/react": "npm:^19.1.4"
+    "@types/react-dom": "npm:^19.1.4"
+    autoprefixer: "npm:^10.4.20"
+    cssnano: "npm:^7.0.6"
+    postcss: "npm:^8.5.3"
+    postcss-cli: "npm:^11.0.0"
+    postcss-import: "npm:^16.1.0"
+    react: "npm:^19.1.0"
+    react-dom: "npm:^19.1.0"
+    rollup: "npm:^4.34.9"
+    tailwindcss: "npm:^3.4.17"
+    tslib: "npm:^2.8.1"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/testscript-runner@workspace:^, @haste-health/testscript-runner@workspace:packages/testscript-runner":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/testscript-runner@workspace:packages/testscript-runner"
+  dependencies:
+    "@haste-health/client": "workspace:^"
+    "@haste-health/fhir-pointer": "workspace:^"
+    "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/fhirpath": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
+    "@haste-health/x-fhir-query": "workspace:^"
+    pino: "npm:^9.6.0"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@haste-health/x-fhir-query@workspace:^, @haste-health/x-fhir-query@workspace:packages/x-fhir-query":
+  version: 0.0.0-use.local
+  resolution: "@haste-health/x-fhir-query@workspace:packages/x-fhir-query"
+  dependencies:
+    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
+    "@babel/preset-env": "npm:^7.26.9"
+    "@babel/preset-typescript": "npm:^7.26.0"
+    "@haste-health/fhirpath": "workspace:^"
+    "@jest/globals": "npm:^29.7.0"
+    "@types/jest": "npm:^29.5.14"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.3.2"
+    typescript: "npm:5.9.2"
+  languageName: unknown
+  linkType: soft
+
 "@headlessui/react@npm:^2.2.0":
   version: 2.2.7
   resolution: "@headlessui/react@npm:2.2.7"
@@ -5697,522 +6213,6 @@ __metadata:
   checksum: 10/f1939066c30147348b326840d67cc48e73072b762f2e2af5c3ea894268d64c62fc4e73fad49a72ed4a52a543b2fa0824c969a676e658ae727f75182f52104007
   languageName: node
   linkType: hard
-
-"@oxidized-health/admin-app@workspace:packages/admin-app":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/admin-app@workspace:packages/admin-app"
-  dependencies:
-    "@codemirror/commands": "npm:^6.8.0"
-    "@codemirror/lang-javascript": "npm:^6.2.3"
-    "@codemirror/lang-json": "npm:^6.0.1"
-    "@codemirror/view": "npm:^6.36.4"
-    "@headlessui/react": "npm:^2.2.0"
-    "@heroicons/react": "npm:^2.2.0"
-    "@oxidized-health/client": "workspace:^"
-    "@oxidized-health/components": "workspace:^"
-    "@oxidized-health/fhir-patch-building": "workspace:^"
-    "@oxidized-health/fhir-pointer": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/fhirpath": "workspace:^"
-    "@oxidized-health/generated-ops": "workspace:^"
-    "@oxidized-health/jwt": "workspace:^"
-    "@oxidized-health/operation-execution": "workspace:^"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    "@testing-library/jest-dom": "npm:^6.6.3"
-    "@testing-library/react": "npm:^16.2.0"
-    "@testing-library/user-event": "npm:^14.6.1"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^22.15.17"
-    "@types/react": "npm:^19.2.2"
-    "@types/react-dom": "npm:^19.2.2"
-    "@types/react-window": "npm:^1.8.8"
-    classnames: "npm:^2.5.1"
-    codemirror: "npm:^6.0.1"
-    fast-deep-equal: "npm:^3.1.3"
-    jotai: "npm:^2.12.4"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    react-router-dom: "npm:^7.6.0"
-    react-scripts: "npm:^5.0.1"
-    react-window: "npm:^1.8.11"
-    tailwindcss: "npm:^3.4.17"
-    typescript: "npm:5.9.2"
-    web-vitals: "npm:^3.5.2"
-    wrangler: "npm:^4.20.1"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/artifacts@workspace:^, @oxidized-health/artifacts@workspace:packages/artifacts":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/artifacts@workspace:packages/artifacts"
-  dependencies:
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@types/node": "npm:^22.15.17"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/cli@workspace:packages/cli":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/cli@workspace:packages/cli"
-  dependencies:
-    "@iarna/toml": "npm:^2.2.5"
-    "@inquirer/prompts": "npm:^5.5.0"
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/client": "workspace:^"
-    "@oxidized-health/codegen": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/generated-ops": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4b.core": "workspace:^"
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^"
-    "@oxidized-health/testscript-runner": "workspace:^"
-    "@types/node": "npm:^22.15.17"
-    commander: "npm:^12.1.0"
-    pino: "npm:^9.6.0"
-    pino-pretty: "npm:^11.3.0"
-    typescript: "npm:5.9.2"
-  bin:
-    oxidized-health: lib/oxidizedhealth.js
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/client@workspace:^, @oxidized-health/client@workspace:packages/client":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/client@workspace:packages/client"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/operation-execution": "workspace:^"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/codegen@workspace:^, @oxidized-health/codegen@workspace:packages/codegen":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/codegen@workspace:packages/codegen"
-  dependencies:
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@types/node": "npm:^22.15.17"
-    commander: "npm:^12.1.0"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/components@workspace:^, @oxidized-health/components@workspace:packages/components":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/components@workspace:packages/components"
-  dependencies:
-    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.9"
-    "@babel/preset-react": "npm:^7.26.3"
-    "@babel/preset-typescript": "npm:^7.26.0"
-    "@chromatic-com/storybook": "npm:^1.6.1"
-    "@codemirror/lang-markdown": "npm:^6.3.2"
-    "@codemirror/merge": "npm:^6.10.0"
-    "@codemirror/state": "npm:^6.5.2"
-    "@codemirror/view": "npm:^6.36.4"
-    "@headlessui/react": "npm:^2.2.0"
-    "@heroicons/react": "npm:^2.2.0"
-    "@oxidized-health/client": "workspace:^"
-    "@oxidized-health/fhir-patch-building": "workspace:^"
-    "@oxidized-health/fhir-pointer": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/fhirpath": "workspace:^"
-    "@oxidized-health/generated-ops": "workspace:^"
-    "@oxidized-health/jwt": "workspace:^"
-    "@oxidized-health/lang-fp": "workspace:^"
-    "@rollup/plugin-commonjs": "npm:^26.0.3"
-    "@rollup/plugin-json": "npm:^6.1.0"
-    "@rollup/plugin-node-resolve": "npm:^15.3.1"
-    "@rollup/plugin-typescript": "npm:^11.1.6"
-    "@storybook/addon-essentials": "npm:^8.2.9"
-    "@storybook/addon-interactions": "npm:^8.2.9"
-    "@storybook/addon-links": "npm:^8.2.9"
-    "@storybook/addon-mdx-gfm": "npm:^8.2.9"
-    "@storybook/addon-onboarding": "npm:^8.2.9"
-    "@storybook/addon-styling": "npm:^1.3.7"
-    "@storybook/addon-webpack5-compiler-babel": "npm:^3.0.3"
-    "@storybook/blocks": "npm:^8.2.9"
-    "@storybook/manager-api": "npm:^8.2.9"
-    "@storybook/react": "npm:^8.2.9"
-    "@storybook/react-webpack5": "npm:^8.2.9"
-    "@storybook/test": "npm:^8.2.9"
-    "@storybook/theming": "npm:^8.2.9"
-    "@types/react": "npm:^19.1.4"
-    autoprefixer: "npm:^10.4.20"
-    classnames: "npm:^2.5.1"
-    codemirror: "npm:^6.0.1"
-    dayjs: "npm:^1.11.13"
-    fast-json-patch: "npm:^3.1.1"
-    immer: "npm:^10.1.1"
-    js-file-download: "npm:^0.4.12"
-    postcss: "npm:^8.5.3"
-    postcss-cli: "npm:^11.0.0"
-    react: "npm:^19.1.0"
-    react-dom: "npm:^19.1.0"
-    react-hot-toast: "npm:^2.5.2"
-    rollup: "npm:^4.34.9"
-    rollup-plugin-dts: "npm:^6.1.1"
-    rollup-plugin-peer-deps-external: "npm:^2.2.4"
-    rollup-plugin-postcss: "npm:^4.0.2"
-    rollup-plugin-terser: "npm:^7.0.2"
-    storybook: "npm:^8.2.9"
-    tailwindcss: "npm:^3.4.17"
-    tslib: "npm:^2.8.1"
-    typescript: "npm:5.9.2"
-    wrangler: "npm:^4.20.1"
-  peerDependencies:
-    "@codemirror/state": ">=6.0.0"
-    "@codemirror/theme-one-dark": ">=6.0.0"
-    "@codemirror/view": ">=6.0.0"
-    react: ^18.2.0
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/fhir-patch-building@workspace:^, @oxidized-health/fhir-patch-building@workspace:packages/fhir-patch-building":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/fhir-patch-building@workspace:packages/fhir-patch-building"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/fhir-pointer": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    fast-json-patch: "npm:^3.1.1"
-    immer: "npm:^10.1.1"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/fhir-pointer@workspace:^, @oxidized-health/fhir-pointer@workspace:packages/fhir-pointer":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/fhir-pointer@workspace:packages/fhir-pointer"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/meta-value": "workspace:^"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    jest: "npm:^29.7.0"
-    jsonpointer: "npm:^5.0.1"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/fhir-types@workspace:^, @oxidized-health/fhir-types@workspace:packages/fhir-types":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/fhir-types@workspace:packages/fhir-types"
-  dependencies:
-    "@types/node": "npm:^22.15.17"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/fhir-validation@workspace:^, @oxidized-health/fhir-validation@workspace:packages/fhir-validation":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/fhir-validation@workspace:packages/fhir-validation"
-  dependencies:
-    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.9"
-    "@babel/preset-typescript": "npm:^7.26.0"
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/codegen": "workspace:^"
-    "@oxidized-health/fhir-pointer": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/fhirpath": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.test-data": "workspace:^"
-    "@oxidized-health/hl7.fhir.us.core": "npm:4.0.1"
-    "@oxidized-health/meta-value": "workspace:^"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^"
-    "@types/babel__preset-env": "npm:^7.10.0"
-    "@types/jest": "npm:^29.5.14"
-    jest: "npm:^29.7.0"
-    jsonpointer: "npm:^5.0.1"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/fhirpath@workspace:^, @oxidized-health/fhirpath@workspace:packages/fhirpath":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/fhirpath@workspace:packages/fhirpath"
-  dependencies:
-    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.9"
-    "@babel/preset-typescript": "npm:^7.26.0"
-    "@chevrotain/types": "npm:^11.0.3"
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-    "@oxidized-health/meta-value": "workspace:^"
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^"
-    "@types/jest": "npm:^29.5.14"
-    chevrotain: "npm:^11.0.3"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    tsx: "npm:4.11.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/frontend@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/frontend@workspace:."
-  dependencies:
-    "@yarnpkg/pnpify": "npm:^4.1.5"
-    typescript: "npm:^5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/generated-ops@workspace:^, @oxidized-health/generated-ops@workspace:packages/generated-ops":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/generated-ops@workspace:packages/generated-ops"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-    "@oxidized-health/operation-execution": "workspace:^"
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^"
-    jest: "npm:^29.7.0"
-    prettier: "npm:^3.5.3"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7.fhir.r4.core@workspace:^, @oxidized-health/hl7.fhir.r4.core@workspace:artifacts/r4/hl7-core":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7.fhir.r4.core@workspace:artifacts/r4/hl7-core"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7.fhir.r4.test-data@workspace:^, @oxidized-health/hl7.fhir.r4.test-data@workspace:artifacts/r4/test-data":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7.fhir.r4.test-data@workspace:artifacts/r4/test-data"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7.fhir.r4b.core@workspace:^, @oxidized-health/hl7.fhir.r4b.core@workspace:artifacts/r4b/hl7-core":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7.fhir.r4b.core@workspace:artifacts/r4b/hl7-core"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7.fhir.r4b.test-data@workspace:artifacts/r4b/test-data":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7.fhir.r4b.test-data@workspace:artifacts/r4b/test-data"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7.fhir.us.core@npm:4.0.1, @oxidized-health/hl7.fhir.us.core@workspace:artifacts/r4/hl7.fhir.us.core":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7.fhir.us.core@workspace:artifacts/r4/hl7.fhir.us.core"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7.fhir.uv.subscriptions-backport.r4@workspace:artifacts/r4/r5-subscription-backport":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7.fhir.uv.subscriptions-backport.r4@workspace:artifacts/r4/r5-subscription-backport"
-  dependencies:
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/hl7v2-parsing@workspace:packages/hl7v2-parsing":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/hl7v2-parsing@workspace:packages/hl7v2-parsing"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/jwt@workspace:^, @oxidized-health/jwt@workspace:packages/jwt":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/jwt@workspace:packages/jwt"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^24.3.0"
-    jest: "npm:^29.7.0"
-    jose: "npm:^6.0.11"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/koa-multipart-form@workspace:packages/koa-multipart-form":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/koa-multipart-form@workspace:packages/koa-multipart-form"
-  dependencies:
-    "@types/koa": "npm:^2.15.0"
-    "@types/multer": "npm:^1.4.12"
-    multer: "npm:^2.0.0"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/lang-fp@workspace:^, @oxidized-health/lang-fp@workspace:packages/lang-fp-codemirror":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/lang-fp@workspace:packages/lang-fp-codemirror"
-  dependencies:
-    "@codemirror/language": "npm:^6.10.8"
-    "@lezer/generator": "npm:^1.0.0"
-    "@lezer/highlight": "npm:^1.0.0"
-    "@lezer/lr": "npm:^1.0.0"
-    mocha: "npm:^9.2.2"
-    rollup: "npm:^2.79.2"
-    rollup-plugin-dts: "npm:^4.2.3"
-    rollup-plugin-ts: "npm:^3.4.5"
-    typescript: "npm:^4.9.5"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/meta-value@workspace:^, @oxidized-health/meta-value@workspace:packages/meta-value":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/meta-value@workspace:packages/meta-value"
-  dependencies:
-    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.9"
-    "@babel/preset-typescript": "npm:^7.26.0"
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/codegen": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^"
-    "@types/jest": "npm:^29.5.14"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/operation-execution@workspace:^, @oxidized-health/operation-execution@workspace:packages/operation-execution":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/operation-execution@workspace:packages/operation-execution"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/artifacts": "workspace:^"
-    "@oxidized-health/fhir-pointer": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/fhir-validation": "workspace:^"
-    "@oxidized-health/hl7.fhir.r4.core": "workspace:^"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    "@oxidized-health/oxidized-health.fhir.r4.core": "workspace:^"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/operation-outcomes@workspace:^, @oxidized-health/operation-outcomes@workspace:packages/operation-outcomes":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/operation-outcomes@workspace:packages/operation-outcomes"
-  dependencies:
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@types/jest": "npm:^29.5.14"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/oxidized-health.fhir.r4.core@workspace:^, @oxidized-health/oxidized-health.fhir.r4.core@workspace:artifacts/r4/oxidizedhealth-core":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/oxidized-health.fhir.r4.core@workspace:artifacts/r4/oxidizedhealth-core"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/oxidized-health.fhir.r4b.core@workspace:artifacts/r4b/oxidizedhealth-core":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/oxidized-health.fhir.r4b.core@workspace:artifacts/r4b/oxidizedhealth-core"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/performance-testing@workspace:packages/performance-testing":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/performance-testing@workspace:packages/performance-testing"
-  dependencies:
-    artillery: "npm:^2.0.22"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/smart-launch@workspace:packages/smart-launch":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/smart-launch@workspace:packages/smart-launch"
-  dependencies:
-    "@babel/core": "npm:^7.26.9"
-    "@babel/preset-react": "npm:^7.26.3"
-    "@oxidized-health/client": "workspace:^"
-    "@oxidized-health/components": "workspace:^"
-    "@rollup/plugin-babel": "npm:^6.0.4"
-    "@rollup/plugin-commonjs": "npm:^26.0.3"
-    "@rollup/plugin-node-resolve": "npm:^15.3.1"
-    "@rollup/plugin-replace": "npm:^5.0.7"
-    "@rollup/plugin-terser": "npm:^0.4.4"
-    "@rollup/plugin-typescript": "npm:^11.1.6"
-    "@types/react": "npm:^19.1.4"
-    "@types/react-dom": "npm:^19.1.4"
-    autoprefixer: "npm:^10.4.20"
-    cssnano: "npm:^7.0.6"
-    postcss: "npm:^8.5.3"
-    postcss-cli: "npm:^11.0.0"
-    postcss-import: "npm:^16.1.0"
-    react: "npm:^19.1.0"
-    react-dom: "npm:^19.1.0"
-    rollup: "npm:^4.34.9"
-    tailwindcss: "npm:^3.4.17"
-    tslib: "npm:^2.8.1"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/testscript-runner@workspace:^, @oxidized-health/testscript-runner@workspace:packages/testscript-runner":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/testscript-runner@workspace:packages/testscript-runner"
-  dependencies:
-    "@oxidized-health/client": "workspace:^"
-    "@oxidized-health/fhir-pointer": "workspace:^"
-    "@oxidized-health/fhir-types": "workspace:^"
-    "@oxidized-health/fhirpath": "workspace:^"
-    "@oxidized-health/operation-outcomes": "workspace:^"
-    "@oxidized-health/x-fhir-query": "workspace:^"
-    pino: "npm:^9.6.0"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
-
-"@oxidized-health/x-fhir-query@workspace:^, @oxidized-health/x-fhir-query@workspace:packages/x-fhir-query":
-  version: 0.0.0-use.local
-  resolution: "@oxidized-health/x-fhir-query@workspace:packages/x-fhir-query"
-  dependencies:
-    "@babel/plugin-syntax-import-attributes": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.9"
-    "@babel/preset-typescript": "npm:^7.26.0"
-    "@jest/globals": "npm:^29.7.0"
-    "@oxidized-health/fhirpath": "workspace:^"
-    "@types/jest": "npm:^29.5.14"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.3.2"
-    typescript: "npm:5.9.2"
-  languageName: unknown
-  linkType: soft
 
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0

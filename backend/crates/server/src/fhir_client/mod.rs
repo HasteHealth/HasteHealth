@@ -5,7 +5,7 @@ use crate::fhir_client::{
     },
     utilities::request_to_resource_type,
 };
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
     request::{
@@ -14,20 +14,20 @@ use oxidized_fhir_client::{
     },
     url::ParsedParameter,
 };
-use oxidized_fhir_model::r4::generated::resources::{
+use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
     scopes::{
         SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermissions,
         SmartResourceScopeUser, SmartScope,
     },
 };
-use oxidized_repository::{Repository, types::SupportedFHIRVersions};
+use haste_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 
 mod batch_transaction_processing;
@@ -63,7 +63,7 @@ pub struct ServerCTX<
     pub tenant: TenantId,
     pub project: ProjectId,
     pub fhir_version: SupportedFHIRVersions,
-    pub user: Arc<oxidized_jwt::claims::UserTokenClaims>,
+    pub user: Arc<haste_jwt::claims::UserTokenClaims>,
     pub client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
 }
 
@@ -77,7 +77,7 @@ impl<
         tenant: TenantId,
         project: ProjectId,
         fhir_version: SupportedFHIRVersions,
-        user: Arc<oxidized_jwt::claims::UserTokenClaims>,
+        user: Arc<haste_jwt::claims::UserTokenClaims>,
         client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     ) -> Self {
         ServerCTX {
@@ -98,7 +98,7 @@ impl<
             tenant: tenant.clone(),
             project: project.clone(),
             fhir_version: SupportedFHIRVersions::R4,
-            user: Arc::new(oxidized_jwt::claims::UserTokenClaims {
+            user: Arc::new(haste_jwt::claims::UserTokenClaims {
                 sub: AuthorId::System,
                 exp: 0,
                 aud: AuthorKind::System.to_string(),

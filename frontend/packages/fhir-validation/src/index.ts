@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Loc } from "@oxidized-health/fhir-pointer";
+import { Loc } from "@haste-health/fhir-pointer";
 import {
   OperationOutcomeIssue,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
 import {
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
-} from "@oxidized-health/fhir-types/versions";
-import { isObject } from "@oxidized-health/meta-value/utilities";
+} from "@haste-health/fhir-types/versions";
+import { isObject } from "@haste-health/meta-value/utilities";
 
 import validateResourceProfiles from "./profile/index.js";
 import structuralValidation from "./structural/index.js";

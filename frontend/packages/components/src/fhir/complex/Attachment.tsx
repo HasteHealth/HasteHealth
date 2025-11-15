@@ -1,7 +1,7 @@
 import fileDownload from "js-file-download";
 import React from "react";
 
-import { Attachment } from "@oxidized-health/fhir-types/r4/types";
+import { Attachment } from "@haste-health/fhir-types/r4/types";
 
 import { Button } from "../../base/button";
 import { InputContainer } from "../../base/containers";

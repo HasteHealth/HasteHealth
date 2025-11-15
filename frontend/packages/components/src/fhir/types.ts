@@ -1,5 +1,5 @@
-import createHTTPClient from "@oxidized-health/client/http";
-import { FHIR_VERSION } from "@oxidized-health/fhir-types/versions";
+import createHTTPClient from "@haste-health/client/http";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
 
 type HTTPClient = ReturnType<typeof createHTTPClient>;
 

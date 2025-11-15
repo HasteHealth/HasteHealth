@@ -1,12 +1,12 @@
 {
   "resourceType": "SearchParameter",
   "id": "MessageTopic-broker",
-  "url": "https://oxidized-health.app/fhir/SearchParameter/MessageTopic-broker",
+  "url": "https://haste-health.app/fhir/SearchParameter/MessageTopic-broker",
   "version": "4.0.1",
   "name": "broker",
   "status": "draft",
   "experimental": false,
-  "publisher": "OxidizedHealth",
+  "publisher": "HasteHealth",
   "description": "MessageTopic broker.",
   "code": "broker",
   "base": [

@@ -1,5 +1,5 @@
 {
-  "name": "@oxidized-health/smart-launch",
+  "name": "@haste-health/smart-launch",
   "version": "0.6.7",
   "scripts": {
     "build-css": "yarn postcss -o dist/css/index.css index.css",
@@ -7,8 +7,8 @@
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "dependencies": {
-    "@oxidized-health/client": "workspace:^",
-    "@oxidized-health/components": "workspace:^",
+    "@haste-health/client": "workspace:^",
+    "@haste-health/components": "workspace:^",
     "@types/react": "^19.1.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

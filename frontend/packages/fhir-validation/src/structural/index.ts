@@ -5,14 +5,14 @@ import {
   FPPrimitiveNode,
   TypeChoiceNode,
   TypeNode,
-} from "@oxidized-health/codegen/generate/meta-data";
+} from "@haste-health/codegen/generate/meta-data";
 import {
   Loc,
   descend,
   get,
   pointer,
   toJSONPointer,
-} from "@oxidized-health/fhir-pointer";
+} from "@haste-health/fhir-pointer";
 import {
   ElementDefinition,
   OperationOutcome,
@@ -20,25 +20,25 @@ import {
   Reference,
   id,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 import {
   AllDataTypes,
   AllResourceTypes,
   FHIR_VERSION,
   Resource,
-} from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/versions";
 import {
   ElementNode,
   getMeta,
   getStartingMeta,
   resolveMeta,
-} from "@oxidized-health/meta-value/meta";
-import { isObject } from "@oxidized-health/meta-value/utilities";
+} from "@haste-health/meta-value/meta";
+import { isObject } from "@haste-health/meta-value/utilities";
 import {
   OperationError,
   issueError,
   outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 import { validatePrimitive } from "../elements/primitive.js";
 import { validateCardinality } from "../elements/validators/cardinality.js";

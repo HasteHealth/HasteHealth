@@ -9,9 +9,7 @@ import { configurationCommands } from "./config.js";
 
 const program = new Command();
 
-program
-  .name("OxidizedHealth CLI Tool")
-  .description("OxidizedHealth CLI interface.");
+program.name("HasteHealth CLI Tool").description("HasteHealth CLI interface.");
 
 configurationCommands(program.command("config"));
 codeGenerationCommands(program.command("generate"));

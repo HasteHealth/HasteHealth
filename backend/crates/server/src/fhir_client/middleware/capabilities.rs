@@ -5,12 +5,12 @@ use crate::fhir_client::{
         ServerMiddlewareState,
     },
 };
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest},
     url::{Parameter, ParsedParameter},
 };
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{
         CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
         CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
@@ -19,11 +19,11 @@ use oxidized_fhir_model::r4::generated::{
     terminology::{IssueType, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy},
     types::{FHIRBoolean, FHIRCode, FHIRString},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{ProjectId, TenantId, VersionIdRef};
-use oxidized_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ProjectId, TenantId, VersionIdRef};
+use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;
 

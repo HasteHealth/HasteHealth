@@ -5,7 +5,7 @@ Typescript types generated off of FHIR StructureDefinitions.
 ## Usage
 
 ```typescript
-import { Observation, Patient, id } from "@oxidized-health/fhir-types/r4/types";
+import { Observation, Patient, id } from "@haste-health/fhir-types/r4/types";
 
 const patient: Patient = {
   name: [
@@ -69,7 +69,7 @@ These are utilities that can be useful
 import {
   primitiveTypes,
   resourceTypes,
-} from "@oxidized-health/fhir-types/r4/sets";
+} from "@haste-health/fhir-types/r4/sets";
 
 function isPrimitiveType(type: string) {
   returnprimitiveTypes.has(type);
@@ -91,7 +91,7 @@ Various utility types generally used for Typescript generic functions.
 
 ### Example
 
-Pulled from @oxidized-health/client this example passes in an argument of ResourceType
+Pulled from @haste-health/client this example passes in an argument of ResourceType
 which is a string of only allowed ResourceTypes and using AResource returns an object in conformance with the type passed in.
 
 ```typescript

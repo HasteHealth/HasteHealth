@@ -1,20 +1,20 @@
 import { expect, test } from "@jest/globals";
 import { fileURLToPath } from "url";
 
-import { loadArtifacts } from "@oxidized-health/artifacts";
+import { loadArtifacts } from "@haste-health/artifacts";
 import {
   ValueSet,
   canonical,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
 import {
   FHIR_VERSION,
   R4,
   Resource,
   ResourceType,
-} from "@oxidized-health/fhir-types/lib/versions";
-import { Invocation } from "@oxidized-health/operation-execution";
-import { OpCTX } from "@oxidized-health/operation-execution";
+} from "@haste-health/fhir-types/lib/versions";
+import { Invocation } from "@haste-health/operation-execution";
+import { OpCTX } from "@haste-health/operation-execution";
 
 import { ValueSetExpand } from "./ops.js";
 

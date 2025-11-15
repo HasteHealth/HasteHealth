@@ -1,25 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { eleIndexToChildIndices } from "@oxidized-health/codegen/traversal/structure-definition";
-import {
-  Loc,
-  descend,
-  get,
-  toJSONPointer,
-} from "@oxidized-health/fhir-pointer";
+import { eleIndexToChildIndices } from "@haste-health/codegen/traversal/structure-definition";
+import { Loc, descend, get, toJSONPointer } from "@haste-health/fhir-pointer";
 import {
   ElementDefinition,
   OperationOutcomeIssue,
   StructureDefinition,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
-import { isPrimitiveType } from "@oxidized-health/meta-value/utilities";
+} from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
+import { isPrimitiveType } from "@haste-health/meta-value/utilities";
 import {
   OperationError,
   issueError,
   outcomeFatal,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 import { validatePrimitive } from "../elements/primitive.js";
 import { validateCardinality } from "../elements/validators/cardinality.js";

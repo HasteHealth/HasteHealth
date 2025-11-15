@@ -1,12 +1,12 @@
 {
     "resourceType": "SearchParameter",
     "id": "IdentityProvider-accessType",
-    "url": "https://oxidized-health.app/fhir/SearchParameter/IdentityProvider-accessType",
+    "url": "https://haste-health.app/fhir/SearchParameter/IdentityProvider-accessType",
     "version": "4.0.1",
     "name": "accessType",
     "status": "draft",
     "experimental": false,
-    "publisher": "OxidizedHealth",
+    "publisher": "HasteHealth",
     "description": "An identity providers accessType.",
     "code": "accessType",
     "base": [

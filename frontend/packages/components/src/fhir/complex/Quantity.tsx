@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Quantity, uri } from "@oxidized-health/fhir-types/r4/types";
+import { Quantity, uri } from "@haste-health/fhir-types/r4/types";
 
 import { InputContainer } from "../../base/containers";
 import {

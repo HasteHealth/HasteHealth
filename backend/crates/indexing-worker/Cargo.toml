@@ -1,19 +1,19 @@
 [package]
-name = "oxidized-indexing-worker"
+name = "haste-indexing-worker"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 elasticsearch = "9.0.0-alpha.1"
-oxidized-config = { path = "../config" }
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-config = { path = "../config" }
+haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-fhir-search = { path = "../fhir-search" }
-oxidized-fhirpath = { path = "../fhirpath" }
-oxidized-jwt = { path = "../jwt" }
-oxidized-repository = { path = "../repository" }
+haste-fhir-search = { path = "../fhir-search" }
+haste-fhirpath = { path = "../fhirpath" }
+haste-jwt = { path = "../jwt" }
+haste-repository = { path = "../repository" }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
     "tls-native-tls",

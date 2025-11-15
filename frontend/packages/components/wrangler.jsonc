@@ -14,7 +14,7 @@
   },
   "routes": [
     {
-      "pattern": "storybook.oxidized-health.app",
+      "pattern": "storybook.haste-health.app",
       "custom_domain": true
     }
   ]

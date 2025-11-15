@@ -1,11 +1,11 @@
 use axum::response::IntoResponse;
-use http::{HeaderMap, StatusCode};
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
     terminology::{BundleType, IssueType},
     types::FHIRUnsignedInt,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::OperationOutcomeError;
+use http::{HeaderMap, StatusCode};
 
 use crate::request::FHIRResponse;
 
@@ -42,7 +42,7 @@ impl IntoResponse for FHIRResponse {
                 StatusCode::CREATED,
                 header,
                 // Unwrap should be safe here.
-                oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Read(response) => {
@@ -51,7 +51,7 @@ impl IntoResponse for FHIRResponse {
                         StatusCode::OK,
                         header,
                         // Unwrap should be safe here.
-                        oxidized_fhir_serialization_json::to_string(&resource).unwrap(),
+                        haste_fhir_serialization_json::to_string(&resource).unwrap(),
                     )
                         .into_response()
                 } else {
@@ -66,21 +66,21 @@ impl IntoResponse for FHIRResponse {
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Update(response) => (
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::Capabilities(response) => (
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                oxidized_fhir_serialization_json::to_string(&response.capabilities).unwrap(),
+                haste_fhir_serialization_json::to_string(&response.capabilities).unwrap(),
             )
                 .into_response(),
             FHIRResponse::HistoryInstance(response) => {
@@ -89,7 +89,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
                 )
                     .into_response()
             }
@@ -99,7 +99,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
                 )
                     .into_response()
             }
@@ -109,7 +109,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
                 )
                     .into_response()
             }
@@ -123,7 +123,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
                 )
                     .into_response()
             }
@@ -137,7 +137,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
                 )
                     .into_response()
             }
@@ -146,7 +146,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
                 )
                     .into_response()
             }
@@ -155,7 +155,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
                 )
                     .into_response()
             }
@@ -164,7 +164,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
                 )
                     .into_response()
             }
@@ -173,7 +173,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&response.resource).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
                 )
                     .into_response()
             }
@@ -184,7 +184,7 @@ impl IntoResponse for FHIRResponse {
                 StatusCode::OK,
                 header,
                 // Unwrap should be safe here.
-                oxidized_fhir_serialization_json::to_string(&fhirpatch_response.resource).unwrap(),
+                haste_fhir_serialization_json::to_string(&fhirpatch_response.resource).unwrap(),
             )
                 .into_response(),
             FHIRResponse::DeleteType(_fhirdelete_type_response) => {
@@ -198,7 +198,7 @@ impl IntoResponse for FHIRResponse {
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    oxidized_fhir_serialization_json::to_string(&fhirtransaction_response.resource)
+                    haste_fhir_serialization_json::to_string(&fhirtransaction_response.resource)
                         .unwrap(),
                 )
                     .into_response()

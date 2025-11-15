@@ -1,6 +1,5 @@
 use axum::http::Method;
-use json_patch::Patch;
-use oxidized_fhir_client::request::{
+use haste_fhir_client::request::{
     FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest,
     FHIRDeleteSystemRequest, FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest,
     FHIRHistorySystemRequest, FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest,
@@ -8,16 +7,17 @@ use oxidized_fhir_client::request::{
     FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
     FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
-use oxidized_fhir_client::url::{ParseError, parse_query};
-use oxidized_fhir_model::r4::generated::resources::{
+use haste_fhir_client::url::{ParseError, parse_query};
+use haste_fhir_model::r4::generated::resources::{
     Bundle, Parameters, Resource, ResourceType, ResourceTypeError,
 };
-use oxidized_fhir_model::r4::generated::terminology::BundleType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_operation_error::derive::OperationOutcomeError;
-use oxidized_fhir_serialization_json::errors::DeserializeError;
-use oxidized_jwt::VersionId;
-use oxidized_repository::types::SupportedFHIRVersions;
+use haste_fhir_model::r4::generated::terminology::BundleType;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::derive::OperationOutcomeError;
+use haste_fhir_serialization_json::errors::DeserializeError;
+use haste_jwt::VersionId;
+use haste_repository::types::SupportedFHIRVersions;
+use json_patch::Patch;
 
 #[derive(Debug)]
 pub enum HTTPBody {
@@ -91,7 +91,7 @@ fn get_parameters(req: HTTPRequest) -> Result<Parameters, FHIRRequestParsingErro
                 return Err(FHIRRequestParsingError::InvalidBody);
             }
         }
-        HTTPBody::String(body) => oxidized_fhir_serialization_json::from_str::<Parameters>(&body),
+        HTTPBody::String(body) => haste_fhir_serialization_json::from_str::<Parameters>(&body),
     }?;
     Ok(params)
 }
@@ -105,7 +105,7 @@ fn get_bundle(req: HTTPRequest) -> Result<Bundle, FHIRRequestParsingError> {
                 return Err(FHIRRequestParsingError::InvalidBody);
             }
         }
-        HTTPBody::String(body) => oxidized_fhir_serialization_json::from_str::<Bundle>(&body),
+        HTTPBody::String(body) => haste_fhir_serialization_json::from_str::<Bundle>(&body),
     }?;
     Ok(bundle)
 }

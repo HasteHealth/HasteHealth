@@ -1,7 +1,7 @@
 import { expect, test } from "@jest/globals";
 
-import { Patient, id } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { Patient, id } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import {
   Loc,

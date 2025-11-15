@@ -3,19 +3,19 @@ import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { generateIndexFile, loadArtifacts } from "@oxidized-health/artifacts";
-import { generateMetaData } from "@oxidized-health/codegen/generate/meta-data";
-import generateOps from "@oxidized-health/codegen/generate/operation-definition";
-import { generateSets } from "@oxidized-health/codegen/generate/sets";
-import { generateTypeToCanonicalMap } from "@oxidized-health/codegen/generate/type-to-canonical";
-import { generateTypes } from "@oxidized-health/codegen/generate/typescript-types";
-import { StructureDefinition } from "@oxidized-health/fhir-types/lib/generated/r4/types";
+import { generateIndexFile, loadArtifacts } from "@haste-health/artifacts";
+import { generateMetaData } from "@haste-health/codegen/generate/meta-data";
+import generateOps from "@haste-health/codegen/generate/operation-definition";
+import { generateSets } from "@haste-health/codegen/generate/sets";
+import { generateTypeToCanonicalMap } from "@haste-health/codegen/generate/type-to-canonical";
+import { generateTypes } from "@haste-health/codegen/generate/typescript-types";
+import { StructureDefinition } from "@haste-health/fhir-types/lib/generated/r4/types";
 import {
   FHIR_VERSION,
   FHIR_VERSIONS_SUPPORTED,
   R4,
-} from "@oxidized-health/fhir-types/versions";
-import { StructureDefinitionSnapshot } from "@oxidized-health/generated-ops/lib/r4/ops";
+} from "@haste-health/fhir-types/versions";
+import { StructureDefinitionSnapshot } from "@haste-health/generated-ops/lib/r4/ops";
 
 import { createClient } from "../client.js";
 import { CONFIG_LOCATION } from "../config.js";

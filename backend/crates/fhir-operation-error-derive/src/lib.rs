@@ -180,11 +180,11 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
     let issues = get_issue_attributes(&v.attrs).unwrap_or(vec![]);
     let invariant_operation_outcome_issues = issues.iter().map(|simple_issue: &SimpleIssue| {
         let severity_string: String = simple_issue.severity.clone().into();
-        let severity = quote!{ Box::new(oxidized_fhir_model::r4::generated::terminology::IssueSeverity::try_from(#severity_string.to_string()).unwrap()) };
+        let severity = quote!{ Box::new(haste_fhir_model::r4::generated::terminology::IssueSeverity::try_from(#severity_string.to_string()).unwrap()) };
         
         let diagnostic = if let Some(diagnostic) = simple_issue.diagnostic.as_ref() {
             quote! {
-                Some(Box::new(oxidized_fhir_model::r4::generated::types::FHIRString{
+                Some(Box::new(haste_fhir_model::r4::generated::types::FHIRString{
                     id: None,
                     extension: None,
                     value: Some(format!(#diagnostic)),
@@ -198,11 +198,11 @@ fn derive_operation_issues(v: &Variant) -> proc_macro2::TokenStream {
 
         let code_string = &simple_issue.code;
         let code = quote! {
-            Box::new(oxidized_fhir_model::r4::generated::terminology::IssueType::try_from(#code_string.to_string()).unwrap())
+            Box::new(haste_fhir_model::r4::generated::terminology::IssueType::try_from(#code_string.to_string()).unwrap())
         };
 
         quote! {
-            oxidized_fhir_model::r4::generated::resources::OperationOutcomeIssue {
+            haste_fhir_model::r4::generated::resources::OperationOutcomeIssue {
                 id: None,
                 extension: None,
                 modifierExtension: None,
@@ -310,10 +310,10 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
                 quote! {
                     #ident #arg_instantiation => {
                         
-                        let mut operation_outcome = oxidized_fhir_model::r4::generated::resources::OperationOutcome::default();
+                        let mut operation_outcome = haste_fhir_model::r4::generated::resources::OperationOutcome::default();
                         operation_outcome.issue = #op_issues;
                         
-                        oxidized_fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
+                        haste_fhir_operation_error::OperationOutcomeError::new(#from_error, operation_outcome)
                     }
                 }
             }).collect();
@@ -333,7 +333,7 @@ pub fn operation_error(input: TokenStream) -> TokenStream {
 
 
             let expanded = quote! {
-                impl From<#name> for oxidized_fhir_operation_error::OperationOutcomeError {
+                impl From<#name> for haste_fhir_operation_error::OperationOutcomeError {
                     fn from(value: #name) -> Self {
                         match value {
                             #(#name::#variants),*

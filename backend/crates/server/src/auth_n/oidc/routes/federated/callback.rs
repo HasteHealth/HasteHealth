@@ -4,18 +4,18 @@ use axum::{
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
-use jsonwebtoken::DecodingKey;
-use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_client::FHIRClient;
+use haste_fhir_model::r4::generated::{
     resources::{IdentityProvider, Resource, ResourceType, User},
     terminology::{IssueType, UserRole},
     types::{FHIRString, Reference},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{ProjectId, TenantId};
-use oxidized_repository::{Repository, admin::TenantAuthAdmin, types::user::CreateUser};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ProjectId, TenantId};
+use haste_repository::{Repository, admin::TenantAuthAdmin, types::user::CreateUser};
+use jsonwebtoken::DecodingKey;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::sync::Arc;
@@ -165,7 +165,7 @@ pub async fn create_user_if_not_exists<
     _project: &ProjectId,
     idp: &IdentityProvider,
     sub_claim: &str,
-) -> Result<oxidized_fhir_model::r4::generated::resources::User, OperationOutcomeError> {
+) -> Result<haste_fhir_model::r4::generated::resources::User, OperationOutcomeError> {
     let user_id = user_federated_id(idp, sub_claim)?;
 
     let system_ctx = Arc::new(ServerCTX::system(

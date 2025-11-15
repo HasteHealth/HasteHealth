@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { OperationOutcome } from "@oxidized-health/fhir-types/r4/types";
+import { OperationOutcome } from "@haste-health/fhir-types/r4/types";
 
 import { FHIROperationOutcomeDisplay } from "./OperationOutcome";
 
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
   args: {
-    title: "OxidizedHealth",
+    title: "HasteHealth",
     operationOutcome: {
       resourceType: "OperationOutcome",
       issue: [

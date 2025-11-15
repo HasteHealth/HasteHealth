@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
+      "fullUrl": "https://haste-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
       "resource": {
         "id": "clientapplication-response-types-codesystem",
-        "url": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
+        "url": "https://haste-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",
         "title": "ClientApplicationResponseTypes",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Array of the OAuth 2.0 response type strings that the client can use at the authorization endpoint.",
         "caseSensitive": true,
-        "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
+        "valueSet": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
         "content": "complete",
         "concept": [
           {
@@ -31,23 +31,23 @@
       }
     },
     {
-      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
+      "fullUrl": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
       "resource": {
         "resourceType": "ValueSet",
         "id": "clientapplication-response-types-valueset",
-        "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
+        "url": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",
         "title": "ClientApplicationResponseTypes",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Array of the OAuth 2.0 response type strings that the client can use at the authorization endpoint.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationResponseTypes"
+              "system": "https://haste-health.app/fhir/CodeSystem/ClientApplicationResponseTypes"
             }
           ]
         }

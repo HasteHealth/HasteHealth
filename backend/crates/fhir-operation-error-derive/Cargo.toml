@@ -1,5 +1,5 @@
 [package]
-name = "oxidized-fhir-operation-error-derive"
+name = "haste-fhir-operation-error-derive"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,7 +7,7 @@ edition = "2024"
 proc-macro = true
 
 [dependencies]
-oxidized-fhir-model = { path = "../fhir-model" }
+haste-fhir-model = { path = "../fhir-model" }
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
 syn = "2.0.104"

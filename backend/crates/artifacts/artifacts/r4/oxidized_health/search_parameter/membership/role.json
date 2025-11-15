@@ -1,12 +1,12 @@
 {
   "resourceType": "SearchParameter",
   "id": "Membership-role",
-  "url": "https://oxidized-health.app/fhir/SearchParameter/Membership-role",
+  "url": "https://haste-health.app/fhir/SearchParameter/Membership-role",
   "version": "4.0.1",
   "name": "Role",
   "status": "draft",
   "experimental": false,
-  "publisher": "oxidized-health",
+  "publisher": "haste-health",
   "description": "Membership role",
   "code": "role",
   "base": [

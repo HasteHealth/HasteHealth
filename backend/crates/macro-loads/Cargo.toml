@@ -1,5 +1,5 @@
 [package]
-name = "oxidized-macro-loads"
+name = "haste-macro-loads"
 version = "0.1.0"
 edition = "2024"
 

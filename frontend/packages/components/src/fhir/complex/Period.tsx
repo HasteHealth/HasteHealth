@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Period } from "@oxidized-health/fhir-types/r4/types";
+import { Period } from "@haste-health/fhir-types/r4/types";
 
 import { InputContainer } from "../../base/containers";
 import { FHIRDateTimeEditable } from "../primitives/datetime";

@@ -1,12 +1,12 @@
 {
   "resourceType": "SearchParameter",
   "id": "ClientApplication-grantType",
-  "url": "https://oxidized-health.app/fhir/SearchParameter/ClientApplication-grantType",
+  "url": "https://haste-health.app/fhir/SearchParameter/ClientApplication-grantType",
   "version": "4.0.1",
   "name": "Grant Type",
   "status": "draft",
   "experimental": false,
-  "publisher": "oxidized-health",
+  "publisher": "haste-health",
   "description": "ClientApplication grant type.",
   "code": "grantType",
   "base": [

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Range } from "@oxidized-health/fhir-types/r4/types";
+import { Range } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRRangeReadOnly } from "./RangeReadOnly";
 

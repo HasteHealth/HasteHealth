@@ -1,5 +1,5 @@
 {
-  "name": "@oxidized-health/koa-multipart-form",
+  "name": "@haste-health/koa-multipart-form",
   "version": "0.4.4",
   "dependencies": {
     "@types/koa": "^2.15.0",

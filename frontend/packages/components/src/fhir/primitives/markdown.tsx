@@ -1,7 +1,7 @@
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import React from "react";
 
-import { markdown as fmarkdown } from "@oxidized-health/fhir-types/r4/types";
+import { markdown as fmarkdown } from "@haste-health/fhir-types/r4/types";
 
 import { CodeMirror } from "../../base";
 import { InputContainer } from "../../base/containers";

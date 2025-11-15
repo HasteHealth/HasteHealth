@@ -1,16 +1,16 @@
 [package]
-name = "oxidized-fhir-terminology"
+name = "haste-fhir-terminology"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 dashmap = "6.1.0"
-oxidized-fhir-client = { path = "../fhir-client" }
-oxidized-fhir-generated-ops = { path = "../fhir-generated-ops" }
-oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-fhir-client = { path = "../fhir-client" }
+haste-fhir-generated-ops = { path = "../fhir-generated-ops" }
+haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-fhir-search = { path = "../fhir-search" }
-oxidized-jwt = { path = "../jwt" }
-oxidized-repository = { path = "../repository" }
+haste-fhir-search = { path = "../fhir-search" }
+haste-jwt = { path = "../jwt" }
+haste-repository = { path = "../repository" }

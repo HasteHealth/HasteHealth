@@ -1,6 +1,6 @@
 use elasticsearch::{Elasticsearch, indices::IndicesCreateParts};
-use oxidized_fhir_model::r4::generated::terminology::SearchParamType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_model::r4::generated::terminology::SearchParamType;
+use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
 
@@ -73,7 +73,7 @@ fn reference_index_mapping() -> serde_json::Value {
 }
 
 pub async fn create_elasticsearch_searchparameter_mappings(
-    search_parameters: &Vec<Arc<oxidized_fhir_model::r4::generated::resources::SearchParameter>>,
+    search_parameters: &Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
 ) -> Result<Value, OperationOutcomeError> {
     let mut property_mapping: HashMap<String, Value> = HashMap::new();
     for parameter in search_parameters.iter() {
@@ -167,7 +167,7 @@ pub async fn create_mapping(
 
     if !exists_res.status_code().is_success() {
         let mapping_body = create_elasticsearch_searchparameter_mappings(
-            &oxidized_artifacts::search_parameters::get_all_search_parameters(),
+            &haste_artifacts::search_parameters::get_all_search_parameters(),
         )
         .await
         .unwrap();

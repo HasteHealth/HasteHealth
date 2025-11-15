@@ -24,7 +24,7 @@ export function SideBarItem({
           "cursor-pointer flex items-center p-1 px-2 group rounded-lg group",
           {
             "text-slate-800 hover:bg-slate-200": !active,
-            "text-teal-900 bg-teal-200 ": active,
+            "text-orange-900 bg-orange-200 ": active,
           }
         )}
       >
@@ -50,7 +50,7 @@ export interface SideBarItemGroupProps
 export function SideBarItemGroup(props: SideBarItemGroupProps) {
   return (
     <li {...props}>
-      <div className="px-2 text-teal-900 text-xs">{props.label}</div>
+      <div className="px-2 text-orange-900 text-xs">{props.label}</div>
       <div className="mt-1 ml-1">
         <ul className="space-y-1">{props.children}</ul>
       </div>

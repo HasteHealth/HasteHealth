@@ -14,13 +14,12 @@ use axum::{
     http::Uri,
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use maud::{Markup, html};
-use oxidized_config::Config;
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_repository::{
+use haste_config::Config;
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_repository::{
     Repository,
     admin::{ProjectAuthAdmin, TenantAuthAdmin},
     types::{
@@ -28,6 +27,7 @@ use oxidized_repository::{
         user::{AuthMethod, CreateUser, UserSearchClauses},
     },
 };
+use maud::{Markup, html};
 use sendgrid::v3::{Content, Email, Message, Personalization, Sender};
 use serde::Deserialize;
 use std::{sync::Arc, time::Duration};
@@ -235,10 +235,10 @@ pub async fn password_reset_verify_get<
                 form class="space-y-4 md:space-y-6" action=(uri.path().to_string()) method="POST"{
                     input type="hidden" id="code" name="code" value=(query.code) {}
                     label for="password" class="block mb-2 text-sm font-medium text-gray-900"{"Enter your Password"}
-                    input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5" required="" name="password" {}
+                    input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required="" name="password" {}
                     label for="password_confirm" class="block mb-2 text-sm font-medium text-gray-900"  {"Confirm your Password"}
-                    input type="password" id="password_confirm" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-teal-600 focus:border-teal-600 block w-full p-2.5" required="" name="password_confirm" {}
-                    button type="submit" class="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"{"Continue"}
+                    input type="password" id="password_confirm" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required="" name="password_confirm" {}
+                    button type="submit" class="w-full text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"{"Continue"}
                 }
             },
         ))

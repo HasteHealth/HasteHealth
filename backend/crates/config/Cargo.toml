@@ -1,11 +1,11 @@
 [package]
-name = "oxidized-config"
+name = "haste-config"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 dotenvy = "0.15.7"
-oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }

@@ -1,9 +1,9 @@
 [package]
-name = "oxidized-fhir-generated-ops"
+name = "haste-fhir-generated-ops"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-oxidized-fhir-model = { path = "../fhir-model" }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error" }
-oxidized-fhir-ops = { path = "../fhir-ops", features = ["derive"] }
+haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-operation-error = { path = "../fhir-operation-error" }
+haste-fhir-ops = { path = "../fhir-ops", features = ["derive"] }

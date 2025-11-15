@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Range } from "@oxidized-health/fhir-types/r4/types";
+import { Range } from "@haste-health/fhir-types/r4/types";
 
 import { InputContainer } from "../../base/containers";
 import { EditableProps } from "../types";

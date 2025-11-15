@@ -16,8 +16,7 @@ use std::{
     sync::{Arc, LazyLock, Mutex},
 };
 // use owning_ref::BoxRef;
-use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_model::r4::generated::{
     resources::ResourceType,
     types::{
         FHIRBase64Binary, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal, FHIRInteger, FHIROid,
@@ -25,8 +24,9 @@ use oxidized_fhir_model::r4::generated::{
         Reference,
     },
 };
-use oxidized_reflect::MetaValue;
-use oxidized_reflect_derive::Reflect;
+use haste_reflect::MetaValue;
+use haste_reflect_derive::Reflect;
+use once_cell::sync::Lazy;
 
 /// Number types to use in FHIR evaluation
 static NUMBER_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
@@ -900,7 +900,7 @@ impl FPEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use oxidized_fhir_model::r4::generated::{
+    use haste_fhir_model::r4::generated::{
         resources::{
             Bundle, Patient, PatientDeceasedTypeChoice, PatientLink, Resource, SearchParameter,
         },
@@ -908,8 +908,8 @@ mod tests {
             Extension, ExtensionValueTypeChoice, FHIRString, HumanName, Identifier, Reference,
         },
     };
-    use oxidized_fhir_serialization_json;
-    use oxidized_reflect_derive::Reflect;
+    use haste_fhir_serialization_json;
+    use haste_reflect_derive::Reflect;
 
     #[derive(Reflect, Debug)]
     struct C {
@@ -929,7 +929,7 @@ mod tests {
     fn load_search_parameters() -> Vec<SearchParameter> {
         let json =
             include_str!("../../artifacts/artifacts/r4/hl7/minified/search-parameters.min.json");
-        let bundle = oxidized_fhir_serialization_json::from_str::<Bundle>(json).unwrap();
+        let bundle = haste_fhir_serialization_json::from_str::<Bundle>(json).unwrap();
 
         let search_parameters: Vec<SearchParameter> = bundle
             .entry
@@ -1284,7 +1284,7 @@ mod tests {
     fn domain_resource_filter() {
         let engine = FPEngine::new();
 
-        let patient = oxidized_fhir_serialization_json::from_str::<Resource>(
+        let patient = haste_fhir_serialization_json::from_str::<Resource>(
             r#"{"id": "patient-id", "resourceType": "Patient"}"#,
         )
         .unwrap();
@@ -1328,7 +1328,7 @@ mod tests {
     #[test]
     fn resolve_test() {
         let engine = FPEngine::new();
-        let observation = oxidized_fhir_serialization_json::from_str::<Resource>(r#"
+        let observation = haste_fhir_serialization_json::from_str::<Resource>(r#"
              {
                 "resourceType": "Observation",
                 "id": "f001",

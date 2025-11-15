@@ -1,5 +1,5 @@
 [package]
-name = "oxidized-fhir-model"
+name = "haste-fhir-model"
 version = "0.1.0"
 edition = "2024"
 
@@ -9,10 +9,10 @@ sqlx = ["dep:sqlx"]
 [dependencies]
 chrono = "0.4.41"
 once_cell = "1.21.3"
-oxidized-fhir-serialization-json = { path = "../fhir-serialization-json", features = [
+haste-fhir-serialization-json = { path = "../fhir-serialization-json", features = [
     "derive",
 ] }
-oxidized-reflect = { path = "../reflect", features = ["derive"] }
+haste-reflect = { path = "../reflect", features = ["derive"] }
 regex = "1.11.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"

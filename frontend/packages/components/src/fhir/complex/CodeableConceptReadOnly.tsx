@@ -1,6 +1,6 @@
 import React from "react";
 
-import { CodeableConcept } from "@oxidized-health/fhir-types/r4/types";
+import { CodeableConcept } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRCodingReadOnly } from "./CodingReadOnly";
 

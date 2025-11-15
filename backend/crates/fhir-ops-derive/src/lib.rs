@@ -1,4 +1,4 @@
-use oxidized_fhir_model::r4::generated::resources::ResourceType;
+use haste_fhir_model::r4::generated::resources::ResourceType;
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::{
@@ -118,7 +118,7 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
             quote!{
                 #field: #field.ok_or_else(|| 
                     OperationOutcomeError::error(
-                        oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Field '{}' is required.", stringify!(#field_name))))?
+                        haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Field '{}' is required.", stringify!(#field_name))))?
              }
         }
         
@@ -132,7 +132,7 @@ fn build_return_value(fields: &Fields) -> proc_macro2::TokenStream {
 }
 
 #[proc_macro_derive(ToParameters, attributes(parameter_rename, parameter_nested))]
-pub fn oxidized_to_parameters(input: TokenStream) -> TokenStream {
+pub fn haste_to_parameters(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -188,7 +188,7 @@ pub fn oxidized_to_parameters(input: TokenStream) -> TokenStream {
                     quote! {
                         #parameters_name.push(ParametersParameter {
                             name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
-                            value: Some(oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(Box::new(#tmp_name))),
+                            value: Some(haste_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(Box::new(#tmp_name))),
                             ..Default::default()
                         });
                     }
@@ -237,7 +237,7 @@ pub fn oxidized_to_parameters(input: TokenStream) -> TokenStream {
 
 
 #[proc_macro_derive(FromParameters, attributes(parameter_rename, parameter_nested))]
-pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
+pub fn haste_from_parameters(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -281,7 +281,7 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
                         if let Some(Resource::#value_type(resource)) = #current_parameter.resource.map(|r| *r) {
                             Ok(Some(resource))
                         } else {
-                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 } else {
@@ -290,10 +290,10 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
                     let parameter_value_type = format_ident!("{}", removed_fhir);
 
                     quote! {
-                        if let Some(oxidized_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
+                        if let Some(haste_fhir_model::r4::generated::resources::ParametersParameterValueTypeChoice::#parameter_value_type(value)) = #current_parameter.value {
                             Ok(Some(*value))
                         } else {
-                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' does not contain correct value type.", #expected_parameter_name)));
                         }
                     }
                 };
@@ -312,7 +312,7 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
                 } else {
                     quote! {
                         if #field_name.is_some(){
-                            return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
+                            return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed to be repeated.", #expected_parameter_name)));
                         }
                         let tmp_value: Result<_, OperationOutcomeError> = #get_value_from_param;
                         #field_name = tmp_value?;
@@ -338,10 +338,10 @@ pub fn oxidized_from_parameters(input: TokenStream) -> TokenStream {
                             match #current_parameter.name.value.as_ref().map(|v| v.as_str()) {
                                 #(#set_fields),*
                                 Some(k) => {
-                                    return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed.", k)));
+                                    return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter '{}' is not allowed.", k)));
                                 },
                                 None => {
-                                    return Err(OperationOutcomeError::error(oxidized_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter must have a name on it")));
+                                    return Err(OperationOutcomeError::error(haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None), format!("Parameter must have a name on it")));
                                 }
                             }
                         }

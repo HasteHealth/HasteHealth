@@ -1,6 +1,6 @@
 import React from "react";
 
-import { HumanName } from "@oxidized-health/fhir-types/r4/types";
+import { HumanName } from "@haste-health/fhir-types/r4/types";
 
 import { InputContainer } from "../../base/containers";
 import { FHIRStringEditable } from "../primitives/string";

@@ -1,12 +1,12 @@
 {
     "resourceType": "StructureDefinition",
-    "id": "oxidized-health-author-extension",
-    "url": "https://oxidized-health.app/author",
+    "id": "haste-health-author-extension",
+    "url": "https://haste-health.app/author",
     "version": "4.0.0",
-    "name": "OxidizedHealth author",
-    "title": "OxidizedHealth author Extension",
+    "name": "HasteHealth author",
+    "title": "HasteHealth author Extension",
     "status": "active",
-    "publisher": "OxidizedHealth",
+    "publisher": "HasteHealth",
     "description": "The author of the resource.",
     "fhirVersion": "4.0.1",
     "kind": "complex-type",
@@ -19,7 +19,7 @@
             {
                 "id": "Extension",
                 "path": "Extension",
-                "short": "OxidizedHealth author Extension",
+                "short": "HasteHealth author Extension",
                 "min": 0,
                 "max": "1"
             },
@@ -28,7 +28,7 @@
                 "path": "Extension.url",
                 "min": 1,
                 "max": "1",
-                "fixedUri": "https://oxidized-health.app/author"
+                "fixedUri": "https://haste-health.app/author"
             },
             {
                 "id": "Extension.valueString",
@@ -58,7 +58,7 @@
                     }
                 ],
                 "path": "Extension",
-                "short": "OxidizedHealth author Extension",
+                "short": "HasteHealth author Extension",
                 "definition": "Optional Extension Element - found in all resources.",
                 "min": 0,
                 "max": "1",
@@ -211,7 +211,7 @@
                 ],
                 "isModifier": false,
                 "isSummary": false,
-                "fixedUri": "https://oxidized-health.app/author"
+                "fixedUri": "https://haste-health.app/author"
             },
             {
                 "id": "Extension.value[x]",

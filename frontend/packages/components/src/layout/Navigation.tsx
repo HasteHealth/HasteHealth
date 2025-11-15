@@ -36,7 +36,7 @@ export const ProfileDropdown = ({ user, children }: ProfileDropdownProps) => {
   return (
     <Menu as="div" className="relative ml-3">
       <div>
-        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-teal-700 hover:bg-teal-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-orange-700 hover:bg-orange-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
           <span className="absolute -inset-1.5" />
           <span className="sr-only">Open user menu</span>
           {user?.imageUrl ? (
@@ -73,7 +73,7 @@ export const Navigation = ({
   userNavigation,
   user = {},
   brand = {
-    name: "OxidizedHealth",
+    name: "HasteHealth",
     logo: {
       url: "https://genfhi.com/static/media/icon.ae932dc68c2c119c7df4e17bd1c15ccb.svg",
     },
@@ -102,8 +102,8 @@ export const Navigation = ({
                         onClick={() => onNavigation(item)}
                         className={classNames(
                           active === item.name
-                            ? "bg-teal-700 text-white"
-                            : "text-teal-700 hover:bg-teal-700 hover:text-white",
+                            ? "bg-orange-700 text-white"
+                            : "text-orange-700 hover:bg-orange-700 hover:text-white",
                           "cursor-pointer rounded-md px-3 py-2 text-sm font-medium"
                         )}
                         aria-current={active === item.name ? "page" : undefined}
@@ -122,7 +122,7 @@ export const Navigation = ({
               </div>
               <div className="-mr-2 md:hidden">
                 {/* Mobile menu button */}
-                <Disclosure.Button className="relative rounded-full p-1  focus:ring-offset-teal-800 text-teal-700 hover:bg-teal-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+                <Disclosure.Button className="relative rounded-full p-1  focus:ring-offset-orange-800 text-orange-700 hover:bg-orange-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   {open ? (
@@ -144,8 +144,8 @@ export const Navigation = ({
                   href={item.href}
                   className={classNames(
                     active === item.name
-                      ? "bg-teal-700 text-white"
-                      : "text-teal-700 hover:bg-teal-700 hover:text-white",
+                      ? "bg-orange-700 text-white"
+                      : "text-orange-700 hover:bg-orange-700 hover:text-white",
                     "block rounded-md px-3 py-2 text-base font-medium"
                   )}
                   aria-current={item.name === active ? "page" : undefined}
@@ -164,7 +164,7 @@ export const Navigation = ({
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium leading-none text-teal-700">
+                  <div className="text-base font-medium leading-none text-orange-700">
                     {user?.name}
                   </div>
                   <div className="text-sm font-medium leading-none text-gray-400">
@@ -180,7 +180,7 @@ export const Navigation = ({
                     href={item.href}
                     className={classNames(
                       "block rounded-md px-3 py-2 text-base font-medium",
-                      "text-teal-700 hover:bg-teal-700 hover:text-white"
+                      "text-orange-700 hover:bg-orange-700 hover:text-white"
                     )}
                   >
                     {item.name}

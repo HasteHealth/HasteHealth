@@ -1,11 +1,11 @@
 #![allow(unused)]
 use crate::fhir_client::{ClientState, ServerCTX};
 
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     middleware::{Context, MiddlewareOutput, Next},
     request::{FHIRRequest, FHIRResponse},
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 pub mod access_control;

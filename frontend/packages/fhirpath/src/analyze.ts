@@ -1,9 +1,9 @@
-import { uri } from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION } from "@oxidized-health/fhir-types/versions";
-import { IMetaValue } from "@oxidized-health/meta-value/interface";
-import spoof, { SpoofMetaValueV2 } from "@oxidized-health/meta-value/spoof";
-import * as metaUtils from "@oxidized-health/meta-value/utilities";
-import * as metaValueV2 from "@oxidized-health/meta-value/v2";
+import { uri } from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION } from "@haste-health/fhir-types/versions";
+import { IMetaValue } from "@haste-health/meta-value/interface";
+import spoof, { SpoofMetaValueV2 } from "@haste-health/meta-value/spoof";
+import * as metaUtils from "@haste-health/meta-value/utilities";
+import * as metaValueV2 from "@haste-health/meta-value/v2";
 
 import parse from "./parserv2/index.js";
 import {

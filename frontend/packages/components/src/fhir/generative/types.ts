@@ -1,10 +1,10 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
-import { Mutation } from "@oxidized-health/fhir-patch-building";
-import { Loc } from "@oxidized-health/fhir-pointer";
+import { Mutation } from "@haste-health/fhir-patch-building";
+import { Loc } from "@haste-health/fhir-pointer";
 import {
   ElementDefinitionType,
   StructureDefinition,
-} from "@oxidized-health/fhir-types/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 import { ClientProps } from "../types";
 

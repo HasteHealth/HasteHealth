@@ -4,20 +4,20 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderAccessType",
+            "fullUrl": "https://haste-health.app/fhir/CodeSystem/IdentityProviderAccessType",
             "resource": {
                 "id": "identity-provider-access-type-codesystem",
-                "url": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderAccessType",
+                "url": "https://haste-health.app/fhir/CodeSystem/IdentityProviderAccessType",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",
                 "title": "IdentityProviderAccessType",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "Methods to connect to the identity provider.",
                 "caseSensitive": true,
-                "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
+                "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType",
                 "content": "complete",
                 "concept": [
                     {
@@ -29,23 +29,23 @@
             }
         },
         {
-            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
+            "fullUrl": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-access-type-valueset",
-                "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderAccessType",
+                "url": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",
                 "title": "IdentityProviderAccessType",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "Methods to connect to the identity provider.",
                 "immutable": true,
                 "compose": {
                     "include": [
                         {
-                            "system": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderAccessType"
+                            "system": "https://haste-health.app/fhir/CodeSystem/IdentityProviderAccessType"
                         }
                     ]
                 }

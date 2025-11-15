@@ -1,7 +1,7 @@
 use crate::auth_n::certificates::{JSONWebKeySet, JWK_SET};
 use axum::Json;
 use axum_extra::routing::TypedPath;
-use oxidized_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::OperationOutcomeError;
 
 #[derive(TypedPath)]
 #[typed_path("/certs/jwks")]

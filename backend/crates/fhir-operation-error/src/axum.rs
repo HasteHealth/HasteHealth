@@ -1,13 +1,13 @@
 use crate::OperationOutcomeError;
 use axum::response::IntoResponse;
-use oxidized_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use std::sync::Arc;
 
 impl IntoResponse for OperationOutcomeError {
     fn into_response(self) -> axum::response::Response {
         let error = Arc::new(self);
         let outcome = &error.outcome;
-        let response = oxidized_fhir_serialization_json::to_string(outcome)
+        let response = haste_fhir_serialization_json::to_string(outcome)
             .expect("Failed to serialize OperationOutcome");
 
         let status_code = match outcome.issue.first() {

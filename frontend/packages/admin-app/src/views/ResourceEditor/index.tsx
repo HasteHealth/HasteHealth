@@ -2,7 +2,7 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 
-import { Toaster } from "@oxidized-health/components";
+import { Toaster } from "@haste-health/components";
 import {
   AccessPolicyV2,
   Bundle,
@@ -13,8 +13,8 @@ import {
   StructureDefinition,
   Subscription,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import ResourceEditorComponent from "../../components/ResourceEditor";
 import { getClient } from "../../db/client";

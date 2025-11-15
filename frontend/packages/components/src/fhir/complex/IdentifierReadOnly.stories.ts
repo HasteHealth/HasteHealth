@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Identifier } from "@oxidized-health/fhir-types/r4/types";
+import { Identifier } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRIdentifierReadOnly } from "./IdentifierReadOnly";
 

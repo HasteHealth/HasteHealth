@@ -7,9 +7,9 @@ import type {
   MetaV2Compiled,
   TypeChoiceNode,
   TypeNode,
-} from "@oxidized-health/codegen/generate/meta-data";
-import { uri } from "@oxidized-health/fhir-types/r4/types";
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/codegen/generate/meta-data";
+import { uri } from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
 
 import {
   FHIRPathPrimitive as FHIRPrimitive,

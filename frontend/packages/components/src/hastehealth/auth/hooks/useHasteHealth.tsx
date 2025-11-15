@@ -1,15 +1,15 @@
 import { useContext, useMemo } from "react";
 
-import createHTTPClient from "@oxidized-health/client/lib/http";
+import createHTTPClient from "@haste-health/client/lib/http";
 
-import OxidizedHealthContext, {
-  OxidizedHealthContextState,
-} from "../OxidizedHealthContext";
+import HasteHealthContext, {
+  HasteHealthContextState,
+} from "../HasteHealthContext";
 
-export function useOxidizedHealth(): OxidizedHealthContextState & {
+export function useHasteHealth(): HasteHealthContextState & {
   client: ReturnType<typeof createHTTPClient>;
 } {
-  const context = useContext(OxidizedHealthContext);
+  const context = useContext(HasteHealthContext);
 
   const client = useMemo(() => {
     return createHTTPClient({

@@ -1,8 +1,8 @@
+use haste_fhir_model::r4::generated::resources::ClientApplication;
 use maud::{Markup, html};
-use oxidized_fhir_model::r4::generated::resources::ClientApplication;
 use std::borrow::Cow;
 
-pub fn app_header_html(client_app: &ClientApplication) -> Markup {
+pub fn client_app_header_html(client_app: &ClientApplication) -> Markup {
     let client_name = client_app
         .name
         .value

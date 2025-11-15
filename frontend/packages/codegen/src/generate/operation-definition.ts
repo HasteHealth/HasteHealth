@@ -1,5 +1,5 @@
-import { resourceTypes } from "@oxidized-health/fhir-types/r4/sets";
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
+import { resourceTypes } from "@haste-health/fhir-types/r4/sets";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
 
 function generateParameterType(
   parameters: NonNullable<
@@ -94,8 +94,8 @@ export default async function operationGeneration<Version extends FHIR_VERSION>(
 ): Promise<string> {
   if (fhirVersion !== "4.0") throw new Error("Only support 4.0");
   const code = [
-    `import type * as fhirTypes from "@oxidized-health/fhir-types/r4/types";`,
-    `import { Operation, IOperation } from "@oxidized-health/operation-execution";`,
+    `import type * as fhirTypes from "@haste-health/fhir-types/r4/types";`,
+    `import { Operation, IOperation } from "@haste-health/operation-execution";`,
     ...operations.map((op) => generateOp(op)),
   ].join("\n");
 

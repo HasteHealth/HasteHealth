@@ -2,7 +2,7 @@ import { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
 
 type MutationOptions = { file?: string; data?: string };
 

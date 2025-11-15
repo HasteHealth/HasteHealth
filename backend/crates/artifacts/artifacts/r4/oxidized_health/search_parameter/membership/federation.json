@@ -1,12 +1,12 @@
 {
     "resourceType": "SearchParameter",
     "id": "Membership-federated-identityProvider",
-    "url": "https://oxidized-health.app/fhir/SearchParameter/Membership-federated-identityProvider",
+    "url": "https://haste-health.app/fhir/SearchParameter/Membership-federated-identityProvider",
     "version": "4.0.1",
     "name": "IdentityProvider",
     "status": "draft",
     "experimental": false,
-    "publisher": "oxidized-health",
+    "publisher": "haste-health",
     "description": "Membership federated identityProvider",
     "code": "identityProvider",
     "base": [

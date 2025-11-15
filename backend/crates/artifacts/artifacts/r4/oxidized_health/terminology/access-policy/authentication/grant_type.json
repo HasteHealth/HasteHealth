@@ -3,20 +3,20 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType",
+      "fullUrl": "https://haste-health.app/fhir/CodeSystem/ClientApplicationGrantType",
       "resource": {
         "id": "clientapplication-grant-type-codesystem",
-        "url": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType",
+        "url": "https://haste-health.app/fhir/CodeSystem/ClientApplicationGrantType",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",
         "title": "ClientApplicationGrantType",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Grant types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
+        "valueSet": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType",
         "content": "complete",
         "concept": [
           {
@@ -39,23 +39,23 @@
       }
     },
     {
-      "fullUrl": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
+      "fullUrl": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType",
       "resource": {
         "resourceType": "ValueSet",
         "id": "clientapplication-grant-type",
-        "url": "https://oxidized-health.app/fhir/ValueSet/ClientApplicationGrantType",
+        "url": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",
         "title": "ClientApplicationGrantType",
         "status": "active",
         "experimental": true,
-        "publisher": "OxidizedHealth",
+        "publisher": "HasteHealth",
         "description": "Grant Types allowed.",
         "immutable": true,
         "compose": {
           "include": [
             {
-              "system": "https://oxidized-health.app/fhir/CodeSystem/ClientApplicationGrantType"
+              "system": "https://haste-health.app/fhir/CodeSystem/ClientApplicationGrantType"
             }
           ]
         }

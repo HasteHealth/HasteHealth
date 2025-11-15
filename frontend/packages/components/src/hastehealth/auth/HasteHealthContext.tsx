@@ -6,7 +6,7 @@ import {
   IDToken,
   IDTokenPayload,
   ProjectId,
-} from "@oxidized-health/jwt/types";
+} from "@haste-health/jwt/types";
 
 import { OIDC_WELL_KNOWN } from "./reducer";
 
@@ -18,7 +18,7 @@ export type AccessTokenResponse = {
   refresh_token?: string;
 };
 
-export type OxidizedHealthContextState = {
+export type HasteHealthContextState = {
   tenant?: TenantId;
   project?: ProjectId;
   rootURL?: string;
@@ -35,14 +35,14 @@ export type OxidizedHealthContextState = {
     uri?: string;
     state?: string;
   };
-  reAuthenticate: (state: OxidizedHealthContextState) => void;
+  reAuthenticate: (state: HasteHealthContextState) => void;
 };
 
 const stub = (): never => {
-  throw new Error("OxidizedHealth has not been initiated.");
+  throw new Error("HasteHealth has not been initiated.");
 };
 
-export const InitialContext: OxidizedHealthContextState = {
+export const InitialContext: HasteHealthContextState = {
   tenant: undefined,
   project: undefined,
   logout: stub,
@@ -55,8 +55,8 @@ export const InitialContext: OxidizedHealthContextState = {
   error: undefined,
 };
 
-const OxidizedHealthContext = createContext<OxidizedHealthContextState>({
+const HasteHealthContext = createContext<HasteHealthContextState>({
   ...InitialContext,
 });
 
-export default OxidizedHealthContext;
+export default HasteHealthContext;

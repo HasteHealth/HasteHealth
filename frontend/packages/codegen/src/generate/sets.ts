@@ -1,4 +1,4 @@
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
 
 function generateTypeSet(
   name: string,

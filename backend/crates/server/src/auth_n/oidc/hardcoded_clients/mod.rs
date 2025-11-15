@@ -1,5 +1,5 @@
-use oxidized_config::Config;
-use oxidized_fhir_model::r4::generated::resources::ClientApplication;
+use haste_config::Config;
+use haste_fhir_model::r4::generated::resources::ClientApplication;
 
 use crate::ServerEnvironmentVariables;
 

@@ -1,8 +1,5 @@
-import { FHIR_VERSION, Resource } from "@oxidized-health/fhir-types/versions";
-import {
-  OperationError,
-  outcomeError,
-} from "@oxidized-health/operation-outcomes";
+import { FHIR_VERSION, Resource } from "@haste-health/fhir-types/versions";
+import { OperationError, outcomeError } from "@haste-health/operation-outcomes";
 
 type SPECIAL_CHARACTER = "\\" | "|" | "$" | ",";
 const SPECIAL_CHARACTERS: SPECIAL_CHARACTER[] = ["\\", "|", "$", ","];

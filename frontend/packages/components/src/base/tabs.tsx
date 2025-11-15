@@ -28,7 +28,7 @@ export const Tabs = ({ tabs, rightSide }: TabsProps) => {
                   classNames(
                     "py-2.5 text-sm font-medium leading-5 border-b-2 outline-none",
                     selected
-                      ? "text-teal-600  border-teal-600"
+                      ? "text-orange-600  border-orange-600"
                       : "text-slate-600 hover:text-slate-700 border-transparent"
                   )
                 }

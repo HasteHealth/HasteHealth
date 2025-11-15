@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Loc, get, toJSONPointer } from "@oxidized-health/fhir-pointer";
+import { Loc, get, toJSONPointer } from "@haste-health/fhir-pointer";
 import {
   ElementDefinition,
   OperationOutcomeIssue,
-} from "@oxidized-health/fhir-types/r4/types";
-import { issueError } from "@oxidized-health/operation-outcomes";
+} from "@haste-health/fhir-types/r4/types";
+import { issueError } from "@haste-health/operation-outcomes";
 
 /**
  * Returns whether the value should be respresented as an array given max cardinality

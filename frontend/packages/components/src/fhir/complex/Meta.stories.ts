@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Extension, id, instant } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { Extension, id, instant } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { createStorybookClient } from "../stories.client";
 import { FHIRMetaReadOnly } from "./Meta";
@@ -31,7 +31,7 @@ export const Primary: Story = {
       lastUpdated: "1980-01-01" as instant,
       extension: [
         {
-          url: "https://oxidized-health.app/author",
+          url: "https://haste-health.app/author",
           valueReference: { reference: "Patient/123" },
         },
       ] as Extension[],

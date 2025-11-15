@@ -1,12 +1,12 @@
 {
   "resourceType": "SearchParameter",
   "id": "Membership-email",
-  "url": "https://oxidized-health.app/fhir/SearchParameter/Membership-email",
+  "url": "https://haste-health.app/fhir/SearchParameter/Membership-email",
   "version": "4.0.1",
   "name": "Email",
   "status": "draft",
   "experimental": false,
-  "publisher": "oxidized-health",
+  "publisher": "haste-health",
   "description": "Membership email",
   "code": "email",
   "base": [

@@ -8,8 +8,8 @@ import {
   Practitioner,
   Questionnaire,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/lib/versions";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
+import { R4 } from "@haste-health/fhir-types/lib/versions";
 
 import { evaluate, evaluateWithMeta } from "./index";
 
@@ -532,11 +532,11 @@ test("Subscription extension test", async () => {
     meta: {
       extension: [
         {
-          url: "https://oxidized-health.app/version-sequence",
+          url: "https://haste-health.app/version-sequence",
           valueInteger: 4700,
         },
         {
-          url: "https://oxidized-health.app/author",
+          url: "https://haste-health.app/author",
           valueString: "fake-user",
         },
       ],
@@ -553,11 +553,11 @@ test("Subscription extension test", async () => {
       _type: {
         extension: [
           {
-            url: "https://oxidized-health.app/Subscription/channel-type",
+            url: "https://haste-health.app/Subscription/channel-type",
             valueCode: "operation",
           },
           {
-            url: "https://oxidized-health.app/Subscription/operation-code",
+            url: "https://haste-health.app/Subscription/operation-code",
             valueCode: "test-1",
           },
         ],
@@ -582,7 +582,7 @@ test("Subscription extension test", async () => {
       sub,
       {
         variables: {
-          typeUrl: "https://oxidized-health.app/Subscription/channel-type",
+          typeUrl: "https://haste-health.app/Subscription/channel-type",
         },
       }
     )
@@ -594,7 +594,7 @@ test("Subscription extension test", async () => {
       sub,
       {
         variables: {
-          typeUrl: "https://oxidized-health.app/Subscription/operation-code",
+          typeUrl: "https://haste-health.app/Subscription/operation-code",
         },
       }
     )
@@ -607,7 +607,7 @@ test("Subscription extension test", async () => {
         sub,
         {
           variables: {
-            typeUrl: "https://oxidized-health.app/Subscription/operation-code",
+            typeUrl: "https://haste-health.app/Subscription/operation-code",
           },
         }
       )
@@ -620,7 +620,7 @@ test("Subscription extension test", async () => {
         sub,
         {
           variables: {
-            typeUrl: "https://oxidized-health.app/Subscription/channel-type",
+            typeUrl: "https://haste-health.app/Subscription/channel-type",
           },
         }
       )
@@ -819,7 +819,7 @@ test("Get Locations for extensions", async () => {
     _name: {
       extension: [
         {
-          url: "https://oxidized-health.app/Extension/encrypted-value",
+          url: "https://haste-health.app/Extension/encrypted-value",
           valueString: "testing",
         },
       ],
@@ -831,7 +831,7 @@ test("Get Locations for extensions", async () => {
     operationDefinition,
     {
       variables: {
-        extUrl: "https://oxidized-health.app/Extension/encrypted-value",
+        extUrl: "https://haste-health.app/Extension/encrypted-value",
       },
     }
   );
@@ -851,11 +851,11 @@ test("Patient with name given", async () => {
         meta: {
           extension: [
             {
-              url: "https://oxidized-health.app/version-sequence",
+              url: "https://haste-health.app/version-sequence",
               valueInteger: 191,
             },
             {
-              url: "https://oxidized-health.app/author",
+              url: "https://haste-health.app/author",
               valueReference: {
                 reference: "ClientApplication/rB5mVKQ7wIxMeSWthQCE3l",
               },

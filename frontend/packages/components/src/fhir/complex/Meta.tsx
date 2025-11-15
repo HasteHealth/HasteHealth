@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Meta } from "@oxidized-health/fhir-types/r4/types";
+import { Meta } from "@haste-health/fhir-types/r4/types";
 
 import { InputContainer } from "../../base";
 import { FHIRStringEditable } from "../primitives/string";
@@ -34,7 +34,7 @@ export const FHIRMetaReadOnly = ({
           client={client}
           value={
             value?.extension?.find(
-              (e) => e.url === "https://oxidized-health.app/author"
+              (e) => e.url === "https://haste-health.app/author"
             )?.valueReference
           }
           disabled={true}

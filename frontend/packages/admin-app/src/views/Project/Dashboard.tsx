@@ -1,17 +1,17 @@
 import { useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
 
-import { isResponseError } from "@oxidized-health/client/lib/http";
-import { Toaster } from "@oxidized-health/components";
-import { Loading } from "@oxidized-health/components";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+import { isResponseError } from "@haste-health/client/lib/http";
+import { Toaster } from "@haste-health/components";
+import { Loading } from "@haste-health/components";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../../db/client";
 import {
   Bundle,
   code,
   uri,
-} from "@oxidized-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/lib/generated/r4/types";
 import { generatePath, useNavigate } from "react-router-dom";
 
 type Statistics = {
@@ -211,7 +211,7 @@ const Dashboard = () => {
       <div className="space-y-1">
         {Object.keys(stats).map((statKey) => (
           <div
-            className="cursor-pointer font-medium hover:text-teal-400 space-x-1"
+            className="cursor-pointer font-medium hover:text-orange-400 space-x-1"
             key={statKey}
             onClick={() => {
               navigate(

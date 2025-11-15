@@ -1,12 +1,12 @@
 /// FHIR Access
 use crate::types::{FHIRMethod, SupportedFHIRVersions};
-use oxidized_fhir_client::request::{
+use haste_fhir_client::request::{
     FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
 };
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
-use oxidized_fhir_model::r4::sqlx::FHIRJson;
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use haste_fhir_model::r4::sqlx::FHIRJson;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 
 pub struct ResourcePollingValue {
     pub id: ResourceId,

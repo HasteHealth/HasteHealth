@@ -1,5 +1,5 @@
+use haste_fhir_model::r4::generated::resources::Resource;
 use once_cell::sync::Lazy;
-use oxidized_fhir_model::r4::generated::resources::Resource;
 use rust_embed::Embed;
 
 pub mod search_parameters;
@@ -21,7 +21,7 @@ fn load_resources() -> Vec<Box<Resource>> {
 
     for path in EmbededResourceAssets::iter() {
         let data = EmbededResourceAssets::get(path.as_ref()).unwrap();
-        let resource = oxidized_fhir_serialization_json::from_str::<Resource>(
+        let resource = haste_fhir_serialization_json::from_str::<Resource>(
             str::from_utf8(&data.data).unwrap(),
         )
         .expect("Failed to parse artifact parameters JSON");
@@ -33,7 +33,7 @@ fn load_resources() -> Vec<Box<Resource>> {
 
 #[derive(Embed)]
 #[folder = "./artifacts/r4"]
-#[include = "oxidized_health/**/*.json"]
+#[include = "haste_health/**/*.json"]
 #[include = "hl7/minified/**/*.json"]
 
 struct EmbededResourceAssets;

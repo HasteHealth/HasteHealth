@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Loc, get, toJSONPointer } from "@oxidized-health/fhir-pointer";
+import { Loc, get, toJSONPointer } from "@haste-health/fhir-pointer";
 import {
   ElementDefinition,
   OperationOutcomeIssue,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import * as fp from "@oxidized-health/fhirpath";
-import { isObject } from "@oxidized-health/meta-value/utilities";
-import { issueError } from "@oxidized-health/operation-outcomes";
+} from "@haste-health/fhir-types/r4/types";
+import * as fp from "@haste-health/fhirpath";
+import { isObject } from "@haste-health/meta-value/utilities";
+import { issueError } from "@haste-health/operation-outcomes";
 
 /**
  * If primitive: it must match exactly the pattern value

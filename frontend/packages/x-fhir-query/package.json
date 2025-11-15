@@ -1,5 +1,5 @@
 {
-  "name": "@oxidized-health/x-fhir-query",
+  "name": "@haste-health/x-fhir-query",
   "version": "0.7.2",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,7 +10,7 @@
     "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
   },
   "dependencies": {
-    "@oxidized-health/fhirpath": "workspace:^"
+    "@haste-health/fhirpath": "workspace:^"
   },
   "devDependencies": {
     "@babel/plugin-syntax-import-attributes": "^7.26.0",

@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Bundle, id } from "@oxidized-health/fhir-types/r4/types";
-import * as r4b from "@oxidized-health/fhir-types/r4b/types";
-import { FHIR_VERSION, R4, R4B } from "@oxidized-health/fhir-types/versions";
-import {
-  OperationError,
-  outcomeError,
-} from "@oxidized-health/operation-outcomes";
+import { Bundle, id } from "@haste-health/fhir-types/r4/types";
+import * as r4b from "@haste-health/fhir-types/r4b/types";
+import { FHIR_VERSION, R4, R4B } from "@haste-health/fhir-types/versions";
+import { OperationError, outcomeError } from "@haste-health/operation-outcomes";
 
 import { AsynchronousClient } from "../index.js";
 import { MiddlewareAsync, createMiddlewareAsync } from "../middleware/index.js";
@@ -57,11 +54,11 @@ function fhirUrlChunk(version: string) {
 
 /**
  * Used as default and for display purposes in admin app.
- * @param domain OxidizedHealth Domain
+ * @param domain HasteHealth Domain
  * @param fhirVersion FHIRVersion
- * @returns OxidizedHealth VersionedURL.
+ * @returns HasteHealth VersionedURL.
  */
-export const deriveOxidizedHealthVersionedURL = (
+export const deriveHasteHealthVersionedURL = (
   domain: string,
   fhirVersion: FHIR_VERSION
 ) => {
@@ -88,7 +85,7 @@ async function toHTTPRequest(
 
   let FHIRUrl =
     typeof state.url === "string"
-      ? deriveOxidizedHealthVersionedURL(state.url, request.fhirVersion)
+      ? deriveHasteHealthVersionedURL(state.url, request.fhirVersion)
       : state.url(request.fhirVersion);
   if (!FHIRUrl.endsWith("/")) {
     FHIRUrl = FHIRUrl + "/";

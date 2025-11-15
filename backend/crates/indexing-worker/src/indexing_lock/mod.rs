@@ -1,5 +1,5 @@
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_jwt::TenantId;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::TenantId;
 
 pub mod postgres;
 

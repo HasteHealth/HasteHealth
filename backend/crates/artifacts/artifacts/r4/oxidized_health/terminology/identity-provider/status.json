@@ -4,20 +4,20 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderStatus",
+            "fullUrl": "https://haste-health.app/fhir/CodeSystem/IdentityProviderStatus",
             "resource": {
                 "id": "identity-provider-status-codesystem",
-                "url": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderStatus",
+                "url": "https://haste-health.app/fhir/CodeSystem/IdentityProviderStatus",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderStatus",
                 "title": "IdentityProviderStatus",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "Identity Provider status",
                 "caseSensitive": true,
-                "valueSet": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
+                "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderStatus",
                 "content": "complete",
                 "concept": [
                     {
@@ -34,23 +34,23 @@
             }
         },
         {
-            "fullUrl": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
+            "fullUrl": "https://haste-health.app/fhir/ValueSet/IdentityProviderStatus",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-status",
-                "url": "https://oxidized-health.app/fhir/ValueSet/IdentityProviderStatus",
+                "url": "https://haste-health.app/fhir/ValueSet/IdentityProviderStatus",
                 "version": "4.0.1",
                 "name": "IdentityProviderStatus",
                 "title": "IdentityProviderStatus",
                 "status": "active",
                 "experimental": true,
-                "publisher": "OxidizedHealth",
+                "publisher": "HasteHealth",
                 "description": "Identity Provider status",
                 "immutable": true,
                 "compose": {
                     "include": [
                         {
-                            "system": "https://oxidized-health.app/fhir/CodeSystem/IdentityProviderStatus"
+                            "system": "https://haste-health.app/fhir/CodeSystem/IdentityProviderStatus"
                         }
                     ]
                 }

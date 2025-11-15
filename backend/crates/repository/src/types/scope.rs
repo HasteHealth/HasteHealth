@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use oxidized_jwt::scopes::Scopes;
+use haste_jwt::scopes::Scopes;
 
 #[derive(Debug, Clone)]
 pub struct ClientId(String);

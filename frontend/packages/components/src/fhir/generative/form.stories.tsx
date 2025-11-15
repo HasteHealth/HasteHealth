@@ -4,8 +4,8 @@ import React, { useEffect, useMemo } from "react";
 import {
   Patient,
   StructureDefinition,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { createStorybookClient } from "../stories.client";
 import { FHIRGenerativeForm, Setter } from "./form";

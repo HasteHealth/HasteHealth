@@ -1,5 +1,5 @@
 [package]
-name = "oxidized-health"
+name = "haste-health"
 version = "0.1.0"
 edition = "2024"
 
@@ -39,18 +39,18 @@ members = [
 clap = { version = "4.5.40", features = ["derive"] }
 dialoguer = "0.12.0"
 jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
-oxidized-codegen = { path = "./crates/codegen" }
-oxidized-config = { path = "./crates/config" }
-oxidized-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
-oxidized-fhir-model = { path = "./crates/fhir-model" }
-oxidized-fhir-operation-error = { path = "./crates/fhir-operation-error" }
-oxidized-fhir-search = { path = "./crates/fhir-search" }
-oxidized-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
-oxidized-fhirpath = { path = "./crates/fhirpath" }
-oxidized-indexing-worker = { path = "./crates/indexing-worker" }
-oxidized-jwt = { path = "./crates/jwt" }
-oxidized-repository = { path = "./crates/repository" }
-oxidized-server = { path = "./crates/server" }
+haste-codegen = { path = "./crates/codegen" }
+haste-config = { path = "./crates/config" }
+haste-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
+haste-fhir-model = { path = "./crates/fhir-model" }
+haste-fhir-operation-error = { path = "./crates/fhir-operation-error" }
+haste-fhir-search = { path = "./crates/fhir-search" }
+haste-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
+haste-fhirpath = { path = "./crates/fhirpath" }
+haste-indexing-worker = { path = "./crates/indexing-worker" }
+haste-jwt = { path = "./crates/jwt" }
+haste-repository = { path = "./crates/repository" }
+haste-server = { path = "./crates/server" }
 quote = "1.0.40"
 reqwest = { version = "0.12" }
 serde = "1.0.228"

@@ -1,16 +1,16 @@
 use clap::Subcommand;
-use oxidized_config::{Config, get_config};
-use oxidized_fhir_client::FHIRClient;
-use oxidized_fhir_model::r4::generated::{
+use haste_config::{Config, get_config};
+use haste_fhir_client::FHIRClient;
+use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, User},
     terminology::UserRole,
     types::FHIRString,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_jwt::{ProjectId, TenantId};
-use oxidized_repository::admin::Migrate;
-use oxidized_server::{
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_jwt::{ProjectId, TenantId};
+use haste_repository::admin::Migrate;
+use haste_server::{
     ServerEnvironmentVariables,
     auth_n::oidc::utilities::set_user_password,
     fhir_client::ServerCTX,
@@ -86,7 +86,7 @@ async fn migrate_search(
     let services = services::create_services(config).await?;
     services
         .search
-        .migrate(&oxidized_repository::types::SupportedFHIRVersions::R4)
+        .migrate(&haste_repository::types::SupportedFHIRVersions::R4)
         .await?;
     Ok(())
 }

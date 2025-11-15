@@ -5,7 +5,7 @@
   "version": "4.0.0",
   "name": "Backport subscriptiontopic.resourceTrigger.supportedInteraction",
   "status": "active",
-  "publisher": "OxidizedHealth",
+  "publisher": "HasteHealth",
   "fhirVersion": "4.0.1",
   "kind": "complex-type",
   "abstract": false,

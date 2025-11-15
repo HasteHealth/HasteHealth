@@ -5,21 +5,21 @@ use crate::fhir_client::{
         ServerMiddlewareState,
     },
 };
-use oxidized_fhir_client::{
+use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse},
 };
-use oxidized_fhir_generated_ops::generated::{ProjectInformation, ValueSetExpand};
-use oxidized_fhir_model::r4::generated::{
+use haste_fhir_generated_ops::generated::{ProjectInformation, ValueSetExpand};
+use haste_fhir_model::r4::generated::{
     resources::{Parameters, Resource, ResourceType},
     terminology::IssueType,
 };
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_ops::{OperationExecutor, OperationInvocation, Param};
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{ProjectId, ResourceId, TenantId};
-use oxidized_repository::Repository;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_ops::{OperationExecutor, OperationInvocation, Param};
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_repository::Repository;
 use std::{pin::Pin, sync::Arc};
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);

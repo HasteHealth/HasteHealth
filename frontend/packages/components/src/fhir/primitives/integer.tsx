@@ -1,6 +1,6 @@
 import React from "react";
 
-import { integer } from "@oxidized-health/fhir-types/r4/types";
+import { integer } from "@haste-health/fhir-types/r4/types";
 
 import { Input } from "../../base/input";
 import { EditableProps } from "../types";

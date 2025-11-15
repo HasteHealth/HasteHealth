@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 
-import { instant } from "@oxidized-health/fhir-types/r4/types";
+import { instant } from "@haste-health/fhir-types/r4/types";
 
 import { Input } from "../../base/input";
 import { EditableProps } from "../types";

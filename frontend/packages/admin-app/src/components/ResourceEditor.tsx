@@ -14,15 +14,15 @@ import {
   Modal,
   Table,
   Tabs,
-} from "@oxidized-health/components";
+} from "@haste-health/components";
 import {
   BundleEntry,
   Resource,
   ResourceType,
   StructureDefinition,
   id,
-} from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
+} from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
 
 import { getClient } from "../db/client";
 
@@ -115,7 +115,7 @@ function ResourceHistory() {
               id: "Author",
               content: "Author",
               selector:
-                "$this.resource.meta.extension.where(url='https://oxidized-health.app/author').valueReference.reference",
+                "$this.resource.meta.extension.where(url='https://haste-health.app/author').valueReference.reference",
               selectorType: "fhirpath",
             },
             {

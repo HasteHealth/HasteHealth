@@ -2,9 +2,9 @@ import deepEqual from "fast-deep-equal";
 import { atom } from "jotai";
 import { atomFamily } from "jotai/utils";
 
-import { uri } from "@oxidized-health/fhir-types/r4/types";
-import { R4 } from "@oxidized-health/fhir-types/versions";
-import { ValueSetExpand } from "@oxidized-health/generated-ops/r4";
+import { uri } from "@haste-health/fhir-types/r4/types";
+import { R4 } from "@haste-health/fhir-types/versions";
+import { ValueSetExpand } from "@haste-health/generated-ops/r4";
 
 import { getClient } from "./client";
 

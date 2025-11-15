@@ -1,18 +1,18 @@
 [package]
-name = "oxidized-repository"
+name = "haste-repository"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 moka = { version = "0.12.11", features = ["future"] }
 nanoid = "0.4.0"
-oxidized-fhir-client = { path = "../fhir-client" }
-oxidized-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-oxidized-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-fhir-client = { path = "../fhir-client" }
+haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
-oxidized-jwt = { path = "../jwt", features = ["sqlx"] }
-oxidized-reflect = { path = "../reflect", features = ["derive"] }
+haste-jwt = { path = "../jwt", features = ["sqlx"] }
+haste-reflect = { path = "../reflect", features = ["derive"] }
 regex = "1.12.2"
 serde = "1.0.219"
 serde_json = "1.0.142"

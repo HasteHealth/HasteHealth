@@ -1,7 +1,7 @@
 use crate::indexing_lock::{IndexLockProvider, TenantLockIndex};
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_jwt::TenantId;
-use oxidized_repository::pg::PGConnection;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_jwt::TenantId;
+use haste_repository::pg::PGConnection;
 use sqlx::{Acquire, Postgres, QueryBuilder};
 
 #[derive(OperationOutcomeError, Debug)]

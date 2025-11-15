@@ -1,10 +1,10 @@
 {
-  "name": "@oxidized-health/codegen",
+  "name": "@haste-health/codegen",
   "version": "0.12.1",
-  "homepage": "https://oxidized-health.app",
+  "homepage": "https://haste-health.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OxidizedHealth/OxidizedHealth.git"
+    "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
   "description": "",
   "type": "module",
@@ -20,8 +20,8 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
-    "@oxidized-health/artifacts": "workspace:^",
-    "@oxidized-health/fhir-types": "workspace:^",
+    "@haste-health/artifacts": "workspace:^",
+    "@haste-health/fhir-types": "workspace:^",
     "commander": "^12.1.0"
   },
   "files": [

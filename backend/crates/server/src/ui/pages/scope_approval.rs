@@ -1,11 +1,10 @@
 use crate::{
     auth_n::oidc::routes::{route_string::oidc_route_string, scope::ScopeForm},
-    static_assets::asset_route,
-    ui::components::{app_header_html, page_html},
+    ui::components::{banner, client_app_header_html, page_html},
 };
+use haste_fhir_model::r4::generated::resources::ClientApplication;
+use haste_jwt::{ProjectId, TenantId};
 use maud::{Markup, html};
-use oxidized_fhir_model::r4::generated::resources::ClientApplication;
-use oxidized_jwt::{ProjectId, TenantId};
 use std::borrow::Cow;
 
 fn exclamation_point() -> Markup {
@@ -18,7 +17,7 @@ fn exclamation_point() -> Markup {
 
 pub fn scope_approval_html(
     tenant: &TenantId,
-    project: &oxidized_fhir_model::r4::generated::resources::Project,
+    project: &haste_fhir_model::r4::generated::resources::Project,
     client_application: &ClientApplication,
     authorization_info: &ScopeForm,
 ) -> Markup {
@@ -34,27 +33,10 @@ pub fn scope_approval_html(
     let scope_route_str = scope_route.to_str().expect("Could not create scope route");
 
     page_html(html! {
-            div class="flex flex-col items-center justify-center space-y-1" {
-                a href="#" class="flex items-center text-2xl font-semibold text-gray-900" {
-                    img class="w-8 h-8 mr-2" src=(asset_route("img/logo.svg")) alt="logo" {}
-                    "Oxidized Health"
-                }
-                div class="flex space-x-1 items-center justify-center text-sm text-slate-400" {
-                    div {
-                        span class="font-bold" {
-                            (tenant.as_ref())
-                        }
-                    }
-                    div {
-                        span {
-                            (project_name)
-                        }
-                    }
-                }
-            }
+            (banner(tenant, Some(&project_name)))
             div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                    (app_header_html(client_application))
+                    (client_app_header_html(client_application))
                     div {
                         span class="text-sm text-gray-500" {
                             "The above app is requesting the following permissions. Please review and either consent or deny access for the app."
@@ -88,7 +70,7 @@ pub fn scope_approval_html(
                             input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                             input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
                             input readonly="" class="hidden" type="checkbox" name="accept" checked {}
-                            button type="submit" class="cursor-pointer w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800" {
+                            button type="submit" class="cursor-pointer w-full text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800" {
                                 "Allow"
                             }
                         }

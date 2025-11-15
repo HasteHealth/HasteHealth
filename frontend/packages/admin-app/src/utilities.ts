@@ -1,5 +1,5 @@
-import { OperationOutcome } from "@oxidized-health/fhir-types/r4/types";
-import { ProjectId, TenantId } from "@oxidized-health/jwt/types";
+import { OperationOutcome } from "@haste-health/fhir-types/r4/types";
+import { ProjectId, TenantId } from "@haste-health/jwt/types";
 
 export function deriveTenantId(): TenantId {
   const host = window.location.host;

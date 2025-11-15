@@ -4,17 +4,17 @@ use axum::{
     http::request::Parts,
     response::{IntoResponse, Response},
 };
-use oxidized_fhir_model::r4::generated::resources::{Resource, ResourceType};
-use oxidized_fhir_operation_error::OperationOutcomeError;
-use oxidized_fhir_search::SearchEngine;
-use oxidized_fhir_terminology::FHIRTerminology;
-use oxidized_jwt::{ProjectId, ResourceId, TenantId};
-use oxidized_repository::Repository;
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ProjectId, ResourceId, TenantId};
+use haste_repository::Repository;
 use serde::Deserialize;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct Project(pub oxidized_fhir_model::r4::generated::resources::Project);
+pub struct Project(pub haste_fhir_model::r4::generated::resources::Project);
 
 impl<Repo, Search, Terminology> FromRequestParts<Arc<AppState<Repo, Search, Terminology>>>
     for Project
@@ -54,7 +54,7 @@ where
             Ok(Self(project))
         } else {
             Err(OperationOutcomeError::fatal(
-                oxidized_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
+                haste_fhir_model::r4::generated::terminology::IssueType::NotFound(None),
                 format!(
                     "Project resource '{}' not found for tenant '{}'",
                     project.as_ref(),

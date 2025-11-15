@@ -1,11 +1,11 @@
 use crate::indexing_lock::IndexLockProvider;
-use oxidized_config::get_config;
-use oxidized_fhir_model::r4::generated::resources::ResourceTypeError;
-use oxidized_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use oxidized_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
-use oxidized_fhirpath::FHIRPathError;
-use oxidized_jwt::TenantId;
-use oxidized_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
+use haste_config::get_config;
+use haste_fhir_model::r4::generated::resources::ResourceTypeError;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
+use haste_fhirpath::FHIRPathError;
+use haste_jwt::TenantId;
+use haste_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -200,7 +200,7 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
-    let fp_engine = Arc::new(oxidized_fhirpath::FPEngine::new());
+    let fp_engine = Arc::new(haste_fhirpath::FPEngine::new());
 
     let search_engine = Arc::new(
         ElasticSearchEngine::new(
@@ -240,7 +240,7 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     .await
     .expect("Failed to connect to the database");
 
-    let repo = Arc::new(oxidized_repository::pg::PGConnection::pool(pg_pool.clone()));
+    let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 

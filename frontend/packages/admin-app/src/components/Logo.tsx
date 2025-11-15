@@ -1,7 +1,7 @@
 // import React from "react";
 
 // export const Logo = ({
-//   className = "fill-teal-500",
+//   className = "fill-orange-500",
 // }: Readonly<{ className?: string }>) => (
 //   <svg
 //     className={className}
@@ -22,7 +22,7 @@
 import React from "react";
 
 export const Logo = ({
-  className = "fill-teal-500",
+  className = "fill-orange-500",
 }: Readonly<{ className?: string }>) => (
   <svg
     className={className}

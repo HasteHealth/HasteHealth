@@ -7,7 +7,7 @@ use axum::{
 };
 use std::borrow::Cow;
 
-pub struct Scopes(pub oxidized_jwt::scopes::Scopes);
+pub struct Scopes(pub haste_jwt::scopes::Scopes);
 
 impl<S: Send + Sync> FromRequestParts<S> for Scopes {
     type Rejection = Response;
@@ -24,7 +24,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Scopes {
             .map(|s| Cow::Borrowed(s))
             .unwrap_or_else(|| Cow::Owned("".to_string()));
 
-        let scopes = oxidized_jwt::scopes::Scopes::try_from(scope.as_str())
+        let scopes = haste_jwt::scopes::Scopes::try_from(scope.as_str())
             .map_err(|err| err.into_response())?;
 
         Ok(Scopes(scopes))

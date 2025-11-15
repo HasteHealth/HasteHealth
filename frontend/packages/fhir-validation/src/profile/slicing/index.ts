@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { eleIndexToChildIndices } from "@oxidized-health/codegen/traversal/structure-definition";
+import { eleIndexToChildIndices } from "@haste-health/codegen/traversal/structure-definition";
 import {
   Loc,
   descend,
@@ -8,7 +8,7 @@ import {
   pointer,
   toFHIRPath,
   toJSONPointer,
-} from "@oxidized-health/fhir-pointer";
+} from "@haste-health/fhir-pointer";
 import {
   ElementDefinition,
   OperationOutcome,
@@ -17,19 +17,15 @@ import {
   canonical,
   id,
   uri,
-} from "@oxidized-health/fhir-types/r4/types";
-import {
-  FHIR_VERSION,
-  R4,
-  Resource,
-} from "@oxidized-health/fhir-types/versions";
-import * as fp from "@oxidized-health/fhirpath";
-import { metaValue } from "@oxidized-health/meta-value/v2";
+} from "@haste-health/fhir-types/r4/types";
+import { FHIR_VERSION, R4, Resource } from "@haste-health/fhir-types/versions";
+import * as fp from "@haste-health/fhirpath";
+import { metaValue } from "@haste-health/meta-value/v2";
 import {
   OperationError,
   issueError,
   outcomeError,
-} from "@oxidized-health/operation-outcomes";
+} from "@haste-health/operation-outcomes";
 
 import { conformsToValue } from "../../elements/validators/fixedValue.js";
 import { conformsToPattern } from "../../elements/validators/pattern.js";

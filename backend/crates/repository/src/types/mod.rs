@@ -1,4 +1,4 @@
-use oxidized_fhir_client::request::FHIRRequest;
+use haste_fhir_client::request::FHIRRequest;
 use serde::Serialize;
 use std::fmt::{Debug, Display};
 

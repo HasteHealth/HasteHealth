@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { instant } from "@oxidized-health/fhir-types/r4/types";
+import { instant } from "@haste-health/fhir-types/r4/types";
 
 import { FHIRInstantEditable } from "./instant";
 

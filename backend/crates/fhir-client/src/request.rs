@@ -1,8 +1,8 @@
-use json_patch::Patch;
-use oxidized_fhir_model::r4::generated::resources::{
+use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
-use oxidized_jwt::VersionId;
+use haste_jwt::VersionId;
+use json_patch::Patch;
 use thiserror::Error;
 
 use crate::ParsedParameter;

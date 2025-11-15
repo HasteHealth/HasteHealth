@@ -2,7 +2,7 @@ pub mod generated;
 
 #[cfg(test)]
 mod tests {
-    use oxidized_fhir_model::r4::generated::{
+    use haste_fhir_model::r4::generated::{
         resources::{Parameters, Patient, Resource},
         types::{CodeableConcept, Coding, FHIRString, FHIRUri},
     };
@@ -12,7 +12,7 @@ mod tests {
     #[test]
     fn from_parameter() {
         let result = generated::ActivityDefinitionApply::Output::try_from(vec![
-            oxidized_fhir_model::r4::generated::resources::ParametersParameter {
+            haste_fhir_model::r4::generated::resources::ParametersParameter {
                 name: Box::new(FHIRString {
                     value: Some("return".to_string()),
                     ..Default::default()

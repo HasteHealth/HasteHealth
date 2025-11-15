@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import React from "react";
 
-import { TenantClaim, TenantId } from "@oxidized-health/jwt/types";
+import { TenantClaim, TenantId } from "@haste-health/jwt/types";
 
 import { generateTailwindColorFromValue } from "../utilities";
 import { Container } from "./Container";
@@ -51,7 +51,7 @@ export const TenantSelect = ({
             <li key={t.id}>
               <a
                 href={generateTenantURL(email, t.id)}
-                className="p-2 flex cursor-pointer hover:bg-teal-50 dark:hover:bg-teal-800"
+                className="p-2 flex cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-800"
               >
                 <div className="flex items-center space-x-4 rtl:space-x-reverse">
                   <div className="flex-shrink-0">

@@ -1,5 +1,5 @@
 {
-  "name": "@oxidized-health/hl7v2-parsing",
+  "name": "@haste-health/hl7v2-parsing",
   "version": "0.1.1",
   "type": "module",
   "main": "lib/index.js",
@@ -19,6 +19,6 @@
     "lib/**"
   ],
   "dependencies": {
-    "@oxidized-health/operation-outcomes": "workspace:^"
+    "@haste-health/operation-outcomes": "workspace:^"
   }
 }
