@@ -11,8 +11,8 @@ cargo run server start && cargo run worker
 
 ## Compiled Binaries
 
-- [Linux](https://github.com/HasteHealth/haste-health/releases/latest/download/haste-health_linux)
-- [MacOS](https://github.com/HasteHealth/haste-health/releases/latest/download/haste-health_macos)
+- [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
+- [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
 
 ## Repository Structure
 
