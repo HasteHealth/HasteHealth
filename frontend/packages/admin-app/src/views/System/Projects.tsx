@@ -286,7 +286,7 @@ export default function Projects() {
                           setOpenUpdateIdModal(project.id!);
                           e.stopPropagation();
                         }}
-                        className="text-orange-500 hover:text-orange-600 cursor-pointer"
+                        className="text-orange-600 hover:text-orange-700 cursor-pointer"
                       >
                         Update
                       </span>

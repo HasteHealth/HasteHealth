@@ -49,7 +49,7 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
           For more information on how to register an external IDP read the
           following{" "}
           <a
-            className="text-orange-500 hover:text-orange-600 cursor-pointer"
+            className="text-orange-600 hover:text-orange-700 cursor-pointer"
             href="https://haste-health.app/documentation/Getting%20Started/Local_Development"
           >
             documentation
