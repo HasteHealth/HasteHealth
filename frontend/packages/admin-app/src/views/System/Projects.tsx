@@ -228,9 +228,9 @@ export default function Projects() {
                   key={project.id}
                   className="hover:bg-slate-100 cursor-pointer p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-1"
                 >
-                  <div className="flex items-center space-x-1 mb-2">
-                    <div className="flex-1">
-                      <h5 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  <div className="flex items-center space-x-1 mb-2 flex-wrap">
+                    <div className="flex-1 ">
+                      <h5 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white text-ellipsis">
                         {project.name}
                       </h5>
                     </div>
