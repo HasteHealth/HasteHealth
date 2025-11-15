@@ -4063,15 +4063,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@haste-health/haste-health.fhir.r4.core@workspace:^, @haste-health/haste-health.fhir.r4.core@workspace:artifacts/r4/oxidizedhealth-core":
+"@haste-health/haste-health.fhir.r4.core@workspace:^, @haste-health/haste-health.fhir.r4.core@workspace:artifacts/r4/hastehealth-core":
   version: 0.0.0-use.local
-  resolution: "@haste-health/haste-health.fhir.r4.core@workspace:artifacts/r4/oxidizedhealth-core"
+  resolution: "@haste-health/haste-health.fhir.r4.core@workspace:artifacts/r4/hastehealth-core"
   languageName: unknown
   linkType: soft
 
-"@haste-health/haste-health.fhir.r4b.core@workspace:artifacts/r4b/oxidizedhealth-core":
+"@haste-health/haste-health.fhir.r4b.core@workspace:artifacts/r4b/hastehealth-core":
   version: 0.0.0-use.local
-  resolution: "@haste-health/haste-health.fhir.r4b.core@workspace:artifacts/r4b/oxidizedhealth-core"
+  resolution: "@haste-health/haste-health.fhir.r4b.core@workspace:artifacts/r4b/hastehealth-core"
   languageName: unknown
   linkType: soft
 
