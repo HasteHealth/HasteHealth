@@ -251,7 +251,7 @@ function RefreshTokens() {
 
 function Card({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-md space-y-1">
+    <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-1">
       {children}
     </div>
   );
