@@ -5,7 +5,7 @@ export const CUSTOM_CLAIMS = {
     "https://haste-health.app/accessPolicyVersionIds"
   ),
   TENANT: <const>"https://haste-health.app/tenant",
-  ROLE: <const>"https://haste-health.app/role",
+  ROLE: <const>"https://haste-health.app/user_role",
 };
 
 export type ALGORITHMS_ALLOWED = (typeof ALGORITHMS)[keyof typeof ALGORITHMS];

@@ -3,15 +3,13 @@ import React from "react";
 
 import { deriveHasteHealthVersionedURL } from "@haste-health/client/http";
 import {
-  Button,
-  Input,
   Loading,
   Table,
   Toaster,
   useHasteHealth,
 } from "@haste-health/components";
 import { OperationOutcome, id } from "@haste-health/fhir-types/r4/types";
-import { R4, R4B } from "@haste-health/fhir-types/versions";
+import { R4 } from "@haste-health/fhir-types/versions";
 import {
   HasteHealthDeleteRefreshToken,
   HasteHealthDeleteScope,
@@ -39,20 +37,17 @@ function Copyable({
 }: Readonly<{ value?: string; label?: string }>) {
   return (
     <div>
-      <label className="font-medium">{label}</label>
+      <label className="text-sm text-slate-800">{label}</label>
       <div className="flex flex-1 flex-row items-center">
-        <div className="flex flex-1">
-          <Input readOnly value={value} />
-        </div>
-        <Button
+        <span
+          className="text-sm block w-full whitespace-nowrap border px-2 py-1 cursor-pointer hover:bg-orange-100 truncate"
           onClick={(e) => {
             e.preventDefault();
             copytoClipboard(value);
           }}
-          className="ml-1"
         >
-          Copy
-        </Button>
+          {value}
+        </span>
       </div>
     </div>
   );
@@ -103,8 +98,8 @@ function Scopes() {
 
   return (
     <div className="space-y-2">
-      <h2 className="text-lg font-semibold ">Authorized Apps</h2>
-      <div className="flex flex-col p-2 space-y-2">
+      <h2 className="text-lg font-semibold underline">Authorized Apps</h2>
+      <div className="flex flex-col space-y-2">
         <Table
           columns={[
             {
@@ -202,8 +197,8 @@ function RefreshTokens() {
 
   return (
     <div className="space-y-2">
-      <h2 className="text-lg font-semibold ">Active Refresh Tokens</h2>
-      <div className="flex flex-col p-2 space-y-2">
+      <h2 className="text-lg font-semibold underline">Active Refresh Tokens</h2>
+      <div className="flex flex-col space-y-2">
         <Table
           columns={[
             {
@@ -254,84 +249,125 @@ function RefreshTokens() {
   );
 }
 
-function SettingDisplay({ user }: Readonly<SettingProps>) {
+function Card({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-md space-y-1">
+      {children}
+    </div>
+  );
+}
+
+function UserData({ user }: Readonly<SettingProps>) {
+  return (
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold underline">User Information</h2>
+      <div className="flex flex-col space-y-2">
+        <div>
+          <Copyable label="Sub" value={user?.sub} />
+        </div>
+        <div>
+          <Copyable
+            label="Role"
+            value={user?.["https://haste-health.app/user_role"]}
+          />
+        </div>
+        <div>
+          <Copyable
+            label="Tenant"
+            value={user?.["https://haste-health.app/tenant"]}
+          />
+        </div>
+        <div>
+          <Copyable label="Aud" value={user?.["aud"]} />
+        </div>
+        <div>
+          <Copyable label="Scope" value={user?.["scope"]} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FHIRSettings() {
   const hasteHealth = useHasteHealth();
+  return (
+    <div className="space-y-2">
+      <h3 className="text-md font-semibold underline">FHIR</h3>
+      <div className=" space-y-2">
+        <div className="flex flex-col">
+          <Copyable
+            label="R4 Root"
+            value={
+              hasteHealth.rootURL
+                ? deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4)
+                : ""
+            }
+          />
+        </div>
+        <div className="flex flex-col">
+          <Copyable
+            label="R4 Metdata"
+            value={
+              hasteHealth.rootURL
+                ? deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4) +
+                  "/metadata"
+                : ""
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OpenIDConnectSettings() {
+  const hasteHealth = useHasteHealth();
+  return (
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold underline">OpenID Connect</h3>
+      <div className=" space-y-2">
+        <div className="flex flex-col">
+          <Copyable label="Discovery" value={hasteHealth.well_known_uri} />
+        </div>
+        <div className="flex flex-col">
+          <Copyable
+            label="Token"
+            value={hasteHealth.well_known?.token_endpoint}
+          />
+        </div>
+        <div className="flex flex-col">
+          <Copyable
+            label="Authorization"
+            value={hasteHealth.well_known?.authorization_endpoint}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SettingDisplay({ user }: Readonly<SettingProps>) {
   return (
     <div className="flex flex-col flex-1 space-y-4 w-full">
       <h2 className="text-2xl font-semibold mb-0">Settings</h2>
-      <div className="px-2">
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold">User Information</h2>
-          <div className="flex flex-col p-2 space-y-2">
-            <div>
-              <label className="block font-medium">Name:</label>
-              <span>{user?.name}</span>
-            </div>
-            <div>
-              <label className="block font-medium">Email:</label>
-              <span>{user?.email}</span>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold">Endpoints</h2>
-          <div className="pl-2 space-y-2">
-            <div className="space-y-2">
-              <h3 className="text-md font-semibold ">FHIR</h3>
-              <div className="pl-2 space-y-2">
-                <div className="flex flex-col">
-                  <Copyable
-                    label="R4"
-                    value={
-                      hasteHealth.rootURL
-                        ? deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4)
-                        : ""
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <Copyable
-                    label="R4B"
-                    value={
-                      hasteHealth.rootURL
-                        ? deriveHasteHealthVersionedURL(
-                            hasteHealth.rootURL,
-                            R4B
-                          )
-                        : ""
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold ">OpenID Connect</h3>
-              <div className="pl-2 space-y-2">
-                <div className="flex flex-col">
-                  <Copyable
-                    label="Discovery"
-                    value={hasteHealth.well_known_uri}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <Copyable
-                    label="Token"
-                    value={hasteHealth.well_known?.token_endpoint}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <Copyable
-                    label="Authorization"
-                    value={hasteHealth.well_known?.authorization_endpoint}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
+      <div className="grid md:grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-4 grid-flow-row-dense auto-cols-max">
+        <Card>
+          <UserData user={user} />
+        </Card>
+        <Card>
+          <FHIRSettings />
+        </Card>
+        <Card>
+          <OpenIDConnectSettings />
+        </Card>
+        <Card>
+          <Scopes />
+        </Card>
+        <Card>
+          <RefreshTokens />
+        </Card>
       </div>
-      <Scopes />
-      <RefreshTokens />
     </div>
   );
 }
