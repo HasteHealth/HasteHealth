@@ -106,7 +106,10 @@ export async function authorize({
   const parameters: Record<string, string> = {
     client_id: clientId,
     redirect_uri: redirectUrl,
-    scope: refresh ? scope + " offline_access" : scope,
+    scope:
+      refresh && !scope.includes("offline_access")
+        ? scope + " offline_access"
+        : scope,
     state,
     response_type: "code",
     code_challenge: code_challenge,
