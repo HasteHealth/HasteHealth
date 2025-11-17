@@ -39,7 +39,7 @@ pub struct FederatedInitiate {
     pub identity_provider_id: String,
 }
 
-fn validate_identity_provider_in_project(
+pub fn validate_identity_provider_in_project(
     identity_provider_id: &str,
     project: &FHIRProject,
 ) -> Result<(), OperationOutcomeError> {
@@ -58,17 +58,15 @@ fn validate_identity_provider_in_project(
     ))
 }
 
-pub async fn validate_and_get_idp<
+pub async fn get_idp<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
     tenant: &TenantId,
     fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
-    project: &FHIRProject,
     identity_provider_id: String,
 ) -> Result<IdentityProvider, OperationOutcomeError> {
-    validate_identity_provider_in_project(&identity_provider_id, &project)?;
     let identity_provider = fhir_client
         .read(
             Arc::new(ServerCTX::system(
@@ -198,6 +196,7 @@ fn oidc_pkce_challenge_method(
 
 async fn create_federated_authorization_url(
     session: &mut Session,
+    tenant: &TenantId,
     project: ProjectId,
     api_uri: &str,
     original_uri: &OriginalUri,
@@ -240,12 +239,8 @@ async fn create_federated_authorization_url(
                 "redirect_uri",
                 &create_federated_callback_url(
                     api_uri,
-                    original_uri,
+                    tenant,
                     &identity_provider.id.clone().unwrap_or_default(),
-                    &(FederatedInitiate {
-                        identity_provider_id: identity_provider.id.clone().unwrap_or_default(),
-                    }
-                    .to_string()),
                 )?,
             );
 
@@ -296,15 +291,13 @@ pub async fn federated_initiate<
     _uri: OriginalUri,
 ) -> Result<Redirect, OperationOutcomeError> {
     let api_uri = state.config.get(ServerEnvironmentVariables::APIURI)?;
-    let identity_provider = validate_and_get_idp(
-        &tenant,
-        state.fhir_client.clone(),
-        &project_resource,
-        identity_provider_id,
-    )
-    .await?;
+    validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
+    let identity_provider =
+        get_idp(&tenant, state.fhir_client.clone(), identity_provider_id).await?;
+
     let federated_authorization_url = create_federated_authorization_url(
         &mut current_session,
+        &tenant,
         project,
         &api_uri,
         &uri,
