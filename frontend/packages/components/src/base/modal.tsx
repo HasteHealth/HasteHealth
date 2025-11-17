@@ -12,10 +12,10 @@ export function Modal({
   size?: "small" | "medium" | "large" | "x-large";
   modalTitle?: string;
   ModalContent?: (
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>
   ) => React.ReactNode;
   children: (
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>
   ) => React.ReactNode;
 }) {
   const [isOpen, setOpen] = useState(false);
@@ -60,7 +60,7 @@ export function Modal({
                       "max-w-lg": size === "medium",
                       "max-w-2xl": size === "large",
                       "max-w-4xl": size === "x-large",
-                    },
+                    }
                   )}
                 >
                   <Dialog.Title
