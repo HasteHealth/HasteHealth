@@ -10,7 +10,8 @@ use haste_fhir_client::{
     middleware::{Middleware, MiddlewareChain},
     request::{
         FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest,
-        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRUpdateInstanceRequest,
+        FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRTransactionRequest,
+        FHIRUpdateInstanceRequest,
     },
     url::ParsedParameter,
 };
@@ -387,6 +388,7 @@ impl<
                 Box::new(
                     middleware::check_project::SetProjectReadOnlyMiddleware::new(ProjectId::System),
                 ),
+                // Confirm in system project as above will only set to system if readonly.
                 Box::new(middleware::check_project::Middleware::new(
                     ProjectId::System,
                 )),
@@ -686,10 +688,24 @@ impl<
 
     async fn transaction(
         &self,
-        _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _bundle: Bundle,
+        ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+        bundle: Bundle,
     ) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Transaction(FHIRTransactionRequest { resource: bundle }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Transaction(transaction_response)) => {
+                Ok(transaction_response.resource)
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn batch(

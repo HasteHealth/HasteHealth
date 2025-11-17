@@ -1,14 +1,17 @@
 use axum::{
-    extract::{OriginalUri, Query, State},
+    extract::{Query, State},
     response::Redirect,
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::{IdentityProvider, Resource, ResourceType, User},
-    terminology::{IssueType, UserRole},
-    types::{FHIRString, Reference},
+    resources::{
+        Bundle, BundleEntry, BundleEntryRequest, IdentityProvider, Membership, Resource,
+        ResourceType, User,
+    },
+    terminology::{BundleType, HttpVerb, IssueType, UserRole},
+    types::{FHIRString, FHIRUri, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -25,11 +28,11 @@ use url::Url;
 use crate::{
     ServerEnvironmentVariables,
     auth_n::{
-        oidc::routes::federated::initiate::{get_idp_session_info, validate_and_get_idp},
+        oidc::routes::federated::initiate::{get_idp, get_idp_session_info},
         session,
     },
-    extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
-    fhir_client::{FHIRServerClient, ServerCTX},
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
+    fhir_client::ServerCTX,
     services::AppState,
 };
 
@@ -39,13 +42,13 @@ pub struct FederatedInitiate {
     pub identity_provider_id: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 enum GrantType {
     #[serde(rename = "authorization_code")]
     AuthorizationCode,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct FederatedTokenBodyRequest {
     pub grant_type: GrantType,
     pub code: String,
@@ -160,47 +163,148 @@ async fn create_user_if_not_exists<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    fhir_client: &Arc<FHIRServerClient<Repo, Search, Terminology>>,
+    app_state: &Arc<AppState<Repo, Search, Terminology>>,
     tenant: &TenantId,
-    _project: &ProjectId,
+    target_project: &ProjectId,
     idp: &IdentityProvider,
     sub_claim: &str,
 ) -> Result<haste_fhir_model::r4::generated::resources::User, OperationOutcomeError> {
     let user_id = user_federated_id(idp, sub_claim)?;
 
-    let system_ctx = Arc::new(ServerCTX::system(
-        tenant.clone(),
-        ProjectId::System,
-        fhir_client.clone(),
-    ));
+    let mut existing_user = app_state
+        .fhir_client
+        .batch(
+            Arc::new(ServerCTX::system(
+                tenant.clone(),
+                target_project.clone(),
+                app_state.fhir_client.clone(),
+            )),
+            Bundle {
+                type_: Box::new(BundleType::Batch(None)),
+                entry: Some(vec![
+                    BundleEntry {
+                        request: Some(BundleEntryRequest {
+                            method: Box::new(HttpVerb::GET(None)),
+                            url: Box::new(FHIRUri {
+                                value: Some(format!("{}/{}", ResourceType::User.as_ref(), user_id)),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    },
+                    // Membership search for linked user
+                    BundleEntry {
+                        request: Some(BundleEntryRequest {
+                            method: Box::new(HttpVerb::GET(None)),
+                            url: Box::new(FHIRUri {
+                                value: Some(format!(
+                                    "{}?user={}/{}&_count=1",
+                                    ResourceType::Membership.as_ref(),
+                                    ResourceType::User.as_ref(),
+                                    user_id
+                                )),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    },
+                ]),
 
-    if let Some(Resource::User(user)) = fhir_client
-        .read(system_ctx.clone(), ResourceType::User, user_id.clone())
-        .await?
+                ..Default::default()
+            },
+        )
+        .await?;
+
+    if let Some(Resource::User(user)) = existing_user
+        .entry
+        .as_mut()
+        .and_then(|entries| entries.pop())
+        .and_then(|e| e.resource)
+        .map(|r| *r)
+        && let Some(Resource::Membership(_project_membership)) = existing_user
+            .entry
+            .as_ref()
+            .and_then(|entries| entries.get(0))
+            .and_then(|e| e.resource.as_ref())
+            .and_then(|r| match r.as_ref() {
+                Resource::Bundle(bundle) => bundle
+                    .entry
+                    .as_ref()
+                    .and_then(|entries| entries.get(0))
+                    .and_then(|e| e.resource.as_ref())
+                    .and_then(|r| Some(r.as_ref())),
+                _ => None,
+            })
     {
         Ok(user)
     } else {
-        let new_user = User {
-            id: Some(user_id.clone()),
-            role: Box::new(UserRole::Member(None)),
-            federated: Some(Box::new(Reference {
-                reference: Some(Box::new(FHIRString {
-                    value: Some(format!("IdentityProvider/{}", idp.id.as_ref().unwrap())),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            })),
-            ..Default::default()
+        let transaction = app_state.transaction().await?;
+        // Need to create both User and Membership resources.
+        // User resource will exist on system project, Membership on target project.
+        let created_user = {
+            let user = transaction
+                .fhir_client
+                .update(
+                    Arc::new(ServerCTX::system(
+                        tenant.clone(),
+                        ProjectId::System,
+                        transaction.fhir_client.clone(),
+                    )),
+                    ResourceType::User,
+                    user_id.clone(),
+                    Resource::User(User {
+                        id: Some(user_id.clone()),
+                        role: Box::new(UserRole::Member(None)),
+                        federated: Some(Box::new(Reference {
+                            reference: Some(Box::new(FHIRString {
+                                value: Some(format!(
+                                    "{}/{}",
+                                    ResourceType::IdentityProvider.as_ref(),
+                                    idp.id.as_ref().unwrap()
+                                )),
+                                ..Default::default()
+                            })),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
+                )
+                .await?;
+
+            transaction
+                .fhir_client
+                .update(
+                    Arc::new(ServerCTX::system(
+                        tenant.clone(),
+                        target_project.clone(),
+                        transaction.fhir_client.clone(),
+                    )),
+                    ResourceType::Membership,
+                    user_id.clone(),
+                    Resource::Membership(Membership {
+                        id: Some(user_id.clone()),
+                        user: Box::new(Reference {
+                            reference: Some(Box::new(FHIRString {
+                                value: Some(format!(
+                                    "{}/{}",
+                                    ResourceType::User.as_ref(),
+                                    user_id.clone()
+                                )),
+                                ..Default::default()
+                            })),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                )
+                .await?;
+
+            user
         };
 
-        let created_user = fhir_client
-            .update(
-                system_ctx.clone(),
-                ResourceType::User,
-                user_id,
-                Resource::User(new_user),
-            )
-            .await?;
+        transaction.commit().await?;
 
         Ok(match created_user {
             Resource::User(user) => user,
@@ -222,21 +326,20 @@ pub async fn federated_callback<
     FederatedInitiate {
         identity_provider_id,
     }: FederatedInitiate,
-    uri: OriginalUri,
     Query(CallbackQueryParams { code, state }): Query<CallbackQueryParams>,
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    Cached(Project(project_resource)): Cached<Project>,
     Cached(session): Cached<Session>,
 ) -> Result<Redirect, OperationOutcomeError> {
-    let identity_provider = validate_and_get_idp(
+    let identity_provider = get_idp(
         &tenant,
         app_state.fhir_client.clone(),
-        &project_resource,
         identity_provider_id.clone(),
     )
     .await?;
+
+    let idp_session_info = get_idp_session_info(&session, &identity_provider).await?;
 
     let client_id = identity_provider
         .oidc
@@ -255,8 +358,6 @@ pub async fn federated_callback<
         .as_ref()
         .and_then(|oidc| oidc.client.secret.as_ref())
         .and_then(|secret| secret.value.as_ref());
-
-    let idp_session_info = get_idp_session_info(&session, &identity_provider).await?;
 
     if state != idp_session_info.state {
         return Err(OperationOutcomeError::error(
@@ -277,12 +378,8 @@ pub async fn federated_callback<
         code: code,
         redirect_uri: create_federated_callback_url(
             &app_state.config.get(ServerEnvironmentVariables::APIURI)?,
-            &uri,
+            &tenant,
             &identity_provider_id,
-            &FederatedInitiate {
-                identity_provider_id: identity_provider_id.clone(),
-            }
-            .to_string(),
         )?,
         client_id: client_id.clone(),
         client_secret: client_secret.cloned(),
@@ -343,7 +440,7 @@ pub async fn federated_callback<
     let claims = decode_using_jwk(&id_token, &jwk_url).await?;
 
     let user = create_user_if_not_exists(
-        &app_state.fhir_client,
+        &app_state,
         &tenant,
         &idp_session_info.project,
         &identity_provider,
@@ -372,9 +469,8 @@ pub async fn federated_callback<
 
 pub fn create_federated_callback_url(
     api_url_string: &str,
-    uri: &OriginalUri,
+    tenant: &TenantId,
     idp_id: &str,
-    replace_path: &str,
 ) -> Result<String, OperationOutcomeError> {
     let Ok(api_url) = Url::parse(&api_url_string) else {
         return Err(OperationOutcomeError::error(
@@ -383,13 +479,12 @@ pub fn create_federated_callback_url(
         ));
     };
 
-    let path = uri.path().to_string().replace(
-        replace_path,
-        &FederatedInitiate {
-            identity_provider_id: idp_id.to_string(),
-        }
-        .to_string(),
-    );
-
-    Ok(api_url.join(&path).unwrap().to_string())
+    Ok(api_url
+        .join(&format!(
+            "w/{}/api/v1/system/oidc/federated/{}/callback",
+            tenant.as_ref(),
+            idp_id
+        ))
+        .unwrap()
+        .to_string())
 }
