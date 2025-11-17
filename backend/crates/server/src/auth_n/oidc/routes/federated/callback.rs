@@ -155,7 +155,7 @@ fn user_federated_id(idp: &IdentityProvider, sub: &str) -> Result<String, Operat
     Ok(format!("{}|{}", id_prefix, hashed_user_sub_claim))
 }
 
-pub async fn create_user_if_not_exists<
+async fn create_user_if_not_exists<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
@@ -265,6 +265,13 @@ pub async fn federated_callback<
         ));
     }
 
+    if project != ProjectId::System && idp_session_info.project != project {
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Project in session does not match the current project.".to_string(),
+        ));
+    }
+
     let federated_token_body = FederatedTokenBodyRequest {
         grant_type: GrantType::AuthorizationCode,
         code: code,
@@ -313,6 +320,7 @@ pub async fn federated_callback<
         .send()
         .await
         .map_err(|_e| {
+            tracing::error!("Failed to send request to token endpoint: {:?}", _e);
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Failed at sending request to identity provider token endpoint".to_string(),
@@ -323,6 +331,7 @@ pub async fn federated_callback<
         .json::<FederatedTokenBodyResponse>()
         .await
         .map_err(|_e| {
+            tracing::error!("Failed to parse token response body: {:?}", _e);
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Failed to parse token response from identity provider".to_string(),
@@ -336,7 +345,7 @@ pub async fn federated_callback<
     let user = create_user_if_not_exists(
         &app_state.fhir_client,
         &tenant,
-        &project,
+        &idp_session_info.project,
         &identity_provider,
         &claims.sub,
     )

@@ -7,7 +7,7 @@ use crate::{
             authorize::redirect_authorize_uri, federated::callback::create_federated_callback_url,
         },
     },
-    extract::path_tenant::{Project, TenantIdentifier},
+    extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
     fhir_client::{FHIRServerClient, ServerCTX},
     services::AppState,
 };
@@ -98,6 +98,7 @@ pub async fn validate_and_get_idp<
 pub struct IDPSessionInfo {
     pub state: String,
     pub redirect_to: String,
+    pub project: ProjectId,
     pub code_verifier: Option<String>,
 }
 
@@ -137,6 +138,7 @@ pub async fn get_idp_session_info(
 
 async fn set_session_info(
     session: &mut Session,
+    project_id: ProjectId,
     idp: &IdentityProvider,
     uri: &OriginalUri,
 ) -> Result<IDPSessionInfo, OperationOutcomeError> {
@@ -158,6 +160,7 @@ async fn set_session_info(
             }
             .to_string(),
         ),
+        project: project_id,
         code_verifier: None,
     };
 
@@ -195,6 +198,7 @@ fn oidc_pkce_challenge_method(
 
 async fn create_federated_authorization_url(
     session: &mut Session,
+    project: ProjectId,
     api_uri: &str,
     original_uri: &OriginalUri,
     identity_provider: &IdentityProvider,
@@ -245,7 +249,7 @@ async fn create_federated_authorization_url(
                 )?,
             );
 
-        let info = set_session_info(session, &identity_provider, original_uri).await?;
+        let info = set_session_info(session, project, &identity_provider, original_uri).await?;
         authorization_url
             .query_pairs_mut()
             .append_pair("state", &info.state);
@@ -286,6 +290,7 @@ pub async fn federated_initiate<
     uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Cached(Project(project_resource)): Cached<Project>,
     OIDCClientApplication(_client_app): OIDCClientApplication,
     _uri: OriginalUri,
@@ -300,6 +305,7 @@ pub async fn federated_initiate<
     .await?;
     let federated_authorization_url = create_federated_authorization_url(
         &mut current_session,
+        project,
         &api_uri,
         &uri,
         &identity_provider,

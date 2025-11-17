@@ -4,7 +4,7 @@ use self::super::resources::Resource;
 use self::super::terminology;
 use haste_fhir_serialization_json;
 use haste_fhir_serialization_json::FHIRJSONDeserializer;
-use haste_reflect::{MetaValue, derive::Reflect};
+use haste_reflect::{derive::Reflect, MetaValue};
 use std::io::Write;
 #[derive(
     Clone,

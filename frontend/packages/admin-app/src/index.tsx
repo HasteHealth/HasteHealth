@@ -142,7 +142,7 @@ function SystemBar() {
   const params = useParams();
 
   return (
-    <div className="w-full">
+    <div className="flex flex-col w-full">
       {/* Create a horizontal navbar with circular buttons for navigation to user project IdentityProvider */}
       <nav className="flex space-x-4 pb-4">
         {SYSTEM_TYPES.map((type) => (

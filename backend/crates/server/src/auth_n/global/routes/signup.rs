@@ -12,7 +12,7 @@ use std::sync::Arc;
 pub struct GlobalSignup {}
 
 #[allow(dead_code)]
-pub async fn signup_initial<
+pub async fn signup_get<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,

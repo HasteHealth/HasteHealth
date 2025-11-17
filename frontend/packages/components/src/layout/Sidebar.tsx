@@ -50,7 +50,9 @@ export interface SideBarItemGroupProps
 export function SideBarItemGroup(props: SideBarItemGroupProps) {
   return (
     <li {...props}>
-      <div className="px-2 text-orange-900 text-xs">{props.label}</div>
+      <div className="px-2 text-orange-900 text-xs underline">
+        {props.label}
+      </div>
       <div className="mt-1 ml-1">
         <ul className="space-y-1">{props.children}</ul>
       </div>
@@ -80,7 +82,7 @@ export function SideBar({
         <div className="px-3 py-2">{top}</div>
         <ul
           role="list"
-          className="px-3 flex flex-1 flex-col text-base overflow-y-auto gap-y-6"
+          className="px-3 flex flex-1 flex-col text-sm overflow-y-auto gap-y-6"
         >
           {children}
         </ul>
