@@ -1,19 +1,19 @@
 {
     "resourceType": "SearchParameter",
-    "id": "Membership-federated-identityProvider",
-    "url": "https://haste-health.app/fhir/SearchParameter/Membership-federated-identityProvider",
+    "id": "User-federated-identityProvider",
+    "url": "https://haste-health.app/fhir/SearchParameter/User-federated-identityProvider",
     "version": "4.0.1",
     "name": "IdentityProvider",
     "status": "draft",
     "experimental": false,
     "publisher": "haste-health",
-    "description": "Membership federated identityProvider",
+    "description": "User federated identityProvider",
     "code": "identityProvider",
     "base": [
-        "Membership"
+        "User"
     ],
     "type": "reference",
-    "expression": "Membership.federated",
+    "expression": "User.federated",
     "target": [
         "IdentityProvider"
     ]

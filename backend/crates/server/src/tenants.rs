@@ -66,10 +66,10 @@ pub async fn create_tenant<
             ResourceType::Project,
             Resource::Project(Project {
                 id: Some(ProjectId::System.to_string()),
-                name: Some(Box::new(FHIRString {
+                name: Box::new(FHIRString {
                     value: Some(ProjectId::System.to_string()),
                     ..Default::default()
-                })),
+                }),
                 fhirVersion: Box::new(
                     haste_fhir_model::r4::generated::terminology::SupportedFhirVersion::R4(None),
                 ),

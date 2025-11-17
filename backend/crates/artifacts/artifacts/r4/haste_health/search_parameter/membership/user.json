@@ -1,0 +1,20 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "Membership-user",
+    "url": "https://haste-health.app/fhir/SearchParameter/Membership-user",
+    "version": "4.0.1",
+    "name": "User",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "haste-health",
+    "description": "Membership user",
+    "code": "user",
+    "base": [
+        "Membership"
+    ],
+    "type": "reference",
+    "expression": "Membership.user",
+    "target": [
+        "User"
+    ]
+}

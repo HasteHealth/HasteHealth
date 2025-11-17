@@ -1,0 +1,17 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "User-role",
+    "url": "https://haste-health.app/fhir/SearchParameter/User-role",
+    "version": "4.0.1",
+    "name": "Role",
+    "status": "draft",
+    "experimental": false,
+    "publisher": "haste-health",
+    "description": "User role",
+    "code": "role",
+    "base": [
+        "User"
+    ],
+    "type": "token",
+    "expression": "User.role"
+}

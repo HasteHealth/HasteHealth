@@ -24,6 +24,7 @@ import {
 import Modal from "../../components/Modal";
 
 import { getResource } from "../../db/resource";
+import { generatePath, useNavigate } from "react-router-dom";
 
 function ProjectCreateModal({
   open,
@@ -156,6 +157,7 @@ export default function Projects() {
   const client = useAtomValue(getClient);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openUpdateModalId, setOpenUpdateIdModal] = useState<string>("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     client
@@ -196,8 +198,9 @@ export default function Projects() {
           <div className="flex items-center space-x-2 mb-8">
             <h1 className="text-3xl font-bold text-center">Projects</h1>
             <Button
-              onClick={(_e) => {
-                setOpenCreateModal(true);
+              onClick={(e) => {
+                navigate(generatePath("/resources/Project/new", {}));
+                e.stopPropagation();
               }}
             >
               Create
@@ -283,7 +286,11 @@ export default function Projects() {
                     <div>
                       <span
                         onClick={(e) => {
-                          setOpenUpdateIdModal(project.id!);
+                          navigate(
+                            generatePath("/resources/Project/:id", {
+                              id: project.id as string,
+                            })
+                          );
                           e.stopPropagation();
                         }}
                         className="text-orange-600 hover:text-orange-700 cursor-pointer"

@@ -1,4 +1,4 @@
-import { Navigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Projects from "./Projects";
 import ResourceTypes from "./ResourceTypes";
 

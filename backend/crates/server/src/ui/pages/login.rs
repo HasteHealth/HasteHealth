@@ -18,8 +18,8 @@ pub fn login_form_html(
     let project_id = project.id.clone().map(|id| ProjectId::new(id)).unwrap();
     let project_name = project
         .name
+        .value
         .as_ref()
-        .and_then(|name| name.value.as_ref())
         .map(|s| Cow::Borrowed(s.as_str()))
         .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
     let password_reset_route =

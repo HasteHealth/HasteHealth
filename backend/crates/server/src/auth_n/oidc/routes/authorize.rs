@@ -107,8 +107,8 @@ pub async fn authorize<
                 "User is not a member of project '{}'.",
                 project_resource
                     .name
+                    .value
                     .as_ref()
-                    .and_then(|n| n.value.as_ref())
                     .map(|s| s.as_str())
                     .unwrap_or(project.as_ref())
             ),

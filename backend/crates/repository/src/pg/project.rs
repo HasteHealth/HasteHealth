@@ -82,6 +82,13 @@ fn delete_project<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 
             )
         })?;
 
+        if !_deleted_project.is_some() {
+            return Err(OperationOutcomeError::error(
+                IssueType::NotFound(None),
+                format!("Project '{}' not found or is system created and cannot be deleted.", id),
+            ));
+        }
+
         Ok(())
     }
 }
