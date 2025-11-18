@@ -179,7 +179,7 @@ export default function Projects() {
       }
     >
       <div className="flex flex-col flex-1">
-        <ProjectCreateModal
+        {/* <ProjectCreateModal
           open={openCreateModal}
           setOpen={(bool) => {
             setOpenCreateModal(bool);
@@ -193,7 +193,7 @@ export default function Projects() {
           }}
           id={openUpdateModalId as id}
           setProjects={setProjects}
-        />
+        /> */}
         <div className=" flex justify-center flex-col px-4  -top-[15px] mt-16">
           <div className="flex items-center space-x-2 mb-8">
             <h1 className="text-3xl font-bold text-center">Projects</h1>
