@@ -23,7 +23,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use haste_repository::{Repository, types::SupportedFHIRVersions};
 use serde::Deserialize;
-use std::{sync::Arc, time::Instant};
+use std::{collections::HashMap, sync::Arc, time::Instant};
 use tower::{Layer, ServiceBuilder};
 use tower_http::normalize_path::NormalizePath;
 use tower_http::{
@@ -74,7 +74,13 @@ async fn fhir_handler<
             method,
             fhir_location,
             HTTPBody::String(body),
-            uri.query().unwrap_or_default().to_string(),
+            uri.query()
+                .map(|q| {
+                    url::form_urlencoded::parse(q.as_bytes())
+                        .into_owned()
+                        .collect()
+                })
+                .unwrap_or_else(HashMap::new),
         );
 
         let fhir_request = http_request_to_fhir_request(SupportedFHIRVersions::R4, http_req)?;

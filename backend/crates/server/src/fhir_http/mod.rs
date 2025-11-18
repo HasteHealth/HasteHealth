@@ -18,6 +18,7 @@ use haste_fhir_serialization_json::errors::DeserializeError;
 use haste_jwt::VersionId;
 use haste_repository::types::SupportedFHIRVersions;
 use json_patch::Patch;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum HTTPBody {
@@ -30,10 +31,15 @@ pub struct HTTPRequest {
     method: Method,
     path: String,
     body: HTTPBody,
-    query: String,
+    query: HashMap<String, String>,
 }
 impl HTTPRequest {
-    pub fn new(method: Method, path: String, body: HTTPBody, query: String) -> Self {
+    pub fn new(
+        method: Method,
+        path: String,
+        body: HTTPBody,
+        query: HashMap<String, String>,
+    ) -> Self {
         HTTPRequest {
             method,
             path,

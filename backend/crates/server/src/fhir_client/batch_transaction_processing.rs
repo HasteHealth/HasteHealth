@@ -186,7 +186,9 @@ fn bundle_entry_to_fhir_request(entry: BundleEntry) -> Result<FHIRRequest, Opera
             } else {
                 fhir_http::HTTPBody::String("".to_string())
             },
-            query.to_string(),
+            url::form_urlencoded::parse(query.as_bytes())
+                .into_owned()
+                .collect(),
         );
 
         let Ok(fhir_request) =
