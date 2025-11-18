@@ -17,7 +17,7 @@ pub fn base(uri: &Uri, children: Markup) -> Markup {
                     tr style="width:100%"{
                         td {
                             div style="padding:24px 24px 24px 24px" {
-                                img alt="HasteHealth Logo" src=(img_url) width="100"  {}
+                                img alt="Haste Health Logo" src=(img_url) width="100"  {}
                             }
                             div style="font-weight:normal;padding:0px 24px 16px 24px" { "To verify your email and set your password click below." }
                             div style="padding:16px 24px 24px 24px" {
