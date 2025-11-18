@@ -26,7 +26,7 @@ export const Primary: Story = {
             "valueInteger": 4993
           },
           {
-            "url": "https://haste-health.app/author",
+            "url": "https://haste.health/author",
             "valueString": "public-user"
           }
         ],
@@ -56,7 +56,7 @@ export const Primary: Story = {
             "valueInteger": 1942
           },
           {
-            "url": "https://haste-health.app/author",
+            "url": "https://haste.health/author",
             "valueString": "public-user"
           }
         ],

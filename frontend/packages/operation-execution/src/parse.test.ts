@@ -19,7 +19,7 @@ test("TEST Parse to object", async () => {
           valueInteger: 7,
         },
         {
-          url: "https://haste-health.app/author",
+          url: "https://haste.health/author",
           valueString: "public-user",
         },
       ],
@@ -58,7 +58,7 @@ test("TEST Parse to object", async () => {
                   valueInteger: 20,
                 },
                 {
-                  url: "https://haste-health.app/author",
+                  url: "https://haste.health/author",
                   valueString: "public-user",
                 },
               ],
@@ -82,7 +82,7 @@ test("TEST Parse to object", async () => {
               valueInteger: 20,
             },
             {
-              url: "https://haste-health.app/author",
+              url: "https://haste.health/author",
               valueString: "public-user",
             },
           ],

@@ -34,7 +34,7 @@ export const FHIRMetaReadOnly = ({
           client={client}
           value={
             value?.extension?.find(
-              (e) => e.url === "https://haste-health.app/author"
+              (e) => e.url === "https://haste.health/author"
             )?.valueReference
           }
           disabled={true}
