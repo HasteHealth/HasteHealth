@@ -19,7 +19,7 @@
           "Resource"
         ],
         "type": "reference",
-        "expression": "Resource.meta.extension.where(url='https://haste-health.app/author').value",
+        "expression": "Resource.meta.extension.where(url='https://haste.health/author').value",
         "target": [
           "Membership",
           "ClientApplication",

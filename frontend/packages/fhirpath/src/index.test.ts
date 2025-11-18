@@ -536,7 +536,7 @@ test("Subscription extension test", async () => {
           valueInteger: 4700,
         },
         {
-          url: "https://haste-health.app/author",
+          url: "https://haste.health/author",
           valueString: "fake-user",
         },
       ],
@@ -855,7 +855,7 @@ test("Patient with name given", async () => {
               valueInteger: 191,
             },
             {
-              url: "https://haste-health.app/author",
+              url: "https://haste.health/author",
               valueReference: {
                 reference: "ClientApplication/rB5mVKQ7wIxMeSWthQCE3l",
               },

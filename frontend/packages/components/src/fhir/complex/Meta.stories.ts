@@ -31,7 +31,7 @@ export const Primary: Story = {
       lastUpdated: "1980-01-01" as instant,
       extension: [
         {
-          url: "https://haste-health.app/author",
+          url: "https://haste.health/author",
           valueReference: { reference: "Patient/123" },
         },
       ] as Extension[],

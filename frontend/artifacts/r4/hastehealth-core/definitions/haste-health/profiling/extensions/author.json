@@ -1,7 +1,7 @@
 {
     "resourceType": "StructureDefinition",
     "id": "haste-health-author-extension",
-    "url": "https://haste-health.app/author",
+    "url": "https://haste.health/author",
     "version": "4.0.0",
     "name": "HasteHealth author",
     "title": "HasteHealth author Extension",
@@ -28,7 +28,7 @@
                 "path": "Extension.url",
                 "min": 1,
                 "max": "1",
-                "fixedUri": "https://haste-health.app/author"
+                "fixedUri": "https://haste.health/author"
             },
             {
                 "id": "Extension.valueString",
@@ -211,7 +211,7 @@
                 ],
                 "isModifier": false,
                 "isSummary": false,
-                "fixedUri": "https://haste-health.app/author"
+                "fixedUri": "https://haste.health/author"
             },
             {
                 "id": "Extension.value[x]",

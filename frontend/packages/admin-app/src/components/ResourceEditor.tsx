@@ -115,7 +115,7 @@ function ResourceHistory() {
               id: "Author",
               content: "Author",
               selector:
-                "$this.resource.meta.extension.where(url='https://haste-health.app/author').valueReference.reference",
+                "$this.resource.meta.extension.where(url='https://haste.health/author').valueReference.reference",
               selectorType: "fhirpath",
             },
             {
