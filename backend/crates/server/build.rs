@@ -3,6 +3,11 @@ const NPM: &str = "npm.cmd";
 #[cfg(not(windows))]
 const NPM: &str = "npm";
 
+#[cfg(windows)]
+const NPX: &str = "npx.cmd";
+#[cfg(not(windows))]
+const NPX: &str = "npx";
+
 fn main() {
     println!("cargo::rerun-if-changed=css");
     println!("cargo::rerun-if-changed=src");
@@ -17,7 +22,7 @@ fn main() {
         .wait()
         .expect("Failed to install node packages.");
 
-    let mut tailwindcss_process = std::process::Command::new("npx")
+    let mut tailwindcss_process = std::process::Command::new(NPX)
         .arg("@tailwindcss/cli")
         .args(["-i", "./css/app.css"])
         .args(["-o", "./public/css/app.css"])
