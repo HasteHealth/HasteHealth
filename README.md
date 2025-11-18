@@ -1,4 +1,10 @@
-# Haste Health
+<div align="center">
+   <img src="https://raw.githubusercontent.com/HasteHealth/HasteHealth/refs/heads/main/backend/crates/server/public/img/logo.svg" style="margin-left: 10px; height: 130px; width: 130px;" />
+</div>
+
+## Overview
+
+FHIR development platform built for speed.
 
 ## Running for Development
 
