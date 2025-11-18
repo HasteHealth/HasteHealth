@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use thiserror::Error;
 
 #[derive(Debug, Clone)]
@@ -93,16 +94,16 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_containedType",
 ];
 
-pub fn parse_query(query_params: &str) -> Result<Vec<ParsedParameter>, ParseError> {
+pub fn parse_query(
+    query_params: &HashMap<String, String>,
+) -> Result<Vec<ParsedParameter>, ParseError> {
     if query_params.is_empty() {
         return Ok(vec![]);
     }
     query_params
-        .split('&')
-        .map(|param| {
-            let [param_name, value] = param.split('=').collect::<Vec<&str>>()[..] else {
-                return Err(ParseError::InvalidParameter(param.to_string()));
-            };
+        .keys()
+        .map(|param_name| {
+            let value = query_params.get(param_name).unwrap();
 
             let chain = param_name
                 .split('.')
