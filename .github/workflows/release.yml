@@ -12,32 +12,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - run: rustup update
       - name: Build
         run: cd backend && cargo build --release
-      - name: Test
+      - name: Move to linux filename
         run: mv backend/target/release/haste-health ./haste-health_linux
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             haste-health_linux
-  #   windows:
-  #     runs-on: windows-latest
-  #     permissions:
-  #       packages: write
-  #       contents: write
-  #     steps:
-  #       - name: Checkout
-  #         uses: actions/checkout@v5
-  #       - name: Build
-  #         run: cd backend && cargo build --release
-  #       - name: Test
-  #         run: mv backend/target/release/haste-health ./haste-health_windows
-  #       - name: Release
-  #         uses: softprops/action-gh-release@v2
-  #         with:
-  #           files: |
-  #             haste-health_windows
+  windows:
+    runs-on: windows-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - run: rustup update
+      - name: Build
+        run: cd backend && cargo build --release
+      - name: Move to windows filename
+        run: mv backend/target/release/haste-health ./haste-health_windows
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            haste-health_windows
   mac:
     runs-on: macos-latest
     permissions:
@@ -46,9 +48,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - run: rustup update
       - name: Build
         run: cd backend && cargo build --release
-      - name: Test
+      - name: Move to macos filename
         run: mv backend/target/release/haste-health ./haste-health_macos
       - name: Release
         uses: softprops/action-gh-release@v2
