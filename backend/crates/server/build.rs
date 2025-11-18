@@ -1,9 +1,14 @@
+#[cfg(windows)]
+const NPM: &str = "npm.cmd";
+#[cfg(not(windows))]
+const NPM: &str = "npm";
+
 fn main() {
     println!("cargo::rerun-if-changed=css");
     println!("cargo::rerun-if-changed=src");
     println!("cargo::rerun-if-changed=public");
 
-    let mut npm_install = std::process::Command::new("npm")
+    let mut npm_install = std::process::Command::new(NPM)
         .arg("i")
         .spawn()
         .expect("Failed to install node packages.");
