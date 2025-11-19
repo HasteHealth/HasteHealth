@@ -50,7 +50,9 @@ impl From<PKCECodeChallengeMethod> for String {
 pub struct AuthorizationCodeSearchClaims {
     pub client_id: Option<String>,
     pub code: Option<String>,
+    pub kind: Option<AuthorizationCodeKind>,
     pub user_id: Option<String>,
+    pub user_agent: Option<String>,
 }
 
 pub struct CreateAuthorizationCode {

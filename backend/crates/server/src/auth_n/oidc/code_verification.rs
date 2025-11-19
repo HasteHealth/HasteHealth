@@ -6,7 +6,8 @@ use haste_repository::{
     Repository,
     admin::ProjectAuthAdmin,
     types::authorization_code::{
-        AuthorizationCode, AuthorizationCodeSearchClaims, PKCECodeChallengeMethod,
+        AuthorizationCode, AuthorizationCodeKind, AuthorizationCodeSearchClaims,
+        PKCECodeChallengeMethod,
     },
     utilities::generate_id,
 };
@@ -80,7 +81,9 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
         &AuthorizationCodeSearchClaims {
             client_id: client.id.clone(),
             code: Some(code.to_string()),
+            kind: Some(AuthorizationCodeKind::OAuth2CodeGrant),
             user_id: None,
+            user_agent: None,
         },
     )
     .await?;

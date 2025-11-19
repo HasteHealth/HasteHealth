@@ -218,6 +218,18 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             query_builder.push(" AND user_id =  ").push_bind(user_id);
         }
 
+        if let Some(kind) = &clauses.kind {
+            query_builder
+                .push(" AND kind =  ")
+                .push_bind(kind as &AuthorizationCodeKind);
+        }
+
+        if let Some(user_agent) = &clauses.user_agent {
+            query_builder
+                .push(" AND meta->>'user_agent' =  ")
+                .push_bind(user_agent);
+        }
+
         let query = query_builder.build_query_as();
 
         let authorization_codes: Vec<AuthorizationCode> = query
