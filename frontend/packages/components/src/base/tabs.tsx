@@ -19,7 +19,7 @@ export const Tabs = ({ tabs, rightSide }: TabsProps) => {
   return (
     <div className="flex flex-1 flex-col px-2 sm:px-0 overflow-auto">
       <TabGroup className="flex flex-1 flex-col">
-        <TabList className="flex space-x-4 border-b items-center">
+        <TabList className="sticky top-0 z-10 bg-white flex space-x-4 border-b items-center">
           <div className="flex space-x-4 flex-grow">
             {tabs.map((tab) => (
               <Tab
