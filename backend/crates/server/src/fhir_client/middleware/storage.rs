@@ -1,19 +1,14 @@
-use crate::{
-    fhir_client::{
-        ClientState, FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
-        batch_transaction_processing::{
-            build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
-        },
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+use crate::fhir_client::{
+    FHIRServerClient, ServerCTX, ServerClientConfig, StorageError,
+    batch_transaction_processing::{
+        build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
     },
-    fhir_http::{self, HTTPRequest},
+    middleware::{
+        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+        ServerMiddlewareState,
+    },
 };
-use axum::http::Method;
 use haste_fhir_client::{
-    FHIRClient,
     middleware::MiddlewareChain,
     request::{
         FHIRBatchResponse, FHIRCreateResponse, FHIRDeleteInstanceResponse,
@@ -24,24 +19,19 @@ use haste_fhir_client::{
     url::ParsedParameter,
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryResponse, Resource},
-    terminology::{BundleType, IssueType},
+    resources::{Bundle, BundleEntry},
+    terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchRequest};
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ResourceId, VersionIdRef};
+use haste_jwt::ResourceId;
 use haste_reflect::MetaValue;
 use haste_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
-    types::SupportedFHIRVersions,
 };
-use std::{
-    str::FromStr,
-    sync::Arc,
-    time::{Duration, Instant},
-};
+use std::sync::Arc;
 
 pub struct Middleware {}
 impl Middleware {
@@ -99,7 +89,7 @@ impl<
                     })))
                 }
                 FHIRRequest::DeleteInstance(delete_request) => {
-                    let mut current_resource = FHIRRepository::read_latest(
+                    let current_resource = FHIRRepository::read_latest(
                         state.repo.as_ref(),
                         &context.ctx.tenant,
                         &context.ctx.project,

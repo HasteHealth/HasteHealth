@@ -14,7 +14,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::{Repository, types::tenant};
+use haste_repository::Repository;
 use std::sync::Arc;
 
 pub struct Middleware {}
