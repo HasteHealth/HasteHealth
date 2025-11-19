@@ -73,17 +73,15 @@ export function SideBar({
     <aside
       id="sidebar-multi-level-sidebar"
       className={classNames(
-        "flex fixed top-0 left-0 z-40 w-64 h-screen transition-transform",
+        "flex relative top-0 left-0 z-1 transition-transform ",
         { "translate-x-0": isOpen, "-translate-x-full": !isOpen }
       )}
+      style={{ width: "250px" }}
       aria-label="Sidebar"
     >
-      <nav className="flex flex-1 flex-col py-2 overflow-y-auto bg-gray-100">
+      <nav className="flex flex-1 flex-col py-2 ">
         <div className="px-3 py-2">{top}</div>
-        <ul
-          role="list"
-          className="px-3 flex flex-1 flex-col text-sm overflow-y-auto gap-y-6"
-        >
+        <ul className="px-3 flex flex-1 flex-col text-sm gap-y-6">
           {children}
         </ul>
       </nav>
@@ -94,20 +92,30 @@ export function SideBar({
 export const SidebarLayout = ({
   children,
   sidebar,
+  navbar,
 }: {
+  navbar: React.ReactNode;
   children: React.ReactNode;
   sidebar: React.ReactNode;
 }) => {
   // const [sidebarOpen, setSidebarOpen] = useState(true);
   return (
-    <>
-      {sidebar}
-      <div
-        style={{ width: "calc(100% - 16rem)" }}
-        className="sm:ml-64 flex flex-col flex-grow"
-      >
-        {children}
+    <div className="w-full">
+      {navbar}
+      <div className="flex">
+        <div
+          style={{ height: "calc(100vh - 65px)" }}
+          className="overflow-y-auto overflow-x-hidden border-r"
+        >
+          {sidebar}
+        </div>
+        <div
+          className="flex flex-col overflow-x-auto overflow-y-hidden"
+          style={{ height: "calc(100vh - 65px)", width: "calc(100% - 250px)" }}
+        >
+          {children}
+        </div>
       </div>
-    </>
+    </div>
   );
 };

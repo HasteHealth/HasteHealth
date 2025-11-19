@@ -69,7 +69,7 @@ pub fn login_form_html(
                             a href=(password_reset_route_str) class="text-sm font-medium text-orange-600 hover:underline " { "Forgot password?" }
                         }
                     }
-                    button type="submit" class="w-full text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
+                    button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
                 }
 
                 @if let Some(identity_providers) = identity_providers {

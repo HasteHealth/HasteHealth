@@ -97,7 +97,7 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-2 pl-10 pr-4",
                     {
-                      "bg-orange-600 text-white": active,
+                      "bg-orange-500 text-white": active,
                       "text-gray-900": !active,
                     }
                   )
@@ -113,7 +113,7 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-2 pl-10 pr-4",
                     {
-                      "bg-orange-600 text-white": active,
+                      "bg-orange-500 text-white": active,
                       "text-gray-900": !active,
                     }
                   )
