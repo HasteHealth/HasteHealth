@@ -16,7 +16,7 @@ use axum::{
     extract::State,
     response::{IntoResponse, Response},
 };
-use axum_extra::{extract::Cached, routing::TypedPath};
+use axum_extra::{TypedHeader, extract::Cached, headers::UserAgent, routing::TypedPath};
 use haste_fhir_client::{
     request::FHIRSearchTypeRequest,
     url::{Parameter, ParsedParameter},
@@ -38,13 +38,16 @@ use haste_repository::{
     admin::{ProjectAuthAdmin, TenantAuthAdmin},
     types::{
         SupportedFHIRVersions,
-        authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
+        authorization_code::{
+            AuthorizationCodeKind, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
+        },
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
         user::{User, UserRole as RepoUserRole},
     },
 };
 use jsonwebtoken::{Algorithm, Header};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::{sync::Arc, time::Duration};
 
 #[derive(TypedPath)]
@@ -80,6 +83,7 @@ struct TokenResponseArguments {
 }
 
 async fn create_token_response<Repo: Repository>(
+    user_agent: &Option<TypedHeader<UserAgent>>,
     repo: &Repo,
     client_app: &ClientApplication,
     grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
@@ -137,6 +141,31 @@ async fn create_token_response<Repo: Repository>(
             // rebuild the token.
         && *grant_type_used != schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials
     {
+        let existing_refresh_tokens_for_agent =
+            ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::search(
+                repo,
+                &args.tenant,
+                &args.project,
+                &AuthorizationCodeSearchClaims {
+                    client_id: Some(args.client_id.clone()),
+                    user_id: Some(args.user_id.clone()),
+                    kind: Some(AuthorizationCodeKind::RefreshToken),
+                    code: None,
+                    user_agent: user_agent.as_ref().map(|ua| ua.as_str().to_string()),
+                },
+            )
+            .await?;
+
+        for existing_token in existing_refresh_tokens_for_agent {
+            ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
+                repo,
+                &args.tenant,
+                &args.project,
+                &existing_token.code,
+            )
+            .await?;
+        }
+
         let refresh_token = ProjectAuthAdmin::create(
             repo,
             &args.tenant,
@@ -150,7 +179,9 @@ async fn create_token_response<Repo: Repository>(
                 pkce_code_challenge: None,
                 pkce_code_challenge_method: None,
                 redirect_uri: None,
-                meta: None,
+                meta: Some(sqlx::types::Json(json!({
+                    "user_agent": user_agent.as_ref().map(|ua| ua.to_string()),
+                }))),
             },
         )
         .await?;
@@ -297,6 +328,7 @@ pub async fn token<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TokenPath,
+    user_agent: Option<TypedHeader<UserAgent>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
@@ -323,6 +355,7 @@ pub async fn token<
             )?;
 
             let response = create_token_response(
+                &user_agent,
                 &*state.repo,
                 &client_app,
                 &token_body.grant_type,
@@ -410,6 +443,7 @@ pub async fn token<
                     .await?;
 
             let response = create_token_response(
+                &user_agent,
                 &*state.repo,
                 &client_app,
                 &token_body.grant_type,
@@ -520,6 +554,7 @@ pub async fn token<
                     .await?;
 
             let response = create_token_response(
+                &user_agent,
                 &*state.repo,
                 &client_app,
                 &token_body.grant_type,

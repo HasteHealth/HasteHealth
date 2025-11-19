@@ -225,7 +225,7 @@ pub async fn authorize<
         &project,
         CreateAuthorizationCode {
             membership: membership.as_ref().map(|m| m.resource_id.clone()),
-            expires_in: Duration::from_secs(60 * 5),
+            expires_in: Duration::from_secs(60 * 5), // 5 minutes
             kind: AuthorizationCodeKind::OAuth2CodeGrant,
             user_id: user.id,
             client_id: Some(client_id.to_string()),

@@ -5,7 +5,10 @@ edition = "2024"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["macros"] }
-axum-extra = { version = "0.10.1", features = ["typed-routing"] }
+axum-extra = { version = "0.10.1", features = [
+    "typed-routing",
+    "typed-header",
+] }
 base64 = "0.22.1"
 chrono = "0.4.41"
 clap = { version = "4.5.45", features = ["derive"] }
