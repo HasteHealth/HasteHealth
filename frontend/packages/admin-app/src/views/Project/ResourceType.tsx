@@ -120,7 +120,7 @@ function ResourceTypeHeader({ refresh }: Readonly<{ refresh: () => void }>) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex mb-4 justify-center items-center">
+    <div className="flex mb-2 justify-center items-center">
       <h2 className="text-left flex text-xl font-semibold mr-4 ">
         {params.resourceType}
       </h2>

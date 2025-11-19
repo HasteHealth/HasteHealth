@@ -47,6 +47,7 @@ import * as r4Types from "@haste-health/fhir-types/r4/types";
 import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
 import { R4 } from "@haste-health/fhir-types/versions";
+import { Logo } from "./components/Logo";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -80,7 +81,7 @@ function LoginWrapper() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-1">
           <Outlet />
         </div>
       )}
@@ -152,9 +153,9 @@ function SystemBar() {
             className={classNames(
               "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
               {
-                ["bg-orange-600 hover:bg-orange-700 text-white"]:
+                ["bg-orange-500 hover:bg-orange-500 text-white"]:
                   params.resourceType === type,
-                [" bg-gray-100 hover:bg-orange-600 hover:text-white p-2"]:
+                [" bg-gray-100 hover:bg-orange-500 hover:text-white p-2"]:
                   params.resourceType !== type,
               }
             )}
@@ -190,7 +191,12 @@ const router =
                   children: [
                     {
                       id: "system-root",
-                      element: <Page resourceTypeFilter={SYSTEM_TYPES} />,
+                      element: (
+                        <div className="flex flex-col w-screen">
+                          <Navbar />
+                          <Page resourceTypeFilter={SYSTEM_TYPES} />
+                        </div>
+                      ),
 
                       children: [
                         {
@@ -302,12 +308,15 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <div className="z-10 sticky top-0 bg-white">
+    <div className="px-2 z-10 sticky top-0 bg-white border-b">
       <div className="flex items-center " style={{ height: "64px" }}>
-        <div className="flex grow mr-4">
-          <Search />
-        </div>
+        <Logo className="h-16 w-16 mr-4 cursor-pointer" />
+        <h1 className="font-semibold text-orange-500">Haste Health</h1>
+        <div className="flex grow"></div>
         <div className="flex justify-center items-center space-x-8">
+          <div className="min-w-72 flex grow">
+            <Search />
+          </div>
           <a
             target="_blank"
             className="cursor text-slate-500 hover:text-slate-600 hover:underline"
@@ -358,10 +367,9 @@ type PageProps = {
 function Page(props: PageProps) {
   return (
     <div className="px-4">
-      <Navbar />
       <div
         className="py-4 flex flex-1"
-        style={{ height: "calc(100vh - 64px)" }}
+        style={{ height: "calc(100vh - 65px)" }}
       >
         <Toaster.Toaster />
         <Outlet />
@@ -388,250 +396,247 @@ function ProjectRoot() {
   }, []);
 
   return (
-    <>
-      <SideBar.SidebarLayout
-        sidebar={
-          <SideBar.SideBar
-            top={
-              <div
-                onClick={() => navigate(generatePath("/", {}))}
-                className="group font-semibold cursor-pointer p-2 mt-4 mb-4"
-              >
-                <div>
-                  <span
-                    className={classNames(
-                      "font-bold group-hover:text-orange-900 group-hover:underline",
-                      {
-                        "text-orange-900 underline":
-                          matches[matches.length - 1].id === "dashboard",
-                      }
-                    )}
-                  >
-                    {project?.name}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400">{hasteHealth.tenant}</span>
-                </div>
+    <SideBar.SidebarLayout
+      navbar={<Navbar />}
+      sidebar={
+        <SideBar.SideBar
+          top={
+            <div
+              onClick={() => navigate(generatePath("/", {}))}
+              className="group font-semibold cursor-pointer p-2 mb-4"
+            >
+              <div>
+                <span
+                  className={classNames(
+                    "font-bold group-hover:text-orange-900 group-hover:underline",
+                    {
+                      "text-orange-900 underline":
+                        matches[matches.length - 1].id === "dashboard",
+                    }
+                  )}
+                >
+                  {project?.name}
+                </span>
               </div>
-            }
-          >
-            <SideBar.SideBarItemGroup label="Configuration">
-              <SideBar.SideBarItem
-                active={
-                  matches[0].params.resourceType === "OperationDefinition"
-                }
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "OperationDefinition",
-                    })
-                  );
-                }}
-              >
-                Custom Operations
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "Subscription"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "Subscription",
-                    })
-                  );
-                }}
-              >
-                Subscriptions
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-            <SideBar.SideBarItemGroup label="Clinical">
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "Patient"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "Patient",
-                    })
-                  );
-                }}
-              >
-                Patients
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "Encounter"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "Encounter",
-                    })
-                  );
-                }}
-              >
-                Encounters
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "Observation"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "Observation",
-                    })
-                  );
-                }}
-              >
-                Observations
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-            <SideBar.SideBarItemGroup label="UI">
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "Questionnaire"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "Questionnaire",
-                    })
-                  );
-                }}
-              >
-                Questionnaires
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={
-                  matches[0].params.resourceType === "QuestionnaireResponse"
-                }
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "QuestionnaireResponse",
-                    })
-                  );
-                }}
-              >
-                Questionnaire Responses
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-            <SideBar.SideBarItemGroup label="Monitoring">
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "AuditEvent"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "AuditEvent",
-                    })
-                  );
-                }}
-              >
-                Audit Events
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
+              <div>
+                <span className="text-slate-400">{hasteHealth.tenant}</span>
+              </div>
+            </div>
+          }
+        >
+          <SideBar.SideBarItemGroup label="Configuration">
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "OperationDefinition"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "OperationDefinition",
+                  })
+                );
+              }}
+            >
+              Custom Operations
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Subscription"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Subscription",
+                  })
+                );
+              }}
+            >
+              Subscriptions
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Clinical">
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Patient"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Patient",
+                  })
+                );
+              }}
+            >
+              Patients
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Encounter"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Encounter",
+                  })
+                );
+              }}
+            >
+              Encounters
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Observation"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Observation",
+                  })
+                );
+              }}
+            >
+              Observations
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="UI">
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Questionnaire"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Questionnaire",
+                  })
+                );
+              }}
+            >
+              Questionnaires
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={
+                matches[0].params.resourceType === "QuestionnaireResponse"
+              }
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "QuestionnaireResponse",
+                  })
+                );
+              }}
+            >
+              Questionnaire Responses
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Monitoring">
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "AuditEvent"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "AuditEvent",
+                  })
+                );
+              }}
+            >
+              Audit Events
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
 
-            <SideBar.SideBarItemGroup label="Security">
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "Membership"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "Membership",
-                    })
-                  );
-                }}
-              >
-                Membership
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "AccessPolicyV2"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "AccessPolicyV2",
-                    })
-                  );
-                }}
-              >
-                Access Policies
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                active={matches[0].params.resourceType === "ClientApplication"}
-                onClick={() => {
-                  navigate(
-                    generatePath("/resources/:resourceType", {
-                      resourceType: "ClientApplication",
-                    })
-                  );
-                }}
-              >
-                Client Applications
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-            <SideBar.SideBarItemGroup label="Data">
-              <SideBar.SideBarItem
-                active={
-                  matches.find((match) => match.id === "resources") !==
-                    undefined ||
-                  matches.find(
-                    (match) =>
-                      match.id === "types" &&
-                      match.params.resourceType !== "OperationDefinition" &&
-                      match.params.resourceType !== "Subscription" &&
-                      match.params.resourceType !== "Questionnaire" &&
-                      match.params.resourceType !== "QuestionnaireResponse" &&
-                      match.params.resourceType !== "AuditEvent" &&
-                      match.params.resourceType !== "Membership" &&
-                      match.params.resourceType !== "AccessPolicyV2" &&
-                      match.params.resourceType !== "ClientApplication" &&
-                      match.params.resourceType !== "IdentityProvider" &&
-                      match.params.resourceType !== "Patient" &&
-                      match.params.resourceType !== "Encounter" &&
-                      match.params.resourceType !== "Observation"
-                  ) !== undefined
-                }
-                onClick={() => {
-                  navigate(generatePath("/resources", {}));
-                }}
-              >
-                All Resources
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-            <SideBar.SideBarItemGroup label="Import">
-              <SideBar.SideBarItem
-                active={
-                  matches.find((match) => match.id === "bundle-import") !==
-                  undefined
-                }
-                onClick={() => {
-                  navigate(generatePath("/bundle-import", {}));
-                }}
-              >
-                Bundles
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-            {/* Used because want to maintain a margin of at least 8 when shrinking. */}
-            <div />
-            <SideBar.SideBarItemGroup className="mt-auto" label="User">
-              <SideBar.SideBarItem
-                logo={<Cog6ToothIcon />}
-                active={
-                  matches.find((match) => match.id === "settings") !== undefined
-                }
-                onClick={() => navigate(generatePath("/settings", {}))}
-              >
-                Settings
-              </SideBar.SideBarItem>
-              <SideBar.SideBarItem
-                logo={<ArrowLeftOnRectangleIcon />}
-                onClick={() => {
-                  hasteHealth.logout(window.location.origin);
-                }}
-              >
-                Sign out
-              </SideBar.SideBarItem>
-            </SideBar.SideBarItemGroup>
-          </SideBar.SideBar>
-        }
-      >
-        <Page />
-      </SideBar.SidebarLayout>
-    </>
+          <SideBar.SideBarItemGroup label="Security">
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Membership"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Membership",
+                  })
+                );
+              }}
+            >
+              Membership
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "AccessPolicyV2"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "AccessPolicyV2",
+                  })
+                );
+              }}
+            >
+              Access Policies
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "ClientApplication"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "ClientApplication",
+                  })
+                );
+              }}
+            >
+              Client Applications
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Data">
+            <SideBar.SideBarItem
+              active={
+                matches.find((match) => match.id === "resources") !==
+                  undefined ||
+                matches.find(
+                  (match) =>
+                    match.id === "types" &&
+                    match.params.resourceType !== "OperationDefinition" &&
+                    match.params.resourceType !== "Subscription" &&
+                    match.params.resourceType !== "Questionnaire" &&
+                    match.params.resourceType !== "QuestionnaireResponse" &&
+                    match.params.resourceType !== "AuditEvent" &&
+                    match.params.resourceType !== "Membership" &&
+                    match.params.resourceType !== "AccessPolicyV2" &&
+                    match.params.resourceType !== "ClientApplication" &&
+                    match.params.resourceType !== "IdentityProvider" &&
+                    match.params.resourceType !== "Patient" &&
+                    match.params.resourceType !== "Encounter" &&
+                    match.params.resourceType !== "Observation"
+                ) !== undefined
+              }
+              onClick={() => {
+                navigate(generatePath("/resources", {}));
+              }}
+            >
+              All Resources
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Import">
+            <SideBar.SideBarItem
+              active={
+                matches.find((match) => match.id === "bundle-import") !==
+                undefined
+              }
+              onClick={() => {
+                navigate(generatePath("/bundle-import", {}));
+              }}
+            >
+              Bundles
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          {/* Used because want to maintain a margin of at least 8 when shrinking. */}
+          <div />
+          <SideBar.SideBarItemGroup className="mt-auto" label="User">
+            <SideBar.SideBarItem
+              logo={<Cog6ToothIcon />}
+              active={
+                matches.find((match) => match.id === "settings") !== undefined
+              }
+              onClick={() => navigate(generatePath("/settings", {}))}
+            >
+              Settings
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              logo={<ArrowLeftOnRectangleIcon />}
+              onClick={() => {
+                hasteHealth.logout(window.location.origin);
+              }}
+            >
+              Sign out
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+        </SideBar.SideBar>
+      }
+    >
+      <Page />
+    </SideBar.SidebarLayout>
   );
 }
 

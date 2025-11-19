@@ -36,7 +36,7 @@ export const ProfileDropdown = ({ user, children }: ProfileDropdownProps) => {
   return (
     <Menu as="div" className="relative ml-3">
       <div>
-        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-orange-700 hover:bg-orange-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+        <Menu.Button className="relative flex max-w-xs items-center rounded-full text-orange-700 hover:bg-orange-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
           <span className="absolute -inset-1.5" />
           <span className="sr-only">Open user menu</span>
           {user?.imageUrl ? (
@@ -102,8 +102,8 @@ export const Navigation = ({
                         onClick={() => onNavigation(item)}
                         className={classNames(
                           active === item.name
-                            ? "bg-orange-700 text-white"
-                            : "text-orange-700 hover:bg-orange-700 hover:text-white",
+                            ? "bg-orange-500 text-white"
+                            : "text-orange-700 hover:bg-orange-500 hover:text-white",
                           "cursor-pointer rounded-md px-3 py-2 text-sm font-medium"
                         )}
                         aria-current={active === item.name ? "page" : undefined}
@@ -122,7 +122,7 @@ export const Navigation = ({
               </div>
               <div className="-mr-2 md:hidden">
                 {/* Mobile menu button */}
-                <Disclosure.Button className="relative rounded-full p-1  focus:ring-offset-orange-800 text-orange-700 hover:bg-orange-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+                <Disclosure.Button className="relative rounded-full p-1  focus:ring-offset-orange-800 text-orange-700 hover:bg-orange-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   {open ? (
@@ -144,8 +144,8 @@ export const Navigation = ({
                   href={item.href}
                   className={classNames(
                     active === item.name
-                      ? "bg-orange-700 text-white"
-                      : "text-orange-700 hover:bg-orange-700 hover:text-white",
+                      ? "bg-orange-500 text-white"
+                      : "text-orange-700 hover:bg-orange-500 hover:text-white",
                     "block rounded-md px-3 py-2 text-base font-medium"
                   )}
                   aria-current={item.name === active ? "page" : undefined}
@@ -180,7 +180,7 @@ export const Navigation = ({
                     href={item.href}
                     className={classNames(
                       "block rounded-md px-3 py-2 text-base font-medium",
-                      "text-orange-700 hover:bg-orange-700 hover:text-white"
+                      "text-orange-700 hover:bg-orange-500 hover:text-white"
                     )}
                   >
                     {item.name}
