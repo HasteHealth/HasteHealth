@@ -1,5 +1,5 @@
 use crate::fhir_client::{
-    ClientState, ServerCTX,
+    ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,

@@ -1,5 +1,5 @@
 use crate::fhir_client::{
-    ClientState, ServerCTX,
+    ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
@@ -8,13 +8,10 @@ use crate::fhir_client::{
 };
 use haste_fhir_client::{
     middleware::MiddlewareChain,
-    request::{
-        FHIRDeleteInstanceRequest, FHIRDeleteInstanceResponse, FHIRRequest, FHIRResponse,
-        FHIRUpdateInstanceRequest,
-    },
+    request::{FHIRDeleteInstanceRequest, FHIRRequest, FHIRResponse, FHIRUpdateInstanceRequest},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Project, Resource, ResourceType, User},
+    resources::{Project, Resource, ResourceType},
     terminology::{IssueType, SupportedFhirVersion},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -27,7 +24,6 @@ use haste_repository::{
     types::{
         SupportedFHIRVersions,
         project::{CreateProject, Project as ProjectModel},
-        user::{AuthMethod, CreateUser, UpdateUser},
     },
     utilities::generate_id,
 };
@@ -55,7 +51,7 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
+        context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {
@@ -112,7 +108,6 @@ impl<
                                                         SupportedFHIRVersions::R4 => {
                                                             Box::new(SupportedFhirVersion::R4(None))
                                                         }
-                                                        _ => unreachable!(),
                                                     },
                                                     ..Default::default()
                                                 }),
@@ -144,7 +139,6 @@ impl<
                                     )),
                                 }?;
 
-                                let name = project.name.clone();
                                 let id = update_request.id.clone();
 
                                 let Some(cur_model) =
@@ -176,7 +170,7 @@ impl<
                                     ));
                                 }
 
-                                let project_model = TenantAuthAdmin::update(
+                                let _project_model = TenantAuthAdmin::update(
                                     state.repo.as_ref(),
                                     &context.ctx.tenant,
                                     ProjectModel {
@@ -235,7 +229,7 @@ impl<
 
                         FHIRRequest::SearchType(_) => next(state.clone(), context).await,
 
-                        FHIRRequest::Read(read_request) => next(state.clone(), context).await,
+                        FHIRRequest::Read(_read_request) => next(state.clone(), context).await,
 
                         // Dissallow updates on project because could impact integrity of system. For example project has stored
                         // resources in a specific FHIR version, changing that version would cause issues.

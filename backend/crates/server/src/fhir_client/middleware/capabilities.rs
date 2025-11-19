@@ -16,13 +16,13 @@ use haste_fhir_model::r4::generated::{
         CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
         ResourceType,
     },
-    terminology::{IssueType, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy},
+    terminology::{RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy},
     types::{FHIRBoolean, FHIRCode, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId, VersionIdRef};
+use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;

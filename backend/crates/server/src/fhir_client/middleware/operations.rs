@@ -2,95 +2,22 @@ use crate::fhir_client::{
     ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+        ServerMiddlewareState, custom_operations,
     },
 };
 use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse},
 };
-use haste_fhir_generated_ops::generated::{ProjectInformation, ValueSetExpand};
-use haste_fhir_model::r4::generated::{
-    resources::{Parameters, Resource, ResourceType},
-    terminology::IssueType,
-};
+use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_ops::{OperationExecutor, OperationInvocation, Param};
+use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_repository::Repository;
-use std::{pin::Pin, sync::Arc};
+use std::sync::Arc;
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);
-
-fn valueset_expand_operation<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->() -> OperationExecutor<
-    ServerMiddlewareState<Repo, Search, Terminology>,
-    ValueSetExpand::Input,
-    ValueSetExpand::Output,
-> {
-    OperationExecutor::new(
-        ValueSetExpand::CODE.to_string(),
-        Box::new(
-            |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
-             tenant: TenantId,
-             project: ProjectId,
-             input: ValueSetExpand::Input| {
-                Box::pin(async move {
-                    let output = ctx.terminology.expand(input).await?;
-                    Ok(output)
-                })
-            },
-        ),
-    )
-}
-
-fn project_information<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->() -> OperationExecutor<
-    ServerMiddlewareState<Repo, Search, Terminology>,
-    ProjectInformation::Input,
-    ProjectInformation::Output,
-> {
-    OperationExecutor::new(
-        ProjectInformation::CODE.to_string(),
-        Box::new(
-            |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
-             tenant: TenantId,
-             project: ProjectId,
-             _input: ProjectInformation::Input| {
-                Box::pin(async move {
-                    let output = ctx
-                        .repo
-                        .read_latest(
-                            &tenant,
-                            &ProjectId::System,
-                            &ResourceType::Project,
-                            &ResourceId::new(project.to_string()),
-                        )
-                        .await?;
-
-                    if let Some(resource) = output
-                        && let Resource::Project(project) = resource
-                    {
-                        Ok(ProjectInformation::Output { project })
-                    } else {
-                        return Err(OperationOutcomeError::fatal(
-                            IssueType::NotFound(None),
-                            "Project not found".to_string(),
-                        ));
-                    }
-                })
-            },
-        ),
-    )
-}
 
 impl<CTX> Clone for ServerOperations<CTX> {
     fn clone(&self) -> Self {
@@ -108,8 +35,8 @@ impl<
         let executors: Vec<
             Box<dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>>,
         > = vec![
-            Box::new(valueset_expand_operation()),
-            Box::new(project_information()),
+            Box::new(custom_operations::valueset_expand()),
+            Box::new(custom_operations::project_information()),
         ];
 
         Self(Arc::new(executors))

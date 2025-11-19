@@ -1,6 +1,4 @@
-#![allow(unused)]
 use crate::fhir_client::{ClientState, ServerCTX};
-
 use haste_fhir_client::{
     middleware::{Context, MiddlewareOutput, Next},
     request::{FHIRRequest, FHIRResponse},
@@ -12,6 +10,7 @@ pub mod access_control;
 pub mod capabilities;
 pub mod check_project;
 pub mod custom_models;
+mod custom_operations;
 pub mod operations;
 pub mod set_artifact_tenant;
 pub mod storage;
