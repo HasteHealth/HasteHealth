@@ -241,7 +241,11 @@ static ARTIFACT_TYPES: &[ResourceType] = &[
     ResourceType::SearchParameter,
 ];
 
-static TENANT_AUTH_TYPES: &[ResourceType] = &[ResourceType::User, ResourceType::Project];
+static TENANT_AUTH_TYPES: &[ResourceType] = &[
+    ResourceType::User,
+    ResourceType::Project,
+    ResourceType::IdentityProvider,
+];
 static PROJECT_AUTH_TYPES: &[ResourceType] = &[ResourceType::Membership];
 
 static SPECIAL_TYPES: LazyLock<Vec<ResourceType>> = LazyLock::new(|| {
