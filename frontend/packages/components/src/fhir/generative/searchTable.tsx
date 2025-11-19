@@ -173,7 +173,7 @@ function SearchColumnModalBody({
           {value.value.map((v, i) => {
             return (
               <div className="flex items-center">
-                <div className="w-full">
+                <div>
                   <SearchColumnModalBodyInput
                     value={value}
                     index={i}
@@ -571,8 +571,8 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
       )}
     >
       {(openParamModal) => (
-        <>
-          <div className="flex items-center w-full overflow-x-auto">
+        <div className="flex flex-col h-full w-full">
+          <div className="flex items-center ">
             <div className="flex flex-1  space-x-1 mr-1">
               {parameters
                 .filter((p) => searchParameters?.find((s) => s.code === p.name))
@@ -705,7 +705,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
               </span>
             </div>
           </div>
-        </>
+        </div>
       )}
     </Modal>
   );

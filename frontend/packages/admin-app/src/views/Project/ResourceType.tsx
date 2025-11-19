@@ -158,7 +158,8 @@ export default function ResourceTypeView() {
   return (
     <div className="flex flex-col flex-1 w-full text-slate-700">
       {refresh && <ResourceTypeHeader refresh={refresh} />}
-      <div className="overflow-auto">
+
+      <div className="flex-grow" style={{ height: "calc(100% - 32px)" }}>
         <FHIRGenerativeSearchTable
           key={params.resourceType}
           refresh={(refreshFnc) => {
