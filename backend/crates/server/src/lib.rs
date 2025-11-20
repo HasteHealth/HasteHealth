@@ -28,7 +28,6 @@ pub enum ServerEnvironmentVariables {
     // Email
     SendGridAPIKey,
     EmailFromAddress,
-
     // Data Limits
     MaxRequestBodySize,
 }
