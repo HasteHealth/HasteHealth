@@ -82,7 +82,9 @@ pub struct JSONWebKeySet {
 
 pub static JWK_SET: LazyLock<JSONWebKeySet> = LazyLock::new(|| {
     let config = get_config(ConfigType::Environment);
-    let certificate_dir = config.get("CERTIFICATION_DIR").unwrap();
+    let certificate_dir = config
+        .get(ServerEnvironmentVariables::CertificationDir)
+        .unwrap();
     let cert_dir: &Path = Path::new(&certificate_dir);
     let rsa_private = RsaPrivateKey::from_pkcs1_pem(
         &std::fs::read_to_string(&cert_dir.join(PRIVATE_KEY_FILENAME)).unwrap(),
@@ -113,7 +115,9 @@ pub static JWK_SET: LazyLock<JSONWebKeySet> = LazyLock::new(|| {
 static DECODING_KEY: LazyLock<jsonwebtoken::DecodingKey> = LazyLock::new(|| {
     // let key = CERTIFICATES.public_key.clone();
     let config = get_config(ConfigType::Environment);
-    let certificate_dir = config.get("CERTIFICATION_DIR").unwrap();
+    let certificate_dir = config
+        .get(ServerEnvironmentVariables::CertificationDir)
+        .unwrap();
     let cert_dir: &Path = Path::new(&certificate_dir);
     jsonwebtoken::DecodingKey::from_rsa_pem(
         &std::fs::read(cert_dir.join(PUBLIC_KEY_FILENAME)).unwrap(),
@@ -124,7 +128,9 @@ static DECODING_KEY: LazyLock<jsonwebtoken::DecodingKey> = LazyLock::new(|| {
 static ENCODING_KEY: LazyLock<jsonwebtoken::EncodingKey> = LazyLock::new(|| {
     // let key = CERTIFICATES.public_key.clone();
     let config = get_config(ConfigType::Environment);
-    let certificate_dir = config.get("CERTIFICATION_DIR").unwrap();
+    let certificate_dir = config
+        .get(ServerEnvironmentVariables::CertificationDir)
+        .unwrap();
     let cert_dir: &Path = Path::new(&certificate_dir);
     jsonwebtoken::EncodingKey::from_rsa_pem(
         &std::fs::read(cert_dir.join(PRIVATE_KEY_FILENAME)).unwrap(),
