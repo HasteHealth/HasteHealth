@@ -17,7 +17,7 @@ fn create_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let scope = sqlx::query_as!(
             Scope,
-            r#"INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (tenant, project, client, user_) DO UPDATE set scope = $5  RETURNING  client, user_, scope"#,
+            r#"INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (tenant, project, client, user_) DO UPDATE set scope = $5  RETURNING  client, user_, scope, created_at"#,
             tenant.as_ref(),
             project.as_ref(),
             &scope.client.as_ref(),
@@ -62,7 +62,7 @@ fn update_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             .push(" user = ")
             .push_bind_unseparated(model.user_.as_ref());
 
-        query_builder.push(r#" RETURNING client, user_ , scope"#);
+        query_builder.push(r#" RETURNING client, user_ , scope, created_at"#);
 
         let query = query_builder.build_query_as();
 
@@ -86,7 +86,7 @@ fn read_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         let scope = sqlx::query_as!(
             Scope,
             r#"
-                SELECT user_, client, scope
+                SELECT user_, client, scope, created_at
                 FROM authorization_scopes
                 WHERE tenant = $1 AND project = $2 AND client = $3 and user_ = $4
             "#,
@@ -116,7 +116,7 @@ fn delete_scope<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             r#"
                 DELETE FROM authorization_scopes
                 WHERE tenant = $1 AND project = $2 AND client = $3 AND user_ = $4
-                RETURNING user_, client, scope
+                RETURNING user_, client, scope, created_at
             "#,
             tenant.as_ref(),
             project.as_ref(),
@@ -140,8 +140,9 @@ fn search_scopes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
 
-        let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT user_, client, scope FROM authorization_scopes WHERE  "#);
+        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+            r#"SELECT user_, client, scope, created_at FROM authorization_scopes WHERE  "#,
+        );
 
         let mut seperator = query_builder.separated(" AND ");
         seperator

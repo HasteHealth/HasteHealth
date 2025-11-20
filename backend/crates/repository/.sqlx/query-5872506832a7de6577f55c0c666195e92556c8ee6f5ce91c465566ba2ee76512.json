@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                SELECT user_, client, scope\n                FROM authorization_scopes\n                WHERE tenant = $1 AND project = $2 AND client = $3 and user_ = $4\n            ",
+  "query": "\n                DELETE FROM authorization_scopes\n                WHERE tenant = $1 AND project = $2 AND client = $3 AND user_ = $4\n                RETURNING user_, client, scope, created_at\n            ",
   "describe": {
     "columns": [
       {
@@ -17,6 +17,11 @@
         "ordinal": 2,
         "name": "scope",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
@@ -30,8 +35,9 @@
     "nullable": [
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "725eafa1eda9882118367d83fe99496b07897790526b002c2c78c852e77b6a6a"
+  "hash": "5872506832a7de6577f55c0c666195e92556c8ee6f5ce91c465566ba2ee76512"
 }
