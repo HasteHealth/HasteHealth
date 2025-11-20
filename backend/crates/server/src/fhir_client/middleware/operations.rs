@@ -49,6 +49,7 @@ impl<
             Box::new(custom_operations::active_refresh_tokens()),
             Box::new(custom_operations::approved_scopes()),
             Box::new(custom_operations::delete_approved_scope()),
+            Box::new(custom_operations::delete_refresh_token()),
         ];
 
         Self(Arc::new(executors))

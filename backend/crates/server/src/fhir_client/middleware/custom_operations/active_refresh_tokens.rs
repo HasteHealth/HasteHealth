@@ -2,7 +2,7 @@ use crate::fhir_client::middleware::operations::ServerOperationContext;
 use haste_fhir_generated_ops::generated::HasteHealthListRefreshTokens;
 use haste_fhir_model::r4::{
     datetime::parse_datetime,
-    generated::types::{FHIRDateTime, FHIRId},
+    generated::types::{FHIRDateTime, FHIRId, FHIRString},
 };
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_search::SearchEngine;
@@ -70,8 +70,13 @@ pub fn active_refresh_tokens<
                                         value: token.client_id,
                                         ..Default::default()
                                     },
-                                    id: FHIRId {
-                                        value: Some("id".to_string()),
+                                    user_agent: FHIRString {
+                                        value: token
+                                            .meta
+                                            .as_ref()
+                                            .and_then(|meta| meta.get("user_agent"))
+                                            .and_then(|ua| ua.as_str())
+                                            .map(|s| s.to_string()),
                                         ..Default::default()
                                     },
                                     created_at: FHIRDateTime {
