@@ -10,7 +10,6 @@ pub mod access_control;
 pub mod capabilities;
 pub mod check_project;
 pub mod custom_models;
-mod custom_operations;
 pub mod operations;
 pub mod set_artifact_tenant;
 pub mod storage;
