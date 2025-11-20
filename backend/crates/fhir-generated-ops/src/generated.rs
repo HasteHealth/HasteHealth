@@ -3,6 +3,105 @@ use haste_fhir_model::r4::generated::resources::*;
 use haste_fhir_model::r4::generated::types::*;
 use haste_fhir_operation_error::*;
 use haste_fhir_ops::derive::{FromParameters, ToParameters};
+pub mod HasteHealthDeleteRefreshToken {
+    use super::*;
+    pub const CODE: &str = "delete-refresh-token";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub id: FHIRId,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[parameter_rename = "return"]
+        pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
+    }
+}
+pub mod HasteHealthListRefreshTokens {
+    use super::*;
+    pub const CODE: &str = "refresh-tokens";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputRefreshTokens {
+        pub client_id: FHIRId,
+        pub id: FHIRId,
+        pub created_at: FHIRDateTime,
+    }
+    impl From<OutputRefreshTokens> for Resource {
+        fn from(value: OutputRefreshTokens) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[parameter_rename = "refresh-tokens"]
+        #[parameter_nested]
+        pub refresh_tokens: Option<Vec<OutputRefreshTokens>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
+pub mod HasteHealthDeleteScope {
+    use super::*;
+    pub const CODE: &str = "delete-scope";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub client_id: FHIRId,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[parameter_rename = "return"]
+        pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
+    }
+}
 pub mod HasteHealthListScopes {
     use super::*;
     pub const CODE: &str = "scopes";
@@ -93,51 +192,6 @@ pub mod TenantInformation {
     pub struct Output {
         pub id: FHIRString,
         pub subscription: FHIRCode,
-    }
-    impl From<Output> for Resource {
-        fn from(value: Output) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-}
-pub mod HasteHealthListRefreshTokens {
-    use super::*;
-    pub const CODE: &str = "refresh-tokens";
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Input {}
-    impl From<Input> for Resource {
-        fn from(value: Input) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct OutputRefreshTokens {
-        pub client_id: FHIRId,
-        pub id: FHIRId,
-        pub created_at: FHIRDateTime,
-    }
-    impl From<OutputRefreshTokens> for Resource {
-        fn from(value: OutputRefreshTokens) -> Self {
-            let parameters: Vec<ParametersParameter> = value.into();
-            Resource::Parameters(Parameters {
-                parameter: Some(parameters),
-                ..Default::default()
-            })
-        }
-    }
-    #[derive(Debug, FromParameters, ToParameters)]
-    pub struct Output {
-        #[parameter_rename = "refresh-tokens"]
-        #[parameter_nested]
-        pub refresh_tokens: Option<Vec<OutputRefreshTokens>>,
     }
     impl From<Output> for Resource {
         fn from(value: Output) -> Self {
