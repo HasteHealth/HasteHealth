@@ -2,7 +2,7 @@ use crate::fhir_client::{
     ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState, custom_operations,
+        ServerMiddlewareState,
     },
 };
 use haste_fhir_client::{
@@ -16,6 +16,8 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
+
+mod custom_operations;
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);
 
