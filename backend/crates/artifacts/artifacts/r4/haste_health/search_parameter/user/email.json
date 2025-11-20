@@ -1,7 +1,7 @@
 {
     "resourceType": "SearchParameter",
     "id": "User-email",
-    "url": "https://haste-health.app/fhir/SearchParameter/User-email",
+    "url": "https://haste.health/fhir/SearchParameter/User-email",
     "version": "4.0.1",
     "name": "Email",
     "status": "draft",

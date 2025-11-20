@@ -1,6 +1,6 @@
 {
     "name": "@haste-health/performance-testing",
-    "homepage": "https://haste-health.app",
+    "homepage": "https://haste.health",
     "repository": {
         "type": "git",
         "url": "https://github.com/HasteHealth/HasteHealth.git"

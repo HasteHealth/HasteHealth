@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   args: {
     title: "HasteHealth",
-    email: "test@haste-health.app",
+    email: "test@haste.health",
     generateTenantURL(email, tenantId) {
       return `/${tenantId}?email=${email}`;
     },

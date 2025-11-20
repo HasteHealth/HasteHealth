@@ -84,6 +84,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
             kind: Some(AuthorizationCodeKind::OAuth2CodeGrant),
             user_id: None,
             user_agent: None,
+            is_expired: None,
         },
     )
     .await?;

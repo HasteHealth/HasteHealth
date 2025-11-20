@@ -1,7 +1,7 @@
 {
   "name": "@haste-health/client",
   "version": "0.15.3",
-  "homepage": "https://haste-health.app",
+  "homepage": "https://haste.health",
   "repository": {
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"

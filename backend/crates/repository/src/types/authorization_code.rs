@@ -1,7 +1,7 @@
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::{ProjectId, TenantId};
-use sqlx::types::Json;
+use sqlx::types::{Json, time::OffsetDateTime};
 use std::time::Duration;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::Type, serde::Deserialize, serde::Serialize)]
@@ -53,6 +53,7 @@ pub struct AuthorizationCodeSearchClaims {
     pub kind: Option<AuthorizationCodeKind>,
     pub user_id: Option<String>,
     pub user_agent: Option<String>,
+    pub is_expired: Option<bool>,
 }
 
 pub struct CreateAuthorizationCode {
@@ -81,6 +82,7 @@ pub struct AuthorizationCode {
     pub pkce_code_challenge_method: Option<PKCECodeChallengeMethod>,
     pub redirect_uri: Option<String>,
     pub meta: Option<Json<serde_json::Value>>,
+    pub created_at: Option<OffsetDateTime>,
 }
 
 #[derive(OperationOutcomeError)]

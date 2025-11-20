@@ -1,4 +1,4 @@
-use crate::fhir_client::middleware::ServerMiddlewareState;
+use crate::fhir_client::middleware::operations::ServerOperationContext;
 use haste_fhir_generated_ops::generated::ProjectInformation;
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
@@ -16,19 +16,20 @@ pub fn project_information<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >() -> OperationExecutor<
-    ServerMiddlewareState<Repo, Search, Terminology>,
+    ServerOperationContext<Repo, Search, Terminology>,
     ProjectInformation::Input,
     ProjectInformation::Output,
 > {
     OperationExecutor::new(
         ProjectInformation::CODE.to_string(),
         Box::new(
-            |ctx: ServerMiddlewareState<Repo, Search, Terminology>,
+            |context: ServerOperationContext<Repo, Search, Terminology>,
              tenant: TenantId,
              project: ProjectId,
              _input: ProjectInformation::Input| {
                 Box::pin(async move {
-                    let output = ctx
+                    let output = context
+                        .state
                         .repo
                         .read_latest(
                             &tenant,

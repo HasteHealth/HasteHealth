@@ -1,7 +1,7 @@
 {
   "resourceType": "StructureDefinition",
   "id": "haste-health-subscriptiontopic-backport",
-  "url": "https://haste-health.app/resource/SubscriptionTopic-backport",
+  "url": "https://haste.health/resource/SubscriptionTopic-backport",
   "version": "4.0.0",
   "name": "HasteHealth SubscriptionTopic-backport",
   "title": "HasteHealth SubscriptionTopic-backport",

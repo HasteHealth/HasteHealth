@@ -1,7 +1,7 @@
 {
     "resourceType": "SearchParameter",
     "id": "User-name",
-    "url": "https://haste-health.app/fhir/SearchParameter/User-name",
+    "url": "https://haste.health/fhir/SearchParameter/User-name",
     "version": "4.0.1",
     "name": "Name",
     "status": "draft",

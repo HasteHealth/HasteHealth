@@ -7,9 +7,9 @@
   "fhirVersions": [
     "4.3.0"
   ],
-  "canonical": "https://haste-health.app/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.test-data",
-  "url": "https://haste-health.app/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.test-data",
-  "homepage": "https://haste-health.app",
+  "canonical": "https://haste.health/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.test-data",
+  "url": "https://haste.health/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.test-data",
+  "homepage": "https://haste.health",
   "repository": {
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
@@ -18,7 +18,7 @@
   "maintainers": [
     {
       "name": "HasteHealth",
-      "email": "dev@haste-health.app"
+      "email": "dev@haste.health"
     }
   ],
   "scripts": {

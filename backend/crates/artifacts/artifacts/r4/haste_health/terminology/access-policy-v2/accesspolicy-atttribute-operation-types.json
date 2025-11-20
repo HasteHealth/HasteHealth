@@ -4,10 +4,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/AccessPolicyAttributeOperationTypes",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyAttributeOperationTypes",
             "resource": {
                 "id": "access-policy-attribute-operation-types-codesystem",
-                "url": "https://haste-health.app/fhir/CodeSystem/AccessPolicyAttributeOperationTypes",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyAttributeOperationTypes",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "AccessPolicyAttributeOperationTypes",
@@ -17,7 +17,7 @@
                 "publisher": "HasteHealth",
                 "description": "Access Pollicy Attribute Operation Types.",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
                 "content": "complete",
                 "concept": [
                     {
@@ -36,11 +36,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "access-policy-attribute-operation-types",
-                "url": "https://haste-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes",
                 "version": "4.0.1",
                 "name": "AccessPolicyAttributeOperationTypes",
                 "title": "AccessPolicyAttributeOperationTypes",
@@ -52,7 +52,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/AccessPolicyAttributeOperationTypes"
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyAttributeOperationTypes"
                         }
                     ]
                 }

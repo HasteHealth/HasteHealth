@@ -1,7 +1,7 @@
 {
     "resourceType": "OperationDefinition",
     "id": "project-information",
-    "url": "https://haste-health.app/OperationDefinition/project-information",
+    "url": "https://haste.health/OperationDefinition/project-information",
     "version": "4.0.1",
     "name": "Current Project Information",
     "status": "draft",

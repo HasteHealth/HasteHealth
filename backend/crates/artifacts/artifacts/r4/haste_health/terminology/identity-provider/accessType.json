@@ -4,10 +4,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/IdentityProviderAccessType",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/IdentityProviderAccessType",
             "resource": {
                 "id": "identity-provider-access-type-codesystem",
-                "url": "https://haste-health.app/fhir/CodeSystem/IdentityProviderAccessType",
+                "url": "https://haste.health/fhir/CodeSystem/IdentityProviderAccessType",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",
@@ -17,7 +17,7 @@
                 "publisher": "HasteHealth",
                 "description": "Methods to connect to the identity provider.",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType",
+                "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderAccessType",
                 "content": "complete",
                 "concept": [
                     {
@@ -29,11 +29,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType",
+            "fullUrl": "https://haste.health/fhir/ValueSet/IdentityProviderAccessType",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-access-type",
-                "url": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType",
+                "url": "https://haste.health/fhir/ValueSet/IdentityProviderAccessType",
                 "version": "4.0.1",
                 "name": "IdentityProviderAccessType",
                 "title": "IdentityProviderAccessType",
@@ -45,7 +45,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/IdentityProviderAccessType"
+                            "system": "https://haste.health/fhir/CodeSystem/IdentityProviderAccessType"
                         }
                     ]
                 }

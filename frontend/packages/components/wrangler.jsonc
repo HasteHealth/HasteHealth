@@ -14,7 +14,7 @@
   },
   "routes": [
     {
-      "pattern": "storybook.haste-health.app",
+      "pattern": "storybook.haste.health",
       "custom_domain": true
     }
   ]

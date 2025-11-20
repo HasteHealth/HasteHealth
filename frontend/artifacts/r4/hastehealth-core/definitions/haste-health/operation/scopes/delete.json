@@ -1,7 +1,7 @@
 {
     "resourceType": "OperationDefinition",
     "id": "haste-health-delete-scope",
-    "url": "https://haste-health.app/OperationDefinition/delete-scopes",
+    "url": "https://haste.health/OperationDefinition/delete-scopes",
     "version": "4.0.1",
     "name": "Delete Scope",
     "status": "draft",

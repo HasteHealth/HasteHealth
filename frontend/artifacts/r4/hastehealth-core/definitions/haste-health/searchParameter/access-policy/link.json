@@ -1,7 +1,7 @@
 {
   "resourceType": "SearchParameter",
   "id": "AccessPolicy-link",
-  "url": "https://haste-health.app/fhir/SearchParameter/AccessPolicy-link",
+  "url": "https://haste.health/fhir/SearchParameter/AccessPolicy-link",
   "version": "4.0.1",
   "name": "link",
   "status": "draft",

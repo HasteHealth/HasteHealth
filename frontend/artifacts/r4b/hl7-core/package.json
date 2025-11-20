@@ -1,13 +1,13 @@
 {
   "name": "@haste-health/hl7.fhir.r4b.core",
   "version": "0.2.7",
-  "homepage": "https://haste-health.app",
+  "homepage": "https://haste.health",
   "repository": {
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "canonical": "https://haste-health.app/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.core",
-  "url": "https://haste-health.app/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.core",
+  "canonical": "https://haste.health/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.core",
+  "url": "https://haste.health/fhir/ImplementationGuide/haste-health.hl7.fhir.r4b.core",
   "title": "Hl7 Core resources",
   "description": "HasteHealth package that contains core hl7 R4B resources.",
   "fhirVersions": [
@@ -17,7 +17,7 @@
   "maintainers": [
     {
       "name": "HasteHealth",
-      "email": "dev@haste-health.app"
+      "email": "dev@haste.health"
     }
   ],
   "scripts": {

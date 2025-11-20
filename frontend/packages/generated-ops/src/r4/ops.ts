@@ -5185,7 +5185,7 @@ export namespace ProjectInformation {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "project-information",
-    url: "https://haste-health.app/OperationDefinition/project-information",
+    url: "https://haste.health/OperationDefinition/project-information",
     version: "4.0.1",
     name: "Current Project Information",
     status: "draft",
@@ -5216,7 +5216,7 @@ export namespace TenantInformation {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "tenant-information",
-    url: "https://haste-health.app/OperationDefinition/tenant-information",
+    url: "https://haste.health/OperationDefinition/tenant-information",
     version: "4.0.1",
     name: "Current Tenant Information",
     status: "draft",
@@ -5258,7 +5258,7 @@ export namespace HasteHealthDeployOperation {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-deploy-operation",
-    url: "https://haste-health.app/OperationDefinition/deploy-operation",
+    url: "https://haste.health/OperationDefinition/deploy-operation",
     version: "4.0.1",
     name: "Deploy an operations code to the server.",
     status: "draft",
@@ -5302,7 +5302,7 @@ export namespace HasteHealthEncrypt {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-encrypt",
-    url: "https://haste-health.app/OperationDefinition/encrypt",
+    url: "https://haste.health/OperationDefinition/encrypt",
     version: "4.0.1",
     name: "Encrypt a string value",
     status: "draft",
@@ -5341,7 +5341,7 @@ export namespace HasteHealthEvaluatePolicy {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-evaluate-policy",
-    url: "https://haste-health.app/OperationDefinition/evaluate-policy",
+    url: "https://haste.health/OperationDefinition/evaluate-policy",
     version: "4.0.1",
     name: "EvaluateAccessPolicy",
     status: "draft",
@@ -5392,7 +5392,7 @@ export namespace HasteHealthIdpRegistrationInfo {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-idp-registration-info",
-    url: "https://haste-health.app/OperationDefinition/identity-provider-registration-info",
+    url: "https://haste.health/OperationDefinition/identity-provider-registration-info",
     version: "4.0.1",
     name: "IdentityProviderRegistrationInformation",
     status: "draft",
@@ -5444,7 +5444,7 @@ export namespace HasteHealthInviteUser {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-invite-user",
-    url: "https://haste-health.app/OperationDefinition/invite-user",
+    url: "https://haste.health/OperationDefinition/invite-user",
     version: "4.0.1",
     name: "Invite a user and send an email.",
     status: "draft",
@@ -5500,7 +5500,7 @@ export namespace HasteHealthMessagePost {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-message-post",
-    url: "https://haste-health.app/OperationDefinition/message-post",
+    url: "https://haste.health/OperationDefinition/message-post",
     version: "4.0.1",
     name: "Send a message to a given topic.",
     status: "draft",
@@ -5546,7 +5546,7 @@ export namespace HasteHealthPasswordReset {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-password-reset",
-    url: "https://haste-health.app/OperationDefinition/password-reset",
+    url: "https://haste.health/OperationDefinition/password-reset",
     version: "4.0.1",
     name: "Password Reset",
     status: "draft",
@@ -5611,7 +5611,7 @@ export namespace HasteHealthDeleteRefreshToken {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-delete-refresh-token",
-    url: "https://haste-health.app/OperationDefinition/delete-refresh-tokens",
+    url: "https://haste.health/OperationDefinition/delete-refresh-tokens",
     version: "4.0.1",
     name: "Delete refresh token",
     status: "draft",
@@ -5656,7 +5656,7 @@ export namespace HasteHealthListRefreshTokens {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-list-refresh-tokens",
-    url: "https://haste-health.app/OperationDefinition/list-refresh-tokens",
+    url: "https://haste.health/OperationDefinition/list-refresh-tokens",
     version: "4.0.1",
     name: "Show Refresh Tokens",
     status: "draft",
@@ -5712,7 +5712,7 @@ export namespace HasteHealthDeleteScope {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-delete-scope",
-    url: "https://haste-health.app/OperationDefinition/delete-scopes",
+    url: "https://haste.health/OperationDefinition/delete-scopes",
     version: "4.0.1",
     name: "Delete Scope",
     status: "draft",
@@ -5757,7 +5757,7 @@ export namespace HasteHealthListScopes {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-list-scopes",
-    url: "https://haste-health.app/OperationDefinition/list-scopes",
+    url: "https://haste.health/OperationDefinition/list-scopes",
     version: "4.0.1",
     name: "Show Scopes",
     status: "draft",
@@ -5821,7 +5821,7 @@ export namespace HasteHealthUsageStatistics {
   export const Op: IOp = new Operation<Input, Output>({
     resourceType: "OperationDefinition",
     id: "haste-health-usage-statistics",
-    url: "https://haste-health.app/OperationDefinition/usage-statistics",
+    url: "https://haste.health/OperationDefinition/usage-statistics",
     version: "4.0.1",
     name: "HasteHealth Usage Statistics",
     status: "draft",

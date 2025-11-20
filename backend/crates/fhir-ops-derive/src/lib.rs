@@ -151,8 +151,11 @@ pub fn haste_to_parameters(input: TokenStream) -> TokenStream {
 
                 let mut as_param = if is_nested_parameter(&field.attrs) {
                     quote!{ 
-                        let params: Vec<ParametersParameter> = #tmp_name.into();
-                        #parameters_name.extend(params);
+                        #parameters_name.push(ParametersParameter { 
+                            name: Box::new(FHIRString { value: Some(#expected_parameter_name.to_string()), ..Default::default() }),
+                            part: Some(#tmp_name.into()),
+                            ..Default::default()
+                        });
                     }
                 }else if value_type.ident == format_ident!("Resource") {
                     quote!{

@@ -320,7 +320,7 @@ function Navbar() {
           <a
             target="_blank"
             className="cursor text-slate-500 hover:text-slate-600 hover:underline"
-            href="https://haste-health.app"
+            href="https://haste.health"
           >
             Documentation
           </a>

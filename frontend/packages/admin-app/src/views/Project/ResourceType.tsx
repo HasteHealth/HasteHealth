@@ -47,7 +47,7 @@ function InviteModal({
       <FHIRCodeEditable
         label="Role"
         system={
-          "https://haste-health.app/fhir/ValueSet/MembershipRole|4.0.1" as uri
+          "https://haste.health/fhir/ValueSet/MembershipRole|4.0.1" as uri
         }
         fhirVersion={R4}
         client={client}

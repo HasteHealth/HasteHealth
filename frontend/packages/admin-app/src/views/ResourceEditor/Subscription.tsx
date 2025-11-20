@@ -133,8 +133,7 @@ function ChannelParameters({
             value={
               resource?.channel._type?.extension?.find(
                 (e) =>
-                  e.url ===
-                  "https://haste-health.app/Subscription/operation-code"
+                  e.url === "https://haste.health/Subscription/operation-code"
               )?.valueCode
             }
             onChange={(e) =>
@@ -148,10 +147,10 @@ function ChannelParameters({
                       ...(resource?.channel._type?.extension ?? []).filter(
                         (e) =>
                           e.url !==
-                          "https://haste-health.app/Subscription/operation-code"
+                          "https://haste.health/Subscription/operation-code"
                       ),
                       {
-                        url: "https://haste-health.app/Subscription/operation-code" as id,
+                        url: "https://haste.health/Subscription/operation-code" as id,
                         valueCode: e.target.value as code,
                       },
                     ],
@@ -181,7 +180,7 @@ function SimpleSubscriptionView({
     const channel =
       resource?.channel?.type ??
       resource?.channel?._type?.extension?.find(
-        (e) => e.url === "https://haste-health.app/Subscription/channel-type"
+        (e) => e.url === "https://haste.health/Subscription/channel-type"
       )?.valueCode;
     setChannel(channel);
   }, [resource]);
@@ -253,7 +252,7 @@ function SimpleSubscriptionView({
                 _type: {
                   extension: [
                     {
-                      url: "https://haste-health.app/Subscription/channel-type" as id,
+                      url: "https://haste.health/Subscription/channel-type" as id,
                       valueCode: option.value as code,
                     },
                   ],
@@ -291,7 +290,7 @@ export default function SubscriptionView({
       return {
         resourceType: "Subscription",
         meta: {
-          profile: ["https://haste-health.app/resource/Subscription"],
+          profile: ["https://haste.health/resource/Subscription"],
         },
         status: "active",
         criteria: "",
@@ -306,7 +305,7 @@ export default function SubscriptionView({
       ...resource,
       meta: {
         ...resource?.meta,
-        profile: ["https://haste-health.app/resource/Subscription"],
+        profile: ["https://haste.health/resource/Subscription"],
       },
     } as Subscription;
   }, [resource]);

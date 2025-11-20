@@ -4,10 +4,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
             "resource": {
                 "id": "identity-provider-pkce-challenge-method-codesystem",
-                "url": "https://haste-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
+                "url": "https://haste.health/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "IdentityProviderPKCEChallengeMethod",
@@ -17,7 +17,7 @@
                 "publisher": "HasteHealth",
                 "description": "PKCE Challenge Methods",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+                "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
                 "content": "complete",
                 "concept": [
                     {
@@ -32,11 +32,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+            "fullUrl": "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "identity-provider-pkce-challenge-method",
-                "url": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
+                "url": "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod",
                 "version": "4.0.1",
                 "name": "IdentityProviderPKCEChallengeMethod",
                 "title": "IdentityProviderPKCEChallengeMethod",
@@ -48,7 +48,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod"
+                            "system": "https://haste.health/fhir/CodeSystem/IdentityProviderPKCEChallengeMethod"
                         }
                     ]
                 }

@@ -4,10 +4,10 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://haste-health.app/fhir/CodeSystem/HasteHealthCustomTypes",
+      "fullUrl": "https://haste.health/fhir/CodeSystem/HasteHealthCustomTypes",
       "resource": {
         "id": "haste-health-custom-types",
-        "url": "https://haste-health.app/fhir/CodeSystem/HasteHealthCustomTypes",
+        "url": "https://haste.health/fhir/CodeSystem/HasteHealthCustomTypes",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "Custom types",
@@ -38,11 +38,11 @@
       }
     },
     {
-      "fullUrl": "https://haste-health.app/fhir/ValueSet/ResourceTypes",
+      "fullUrl": "https://haste.health/fhir/ValueSet/ResourceTypes",
       "resource": {
         "resourceType": "ValueSet",
         "id": "haste-health-types-valueset",
-        "url": "https://haste-health.app/fhir/ValueSet/ResourceTypes",
+        "url": "https://haste.health/fhir/ValueSet/ResourceTypes",
         "version": "4.0.1",
         "name": "HasteHealth Resource Types",
         "title": "HasteHealth Resource Types",
@@ -57,7 +57,7 @@
               "system": "http://hl7.org/fhir/resource-types"
             },
             {
-              "system": "https://haste-health.app/fhir/CodeSystem/HasteHealthCustomTypes"
+              "system": "https://haste.health/fhir/CodeSystem/HasteHealthCustomTypes"
             }
           ]
         }

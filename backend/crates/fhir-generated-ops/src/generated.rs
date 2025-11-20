@@ -60,6 +60,51 @@ pub mod TenantInformation {
         }
     }
 }
+pub mod HasteHealthListRefreshTokens {
+    use super::*;
+    pub const CODE: &str = "refresh-tokens";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputRefreshTokens {
+        pub client_id: FHIRId,
+        pub id: FHIRId,
+        pub created_at: FHIRDateTime,
+    }
+    impl From<OutputRefreshTokens> for Resource {
+        fn from(value: OutputRefreshTokens) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[parameter_rename = "refresh-tokens"]
+        #[parameter_nested]
+        pub refresh_tokens: Option<Vec<OutputRefreshTokens>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 pub mod ActivityDefinitionApply {
     use super::*;
     pub const CODE: &str = "apply";
@@ -1070,6 +1115,7 @@ pub mod MessageHeaderProcessMessage {
         pub content: Bundle,
         #[parameter_rename = "async"]
         pub async_: Option<FHIRBoolean>,
+        #[parameter_rename = "response-url"]
         pub response_url: Option<FHIRUrl>,
     }
     impl From<Input> for Resource {
@@ -1634,9 +1680,13 @@ pub mod ValueSetExpand {
         pub excludeNotForUI: Option<FHIRBoolean>,
         pub excludePostCoordinated: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
+        #[parameter_rename = "exclude-system"]
         pub exclude_system: Option<Vec<FHIRString>>,
+        #[parameter_rename = "system-version"]
         pub system_version: Option<Vec<FHIRString>>,
+        #[parameter_rename = "check-system-version"]
         pub check_system_version: Option<Vec<FHIRString>>,
+        #[parameter_rename = "force-system-version"]
         pub force_system_version: Option<Vec<FHIRString>>,
     }
     impl From<Input> for Resource {

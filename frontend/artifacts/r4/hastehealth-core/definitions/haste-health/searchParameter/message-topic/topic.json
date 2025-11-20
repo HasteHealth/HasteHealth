@@ -1,7 +1,7 @@
 {
   "resourceType": "SearchParameter",
   "id": "MessageTopic-topic",
-  "url": "https://haste-health.app/fhir/SearchParameter/MessageTopic-topic",
+  "url": "https://haste.health/fhir/SearchParameter/MessageTopic-topic",
   "version": "4.0.1",
   "name": "Topic",
   "status": "draft",

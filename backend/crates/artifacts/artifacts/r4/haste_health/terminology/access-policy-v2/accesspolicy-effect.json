@@ -4,10 +4,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/AccessPolicyV2RuleEffect",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV2RuleEffect",
             "resource": {
                 "id": "access-policy-rule-effect-codesystem",
-                "url": "https://haste-health.app/fhir/CodeSystem/AccessPolicyV2RuleEffect",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV2RuleEffect",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2RuleEffect",
@@ -17,7 +17,7 @@
                 "publisher": "HasteHealth",
                 "description": "Access Policy V2 Rule Effects.",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect",
                 "content": "complete",
                 "concept": [
                     {
@@ -34,11 +34,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "access-policy-rule-effect",
-                "url": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2RuleEffect",
                 "title": "AccessPolicyV2RuleEffect",
@@ -50,7 +50,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/AccessPolicyV2RuleEffect"
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV2RuleEffect"
                         }
                     ]
                 }

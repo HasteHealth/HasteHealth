@@ -2,11 +2,11 @@
   "resourceType": "Bundle",
   "entry": [
     {
-      "fullUrl": "https:/haste-health.app/fhir/SearchParameter/author",
+      "fullUrl": "https:/haste.health/fhir/SearchParameter/author",
       "resource": {
         "resourceType": "SearchParameter",
         "id": "author",
-        "url": "https:/haste-health.app/fhir/SearchParameter/author",
+        "url": "https:/haste.health/fhir/SearchParameter/author",
         "version": "4.0.1",
         "name": "_haste-health-author",
         "status": "draft",

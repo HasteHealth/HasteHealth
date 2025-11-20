@@ -1,7 +1,7 @@
 {
     "resourceType": "SearchParameter",
     "id": "AccessPolicyV2-name",
-    "url": "https://haste-health.app/fhir/SearchParameter/AccessPolicyV2-name",
+    "url": "https://haste.health/fhir/SearchParameter/AccessPolicyV2-name",
     "version": "4.0.1",
     "name": "name",
     "status": "draft",
