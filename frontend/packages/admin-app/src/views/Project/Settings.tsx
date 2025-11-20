@@ -364,9 +364,9 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
         <Card>
           <OpenIDConnectSettings />
         </Card>
-        {/* <Card>
+        <Card>
           <Scopes />
-        </Card> */}
+        </Card>
         <Card>
           <RefreshTokens />
         </Card>
