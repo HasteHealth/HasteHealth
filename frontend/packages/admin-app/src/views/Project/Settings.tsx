@@ -170,10 +170,11 @@ function RefreshTokens() {
     fetchRefreshTokens();
   }, []);
   const deleteRefreshToken = React.useMemo(() => {
-    return (id: id) => {
+    return (client_id: id, user_agent: string) => {
       const deletePromise = client
         .invoke_system(HasteHealthDeleteRefreshToken.Op, {}, R4, {
-          id,
+          client_id,
+          user_agent,
         })
         .then((res) => {
           if (res.issue[0]?.code !== "informational") {
@@ -205,16 +206,16 @@ function RefreshTokens() {
         <Table
           columns={[
             {
-              id: "id",
-              content: "ID",
-              selectorType: "fhirpath",
-              selector: "$this.id",
-            },
-            {
               id: "client_id",
               content: "Client ID",
               selectorType: "fhirpath",
               selector: "$this.client_id",
+            },
+            {
+              id: "user_agent",
+              content: "User Agent",
+              selectorType: "fhirpath",
+              selector: "$this.user_agent",
             },
             {
               id: "created_at",
@@ -235,7 +236,10 @@ function RefreshTokens() {
                 return (
                   <div
                     onClick={() => {
-                      deleteRefreshToken(refreshToken.id);
+                      deleteRefreshToken(
+                        refreshToken.client_id,
+                        refreshToken.user_agent
+                      );
                     }}
                     className="cursor-pointer font-semibold text-red-600 hover:text-red-700"
                   >

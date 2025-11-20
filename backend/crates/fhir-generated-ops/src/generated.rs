@@ -8,7 +8,8 @@ pub mod HasteHealthDeleteRefreshToken {
     pub const CODE: &str = "delete-refresh-token";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        pub id: FHIRId,
+        pub client_id: FHIRId,
+        pub user_agent: Option<FHIRString>,
     }
     impl From<Input> for Resource {
         fn from(value: Input) -> Self {
@@ -47,7 +48,7 @@ pub mod HasteHealthListRefreshTokens {
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct OutputRefreshTokens {
         pub client_id: FHIRId,
-        pub id: FHIRId,
+        pub user_agent: FHIRString,
         pub created_at: FHIRDateTime,
     }
     impl From<OutputRefreshTokens> for Resource {
