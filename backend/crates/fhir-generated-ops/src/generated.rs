@@ -75,13 +75,13 @@ pub mod HasteHealthListRefreshTokens {
         }
     }
     #[derive(Debug, FromParameters, ToParameters)]
-    pub struct OutputRefresh_tokens {
+    pub struct OutputRefreshTokens {
         pub client_id: FHIRId,
         pub id: FHIRId,
         pub created_at: FHIRDateTime,
     }
-    impl From<OutputRefresh_tokens> for Resource {
-        fn from(value: OutputRefresh_tokens) -> Self {
+    impl From<OutputRefreshTokens> for Resource {
+        fn from(value: OutputRefreshTokens) -> Self {
             let parameters: Vec<ParametersParameter> = value.into();
             Resource::Parameters(Parameters {
                 parameter: Some(parameters),
@@ -93,7 +93,7 @@ pub mod HasteHealthListRefreshTokens {
     pub struct Output {
         #[parameter_rename = "refresh-tokens"]
         #[parameter_nested]
-        pub refresh_tokens: Option<Vec<OutputRefresh_tokens>>,
+        pub refresh_tokens: Option<Vec<OutputRefreshTokens>>,
     }
     impl From<Output> for Resource {
         fn from(value: Output) -> Self {

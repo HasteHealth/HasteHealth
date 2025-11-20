@@ -65,7 +65,7 @@ pub fn active_refresh_tokens<
                         refresh_tokens: Some(
                             active_refresh_tokens
                                 .into_iter()
-                                .map(|token| HasteHealthListRefreshTokens::OutputRefresh_tokens {
+                                .map(|token| HasteHealthListRefreshTokens::OutputRefreshTokens {
                                     client_id: FHIRId {
                                         value: token.client_id,
                                         ..Default::default()

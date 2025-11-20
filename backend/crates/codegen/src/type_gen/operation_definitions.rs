@@ -134,7 +134,12 @@ fn generate_parameter_type(
                 pub #field_ident: #field
             })
         } else {
-            let name = name.to_string() + &capitalize(formatted_field_name.as_str());
+            let name = name.to_string()
+                + formatted_field_name
+                    .split("_")
+                    .map(|s| capitalize(s))
+                    .collect::<String>()
+                    .as_str();
             let nested_types = generate_parameter_type(
                 &name,
                 &p.part
