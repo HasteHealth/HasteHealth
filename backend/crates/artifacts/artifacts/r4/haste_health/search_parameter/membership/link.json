@@ -1,7 +1,7 @@
 {
   "resourceType": "SearchParameter",
   "id": "Membership-link",
-  "url": "https://haste-health.app/fhir/SearchParameter/Membership-link",
+  "url": "https://haste.health/fhir/SearchParameter/Membership-link",
   "version": "4.0.1",
   "name": "Link",
   "status": "draft",

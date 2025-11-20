@@ -1,7 +1,7 @@
 {
     "resourceType": "OperationDefinition",
     "id": "haste-health-idp-registration-info",
-    "url": "https://haste-health.app/OperationDefinition/identity-provider-registration-info",
+    "url": "https://haste.health/OperationDefinition/identity-provider-registration-info",
     "version": "4.0.1",
     "name": "IdentityProviderRegistrationInformation",
     "status": "draft",

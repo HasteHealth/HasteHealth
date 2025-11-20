@@ -3,10 +3,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/UserRole",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/UserRole",
             "resource": {
                 "id": "user-role-codesystem",
-                "url": "https://haste-health.app/fhir/CodeSystem/UserRole",
+                "url": "https://haste.health/fhir/CodeSystem/UserRole",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "UserRole",
@@ -16,7 +16,7 @@
                 "publisher": "HasteHealth",
                 "description": "Grant types allowed.",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/UserRole",
+                "valueSet": "https://haste.health/fhir/ValueSet/UserRole",
                 "content": "complete",
                 "concept": [
                     {
@@ -35,11 +35,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/UserRole",
+            "fullUrl": "https://haste.health/fhir/ValueSet/UserRole",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "user-role",
-                "url": "https://haste-health.app/fhir/ValueSet/UserRole",
+                "url": "https://haste.health/fhir/ValueSet/UserRole",
                 "version": "4.0.1",
                 "name": "UserRole",
                 "title": "UserRole",
@@ -51,7 +51,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/UserRole"
+                            "system": "https://haste.health/fhir/CodeSystem/UserRole"
                         }
                     ]
                 }

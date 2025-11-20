@@ -1,7 +1,7 @@
 {
   "resourceType": "StructureDefinition",
   "id": "haste-health-subscription",
-  "url": "https://haste-health.app/resource/Subscription",
+  "url": "https://haste.health/resource/Subscription",
   "version": "4.0.0",
   "name": "HasteHealth Subscription",
   "title": "HasteHealth Subscription",
@@ -68,7 +68,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://haste-health.app/Subscription/channel-type"
+              "https://haste.health/Subscription/channel-type"
             ]
           }
         ],
@@ -84,7 +84,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://haste-health.app/Subscription/operation-code"
+              "https://haste.health/Subscription/operation-code"
             ]
           }
         ],
@@ -880,7 +880,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://haste-health.app/Subscription/channel-type"
+              "https://haste.health/Subscription/channel-type"
             ]
           }
         ],
@@ -896,7 +896,7 @@
           {
             "code": "Extension",
             "profile": [
-              "https://haste-health.app/Subscription/operation-code"
+              "https://haste.health/Subscription/operation-code"
             ]
           }
         ],

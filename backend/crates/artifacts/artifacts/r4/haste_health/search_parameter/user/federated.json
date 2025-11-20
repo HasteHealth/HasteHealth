@@ -1,7 +1,7 @@
 {
     "resourceType": "SearchParameter",
     "id": "User-federated-identityProvider",
-    "url": "https://haste-health.app/fhir/SearchParameter/User-federated-identityProvider",
+    "url": "https://haste.health/fhir/SearchParameter/User-federated-identityProvider",
     "version": "4.0.1",
     "name": "IdentityProvider",
     "status": "draft",

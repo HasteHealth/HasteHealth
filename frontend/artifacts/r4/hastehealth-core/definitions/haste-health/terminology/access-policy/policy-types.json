@@ -4,10 +4,10 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://haste-health.app/fhir/CodeSystem/AccessPolicyType",
+      "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyType",
       "resource": {
         "id": "access-policy-type-codesystem",
-        "url": "https://haste-health.app/fhir/CodeSystem/AccessPolicyType",
+        "url": "https://haste.health/fhir/CodeSystem/AccessPolicyType",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "AccessPolicyType",
@@ -17,7 +17,7 @@
         "publisher": "HasteHealth",
         "description": "Access Policy types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyType",
+        "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyType",
         "content": "complete",
         "concept": [
           {
@@ -34,11 +34,11 @@
       }
     },
     {
-      "fullUrl": "https://haste-health.app/fhir/ValueSet/AccessPolicyType",
+      "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyType",
       "resource": {
         "resourceType": "ValueSet",
         "id": "access-policy-type-valueset",
-        "url": "https://haste-health.app/fhir/ValueSet/AccessPolicyType",
+        "url": "https://haste.health/fhir/ValueSet/AccessPolicyType",
         "version": "4.0.1",
         "name": "AccessPolicyType",
         "title": "AccessPolicyType",
@@ -50,7 +50,7 @@
         "compose": {
           "include": [
             {
-              "system": "https://haste-health.app/fhir/CodeSystem/AccessPolicyType"
+              "system": "https://haste.health/fhir/CodeSystem/AccessPolicyType"
             }
           ]
         }

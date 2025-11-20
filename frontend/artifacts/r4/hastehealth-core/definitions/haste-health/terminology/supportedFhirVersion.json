@@ -4,10 +4,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/SupportedFHIRVersion",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/SupportedFHIRVersion",
             "resource": {
                 "id": "supported-fhir-version",
-                "url": "https://haste-health.app/fhir/CodeSystem/SupportedFHIRVersion",
+                "url": "https://haste.health/fhir/CodeSystem/SupportedFHIRVersion",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "SupportedFHIRVersion",
@@ -17,7 +17,7 @@
                 "publisher": "HasteHealth",
                 "description": "Supported FHIR versions",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/SupportedFHIRVersion",
+                "valueSet": "https://haste.health/fhir/ValueSet/SupportedFHIRVersion",
                 "content": "complete",
                 "concept": [
                     {
@@ -29,11 +29,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/SupportedFHIRVersion",
+            "fullUrl": "https://haste.health/fhir/ValueSet/SupportedFHIRVersion",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "supported-fhir-version",
-                "url": "https://haste-health.app/fhir/ValueSet/SupportedFHIRVersion",
+                "url": "https://haste.health/fhir/ValueSet/SupportedFHIRVersion",
                 "version": "4.0.1",
                 "name": "SupportedFHIRVersion",
                 "title": "SupportedFHIRVersion",
@@ -45,7 +45,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/SupportedFHIRVersion"
+                            "system": "https://haste.health/fhir/CodeSystem/SupportedFHIRVersion"
                         }
                     ]
                 }

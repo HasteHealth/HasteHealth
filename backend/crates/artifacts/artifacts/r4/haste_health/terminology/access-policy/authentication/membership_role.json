@@ -3,10 +3,10 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://haste-health.app/fhir/CodeSystem/MembershipRole",
+      "fullUrl": "https://haste.health/fhir/CodeSystem/MembershipRole",
       "resource": {
         "id": "membership-role-codesystem",
-        "url": "https://haste-health.app/fhir/CodeSystem/MembershipRole",
+        "url": "https://haste.health/fhir/CodeSystem/MembershipRole",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "MembershipRole",
@@ -16,7 +16,7 @@
         "publisher": "HasteHealth",
         "description": "Grant types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://haste-health.app/fhir/ValueSet/MembershipRole",
+        "valueSet": "https://haste.health/fhir/ValueSet/MembershipRole",
         "content": "complete",
         "concept": [
           {
@@ -31,11 +31,11 @@
       }
     },
     {
-      "fullUrl": "https://haste-health.app/fhir/ValueSet/MembershipRole",
+      "fullUrl": "https://haste.health/fhir/ValueSet/MembershipRole",
       "resource": {
         "resourceType": "ValueSet",
         "id": "membership-role",
-        "url": "https://haste-health.app/fhir/ValueSet/MembershipRole",
+        "url": "https://haste.health/fhir/ValueSet/MembershipRole",
         "version": "4.0.1",
         "name": "MembershipRole",
         "title": "MembershipRole",
@@ -47,7 +47,7 @@
         "compose": {
           "include": [
             {
-              "system": "https://haste-health.app/fhir/CodeSystem/MembershipRole"
+              "system": "https://haste.health/fhir/CodeSystem/MembershipRole"
             }
           ]
         }

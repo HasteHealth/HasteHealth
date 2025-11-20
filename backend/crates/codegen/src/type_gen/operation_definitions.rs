@@ -108,21 +108,19 @@ fn generate_parameter_type(
     for p in parameters.iter() {
         let is_array = p.max.value != Some("1".to_string());
         let required = p.min.value.unwrap_or(0) > 0;
-        let field_name = p
-            .name
-            .value
-            .as_ref()
-            .expect("Parameter must have a name")
-            .replace("-", "_");
+        let initial_field_name = p.name.value.as_ref().expect("Parameter must have a name");
+        let formatted_field_name = initial_field_name.replace("-", "_");
 
-        let field_ident = if RUST_KEYWORDS.contains(&field_name.as_str()) {
-            format_ident!("{}_", field_name)
+        let field_ident = if RUST_KEYWORDS.contains(&formatted_field_name.as_str()) {
+            format_ident!("{}_", formatted_field_name)
         } else {
-            format_ident!("{}", field_name)
+            format_ident!("{}", formatted_field_name)
         };
 
-        let attribute_rename = if RUST_KEYWORDS.contains(&field_name.as_str()) {
-            quote! {  #[parameter_rename=#field_name] }
+        let attribute_rename = if RUST_KEYWORDS.contains(&formatted_field_name.as_str())
+            || formatted_field_name != *initial_field_name
+        {
+            quote! {  #[parameter_rename=#initial_field_name] }
         } else {
             quote! {}
         };
@@ -136,7 +134,7 @@ fn generate_parameter_type(
                 pub #field_ident: #field
             })
         } else {
-            let name = name.to_string() + &capitalize(field_name.as_str());
+            let name = name.to_string() + &capitalize(formatted_field_name.as_str());
             let nested_types = generate_parameter_type(
                 &name,
                 &p.part

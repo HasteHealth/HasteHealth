@@ -3,10 +3,10 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://haste-health.app/fhir/CodeSystem/ClientApplicationGrantType",
+      "fullUrl": "https://haste.health/fhir/CodeSystem/ClientApplicationGrantType",
       "resource": {
         "id": "clientapplication-grant-type-codesystem",
-        "url": "https://haste-health.app/fhir/CodeSystem/ClientApplicationGrantType",
+        "url": "https://haste.health/fhir/CodeSystem/ClientApplicationGrantType",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",
@@ -16,7 +16,7 @@
         "publisher": "HasteHealth",
         "description": "Grant types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType",
+        "valueSet": "https://haste.health/fhir/ValueSet/ClientApplicationGrantType",
         "content": "complete",
         "concept": [
           {
@@ -39,11 +39,11 @@
       }
     },
     {
-      "fullUrl": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType",
+      "fullUrl": "https://haste.health/fhir/ValueSet/ClientApplicationGrantType",
       "resource": {
         "resourceType": "ValueSet",
         "id": "clientapplication-grant-type",
-        "url": "https://haste-health.app/fhir/ValueSet/ClientApplicationGrantType",
+        "url": "https://haste.health/fhir/ValueSet/ClientApplicationGrantType",
         "version": "4.0.1",
         "name": "ClientApplicationGrantType",
         "title": "ClientApplicationGrantType",
@@ -55,7 +55,7 @@
         "compose": {
           "include": [
             {
-              "system": "https://haste-health.app/fhir/CodeSystem/ClientApplicationGrantType"
+              "system": "https://haste.health/fhir/CodeSystem/ClientApplicationGrantType"
             }
           ]
         }

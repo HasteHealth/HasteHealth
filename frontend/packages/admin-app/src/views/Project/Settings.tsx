@@ -161,6 +161,7 @@ function RefreshTokens() {
       client
         .invoke_system(HasteHealthListRefreshTokens.Op, {}, R4, {})
         .then((res) => {
+          console.log("Fetched refresh tokens:", res);
           setRefreshTokens(res["refresh-tokens"]);
         });
     };
@@ -194,6 +195,8 @@ function RefreshTokens() {
       });
     };
   }, [hasteHealth]);
+
+  console.log("Refresh Tokens:", refreshTokens);
 
   return (
     <div className="space-y-2">
@@ -268,13 +271,13 @@ function UserData({ user }: Readonly<SettingProps>) {
         <div>
           <Copyable
             label="Role"
-            value={user?.["https://haste-health.app/user_role"]}
+            value={user?.["https://haste.health/user_role"]}
           />
         </div>
         <div>
           <Copyable
             label="Tenant"
-            value={user?.["https://haste-health.app/tenant"]}
+            value={user?.["https://haste.health/tenant"]}
           />
         </div>
         <div>
@@ -361,9 +364,9 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
         <Card>
           <OpenIDConnectSettings />
         </Card>
-        <Card>
+        {/* <Card>
           <Scopes />
-        </Card>
+        </Card> */}
         <Card>
           <RefreshTokens />
         </Card>

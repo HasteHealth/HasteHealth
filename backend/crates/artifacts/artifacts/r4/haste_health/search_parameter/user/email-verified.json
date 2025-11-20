@@ -1,7 +1,7 @@
 {
     "resourceType": "SearchParameter",
     "id": "User-email-verified",
-    "url": "https://haste-health.app/fhir/SearchParameter/User-email-verified",
+    "url": "https://haste.health/fhir/SearchParameter/User-email-verified",
     "version": "4.0.1",
     "name": "EmailVerified",
     "status": "draft",

@@ -19,6 +19,15 @@ use std::sync::Arc;
 
 struct ServerOperations<CTX>(Arc<Vec<Box<dyn OperationInvocation<CTX>>>>);
 
+pub struct ServerOperationContext<
+    Repo: Repository + Send + Sync + 'static,
+    Search: SearchEngine + Send + Sync + 'static,
+    Terminology: FHIRTerminology + Send + Sync + 'static,
+> {
+    pub ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    pub state: ServerMiddlewareState<Repo, Search, Terminology>,
+}
+
 impl<CTX> Clone for ServerOperations<CTX> {
     fn clone(&self) -> Self {
         ServerOperations(self.0.clone())
@@ -29,14 +38,15 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
-> ServerOperations<ServerMiddlewareState<Repo, Search, Terminology>>
+> ServerOperations<ServerOperationContext<Repo, Search, Terminology>>
 {
     pub fn new() -> Self {
         let executors: Vec<
-            Box<dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>>,
+            Box<dyn OperationInvocation<ServerOperationContext<Repo, Search, Terminology>>>,
         > = vec![
             Box::new(custom_operations::valueset_expand()),
             Box::new(custom_operations::project_information()),
+            Box::new(custom_operations::active_refresh_tokens()),
         ];
 
         Self(Arc::new(executors))
@@ -45,7 +55,7 @@ impl<
     pub fn find_operation(
         &self,
         code: &str,
-    ) -> Option<&dyn OperationInvocation<ServerMiddlewareState<Repo, Search, Terminology>>> {
+    ) -> Option<&dyn OperationInvocation<ServerOperationContext<Repo, Search, Terminology>>> {
         for executor in self.0.iter() {
             if executor.code() == code {
                 return Some(executor.as_ref());
@@ -60,7 +70,7 @@ pub struct Middleware<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > {
-    operations: ServerOperations<ServerMiddlewareState<Repo, Search, Terminology>>,
+    operations: ServerOperations<ServerOperationContext<Repo, Search, Terminology>>,
 }
 
 impl<
@@ -114,7 +124,10 @@ impl<
                     FHIRRequest::InvokeInstance(instance_request) => {
                         let output = op_executor
                             .execute(
-                                state,
+                                ServerOperationContext {
+                                    state,
+                                    ctx: context.ctx.clone(),
+                                },
                                 context.ctx.tenant.clone(),
                                 context.ctx.project.clone(),
                                 instance_request.parameters.clone(),
@@ -125,7 +138,10 @@ impl<
                     FHIRRequest::InvokeType(type_request) => {
                         let output = op_executor
                             .execute(
-                                state,
+                                ServerOperationContext {
+                                    state,
+                                    ctx: context.ctx.clone(),
+                                },
                                 context.ctx.tenant.clone(),
                                 context.ctx.project.clone(),
                                 type_request.parameters.clone(),
@@ -136,7 +152,10 @@ impl<
                     FHIRRequest::InvokeSystem(system_request) => {
                         let output = op_executor
                             .execute(
-                                state,
+                                ServerOperationContext {
+                                    state,
+                                    ctx: context.ctx.clone(),
+                                },
                                 context.ctx.tenant.clone(),
                                 context.ctx.project.clone(),
                                 system_request.parameters.clone(),

@@ -1,7 +1,7 @@
 {
   "resourceType": "SearchParameter",
   "id": "ClientApplication-grantType",
-  "url": "https://haste-health.app/fhir/SearchParameter/ClientApplication-grantType",
+  "url": "https://haste.health/fhir/SearchParameter/ClientApplication-grantType",
   "version": "4.0.1",
   "name": "Grant Type",
   "status": "draft",

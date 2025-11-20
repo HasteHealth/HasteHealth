@@ -126,7 +126,7 @@
                 "max": "1",
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyEngineV2|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyEngineV2|4.0.1"
                 }
             },
             {
@@ -183,7 +183,7 @@
                 "binding": {
                     "strength": "required",
                     "description": "The allowable operation code types.",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyAttributeOperationTypes|4.0.1"
                 }
             },
             {
@@ -265,7 +265,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV2CombineBehavior|4.0.1"
                 }
             },
             {
@@ -281,7 +281,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleEffect|4.0.1"
                 }
             },
             {

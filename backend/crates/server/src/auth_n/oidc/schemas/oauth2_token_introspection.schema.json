@@ -7,7 +7,7 @@
     "required": [
         "token"
     ],
-    "$id": "https://haste-health.app/jsonschema/oauth2/token-introspection-body",
+    "$id": "https://haste.health/jsonschema/oauth2/token-introspection-body",
     "properties": {
         "token": {
             "description": "Token to introspect.",

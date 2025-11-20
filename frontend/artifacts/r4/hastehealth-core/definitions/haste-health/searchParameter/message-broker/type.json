@@ -1,7 +1,7 @@
 {
   "resourceType": "SearchParameter",
   "id": "MessageBroker-type",
-  "url": "https://haste-health.app/fhir/SearchParameter/MessageBroker-type",
+  "url": "https://haste.health/fhir/SearchParameter/MessageBroker-type",
   "version": "4.0.1",
   "name": "type",
   "status": "draft",

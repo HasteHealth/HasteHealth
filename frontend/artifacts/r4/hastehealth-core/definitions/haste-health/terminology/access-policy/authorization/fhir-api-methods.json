@@ -3,10 +3,10 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://haste-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
+      "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
       "resource": {
         "id": "access-policy-fhir-api-methods-codesystem",
-        "url": "https://haste-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
+        "url": "https://haste.health/fhir/CodeSystem/AccessPolicyFHIRAPIMethod",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIMethod",
@@ -16,7 +16,7 @@
         "publisher": "HasteHealth",
         "description": "Access Policy types allowed.",
         "caseSensitive": true,
-        "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+        "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
         "content": "complete",
         "concept": [
           {
@@ -71,11 +71,11 @@
       }
     },
     {
-      "fullUrl": "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+      "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
       "resource": {
         "resourceType": "ValueSet",
         "id": "access-policy-fhir-api-methods-valueset",
-        "url": "https://haste-health.app/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
+        "url": "https://haste.health/fhir/ValueSet/AccessPolicyFHIRAPIMethod",
         "version": "4.0.1",
         "name": "AccessPolicyFHIRAPIMethod",
         "title": "AccessPolicyFHIRAPIMethod",
@@ -87,7 +87,7 @@
         "compose": {
           "include": [
             {
-              "system": "https://haste-health.app/fhir/CodeSystem/AccessPolicyFHIRAPIMethod"
+              "system": "https://haste.health/fhir/CodeSystem/AccessPolicyFHIRAPIMethod"
             }
           ]
         }

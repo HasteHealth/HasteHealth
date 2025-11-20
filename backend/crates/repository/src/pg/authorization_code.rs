@@ -48,7 +48,8 @@ fn create_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   redirect_uri,
                   meta as "meta: Json<serde_json::Value>",
                   NOW() > (created_at + expires_in) as is_expired,
-                  membership
+                  membership,
+                  created_at
         "#,
             tenant as &TenantId,
             project as Option<&'a ProjectId>,
@@ -90,7 +91,8 @@ fn read_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
                redirect_uri,
                meta,
                NOW() > (created_at + expires_in) as is_expired,
-               membership
+               membership,
+               created_at
             FROM authorization_code
             WHERE 
         "#,
@@ -154,7 +156,8 @@ fn delete_code<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
                   redirect_uri,
                   meta,
                   NOW() > (created_at + expires_in) as is_expired,
-                  membership
+                  membership,
+                  created_at
         "#,
         );
 
@@ -190,7 +193,8 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
                redirect_uri,
                meta,
                NOW() > (created_at + expires_in) as is_expired,
-               membership
+               membership,
+               created_at
             FROM authorization_code
             WHERE
         "#,
@@ -228,6 +232,12 @@ fn search_codes<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a
             query_builder
                 .push(" AND meta->>'user_agent' =  ")
                 .push_bind(user_agent);
+        }
+
+        if let Some(is_expired) = &clauses.is_expired {
+            query_builder
+                .push(" AND (NOW() > (created_at + expires_in)) =  ")
+                .push_bind(is_expired);
         }
 
         let query = query_builder.build_query_as();

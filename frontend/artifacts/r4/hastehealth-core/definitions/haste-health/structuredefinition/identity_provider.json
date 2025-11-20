@@ -113,7 +113,7 @@
                 "max": "1",
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderStatus|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderStatus|4.0.1"
                 }
             },
             {
@@ -130,7 +130,7 @@
                 "max": "1",
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderAccessType|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderAccessType|4.0.1"
                 }
             },
             {
@@ -275,7 +275,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/IdentityProviderPKCEChallengeMethod|4.0.1"
                 },
                 "min": 0,
                 "max": "1"

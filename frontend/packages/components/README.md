@@ -1,6 +1,6 @@
 # HasteHealth Components
 
-For storybook visit https://storybook.haste-health.app
+For storybook visit https://storybook.haste.health
 
 ## Supported data types
 

@@ -532,7 +532,7 @@ test("Subscription extension test", async () => {
     meta: {
       extension: [
         {
-          url: "https://haste-health.app/version-sequence",
+          url: "https://haste.health/version-sequence",
           valueInteger: 4700,
         },
         {
@@ -553,11 +553,11 @@ test("Subscription extension test", async () => {
       _type: {
         extension: [
           {
-            url: "https://haste-health.app/Subscription/channel-type",
+            url: "https://haste.health/Subscription/channel-type",
             valueCode: "operation",
           },
           {
-            url: "https://haste-health.app/Subscription/operation-code",
+            url: "https://haste.health/Subscription/operation-code",
             valueCode: "test-1",
           },
         ],
@@ -582,7 +582,7 @@ test("Subscription extension test", async () => {
       sub,
       {
         variables: {
-          typeUrl: "https://haste-health.app/Subscription/channel-type",
+          typeUrl: "https://haste.health/Subscription/channel-type",
         },
       }
     )
@@ -594,7 +594,7 @@ test("Subscription extension test", async () => {
       sub,
       {
         variables: {
-          typeUrl: "https://haste-health.app/Subscription/operation-code",
+          typeUrl: "https://haste.health/Subscription/operation-code",
         },
       }
     )
@@ -607,7 +607,7 @@ test("Subscription extension test", async () => {
         sub,
         {
           variables: {
-            typeUrl: "https://haste-health.app/Subscription/operation-code",
+            typeUrl: "https://haste.health/Subscription/operation-code",
           },
         }
       )
@@ -620,7 +620,7 @@ test("Subscription extension test", async () => {
         sub,
         {
           variables: {
-            typeUrl: "https://haste-health.app/Subscription/channel-type",
+            typeUrl: "https://haste.health/Subscription/channel-type",
           },
         }
       )
@@ -819,7 +819,7 @@ test("Get Locations for extensions", async () => {
     _name: {
       extension: [
         {
-          url: "https://haste-health.app/Extension/encrypted-value",
+          url: "https://haste.health/Extension/encrypted-value",
           valueString: "testing",
         },
       ],
@@ -831,7 +831,7 @@ test("Get Locations for extensions", async () => {
     operationDefinition,
     {
       variables: {
-        extUrl: "https://haste-health.app/Extension/encrypted-value",
+        extUrl: "https://haste.health/Extension/encrypted-value",
       },
     }
   );
@@ -851,7 +851,7 @@ test("Patient with name given", async () => {
         meta: {
           extension: [
             {
-              url: "https://haste-health.app/version-sequence",
+              url: "https://haste.health/version-sequence",
               valueInteger: 191,
             },
             {

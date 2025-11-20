@@ -3,10 +3,10 @@
   "type": "collection",
   "entry": [
     {
-      "fullUrl": "https://haste-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
+      "fullUrl": "https://haste.health/fhir/CodeSystem/ClientApplicationResponseTypes",
       "resource": {
         "id": "clientapplication-response-types-codesystem",
-        "url": "https://haste-health.app/fhir/CodeSystem/ClientApplicationResponseTypes",
+        "url": "https://haste.health/fhir/CodeSystem/ClientApplicationResponseTypes",
         "resourceType": "CodeSystem",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",
@@ -16,7 +16,7 @@
         "publisher": "HasteHealth",
         "description": "Array of the OAuth 2.0 response type strings that the client can use at the authorization endpoint.",
         "caseSensitive": true,
-        "valueSet": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
+        "valueSet": "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes",
         "content": "complete",
         "concept": [
           {
@@ -31,11 +31,11 @@
       }
     },
     {
-      "fullUrl": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
+      "fullUrl": "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes",
       "resource": {
         "resourceType": "ValueSet",
         "id": "clientapplication-response-types",
-        "url": "https://haste-health.app/fhir/ValueSet/ClientApplicationResponseTypes",
+        "url": "https://haste.health/fhir/ValueSet/ClientApplicationResponseTypes",
         "version": "4.0.1",
         "name": "ClientApplicationResponseTypes",
         "title": "ClientApplicationResponseTypes",
@@ -47,7 +47,7 @@
         "compose": {
           "include": [
             {
-              "system": "https://haste-health.app/fhir/CodeSystem/ClientApplicationResponseTypes"
+              "system": "https://haste.health/fhir/CodeSystem/ClientApplicationResponseTypes"
             }
           ]
         }

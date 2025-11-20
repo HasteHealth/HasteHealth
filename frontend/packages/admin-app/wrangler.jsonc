@@ -15,8 +15,8 @@
   },
   "routes": [
     {
-      "pattern": "*.admin.haste-health.app/*",
-      "zone_name": "haste-health.app"
+      "pattern": "*.admin.haste.health/*",
+      "zone_name": "haste.health"
     }
   ]
   /**

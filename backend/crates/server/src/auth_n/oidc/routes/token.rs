@@ -152,6 +152,7 @@ async fn create_token_response<Repo: Repository>(
                     kind: Some(AuthorizationCodeKind::RefreshToken),
                     code: None,
                     user_agent: user_agent.as_ref().map(|ua| ua.as_str().to_string()),
+                    is_expired: None,
                 },
             )
             .await?;

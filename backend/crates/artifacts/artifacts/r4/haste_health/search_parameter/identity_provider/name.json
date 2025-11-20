@@ -1,7 +1,7 @@
 {
   "resourceType": "SearchParameter",
   "id": "IdentityProvider-name",
-  "url": "https://haste-health.app/fhir/SearchParameter/IdentityProvider-name",
+  "url": "https://haste.health/fhir/SearchParameter/IdentityProvider-name",
   "version": "4.0.1",
   "name": "name",
   "status": "draft",

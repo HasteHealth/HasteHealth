@@ -22,7 +22,7 @@ export const Primary: Story = {
       "meta": {
         "extension": [
           {
-            "url": "https://haste-health.app/version-sequence",
+            "url": "https://haste.health/version-sequence",
             "valueInteger": 4993
           },
           {
@@ -52,7 +52,7 @@ export const Primary: Story = {
       "meta": {
         "extension": [
           {
-            "url": "https://haste-health.app/version-sequence",
+            "url": "https://haste.health/version-sequence",
             "valueInteger": 1942
           },
           {

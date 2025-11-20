@@ -15,7 +15,7 @@ test("TEST Parse to object", async () => {
     meta: {
       extension: [
         {
-          url: "https://haste-health.app/version-sequence",
+          url: "https://haste.health/version-sequence",
           valueInteger: 7,
         },
         {
@@ -54,7 +54,7 @@ test("TEST Parse to object", async () => {
             meta: {
               extension: [
                 {
-                  url: "https://haste-health.app/version-sequence",
+                  url: "https://haste.health/version-sequence",
                   valueInteger: 20,
                 },
                 {
@@ -78,7 +78,7 @@ test("TEST Parse to object", async () => {
         meta: {
           extension: [
             {
-              url: "https://haste-health.app/version-sequence",
+              url: "https://haste.health/version-sequence",
               valueInteger: 20,
             },
             {

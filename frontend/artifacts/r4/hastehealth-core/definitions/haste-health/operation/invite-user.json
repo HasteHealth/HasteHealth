@@ -1,7 +1,7 @@
 {
   "resourceType": "OperationDefinition",
   "id": "haste-health-invite-user",
-  "url": "https://haste-health.app/OperationDefinition/invite-user",
+  "url": "https://haste.health/OperationDefinition/invite-user",
   "version": "4.0.1",
   "name": "Invite a user and send an email.",
   "status": "draft",

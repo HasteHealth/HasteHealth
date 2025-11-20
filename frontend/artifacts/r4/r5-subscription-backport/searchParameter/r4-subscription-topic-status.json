@@ -1,7 +1,7 @@
 {
     "resourceType": "SearchParameter",
     "id": "Basic-subscriptiontopic-status",
-    "url": "https://haste-health.app/fhir/SearchParameter/Basic-subscriptiontopic-status",
+    "url": "https://haste.health/fhir/SearchParameter/Basic-subscriptiontopic-status",
     "version": "4.0.1",
     "name": "Subscription Topic Status",
     "status": "draft",

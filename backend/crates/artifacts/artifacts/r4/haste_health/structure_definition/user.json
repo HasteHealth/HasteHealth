@@ -132,7 +132,7 @@
                 ],
                 "binding": {
                     "strength": "required",
-                    "valueSet": "https://haste-health.app/fhir/ValueSet/UserRole|4.0.1"
+                    "valueSet": "https://haste.health/fhir/ValueSet/UserRole|4.0.1"
                 },
                 "min": 1,
                 "max": "1"

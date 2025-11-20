@@ -4,10 +4,10 @@
     "type": "collection",
     "entry": [
         {
-            "fullUrl": "https://haste-health.app/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator",
+            "fullUrl": "https://haste.health/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator",
             "resource": {
                 "id": "access-policyv2-rule-condition-operator-codesystem",
-                "url": "https://haste-health.app/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator",
+                "url": "https://haste.health/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator",
                 "resourceType": "CodeSystem",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2RuleConditionOperator",
@@ -17,7 +17,7 @@
                 "publisher": "HasteHealth",
                 "description": "Access Policy V2 combination behaviros.",
                 "caseSensitive": true,
-                "valueSet": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
+                "valueSet": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
                 "content": "complete",
                 "concept": [
                     {
@@ -34,11 +34,11 @@
             }
         },
         {
-            "fullUrl": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
+            "fullUrl": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
             "resource": {
                 "resourceType": "ValueSet",
                 "id": "access-policyv2-rule-condition-operator",
-                "url": "https://haste-health.app/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
+                "url": "https://haste.health/fhir/ValueSet/AccessPolicyV2RuleConditionOperator",
                 "version": "4.0.1",
                 "name": "AccessPolicyV2RuleConditionOperator",
                 "title": "AccessPolicyV2RuleConditionOperator",
@@ -50,7 +50,7 @@
                 "compose": {
                     "include": [
                         {
-                            "system": "https://haste-health.app/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator"
+                            "system": "https://haste.health/fhir/CodeSystem/AccessPolicyV2RuleConditionOperator"
                         }
                     ]
                 }
