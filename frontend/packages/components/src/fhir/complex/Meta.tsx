@@ -17,7 +17,7 @@ export const FHIRMetaReadOnly = ({
   fhirVersion,
 }: FHIRMetaReadonlyProps) => {
   return (
-    <InputContainer>
+    <InputContainer hideBorder>
       <div className="flex flex-1 space-x-1">
         <FHIRStringEditable
           value={value?.versionId}

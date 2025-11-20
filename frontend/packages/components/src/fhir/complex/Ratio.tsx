@@ -15,7 +15,7 @@ export const FHIRRatioEditable = ({
   label,
 }: FHIRRatioEditableProps) => {
   return (
-    <InputContainer label={label} issues={issue ? [issue] : []}>
+    <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
       <div className="flex flex-1 space-x-1">
         <FHIRSimpleQuantityEditable
           label="Numerator"

@@ -20,11 +20,7 @@ export const FhirCodeableConceptEditable = ({
   label,
 }: FHIRCodeableConceptEditableProps) => {
   return (
-    <InputContainer
-      hideBorder={true}
-      label={label}
-      issues={issue ? [issue] : []}
-    >
+    <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
       <div className="flex flex-col space-y-1">
         {value?.coding?.map((coding, index) => (
           <div key={`${coding.code}-${coding.system}`} className="relative">

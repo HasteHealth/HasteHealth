@@ -18,7 +18,7 @@ export function FHIRExpressionEditable({
   onChange,
 }: Readonly<FHIRExpressionEditableProps>) {
   return (
-    <InputContainer label={label} issues={issue ? [issue] : []}>
+    <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
       <CodeMirror
         extensions={extensions}
         value={value?.expression}

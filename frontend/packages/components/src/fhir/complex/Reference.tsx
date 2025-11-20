@@ -194,6 +194,7 @@ export const FHIRReferenceEditable = ({
         >
           {(openDisplay) => (
             <InputContainer
+              hideBorder
               disabled={disabled}
               label={label}
               issues={issue ? [issue] : []}

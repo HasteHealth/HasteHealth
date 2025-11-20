@@ -32,7 +32,7 @@ export const FHIRAttachmentEditable = ({
   label,
 }: FHIRAttachmentEditableProps) => {
   return (
-    <InputContainer label={label} issues={issue ? [issue] : []}>
+    <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
       <div className="flex">
         <Input
           type="file"
