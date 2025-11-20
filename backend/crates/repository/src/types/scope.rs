@@ -1,6 +1,5 @@
-use serde::{Deserialize, Serialize};
-
 use haste_jwt::scopes::Scopes;
+use sqlx::types::time::OffsetDateTime;
 
 #[derive(Debug, Clone)]
 pub struct ClientId(String);
@@ -38,11 +37,12 @@ impl AsRef<str> for UserId {
     }
 }
 
-#[derive(sqlx::FromRow, Debug, Deserialize, Serialize)]
+#[derive(sqlx::FromRow, Debug)]
 pub struct Scope {
     pub client: String,
     pub user_: String,
     pub scope: Scopes,
+    pub created_at: OffsetDateTime,
 }
 
 pub struct UpdateScope {

@@ -47,6 +47,7 @@ impl<
             Box::new(custom_operations::valueset_expand()),
             Box::new(custom_operations::project_information()),
             Box::new(custom_operations::active_refresh_tokens()),
+            Box::new(custom_operations::approved_scopes()),
         ];
 
         Self(Arc::new(executors))

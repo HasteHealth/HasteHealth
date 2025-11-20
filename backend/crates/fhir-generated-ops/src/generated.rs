@@ -3,6 +3,50 @@ use haste_fhir_model::r4::generated::resources::*;
 use haste_fhir_model::r4::generated::types::*;
 use haste_fhir_operation_error::*;
 use haste_fhir_ops::derive::{FromParameters, ToParameters};
+pub mod HasteHealthListScopes {
+    use super::*;
+    pub const CODE: &str = "scopes";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputScopes {
+        pub client_id: FHIRId,
+        pub scopes: FHIRString,
+        pub created_at: FHIRDateTime,
+    }
+    impl From<OutputScopes> for Resource {
+        fn from(value: OutputScopes) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[parameter_nested]
+        pub scopes: Option<Vec<OutputScopes>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 pub mod ProjectInformation {
     use super::*;
     pub const CODE: &str = "current-project";

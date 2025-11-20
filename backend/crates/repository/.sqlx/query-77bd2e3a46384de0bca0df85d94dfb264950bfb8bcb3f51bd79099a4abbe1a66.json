@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (tenant, project, client, user_) DO UPDATE set scope = $5  RETURNING  client, user_, scope",
+  "query": "INSERT INTO authorization_scopes(tenant, project, client, user_, scope) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (tenant, project, client, user_) DO UPDATE set scope = $5  RETURNING  client, user_, scope, created_at",
   "describe": {
     "columns": [
       {
@@ -17,6 +17,11 @@
         "ordinal": 2,
         "name": "scope",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
@@ -31,8 +36,9 @@
     "nullable": [
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "0d1ac799e409d20c061e30023ab4806766e27dfc0782be5bf9d2110e4826021d"
+  "hash": "77bd2e3a46384de0bca0df85d94dfb264950bfb8bcb3f51bd79099a4abbe1a66"
 }
