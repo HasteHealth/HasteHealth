@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
@@ -18,7 +19,11 @@ function HomepageHeader() {
       }}
     >
       <div className="container">
-        <Heading as="h1" className="hero__title " style={{ color: "black" }}>
+        <Heading
+          as="h1"
+          className="hero__title "
+          style={{ color: "var(--ifm-navbar-link-color)" }}
+        >
           {siteConfig.title}
         </Heading>
         {/* <p className="hero__subtitle text--secondary">{siteConfig.tagline}</p> */}
@@ -37,6 +42,13 @@ function HomepageHeader() {
 
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
+  const [yValue, setYValue] = useState(0);
+  useEffect(() => {
+    window.addEventListener("scroll", () => {
+      setYValue(window.scrollY);
+    });
+  }, []);
+
   return (
     <Layout
       title={`Haste Health`}
@@ -49,13 +61,26 @@ export default function Home(): ReactNode {
           height: "40vh",
           position: "absolute",
           width: "100%",
-          backgroundPosition: "center",
+          backgroundPosition: Math.min(yValue / 2 + 0, 100) + "% 0%",
         }}
       ></div>
+      {/* <div
+        style={{
+          backgroundImage: "url(/img/half_circle.jpg)",
+          backgroundSize: "cover",
+          top: "40vh",
+          position: "absolute",
+          width: "420px",
+          right: -75,
+          height: "900px",
+          backgroundPosition: "center",
+        }}
+      ></div> */}
       <HomepageHeader />
       <main>
         <HomepageFeatures />
       </main>
+      <div style={{ height: "2000px" }}></div>
     </Layout>
   );
 }
