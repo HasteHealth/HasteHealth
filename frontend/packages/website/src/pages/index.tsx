@@ -14,8 +14,7 @@ function HomepageHeader() {
     <header
       className={clsx("hero hero--primary", styles.heroBanner)}
       style={{
-        backgroundImage: "url(/img/swift.jpeg)",
-        backgroundSize: "cover",
+        backgroundColor: "transparent",
       }}
     >
       <div className="container">
@@ -28,7 +27,7 @@ function HomepageHeader() {
             className="button button--secondary button--lg"
             to="/docs/intro"
           >
-            Docusaurus Tutorial - 5min ⏱️
+            Tutorial - 5min ⏱️
           </Link>
         </div>
       </div>
@@ -43,6 +42,15 @@ export default function Home(): ReactNode {
       title={`Haste Health`}
       description="Description will go into a meta tag in <head />"
     >
+      <div
+        style={{
+          backgroundImage: "url(/img/swift.jpeg)",
+          backgroundSize: "cover",
+          height: "40vh",
+          position: "absolute",
+          width: "100%",
+        }}
+      ></div>
       <HomepageHeader />
       <main>
         <HomepageFeatures />
