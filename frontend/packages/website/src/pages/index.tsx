@@ -49,6 +49,7 @@ export default function Home(): ReactNode {
           height: "40vh",
           position: "absolute",
           width: "100%",
+          backgroundPosition: "center",
         }}
       ></div>
       <HomepageHeader />

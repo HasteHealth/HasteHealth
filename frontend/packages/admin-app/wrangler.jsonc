@@ -4,7 +4,7 @@
  */
 {
   // "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "admin-app",
+  "name": "haste-health-admin-app",
   "compatibility_date": "2025-06-14",
   "assets": {
     "directory": "./build",
@@ -17,6 +17,10 @@
     {
       "pattern": "*.admin.haste.health/*",
       "zone_name": "haste.health"
+    },
+    {
+      "pattern": "admin.haste.health",
+      "custom_domain": true
     }
   ]
   /**
