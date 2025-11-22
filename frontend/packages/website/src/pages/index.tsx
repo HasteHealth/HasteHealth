@@ -13,74 +13,242 @@ function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <header
-      className={clsx("hero hero--primary", styles.heroBanner)}
       style={{
         backgroundColor: "transparent",
       }}
     >
-      <div className="container">
-        <Heading
-          as="h1"
-          className="hero__title "
-          style={{ color: "var(--ifm-navbar-link-color)" }}
+      <Heading
+        as="h1"
+        className="mt-12 hero__title text-orange-950 text-center"
+      >
+        {siteConfig.title}
+      </Heading>
+      <div className="mb-8 text-center">
+        <span className="text-lg text-orange-950 font-semibold">
+          Modern healthcare development platform. Built for{" "}
+          <span className="text-orange-600 ">performance</span> and{" "}
+          <span className="text-orange-600 ">scale</span>.
+        </span>
+      </div>
+      {/* <p className="hero__subtitle text--secondary">{siteConfig.tagline}</p> */}
+      <div className="flex justify-center items-center space-x-4">
+        <Link
+          className="button button--secondary button--lg  border"
+          to="/docs/intro"
         >
-          {siteConfig.title}
-        </Heading>
-        {/* <p className="hero__subtitle text--secondary">{siteConfig.tagline}</p> */}
-        <div className={styles.buttons}>
-          <Link
-            className="button button--secondary button--lg"
-            to="/docs/intro"
-          >
-            Tutorial - 5min ⏱️
-          </Link>
-        </div>
+          Getting Started - 5min ⏱️
+        </Link>
       </div>
     </header>
   );
 }
 
+function DescriptionColumn(props: { title: string; description: string }) {
+  return (
+    <div className="space-y-1">
+      <div className="text-2xl font-semibold underline">{props.title}</div>
+      <span className="text-sm">{props.description}</span>
+    </div>
+  );
+}
+
+let intervalId = null;
+
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
-  const [yValue, setYValue] = useState(0);
-  useEffect(() => {
-    window.addEventListener("scroll", () => {
-      setYValue(window.scrollY);
-    });
-  }, []);
+  // const [scrollPosition, setScrollPosition] = useState(0);
+  // const [curPosition, setCurPosition] = useState(0);
+
+  // useEffect(() => {
+  //   window.addEventListener("scroll", () => {
+  //     setScrollPosition(window.scrollY);
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   if (intervalId) clearInterval(intervalId);
+  //   intervalId = setInterval(() => {
+  //     setCurPosition((curPosition) => {
+  //       console.log("scroll", scrollPosition);
+
+  //       const nextPosition = scrollPosition / 6 + 45;
+  //       const rate = (nextPosition - curPosition) * 0.01;
+
+  //       return Math.max(Math.min(curPosition + rate, 150), 45);
+  //     });
+  //   }, 20);
+  // }, [scrollPosition]);
 
   return (
     <Layout
+      wrapperClassName="bg-orange-50"
       title={`Haste Health`}
       description="Description will go into a meta tag in <head />"
     >
-      <div
+      <div className="container mx-auto px-2 ">
+        {/* <div
+        className="bg-size-[250%]  md:bg-size-[190%] lg:bg-size-[160%] xl:bg-size-[140%]"
         style={{
-          backgroundImage: "url(/img/swift.jpeg)",
-          backgroundSize: "cover",
-          height: "40vh",
+          backgroundRepeat: "no-repeat",
+          backgroundImage: "url(/img/swift.png)",
+          height: "540px",
+          top: "35px",
           position: "absolute",
           width: "100%",
-          backgroundPosition: Math.min(yValue / 2 + 0, 100) + "% 0%",
-        }}
-      ></div>
-      {/* <div
-        style={{
-          backgroundImage: "url(/img/half_circle.jpg)",
-          backgroundSize: "cover",
-          top: "40vh",
-          position: "absolute",
-          width: "420px",
-          right: -75,
-          height: "900px",
-          backgroundPosition: "center",
+          zIndex: 0,
+          transform: "translateY(5%)",
+          backgroundPosition: curPosition + "% 0%",
+          aspectRatio: "2048 / 824.4",
         }}
       ></div> */}
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
-      </main>
-      <div style={{ height: "2000px" }}></div>
+
+        <HomepageHeader />
+        <main className="mt-12 z-1 text-orange-950">
+          <div id="tw-scope" className="mt-4">
+            <div className="space-y-20">
+              <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
+                <div className="space-y-2 p-6">
+                  <h3 className="text-5xl font-bold">
+                    Easily{" "}
+                    <span className="text-orange-600 underline">
+                      interoperate
+                    </span>{" "}
+                    with other healthcare systems
+                  </h3>
+                  <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-4 py-4">
+                    <DescriptionColumn
+                      title="FHIR"
+                      description="Built from the ground up to support the FHIR (Fast Healthcare Interoperability Resources) a modern, open standard created by HL7 to help healthcare systems securely exchange data."
+                    />
+                    <DescriptionColumn
+                      title="Hl7v2"
+                      description="Full interoperability with HL7 v2 messaging to integrate with legacy healthcare systems."
+                    />
+                  </div>
+                </div>
+                <div className="p-6 flex justify-center items-center  border border-slate-200 rounded-lg min-h-72">
+                  <div className="carousel basic">
+                    <div className="group">
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/epic.svg" />
+                      </div>
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/cerner.png" />
+                      </div>
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/athena-health.webp" />
+                      </div>
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/meditech.svg" />
+                      </div>
+                    </div>
+                    <div aria-hidden className="group">
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/epic.svg" className="w-full" />
+                      </div>
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/cerner.png" />
+                      </div>
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/athena-health.webp" />
+                      </div>
+                      <div className="carousel-card flex items-center justify-center">
+                        <img src="/img/meditech.svg" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
+                <div className="p-6 justify-center border border-slate-200 rounded-lg min-h-72 grid grid-cols-2">
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-4xl font-bold">
+                      {"<10"}
+                      <span className="text-sm">ms</span>
+                    </h3>
+                    <span>
+                      Average latency for updating/creating resources.
+                    </span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-4xl font-bold">
+                      {"20k"} <span className="text-sm">resources/second</span>
+                    </h3>
+                    <span>
+                      Throughput per instance in our load tests running on 10
+                      threads.
+                    </span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-4xl font-bold">
+                      {"<50"}
+                      <span className="text-sm">ms</span>
+                    </h3>
+                    <span>For most parameter/value search requests.</span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-4xl font-bold">
+                      {"<100"}
+                      <span className="text-sm">mb</span>
+                    </h3>
+                    <span>Memory usage for a single instance.</span>
+                  </div>
+                </div>
+                <div className="space-y-2 p-6">
+                  <h3 className="text-5xl font-bold">
+                    High performance with{" "}
+                    <span className="text-green-600">low latency</span> that can
+                    scale to millions of patients.
+                  </h3>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
+                <div className="space-y-2 p-6">
+                  <h3 className="text-5xl font-bold">
+                    Support for authentication with{" "}
+                    <span className="text-blue-600 underline">OIDC</span> and{" "}
+                    <span className="text-blue-600 underline">
+                      SMART on FHIR
+                    </span>
+                  </h3>
+                  <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 py-4">
+                    <DescriptionColumn
+                      title="Grants"
+                      description="Support for Authorization Code, Client Credentials, and Refresh Token grants."
+                    />
+                    <DescriptionColumn
+                      title="Federated login"
+                      description="Login with any identity provider that supports OIDC."
+                    />
+                    <DescriptionColumn
+                      title="Scopes"
+                      description="Request only the FHIR resource access you need with fine-grained scopes."
+                    />
+                  </div>
+                </div>
+                <div className="p-6  rounded-lg  ">
+                  <div className="grid grid-cols-2 gap-8 space-y-8 mt-4 py-4">
+                    <div className="flex justify-center items-center h-24">
+                      <img src="/img/okta.svg" className="h-full" />
+                    </div>
+                    <div className="flex justify-center items-center h-24">
+                      <img src="/img/azure.svg" className="h-full" />
+                    </div>
+                    <div className="flex justify-center items-center h-24">
+                      <img src="/img/auth0.svg" className="h-full" />
+                    </div>
+                    <div className="flex justify-center items-center h-24">
+                      <img src="/img/keycloak.png" className="h-full" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </Layout>
   );
 }
