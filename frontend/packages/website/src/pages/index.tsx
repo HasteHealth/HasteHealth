@@ -161,7 +161,7 @@ export default function Home(): ReactNode {
               </div>
 
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-                <div className="p-6 justify-center border border-slate-200 rounded-lg min-h-72 grid grid-cols-2">
+                <div className="p-6 justify-center border border-slate-200 rounded-lg min-h-72 grid grid-cols-2 gap-2">
                   <div className="flex flex-col space-y-1">
                     <h3 className="text-4xl font-bold">
                       {"<10"}
