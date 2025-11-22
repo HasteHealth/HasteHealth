@@ -1,6 +1,5 @@
-#![allow(unused)]
 use crate::fhir_client::{
-    FHIRServerClient, ServerCTX, ServerClientConfig,
+    ServerCTX,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
@@ -11,14 +10,11 @@ use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
-use haste_fhir_model::r4::generated::{
-    resources::{AccessPolicyV2, Resource},
-    terminology::IssueType,
-};
+use haste_fhir_model::r4::generated::resources::Resource;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, UserRole};
+use haste_jwt::UserRole;
 use haste_repository::Repository;
 use std::sync::Arc;
 
@@ -44,7 +40,7 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
+        context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {

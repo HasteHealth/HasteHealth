@@ -419,6 +419,7 @@ impl<
                 terminology: config.terminology,
             }),
             middleware: Middleware::new(vec![
+                Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
                 Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
                 Box::new(route_middleware),
                 Box::new(middleware::capabilities::Middleware::new()),
