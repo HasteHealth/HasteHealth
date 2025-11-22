@@ -122,7 +122,7 @@ export default function Home(): ReactNode {
                     />
                     <DescriptionColumn
                       title="Hl7v2"
-                      description="Full interoperability with HL7 v2 messaging to integrate with legacy healthcare systems."
+                      description="Full interoperability with HL7v2 messaging to integrate with legacy healthcare systems."
                     />
                   </div>
                 </div>
@@ -229,7 +229,7 @@ export default function Home(): ReactNode {
                   </div>
                 </div>
                 <div className="p-6  rounded-lg  ">
-                  <div className="grid grid-cols-2 gap-8 space-y-8 mt-4 py-4">
+                  <div className="grid grid-cols-2 gap-8 space-y-8">
                     <div className="flex justify-center items-center h-24">
                       <img src="/img/okta.svg" className="h-full" />
                     </div>
