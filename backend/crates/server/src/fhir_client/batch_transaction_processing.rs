@@ -244,7 +244,7 @@ fn get_resource_from_response<'a>(response: &'a FHIRResponse) -> Option<&'a Reso
     }
 }
 
-fn get_resource_type_from_fhir_request(request: &FHIRRequest) -> Option<ResourceType> {
+pub fn get_resource_type_from_fhir_request(request: &FHIRRequest) -> Option<ResourceType> {
     match request {
         FHIRRequest::Create(req) => Some(req.resource_type.clone()),
         FHIRRequest::Read(req) => Some(req.resource_type.clone()),
