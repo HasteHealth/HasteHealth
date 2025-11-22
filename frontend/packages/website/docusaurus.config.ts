@@ -88,7 +88,7 @@ const config: Config = {
   themeConfig: {
     colorMode: {
       defaultMode: "light",
-      disableSwitch: false,
+      disableSwitch: true,
       respectPrefersColorScheme: false,
     },
     navbar: {
@@ -107,7 +107,8 @@ const config: Config = {
         { to: "/blog", label: "Blog", position: "left" },
         {
           href: "https://github.com/hastehealth/hastehealth",
-          label: "GitHub",
+          "aria-label": "GitHub repository",
+          className: "header-github-link",
           position: "right",
         },
       ],
