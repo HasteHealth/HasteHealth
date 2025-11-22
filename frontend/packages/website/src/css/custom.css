@@ -1,3 +1,15 @@
+@import "tailwindcss/theme.css" layer(theme);
+
+@layer base {
+  #tw-scope {
+    @import "tailwindcss/preflight.css" layer(base);
+  }
+}
+
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@custom-variant dark (&:is([data-theme="dark"] *));
+
 /**
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
@@ -15,6 +27,9 @@
   --ifm-color-primary-lightest: oklch(90.1% 0.076 70.697);
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  background-color: var(--color-orange-50);
+  font-family: var(--ifm-heading-font-family);
+  color: var(--color-orange-950);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -27,4 +42,61 @@
   --ifm-color-primary-lighter: oklch(83.7% 0.128 66.29);
   --ifm-color-primary-lightest: oklch(90.1% 0.076 70.697);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+
+.carousel {
+  margin: 0 auto;
+  padding: 20px 0;
+  max-width: 700px;
+  overflow: hidden;
+  display: flex;
+   > * {
+      flex: 0 0 100%;
+    }
+   &:hover .group {
+      animation-play-state: paused;
+    }
+}
+.group {
+  display: flex;
+  gap: 20px;
+  /* Add padding to the right to create a gap between the last and first card. */
+  padding-right: 20px;
+  /* ... */
+    will-change: transform; /* We should be nice to the browser - let it know what we're going to animate. */
+    animation: scrolling 20s linear infinite;
+}
+
+@keyframes scrolling {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+.carousel-card {
+  width: 250px;
+  color: white;
+  border-radius: 24px;
+  box-shadow: rgba(0, 0, 0, 10%) 5px 5px 20px 0;
+  padding: 20px;
+  font-size: xx-large;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+
+  /* &:nth-child(1) {
+    background: #7958ff;
+  }
+
+  &:nth-child(2) {
+    background: #5d34f2;
+  }
+
+  &:nth-child(3) {
+    background: #4300da;
+  } */
 }
