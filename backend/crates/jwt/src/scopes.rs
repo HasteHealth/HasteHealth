@@ -137,12 +137,31 @@ impl TryFrom<&str> for SmartResourceScopeLevel {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct SmartResourceScopePermissions {
-    pub create: bool,
-    pub read: bool,
-    pub update: bool,
-    pub delete: bool,
-    pub search: bool,
+pub enum SmartResourceScopePermission {
+    Create,
+    Read,
+    Update,
+    Delete,
+    Search,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct SmartResourceScopePermissions(Vec<SmartResourceScopePermission>);
+
+impl SmartResourceScopePermissions {
+    pub fn new(permissions: Vec<SmartResourceScopePermission>) -> Self {
+        Self(permissions)
+    }
+
+    pub fn has_permission(&self, permission: &SmartResourceScopePermission) -> bool {
+        self.0.contains(permission)
+    }
+
+    pub fn add_permission(&mut self, permission: SmartResourceScopePermission) {
+        if !self.has_permission(&permission) {
+            self.0.push(permission);
+        }
+    }
 }
 
 static SMART_RESOURCE_SCOPE_PERMISSION_ORDER: &[char] = &['c', 'r', 'u', 'd', 's'];
@@ -152,35 +171,24 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
-            "*" => Ok(SmartResourceScopePermissions {
-                create: true,
-                read: true,
-                update: true,
-                delete: true,
-                search: true,
-            }),
-            "write" => Ok(SmartResourceScopePermissions {
-                create: true,
-                update: true,
-                delete: true,
-                read: false,
-                search: false,
-            }),
-            "read" => Ok(SmartResourceScopePermissions {
-                read: true,
-                search: true,
-                create: false,
-                update: false,
-                delete: false,
-            }),
+            "*" => Ok(SmartResourceScopePermissions::new(vec![
+                SmartResourceScopePermission::Create,
+                SmartResourceScopePermission::Read,
+                SmartResourceScopePermission::Update,
+                SmartResourceScopePermission::Delete,
+                SmartResourceScopePermission::Search,
+            ])),
+            "write" => Ok(SmartResourceScopePermissions::new(vec![
+                SmartResourceScopePermission::Create,
+                SmartResourceScopePermission::Update,
+                SmartResourceScopePermission::Delete,
+            ])),
+            "read" => Ok(SmartResourceScopePermissions::new(vec![
+                SmartResourceScopePermission::Read,
+                SmartResourceScopePermission::Search,
+            ])),
             methods => {
-                let mut methods_obj = SmartResourceScopePermissions {
-                    create: false,
-                    read: false,
-                    update: false,
-                    delete: false,
-                    search: false,
-                };
+                let mut methods_obj = SmartResourceScopePermissions::new(vec![]);
 
                 // Scope requests with undefined or out of order interactions MAY be ignored, replaced with server default scopes, or rejected.
                 // per [https://build.fhir.org/ig/HL7/smart-app-launch/scopes-and-launch-context.html#scopes-for-requesting-fhir-resources].
@@ -208,7 +216,7 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
                          * Type level create
                          */
                         'c' => {
-                            methods_obj.create = true;
+                            methods_obj.add_permission(SmartResourceScopePermission::Create);
                         }
                         /*
                          * Instance level read
@@ -216,7 +224,7 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
                          * Instance level history
                          */
                         'r' => {
-                            methods_obj.read = true;
+                            methods_obj.add_permission(SmartResourceScopePermission::Read);
                         }
                         /*
                          * Instance level update Note that some servers allow for an update operation to create a new instance,
@@ -224,13 +232,13 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
                          * Instance level patch
                          */
                         'u' => {
-                            methods_obj.update = true;
+                            methods_obj.add_permission(SmartResourceScopePermission::Update);
                         }
                         /*
                          * Instance level delete
                          */
                         'd' => {
-                            methods_obj.delete = true;
+                            methods_obj.add_permission(SmartResourceScopePermission::Delete);
                         }
                         /*
                          * Type level search
@@ -239,7 +247,7 @@ impl TryFrom<&str> for SmartResourceScopePermissions {
                          * System level history
                          */
                         's' => {
-                            methods_obj.search = true;
+                            methods_obj.add_permission(SmartResourceScopePermission::Search);
                         }
                         _ => {}
                     }
@@ -273,19 +281,34 @@ impl From<SMARTResourceScope> for String {
         };
 
         let mut permissions_str = String::new();
-        if value.permissions.create {
+        if value
+            .permissions
+            .has_permission(&SmartResourceScopePermission::Create)
+        {
             permissions_str.push('c');
         }
-        if value.permissions.read {
+        if value
+            .permissions
+            .has_permission(&SmartResourceScopePermission::Read)
+        {
             permissions_str.push('r');
         }
-        if value.permissions.update {
+        if value
+            .permissions
+            .has_permission(&SmartResourceScopePermission::Update)
+        {
             permissions_str.push('u');
         }
-        if value.permissions.delete {
+        if value
+            .permissions
+            .has_permission(&SmartResourceScopePermission::Delete)
+        {
             permissions_str.push('d');
         }
-        if value.permissions.search {
+        if value
+            .permissions
+            .has_permission(&SmartResourceScopePermission::Search)
+        {
             permissions_str.push('s');
         }
 
@@ -477,13 +500,13 @@ mod tests {
                 Scope::SMART(SmartScope::Resource(SMARTResourceScope {
                     user: SmartResourceScopeUser::User,
                     level: SmartResourceScopeLevel::AllResources,
-                    permissions: SmartResourceScopePermissions {
-                        create: true,
-                        read: true,
-                        update: true,
-                        delete: true,
-                        search: true,
-                    },
+                    permissions: SmartResourceScopePermissions::new(vec![
+                        SmartResourceScopePermission::Create,
+                        SmartResourceScopePermission::Read,
+                        SmartResourceScopePermission::Update,
+                        SmartResourceScopePermission::Delete,
+                        SmartResourceScopePermission::Search,
+                    ])
                 })),
             ]),
         );
@@ -497,13 +520,11 @@ mod tests {
                 Scope::SMART(SmartScope::Resource(SMARTResourceScope {
                     user: SmartResourceScopeUser::System,
                     level: SmartResourceScopeLevel::ResourceType(ResourceType::Patient),
-                    permissions: SmartResourceScopePermissions {
-                        create: true,
-                        read: false,
-                        update: true,
-                        delete: true,
-                        search: false,
-                    },
+                    permissions: SmartResourceScopePermissions::new(vec![
+                        SmartResourceScopePermission::Create,
+                        SmartResourceScopePermission::Update,
+                        SmartResourceScopePermission::Delete,
+                    ])
                 })),
             ]),
         );

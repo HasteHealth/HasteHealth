@@ -24,8 +24,8 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
     scopes::{
-        SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermissions,
-        SmartResourceScopeUser, SmartScope,
+        SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
+        SmartResourceScopePermissions, SmartResourceScopeUser, SmartScope,
     },
 };
 use haste_repository::{Repository, types::SupportedFHIRVersions};
@@ -110,13 +110,13 @@ impl<
                     SMARTResourceScope {
                         user: SmartResourceScopeUser::System,
                         level: SmartResourceScopeLevel::AllResources,
-                        permissions: SmartResourceScopePermissions {
-                            create: true,
-                            read: true,
-                            update: true,
-                            delete: true,
-                            search: true,
-                        },
+                        permissions: SmartResourceScopePermissions::new(vec![
+                            SmartResourceScopePermission::Create,
+                            SmartResourceScopePermission::Read,
+                            SmartResourceScopePermission::Update,
+                            SmartResourceScopePermission::Delete,
+                            SmartResourceScopePermission::Search,
+                        ]),
                     },
                 ))]),
                 user_id: AuthorId::System,
@@ -419,7 +419,7 @@ impl<
                 terminology: config.terminology,
             }),
             middleware: Middleware::new(vec![
-                Box::new(middleware::access_control::AccessControlMiddleware::new()),
+                Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
                 Box::new(route_middleware),
                 Box::new(middleware::capabilities::Middleware::new()),
             ]),
