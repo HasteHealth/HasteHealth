@@ -54,7 +54,7 @@ function DescriptionColumn(props: { title: string; description: string }) {
 function CarouselCard(props: { onClick?: () => void; children?: ReactNode }) {
   return (
     <div
-      className="carousel-card cursor-pointer flex items-center justify-center hover:underline hover:text-orange-500"
+      className="carousel-card cursor-pointer flex items-center justify-center "
       onClick={props.onClick}
     >
       {props.children}
@@ -98,17 +98,49 @@ export default function Home(): ReactNode {
                 </div>
                 <div className="p-6 flex justify-center items-center  border border-slate-200 rounded-lg min-h-72">
                   <div className="carousel basic">
-                    <div className="group text-orange-950 font-bold text-3xl">
-                      <CarouselCard>Epic</CarouselCard>
-                      <CarouselCard>Cerner</CarouselCard>
-                      <CarouselCard>Athenahealth</CarouselCard>
-                      <CarouselCard>Meditech</CarouselCard>
+                    <div className="group font-bold text-3xl">
+                      <CarouselCard>
+                        <span className="text-red-600 hover:underline ">
+                          Epic
+                        </span>
+                      </CarouselCard>
+                      <CarouselCard>
+                        <span className="text-blue-600  hover:underline ">
+                          Cerner
+                        </span>
+                      </CarouselCard>
+                      <CarouselCard>
+                        <span className="text-slate-700 hover:underline ">
+                          Athenahealth
+                        </span>
+                      </CarouselCard>
+                      <CarouselCard>
+                        <span className="text-green-600 hover:underline ">
+                          Meditech
+                        </span>
+                      </CarouselCard>
                     </div>
-                    <div className="group text-orange-950 font-bold text-3xl">
-                      <CarouselCard>Epic</CarouselCard>
-                      <CarouselCard>Cerner</CarouselCard>
-                      <CarouselCard>Athenahealth</CarouselCard>
-                      <CarouselCard>Meditech</CarouselCard>
+                    <div className="group  font-bold text-3xl">
+                      <CarouselCard>
+                        <span className="text-red-600 hover:underline ">
+                          Epic
+                        </span>
+                      </CarouselCard>
+                      <CarouselCard>
+                        <span className="text-blue-600 hover:underline ">
+                          Cerner
+                        </span>
+                      </CarouselCard>
+                      <CarouselCard>
+                        <span className="text-slate-700 hover:underline ">
+                          Athenahealth
+                        </span>
+                      </CarouselCard>
+                      <CarouselCard>
+                        <span className="text-green-600 hover:underline ">
+                          Meditech
+                        </span>
+                      </CarouselCard>
                     </div>
                   </div>
                 </div>
