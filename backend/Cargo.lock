@@ -1612,6 +1612,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-hl7v2"
+version = "0.1.0"
+dependencies = [
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+]
+
+[[package]]
 name = "haste-indexing-worker"
 version = "0.1.0"
 dependencies = [

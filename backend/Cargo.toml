@@ -26,6 +26,7 @@ members = [
     "crates/fhir-serialization-json-derive",
     "crates/fhir-terminology",
     "crates/fhirpath",
+    "crates/hl7v2",
     "crates/indexing-worker",
     "crates/jwt",
     "crates/macro-loads",

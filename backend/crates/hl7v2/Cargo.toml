@@ -1,0 +1,8 @@
+[package]
+name = "haste-hl7v2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+haste-fhir-operation-error = { path = "../fhir-operation-error" }
+haste-fhir-model = { path = "../fhir-model" }
