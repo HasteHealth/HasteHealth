@@ -100,12 +100,12 @@ export default function Home(): ReactNode {
                   <div className="carousel basic">
                     <div className="group font-bold text-3xl">
                       <CarouselCard>
-                        <span className="text-red-600 hover:underline ">
+                        <span className="text-rose-600 hover:underline ">
                           Epic
                         </span>
                       </CarouselCard>
                       <CarouselCard>
-                        <span className="text-blue-600  hover:underline ">
+                        <span className="text-sky-600  hover:underline ">
                           Cerner
                         </span>
                       </CarouselCard>
@@ -115,19 +115,19 @@ export default function Home(): ReactNode {
                         </span>
                       </CarouselCard>
                       <CarouselCard>
-                        <span className="text-green-600 hover:underline ">
+                        <span className="text-emerald-600 hover:underline ">
                           Meditech
                         </span>
                       </CarouselCard>
                     </div>
                     <div className="group  font-bold text-3xl">
                       <CarouselCard>
-                        <span className="text-red-600 hover:underline ">
+                        <span className="text-rose-600 hover:underline ">
                           Epic
                         </span>
                       </CarouselCard>
                       <CarouselCard>
-                        <span className="text-blue-600 hover:underline ">
+                        <span className="text-sky-600 hover:underline ">
                           Cerner
                         </span>
                       </CarouselCard>
@@ -137,7 +137,7 @@ export default function Home(): ReactNode {
                         </span>
                       </CarouselCard>
                       <CarouselCard>
-                        <span className="text-green-600 hover:underline ">
+                        <span className="text-emerald-600 hover:underline ">
                           Meditech
                         </span>
                       </CarouselCard>
