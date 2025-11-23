@@ -4,7 +4,6 @@ import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
-import HomepageFeatures from "@site/src/components/HomepageFeatures";
 import Heading from "@theme/Heading";
 
 import styles from "./index.module.css";
@@ -52,32 +51,19 @@ function DescriptionColumn(props: { title: string; description: string }) {
   );
 }
 
-let intervalId = null;
+function CarouselCard(props: { onClick?: () => void; children?: ReactNode }) {
+  return (
+    <div
+      className="carousel-card cursor-pointer flex items-center justify-center hover:underline hover:text-orange-500"
+      onClick={props.onClick}
+    >
+      {props.children}
+    </div>
+  );
+}
 
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
-  // const [scrollPosition, setScrollPosition] = useState(0);
-  // const [curPosition, setCurPosition] = useState(0);
-
-  // useEffect(() => {
-  //   window.addEventListener("scroll", () => {
-  //     setScrollPosition(window.scrollY);
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   if (intervalId) clearInterval(intervalId);
-  //   intervalId = setInterval(() => {
-  //     setCurPosition((curPosition) => {
-  //       console.log("scroll", scrollPosition);
-
-  //       const nextPosition = scrollPosition / 6 + 45;
-  //       const rate = (nextPosition - curPosition) * 0.01;
-
-  //       return Math.max(Math.min(curPosition + rate, 150), 45);
-  //     });
-  //   }, 20);
-  // }, [scrollPosition]);
 
   return (
     <Layout
@@ -86,22 +72,6 @@ export default function Home(): ReactNode {
       description="Description will go into a meta tag in <head />"
     >
       <div className="container mx-auto px-2 ">
-        {/* <div
-        className="bg-size-[250%]  md:bg-size-[190%] lg:bg-size-[160%] xl:bg-size-[140%]"
-        style={{
-          backgroundRepeat: "no-repeat",
-          backgroundImage: "url(/img/swift.png)",
-          height: "540px",
-          top: "35px",
-          position: "absolute",
-          width: "100%",
-          zIndex: 0,
-          transform: "translateY(5%)",
-          backgroundPosition: curPosition + "% 0%",
-          aspectRatio: "2048 / 824.4",
-        }}
-      ></div> */}
-
         <HomepageHeader />
         <main className="mt-12 z-1 text-orange-950">
           <div id="tw-scope" className="mt-4">
@@ -128,33 +98,17 @@ export default function Home(): ReactNode {
                 </div>
                 <div className="p-6 flex justify-center items-center  border border-slate-200 rounded-lg min-h-72">
                   <div className="carousel basic">
-                    <div className="group">
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/epic.svg" />
-                      </div>
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/cerner.png" />
-                      </div>
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/athena-health.webp" />
-                      </div>
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/meditech.svg" />
-                      </div>
+                    <div className="group text-orange-950 font-bold text-3xl">
+                      <CarouselCard>Epic</CarouselCard>
+                      <CarouselCard>Cerner</CarouselCard>
+                      <CarouselCard>Athenahealth</CarouselCard>
+                      <CarouselCard>Meditech</CarouselCard>
                     </div>
-                    <div aria-hidden className="group">
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/epic.svg" className="w-full" />
-                      </div>
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/cerner.png" />
-                      </div>
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/athena-health.webp" />
-                      </div>
-                      <div className="carousel-card flex items-center justify-center">
-                        <img src="/img/meditech.svg" />
-                      </div>
+                    <div className="group text-orange-950 font-bold text-3xl">
+                      <CarouselCard>Epic</CarouselCard>
+                      <CarouselCard>Cerner</CarouselCard>
+                      <CarouselCard>Athenahealth</CarouselCard>
+                      <CarouselCard>Meditech</CarouselCard>
                     </div>
                   </div>
                 </div>
