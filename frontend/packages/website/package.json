@@ -29,6 +29,7 @@
 		"@docusaurus/tsconfig": "3.9.2",
 		"@docusaurus/types": "3.9.2",
 		"@haste-health/artifacts": "workspace:^",
+		"@haste-health/codegen": "workspace:^",
 		"@haste-health/fhir-types": "workspace:^",
 		"@haste-health/hl7.fhir.r4.core": "workspace:^",
 		"@tailwindcss/postcss": "^4.1.17",

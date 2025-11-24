@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 
 import { loadArtifacts } from "@haste-health/artifacts";
 import { R4 } from "@haste-health/fhir-types/versions";
+import { sdTraversal } from "@haste-health/codegen";
 
 const r4Artifacts = ["StructureDefinition", "SearchParameter"]
   .map((resourceType) =>
@@ -15,6 +16,12 @@ const r4Artifacts = ["StructureDefinition", "SearchParameter"]
     })
   )
   .flat();
+
+function generateProperties(sd) {
+  return sdTraversal.traversalBottomUp(sd, (element, nestedElements) => {
+    return `<StructureDefinitionDisplay sd={${JSON.stringify(sd)}} />`;
+  });
+}
 
 function escapeCharacters(v) {
   return v
@@ -62,6 +69,7 @@ tags:
 
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
 
 # ${structureDefinition.name}\n
 ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
@@ -79,21 +87,9 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
   </script>
 </head>
 
-${metaProperties(structureDefinition)}\n
   `;
-  doc = `${doc} ## Structure\n
-   | Path | Cardinality | Type | Description
-  | ---- | ----------- | ---- | -------  \n`;
-  for (const element of structureDefinition.snapshot?.element || []) {
-    const path = element.path;
-    const min = element.min;
-    const max = element.max;
-    const type = element.type?.[0]?.code;
-    const description = escapeCharacters(element.definition);
-    doc = `${doc} | ${path} | ${min}..${max} | ${
-      type ? type : structureDefinition.name
-    } | ${description} \n`;
-  }
+  doc = `${doc}
+  ${generateProperties(structureDefinition)}`;
 
   doc = `${doc}\n`;
 
