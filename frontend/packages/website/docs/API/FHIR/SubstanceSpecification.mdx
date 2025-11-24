@@ -1,0 +1,177 @@
+---
+id: SubstanceSpecification
+title: SubstanceSpecification
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# SubstanceSpecification
+
+The detailed description of a substance, typically at a level beyond what is used for prescribing.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|SubstanceSpecification|
+|URL|http://hl7.org/fhir/StructureDefinition/SubstanceSpecification|
+|Status|draft|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | SubstanceSpecification | 0..* | SubstanceSpecification | The detailed description of a substance, typically at a level beyond what is used for prescribing. 
+ | SubstanceSpecification.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | SubstanceSpecification.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | SubstanceSpecification.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | SubstanceSpecification.language | 0..1 | code | The base language in which the resource is written. 
+ | SubstanceSpecification.text | 0..1 | Narrative | A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety. 
+ | SubstanceSpecification.contained | 0..* | Resource | These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope. 
+ | SubstanceSpecification.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.identifier | 0..1 | Identifier | Identifier by which this substance is known. 
+ | SubstanceSpecification.type | 0..1 | CodeableConcept | High level categorization, e.g. polymer or nucleic acid. 
+ | SubstanceSpecification.status | 0..1 | CodeableConcept | Status of substance within the catalogue e.g. approved. 
+ | SubstanceSpecification.domain | 0..1 | CodeableConcept | If the substance applies to only human or veterinary use. 
+ | SubstanceSpecification.description | 0..1 | string | Textual description of the substance. 
+ | SubstanceSpecification.source | 0..* | Reference | Supporting literature. 
+ | SubstanceSpecification.comment | 0..1 | string | Textual comment about this record of a substance. 
+ | SubstanceSpecification.moiety | 0..* | BackboneElement | Moiety, for structural modifications. 
+ | SubstanceSpecification.moiety.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.moiety.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.moiety.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.moiety.role | 0..1 | CodeableConcept | Role that the moiety is playing. 
+ | SubstanceSpecification.moiety.identifier | 0..1 | Identifier | Identifier by which this moiety substance is known. 
+ | SubstanceSpecification.moiety.name | 0..1 | string | Textual name for this moiety substance. 
+ | SubstanceSpecification.moiety.stereochemistry | 0..1 | CodeableConcept | Stereochemistry type. 
+ | SubstanceSpecification.moiety.opticalActivity | 0..1 | CodeableConcept | Optical activity type. 
+ | SubstanceSpecification.moiety.molecularFormula | 0..1 | string | Molecular formula. 
+ | SubstanceSpecification.moiety.amount[x] | 0..1 | Quantity | Quantitative value for this moiety. 
+ | SubstanceSpecification.property | 0..* | BackboneElement | General specifications for this substance, including how it is related to other substances. 
+ | SubstanceSpecification.property.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.property.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.property.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.property.category | 0..1 | CodeableConcept | A category for this property, e.g. Physical, Chemical, Enzymatic. 
+ | SubstanceSpecification.property.code | 0..1 | CodeableConcept | Property type e.g. viscosity, pH, isoelectric point. 
+ | SubstanceSpecification.property.parameters | 0..1 | string | Parameters that were used in the measurement of a property (e.g. for viscosity: measured at 20C with a pH of 7.1). 
+ | SubstanceSpecification.property.definingSubstance[x] | 0..1 | Reference | A substance upon which a defining property depends (e.g. for solubility: in water, in alcohol). 
+ | SubstanceSpecification.property.amount[x] | 0..1 | Quantity | Quantitative value for this property. 
+ | SubstanceSpecification.referenceInformation | 0..1 | Reference | General information detailing this substance. 
+ | SubstanceSpecification.structure | 0..1 | BackboneElement | Structural information. 
+ | SubstanceSpecification.structure.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.structure.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.structure.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.structure.stereochemistry | 0..1 | CodeableConcept | Stereochemistry type. 
+ | SubstanceSpecification.structure.opticalActivity | 0..1 | CodeableConcept | Optical activity type. 
+ | SubstanceSpecification.structure.molecularFormula | 0..1 | string | Molecular formula. 
+ | SubstanceSpecification.structure.molecularFormulaByMoiety | 0..1 | string | Specified per moiety according to the Hill system, i.e. first C, then H, then alphabetical, each moiety separated by a dot. 
+ | SubstanceSpecification.structure.isotope | 0..* | BackboneElement | Applicable for single substances that contain a radionuclide or a non-natural isotopic ratio. 
+ | SubstanceSpecification.structure.isotope.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.structure.isotope.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.structure.isotope.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.structure.isotope.identifier | 0..1 | Identifier | Substance identifier for each non-natural or radioisotope. 
+ | SubstanceSpecification.structure.isotope.name | 0..1 | CodeableConcept | Substance name for each non-natural or radioisotope. 
+ | SubstanceSpecification.structure.isotope.substitution | 0..1 | CodeableConcept | The type of isotopic substitution present in a single substance. 
+ | SubstanceSpecification.structure.isotope.halfLife | 0..1 | Quantity | Half life - for a non-natural nuclide. 
+ | SubstanceSpecification.structure.isotope.molecularWeight | 0..1 | BackboneElement | The molecular weight or weight range (for proteins, polymers or nucleic acids). 
+ | SubstanceSpecification.structure.isotope.molecularWeight.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.structure.isotope.molecularWeight.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.structure.isotope.molecularWeight.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.structure.isotope.molecularWeight.method | 0..1 | CodeableConcept | The method by which the molecular weight was determined. 
+ | SubstanceSpecification.structure.isotope.molecularWeight.type | 0..1 | CodeableConcept | Type of molecular weight such as exact, average (also known as. number average), weight average. 
+ | SubstanceSpecification.structure.isotope.molecularWeight.amount | 0..1 | Quantity | Used to capture quantitative values for a variety of elements. If only limits are given, the arithmetic mean would be the average. If only a single definite value for a given element is given, it would be captured in this field. 
+ | SubstanceSpecification.structure.molecularWeight | 0..1 | SubstanceSpecification | The molecular weight or weight range (for proteins, polymers or nucleic acids). 
+ | SubstanceSpecification.structure.source | 0..* | Reference | Supporting literature. 
+ | SubstanceSpecification.structure.representation | 0..* | BackboneElement | Molecular structural representation. 
+ | SubstanceSpecification.structure.representation.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.structure.representation.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.structure.representation.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.structure.representation.type | 0..1 | CodeableConcept | The type of structure (e.g. Full, Partial, Representative). 
+ | SubstanceSpecification.structure.representation.representation | 0..1 | string | The structural representation as text string in a format e.g. InChI, SMILES, MOLFILE, CDX. 
+ | SubstanceSpecification.structure.representation.attachment | 0..1 | Attachment | An attached file with the structural representation. 
+ | SubstanceSpecification.code | 0..* | BackboneElement | Codes associated with the substance. 
+ | SubstanceSpecification.code.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.code.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.code.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.code.code | 0..1 | CodeableConcept | The specific code. 
+ | SubstanceSpecification.code.status | 0..1 | CodeableConcept | Status of the code assignment. 
+ | SubstanceSpecification.code.statusDate | 0..1 | dateTime | The date at which the code status is changed as part of the terminology maintenance. 
+ | SubstanceSpecification.code.comment | 0..1 | string | Any comment can be provided in this field, if necessary. 
+ | SubstanceSpecification.code.source | 0..* | Reference | Supporting literature. 
+ | SubstanceSpecification.name | 0..* | BackboneElement | Names applicable to this substance. 
+ | SubstanceSpecification.name.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.name.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.name.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.name.name | 1..1 | string | The actual name. 
+ | SubstanceSpecification.name.type | 0..1 | CodeableConcept | Name type. 
+ | SubstanceSpecification.name.status | 0..1 | CodeableConcept | The status of the name. 
+ | SubstanceSpecification.name.preferred | 0..1 | boolean | If this is the preferred name for this substance. 
+ | SubstanceSpecification.name.language | 0..* | CodeableConcept | Language of the name. 
+ | SubstanceSpecification.name.domain | 0..* | CodeableConcept | The use context of this name for example if there is a different name a drug active ingredient as opposed to a food colour additive. 
+ | SubstanceSpecification.name.jurisdiction | 0..* | CodeableConcept | The jurisdiction where this name applies. 
+ | SubstanceSpecification.name.synonym | 0..* | SubstanceSpecification | A synonym of this name. 
+ | SubstanceSpecification.name.translation | 0..* | SubstanceSpecification | A translation for this name. 
+ | SubstanceSpecification.name.official | 0..* | BackboneElement | Details of the official nature of this name. 
+ | SubstanceSpecification.name.official.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.name.official.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.name.official.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.name.official.authority | 0..1 | CodeableConcept | Which authority uses this official name. 
+ | SubstanceSpecification.name.official.status | 0..1 | CodeableConcept | The status of the official name. 
+ | SubstanceSpecification.name.official.date | 0..1 | dateTime | Date of official name change. 
+ | SubstanceSpecification.name.source | 0..* | Reference | Supporting literature. 
+ | SubstanceSpecification.molecularWeight | 0..* | SubstanceSpecification | The molecular weight or weight range (for proteins, polymers or nucleic acids). 
+ | SubstanceSpecification.relationship | 0..* | BackboneElement | A link between this substance and another, with details of the relationship. 
+ | SubstanceSpecification.relationship.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | SubstanceSpecification.relationship.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | SubstanceSpecification.relationship.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | SubstanceSpecification.relationship.substance[x] | 0..1 | Reference | A pointer to another substance, as a resource or just a representational code. 
+ | SubstanceSpecification.relationship.relationship | 0..1 | CodeableConcept | For example "salt to parent", "active moiety", "starting material". 
+ | SubstanceSpecification.relationship.isDefining | 0..1 | boolean | For example where an enzyme strongly bonds with a particular substance, this is a defining relationship for that enzyme, out of several possible substance relationships. 
+ | SubstanceSpecification.relationship.amount[x] | 0..1 | Quantity | A numeric factor for the relationship, for instance to express that the salt of a substance has some percentage of the active substance in relation to some other. 
+ | SubstanceSpecification.relationship.amountRatioLowLimit | 0..1 | Ratio | For use when the numeric. 
+ | SubstanceSpecification.relationship.amountType | 0..1 | CodeableConcept | An operator for the amount, for example "average", "approximately", "less than". 
+ | SubstanceSpecification.relationship.source | 0..* | Reference | Supporting literature. 
+ | SubstanceSpecification.nucleicAcid | 0..1 | Reference | Data items specific to nucleic acids. 
+ | SubstanceSpecification.polymer | 0..1 | Reference | Data items specific to polymers. 
+ | SubstanceSpecification.protein | 0..1 | Reference | Data items specific to proteins. 
+ | SubstanceSpecification.sourceMaterial | 0..1 | Reference | Material or taxonomic/anatomical source for the substance. 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | code | token | The specific code | SubstanceSpecification.code.code  
+
+

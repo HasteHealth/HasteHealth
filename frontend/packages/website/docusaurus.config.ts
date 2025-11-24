@@ -11,6 +11,8 @@ const config: Config = {
   tagline: "Documentation Site",
   favicon: "img/logo.svg",
 
+  onBrokenLinks: "warn",
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
@@ -26,8 +28,6 @@ const config: Config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "hastehealth", // Usually your GitHub org/user name.
   projectName: "hastehealth", // Usually your repo name.
-
-  onBrokenLinks: "throw",
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you

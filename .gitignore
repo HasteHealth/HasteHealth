@@ -17,13 +17,8 @@ frontend/**/coverage
 
 storybook-static
 
-frontend/.yarn/*
-!frontend/.yarn/patches
-!frontend/.yarn/plugins
-!frontend/.yarn/releases
-!frontend/.yarn/sdks
-!frontend/.yarn/versions
-!frontend/.yarn/cache
+frontend/.yarn/install-state.gz
+frontend/packages/website/.yarn
 
 frontend/.pnp.*
 

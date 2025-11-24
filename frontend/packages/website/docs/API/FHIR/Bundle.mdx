@@ -1,0 +1,114 @@
+---
+id: Bundle
+title: Bundle
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# Bundle
+
+A container for a collection of resources.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|Bundle|
+|URL|http://hl7.org/fhir/StructureDefinition/Bundle|
+|Status|active|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | Bundle | 0..* | Bundle | A container for a collection of resources. 
+ | Bundle.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | Bundle.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | Bundle.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | Bundle.language | 0..1 | code | The base language in which the resource is written. 
+ | Bundle.identifier | 0..1 | Identifier | A persistent identifier for the bundle that won't change as a bundle is copied from server to server. 
+ | Bundle.type | 1..1 | code | Indicates the purpose of this bundle - how it is intended to be used. 
+ | Bundle.timestamp | 0..1 | instant | The date/time that the bundle was assembled - i.e. when the resources were placed in the bundle. 
+ | Bundle.total | 0..1 | unsignedInt | If a set of search matches, this is the total number of entries of type 'match' across all pages in the search.  It does not include search.mode = 'include' or 'outcome' entries and it does not provide a count of the number of entries in the Bundle. 
+ | Bundle.link | 0..* | BackboneElement | A series of links that provide context to this bundle. 
+ | Bundle.link.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Bundle.link.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Bundle.link.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Bundle.link.relation | 1..1 | string | A name which details the functional use for this link - see [http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1). 
+ | Bundle.link.url | 1..1 | uri | The reference details for the link. 
+ | Bundle.entry | 0..* | BackboneElement | An entry in a bundle resource - will either contain a resource or information about a resource (transactions and history only). 
+ | Bundle.entry.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Bundle.entry.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Bundle.entry.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Bundle.entry.link | 0..* | Bundle | A series of links that provide context to this entry. 
+ | Bundle.entry.fullUrl | 0..1 | uri | The Absolute URL for the resource.  The fullUrl SHALL NOT disagree with the id in the resource - i.e. if the fullUrl is not a urn:uuid, the URL shall be version-independent URL consistent with the Resource.id. The fullUrl is a version independent reference to the resource. The fullUrl element SHALL have a value except that: * fullUrl can be empty on a POST (although it does not need to when specifying a temporary id for reference in the bundle)* Results from operations might involve resources that are not identified. 
+ | Bundle.entry.resource | 0..1 | Resource | The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type. 
+ | Bundle.entry.search | 0..1 | BackboneElement | Information about the search process that lead to the creation of this entry. 
+ | Bundle.entry.search.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Bundle.entry.search.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Bundle.entry.search.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Bundle.entry.search.mode | 0..1 | code | Why this entry is in the result set - whether it's included as a match or because of an _include requirement, or to convey information or warning information about the search process. 
+ | Bundle.entry.search.score | 0..1 | decimal | When searching, the server's search ranking score for the entry. 
+ | Bundle.entry.request | 0..1 | BackboneElement | Additional information about how this entry should be processed as part of a transaction or batch.  For history, it shows how the entry was processed to create the version contained in the entry. 
+ | Bundle.entry.request.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Bundle.entry.request.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Bundle.entry.request.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Bundle.entry.request.method | 1..1 | code | In a transaction or batch, this is the HTTP action to be executed for this entry. In a history bundle, this indicates the HTTP action that occurred. 
+ | Bundle.entry.request.url | 1..1 | uri | The URL for this entry, relative to the root (the address to which the request is posted). 
+ | Bundle.entry.request.ifNoneMatch | 0..1 | string | If the ETag values match, return a 304 Not Modified status. See the API documentation for ["Conditional Read"](http.html#cread). 
+ | Bundle.entry.request.ifModifiedSince | 0..1 | instant | Only perform the operation if the last updated date matches. See the API documentation for ["Conditional Read"](http.html#cread). 
+ | Bundle.entry.request.ifMatch | 0..1 | string | Only perform the operation if the Etag value matches. For more information, see the API section ["Managing Resource Contention"](http.html#concurrency). 
+ | Bundle.entry.request.ifNoneExist | 0..1 | string | Instruct the server not to perform the create if a specified resource already exists. For further information, see the API documentation for ["Conditional Create"](http.html#ccreate). This is just the query portion of the URL - what follows the "?" (not including the "?"). 
+ | Bundle.entry.response | 0..1 | BackboneElement | Indicates the results of processing the corresponding 'request' entry in the batch or transaction being responded to or what the results of an operation where when returning history. 
+ | Bundle.entry.response.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Bundle.entry.response.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Bundle.entry.response.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Bundle.entry.response.status | 1..1 | string | The status code returned by processing this entry. The status SHALL start with a 3 digit HTTP code (e.g. 404) and may contain the standard HTTP description associated with the status code. 
+ | Bundle.entry.response.location | 0..1 | uri | The location header created by processing this operation, populated if the operation returns a location. 
+ | Bundle.entry.response.etag | 0..1 | string | The Etag for the resource, if the operation for the entry produced a versioned resource (see [Resource Metadata and Versioning](http.html#versioning) and [Managing Resource Contention](http.html#concurrency)). 
+ | Bundle.entry.response.lastModified | 0..1 | instant | The date/time that the resource was modified on the server. 
+ | Bundle.entry.response.outcome | 0..1 | Resource | An OperationOutcome containing hints and warnings produced as part of processing this entry in a batch or transaction. 
+ | Bundle.signature | 0..1 | Signature | Digital Signature - base64 encoded. XML-DSig or a JWT. 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | composition | reference | The first resource in the bundle, if the bundle type is "document" - this is a composition, and this parameter provides access to search its contents | Bundle.entry[0].resource  
+ | identifier | token | Persistent identifier for the bundle | Bundle.identifier  
+ | message | reference | The first resource in the bundle, if the bundle type is "message" - this is a message header, and this parameter provides access to search its contents | Bundle.entry[0].resource  
+ | timestamp | date | When the bundle was assembled | Bundle.timestamp  
+ | type | token | document / message / transaction / transaction-response / batch / batch-response / history / searchset / collection | Bundle.type  
+
+

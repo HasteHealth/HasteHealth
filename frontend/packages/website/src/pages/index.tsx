@@ -31,10 +31,7 @@ function HomepageHeader() {
       </div>
       {/* <p className="hero__subtitle text--secondary">{siteConfig.tagline}</p> */}
       <div className="flex justify-center items-center space-x-4">
-        <Link
-          className="button button--secondary button--lg  border"
-          to="/docs/intro"
-        >
+        <Link className="button button--secondary button--lg  border">
           Getting Started - 5min ⏱️
         </Link>
       </div>
@@ -42,7 +39,10 @@ function HomepageHeader() {
   );
 }
 
-function DescriptionColumn(props: { title: string; description: string }) {
+function DescriptionColumn(props: {
+  title: ReactNode;
+  description: ReactNode;
+}) {
   return (
     <div className="space-y-1">
       <div className="text-2xl font-semibold underline">{props.title}</div>
@@ -87,7 +87,11 @@ export default function Home(): ReactNode {
                   </h3>
                   <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-4 py-4">
                     <DescriptionColumn
-                      title="FHIR"
+                      title={
+                        <Link to="/docs/category/fhir">
+                          <span>FHIR</span>
+                        </Link>
+                      }
                       description="Built from the ground up to support the FHIR (Fast Healthcare Interoperability Resources) a modern, open standard created by HL7 to help healthcare systems securely exchange data."
                     />
                     <DescriptionColumn

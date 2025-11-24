@@ -1,0 +1,104 @@
+---
+id: Practitioner
+title: Practitioner
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# Practitioner
+
+A person who is directly or indirectly involved in the provisioning of healthcare.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|Practitioner|
+|URL|http://hl7.org/fhir/StructureDefinition/Practitioner|
+|Status|draft|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | Practitioner | 0..* | Practitioner | A person who is directly or indirectly involved in the provisioning of healthcare. 
+ | Practitioner.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | Practitioner.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | Practitioner.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | Practitioner.language | 0..1 | code | The base language in which the resource is written. 
+ | Practitioner.text | 0..1 | Narrative | A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety. 
+ | Practitioner.contained | 0..* | Resource | These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope. 
+ | Practitioner.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Practitioner.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Practitioner.identifier | 0..* | Identifier | An identifier that applies to this person in this role. 
+ | Practitioner.active | 0..1 | boolean | Whether this practitioner's record is in active use. 
+ | Practitioner.name | 0..* | HumanName | The name(s) associated with the practitioner. 
+ | Practitioner.telecom | 0..* | ContactPoint | A contact detail for the practitioner, e.g. a telephone number or an email address. 
+ | Practitioner.address | 0..* | Address | Address(es) of the practitioner that are not role specific (typically home address). Work addresses are not typically entered in this property as they are usually role dependent. 
+ | Practitioner.gender | 0..1 | code | Administrative Gender - the gender that the person is considered to have for administration and record keeping purposes. 
+ | Practitioner.birthDate | 0..1 | date | The date of birth for the practitioner. 
+ | Practitioner.photo | 0..* | Attachment | Image of the person. 
+ | Practitioner.qualification | 0..* | BackboneElement | The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certian locality. 
+ | Practitioner.qualification.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Practitioner.qualification.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Practitioner.qualification.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Practitioner.qualification.identifier | 0..* | Identifier | An identifier that applies to this person's qualification in this role. 
+ | Practitioner.qualification.code | 1..1 | CodeableConcept | Coded representation of the qualification. 
+ | Practitioner.qualification.period | 0..1 | Period | Period during which the qualification is valid. 
+ | Practitioner.qualification.issuer | 0..1 | Reference | Organization that regulates and issues the qualification. 
+ | Practitioner.communication | 0..* | CodeableConcept | A language the practitioner can use in patient communication. 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | address | string | Multiple Resources: * [Patient](patient.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Person](person.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Practitioner](practitioner.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [RelatedPerson](relatedperson.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text | Patient.address / Person.address / Practitioner.address / RelatedPerson.address  
+ | address-city | string | Multiple Resources: * [Patient](patient.html): A city specified in an address* [Person](person.html): A city specified in an address* [Practitioner](practitioner.html): A city specified in an address* [RelatedPerson](relatedperson.html): A city specified in an address | Patient.address.city / Person.address.city / Practitioner.address.city / RelatedPerson.address.city  
+ | address-country | string | Multiple Resources: * [Patient](patient.html): A country specified in an address* [Person](person.html): A country specified in an address* [Practitioner](practitioner.html): A country specified in an address* [RelatedPerson](relatedperson.html): A country specified in an address | Patient.address.country / Person.address.country / Practitioner.address.country / RelatedPerson.address.country  
+ | address-postalcode | string | Multiple Resources: * [Patient](patient.html): A postalCode specified in an address* [Person](person.html): A postal code specified in an address* [Practitioner](practitioner.html): A postalCode specified in an address* [RelatedPerson](relatedperson.html): A postal code specified in an address | Patient.address.postalCode / Person.address.postalCode / Practitioner.address.postalCode / RelatedPerson.address.postalCode  
+ | address-state | string | Multiple Resources: * [Patient](patient.html): A state specified in an address* [Person](person.html): A state specified in an address* [Practitioner](practitioner.html): A state specified in an address* [RelatedPerson](relatedperson.html): A state specified in an address | Patient.address.state / Person.address.state / Practitioner.address.state / RelatedPerson.address.state  
+ | address-use | token | Multiple Resources: * [Patient](patient.html): A use code specified in an address* [Person](person.html): A use code specified in an address* [Practitioner](practitioner.html): A use code specified in an address* [RelatedPerson](relatedperson.html): A use code specified in an address | Patient.address.use / Person.address.use / Practitioner.address.use / RelatedPerson.address.use  
+ | email | token | Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact | Patient.telecom.where(system='email') / Person.telecom.where(system='email') / Practitioner.telecom.where(system='email') / PractitionerRole.telecom.where(system='email') / RelatedPerson.telecom.where(system='email')  
+ | family | string | Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name | Patient.name.family / Practitioner.name.family  
+ | gender | token | Multiple Resources: * [Patient](patient.html): Gender of the patient* [Person](person.html): The gender of the person* [Practitioner](practitioner.html): Gender of the practitioner* [RelatedPerson](relatedperson.html): Gender of the related person | Patient.gender / Person.gender / Practitioner.gender / RelatedPerson.gender  
+ | given | string | Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name | Patient.name.given / Practitioner.name.given  
+ | phone | token | Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact | Patient.telecom.where(system='phone') / Person.telecom.where(system='phone') / Practitioner.telecom.where(system='phone') / PractitionerRole.telecom.where(system='phone') / RelatedPerson.telecom.where(system='phone')  
+ | phonetic | string | Multiple Resources: * [Patient](patient.html): A portion of either family or given name using some kind of phonetic matching algorithm* [Person](person.html): A portion of name using some kind of phonetic matching algorithm* [Practitioner](practitioner.html): A portion of either family or given name using some kind of phonetic matching algorithm* [RelatedPerson](relatedperson.html): A portion of name using some kind of phonetic matching algorithm | Patient.name / Person.name / Practitioner.name / RelatedPerson.name  
+ | telecom | token | Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact | Patient.telecom / Person.telecom / Practitioner.telecom / PractitionerRole.telecom / RelatedPerson.telecom  
+ | active | token | Whether the practitioner record is active | Practitioner.active  
+ | communication | token | One of the languages that the practitioner can communicate with | Practitioner.communication  
+ | identifier | token | A practitioner's Identifier | Practitioner.identifier  
+ | name | string | A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text | Practitioner.name  
+
+

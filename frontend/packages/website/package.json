@@ -12,7 +12,8 @@
 		"serve": "docusaurus serve",
 		"write-translations": "docusaurus write-translations",
 		"write-heading-ids": "docusaurus write-heading-ids",
-		"typecheck": "tsc"
+		"typecheck": "tsc",
+		"generate-fhir": "NODE_ENV=development yarn node generate.mjs fhir"
 	},
 	"dependencies": {
 		"@docusaurus/core": "3.9.2",
@@ -27,6 +28,9 @@
 		"@docusaurus/module-type-aliases": "3.9.2",
 		"@docusaurus/tsconfig": "3.9.2",
 		"@docusaurus/types": "3.9.2",
+		"@haste-health/artifacts": "workspace:^",
+		"@haste-health/fhir-types": "workspace:^",
+		"@haste-health/hl7.fhir.r4.core": "workspace:^",
 		"@tailwindcss/postcss": "^4.1.17",
 		"autoprefixer": "^10.4.22",
 		"postcss": "^8.5.6",

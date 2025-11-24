@@ -1,0 +1,84 @@
+---
+id: Flag
+title: Flag
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# Flag
+
+Prospective warnings of potential issues when providing care to the patient.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|Flag|
+|URL|http://hl7.org/fhir/StructureDefinition/Flag|
+|Status|draft|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | Flag | 0..* | Flag | Prospective warnings of potential issues when providing care to the patient. 
+ | Flag.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | Flag.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | Flag.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | Flag.language | 0..1 | code | The base language in which the resource is written. 
+ | Flag.text | 0..1 | Narrative | A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety. 
+ | Flag.contained | 0..* | Resource | These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope. 
+ | Flag.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Flag.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Flag.identifier | 0..* | Identifier | Business identifiers assigned to this flag by the performer or other systems which remain constant as the resource is updated and propagates from server to server. 
+ | Flag.status | 1..1 | code | Supports basic workflow. 
+ | Flag.category | 0..* | CodeableConcept | Allows a flag to be divided into different categories like clinical, administrative etc. Intended to be used as a means of filtering which flags are displayed to particular user or in a given context. 
+ | Flag.code | 1..1 | CodeableConcept | The coded value or textual component of the flag to display to the user. 
+ | Flag.subject | 1..1 | Reference | The patient, location, group, organization, or practitioner etc. this is about record this flag is associated with. 
+ | Flag.period | 0..1 | Period | The period of time from the activation of the flag to inactivation of the flag. If the flag is active, the end of the period should be unspecified. 
+ | Flag.encounter | 0..1 | Reference | This alert is only relevant during the encounter. 
+ | Flag.author | 0..1 | Reference | The person, organization or device that created the flag. 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | date | date | Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Date first version of the resource instance was recorded* [CarePlan](careplan.html): Time period plan covers* [CareTeam](careteam.html): Time period team covers* [ClinicalImpression](clinicalimpression.html): When the assessment was documented* [Composition](composition.html): Composition editing time* [Consent](consent.html): When this Consent was created or indexed* [DiagnosticReport](diagnosticreport.html): The clinically relevant time of the report* [Encounter](encounter.html): A date within the period the Encounter lasted* [EpisodeOfCare](episodeofcare.html): The provided date search value falls within the episode of care's period* [FamilyMemberHistory](familymemberhistory.html): When history was recorded or last updated* [Flag](flag.html): Time period when flag is active* [Immunization](immunization.html): Vaccination  (non)-Administration Date* [List](list.html): When the list was prepared* [Observation](observation.html): Obtained date/time. If the obtained element is a period, a date that falls in the period* [Procedure](procedure.html): When the procedure was performed* [RiskAssessment](riskassessment.html): When was assessment made?* [SupplyRequest](supplyrequest.html): When the request was made | AllergyIntolerance.recordedDate / CarePlan.period / CareTeam.period / ClinicalImpression.date / Composition.date / Consent.dateTime / DiagnosticReport.effective / Encounter.period / EpisodeOfCare.period / FamilyMemberHistory.date / Flag.period / Immunization.occurrence / List.date / Observation.effective / Procedure.performed / (RiskAssessment.occurrence.ofType(dateTime)) / SupplyRequest.authoredOn  
+ | patient | reference | Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Who the sensitivity is for* [CarePlan](careplan.html): Who the care plan is for* [CareTeam](careteam.html): Who care team is for* [ClinicalImpression](clinicalimpression.html): Patient or group assessed* [Composition](composition.html): Who and/or what the composition is about* [Condition](condition.html): Who has the condition?* [Consent](consent.html): Who the consent applies to* [DetectedIssue](detectedissue.html): Associated patient* [DeviceRequest](devicerequest.html): Individual the service is ordered for* [DeviceUseStatement](deviceusestatement.html): Search by subject - a patient* [DiagnosticReport](diagnosticreport.html): The subject of the report if a patient* [DocumentManifest](documentmanifest.html): The subject of the set of documents* [DocumentReference](documentreference.html): Who/what is the subject of the document* [Encounter](encounter.html): The patient or group present at the encounter* [EpisodeOfCare](episodeofcare.html): The patient who is the focus of this episode of care* [FamilyMemberHistory](familymemberhistory.html): The identity of a subject to list family member history items for* [Flag](flag.html): The identity of a subject to list flags for* [Goal](goal.html): Who this goal is intended for* [ImagingStudy](imagingstudy.html): Who the study is about* [Immunization](immunization.html): The patient for the vaccination record* [List](list.html): If all resources have the same subject* [MedicationAdministration](medicationadministration.html): The identity of a patient to list administrations  for* [MedicationDispense](medicationdispense.html): The identity of a patient to list dispenses  for* [MedicationRequest](medicationrequest.html): Returns prescriptions for a specific patient* [MedicationStatement](medicationstatement.html): Returns statements for a specific patient.* [NutritionOrder](nutritionorder.html): The identity of the person who requires the diet, formula or nutritional supplement* [Observation](observation.html): The subject that the observation is about (if patient)* [Procedure](procedure.html): Search by subject - a patient* [RiskAssessment](riskassessment.html): Who/what does assessment apply to?* [ServiceRequest](servicerequest.html): Search by subject - a patient* [SupplyDelivery](supplydelivery.html): Patient for whom the item is supplied* [VisionPrescription](visionprescription.html): The identity of a patient to list dispenses for | AllergyIntolerance.patient / CarePlan.subject.where(resolve() is Patient) / CareTeam.subject.where(resolve() is Patient) / ClinicalImpression.subject.where(resolve() is Patient) / Composition.subject.where(resolve() is Patient) / Condition.subject.where(resolve() is Patient) / Consent.patient / DetectedIssue.patient / DeviceRequest.subject.where(resolve() is Patient) / DeviceUseStatement.subject / DiagnosticReport.subject.where(resolve() is Patient) / DocumentManifest.subject.where(resolve() is Patient) / DocumentReference.subject.where(resolve() is Patient) / Encounter.subject.where(resolve() is Patient) / EpisodeOfCare.patient / FamilyMemberHistory.patient / Flag.subject.where(resolve() is Patient) / Goal.subject.where(resolve() is Patient) / ImagingStudy.subject.where(resolve() is Patient) / Immunization.patient / List.subject.where(resolve() is Patient) / MedicationAdministration.subject.where(resolve() is Patient) / MedicationDispense.subject.where(resolve() is Patient) / MedicationRequest.subject.where(resolve() is Patient) / MedicationStatement.subject.where(resolve() is Patient) / NutritionOrder.patient / Observation.subject.where(resolve() is Patient) / Procedure.subject.where(resolve() is Patient) / RiskAssessment.subject.where(resolve() is Patient) / ServiceRequest.subject.where(resolve() is Patient) / SupplyDelivery.patient / VisionPrescription.patient  
+ | encounter | reference | Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier | Composition.encounter / DeviceRequest.encounter / DiagnosticReport.encounter / DocumentReference.context.encounter / Flag.encounter / List.encounter / NutritionOrder.encounter / Observation.encounter / Procedure.encounter / RiskAssessment.encounter / ServiceRequest.encounter / VisionPrescription.encounter  
+ | author | reference | Flag creator | Flag.author  
+ | identifier | token | Business identifier | Flag.identifier  
+ | subject | reference | The identity of a subject to list flags for | Flag.subject  
+
+

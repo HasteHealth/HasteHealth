@@ -1,0 +1,155 @@
+---
+id: InsurancePlan
+title: InsurancePlan
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# InsurancePlan
+
+Details of a Health Insurance product/plan provided by an organization.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|InsurancePlan|
+|URL|http://hl7.org/fhir/StructureDefinition/InsurancePlan|
+|Status|draft|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | InsurancePlan | 0..* | InsurancePlan | Details of a Health Insurance product/plan provided by an organization. 
+ | InsurancePlan.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | InsurancePlan.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | InsurancePlan.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | InsurancePlan.language | 0..1 | code | The base language in which the resource is written. 
+ | InsurancePlan.text | 0..1 | Narrative | A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety. 
+ | InsurancePlan.contained | 0..* | Resource | These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope. 
+ | InsurancePlan.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.identifier | 0..* | Identifier | Business identifiers assigned to this health insurance product which remain constant as the resource is updated and propagates from server to server. 
+ | InsurancePlan.status | 0..1 | code | The current state of the health insurance product. 
+ | InsurancePlan.type | 0..* | CodeableConcept | The kind of health insurance product. 
+ | InsurancePlan.name | 0..1 | string | Official name of the health insurance product as designated by the owner. 
+ | InsurancePlan.alias | 0..* | string | A list of alternate names that the product is known as, or was known as in the past. 
+ | InsurancePlan.period | 0..1 | Period | The period of time that the health insurance product is available. 
+ | InsurancePlan.ownedBy | 0..1 | Reference | The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'. 
+ | InsurancePlan.administeredBy | 0..1 | Reference | An organization which administer other services such as underwriting, customer service and/or claims processing on behalf of the health insurance product owner. 
+ | InsurancePlan.coverageArea | 0..* | Reference | The geographic region in which a health insurance product's benefits apply. 
+ | InsurancePlan.contact | 0..* | BackboneElement | The contact for the health insurance product for a certain purpose. 
+ | InsurancePlan.contact.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.contact.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.contact.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.contact.purpose | 0..1 | CodeableConcept | Indicates a purpose for which the contact can be reached. 
+ | InsurancePlan.contact.name | 0..1 | HumanName | A name associated with the contact. 
+ | InsurancePlan.contact.telecom | 0..* | ContactPoint | A contact detail (e.g. a telephone number or an email address) by which the party may be contacted. 
+ | InsurancePlan.contact.address | 0..1 | Address | Visiting or postal addresses for the contact. 
+ | InsurancePlan.endpoint | 0..* | Reference | The technical endpoints providing access to services operated for the health insurance product. 
+ | InsurancePlan.network | 0..* | Reference | Reference to the network included in the health insurance product. 
+ | InsurancePlan.coverage | 0..* | BackboneElement | Details about the coverage offered by the insurance product. 
+ | InsurancePlan.coverage.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.coverage.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.coverage.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.coverage.type | 1..1 | CodeableConcept | Type of coverage  (Medical; Dental; Mental Health; Substance Abuse; Vision; Drug; Short Term; Long Term Care; Hospice; Home Health). 
+ | InsurancePlan.coverage.network | 0..* | Reference | Reference to the network that providing the type of coverage. 
+ | InsurancePlan.coverage.benefit | 1..* | BackboneElement | Specific benefits under this type of coverage. 
+ | InsurancePlan.coverage.benefit.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.coverage.benefit.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.coverage.benefit.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.coverage.benefit.type | 1..1 | CodeableConcept | Type of benefit (primary care; speciality care; inpatient; outpatient). 
+ | InsurancePlan.coverage.benefit.requirement | 0..1 | string | The referral requirements to have access/coverage for this benefit. 
+ | InsurancePlan.coverage.benefit.limit | 0..* | BackboneElement | The specific limits on the benefit. 
+ | InsurancePlan.coverage.benefit.limit.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.coverage.benefit.limit.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.coverage.benefit.limit.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.coverage.benefit.limit.value | 0..1 | Quantity | The maximum amount of a service item a plan will pay for a covered benefit.  For examples. wellness visits, or eyeglasses. 
+ | InsurancePlan.coverage.benefit.limit.code | 0..1 | CodeableConcept | The specific limit on the benefit. 
+ | InsurancePlan.plan | 0..* | BackboneElement | Details about an insurance plan. 
+ | InsurancePlan.plan.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.plan.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.plan.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.plan.identifier | 0..* | Identifier | Business identifiers assigned to this health insurance plan which remain constant as the resource is updated and propagates from server to server. 
+ | InsurancePlan.plan.type | 0..1 | CodeableConcept | Type of plan. For example, "Platinum" or "High Deductable". 
+ | InsurancePlan.plan.coverageArea | 0..* | Reference | The geographic region in which a health insurance plan's benefits apply. 
+ | InsurancePlan.plan.network | 0..* | Reference | Reference to the network that providing the type of coverage. 
+ | InsurancePlan.plan.generalCost | 0..* | BackboneElement | Overall costs associated with the plan. 
+ | InsurancePlan.plan.generalCost.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.plan.generalCost.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.plan.generalCost.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.plan.generalCost.type | 0..1 | CodeableConcept | Type of cost. 
+ | InsurancePlan.plan.generalCost.groupSize | 0..1 | positiveInt | Number of participants enrolled in the plan. 
+ | InsurancePlan.plan.generalCost.cost | 0..1 | Money | Value of the cost. 
+ | InsurancePlan.plan.generalCost.comment | 0..1 | string | Additional information about the general costs associated with this plan. 
+ | InsurancePlan.plan.specificCost | 0..* | BackboneElement | Costs associated with the coverage provided by the product. 
+ | InsurancePlan.plan.specificCost.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.plan.specificCost.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.plan.specificCost.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.plan.specificCost.category | 1..1 | CodeableConcept | General category of benefit (Medical; Dental; Vision; Drug; Mental Health; Substance Abuse; Hospice, Home Health). 
+ | InsurancePlan.plan.specificCost.benefit | 0..* | BackboneElement | List of the specific benefits under this category of benefit. 
+ | InsurancePlan.plan.specificCost.benefit.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.plan.specificCost.benefit.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.plan.specificCost.benefit.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.plan.specificCost.benefit.type | 1..1 | CodeableConcept | Type of specific benefit (preventative; primary care office visit; speciality office visit; hospitalization; emergency room; urgent care). 
+ | InsurancePlan.plan.specificCost.benefit.cost | 0..* | BackboneElement | List of the costs associated with a specific benefit. 
+ | InsurancePlan.plan.specificCost.benefit.cost.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | InsurancePlan.plan.specificCost.benefit.cost.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | InsurancePlan.plan.specificCost.benefit.cost.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | InsurancePlan.plan.specificCost.benefit.cost.type | 1..1 | CodeableConcept | Type of cost (copay; individual cap; family cap; coinsurance; deductible). 
+ | InsurancePlan.plan.specificCost.benefit.cost.applicability | 0..1 | CodeableConcept | Whether the cost applies to in-network or out-of-network providers (in-network; out-of-network; other). 
+ | InsurancePlan.plan.specificCost.benefit.cost.qualifiers | 0..* | CodeableConcept | Additional information about the cost, such as information about funding sources (e.g. HSA, HRA, FSA, RRA). 
+ | InsurancePlan.plan.specificCost.benefit.cost.value | 0..1 | Quantity | The actual cost value. (some of the costs may be represented as percentages rather than currency, e.g. 10% coinsurance). 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | address | string | A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text | InsurancePlan.contact.address  
+ | address-city | string | A city specified in an address | InsurancePlan.contact.address.city  
+ | address-country | string | A country specified in an address | InsurancePlan.contact.address.country  
+ | address-postalcode | string | A postal code specified in an address | InsurancePlan.contact.address.postalCode  
+ | address-state | string | A state specified in an address | InsurancePlan.contact.address.state  
+ | address-use | token | A use code specified in an address | InsurancePlan.contact.address.use  
+ | administered-by | reference | Product administrator | InsurancePlan.administeredBy  
+ | endpoint | reference | Technical endpoint | InsurancePlan.endpoint  
+ | identifier | token | Any identifier for the organization (not the accreditation issuer's identifier) | InsurancePlan.identifier  
+ | name | string | A portion of the organization's name or alias | name / alias  
+ | owned-by | reference | An organization of which this organization forms a part | InsurancePlan.ownedBy  
+ | phonetic | string | A portion of the organization's name using some kind of phonetic matching algorithm | InsurancePlan.name  
+ | status | token | Is the Organization record active | InsurancePlan.status  
+ | type | token | A code for the type of organization | InsurancePlan.type  
+
+

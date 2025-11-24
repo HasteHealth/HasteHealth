@@ -1,0 +1,112 @@
+---
+id: VerificationResult
+title: VerificationResult
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# VerificationResult
+
+Describes validation requirements, source(s), status and dates for one or more elements.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|VerificationResult|
+|URL|http://hl7.org/fhir/StructureDefinition/VerificationResult|
+|Status|draft|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | VerificationResult | 0..* | VerificationResult | Describes validation requirements, source(s), status and dates for one or more elements. 
+ | VerificationResult.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | VerificationResult.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | VerificationResult.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | VerificationResult.language | 0..1 | code | The base language in which the resource is written. 
+ | VerificationResult.text | 0..1 | Narrative | A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety. 
+ | VerificationResult.contained | 0..* | Resource | These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope. 
+ | VerificationResult.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | VerificationResult.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | VerificationResult.target | 0..* | Reference | A resource that was validated. 
+ | VerificationResult.targetLocation | 0..* | string | The fhirpath location(s) within the resource that was validated. 
+ | VerificationResult.need | 0..1 | CodeableConcept | The frequency with which the target must be validated (none; initial; periodic). 
+ | VerificationResult.status | 1..1 | code | The validation status of the target (attested; validated; in process; requires revalidation; validation failed; revalidation failed). 
+ | VerificationResult.statusDate | 0..1 | dateTime | When the validation status was updated. 
+ | VerificationResult.validationType | 0..1 | CodeableConcept | What the target is validated against (nothing; primary source; multiple sources). 
+ | VerificationResult.validationProcess | 0..* | CodeableConcept | The primary process by which the target is validated (edit check; value set; primary source; multiple sources; standalone; in context). 
+ | VerificationResult.frequency | 0..1 | Timing | Frequency of revalidation. 
+ | VerificationResult.lastPerformed | 0..1 | dateTime | The date/time validation was last completed (including failed validations). 
+ | VerificationResult.nextScheduled | 0..1 | date | The date when target is next validated, if appropriate. 
+ | VerificationResult.failureAction | 0..1 | CodeableConcept | The result if validation fails (fatal; warning; record only; none). 
+ | VerificationResult.primarySource | 0..* | BackboneElement | Information about the primary source(s) involved in validation. 
+ | VerificationResult.primarySource.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | VerificationResult.primarySource.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | VerificationResult.primarySource.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | VerificationResult.primarySource.who | 0..1 | Reference | Reference to the primary source. 
+ | VerificationResult.primarySource.type | 0..* | CodeableConcept | Type of primary source (License Board; Primary Education; Continuing Education; Postal Service; Relationship owner; Registration Authority; legal source; issuing source; authoritative source). 
+ | VerificationResult.primarySource.communicationMethod | 0..* | CodeableConcept | Method for communicating with the primary source (manual; API; Push). 
+ | VerificationResult.primarySource.validationStatus | 0..1 | CodeableConcept | Status of the validation of the target against the primary source (successful; failed; unknown). 
+ | VerificationResult.primarySource.validationDate | 0..1 | dateTime | When the target was validated against the primary source. 
+ | VerificationResult.primarySource.canPushUpdates | 0..1 | CodeableConcept | Ability of the primary source to push updates/alerts (yes; no; undetermined). 
+ | VerificationResult.primarySource.pushTypeAvailable | 0..* | CodeableConcept | Type of alerts/updates the primary source can send (specific requested changes; any changes; as defined by source). 
+ | VerificationResult.attestation | 0..1 | BackboneElement | Information about the entity attesting to information. 
+ | VerificationResult.attestation.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | VerificationResult.attestation.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | VerificationResult.attestation.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | VerificationResult.attestation.who | 0..1 | Reference | The individual or organization attesting to information. 
+ | VerificationResult.attestation.onBehalfOf | 0..1 | Reference | When the who is asserting on behalf of another (organization or individual). 
+ | VerificationResult.attestation.communicationMethod | 0..1 | CodeableConcept | The method by which attested information was submitted/retrieved (manual; API; Push). 
+ | VerificationResult.attestation.date | 0..1 | date | The date the information was attested to. 
+ | VerificationResult.attestation.sourceIdentityCertificate | 0..1 | string | A digital identity certificate associated with the attestation source. 
+ | VerificationResult.attestation.proxyIdentityCertificate | 0..1 | string | A digital identity certificate associated with the proxy entity submitting attested information on behalf of the attestation source. 
+ | VerificationResult.attestation.proxySignature | 0..1 | Signature | Signed assertion by the proxy entity indicating that they have the right to submit attested information on behalf of the attestation source. 
+ | VerificationResult.attestation.sourceSignature | 0..1 | Signature | Signed assertion by the attestation source that they have attested to the information. 
+ | VerificationResult.validator | 0..* | BackboneElement | Information about the entity validating information. 
+ | VerificationResult.validator.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | VerificationResult.validator.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | VerificationResult.validator.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | VerificationResult.validator.organization | 1..1 | Reference | Reference to the organization validating information. 
+ | VerificationResult.validator.identityCertificate | 0..1 | string | A digital identity certificate associated with the validator. 
+ | VerificationResult.validator.attestationSignature | 0..1 | Signature | Signed assertion by the validator that they have validated the information. 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | target | reference | A resource that was validated | VerificationResult.target  
+
+

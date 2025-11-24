@@ -1,0 +1,145 @@
+---
+id: Questionnaire
+title: Questionnaire
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# Questionnaire
+
+A structured set of questions intended to guide the collection of answers from end-users. Questionnaires provide detailed control over order, presentation, phraseology and grouping to allow coherent, consistent data collection.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+
+|Property|Value|
+|---|---|
+|Publisher||
+|Name|Questionnaire|
+|URL|http://hl7.org/fhir/StructureDefinition/Questionnaire|
+|Status|draft|
+|Description||
+|Abstract|false|
+
+   ## Structure
+
+   | Path | Cardinality | Type | Description
+  | ---- | ----------- | ---- | -------  
+ | Questionnaire | 0..* | Questionnaire | A structured set of questions intended to guide the collection of answers from end-users. Questionnaires provide detailed control over order, presentation, phraseology and grouping to allow coherent, consistent data collection. 
+ | Questionnaire.id | 0..1 | http://hl7.org/fhirpath/System.String | The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes. 
+ | Questionnaire.meta | 0..1 | Meta | The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource. 
+ | Questionnaire.implicitRules | 0..1 | uri | A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc. 
+ | Questionnaire.language | 0..1 | code | The base language in which the resource is written. 
+ | Questionnaire.text | 0..1 | Narrative | A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety. 
+ | Questionnaire.contained | 0..* | Resource | These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope. 
+ | Questionnaire.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Questionnaire.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Questionnaire.url | 0..1 | uri | An absolute URI that is used to identify this questionnaire when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this questionnaire is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the questionnaire is stored on different servers. 
+ | Questionnaire.identifier | 0..* | Identifier | A formal identifier that is used to identify this questionnaire when it is represented in other formats, or referenced in a specification, model, design or an instance. 
+ | Questionnaire.version | 0..1 | string | The identifier that is used to identify this version of the questionnaire when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the questionnaire author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence. 
+ | Questionnaire.name | 0..1 | string | A natural language name identifying the questionnaire. This name should be usable as an identifier for the module by machine processing applications such as code generation. 
+ | Questionnaire.title | 0..1 | string | A short, descriptive, user-friendly title for the questionnaire. 
+ | Questionnaire.derivedFrom | 0..* | canonical | The URL of a Questionnaire that this Questionnaire is based on. 
+ | Questionnaire.status | 1..1 | code | The status of this questionnaire. Enables tracking the life-cycle of the content. 
+ | Questionnaire.experimental | 0..1 | boolean | A Boolean value to indicate that this questionnaire is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage. 
+ | Questionnaire.subjectType | 0..* | code | The types of subjects that can be the subject of responses created for the questionnaire. 
+ | Questionnaire.date | 0..1 | dateTime | The date  (and optionally time) when the questionnaire was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the questionnaire changes. 
+ | Questionnaire.publisher | 0..1 | string | The name of the organization or individual that published the questionnaire. 
+ | Questionnaire.contact | 0..* | ContactDetail | Contact details to assist a user in finding and communicating with the publisher. 
+ | Questionnaire.description | 0..1 | markdown | A free text natural language description of the questionnaire from a consumer's perspective. 
+ | Questionnaire.useContext | 0..* | UsageContext | The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate questionnaire instances. 
+ | Questionnaire.jurisdiction | 0..* | CodeableConcept | A legal or geographic region in which the questionnaire is intended to be used. 
+ | Questionnaire.purpose | 0..1 | markdown | Explanation of why this questionnaire is needed and why it has been designed as it has. 
+ | Questionnaire.copyright | 0..1 | markdown | A copyright statement relating to the questionnaire and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the questionnaire. 
+ | Questionnaire.approvalDate | 0..1 | date | The date on which the resource content was approved by the publisher. Approval happens once when the content is officially approved for usage. 
+ | Questionnaire.lastReviewDate | 0..1 | date | The date on which the resource content was last reviewed. Review happens periodically after approval but does not change the original approval date. 
+ | Questionnaire.effectivePeriod | 0..1 | Period | The period during which the questionnaire content was or is planned to be in active use. 
+ | Questionnaire.code | 0..* | Coding | An identifier for this question or group of questions in a particular terminology such as LOINC. 
+ | Questionnaire.item | 0..* | BackboneElement | A particular question, question grouping or display text that is part of the questionnaire. 
+ | Questionnaire.item.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Questionnaire.item.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Questionnaire.item.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Questionnaire.item.linkId | 1..1 | string | An identifier that is unique within the Questionnaire allowing linkage to the equivalent item in a QuestionnaireResponse resource. 
+ | Questionnaire.item.definition | 0..1 | uri | This element is a URI that refers to an [ElementDefinition](elementdefinition.html) that provides information about this item, including information that might otherwise be included in the instance of the Questionnaire resource. A detailed description of the construction of the URI is shown in Comments, below. If this element is present then the following element values MAY be derived from the Element Definition if the corresponding elements of this Questionnaire resource instance have no value:* code (ElementDefinition.code) * type (ElementDefinition.type) * required (ElementDefinition.min) * repeats (ElementDefinition.max) * maxLength (ElementDefinition.maxLength) * answerValueSet (ElementDefinition.binding)* options (ElementDefinition.binding). 
+ | Questionnaire.item.code | 0..* | Coding | A terminology code that corresponds to this group or question (e.g. a code from LOINC, which defines many questions and answers). 
+ | Questionnaire.item.prefix | 0..1 | string | A short label for a particular group, question or set of display text within the questionnaire used for reference by the individual completing the questionnaire. 
+ | Questionnaire.item.text | 0..1 | string | The name of a section, the text of a question or text content for a display item. 
+ | Questionnaire.item.type | 1..1 | code | The type of questionnaire item this is - whether text for display, a grouping of other items or a particular type of data to be captured (string, integer, coded choice, etc.). 
+ | Questionnaire.item.enableWhen | 0..* | BackboneElement | A constraint indicating that this item should only be enabled (displayed/allow answers to be captured) when the specified condition is true. 
+ | Questionnaire.item.enableWhen.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Questionnaire.item.enableWhen.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Questionnaire.item.enableWhen.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Questionnaire.item.enableWhen.question | 1..1 | string | The linkId for the question whose answer (or lack of answer) governs whether this item is enabled. 
+ | Questionnaire.item.enableWhen.operator | 1..1 | code | Specifies the criteria by which the question is enabled. 
+ | Questionnaire.item.enableWhen.answer[x] | 1..1 | boolean | A value that the referenced question is tested using the specified operator in order for the item to be enabled. 
+ | Questionnaire.item.enableBehavior | 0..1 | code | Controls how multiple enableWhen values are interpreted -  whether all or any must be true. 
+ | Questionnaire.item.required | 0..1 | boolean | An indication, if true, that the item must be present in a "completed" QuestionnaireResponse.  If false, the item may be skipped when answering the questionnaire. 
+ | Questionnaire.item.repeats | 0..1 | boolean | An indication, if true, that the item may occur multiple times in the response, collecting multiple answers for questions or multiple sets of answers for groups. 
+ | Questionnaire.item.readOnly | 0..1 | boolean | An indication, when true, that the value cannot be changed by a human respondent to the Questionnaire. 
+ | Questionnaire.item.maxLength | 0..1 | integer | The maximum number of characters that are permitted in the answer to be considered a "valid" QuestionnaireResponse. 
+ | Questionnaire.item.answerValueSet | 0..1 | canonical | A reference to a value set containing a list of codes representing permitted answers for a "choice" or "open-choice" question. 
+ | Questionnaire.item.answerOption | 0..* | BackboneElement | One of the permitted answers for a "choice" or "open-choice" question. 
+ | Questionnaire.item.answerOption.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Questionnaire.item.answerOption.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Questionnaire.item.answerOption.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Questionnaire.item.answerOption.value[x] | 1..1 | integer | A potential answer that's allowed as the answer to this question. 
+ | Questionnaire.item.answerOption.initialSelected | 0..1 | boolean | Indicates whether the answer value is selected when the list of possible answers is initially shown. 
+ | Questionnaire.item.initial | 0..* | BackboneElement | One or more values that should be pre-populated in the answer when initially rendering the questionnaire for user input. 
+ | Questionnaire.item.initial.id | 0..1 | http://hl7.org/fhirpath/System.String | Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces. 
+ | Questionnaire.item.initial.extension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. 
+ | Questionnaire.item.initial.modifierExtension | 0..* | Extension | May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element's descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself). 
+ | Questionnaire.item.initial.value[x] | 1..1 | boolean | The actual value to for an initial answer. 
+ | Questionnaire.item.item | 0..* | Questionnaire | Text, questions and other groups to be nested beneath a question or group. 
+
+ ## Search Parameters
+
+   | Name | Type | Description  | Expression 
+    | ---- | ---- | ------- | ------  
+ | _text | string | Search on the narrative of the resource |   
+ | _content | string | Search on the entire content of the resource |   
+ | _id | token | Logical id of this artifact | Resource.id  
+ | _lastUpdated | date | When the resource version last changed | Resource.meta.lastUpdated  
+ | _profile | uri | Profiles this resource claims to conform to | Resource.meta.profile  
+ | _query | token | A custom search profile that describes a specific defined query operation |   
+ | _security | token | Security Labels applied to this resource | Resource.meta.security  
+ | _source | uri | Identifies where the resource comes from | Resource.meta.source  
+ | _tag | token | Tags applied to this resource | Resource.meta.tag  
+ | code | token | A code that corresponds to one of its items in the questionnaire | Questionnaire.item.code  
+ | context | token | A use context assigned to the questionnaire | (Questionnaire.useContext.value.ofType(CodeableConcept))  
+ | context-quantity | quantity | A quantity- or range-valued use context assigned to the questionnaire | (Questionnaire.useContext.value.ofType(Quantity)) / (Questionnaire.useContext.value.ofType(Range))  
+ | context-type | token | A type of use context assigned to the questionnaire | Questionnaire.useContext.code  
+ | date | date | The questionnaire publication date | Questionnaire.date  
+ | definition | uri | ElementDefinition - details for the item | Questionnaire.item.definition  
+ | description | string | The description of the questionnaire | Questionnaire.description  
+ | effective | date | The time during which the questionnaire is intended to be in use | Questionnaire.effectivePeriod  
+ | identifier | token | External identifier for the questionnaire | Questionnaire.identifier  
+ | jurisdiction | token | Intended jurisdiction for the questionnaire | Questionnaire.jurisdiction  
+ | name | string | Computationally friendly name of the questionnaire | Questionnaire.name  
+ | publisher | string | Name of the publisher of the questionnaire | Questionnaire.publisher  
+ | status | token | The current status of the questionnaire | Questionnaire.status  
+ | subject-type | token | Resource that can be subject of QuestionnaireResponse | Questionnaire.subjectType  
+ | title | string | The human-friendly name of the questionnaire | Questionnaire.title  
+ | url | uri | The uri that identifies the questionnaire | Questionnaire.url  
+ | version | token | The business version of the questionnaire | Questionnaire.version  
+ | context-type-quantity | composite | A use context type and quantity- or range-based value assigned to the questionnaire | Questionnaire.useContext  
+ | context-type-value | composite | A use context type and value assigned to the questionnaire | Questionnaire.useContext  
+
+
