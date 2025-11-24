@@ -22,6 +22,9 @@ frontend/packages/website/.yarn
 
 frontend/.pnp.*
 
+# Local Data
+data
+
 # Logs
 logs
 *.log
