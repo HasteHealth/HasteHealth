@@ -104,8 +104,8 @@ export default function Home(): ReactNode {
                   <div className="carousel basic">
                     <div className="group font-bold text-3xl">
                       <CarouselCard>
-                        <span className="text-rose-600 hover:underline ">
-                          Epic
+                        <span className="text-rose-700 hover:underline ">
+                          Epic Systems
                         </span>
                       </CarouselCard>
                       <CarouselCard>
