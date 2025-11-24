@@ -89,3 +89,50 @@
   align-items: center;
   min-height: 200px;
 }
+
+.schema-item {
+  padding: 5px 0 5px 1rem;
+  list-style: none;
+  position: relative;
+  border-left: thin solid var(--color-slate-400) !important;
+  margin: 0 !important;
+}
+
+.schema-item::before {
+  vertical-align: top;
+  border-bottom: thin solid var(--color-slate-400);
+  content: "";
+  width: .7rem;
+  height: .5rem;
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  left: 0;
+}
+
+
+.schema-item__details {
+  color: var(--ifm-font-color-base);
+  padding: unset;
+  background-color: #0000;
+  margin: unset !important;
+  border: unset !important;
+  box-shadow: unset !important;
+  --docusaurus-details-decoration-color: var(--ifm-font-color-base) !important;
+}
+
+.schema-item__details>summary:before {
+  content: "";
+  filter: var(--ifm-menu-link-sublist-icon-filter);
+  background: url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16px\" height=\"16px\" viewBox=\"0 0 24 24\"><path d=\"M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z\"></path></svg>") 50%/1.2rem 1.2rem;
+  width: .75rem;
+  height: .75rem;
+  transition: transform var(--ifm-transition-fast)linear !important;
+  transform-origin: unset !important;
+  border: none !important;
+  transform: rotate(90deg) !important
+}
+
+.schema-item__details[data-collapsed=false]>summary:before {
+  transform: rotate(180deg) !important;
+}

@@ -33386,6 +33386,7 @@ __metadata:
     "@docusaurus/tsconfig": "npm:3.9.2"
     "@docusaurus/types": "npm:3.9.2"
     "@haste-health/artifacts": "workspace:^"
+    "@haste-health/codegen": "workspace:^"
     "@haste-health/fhir-types": "workspace:^"
     "@haste-health/hl7.fhir.r4.core": "workspace:^"
     "@mdx-js/react": "npm:^3.0.0"
