@@ -26,6 +26,7 @@
   --ifm-color-primary-lighter: oklch(83.7% 0.128 66.29);
   --ifm-color-primary-lightest: oklch(90.1% 0.076 70.697);
   --ifm-code-font-size: 95%;
+  --ifm-font-size-base: 85%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   background-color: var(--color-orange-50);
   font-family: var(--ifm-heading-font-family);
@@ -87,16 +88,4 @@
   justify-content: center;
   align-items: center;
   min-height: 200px;
-
-  /* &:nth-child(1) {
-    background: #7958ff;
-  }
-
-  &:nth-child(2) {
-    background: #5d34f2;
-  }
-
-  &:nth-child(3) {
-    background: #4300da;
-  } */
 }

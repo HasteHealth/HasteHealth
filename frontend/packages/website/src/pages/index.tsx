@@ -214,19 +214,40 @@ export default function Home(): ReactNode {
                     />
                   </div>
                 </div>
-                <div className="p-6  rounded-lg  ">
-                  <div className="grid grid-cols-2 gap-8 space-y-8">
-                    <div className="flex justify-center items-center h-24">
-                      <img src="/img/okta.svg" className="h-full" />
+                <div className="p-6 rounded-lg ">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                      <img
+                        src="/img/okta.svg"
+                        className="h-32 object-contain"
+                      />
                     </div>
-                    <div className="flex justify-center items-center h-24">
-                      <img src="/img/azure.svg" className="h-full" />
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                      <img
+                        src="/img/azure.svg"
+                        className="h-32 object-contain"
+                      />
                     </div>
-                    <div className="flex justify-center items-center h-24">
-                      <img src="/img/auth0.svg" className="h-full" />
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                      <img
+                        src="/img/auth0.svg"
+                        className="h-32 object-contain"
+                      />
                     </div>
-                    <div className="flex justify-center items-center h-24">
-                      <img src="/img/keycloak.png" className="h-full" />
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                      <img
+                        src="/img/aws_logo.svg"
+                        className="h-32 object-contain"
+                      />
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                      <img
+                        src="/img/keycloak.png"
+                        className="h-32 object-contain"
+                      />
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                      <img src="/img/gcp.png" className="h-32 object-contain" />
                     </div>
                   </div>
                 </div>
