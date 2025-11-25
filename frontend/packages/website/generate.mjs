@@ -59,6 +59,7 @@ async function processStructureDefinition(artifacts, structureDefinition) {
   let doc = `---
 id: ${structureDefinition.id}
 title: ${structureDefinition.name}
+hide_table_of_contents: true
 tags:
   - fhir
   - Fast Healthcare Interoperability Resources
@@ -89,13 +90,18 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
 
   `;
   doc = `${doc}
-  ${generateProperties(structureDefinition)}`;
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  ${generateProperties(structureDefinition)}
+  </div>
+  `;
 
   doc = `${doc}\n`;
 
-  doc = `${doc} ## Search Parameters\n
-   | Name | Type | Description  | Expression 
-    | ---- | ---- | ------- | ------  \n`;
+  doc = `${doc} 
+  <div>
+  ## Search Parameters\n<div class="space-y-4">`;
   for (const parameter of parameters) {
     const name = parameter.name;
     const type = parameter.type;
@@ -104,11 +110,25 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
 
     const expression = escapeCharacters(parameter.expression || "");
 
-    doc = `${doc} | ${name} | ${type} | ${description} | ${expression}  \n`;
+    doc = `${doc} 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">${name}</span> <span> (${type})</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">${description}</div>
+        ${
+          expression
+            ? `<div class="line-clamp-3 truncate">
+              <code>${expression}</code>
+            </div>`
+            : ""
+        }
+    </div>
+    \n
+  `;
   }
-  doc = `${doc}\n\n`;
 
-  doc = `${doc}`;
+  doc = `${doc}    </div></div></div>`;
 
   return doc;
 }
@@ -120,7 +140,7 @@ async function generateFHIRDocumentation() {
     .filter((r) => r.kind === "resource");
 
   for (const structureDefinition of r4StructureDefinitions) {
-    const pathName = `./docs/API/FHIR/${structureDefinition.name}.mdx`;
+    const pathName = `./docs/API/FHIR/Data Model/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
       structureDefinition
