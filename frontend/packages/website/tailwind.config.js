@@ -7,7 +7,7 @@ module.exports = {
     container: false,
   },
   darkMode: ["class", '[data-theme="dark"]'],
-  content: ["./src/**/*.{js,jsx,ts,tsx,mdx,md}"],
+  content: ["./src/**/*.{js,jsx,ts,tsx,mdx,md}", "sidebars.ts"],
   theme: {
     extend: {
       fontFamily: {

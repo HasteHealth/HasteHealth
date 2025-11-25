@@ -33,7 +33,7 @@ function HomepageHeader() {
       <div className="flex justify-center items-center space-x-4">
         <Link
           className="button button--secondary button--lg  border"
-          to="/docs/Getting Started"
+          to="/docs/Getting Started/Intro"
         >
           Getting Started - 5min ⏱️
         </Link>
