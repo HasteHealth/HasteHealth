@@ -27,7 +27,7 @@ jobs:
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
           echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=${{ github.ref_name }}
+          echo VERSION=$GITHUB_REF_NAME
 
           # --platform linux/amd64,linux/arm64 \
           docker buildx build . \
