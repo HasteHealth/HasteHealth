@@ -9,3 +9,4 @@ haste-fhir-model = { path = "../fhir-model" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
     "derive",
 ] }
+tracing = "0.1.41"

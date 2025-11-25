@@ -18,9 +18,13 @@ fn main() {
         .spawn()
         .expect("Failed to install node packages.");
 
-    npm_install
+    let npm_result = npm_install
         .wait()
         .expect("Failed to install node packages.");
+
+    if !npm_result.success() {
+        panic!("NPM INSTALL EXITED WITH: {:?}", npm_result);
+    }
 
     let mut tailwindcss_process = std::process::Command::new(NPX)
         .arg("@tailwindcss/cli")

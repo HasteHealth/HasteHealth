@@ -22,28 +22,6 @@ jobs:
         with:
           files: |
             haste-health_linux
-  windows:
-    runs-on: windows-latest
-    permissions:
-      packages: write
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - run: rustup update
-      - name: Build
-        run: cd backend && cargo build --release
-      - name: Move to windows filename
-        run: mv backend/target/release/haste-health.exe ./haste-health_windows.exe
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            haste-health_windows.exe
   mac:
     runs-on: macos-latest
     permissions:

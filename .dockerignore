@@ -1,0 +1,36 @@
+target
+backend/target
+.env
+env.json
+.aws-sam
+.DS_Store
+*.pem
+.dccache
+
+# ----------------
+# FRONTEND
+# ----------------
+node_modules
+frontend/**/lib 
+frontend/**/dist
+frontend/**/build
+frontend/**/coverage
+
+storybook-static
+
+frontend/.yarn/install-state.gz
+frontend/packages/website/.yarn
+
+frontend/.pnp.*
+
+# Local Data
+data
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

@@ -1429,6 +1429,7 @@ dependencies = [
  "dotenvy",
  "haste-fhir-model",
  "haste-fhir-operation-error",
+ "tracing",
 ]
 
 [[package]]
