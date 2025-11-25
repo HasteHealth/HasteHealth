@@ -83,9 +83,11 @@ export default function Home(): ReactNode {
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
                     Easily{" "}
-                    <span className="text-orange-600 underline">
-                      interoperate
-                    </span>{" "}
+                    <Link to="/docs/category/ehr">
+                      <span className="text-orange-600 underline">
+                        interoperate
+                      </span>
+                    </Link>{" "}
                     with other healthcare systems
                   </h3>
                   <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-4 py-4">
@@ -106,48 +108,64 @@ export default function Home(): ReactNode {
                 <div className="p-6 flex justify-center items-center  border border-slate-200 rounded-lg min-h-72">
                   <div className="carousel basic">
                     <div className="group font-bold text-3xl">
-                      <CarouselCard>
-                        <span className="text-rose-700 hover:underline ">
-                          Epic Systems
-                        </span>
-                      </CarouselCard>
-                      <CarouselCard>
-                        <span className="text-sky-600  hover:underline ">
-                          Cerner
-                        </span>
-                      </CarouselCard>
-                      <CarouselCard>
-                        <span className="text-slate-700 hover:underline ">
-                          Athenahealth
-                        </span>
-                      </CarouselCard>
-                      <CarouselCard>
-                        <span className="text-emerald-600 hover:underline ">
-                          Meditech
-                        </span>
-                      </CarouselCard>
+                      <Link to="/docs/integration/EHR/Epic">
+                        <CarouselCard>
+                          <span className="text-rose-700 hover:underline ">
+                            Epic Systems
+                          </span>
+                        </CarouselCard>
+                      </Link>
+                      <Link to="/docs/integration/EHR/Cerner">
+                        <CarouselCard>
+                          <span className="text-sky-600  hover:underline ">
+                            Cerner
+                          </span>
+                        </CarouselCard>
+                      </Link>
+                      <Link to="/docs/integration/EHR/Athenahealth">
+                        <CarouselCard>
+                          <span className="text-slate-700 hover:underline ">
+                            Athenahealth
+                          </span>
+                        </CarouselCard>
+                      </Link>
+                      <Link to="/docs/integration/EHR/Meditech">
+                        <CarouselCard>
+                          <span className="text-emerald-600 hover:underline ">
+                            Meditech
+                          </span>
+                        </CarouselCard>
+                      </Link>
                     </div>
                     <div className="group  font-bold text-3xl">
-                      <CarouselCard>
-                        <span className="text-rose-700 hover:underline ">
-                          Epic Systems
-                        </span>
-                      </CarouselCard>
-                      <CarouselCard>
-                        <span className="text-sky-600 hover:underline ">
-                          Cerner
-                        </span>
-                      </CarouselCard>
-                      <CarouselCard>
-                        <span className="text-slate-700 hover:underline ">
-                          Athenahealth
-                        </span>
-                      </CarouselCard>
-                      <CarouselCard>
-                        <span className="text-emerald-600 hover:underline ">
-                          Meditech
-                        </span>
-                      </CarouselCard>
+                      <Link to="/docs/integration/EHR/Epic">
+                        <CarouselCard>
+                          <span className="text-rose-700 hover:underline ">
+                            Epic Systems
+                          </span>
+                        </CarouselCard>
+                      </Link>
+                      <Link to="/docs/integration/EHR/Cerner">
+                        <CarouselCard>
+                          <span className="text-sky-600  hover:underline ">
+                            Cerner
+                          </span>
+                        </CarouselCard>
+                      </Link>
+                      <Link to="/docs/integration/EHR/Athenahealth">
+                        <CarouselCard>
+                          <span className="text-slate-700 hover:underline ">
+                            Athenahealth
+                          </span>
+                        </CarouselCard>
+                      </Link>
+                      <Link to="/docs/integration/EHR/Meditech">
+                        <CarouselCard>
+                          <span className="text-emerald-600 hover:underline ">
+                            Meditech
+                          </span>
+                        </CarouselCard>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -201,7 +219,9 @@ export default function Home(): ReactNode {
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
                     Support for authentication with{" "}
-                    <span className="text-blue-600 underline">OIDC</span> and{" "}
+                    <Link to="/docs/Authentication/OIDC">
+                      <span className="text-blue-600 underline">OIDC</span> and{" "}
+                    </Link>
                     <span className="text-blue-600 underline">
                       SMART on FHIR
                     </span>
@@ -224,37 +244,52 @@ export default function Home(): ReactNode {
                 <div className="p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
-                      <img
-                        src="/img/okta.svg"
-                        className="h-32 object-contain"
-                      />
+                      <Link to="/docs/Integration/Authentication/Okta">
+                        <img
+                          src="/img/okta.svg"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
-                      <img
-                        src="/img/azure.svg"
-                        className="h-32 object-contain"
-                      />
+                      <Link to="/docs/Integration/Authentication/Azure">
+                        <img
+                          src="/img/azure.svg"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
-                      <img
-                        src="/img/auth0.svg"
-                        className="h-32 object-contain"
-                      />
+                      <Link to="/docs/Integration/Authentication/Auth0">
+                        <img
+                          src="/img/auth0.svg"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
-                      <img
-                        src="/img/aws_logo.svg"
-                        className="h-32 object-contain"
-                      />
+                      <Link to="/docs/Integration/Authentication/AWS">
+                        <img
+                          src="/img/aws_logo.svg"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
-                      <img
-                        src="/img/keycloak.png"
-                        className="h-32 object-contain"
-                      />
+                      <Link to="/docs/Integration/Authentication/Keycloak">
+                        <img
+                          src="/img/keycloak.png"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
-                      <img src="/img/gcp.png" className="h-32 object-contain" />
+                      <Link to="/docs/Integration/Authentication/GCP">
+                        <img
+                          src="/img/gcp.png"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
                     </div>
                   </div>
                 </div>
