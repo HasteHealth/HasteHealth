@@ -227,6 +227,13 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
         .expect("Failed to create Elasticsearch client"),
     );
 
+    let mut attempts = 0;
+    while !search_engine.is_connected().await.is_ok() && attempts < 5 {
+        tracing::error!("Elasticsearch is not connected, retrying in 5 seconds...");
+        tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        attempts += 1;
+    }
+
     search_engine
         .migrate(&SupportedFHIRVersions::R4)
         .await

@@ -45,10 +45,14 @@ services:
 
 
   hastehealth-server:
-    image: hastehealth
+    image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
     container_name: hastehealth-server
+    platform: linux/amd64
     ports:
       - 3000:3000
+    depends_on:
+      - postgres
+      - elasticsearch
     command:
       - server
       - start
@@ -62,10 +66,14 @@ services:
       - ADMIN_APP_REDIRECT_URI=http://*.localhost:3001
     
   hastehealth-worker:
-    image: hastehealth
+    image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
     container_name: hastehealth-worker
+    platform: linux/amd64
     command:
       - worker
+    depends_on:
+      - postgres
+      - elasticsearch
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
       - ELASTICSEARCH_URL=http://elasticsearch:9200
