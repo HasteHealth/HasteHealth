@@ -1,0 +1,39 @@
+name: Release
+on:
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  SERVER_IMAGE_NAME: hastehealth/hastehealth
+  ADMIN_APP_IMAGE_NAME: hastehealth/admin-app
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and Publish Image
+        run: |
+          IMAGE_NAME=$(echo $SERVER_IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          # This changes all uppercase characters to lowercase.
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=${{ github.ref_name }}
+
+          # --platform linux/amd64,linux/arm64 \
+          docker buildx build . \
+           --file=docker/haste-health.dockerfile \
+           --platform linux/amd64 \
+           --tag $IMAGE_ID:$VERSION \
+           --tag $IMAGE_ID:latest \
+           --label "runnumber=${GITHUB_RUN_ID}" \
+           --push
