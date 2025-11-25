@@ -234,11 +234,6 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
         attempts += 1;
     }
 
-    search_engine
-        .migrate(&SupportedFHIRVersions::R4)
-        .await
-        .expect("Failed to create mapping for R4 index");
-
     let pg_pool = sqlx::PgPool::connect(
         &config
             .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
