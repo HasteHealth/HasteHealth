@@ -117,7 +117,7 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
             MigrationCommands::Search {} => migrate_search(config).await,
             MigrationCommands::All => {
                 migrate_repo(config.clone()).await?;
-                migrate_search(config).await?;
+                migrate_search(config.clone()).await?;
                 migrate_artifacts(config).await?;
                 Ok(())
             }
