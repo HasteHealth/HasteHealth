@@ -1,25 +1,9 @@
-yangshun:
-  name: Yangshun Tay
-  title: Ex-Meta Staff Engineer, Co-founder GreatFrontEnd
-  url: https://linkedin.com/in/yangshun
-  image_url: https://github.com/yangshun.png
+ralph-parkison:
+  name: Ralph Parkison
+  title: Haste Health maintainer
+  url: https://www.linkedin.com/in/ralph-parkison-7b759bb3/
+  image_url: https://media.licdn.com/dms/image/v2/C5603AQEt6Z3CYdJFog/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1661310230573?e=1765411200&v=beta&t=9ztrY9s2UZ2UicJy0OQVIC7KqwXEmv644v73z8VkjgE
   page: true
   socials:
-    x: yangshunz
-    linkedin: yangshun
-    github: yangshun
-    newsletter: https://www.greatfrontend.com
-
-slorber:
-  name: Sébastien Lorber
-  title: Docusaurus maintainer
-  url: https://sebastienlorber.com
-  image_url: https://github.com/slorber.png
-  page:
-    # customize the url of the author page at /blog/authors/<permalink>
-    permalink: '/all-sebastien-lorber-articles'
-  socials:
-    x: sebastienlorber
-    linkedin: sebastienlorber
-    github: slorber
-    newsletter: https://thisweekinreact.com
+    linkedin: ralph-parkison-7b759bb3
+    github: confused-moniker

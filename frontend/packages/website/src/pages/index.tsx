@@ -31,7 +31,10 @@ function HomepageHeader() {
       </div>
       {/* <p className="hero__subtitle text--secondary">{siteConfig.tagline}</p> */}
       <div className="flex justify-center items-center space-x-4">
-        <Link className="button button--secondary button--lg  border">
+        <Link
+          className="button button--secondary button--lg  border"
+          to="/docs/Getting Started"
+        >
           Getting Started - 5min ⏱️
         </Link>
       </div>
