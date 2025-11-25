@@ -113,7 +113,10 @@ function SchemaItem({
   return (
     <div
       className="schema-item w-full"
-      onClick={(_) => setIsActive((active) => !active)}
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsActive((active) => !active);
+      }}
     >
       <div
         className="schema-item__details"
