@@ -1,7 +1,6 @@
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.1.2-arm64
-    container_name: elasticsearch-local
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
     ports:
@@ -42,17 +41,41 @@ services:
       - POSTGRES_DB=haste_health
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  hastehealth-migrate:
+    image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
+    platform: linux/amd64
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch: 
+        condition: service_healthy
+    command:
+      - server
+      - migrate
+      - all
+
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=elastic
 
   hastehealth-server:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
-    container_name: hastehealth-server
     platform: linux/amd64
     ports:
       - 3000:3000
     depends_on:
-      - postgres
-      - elasticsearch
+      postgres:
+        condition: service_healthy
+      elasticsearch: 
+        condition: service_healthy
     command:
       - server
       - start
@@ -67,13 +90,14 @@ services:
     
   hastehealth-worker:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
-    container_name: hastehealth-worker
     platform: linux/amd64
     command:
       - worker
     depends_on:
-      - postgres
-      - elasticsearch
+      postgres:
+        condition: service_healthy
+      elasticsearch: 
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
       - ELASTICSEARCH_URL=http://elasticsearch:9200
