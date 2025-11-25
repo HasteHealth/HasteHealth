@@ -61,6 +61,7 @@ pub enum SearchError {
         diagnostic = "Elasticsearch server responded with an error: '{arg0}'"
     )]
     ElasticSearchResponseError(u16),
+    NotConnected,
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -105,6 +106,16 @@ impl ElasticSearchEngine {
             fp_engine,
             client: elasticsearch_client,
         })
+    }
+
+    pub async fn is_connected(&self) -> Result<(), SearchError> {
+        let res = self.client.ping().send().await.map_err(SearchError::from)?;
+
+        if res.status_code().is_success() {
+            Ok(())
+        } else {
+            Err(SearchError::NotConnected)
+        }
     }
 }
 
