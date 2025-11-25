@@ -45,8 +45,8 @@ pub enum ServerCommands {
 #[derive(Subcommand, Debug)]
 pub enum MigrationCommands {
     Artifacts {},
-    RepoSchema {},
-    SearchSchema {},
+    Repo {},
+    Search {},
     All,
 }
 
@@ -91,29 +91,34 @@ async fn migrate_search(
     Ok(())
 }
 
+async fn migrate_artifacts(
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
+) -> Result<(), OperationOutcomeError> {
+    let initial = config
+        .get(ServerEnvironmentVariables::AllowArtifactMutations)
+        .unwrap_or("false".to_string());
+    config.set(
+        ServerEnvironmentVariables::AllowArtifactMutations,
+        "true".to_string(),
+    )?;
+    load_artifacts::load_artifacts(config.clone()).await?;
+    config.set(ServerEnvironmentVariables::AllowArtifactMutations, initial)?;
+    Ok(())
+}
+
 pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeError> {
     let config = get_config::<ServerEnvironmentVariables>("environment".into());
 
     match &command {
         ServerCommands::Start { port } => server::serve(port.unwrap_or(3000)).await,
         ServerCommands::Migrate { command } => match command {
-            MigrationCommands::Artifacts {} => {
-                let initial = config
-                    .get(ServerEnvironmentVariables::AllowArtifactMutations)
-                    .unwrap_or("false".to_string());
-                config.set(
-                    ServerEnvironmentVariables::AllowArtifactMutations,
-                    "true".to_string(),
-                )?;
-                load_artifacts::load_artifacts(config.clone()).await?;
-                config.set(ServerEnvironmentVariables::AllowArtifactMutations, initial)?;
-                Ok(())
-            }
-            MigrationCommands::RepoSchema {} => migrate_repo(config).await,
-            MigrationCommands::SearchSchema {} => migrate_search(config).await,
+            MigrationCommands::Artifacts {} => migrate_artifacts(config).await,
+            MigrationCommands::Repo {} => migrate_repo(config).await,
+            MigrationCommands::Search {} => migrate_search(config).await,
             MigrationCommands::All => {
                 migrate_repo(config.clone()).await?;
                 migrate_search(config).await?;
+                migrate_artifacts(config).await?;
                 Ok(())
             }
         },
