@@ -74,6 +74,7 @@ export default function Home(): ReactNode {
       title={`Haste Health`}
       description="Description will go into a meta tag in <head />"
     >
+      <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
       <div className="container mx-auto px-2 ">
         <HomepageHeader />
         <main className="mt-12 z-1 text-orange-950">
