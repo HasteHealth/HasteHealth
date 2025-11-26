@@ -1,4 +1,132 @@
 ---
 id: invoke-system
-# title: POST /${code}
+title: invoke-system
+sidebar_position: 14
 ---
+
+# Invoke System Operation
+
+The FHIR [system-level operation invocation](https://www.hl7.org/fhir/operations.html) allows you to invoke a custom or standard operation at the system level (not tied to any specific resource type or instance). This is done using an HTTP POST or GET request to the operation endpoint at the root level.
+
+## Endpoint
+
+```
+POST /w/[tenant]/api/v1/[project]/fhir/r4/${code}
+GET /w/[tenant]/api/v1/[project]/fhir/r4/${code}?[parameters]
+```
+
+Where `{code}` is the operation name (e.g., `$export`, `$import`, `$process-message`, `$convert`).
+
+## Request Body (POST)
+
+For POST requests, the request body should contain a Parameters resource with the input parameters for the operation:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "type",
+      "valueString": "Patient,Observation"
+    },
+    {
+      "name": "since",
+      "valueInstant": "2025-01-01T00:00:00Z"
+    },
+    {
+      "name": "_outputFormat",
+      "valueString": "application/fhir+ndjson"
+    }
+  ]
+}
+```
+
+## Response
+
+If the operation executes successfully, the server will respond with a `200 OK` or `202 Accepted` status code and the operation result. The result format depends on the specific operation.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "transactionTime",
+      "valueInstant": "2025-11-26T10:30:00Z"
+    },
+    {
+      "name": "request",
+      "valueUri": "http://localhost:3000/$export?_type=Patient"
+    },
+    {
+      "name": "requiresAccessToken",
+      "valueBoolean": true
+    },
+    {
+      "name": "output",
+      "part": [
+        {
+          "name": "type",
+          "valueString": "Patient"
+        },
+        {
+          "name": "url",
+          "valueUrl": "http://localhost:3000/bulk-data/export-123/Patient.ndjson"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid parameters, operation not supported), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid _outputFormat parameter"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to invoke the `$export` operation at the system level using cURL:
+
+```bash
+curl -X POST "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/\$export" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -H "Prefer: respond-async" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             {
+               "name": "_type",
+               "valueString": "Patient,Observation"
+             },
+             {
+               "name": "_since",
+               "valueInstant": "2025-01-01T00:00:00Z"
+             }
+           ]
+         }'
+```
+
+This command sends a POST request to invoke the `$export` operation at the system level to export Patient and Observation resources.

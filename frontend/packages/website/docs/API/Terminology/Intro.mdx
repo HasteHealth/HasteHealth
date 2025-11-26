@@ -3,3 +3,26 @@ id: terminology-intro
 title: Intro
 sidebar_position: 0
 ---
+
+
+# Terminology
+This section provides definitions and explanations of key terms and concepts used throughout the Haste Health documentation.
+Understanding this terminology is essential for effectively utilizing the platform and its features.
+
+## FHIR Terminology
+FHIR (Fast Healthcare Interoperability Resources) is a standard for exchanging healthcare information electronically. 
+It defines a set of "resources" that represent various healthcare concepts, such as patients, practitioners, medications, and observations.
+FHIR terminology services provide a way to manage and utilize standardized medical vocabularies, code systems, and value sets within the FHIR framework.
+
+### Resources
+The following FHIR resources are commonly used in terminology services:
+- **CodeSystem**: Represents a set of codes drawn from one or more code systems.
+- **ValueSet**: A collection of codes from one or more code systems, intended for use in a particular context.
+- **ConceptMap**: A mapping between two or more code systems, allowing for translation of codes from one system to another.
+- **TerminologyCapabilities**: Describes the capabilities of a FHIR server with respect to terminology services.
+
+### Terminology Operations
+FHIR terminology services support various operations, including:
+- **$expand**: Expands a ValueSet to include all the codes it contains.
+- **$validate-code**: Validates whether a given code is part of a specified ValueSet.
+- **$translate**: Translates a code from one code system to another using a ConceptMap.

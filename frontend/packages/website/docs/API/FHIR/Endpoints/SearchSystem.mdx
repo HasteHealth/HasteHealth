@@ -1,5 +1,109 @@
 ---
 id: search-system
-# title: GET /
+title: search-system
 sidebar_position: 8
 ---
+
+# Search System
+
+The FHIR [system-level search operation](https://www.hl7.org/fhir/http.html#search) allows you to search across all resource types on the FHIR server. This is done using an HTTP GET request to the root endpoint with query parameters.
+
+## Endpoint
+
+```
+GET /w/[tenant]/api/v1/[project]/fhir/r4?[search parameters]
+```
+
+The search is performed across all resource types in the system.
+
+## Query Parameters
+
+Common search parameters include:
+
+- `_type` - Limit search to specific resource types (e.g., `_type=Patient,Observation`)
+- `_id` - Search by resource ID
+- `_lastUpdated` - Search by last updated date
+- `_tag` - Search by tag
+- `_profile` - Search by profile
+- `_content` - Search in the narrative content
+- `_text` - Search in the narrative text
+
+Example: `GET /w/[tenant]/api/v1/[project]/fhir/r4?_type=Patient&_lastUpdated=ge2025-01-01`
+
+## Response
+
+If the search is successful, the server will respond with a `200 OK` status code and a Bundle containing the matching resources from all types.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 3,
+  "entry": [
+    {
+      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "12345",
+        "name": [
+          {
+            "use": "official",
+            "family": "Doe",
+            "given": ["John"]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Observation/67890",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "67890",
+        "status": "final",
+        "code": {
+          "text": "Blood Pressure"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid search parameters), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid search parameter: unknown_param"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to perform a system-level search using cURL:
+
+```bash
+curl -X GET "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4?_type=Patient,Observation&_lastUpdated=ge2025-01-01" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+This command sends a GET request to search for Patient and Observation resources updated on or after January 1, 2025.

@@ -1,5 +1,125 @@
 ---
 id: update
-# title: PUT /{ResourceType}/{id}
+title: update
 sidebar_position: 3
 ---
+
+# Update Resource
+
+The FHIR [update operation](https://www.hl7.org/fhir/http.html#update) allows you to update an existing resource on the FHIR server. This is done using an HTTP PUT request to the endpoint corresponding to the resource type and ID.
+
+## Endpoint
+
+```
+PUT /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]
+```
+
+Where `[ResourceType]` is the type of resource you want to update (e.g., Patient, Observation) and `[id]` is the logical ID of the resource instance.
+
+## Request Body
+
+The request body should contain the complete JSON representation of the resource with the updated values. Here is an example of updating a Patient resource:
+
+```json
+{
+  "resourceType": "Patient",
+  "id": "12345",
+  "name": [
+    {
+      "use": "official",
+      "family": "Smith",
+      "given": ["John"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "555-1234"
+    }
+  ]
+}
+```
+
+## Response
+
+If the resource is updated successfully, the server will respond with a `200 OK` status code and include the updated resource in the response body.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Patient",
+  "id": "12345",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2025-11-26T10:30:00Z"
+  },
+  "name": [
+    {
+      "use": "official",
+      "family": "Smith",
+      "given": ["John"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "555-1234"
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., resource not found, invalid data), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid phone number format"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to update a Patient resource using cURL:
+
+```bash
+curl -X PUT "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Patient",
+           "id": "12345",
+           "name": [
+             {
+               "use": "official",
+               "family": "Smith",
+               "given": ["John"]
+             }
+           ],
+           "gender": "male",
+           "birthDate": "1980-01-01"
+         }'
+```
+
+This command sends a PUT request to update the Patient resource with ID 12345.

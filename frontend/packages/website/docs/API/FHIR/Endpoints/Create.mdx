@@ -1,5 +1,93 @@
 ---
 id: create-resource
-# title: POST /{ResourceType}
+title: create-resource
 sidebar_position: 0
 ---
+
+# Create Resource
+
+The FHIR [create operation](https://www.hl7.org/fhir/http.html#create) allows you to create a new resource of a specified type on the FHIR server. This is done using an HTTP POST request to the endpoint corresponding to the resource type.
+## Endpoint
+
+```
+POST /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]
+```
+
+Where `[ResourceType]` is the type of resource you want to create (e.g., Patient, Observation, etc.).
+## Request Body
+The request body should contain the JSON representation of the resource you want to create. Here is an example of creating a new Patient resource:
+
+```json
+{
+  "resourceType": "Patient",
+  "name": [
+    {
+      "use": "official",
+      "family": "Doe",
+      "given": ["John"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01"
+}
+```
+## Response
+If the resource is created successfully, the server will respond with a `201 Created` status code and include the newly created resource in the response body, along with a `Location` header indicating the URL of the created resource.   
+
+
+HTTP/1.1 201 Created
+Location: /w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345
+Content-Type: application/fhir+json
+```json
+{
+  "resourceType": "Patient",
+  "id": "12345",
+  "name": [
+    {
+      "use": "official",
+      "family": "Doe",
+      "given": ["John"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01"
+}
+```
+## Error Handling
+If there are any issues with the request (e.g., missing required fields, invalid data), the server will respond with an appropriate error status code (e.g., `400 Bad Request`) and include an `OperationOutcome` resource in the response body detailing the errors.   
+
+
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Missing required field: name"
+    }
+  ]
+}
+
+```
+## Example using cURL
+Here is an example of how to create a new Patient resource using cURL:  
+
+```bash
+curl -X POST "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Patient",
+           "name": [
+             {  
+               "use": "official",
+               "family": "Doe",
+               "given": ["John"]
+             }
+           ]
+         }'
+```
+This command sends a POST request to create a new Patient resource with the specified name.

@@ -1,4 +1,128 @@
 ---
 id: history-system
-# title: GET /_history
+title: history-system
+sidebar_position: 11
 ---
+
+# History System
+
+The FHIR [system-level history operation](https://www.hl7.org/fhir/http.html#history) allows you to retrieve the change history for all resources across all resource types on the FHIR server. This is done using an HTTP GET request to the system history endpoint.
+
+## Endpoint
+
+```
+GET /w/[tenant]/api/v1/[project]/fhir/r4/_history
+```
+
+This retrieves the history across the entire system.
+
+## Query Parameters
+
+Optional parameters to control the history results:
+
+- `_count` - Number of entries to return (default: server-defined)
+- `_since` - Return only changes since this date/time
+- `_at` - Return the state as of this date/time
+- `_type` - Filter by specific resource types
+
+Example: `GET /w/[tenant]/api/v1/[project]/fhir/r4/_history?_count=50&_since=2025-01-01&_type=Patient,Observation`
+
+## Response
+
+If the request is successful, the server will respond with a `200 OK` status code and a Bundle of type `history` containing versions of all resources across all types.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Bundle",
+  "type": "history",
+  "total": 8,
+  "entry": [
+    {
+      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/2",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "12345",
+        "meta": {
+          "versionId": "2",
+          "lastUpdated": "2025-11-26T10:30:00Z"
+        },
+        "name": [
+          {
+            "use": "official",
+            "family": "Smith",
+            "given": ["John"]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/12345"
+      },
+      "response": {
+        "status": "200"
+      }
+    },
+    {
+      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Observation/67890/_history/1",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "67890",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2025-11-26T09:15:00Z"
+        },
+        "status": "final",
+        "code": {
+          "text": "Blood Pressure"
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      },
+      "response": {
+        "status": "201"
+      }
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid parameters), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid _since parameter format"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to retrieve the system-wide history using cURL:
+
+```bash
+curl -X GET "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/_history?_count=50&_since=2025-01-01" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+This command sends a GET request to retrieve the last 50 resource versions across all types changed since January 1, 2025.

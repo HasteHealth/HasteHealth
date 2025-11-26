@@ -1,4 +1,115 @@
 ---
 id: invoke-type
-# title: POST /{ResourceType}/${code}
+title: invoke-type
+sidebar_position: 13
 ---
+
+# Invoke Type Operation
+
+The FHIR [type-level operation invocation](https://www.hl7.org/fhir/operations.html) allows you to invoke a custom or standard operation on a specific resource type. This is done using an HTTP POST or GET request to the operation endpoint for the resource type.
+
+## Endpoint
+
+```
+POST /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/${code}
+GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/${code}?[parameters]
+```
+
+Where `[ResourceType]` is the type of resource (e.g., Patient, Observation) and `{code}` is the operation name (e.g., `$validate`, `$export`, `$import`).
+
+## Request Body (POST)
+
+For POST requests, the request body should contain a Parameters resource with the input parameters for the operation:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "resource",
+      "resource": {
+        "resourceType": "Patient",
+        "name": [
+          {
+            "use": "official",
+            "family": "Doe",
+            "given": ["John"]
+          }
+        ]
+      }
+    },
+    {
+      "name": "mode",
+      "valueCode": "create"
+    }
+  ]
+}
+```
+
+## Response
+
+If the operation executes successfully, the server will respond with a `200 OK` status code and the operation result. The result format depends on the specific operation.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "information",
+      "code": "informational",
+      "diagnostics": "Validation successful"
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid parameters, operation not supported), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid resource: missing required field"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to invoke the `$validate` operation on the Patient resource type using cURL:
+
+```bash
+curl -X POST "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/\$validate" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             {
+               "name": "resource",
+               "resource": {
+                 "resourceType": "Patient",
+                 "name": [{"family": "Doe", "given": ["John"]}]
+               }
+             }
+           ]
+         }'
+```
+
+This command sends a POST request to invoke the `$validate` operation on the Patient resource type to validate a Patient resource.

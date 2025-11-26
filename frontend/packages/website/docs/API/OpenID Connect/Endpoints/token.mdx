@@ -1,0 +1,192 @@
+---
+id: token
+title: token
+sidebar_position: 2
+---
+
+# Token Endpoint
+
+The [OAuth 2.0 token endpoint](https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint) is used to exchange an authorization code for access tokens, refresh tokens, and ID tokens. It also supports token refresh and client credentials flows.
+
+## Endpoint
+
+```
+POST /oauth2/token
+```
+
+This endpoint exchanges authorization codes or refresh tokens for access tokens and ID tokens.
+
+## Request Body
+
+The request must be sent as `application/x-www-form-urlencoded` with the following parameters:
+
+### Authorization Code Grant
+
+Exchange an authorization code for tokens:
+
+```
+grant_type=authorization_code
+&code=AUTHORIZATION_CODE
+&redirect_uri=https://example.com/callback
+&client_id=my-client-id
+&client_secret=my-client-secret
+```
+
+For PKCE (public clients), replace `client_secret` with `code_verifier`:
+
+```
+grant_type=authorization_code
+&code=AUTHORIZATION_CODE
+&redirect_uri=https://example.com/callback
+&client_id=my-client-id
+&code_verifier=CODE_VERIFIER_VALUE
+```
+
+### Refresh Token Grant
+
+Exchange a refresh token for new tokens:
+
+```
+grant_type=refresh_token
+&refresh_token=REFRESH_TOKEN
+&client_id=my-client-id
+&client_secret=my-client-secret
+```
+
+Optional parameter:
+- `scope` - Request a different (narrower) scope than the original
+
+### Client Credentials Grant
+
+Obtain tokens using client credentials (machine-to-machine):
+
+```
+grant_type=client_credentials
+&client_id=my-client-id
+&client_secret=my-client-secret
+&scope=system/*.read
+```
+
+## Response
+
+If the token request is successful, the server will respond with a `200 OK` status code and a JSON payload containing the tokens:
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+```
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "def50200a1b2c3d4e5f6...",
+  "scope": "openid profile email",
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Response fields:
+
+- `access_token` - The access token (JWT) used to access protected resources
+- `token_type` - Always `Bearer` for OAuth 2.0
+- `expires_in` - Lifetime in seconds of the access token
+- `refresh_token` - The refresh token used to obtain new access tokens (optional)
+- `scope` - The granted scopes (may differ from requested)
+- `id_token` - The OpenID Connect ID token containing user claims (for OpenID Connect flows)
+
+## Error Handling
+
+If there are any issues with the request, the server will respond with a `400 Bad Request` status code and an error response:
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
+
+```json
+{
+  "error": "invalid_grant",
+  "error_description": "The provided authorization code is invalid, expired, or revoked"
+}
+```
+
+Common error codes:
+
+- `invalid_request` - The request is missing a required parameter or is malformed
+- `invalid_client` - Client authentication failed (invalid credentials)
+- `invalid_grant` - The authorization code or refresh token is invalid, expired, or revoked
+- `unauthorized_client` - The client is not authorized to use this grant type
+- `unsupported_grant_type` - The grant type is not supported
+- `invalid_scope` - The requested scope is invalid or exceeds the originally granted scope
+
+## Example using cURL
+
+### Authorization Code Exchange
+
+```bash
+curl -X POST "http://localhost:3000/oauth2/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=authorization_code" \
+     -d "code=AUTH_CODE_FROM_REDIRECT" \
+     -d "redirect_uri=https://example.com/callback" \
+     -d "client_id=my-client-id" \
+     -d "client_secret=my-client-secret"
+```
+
+### Authorization Code with PKCE
+
+```bash
+curl -X POST "http://localhost:3000/oauth2/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=authorization_code" \
+     -d "code=AUTH_CODE_FROM_REDIRECT" \
+     -d "redirect_uri=https://example.com/callback" \
+     -d "client_id=my-client-id" \
+     -d "code_verifier=CODE_VERIFIER_FROM_PKCE_FLOW"
+```
+
+### Refresh Token
+
+```bash
+curl -X POST "http://localhost:3000/oauth2/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=refresh_token" \
+     -d "refresh_token=REFRESH_TOKEN" \
+     -d "client_id=my-client-id" \
+     -d "client_secret=my-client-secret"
+```
+
+### Client Credentials
+
+```bash
+curl -X POST "http://localhost:3000/oauth2/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=client_credentials" \
+     -d "client_id=my-client-id" \
+     -d "client_secret=my-client-secret" \
+     -d "scope=system/*.read"
+```
+
+## Client Authentication
+
+Clients can authenticate using multiple methods:
+
+### Client Secret Basic
+
+Send credentials in the Authorization header:
+
+```bash
+curl -X POST "http://localhost:3000/oauth2/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -H "Authorization: Basic $(echo -n 'client_id:client_secret' | base64)" \
+     -d "grant_type=authorization_code" \
+     -d "code=AUTH_CODE" \
+     -d "redirect_uri=https://example.com/callback"
+```
+
+### Client Secret Post
+
+Send credentials in the request body (as shown in examples above).

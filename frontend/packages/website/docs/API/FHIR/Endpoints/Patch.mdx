@@ -1,5 +1,142 @@
 ---
 id: patch
-# title: PATCH /{ResourceType}/{id}
+title: patch
 sidebar_position: 4
 ---
+
+# Patch Resource
+
+The FHIR [patch operation](https://www.hl7.org/fhir/http.html#patch) allows you to partially update an existing resource on the FHIR server. This is done using an HTTP PATCH request to the endpoint corresponding to the resource type and ID. FHIR supports both JSON Patch and FHIRPath Patch formats.
+
+## Endpoint
+
+```
+PATCH /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]
+```
+
+Where `[ResourceType]` is the type of resource you want to patch (e.g., Patient, Observation) and `[id]` is the logical ID of the resource instance.
+
+## Request Body
+
+The request body should contain the patch operations. Here is an example using JSON Patch format to update a Patient's phone number:
+
+```json
+[
+  {
+    "op": "add",
+    "path": "/telecom",
+    "value": [
+      {
+        "system": "phone",
+        "value": "555-1234"
+      }
+    ]
+  }
+]
+```
+
+For FHIRPath Patch, use `application/fhir+json` with a Parameters resource:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "operation",
+      "part": [
+        {
+          "name": "type",
+          "valueCode": "add"
+        },
+        {
+          "name": "path",
+          "valueString": "Patient.telecom"
+        },
+        {
+          "name": "value",
+          "valueContactPoint": {
+            "system": "phone",
+            "value": "555-1234"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Response
+
+If the resource is patched successfully, the server will respond with a `200 OK` status code and include the updated resource in the response body.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Patient",
+  "id": "12345",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2025-11-26T10:30:00Z"
+  },
+  "name": [
+    {
+      "use": "official",
+      "family": "Doe",
+      "given": ["John"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "555-1234"
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., resource not found, invalid patch operation), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid patch operation: path not found"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to patch a Patient resource using cURL with JSON Patch:
+
+```bash
+curl -X PATCH "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+     -H "Content-Type: application/json-patch+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '[
+           {
+             "op": "add",
+             "path": "/telecom",
+             "value": [{"system": "phone", "value": "555-1234"}]
+           }
+         ]'
+```
+
+This command sends a PATCH request to add a phone number to the Patient resource with ID 12345.
