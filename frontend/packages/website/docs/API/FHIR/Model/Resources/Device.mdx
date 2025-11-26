@@ -1,0 +1,315 @@
+---
+id: Device
+title: Device
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# Device
+
+A type of a manufactured item that is used in the provision of healthcare without being substantially changed through that activity. The device may be a medical or non-medical device.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="Device" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The author of the resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Missing in search-parameter.json for R4 this is derived from the R4B Definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the narrative of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the entire content of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Logical id of this artifact</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">When the resource version last changed</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Profiles this resource claims to conform to</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A custom search profile that describes a specific defined query operation</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Security Labels applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Identifies where the resource comes from</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Tags applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">device-name</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A server defined search that may match any of the string fields in Device.deviceName or Device.type.</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.deviceName.name / Device.type.coding.display / Device.type.text</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Instance id from manufacturer, owner, and others</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">location</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A location, where the resource is found</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.location</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">manufacturer</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The manufacturer of the device</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.manufacturer</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">model</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The model of the device</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.modelNumber</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">organization</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The organization responsible for the device</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.owner</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Patient information, if the resource is affixed to a person</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.patient</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">active / inactive / entered-in-error / unknown</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The type of the device</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.type</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">udi-carrier</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">UDI Barcode (RFID or other technology) string in *HRF* format.</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.udiCarrier.carrierHRF</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">udi-di</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The udi Device Identifier (DI)</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.udiCarrier.deviceIdentifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Network address to contact device</div>
+        <div class="line-clamp-3 truncate">
+              <code>Device.url</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

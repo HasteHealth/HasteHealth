@@ -1,0 +1,351 @@
+---
+id: ChargeItemDefinition
+title: ChargeItemDefinition
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# ChargeItemDefinition
+
+The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices. The properties may differ largely depending on type and realm, therefore this resource gives only a rough structure and requires profiling for each type of billing code system.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="ChargeItemDefinition" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The author of the resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Missing in search-parameter.json for R4 this is derived from the R4B Definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the narrative of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the entire content of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Logical id of this artifact</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">When the resource version last changed</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Profiles this resource claims to conform to</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A custom search profile that describes a specific defined query operation</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Security Labels applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Identifies where the resource comes from</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Tags applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A use context assigned to the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>(ChargeItemDefinition.useContext.value.ofType(CodeableConcept))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-quantity</span> <span> (quantity)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A quantity- or range-valued use context assigned to the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>(ChargeItemDefinition.useContext.value.ofType(Quantity)) / (ChargeItemDefinition.useContext.value.ofType(Range))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A type of use context assigned to the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.useContext.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The charge item definition publication date</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">description</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The description of the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.description</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">effective</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The time during which the charge item definition is intended to be in use</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.effectivePeriod</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">External identifier for the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Intended jurisdiction for the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.jurisdiction</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">publisher</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Name of the publisher of the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.publisher</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The current status of the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">title</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The human-friendly name of the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.title</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The uri that identifies the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.url</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">version</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The business version of the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.version</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A use context type and quantity- or range-based value assigned to the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.useContext</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type-value</span> <span> (composite)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A use context type and value assigned to the charge item definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>ChargeItemDefinition.useContext</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

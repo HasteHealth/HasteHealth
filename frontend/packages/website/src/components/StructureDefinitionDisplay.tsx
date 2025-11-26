@@ -4,6 +4,7 @@ import {
   ElementDefinition,
   StructureDefinition,
 } from "@haste-health/fhir-types/lib/generated/r4/types";
+import Link from "@docusaurus/Link";
 
 function isRequred(element: ElementDefinition): boolean {
   const min = element.min;
@@ -29,20 +30,29 @@ function DisplayIfArray(element: ElementDefinition): string {}
 
 function DisplayType({ element }: { element: ElementDefinition }) {
   const max = element.max ?? "1";
-
   const display = isTypeChoice(element)
     ? "typechoice"
     : (element.type ?? []).map((t) => t.code).join(", ");
+
+  const linkTo =
+    isTypeChoice(element) &&
+    !display.startsWith("http://hl7.org/fhirpath/System.")
+      ? null
+      : "/docs/API/FHIR/Model/Types/" + display;
+
   return (
     <div className="ml-2">
-      <span
-        className={`text-md font-semibold ${getColorCode(
+      <Link
+        to={linkTo}
+        className={`no-underline ${getColorCode(
           (element.type ?? [])[0]?.code ?? ""
-        )}`}
+        )} hover:underline`}
       >
-        {display}
-        {max !== "1" ? " []" : ""}
-      </span>
+        <span className={`text-md font-semibold`}>
+          {display}
+          {max !== "1" ? " []" : ""}
+        </span>
+      </Link>
     </div>
   );
 }
@@ -139,11 +149,21 @@ function SchemaItem({
   );
 }
 
-export default function StructureDefinitionDisplay(props: {
-  sd: StructureDefinition;
-}) {
+export default function StructureDefinitionDisplay(props: { sd: string }) {
+  const [sd, setSd] = React.useState<StructureDefinition>(null);
+
+  React.useEffect(() => {
+    fetch("/fhir/R4/" + props.sd + ".json")
+      .then((res) => res.json())
+      .then((fetchedSd) => {
+        setSd(fetchedSd);
+      });
+  }, [props.sd]);
+
+  if (!sd) return null;
+
   return sdTraversal.traversalBottomUp(
-    props.sd,
+    sd,
     (
       element: ElementDefinition,
       nestedElements: React.JSX.Element[],
