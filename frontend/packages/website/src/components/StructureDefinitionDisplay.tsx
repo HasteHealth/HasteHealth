@@ -38,7 +38,7 @@ function DisplayType({ element }: { element: ElementDefinition }) {
     isTypeChoice(element) &&
     !display.startsWith("http://hl7.org/fhirpath/System.")
       ? null
-      : "/docs/API/FHIR/Model/Types/" + display;
+      : "/docs/API/FHIR/Model/Types/" + display + "/";
 
   return (
     <div className="ml-2">

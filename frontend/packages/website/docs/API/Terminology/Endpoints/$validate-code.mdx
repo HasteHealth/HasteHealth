@@ -1,0 +1,208 @@
+---
+id: validate-code
+title: $validate-code
+sidebar_position: 1
+---
+
+# Validate Code
+
+The FHIR [$validate-code operation](https://www.hl7.org/fhir/valueset-operation-validate-code.html) validates whether a coded value is in a value set or code system. This operation can be invoked on ValueSet or CodeSystem resources.
+
+## Endpoint
+
+```
+GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$validate-code
+POST /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$validate-code
+GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/{id}/$validate-code
+POST /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/{id}/$validate-code
+GET /w/{tenant}/api/v1/{project}/fhir/r4/CodeSystem/$validate-code
+POST /w/{tenant}/api/v1/{project}/fhir/r4/CodeSystem/{id}/$validate-code
+```
+
+Where `{id}` is the logical ID of a specific ValueSet or CodeSystem resource (optional for type-level operations).
+
+## Query Parameters (GET)
+
+For GET requests, parameters are passed as query parameters:
+
+- `url` - The canonical URL of the value set (required if not using instance-level operation)
+- `code` - The code to validate (required)
+- `system` - The code system URI (required if code is provided)
+- `display` - The display text for the code (optional)
+- `version` - The version of the code system (optional)
+- `abstract` - Whether to validate that the code is not abstract (optional, default: false)
+- `displayLanguage` - The preferred display language (optional)
+
+Example: `GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender`
+
+## Request Body (POST)
+
+For POST requests, the request body should contain a Parameters resource with the input parameters:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "url",
+      "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
+    },
+    {
+      "name": "code",
+      "valueCode": "male"
+    },
+    {
+      "name": "system",
+      "valueUri": "http://hl7.org/fhir/administrative-gender"
+    },
+    {
+      "name": "display",
+      "valueString": "Male"
+    }
+  ]
+}
+```
+
+Alternatively, you can pass a Coding or CodeableConcept:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "url",
+      "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
+    },
+    {
+      "name": "coding",
+      "valueCoding": {
+        "system": "http://hl7.org/fhir/administrative-gender",
+        "code": "male",
+        "display": "Male"
+      }
+    }
+  ]
+}
+```
+
+## Response
+
+If the validation is successful, the server will respond with a `200 OK` status code and a Parameters resource containing the validation result:
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "result",
+      "valueBoolean": true
+    },
+    {
+      "name": "message",
+      "valueString": "The code 'male' is valid in the value set 'http://hl7.org/fhir/ValueSet/administrative-gender'"
+    },
+    {
+      "name": "display",
+      "valueString": "Male"
+    }
+  ]
+}
+```
+
+Response parameters:
+
+- `result` - **Boolean** (required): True if the code is valid, false otherwise
+- `message` - **String** (optional): Additional information about the validation
+- `display` - **String** (optional): The recommended display text for the code
+
+## Validation Failure Response
+
+If the code is not valid in the value set:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "result",
+      "valueBoolean": false
+    },
+    {
+      "name": "message",
+      "valueString": "The code 'invalid-code' is not in the value set 'http://hl7.org/fhir/ValueSet/administrative-gender'"
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., missing required parameters, invalid value set), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "required",
+      "diagnostics": "Missing required parameter: code"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+### GET Request
+
+```bash
+curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### POST Request with Parameters
+
+```bash
+curl -X POST "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             {
+               "name": "url",
+               "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
+             },
+             {
+               "name": "code",
+               "valueCode": "male"
+             },
+             {
+               "name": "system",
+               "valueUri": "http://hl7.org/fhir/administrative-gender"
+             }
+           ]
+         }'
+```
+
+### Instance-Level Validation
+
+```bash
+curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$validate-code?code=male&system=http://hl7.org/fhir/administrative-gender" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+This command validates the code 'male' against the administrative-gender ValueSet instance.

@@ -1,5 +1,114 @@
 ---
 id: search-type
-# title: GET /{ResourceType}
+title: search-type
 sidebar_position: 7
 ---
+
+# Search Resource Type
+
+The FHIR [search operation](https://www.hl7.org/fhir/http.html#search) allows you to search for resources of a specific type that match certain search criteria. This is done using an HTTP GET request to the endpoint corresponding to the resource type with query parameters.
+
+## Endpoint
+
+```
+GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]?[search parameters]
+```
+
+Where `[ResourceType]` is the type of resource you want to search (e.g., Patient, Observation) and the query parameters define the search criteria.
+
+## Query Parameters
+
+Common search parameters include:
+
+- `_id` - Search by resource ID
+- `_lastUpdated` - Search by last updated date
+- `_tag` - Search by tag
+- `_profile` - Search by profile
+- Resource-specific parameters (e.g., `name`, `birthdate`, `identifier` for Patient)
+
+Example: `GET /w/[tenant]/api/v1/[project]/fhir/r4/Patient?name=Smith&birthdate=ge1980-01-01`
+
+## Response
+
+If the search is successful, the server will respond with a `200 OK` status code and a Bundle containing the matching resources.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "12345",
+        "name": [
+          {
+            "use": "official",
+            "family": "Smith",
+            "given": ["John"]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1985-03-15"
+      }
+    },
+    {
+      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/67890",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "67890",
+        "name": [
+          {
+            "use": "official",
+            "family": "Smith",
+            "given": ["Jane"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1982-07-22"
+      }
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid search parameters), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid search parameter: unknown_param"
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to search for Patient resources using cURL:
+
+```bash
+curl -X GET "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient?name=Smith&birthdate=ge1980-01-01" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+This command sends a GET request to search for Patient resources with the family name "Smith" born on or after January 1, 1980.

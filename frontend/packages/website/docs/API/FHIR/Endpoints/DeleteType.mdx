@@ -1,5 +1,80 @@
 ---
 id: delete-type
-# title: DELETE /{ResourceType}
+title: delete-type
 sidebar_position: 6
 ---
+
+# Delete Resource Type
+
+The FHIR [conditional delete operation](https://www.hl7.org/fhir/http.html#3.1.0.7.1) allows you to delete resources of a specific type that match certain search criteria. This is done using an HTTP DELETE request to the endpoint corresponding to the resource type with query parameters.
+
+## Endpoint
+
+```
+DELETE /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]?[search parameters]
+```
+
+Where `[ResourceType]` is the type of resource you want to delete (e.g., Patient, Observation) and the query parameters define the search criteria for which resources to delete.
+
+## Query Parameters
+
+The query parameters follow the same format as FHIR search parameters. For example:
+
+- `identifier=system|value` - Delete resources with a specific identifier
+- `name=Smith` - Delete resources with a specific name
+- `birthdate=1980-01-01` - Delete resources with a specific birth date
+
+## Response
+
+If the resources are deleted successfully, the server will respond with a `200 OK` status code and include an `OperationOutcome` describing the results.
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "information",
+      "code": "informational",
+      "diagnostics": "Successfully deleted 3 Patient resources matching criteria"
+    }
+  ]
+}
+```
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid search parameters, multiple matches without confirmation), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 412 Precondition Failed
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "multiple-matches",
+      "diagnostics": "Multiple resources match the search criteria. Use more specific parameters or delete individually."
+    }
+  ]
+}
+```
+
+## Example using cURL
+
+Here is an example of how to conditionally delete Patient resources using cURL:
+
+```bash
+curl -X DELETE "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient?identifier=http://example.org/fhir/ids|12345" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+This command sends a DELETE request to remove all Patient resources that match the specified identifier.
