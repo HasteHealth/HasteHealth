@@ -1,0 +1,315 @@
+---
+id: HealthcareService
+title: HealthcareService
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# HealthcareService
+
+The details of a healthcare service available at a location.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="HealthcareService" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The author of the resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Missing in search-parameter.json for R4 this is derived from the R4B Definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the narrative of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the entire content of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Logical id of this artifact</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">When the resource version last changed</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Profiles this resource claims to conform to</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A custom search profile that describes a specific defined query operation</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Security Labels applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Identifies where the resource comes from</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Tags applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">active</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The Healthcare Service is currently marked as active</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.active</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">characteristic</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">One of the HealthcareService's characteristics</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.characteristic</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">coverage-area</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Location(s) service is intended for/available to</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.coverageArea</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">endpoint</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Technical endpoints providing access to electronic services operated for the healthcare service</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.endpoint</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">External identifiers for this item</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">location</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The location of the Healthcare Service</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.location</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">name</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A portion of the Healthcare service name</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">organization</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The organization that provides this Healthcare Service</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.providedBy</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">program</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">One of the Programs supported by this HealthcareService</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.program</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">service-category</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Service Category of the Healthcare Service</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.category</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">service-type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The type of service provided by this healthcare service</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.type</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">specialty</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The specialty of the service provided by this healthcare service</div>
+        <div class="line-clamp-3 truncate">
+              <code>HealthcareService.specialty</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

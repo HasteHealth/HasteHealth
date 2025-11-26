@@ -1,0 +1,351 @@
+---
+id: Location
+title: Location
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# Location
+
+Details and position information for a physical place where services are provided and resources and participants may be stored, found, contained, or accommodated.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="Location" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The author of the resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Missing in search-parameter.json for R4 this is derived from the R4B Definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the narrative of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the entire content of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Logical id of this artifact</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">When the resource version last changed</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Profiles this resource claims to conform to</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A custom search profile that describes a specific defined query operation</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Security Labels applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Identifies where the resource comes from</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Tags applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A (part of the) address of the location</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address-city</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A city specified in an address</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address.city</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address-country</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A country specified in an address</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address.country</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address-postalcode</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A postal code specified in an address</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address.postalCode</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address-state</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A state specified in an address</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address.state</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">address-use</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A use code specified in an address</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.address.use</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">endpoint</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Technical endpoints providing access to services operated for the location</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.endpoint</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">An identifier for the location</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">name</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A portion of the location's name or alias</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.name / Location.alias</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">near</span> <span> (special)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search for locations where the location.position is near to, or within a specified distance of, the provided coordinates expressed as [latitude]/[longitude]/[distance]/[units] (using the WGS84 datum, see notes).If the units are omitted, then kms should be assumed. If the distance is omitted, then the server can use its own discretion as to what distances should be considered near (and units are irrelevant)Servers may search using various techniques that might have differing accuracies, depending on implementation efficiency.Requires the near-distance parameter to be provided also</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.position</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">operational-status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Searches for locations (typically bed/room) that have an operational status (e.g. contaminated, housekeeping)</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.operationalStatus</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">organization</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Searches for locations that are managed by the provided organization</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.managingOrganization</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">partof</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A location of which this location is a part</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.partOf</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Searches for locations with a specific kind of status</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A code for the type of location</div>
+        <div class="line-clamp-3 truncate">
+              <code>Location.type</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

@@ -33388,6 +33388,7 @@ __metadata:
     "@haste-health/artifacts": "workspace:^"
     "@haste-health/codegen": "workspace:^"
     "@haste-health/fhir-types": "workspace:^"
+    "@haste-health/haste-health.fhir.r4.core": "workspace:^"
     "@haste-health/hl7.fhir.r4.core": "workspace:^"
     "@mdx-js/react": "npm:^3.0.0"
     "@tailwindcss/postcss": "npm:^4.1.17"

@@ -19,7 +19,7 @@ const r4Artifacts = ["StructureDefinition", "SearchParameter"]
 
 function generateProperties(sd) {
   return sdTraversal.traversalBottomUp(sd, (element, nestedElements) => {
-    return `<StructureDefinitionDisplay sd={${JSON.stringify(sd)}} />`;
+    return `<BrowserOnly> {() => <StructureDefinitionDisplay sd="${sd.name}" />}</BrowserOnly>`;
   });
 }
 
@@ -71,6 +71,7 @@ tags:
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
 # ${structureDefinition.name}\n
 ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
@@ -99,18 +100,19 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
 
   doc = `${doc}\n`;
 
-  doc = `${doc} 
+  if (structureDefinition.kind === "resource") {
+    doc = `${doc} 
   <div>
   ## Search Parameters\n<div class="space-y-4">`;
-  for (const parameter of parameters) {
-    const name = parameter.name;
-    const type = parameter.type;
+    for (const parameter of parameters) {
+      const name = parameter.name;
+      const type = parameter.type;
 
-    const description = escapeCharacters(parameter.description || "");
+      const description = escapeCharacters(parameter.description || "");
 
-    const expression = escapeCharacters(parameter.expression || "");
+      const expression = escapeCharacters(parameter.expression || "");
 
-    doc = `${doc} 
+      doc = `${doc} 
     <div class="text-xs space-y-1">
         <div class="text-sm">
             <span class="font-semibold">${name}</span> <span> (${type})</span>
@@ -126,9 +128,11 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
     </div>
     \n
   `;
+    }
+    doc = `${doc} </div></div>`;
   }
 
-  doc = `${doc}    </div></div></div>`;
+  doc = `${doc} </div>`;
 
   return doc;
 }
@@ -139,13 +143,35 @@ async function generateFHIRDocumentation() {
     .filter((sd) => sd.derivation !== "constraint")
     .filter((r) => r.kind === "resource");
 
+  const r4DataTypes = r4Artifacts
+    .filter((r) => r.resourceType === "StructureDefinition")
+    .filter((sd) => sd.derivation !== "constraint")
+    .filter((r) => r.kind === "complex-type" || r.kind === "primitive-type");
+
   for (const structureDefinition of r4StructureDefinitions) {
-    const pathName = `./docs/API/FHIR/Data Model/${structureDefinition.name}.mdx`;
+    const pathName = `./docs/API/FHIR/Model/Resources/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
       structureDefinition
     );
     fs.writeFileSync(pathName, content);
+    fs.writeFileSync(
+      "./static/fhir/R4/" + structureDefinition.name + ".json",
+      JSON.stringify(structureDefinition, null, 2)
+    );
+  }
+
+  for (const structureDefinition of r4DataTypes) {
+    const pathName = `./docs/API/FHIR/Model/Types/${structureDefinition.name}.mdx`;
+    const content = await processStructureDefinition(
+      r4Artifacts,
+      structureDefinition
+    );
+    fs.writeFileSync(pathName, content);
+    fs.writeFileSync(
+      "./static/fhir/R4/" + structureDefinition.name + ".json",
+      JSON.stringify(structureDefinition, null, 2)
+    );
   }
 }
 

@@ -1,0 +1,399 @@
+---
+id: Task
+title: Task
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# Task
+
+A task to be performed.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'IGUHealth',
+      url: 'https://iguhealth.app',
+      logo: 'https://iguhealth.app/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="Task" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">The author of the resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Missing in search-parameter.json for R4 this is derived from the R4B Definition</div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the narrative of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search on the entire content of the resource</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Logical id of this artifact</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">When the resource version last changed</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Profiles this resource claims to conform to</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">A custom search profile that describes a specific defined query operation</div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Security Labels applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Identifies where the resource comes from</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Tags applied to this resource</div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">authored-on</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by creation date</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.authoredOn</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">based-on</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by requests this task is based on</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.basedOn</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">business-status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by business status</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.businessStatus</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">code</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task code</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">encounter</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by encounter</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.encounter</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">focus</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task focus</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.focus</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">group-identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by group identifier</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.groupIdentifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search for a task instance by its business identifier</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">intent</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task intent</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.intent</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">modified</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by last modification date</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.lastModified</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">owner</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task owner</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.owner</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">part-of</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task this task is part of</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.partOf</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by patient</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.for.where(resolve() is Patient)</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">performer</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by recommended type of performer (e.g., Requester, Performer, Scheduler).</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.performerType</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">period</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by period Task is/was underway</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.executionPeriod</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">priority</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task priority</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.priority</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">requester</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task requester</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.requester</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by task status</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">subject</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate">Search by subject</div>
+        <div class="line-clamp-3 truncate">
+              <code>Task.for</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>
