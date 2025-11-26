@@ -19,6 +19,7 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json" }
 haste-jwt = { path = "../jwt" }
 reqwest = { version = "0.12", optional = true }
 thiserror = "2.0.12"
+haste-reflect = { path = "../reflect" }
 
 [dev-dependencies]
 tokio = { version = "1.46.1", features = ["rt", "macros"] }

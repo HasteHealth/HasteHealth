@@ -49,6 +49,14 @@ pub enum Instant {
     Iso8601(chrono::DateTime<chrono::Utc>),
 }
 
+impl Instant {
+    pub fn format(&self, fmt: &str) -> String {
+        match self {
+            Instant::Iso8601(dt) => dt.to_utc().format(fmt).to_string(),
+        }
+    }
+}
+
 impl ToString for Instant {
     fn to_string(&self) -> String {
         match self {
