@@ -1,6 +1,6 @@
 {
     "label": "Endpoints",
-    "position": 0,
+    "position": 1,
     "link": {
         "type": "generated-index",
         "description": "FHIR Endpoints."

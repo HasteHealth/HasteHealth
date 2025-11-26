@@ -9,7 +9,7 @@ import autoprefixer from "autoprefixer";
 const config: Config = {
   title: "Haste Health",
   tagline: "Documentation Site",
-  favicon: "img/logo.svg",
+  favicon: "/img/favicon.ico",
 
   onBrokenLinks: "warn",
 
@@ -94,7 +94,7 @@ const config: Config = {
     navbar: {
       title: "Haste Health",
       logo: {
-        alt: "My Site Logo",
+        alt: "Haste Health",
         src: "img/logo.svg",
       },
       items: [
