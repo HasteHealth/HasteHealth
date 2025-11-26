@@ -84,7 +84,7 @@ export default function Home(): ReactNode {
                   <h3 className="text-5xl font-bold">
                     Easily{" "}
                     <Link to="/docs/category/ehr">
-                      <span className="text-orange-600 underline">
+                      <span className="text-orange-600 underline hover:text-orange-500">
                         interoperate
                       </span>
                     </Link>{" "}
@@ -94,7 +94,9 @@ export default function Home(): ReactNode {
                     <DescriptionColumn
                       title={
                         <Link to="/docs/category/fhir">
-                          <span>FHIR</span>
+                          <span className="hover:underline hover:text-orange-500">
+                            FHIR
+                          </span>
                         </Link>
                       }
                       description="Built from the ground up to support the FHIR (Fast Healthcare Interoperability Resources) a modern, open standard created by HL7 to help healthcare systems securely exchange data."
@@ -220,7 +222,10 @@ export default function Home(): ReactNode {
                   <h3 className="text-5xl font-bold">
                     Support for authentication with{" "}
                     <Link to="/docs/Authentication/OIDC">
-                      <span className="text-blue-600 underline">OIDC</span> and{" "}
+                      <span className="text-blue-600 hover:text-blue-500 underline">
+                        OIDC
+                      </span>{" "}
+                      and{" "}
                     </Link>
                     <span className="text-blue-600 underline">
                       SMART on FHIR
@@ -243,7 +248,7 @@ export default function Home(): ReactNode {
                 </div>
                 <div className="p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Authentication/Okta">
                         <img
                           src="/img/okta.svg"
@@ -251,7 +256,7 @@ export default function Home(): ReactNode {
                         />
                       </Link>
                     </div>
-                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Authentication/Azure">
                         <img
                           src="/img/azure.svg"
@@ -259,7 +264,7 @@ export default function Home(): ReactNode {
                         />
                       </Link>
                     </div>
-                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Authentication/Auth0">
                         <img
                           src="/img/auth0.svg"
@@ -267,7 +272,7 @@ export default function Home(): ReactNode {
                         />
                       </Link>
                     </div>
-                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Authentication/AWS">
                         <img
                           src="/img/aws_logo.svg"
@@ -275,7 +280,7 @@ export default function Home(): ReactNode {
                         />
                       </Link>
                     </div>
-                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Authentication/Keycloak">
                         <img
                           src="/img/keycloak.png"
@@ -283,7 +288,7 @@ export default function Home(): ReactNode {
                         />
                       </Link>
                     </div>
-                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Authentication/GCP">
                         <img
                           src="/img/gcp.png"
