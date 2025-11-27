@@ -42,3 +42,34 @@ jobs:
            --tag $IMAGE_ID:latest \
            --label "runnumber=${GITHUB_RUN_ID}" \
            --push
+  admin-app:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u $ --password-stdin
+      - name: Build and Publish Image
+        run: |
+          IMAGE_NAME=$(echo $ADMIN_APP_IMAGE_NAME | tr '[A-Z]' '[a-z]')
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          # This changes all uppercase characters to lowercase.
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$GITHUB_REF_NAME
+
+          # --platform linux/amd64,linux/arm64 \
+          docker buildx build . \
+           --file=docker/admin-app/dockerfile \
+           --platform linux/amd64 \
+           --tag $IMAGE_ID:$GITHUB_REF_NAME \
+           --tag $IMAGE_ID:latest \
+           --label "runnumber=${GITHUB_RUN_ID}" \
+           --push

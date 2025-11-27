@@ -104,12 +104,12 @@ services:
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=elastic
 
-  # hastehealth-worker:
-  #   image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
-  #   platform: linux/amd64
-  #   depends_on:
-  #     - hastehealth-worker
-  #     - hastehealth-server
-  #   environment:
-  #     - FHIR_API_URL=http://hastehealth-server:3000
+  hastehealth-admin-app:
+    image: ghcr.io/hastehealth/hastehealth/admin-app:latest
+    platform: linux/amd64
+    depends_on:
+      - hastehealth-worker
+      - hastehealth-server
+    environment:
+      - REACT_APP_FHIR_BASE_URL=http://localhost:3000
     
