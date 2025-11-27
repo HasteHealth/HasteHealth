@@ -5912,8 +5912,8 @@ __metadata:
     js-file-download: "npm:^0.4.12"
     postcss: "npm:^8.5.3"
     postcss-cli: "npm:^11.0.0"
-    react: "npm:^19.1.0"
-    react-dom: "npm:^19.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
     react-hot-toast: "npm:^2.5.2"
     rollup: "npm:^4.34.9"
     rollup-plugin-dts: "npm:^6.1.1"
@@ -5929,7 +5929,8 @@ __metadata:
     "@codemirror/state": ">=6.0.0"
     "@codemirror/theme-one-dark": ">=6.0.0"
     "@codemirror/view": ">=6.0.0"
-    react: ^18.2.0
+    react: ^19.2.0
+    react-dom: ^19.2.0
   languageName: unknown
   linkType: soft
 
