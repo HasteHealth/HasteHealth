@@ -52,10 +52,9 @@ sequenceDiagram
     IdP->>IdP: Authenticate user
     IdP->>IdP: Generate authorization code
     
-    IdP->>Browser: Redirect to Haste Health callback
-    Note over IdP,Browser: Callback URL:<br/>/callback?code=...&state=...
+    IdP->>HasteHealth: Redirect to Haste Health callback
+    Note over IdP,HasteHealth: Callback URL:<br/>/callback?code=...&state=...
     
-    Browser->>HasteHealth: GET /callback?code=...&state=...
     HasteHealth->>HasteHealth: Verify state parameter
     
     HasteHealth->>IdP: POST /token<br/>(exchange code for tokens)
