@@ -47,7 +47,7 @@ sequenceDiagram
     SPA->>Browser: Store code_verifier & state<br/>in sessionStorage
     
     SPA->>AuthServer: Redirect to authorization endpoint
-    Note over SPA,AuthServer: https://auth.hastehealth.com/authorize?<br/>response_type=code<br/>client_id=spa-client-id<br/>redirect_uri=https://app.com/callback<br/>scope=openid profile patient/*.read<br/>state=RANDOM_STATE<br/>code_challenge=CHALLENGE<br/>code_challenge_method=S256
+    Note over SPA,AuthServer: https://api.haste.health/authorize?<br/>response_type=code<br/>client_id=spa-client-id<br/>redirect_uri=https://app.com/callback<br/>scope=openid profile patient/*.read<br/>state=RANDOM_STATE<br/>code_challenge=CHALLENGE<br/>code_challenge_method=S256
     
 
     
@@ -121,7 +121,7 @@ GET /w/{tenant}/api/v1/oauth/authorize?
   state=random-state-value&
   code_challenge=CHALLENGE&
   code_challenge_method=S256 HTTP/1.1
-Host: auth.hastehealth.com
+Host: api.haste.health
 ```
 
 **Parameters:**
@@ -175,7 +175,7 @@ The SPA exchanges the authorization code for tokens using the code_verifier (no 
 **Request:**
 ```http
 POST /w/{tenant}/api/v1/oauth/token HTTP/1.1
-Host: auth.hastehealth.com
+Host: api.haste.health
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code&
@@ -214,7 +214,7 @@ Use the access token to call protected APIs:
 **Request:**
 ```http
 GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient/123 HTTP/1.1
-Host: api.hastehealth.com
+Host: api.haste.health
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -248,7 +248,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 {
   "error": "invalid_grant",
   "error_description": "The authorization code has expired or has already been used",
-  "error_uri": "https://docs.hastehealth.com/errors/invalid_grant"
+  "error_uri": "https://api.haste.health/errors/invalid_grant"
 }
 ```
 
