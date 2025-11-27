@@ -1,7 +1,6 @@
 FROM rust:1.91.1-bookworm AS stage
 
-RUN apt update
-RUN apt install -y openssl pkg-config libssl-dev
+RUN apt update && apt install -y openssl pkg-config libssl-dev && apt clean
 
 
 COPY ./backend /app
@@ -17,8 +16,7 @@ FROM debian:bookworm-slim
 
 COPY --from=stage /app/target/release/haste-health /haste-health
 
-RUN apt update
-RUN apt install -y openssl pkg-config libssl-dev
+RUN apt update && apt install -y openssl pkg-config libssl-dev && apt clean
 
 ENTRYPOINT ["/haste-health"]
 
