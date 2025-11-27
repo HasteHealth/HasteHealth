@@ -37,6 +37,11 @@ const config: Config = {
     locales: ["en"],
   },
 
+  markdown: {
+    mermaid: true,
+  },
+  themes: ["@docusaurus/theme-mermaid"],
+
   plugins: [
     async function myPlugin(context, options) {
       return {
