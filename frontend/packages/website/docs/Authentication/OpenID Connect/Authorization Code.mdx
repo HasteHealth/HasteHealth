@@ -1,0 +1,280 @@
+---
+id: authorization-code
+title: Authorization Code Grant
+sidebar_position: 1
+tags:
+  - authentication
+  - oidc
+  - oauth2
+---
+
+# Authorization Code Grant
+
+For Authorization code grant flow we require PKCE. 
+
+## Overview with of Authorization code grant with PKCE
+
+A highly secure flow in the OAuth 2.0 framework. It enhances the standard Authorization Code flow, primarily to protect public clients (like mobile and single-page applications) that cannot securely store a client_secret
+
+**Use Cases:**
+- Native Mobile Applications: Clients (iOS, Android apps) that cannot securely store a traditional, static client_secret within their distributed code.
+- Single-Page Applications (SPAs): Client-side JavaScript applications running in a browser that are vulnerable to code inspection, making them unable to secure a static client_secret.
+- Desktop Applications: Applications running on an end-user's machine, which are also considered public clients for security purposes.
+- Confidential Clients (Web Apps with a Backend): Although they can use a client_secret, PKCE is still recommended as an extra layer of defense against certain types of code injection and CSRF attacks.
+
+**Key Benefits:**
+- Prevents Code Interception Attacks	An attacker who intercepts the authorization_code from the redirect URI cannot exchange it for an access token because they do not possess the secret code_verifier. This is the primary security benefit.
+- Eliminates Client Secret for Public Clients	PKCE removes the need for public clients (like SPAs and Mobile apps) to register or use a static client_secret, solving the problem of insecure secret storage.
+- Mitigates Cross-Site Request Forgery (CSRF)	By dynamically linking the initial authorization request to the final token exchange, PKCE provides strong protection against CSRF, often making the use of the state parameter redundant for this specific purpose.
+- Default Security Standard	PKCE is now mandated in the OAuth 2.0 Security Best Current Practice and the upcoming OAuth 2.1 specification, making it the required flow for modern application development.
+
+## Authorization Code Flow with PKCE
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant App as Haste Health<br/>(Client Application)
+    participant AuthServer as Authorization Server<br/>(Haste Health OAuth)
+    participant ResourceServer as Resource Server<br/>(FHIR API)
+
+    User->>Browser: Click "Login" or access protected resource
+    Browser->>App: Request authentication
+    
+    App->>App: Generate code_verifier<br/>(43-128 random characters)
+    App->>App: Create code_challenge<br/>(SHA256 hash of verifier)
+    App->>App: Generate state parameter<br/>(CSRF protection)
+    App->>App: Store state & verifier in session
+    
+    App->>Browser: Redirect to authorization endpoint
+    Note over App,Browser: Redirect URL includes:<br/>response_type=code<br/>client_id<br/>redirect_uri<br/>scope<br/>state<br/>code_challenge<br/>code_challenge_method=S256
+    
+    Browser->>AuthServer: GET /w/{tenant}/api/v1/oauth/authorize?params
+    
+    AuthServer->>AuthServer: Validate client_id<br/>Validate redirect_uri<br/>Validate scopes<br/>Store code_challenge
+    
+    AuthServer->>Browser: Display login page
+    Browser->>User: Show login form
+    
+    User->>Browser: Enter credentials
+    Browser->>AuthServer: POST credentials
+    
+    AuthServer->>AuthServer: Authenticate user<br/>Validate credentials
+    
+    AuthServer->>Browser: Show consent screen<br/>(if required)
+    Browser->>User: Display requested permissions
+    
+    User->>Browser: Grant consent
+    Browser->>AuthServer: Submit consent
+    
+    AuthServer->>AuthServer: Generate authorization code<br/>(short-lived, single-use)<br/>Bind code to code_challenge
+    
+    AuthServer->>Browser: Redirect to callback URL
+    Note over AuthServer,Browser: Callback includes:<br/>code=AUTH_CODE<br/>state=ORIGINAL_STATE
+    
+    Browser->>App: GET /callback?code=...&state=...
+    
+    App->>App: Verify state parameter<br/>(CSRF protection)
+    App->>App: Retrieve code_verifier<br/>from session
+    
+    App->>AuthServer: POST /w/{tenant}/api/v1/oauth/token
+    Note over App,AuthServer: Token Request:<br/>grant_type=authorization_code<br/>code=AUTH_CODE<br/>redirect_uri<br/>client_id<br/>client_secret<br/>code_verifier
+    
+    AuthServer->>AuthServer: Validate authorization code<br/>Verify client credentials<br/>Verify redirect_uri matches<br/>Verify SHA256(code_verifier)<br/>matches code_challenge
+    
+    AuthServer->>AuthServer: Mark code as used<br/>(prevent replay)
+    
+    AuthServer->>App: Return tokens
+    Note over AuthServer,App: Token Response:<br/>access_token<br/>token_type: Bearer<br/>expires_in<br/>refresh_token<br/>scope
+    
+    App->>App: Store tokens securely<br/>Create user session
+    
+    App->>Browser: Set session cookie<br/>Redirect to application
+    
+    Browser->>User: Display authenticated application
+    
+    rect rgb(240, 248, 255)
+        Note over User,ResourceServer: Accessing Protected Resources
+        
+        User->>Browser: Request protected resource
+        Browser->>App: GET /protected-resource
+        
+        App->>App: Retrieve access token<br/>from session
+        
+        App->>ResourceServer: GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
+        
+        ResourceServer->>ResourceServer: Validate access token<br/>Check token expiration<br/>Verify scopes
+        
+        ResourceServer->>App: Return protected data
+        App->>Browser: Render data
+        Browser->>User: Display result
+    end
+```
+
+## Flow Steps in Detail
+
+### Step 1: Authorization Request
+
+The client application redirects the user to the authorization endpoint with the following parameters:
+
+**Request:**
+```http
+GET /w/{tenant}/api/v1/oauth/authorize?
+  response_type=code&
+  client_id=your-client-id&
+  redirect_uri=https://yourapp.com/callback&
+  scope=openid+profile+email+patient/*.read&
+  state=random-state-value&
+  code_challenge=CHALLENGE&
+  code_challenge_method=S256 HTTP/1.1
+Host: auth.hastehealth.com
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `response_type` | Yes | Must be `code` for authorization code flow |
+| `client_id` | Yes | Your application's client identifier |
+| `redirect_uri` | Yes | Where to redirect after authorization (must be pre-registered) |
+| `scope` | Yes | Space-delimited list of requested scopes (must include `openid` for OIDC) |
+| `state` | Recommended | Random value to prevent CSRF attacks |
+| `code_challenge` | **Required** | PKCE code challenge (SHA-256 hash of code_verifier) |
+| `code_challenge_method` | **Required** | Must be `S256` (SHA-256 hash method) |
+| `nonce` | Optional | Random value included in ID token to prevent replay attacks |
+| `prompt` | Optional | `none`, `login`, `consent`, or `select_account` |
+| `max_age` | Optional | Maximum authentication age in seconds |
+
+### Step 2: User Authentication
+
+The authorization server authenticates the user through:
+1. Login form (username/password, MFA)
+2. Session cookie (if already logged in)
+3. Federated identity provider (SSO)
+
+### Step 3: User Consent
+
+If required, the authorization server displays a consent screen showing:
+- Application name and description
+- Requested scopes and permissions
+- Option to approve or deny
+
+### Step 4: Authorization Code Generation
+
+Upon successful authentication and consent, the authorization server:
+1. Generates a short-lived authorization code (typically 1-10 minutes)
+2. Associates the code with the client, user, and requested scopes
+3. Redirects back to the client's redirect URI
+
+**Response:**
+```http
+HTTP/1.1 302 Found
+Location: https://yourapp.com/callback?
+  code=AUTH_CODE_HERE&
+  state=random-state-value
+```
+
+### Step 5: Token Exchange
+
+The client exchanges the authorization code for tokens by making a back-channel request:
+
+**Request:**
+```http
+POST /w/{tenant}/api/v1/oauth/token HTTP/1.1
+Host: auth.hastehealth.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic base64(client_id:client_secret)
+
+grant_type=authorization_code&
+code=AUTH_CODE_HERE&
+redirect_uri=https://yourapp.com/callback&
+code_verifier=ORIGINAL_VERIFIER
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `grant_type` | Yes | Must be `authorization_code` |
+| `code` | Yes | The authorization code received |
+| `redirect_uri` | Yes | Must match the original redirect URI |
+| `client_id` | Yes* | Client identifier |
+| `client_secret` | No| Client secret |
+| `code_verifier` | **Required** | The original random string used to generate code_challenge |
+
+**Response:**
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "scope": "openid profile email patient/*.read",
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### Step 6: Access Protected Resources
+
+Use the access token to call protected APIs:
+
+**Request:**
+```http
+GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient/123 HTTP/1.1
+Host: api.hastehealth.com
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Error Handling
+
+### Authorization Errors
+
+| Error Code | Description | Resolution |
+|------------|-------------|------------|
+| `invalid_request` | Missing or invalid required parameter | Check all required parameters are included |
+| `unauthorized_client` | Client not authorized for this grant type | Verify client configuration |
+| `access_denied` | User denied authorization request | Inform user and allow retry |
+| `unsupported_response_type` | Authorization server doesn't support response type | Use `response_type=code` |
+| `invalid_scope` | Requested scope is invalid or unknown | Check scope names and permissions |
+| `server_error` | Authorization server error | Retry with exponential backoff |
+| `temporarily_unavailable` | Server temporarily unavailable | Retry after delay |
+
+### Token Exchange Errors
+
+| Error Code | Description | Resolution |
+|------------|-------------|------------|
+| `invalid_request` | Missing required parameter | Include all required parameters |
+| `invalid_client` | Client authentication failed | Verify client_id and client_secret |
+| `invalid_grant` | Authorization code invalid, expired, or revoked | Request new authorization |
+| `unauthorized_client` | Client not authorized for authorization code grant | Update client configuration |
+| `unsupported_grant_type` | Grant type not supported | Use `grant_type=authorization_code` |
+
+### Example Error Response
+
+```json
+{
+  "error": "invalid_grant",
+  "error_description": "The authorization code has expired or has already been used",
+  "error_uri": "https://docs.hastehealth.com/errors/invalid_grant"
+}
+```
+
+
+## Comparison with Other Flows
+
+| Feature | Authorization Code | Client Credentials | Implicit (Deprecated) |
+|---------|-------------------|--------------------|-----------------------|
+| **Use Case** | Web apps with backend | Service-to-service | SPAs (legacy) |
+| **Client Authentication** | Required | Required | Not possible |
+| **Refresh Tokens** | Yes | Optional | No |
+| **Security** | Highest | High | Low |
+| **User Context** | Yes | No | Yes |
+| **Recommended** | ✅ Yes | ✅ Yes | ❌ No (use Auth Code + PKCE) |
+
+## Resources
+
+- [OAuth 2.0 RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749)
+- [OpenID Connect Core Specification](https://openid.net/specs/openid-connect-core-1_0.html)
+- [PKCE RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636)
+- [OAuth 2.0 Security Best Practices](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics)
+- [OAuth 2.0 for Browser-Based Apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps)

@@ -1,0 +1,8 @@
+{
+    "label": "OpenID Connect",
+    "position": 1,
+    "link": {
+        "type": "generated-index",
+        "description": "OpenID Connect grant flows supported by Haste Health."
+    }
+}
