@@ -11,7 +11,7 @@ function isRequred(element: ElementDefinition): boolean {
   return min !== undefined && min > 0;
 }
 
-function requiredIndicator(element: ElementDefinition): string {
+function requiredIndicator(element: ElementDefinition): React.JSX.Element {
   return isRequred(element) ? (
     <>
       <div className="border-b flex-grow ml-2" />{" "}
@@ -26,9 +26,7 @@ function isTypeChoice(element: ElementDefinition): boolean {
   return (element.type ?? []).length > 1;
 }
 
-function DisplayIfArray(element: ElementDefinition): string {}
-
-function DisplayType({ element }: { element: ElementDefinition }) {
+function DisplayType({ element }: Readonly<{ element: ElementDefinition }>) {
   const max = element.max ?? "1";
   const display = isTypeChoice(element)
     ? "typechoice"
@@ -45,7 +43,7 @@ function DisplayType({ element }: { element: ElementDefinition }) {
       <Link
         to={linkTo}
         className={`no-underline ${getColorCode(
-          (element.type ?? [])[0]?.code ?? ""
+          (element.type ?? [])[0]?.code ?? "",
         )} hover:underline`}
       >
         <span className={`text-md font-semibold`}>
@@ -93,17 +91,17 @@ function SchemaItem({
   element,
   nested,
   children,
-}: {
+}: Readonly<{
   nested: boolean;
   element: ElementDefinition;
   children: React.ReactNode;
-}) {
+}>) {
   const [isActive, setIsActive] = React.useState<boolean>(false);
   const propertyDescription = (
     <>
       <summary
         className={`flex items-center font-semibold text-md ${
-          !nested ? "cursor-default" : "cursor-pointer"
+          nested ? "cursor-pointer" : "cursor-default"
         }`}
       >
         <span className="font-bold">{element.path.split(".").pop()}</span>
@@ -130,7 +128,7 @@ function SchemaItem({
     >
       <div
         className="schema-item__details"
-        data-collapsed={!isActive ? "true" : "false"}
+        data-collapsed={isActive ? "false" : "true"}
       >
         {propertyDescription}
         <div
@@ -149,7 +147,9 @@ function SchemaItem({
   );
 }
 
-export default function StructureDefinitionDisplay(props: { sd: string }) {
+export default function StructureDefinitionDisplay(
+  props: Readonly<{ sd: string }>,
+) {
   const [sd, setSd] = React.useState<StructureDefinition>(null);
 
   React.useEffect(() => {
@@ -167,7 +167,7 @@ export default function StructureDefinitionDisplay(props: { sd: string }) {
     (
       element: ElementDefinition,
       nestedElements: React.JSX.Element[],
-      { curIndex }
+      { curIndex },
     ) => {
       if (curIndex == 0) {
         return <div>{nestedElements}</div>;
@@ -178,6 +178,6 @@ export default function StructureDefinitionDisplay(props: { sd: string }) {
           </SchemaItem>
         );
       }
-    }
+    },
   );
 }
