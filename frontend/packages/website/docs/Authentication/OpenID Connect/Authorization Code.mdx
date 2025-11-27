@@ -33,81 +33,75 @@ A highly secure flow in the OAuth 2.0 framework. It enhances the standard Author
 ```mermaid
 sequenceDiagram
     participant User
-    participant Browser
-    participant App as Haste Health<br/>(Client Application)
+    participant SPA as Web app<br/>(React/Vue/Angular)
+    participant Browser as Browser Storage<br/>(sessionStorage)
     participant AuthServer as Authorization Server<br/>(Haste Health OAuth)
-    participant ResourceServer as Resource Server<br/>(FHIR API)
+    participant API as FHIR API<br/>(Resource Server)
 
-    User->>Browser: Click "Login" or access protected resource
-    Browser->>App: Request authentication
+    User->>SPA: Click "Login"
     
-    App->>App: Generate code_verifier<br/>(43-128 random characters)
-    App->>App: Create code_challenge<br/>(SHA256 hash of verifier)
-    App->>App: Generate state parameter<br/>(CSRF protection)
-    App->>App: Store state & verifier in session
+    SPA->>SPA: Generate code_verifier<br/>(43-128 random characters)
+    SPA->>SPA: Create code_challenge<br/>SHA256(code_verifier)<br/>Base64-URL encode
+    SPA->>SPA: Generate state<br/>(random nonce)
     
-    App->>Browser: Redirect to authorization endpoint
-    Note over App,Browser: Redirect URL includes:<br/>response_type=code<br/>client_id<br/>redirect_uri<br/>scope<br/>state<br/>code_challenge<br/>code_challenge_method=S256
+    SPA->>Browser: Store code_verifier & state<br/>in sessionStorage
     
-    Browser->>AuthServer: GET /w/{tenant}/api/v1/oauth/authorize?params
+    SPA->>AuthServer: Redirect to authorization endpoint
+    Note over SPA,AuthServer: https://auth.hastehealth.com/authorize?<br/>response_type=code<br/>client_id=spa-client-id<br/>redirect_uri=https://app.com/callback<br/>scope=openid profile patient/*.read<br/>state=RANDOM_STATE<br/>code_challenge=CHALLENGE<br/>code_challenge_method=S256
     
-    AuthServer->>AuthServer: Validate client_id<br/>Validate redirect_uri<br/>Validate scopes<br/>Store code_challenge
+
     
-    AuthServer->>Browser: Display login page
-    Browser->>User: Show login form
+    AuthServer->>AuthServer: Validate request<br/>Store code_challenge<br/>Bind to client_id
     
-    User->>Browser: Enter credentials
-    Browser->>AuthServer: POST credentials
+    AuthServer->>User: Show login page
+    
+    User->>AuthServer: Enter credentials
     
     AuthServer->>AuthServer: Authenticate user<br/>Validate credentials
     
-    AuthServer->>Browser: Show consent screen<br/>(if required)
-    Browser->>User: Display requested permissions
+    AuthServer->>User: Show consent screen
     
-    User->>Browser: Grant consent
-    Browser->>AuthServer: Submit consent
+    User->>AuthServer: Grant permissions
     
-    AuthServer->>AuthServer: Generate authorization code<br/>(short-lived, single-use)<br/>Bind code to code_challenge
+    AuthServer->>AuthServer: Generate authorization code<br/>(10 min expiry)<br/>Bind to code_challenge
     
-    AuthServer->>Browser: Redirect to callback URL
-    Note over AuthServer,Browser: Callback includes:<br/>code=AUTH_CODE<br/>state=ORIGINAL_STATE
+    AuthServer->>SPA: Redirect to callback
+    Note over AuthServer,User: https://app.com/callback?<br/>code=AUTH_CODE<br/>state=RANDOM_STATE
     
-    Browser->>App: GET /callback?code=...&state=...
     
-    App->>App: Verify state parameter<br/>(CSRF protection)
-    App->>App: Retrieve code_verifier<br/>from session
+    SPA->>Browser: Retrieve state from sessionStorage
+    SPA->>SPA: Verify state matches<br/>(CSRF protection)
     
-    App->>AuthServer: POST /w/{tenant}/api/v1/oauth/token
-    Note over App,AuthServer: Token Request:<br/>grant_type=authorization_code<br/>code=AUTH_CODE<br/>redirect_uri<br/>client_id<br/>client_secret<br/>code_verifier
+    SPA->>Browser: Retrieve code_verifier<br/>from sessionStorage
     
-    AuthServer->>AuthServer: Validate authorization code<br/>Verify client credentials<br/>Verify redirect_uri matches<br/>Verify SHA256(code_verifier)<br/>matches code_challenge
+    SPA->>AuthServer: POST /w/{tenant}/api/v1/oauth/token
+    Note over SPA,AuthServer: Content-Type: application/x-www-form-urlencoded<br/>grant_type=authorization_code<br/>code=AUTH_CODE<br/>redirect_uri=https://app.com/callback<br/>client_id=spa-client-id<br/>code_verifier=ORIGINAL_VERIFIER
     
-    AuthServer->>AuthServer: Mark code as used<br/>(prevent replay)
+    AuthServer->>AuthServer: Validate authorization code<br/>Verify redirect_uri matches<br/>Hash code_verifier with SHA256<br/>Compare with stored code_challenge
     
-    AuthServer->>App: Return tokens
-    Note over AuthServer,App: Token Response:<br/>access_token<br/>token_type: Bearer<br/>expires_in<br/>refresh_token<br/>scope
+    AuthServer->>AuthServer: PKCE validation success<br/>Mark code as used
     
-    App->>App: Store tokens securely<br/>Create user session
+    AuthServer->>SPA: Return tokens
     
-    App->>Browser: Set session cookie<br/>Redirect to application
+    SPA->>Browser: Store access_token in memory<br/>Store refresh_token in sessionStorage
+    SPA->>Browser: Clear code_verifier & state
     
-    Browser->>User: Display authenticated application
+    SPA->>User: Display authenticated app
     
     rect rgb(240, 248, 255)
-        Note over User,ResourceServer: Accessing Protected Resources
+        Note over User,API: Accessing Protected Resources
         
-        User->>Browser: Request protected resource
-        Browser->>App: GET /protected-resource
+        User->>SPA: Request patient data
         
-        App->>App: Retrieve access token<br/>from session
+        SPA->>SPA: Get access_token from memory
         
-        App->>ResourceServer: GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
+        SPA->>API: GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
         
-        ResourceServer->>ResourceServer: Validate access token<br/>Check token expiration<br/>Verify scopes
+        API->>API: Validate token<br/>Check expiration<br/>Verify scopes
         
-        ResourceServer->>App: Return protected data
-        App->>Browser: Render data
-        Browser->>User: Display result
+        API->>SPA: Return FHIR resources
+        
+        SPA->>User: Display patient data
     end
 ```
 
@@ -176,18 +170,18 @@ Location: https://yourapp.com/callback?
 
 ### Step 5: Token Exchange
 
-The client exchanges the authorization code for tokens by making a back-channel request:
+The SPA exchanges the authorization code for tokens using the code_verifier (no client_secret needed for public clients):
 
 **Request:**
 ```http
 POST /w/{tenant}/api/v1/oauth/token HTTP/1.1
 Host: auth.hastehealth.com
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic base64(client_id:client_secret)
 
 grant_type=authorization_code&
 code=AUTH_CODE_HERE&
 redirect_uri=https://yourapp.com/callback&
+client_id=spa-client-id&
 code_verifier=ORIGINAL_VERIFIER
 ```
 
@@ -196,11 +190,10 @@ code_verifier=ORIGINAL_VERIFIER
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `grant_type` | Yes | Must be `authorization_code` |
-| `code` | Yes | The authorization code received |
-| `redirect_uri` | Yes | Must match the original redirect URI |
-| `client_id` | Yes* | Client identifier |
-| `client_secret` | No| Client secret |
-| `code_verifier` | **Required** | The original random string used to generate code_challenge |
+| `code` | Yes | The authorization code received from callback |
+| `redirect_uri` | Yes | Must exactly match the original redirect URI |
+| `client_id` | Yes | Your SPA's registered client identifier |
+| `code_verifier` | **Required** | The original random string used to generate code_challenge (retrieved from sessionStorage) |
 
 **Response:**
 ```json
@@ -262,13 +255,14 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## Comparison with Other Flows
 
-| Feature | Authorization Code | Client Credentials | Implicit (Deprecated) |
-|---------|-------------------|--------------------|-----------------------|
-| **Use Case** | Web apps with backend | Service-to-service | SPAs (legacy) |
-| **Client Authentication** | Required | Required | Not possible |
+| Feature | Authorization Code + PKCE | Client Credentials | Implicit (Deprecated) |
+|---------|---------------------------|--------------------|-----------------------|
+| **Use Case** | SPAs, mobile apps | Service-to-service | SPAs (legacy) |
+| **Client Secret** | Not required (PKCE) | Required | Not possible |
 | **Refresh Tokens** | Yes | Optional | No |
 | **Security** | Highest | High | Low |
 | **User Context** | Yes | No | Yes |
+| **PKCE Required** | ✅ Yes | ❌ No | N/A |
 | **Recommended** | ✅ Yes | ✅ Yes | ❌ No (use Auth Code + PKCE) |
 
 ## Resources
