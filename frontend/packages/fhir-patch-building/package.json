@@ -11,9 +11,9 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "build": "yarn tsc",
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "build": "pnpm tsc",
+    "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "devDependencies": {
     "@haste-health/fhir-types": "workspace:^",

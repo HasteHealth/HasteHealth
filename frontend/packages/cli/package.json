@@ -34,7 +34,7 @@
   },
   "scripts": {
     "build": "tsc && node executable.js ./lib/hastehealth.js && chmod +x ./lib/hastehealth.js",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "files": [
     "lib/**"

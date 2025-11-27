@@ -11,9 +11,9 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "generate": "yarn node ../cli/lib/hastehealth.js generate operations --output=./src/r4 && yarn prettier --write ./src/r4/**/*.ts",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
+    "generate": "pnpm node ../cli/lib/hastehealth.js generate operations --output=./src/r4 && pnpm prettier --write ./src/r4/**/*.ts",
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "dependencies": {
     "@haste-health/operation-execution": "workspace:^"

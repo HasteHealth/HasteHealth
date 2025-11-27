@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "keywords": [],
   "author": "",

@@ -11,8 +11,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "exports": {
     ".": "./lib/index.js",

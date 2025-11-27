@@ -103,3 +103,13 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=elastic
+
+  # hastehealth-worker:
+  #   image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
+  #   platform: linux/amd64
+  #   depends_on:
+  #     - hastehealth-worker
+  #     - hastehealth-server
+  #   environment:
+  #     - FHIR_API_URL=http://hastehealth-server:3000
+    

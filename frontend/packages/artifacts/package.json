@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\"",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "fhirVersion": [
     "r4"

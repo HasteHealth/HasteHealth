@@ -1,5 +1,15 @@
+FROM node:23-slim  AS node
+
+COPY ./frontend /app
+WORKDIR /app
+ENV CI=true
+RUN corepack enable
+RUN pnpm install
+RUN pnpm -r run build
+
 FROM nginx:1.29.3
+
 COPY docker/admin-app/nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=node /frontend/packages/admin-app/build /usr/share/nginx/html
+COPY --from=node  /app/packages/admin-app/build /usr/share/nginx/html
 
 EXPOSE 80

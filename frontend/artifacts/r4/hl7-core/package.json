@@ -21,10 +21,10 @@
     }
   ],
   "scripts": {
-    "minify": "yarn node ../../../packages/cli/lib/hastehealth.js minimize artifacts -d definitions",
-    "generate-index-nonmin": "yarn node ../../../packages/cli/lib/hastehealth.js generate index-file --extension json -p . -r definitions --ignore \\*.min.json",
-    "generate-index": "yarn node ../../../packages/cli/lib/hastehealth.js generate index-file --extension .min.json -p . -r definitions",
-    "publish": "yarn npm publish --access public --tolerate-republish"
+    "minify": "pnpm node ../../../packages/cli/lib/hastehealth.js minimize artifacts -d definitions",
+    "generate-index-nonmin": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file --extension json -p . -r definitions --ignore \\*.min.json",
+    "generate-index": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file --extension .min.json -p . -r definitions",
+    "publish": "pnpm npm publish --access public --tolerate-republish"
   },
   "files": [
     "definitions/**",
