@@ -48,7 +48,7 @@ function DisplayType({ element }: Readonly<{ element: ElementDefinition }>) {
       >
         <span className={`text-md font-semibold`}>
           {display}
-          {max !== "1" ? " []" : ""}
+          {max === "1" ? "" : " []"}
         </span>
       </Link>
     </div>
