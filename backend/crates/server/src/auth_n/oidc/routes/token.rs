@@ -343,16 +343,22 @@ pub async fn token<
 
             verify_client(&client_app, &token_body)?;
 
-            let requested_scopes = Scopes::from(token_body.scope.clone().unwrap_or_default());
+            let client_app_scopes = client_app
+                .scope
+                .as_ref()
+                .and_then(|s| s.value.as_ref().map(String::as_str))
+                .unwrap_or_default();
+
+            let requested_scopes = Scopes::from(
+                token_body
+                    .scope
+                    .clone()
+                    .unwrap_or_else(|| client_app_scopes.to_string()),
+            );
+
             verify_requested_scope_is_subset(
                 &requested_scopes,
-                &Scopes::try_from(
-                    client_app
-                        .scope
-                        .as_ref()
-                        .and_then(|s| s.value.as_ref().map(String::as_str))
-                        .unwrap_or_default(),
-                )?,
+                &Scopes::try_from(client_app_scopes)?,
             )?;
 
             let response = create_token_response(
