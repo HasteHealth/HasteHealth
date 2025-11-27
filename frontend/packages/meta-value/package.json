@@ -11,12 +11,12 @@
   "types": "lib/index.d.ts",
   "type": "module",
   "scripts": {
-    "_generate_meta": "yarn node ../cli/lib/hastehealth.js generate meta --output src/v2/generated/meta/r4.ts && yarn node ../cli/lib/hastehealth.js generate meta --version 4.3 --output src/v2/generated/meta/r4b.ts",
-    "_generate_type_canonical": "yarn node ../cli/lib/hastehealth.js generate type-to-canonical --output src/v2/generated/type-canonical/r4.ts && yarn node ../cli/lib/hastehealth.js generate type-to-canonical --version 4.3 --output src/v2/generated/type-canonical/r4b.ts",
-    "generate": "yarn _generate_meta && yarn _generate_type_canonical",
+    "_generate_meta": "pnpm node ../cli/lib/hastehealth.js generate meta --output src/v2/generated/meta/r4.ts && pnpm node ../cli/lib/hastehealth.js generate meta --version 4.3 --output src/v2/generated/meta/r4b.ts",
+    "_generate_type_canonical": "pnpm node ../cli/lib/hastehealth.js generate type-to-canonical --output src/v2/generated/type-canonical/r4.ts && pnpm node ../cli/lib/hastehealth.js generate type-to-canonical --version 4.3 --output src/v2/generated/type-canonical/r4b.ts",
+    "generate": "pnpm _generate_meta && pnpm _generate_type_canonical",
     "build": "tsc",
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "keywords": [],
   "author": "haste-health",

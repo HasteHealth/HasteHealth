@@ -18,9 +18,9 @@
     "example": "example"
   },
   "scripts": {
-    "minify": "yarn node ../../../packages/cli/lib/hastehealth.js minimize artifacts -d .",
-    "generate-index": "yarn node ../../../packages/cli/lib/hastehealth.js generate index-file --extension .json -p . -r .",
-    "publish": "yarn npm publish --access public --tolerate-republish"
+    "minify": "pnpm node ../../../packages/cli/lib/hastehealth.js minimize artifacts -d .",
+    "generate-index": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file --extension .json -p . -r .",
+    "publish": "pnpm npm publish --access public --tolerate-republish"
   },
   "jurisdiction": "http://unstats.un.org/unsd/methods/m49/m49.htm#001",
   "name": "@haste-health/hl7.fhir.uv.subscriptions-backport.r4",

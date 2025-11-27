@@ -2,9 +2,9 @@
   "name": "@haste-health/smart-launch",
   "version": "0.6.7",
   "scripts": {
-    "build-css": "yarn postcss -o dist/css/index.css index.css",
-    "build": "yarn rollup -c -i src/launch.tsx -o dist/launch.js & yarn build-css",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "build-css": "pnpm postcss -o dist/css/index.css index.css",
+    "build": "pnpm rollup -c -i src/launch.tsx -o dist/launch.js & pnpm build-css",
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "dependencies": {
     "@haste-health/client": "workspace:^",

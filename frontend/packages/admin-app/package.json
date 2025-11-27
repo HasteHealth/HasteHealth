@@ -40,7 +40,7 @@
     "web-vitals": "^3.5.2"
   },
   "scripts": {
-    "start:headless": "BROWSER=none yarn run start",
+    "start:headless": "BROWSER=none pnpm run start",
     "start": "HOST=0.0.0.0 PORT=3001 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "eject": "react-scripts eject",

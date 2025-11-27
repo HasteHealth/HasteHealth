@@ -10,14 +10,14 @@
   "module": "dist/esm/index.js",
   "types": "dist/types.d.ts",
   "scripts": {
-    "build": "rollup -c --bundleConfigAsCjs && yarn postcss --config postcss.config.js -o dist/index.css src/index.css",
+    "build": "rollup -c --bundleConfigAsCjs && pnpm postcss --config postcss.config.js -o dist/index.css src/index.css",
     "storybook": "storybook dev -p 6006",
     "deploy": "wrangler deploy",
     "remove": "wrangler delete",
     "build-storybook": "storybook build",
     "watch-js": "rollup --watch -c --bundleConfigAsCjs",
     "watch-css": "postcss --watch --config postcss.config.js -o dist/index.css src/index.css",
-    "publish": "yarn build && yarn npm publish --access public --tolerate-republish"
+    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
   },
   "peerDependencies": {
     "@codemirror/state": ">=6.0.0",

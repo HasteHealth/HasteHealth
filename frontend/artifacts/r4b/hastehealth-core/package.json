@@ -21,8 +21,8 @@
     }
   ],
   "scripts": {
-    "generate-index": "yarn node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r definitions",
-    "publish": "yarn npm publish --access public --tolerate-republish"
+    "generate-index": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r definitions",
+    "publish": "pnpm npm publish --access public --tolerate-republish"
   },
   "files": [
     "definitions/**",
