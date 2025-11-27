@@ -421,6 +421,13 @@ impl From<Scope> for String {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Scopes(pub Vec<Scope>);
+
+impl Scopes {
+    pub fn contains_scope(&self, scope: &Scope) -> bool {
+        self.0.contains(scope)
+    }
+}
+
 impl Default for Scopes {
     fn default() -> Self {
         Scopes(vec![])

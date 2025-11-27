@@ -64,8 +64,10 @@ pub static TOKEN_EXPIRATION: usize = 7200; // 2 hours
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
     access_token: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     refresh_token: Option<String>,
-    id_token: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    id_token: Option<String>,
     token_type: TokenType,
     expires_in: usize,
 }
@@ -116,11 +118,15 @@ async fn create_token_response<Repo: Repository>(
 
     let mut response = TokenResponse {
         access_token: token.clone(),
-        id_token: token,
+        id_token: None,
         expires_in: TOKEN_EXPIRATION,
         refresh_token: None,
         token_type: TokenType::Bearer,
     };
+
+    if args.scopes.contains_scope(&Scope::OIDC(OIDCScope::OpenId)) {
+        response.id_token = Some(token);
+    }
 
     // If offline means refresh token should be generated.
     if (&args.scopes.0)
