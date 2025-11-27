@@ -127,7 +127,7 @@ Common error codes:
 ### Authorization Code Exchange
 
 ```bash
-curl -X POST "http://localhost:3000/oauth2/token" \
+curl -X POST "http://api.haste.health/oauth2/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=authorization_code" \
      -d "code=AUTH_CODE_FROM_REDIRECT" \
@@ -139,7 +139,7 @@ curl -X POST "http://localhost:3000/oauth2/token" \
 ### Authorization Code with PKCE
 
 ```bash
-curl -X POST "http://localhost:3000/oauth2/token" \
+curl -X POST "http://api.haste.health/oauth2/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=authorization_code" \
      -d "code=AUTH_CODE_FROM_REDIRECT" \
@@ -151,7 +151,7 @@ curl -X POST "http://localhost:3000/oauth2/token" \
 ### Refresh Token
 
 ```bash
-curl -X POST "http://localhost:3000/oauth2/token" \
+curl -X POST "http://api.haste.health/oauth2/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=refresh_token" \
      -d "refresh_token=REFRESH_TOKEN" \
@@ -162,7 +162,7 @@ curl -X POST "http://localhost:3000/oauth2/token" \
 ### Client Credentials
 
 ```bash
-curl -X POST "http://localhost:3000/oauth2/token" \
+curl -X POST "http://api.haste.health/oauth2/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=client_credentials" \
      -d "client_id=my-client-id" \
@@ -179,7 +179,7 @@ Clients can authenticate using multiple methods:
 Send credentials in the Authorization header:
 
 ```bash
-curl -X POST "http://localhost:3000/oauth2/token" \
+curl -X POST "http://api.haste.health/oauth2/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -H "Authorization: Basic $(echo -n 'client_id:client_secret' | base64)" \
      -d "grant_type=authorization_code" \

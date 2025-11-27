@@ -52,7 +52,7 @@ Content-Type: application/fhir+json
   "type": "searchset",
   "entry": [
     {
-      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345",
+      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345",
       "resource": {
         "resourceType": "Patient",
         "id": "12345",
@@ -66,7 +66,7 @@ Content-Type: application/fhir+json
       }
     },
     {
-      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Observation/67890",
+      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Observation/67890",
       "resource": {
         "resourceType": "Observation",
         "id": "67890",
@@ -107,7 +107,7 @@ Content-Type: application/fhir+json
 Here is an example of how to invoke the `$everything` operation on a Patient resource using cURL:
 
 ```bash
-curl -X POST "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/\$everything" \
+curl -X POST "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/\$everything" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{

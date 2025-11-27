@@ -42,7 +42,7 @@ Content-Type: application/fhir+json
   "total": 3,
   "entry": [
     {
-      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/3",
+      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/3",
       "resource": {
         "resourceType": "Patient",
         "id": "12345",
@@ -67,7 +67,7 @@ Content-Type: application/fhir+json
       }
     },
     {
-      "fullUrl": "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/2",
+      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/2",
       "resource": {
         "resourceType": "Patient",
         "id": "12345",
@@ -122,7 +122,7 @@ Content-Type: application/fhir+json
 Here is an example of how to retrieve the history of a Patient resource using cURL:
 
 ```bash
-curl -X GET "http://localhost:3000/Patient/12345/_history?_count=10" \
+curl -X GET "http://api.haste.health/Patient/12345/_history?_count=10" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```

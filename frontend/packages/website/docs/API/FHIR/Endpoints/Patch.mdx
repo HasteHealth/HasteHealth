@@ -127,7 +127,7 @@ Content-Type: application/fhir+json
 Here is an example of how to patch a Patient resource using cURL with JSON Patch:
 
 ```bash
-curl -X PATCH "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+curl -X PATCH "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
      -H "Content-Type: application/json-patch+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '[

@@ -11,7 +11,7 @@ The [OpenID Connect Discovery endpoint](https://openid.net/specs/openid-connect-
 ## Endpoint
 
 ```
-GET /.well-known/openid-configuration
+GET /w/[tenant]/api/v1/[project]/oidc/.well-known/openid-configuration
 ```
 
 This endpoint returns the OpenID Provider's configuration metadata.
@@ -27,113 +27,31 @@ Content-Type: application/json
 
 ```json
 {
-  "issuer": "http://localhost:3000",
-  "authorization_endpoint": "http://localhost:3000/oauth2/authorize",
-  "token_endpoint": "http://localhost:3000/oauth2/token",
-  "userinfo_endpoint": "http://localhost:3000/oauth2/userinfo",
-  "jwks_uri": "http://localhost:3000/.well-known/jwks.json",
-  "registration_endpoint": "http://localhost:3000/oauth2/register",
+  "issuer": "http://api.haste.health/",
+  "authorization_endpoint": "http://api.haste.health/w/ohio-health/api/v1/system/oidc/auth/authorize",
+  "jwks_uri": "http://api.haste.health/w/ohio-health/api/v1/system/oidc/certs/jwks",
+  "token_endpoint": "http://api.haste.health/w/ohio-health/api/v1/system/oidc/auth/token",
   "scopes_supported": [
     "openid",
     "profile",
     "email",
-    "address",
-    "phone",
-    "offline_access",
-    "patient/*.read",
-    "patient/*.write",
-    "user/*.read",
-    "user/*.write",
-    "system/*.read",
-    "system/*.write"
+    "offline_access"
   ],
   "response_types_supported": [
     "code",
-    "code id_token",
     "id_token",
-    "token id_token"
-  ],
-  "response_modes_supported": [
-    "query",
-    "fragment",
-    "form_post"
-  ],
-  "grant_types_supported": [
-    "authorization_code",
-    "refresh_token",
-    "client_credentials",
-    "implicit"
-  ],
-  "subject_types_supported": [
-    "public",
-    "pairwise"
-  ],
-  "id_token_signing_alg_values_supported": [
-    "RS256",
-    "RS384",
-    "RS512",
-    "ES256",
-    "ES384",
-    "ES512"
+    "id_token token"
   ],
   "token_endpoint_auth_methods_supported": [
     "client_secret_basic",
-    "client_secret_post",
-    "client_secret_jwt",
-    "private_key_jwt",
-    "none"
+    "client_secret_post"
   ],
-  "token_endpoint_auth_signing_alg_values_supported": [
-    "RS256",
-    "RS384",
-    "RS512",
-    "ES256",
-    "ES384",
-    "ES512"
+  "id_token_signing_alg_values_supported": [
+    "RS256"
   ],
-  "claims_supported": [
-    "sub",
-    "iss",
-    "aud",
-    "exp",
-    "iat",
-    "auth_time",
-    "nonce",
-    "acr",
-    "amr",
-    "azp",
-    "name",
-    "given_name",
-    "family_name",
-    "middle_name",
-    "nickname",
-    "preferred_username",
-    "profile",
-    "picture",
-    "website",
-    "email",
-    "email_verified",
-    "gender",
-    "birthdate",
-    "zoneinfo",
-    "locale",
-    "phone_number",
-    "phone_number_verified",
-    "address",
-    "updated_at"
-  ],
-  "code_challenge_methods_supported": [
-    "S256",
-    "plain"
-  ],
-  "introspection_endpoint": "http://localhost:3000/oauth2/introspect",
-  "revocation_endpoint": "http://localhost:3000/oauth2/revoke",
-  "end_session_endpoint": "http://localhost:3000/oauth2/logout",
-  "request_parameter_supported": true,
-  "request_uri_parameter_supported": false,
-  "require_request_uri_registration": false,
-  "claims_parameter_supported": true,
-  "service_documentation": "http://localhost:3000/docs"
+  "subject_types_supported": [
+    "public"
+  ]
 }
 ```
 
@@ -184,7 +102,7 @@ Content-Type: application/json
 Here is an example of how to retrieve the OpenID Connect discovery document using cURL:
 
 ```bash
-curl -X GET "http://localhost:3000/.well-known/openid-configuration" \
+curl -X GET "http://api.haste.health/w/[tenant]/api/v1/[project]/oidc/.well-known/openid-configuration" \
      -H "Accept: application/json"
 ```
 
@@ -201,9 +119,9 @@ Clients should use this endpoint to dynamically discover the authorization serve
 
 Example client initialization:
 
-```javascript
+```typescript
 // Fetch and parse discovery document
-const response = await fetch('http://localhost:3000/.well-known/openid-configuration');
+const response = await fetch('http://api.haste.health/w/[tenant]/api/v1/[project]/oidc/.well-known/openid-configuration');
 const config = await response.json();
 
 // Use discovered endpoints
@@ -217,7 +135,7 @@ const jwksUri = config.jwks_uri;
 The `jwks_uri` field points to the JSON Web Key Set endpoint, which provides the public keys used to verify JWT signatures:
 
 ```bash
-curl -X GET "http://localhost:3000/.well-known/jwks.json" \
+curl -X GET "http://api.haste.health/.well-known/jwks.json" \
      -H "Accept: application/json"
 ```
 

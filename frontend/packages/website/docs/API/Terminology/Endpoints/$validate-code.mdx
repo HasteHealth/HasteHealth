@@ -167,7 +167,7 @@ Content-Type: application/fhir+json
 ### GET Request
 
 ```bash
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -175,7 +175,7 @@ curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/
 ### POST Request with Parameters
 
 ```bash
-curl -X POST "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code" \
+curl -X POST "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
@@ -200,7 +200,7 @@ curl -X POST "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet
 ### Instance-Level Validation
 
 ```bash
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$validate-code?code=male&system=http://hl7.org/fhir/administrative-gender" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$validate-code?code=male&system=http://hl7.org/fhir/administrative-gender" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```

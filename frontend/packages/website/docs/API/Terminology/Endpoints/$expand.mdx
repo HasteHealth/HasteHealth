@@ -217,7 +217,7 @@ Content-Type: application/fhir+json
 ### Basic GET Request
 
 ```bash
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -225,7 +225,7 @@ curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/
 ### GET Request with Filter and Count
 
 ```bash
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&filter=mal&count=10" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&filter=mal&count=10" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -233,7 +233,7 @@ curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/
 ### POST Request with Parameters
 
 ```bash
-curl -X POST "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand" \
+curl -X POST "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
@@ -258,7 +258,7 @@ curl -X POST "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet
 ### Instance-Level Expansion
 
 ```bash
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$expand?count=10" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$expand?count=10" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -271,10 +271,10 @@ For large value sets, use the `count` and `offset` parameters to page through re
 
 ```bash
 # First page (codes 0-99)
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=0" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=0" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 
 # Second page (codes 100-199)
-curl -X GET "http://localhost:3000/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=100" \
+curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=100" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```

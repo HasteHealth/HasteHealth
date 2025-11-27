@@ -60,7 +60,7 @@ Content-Type: application/fhir+json
     },
     {
       "name": "request",
-      "valueUri": "http://localhost:3000/$export?_type=Patient"
+      "valueUri": "http://api.haste.health/$export?_type=Patient"
     },
     {
       "name": "requiresAccessToken",
@@ -75,7 +75,7 @@ Content-Type: application/fhir+json
         },
         {
           "name": "url",
-          "valueUrl": "http://localhost:3000/bulk-data/export-123/Patient.ndjson"
+          "valueUrl": "http://api.haste.health/bulk-data/export-123/Patient.ndjson"
         }
       ]
     }
@@ -110,7 +110,7 @@ Content-Type: application/fhir+json
 Here is an example of how to invoke the `$export` operation at the system level using cURL:
 
 ```bash
-curl -X POST "http://localhost:3000/w/[tenant]/api/v1/[project]/fhir/r4/\$export" \
+curl -X POST "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/\$export" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -H "Prefer: respond-async" \
