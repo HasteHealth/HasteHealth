@@ -15,7 +15,7 @@
   --docsearch-primary-color: var(--color-orange-500); 
   --docsearch-text-color: var(--color-orange-950);
   --docsearch-secondary-text-color: var(--color-orange-950);
-  --docsearch-highlight-color: var(--color-orange-800);
+  --docsearch-highlight-color: var(--color-orange-700);
 
   --docsearch-muted-color: var(--ifm-color-secondary-darkest);
   --docsearch-container-background: rgba(94, 100, 112, 0.7);
@@ -31,6 +31,11 @@
   /* Footer */
   --docsearch-footer-background: var(--ifm-color-white);
   --docsearch-logo-color: var(--color-orange-950);
+}
+
+/* See https: //github.com/algolia/docsearch/pull/1949 */
+.cls-1, .cls-2 {
+  fill: var(--color-orange-950) !important;
 }
 
 /**
@@ -54,6 +59,7 @@
   background-color: var(--color-orange-50);
   font-family: var(--ifm-heading-font-family);
   color: var(--color-orange-950);
+  --ifm-heading-color: var(--color-orange-950);
 }
 
 .header-github-link::before {
