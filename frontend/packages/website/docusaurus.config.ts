@@ -49,8 +49,7 @@ const config: Config = {
         configurePostCss(postcssOptions) {
           // Appends TailwindCSS and AutoPrefixer.
 
-          postcssOptions.plugins.push(tailwind);
-          postcssOptions.plugins.push(autoprefixer);
+          postcssOptions.plugins.push(tailwind, autoprefixer);
           return postcssOptions;
         },
       };

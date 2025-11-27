@@ -1,12 +1,8 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
-import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
-
-import styles from "./index.module.css";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -42,10 +38,12 @@ function HomepageHeader() {
   );
 }
 
-function DescriptionColumn(props: {
-  title: ReactNode;
-  description: ReactNode;
-}) {
+function DescriptionColumn(
+  props: Readonly<{
+    title: ReactNode;
+    description: ReactNode;
+  }>,
+) {
   return (
     <div className="space-y-1">
       <div className="text-2xl font-semibold underline">{props.title}</div>
@@ -54,7 +52,9 @@ function DescriptionColumn(props: {
   );
 }
 
-function CarouselCard(props: { onClick?: () => void; children?: ReactNode }) {
+function CarouselCard(
+  props: Readonly<{ onClick?: () => void; children?: ReactNode }>,
+) {
   return (
     <div
       className="carousel-card cursor-pointer flex items-center justify-center "
@@ -66,8 +66,6 @@ function CarouselCard(props: { onClick?: () => void; children?: ReactNode }) {
 }
 
 export default function Home(): ReactNode {
-  const { siteConfig } = useDocusaurusContext();
-
   return (
     <Layout
       wrapperClassName="bg-orange-50"
@@ -250,49 +248,55 @@ export default function Home(): ReactNode {
                 <div className="p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Authentication/Okta">
+                      <Link to="/docs/Integration/Identity%20providers/Okta">
                         <img
                           src="/img/okta.svg"
+                          alt="Okta Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Authentication/Azure">
+                      <Link to="/docs/Integration/Identity%20providers/Azure">
                         <img
                           src="/img/azure.svg"
+                          alt="Azure Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Authentication/Auth0">
+                      <Link to="/docs/Integration/Identity%20providers/Auth0">
                         <img
                           src="/img/auth0.svg"
+                          alt="Auth0 Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Authentication/AWS">
+                      <Link to="/docs/Integration/Identity%20providers/AWS">
                         <img
                           src="/img/aws_logo.svg"
+                          alt="AWS Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Authentication/Keycloak">
+                      <Link to="/docs/Integration/Identity%20providers/Keycloak">
                         <img
                           src="/img/keycloak.png"
+                          alt="Keycloak Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Authentication/GCP">
+                      <Link to="/docs/Integration/Identity%20providers/GCP">
                         <img
                           src="/img/gcp.png"
+                          alt="GCP Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
