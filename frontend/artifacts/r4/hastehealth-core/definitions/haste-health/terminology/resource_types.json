@@ -1,0 +1,41 @@
+{
+    "id": "hastehealth-resource-types",
+    "url": "https: //haste.health/fhir/resource-types",
+    "resourceType": "CodeSystem",
+    "version": "4.0.1",
+    "name": "HasteHealthResourceTypes",
+    "title": "HasteHealth Resource Types",
+    "status": "active",
+    "experimental": true,
+    "publisher": "HasteHealth",
+    "description": "HasteHealth Resource Types.",
+    "caseSensitive": true,
+    "valueSet": "http://hl7.org/fhir/ValueSet/resource-types",
+    "content": "complete",
+    "concept": [
+        {
+            "code": "Project",
+            "display": "Project"
+        },
+        {
+            "code": "AccessPolicyV2",
+            "display": "AccessPolicyV2"
+        },
+        {
+            "code": "ClientApplication",
+            "display": "ClientApplication"
+        },
+        {
+            "code": "IdentityProvider",
+            "display": "IdentityProvider"
+        },
+        {
+            "code": "Membership",
+            "display": "Membership"
+        },
+        {
+            "code": "User",
+            "display": "User"
+        }
+    ]
+}

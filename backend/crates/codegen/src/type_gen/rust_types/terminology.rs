@@ -108,7 +108,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             })
             .unwrap_or_default();
 
-        if codes.len() > 0 && codes.len() < 100 {
+        if codes.len() > 0 && codes.len() < 400 {
             let enum_variants = codes.iter().map(|(_code, code)| {
                 let code_string = &code.code;
                 let code_ident = format_ident!("{}", format_string(code_string));

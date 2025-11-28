@@ -43,10 +43,11 @@ fn index_parameter(
                     .by_url
                     .insert(param.id.clone().unwrap(), param.clone());
                 for resource_type in &param.base {
-                    if let Some(resource_type) = resource_type.as_ref().value.as_ref() {
+                    let resource_type: Option<String> = (&**resource_type).into();
+                    if let Some(resource_type) = resource_type {
                         index
                             .by_resource_type
-                            .entry(resource_type.to_string())
+                            .entry(resource_type)
                             .or_default()
                             .insert(
                                 param.code.value.as_ref().unwrap().to_string(),
@@ -64,7 +65,8 @@ fn index_parameter(
                 .by_url
                 .insert(param.id.clone().unwrap(), param.clone());
             for resource_type in &param.base {
-                if let Some(resource_type) = resource_type.as_ref().value.as_ref() {
+                let resource_type: Option<String> = (&**resource_type).into();
+                if let Some(resource_type) = resource_type.as_ref() {
                     index
                         .by_resource_type
                         .entry(resource_type.to_string())
