@@ -2141,7 +2141,7 @@ pub struct CapabilityStatementRestResource {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "A type of resource exposed via the restful interface."]
-    pub type_: Box<FHIRCode>,
+    pub type_: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A specification of the profile that describes the solution's overall support for the resource, including any constraints on cardinality, bindings, lengths or other limitations. See further discussion in [Using Profiles](profiling.html#profile-uses)."]
     pub profile: Option<Box<FHIRString>>,
@@ -5079,7 +5079,7 @@ pub struct CompartmentDefinitionResource {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The name of a resource supported by the server."]
-    pub code: Box<FHIRCode>,
+    pub code: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "The name of a search parameter that represents the link to the compartment. More than one may be listed because a resource may be linked to a compartment in more than one way,."]
     pub param: Option<Vec<Box<FHIRString>>>,
@@ -10147,7 +10147,7 @@ pub struct ExampleScenarioInstance {
     pub resourceId: Box<FHIRString>,
     #[primitive]
     #[doc = "The type of the resource."]
-    pub resourceType: Box<FHIRCode>,
+    pub resourceType: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A short name for the resource instance."]
     pub name: Option<Box<FHIRString>>,
@@ -11885,7 +11885,7 @@ pub struct GraphDefinitionLinkTarget {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "Type of resource this link refers to."]
-    pub type_: Box<FHIRCode>,
+    pub type_: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A set of parameters to look up."]
     pub params: Option<Box<FHIRString>>,
@@ -11996,7 +11996,7 @@ pub struct GraphDefinition {
     pub purpose: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "The type of FHIR resource at which instances of this graph start."]
-    pub start: Box<FHIRCode>,
+    pub start: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "The profile that describes the use of the base resource."]
     pub profile: Option<Box<FHIRString>>,
@@ -13148,7 +13148,7 @@ pub struct ImplementationGuideGlobal {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of resource that all instances must conform to."]
-    pub type_: Box<FHIRCode>,
+    pub type_: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A reference to the profile that all instances must conform to."]
     pub profile: Box<FHIRString>,
@@ -13535,7 +13535,7 @@ pub struct ImplementationGuide {
     pub packageId: Box<FHIRId>,
     #[primitive]
     #[doc = "The license that applies to this Implementation Guide, using an SPDX license code, or 'not-open-source'."]
-    pub license: Option<Box<FHIRCode>>,
+    pub license: Option<Box<terminology::SpdxLicense>>,
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "The version(s) of the FHIR specification that this ImplementationGuide targets - e.g. describes how to use. The value of this element is the formal version of the specification, without the revision number, e.g. [publication].[major].[minor], which is 4.0.1. for this version."]
@@ -17670,7 +17670,7 @@ pub struct MessageDefinitionFocus {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The kind of resource that must be the focus for this message."]
-    pub code: Box<FHIRCode>,
+    pub code: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A profile that reflects constraints for the focal resource (and potentially for related resources)."]
     pub profile: Option<Box<FHIRString>>,
@@ -19141,7 +19141,7 @@ pub struct OperationDefinitionParameter {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type for this parameter."]
-    pub type_: Option<Box<FHIRCode>>,
+    pub type_: Option<Box<terminology::AllTypes>>,
     #[primitive]
     #[doc = "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this parameter refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide."]
     pub targetProfile: Option<Vec<Box<FHIRString>>>,
@@ -19261,7 +19261,7 @@ pub struct OperationDefinition {
     pub base: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The types on which this operation can be executed."]
-    pub resource: Option<Vec<Box<FHIRCode>>>,
+    pub resource: Option<Vec<Box<terminology::ResourceTypes>>>,
     #[primitive]
     #[doc = "Indicates whether this operation or named query can be invoked at the system level (e.g. without needing to choose a resource type for the context)."]
     pub system: Box<FHIRBoolean>,
@@ -21324,7 +21324,7 @@ pub struct Questionnaire {
     pub experimental: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "The types of subjects that can be the subject of responses created for the questionnaire."]
-    pub subjectType: Option<Vec<Box<FHIRCode>>>,
+    pub subjectType: Option<Vec<Box<terminology::ResourceTypes>>>,
     #[primitive]
     #[doc = "The date  (and optionally time) when the questionnaire was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the questionnaire changes."]
     pub date: Option<Box<FHIRDateTime>>,
@@ -22974,7 +22974,7 @@ pub struct SearchParameter {
     #[primitive]
     #[cardinality(min = 1usize)]
     #[doc = "The base resource type(s) that this search parameter can be used against."]
-    pub base: Vec<Box<FHIRCode>>,
+    pub base: Vec<Box<terminology::ResourceTypes>>,
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of value that a search parameter may contain, and how the content is interpreted."]
@@ -22990,7 +22990,7 @@ pub struct SearchParameter {
     pub xpathUsage: Option<Box<terminology::SearchXpathUsage>>,
     #[primitive]
     #[doc = "Types of resource (if a resource is referenced)."]
-    pub target: Option<Vec<Box<FHIRCode>>>,
+    pub target: Option<Vec<Box<terminology::ResourceTypes>>>,
     #[primitive]
     #[doc = "Whether multiple values are allowed for each time the parameter exists. Values are separated by commas, and the parameter matches if any of the values match."]
     pub multipleOr: Option<Box<FHIRBoolean>>,
@@ -27290,7 +27290,7 @@ pub struct TestScriptSetupActionOperation {
     pub type_: Option<Box<Coding>>,
     #[primitive]
     #[doc = "The type of the resource.  See http://build.fhir.org/resourcelist.html."]
-    pub resource: Option<Box<FHIRCode>>,
+    pub resource: Option<Box<terminology::DefinedTypes>>,
     #[primitive]
     #[doc = "The label would be used for tracking/logging purposes by test engines."]
     pub label: Option<Box<FHIRString>>,
@@ -27400,7 +27400,7 @@ pub struct TestScriptSetupActionAssert {
     pub requestURL: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The type of the resource.  See http://build.fhir.org/resourcelist.html."]
-    pub resource: Option<Box<FHIRCode>>,
+    pub resource: Option<Box<terminology::DefinedTypes>>,
     #[primitive]
     #[doc = "okay | created | noContent | notModified | bad | forbidden | notFound | methodNotAllowed | conflict | gone | preconditionFailed | unprocessable."]
     pub response: Option<Box<terminology::AssertResponseCodeTypes>>,

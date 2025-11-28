@@ -853,7 +853,7 @@ pub struct DataRequirement {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of the required data, specified as the type name of a resource. For profiles, this value is set to the type of the base resource of the profile."]
-    pub type_: Box<FHIRCode>,
+    pub type_: Box<terminology::AllTypes>,
     #[primitive]
     #[doc = "The profile of the required data, specified as the uri of the profile definition."]
     pub profile: Option<Vec<Box<FHIRString>>>,
@@ -2036,7 +2036,7 @@ pub struct ParameterDefinition {
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of the parameter."]
-    pub type_: Box<FHIRCode>,
+    pub type_: Box<terminology::AllTypes>,
     #[primitive]
     #[doc = "If specified, this indicates a profile that the input data must conform to, or that the output data will conform to."]
     pub profile: Option<Box<FHIRString>>,

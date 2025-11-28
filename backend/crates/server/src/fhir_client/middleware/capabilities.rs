@@ -14,10 +14,12 @@ use haste_fhir_model::r4::generated::{
     resources::{
         CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
         CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
-        ResourceType,
+        ResourceType, StructureDefinition,
     },
-    terminology::{RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy},
-    types::{FHIRBoolean, FHIRCode, FHIRString},
+    terminology::{
+        IssueType, ResourceTypes, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
+    },
+    types::{FHIRBoolean, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
@@ -29,6 +31,48 @@ use tokio::sync::Mutex;
 
 static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
     LazyLock::new(|| Mutex::new(None));
+
+fn create_capability_rest_statement(
+    sd: StructureDefinition,
+) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
+    Ok(CapabilityStatementRestResource {
+        type_: Box::new(
+            ResourceTypes::try_from(sd.type_.value.unwrap_or_default()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "Failed to parse resource type in capabilities generation: '{}'",
+                        e
+                    ),
+                )
+            })?,
+        ),
+        profile: Some(Box::new(FHIRString {
+            value: sd.url.value,
+            ..Default::default()
+        })),
+        interaction: Some(
+            vec![
+                TypeRestfulInteraction::Read(None),
+                TypeRestfulInteraction::Vread(None),
+                TypeRestfulInteraction::Update(None),
+                TypeRestfulInteraction::Delete(None),
+                TypeRestfulInteraction::SearchType(None),
+                TypeRestfulInteraction::Create(None),
+                TypeRestfulInteraction::HistoryInstance(None),
+                TypeRestfulInteraction::HistoryType(None),
+            ]
+            .into_iter()
+            .map(|code| CapabilityStatementRestResourceInteraction {
+                code: Box::new(code),
+                ..Default::default()
+            })
+            .collect(),
+        ),
+        versioning: Some(Box::new(VersioningPolicy::Versioned(None))),
+        ..Default::default()
+    })
+}
 
 async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     repo: &Repo,
@@ -104,37 +148,8 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
                 ..Default::default()
             }),
             resource: Some(
-                sds.map(|sd| CapabilityStatementRestResource {
-                    type_: Box::new(FHIRCode {
-                        value: sd.type_.value,
-                        ..Default::default()
-                    }),
-                    profile: Some(Box::new(FHIRString {
-                        value: sd.url.value,
-                        ..Default::default()
-                    })),
-                    interaction: Some(
-                        vec![
-                            TypeRestfulInteraction::Read(None),
-                            TypeRestfulInteraction::Vread(None),
-                            TypeRestfulInteraction::Update(None),
-                            TypeRestfulInteraction::Delete(None),
-                            TypeRestfulInteraction::SearchType(None),
-                            TypeRestfulInteraction::Create(None),
-                            TypeRestfulInteraction::HistoryInstance(None),
-                            TypeRestfulInteraction::HistoryType(None),
-                        ]
-                        .into_iter()
-                        .map(|code| CapabilityStatementRestResourceInteraction {
-                            code: Box::new(code),
-                            ..Default::default()
-                        })
-                        .collect(),
-                    ),
-                    versioning: Some(Box::new(VersioningPolicy::Versioned(None))),
-                    ..Default::default()
-                })
-                .collect(),
+                sds.map(create_capability_rest_statement)
+                .collect::<Result<Vec<_>, _>>()?,
             ),
             ..Default::default()
         }]),
