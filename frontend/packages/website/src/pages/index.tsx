@@ -42,18 +42,18 @@ function DescriptionColumn(
   props: Readonly<{
     title: ReactNode;
     description: ReactNode;
-  }>,
+  }>
 ) {
   return (
     <div className="space-y-1">
-      <div className="text-2xl font-semibold underline">{props.title}</div>
+      <div className="text-2xl font-semibold underline ">{props.title}</div>
       <span className="text-sm">{props.description}</span>
     </div>
   );
 }
 
 function CarouselCard(
-  props: Readonly<{ onClick?: () => void; children?: ReactNode }>,
+  props: Readonly<{ onClick?: () => void; children?: ReactNode }>
 ) {
   return (
     <div
@@ -232,15 +232,36 @@ export default function Home(): ReactNode {
                   </h3>
                   <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 py-4">
                     <DescriptionColumn
-                      title="Grants"
+                      title={
+                        <Link
+                          className="hover:text-blue-500"
+                          to="/docs/category/openid-connect"
+                        >
+                          Grants
+                        </Link>
+                      }
                       description="Support for Authorization Code, Client Credentials, and Refresh Token grants."
                     />
                     <DescriptionColumn
-                      title="Federated login"
+                      title={
+                        <Link
+                          className="hover:text-blue-500"
+                          to="/docs/Authentication/Federated%20Login"
+                        >
+                          Federated login
+                        </Link>
+                      }
                       description="Login with any identity provider that supports OIDC."
                     />
                     <DescriptionColumn
-                      title="Scopes"
+                      title={
+                        <Link
+                          className="hover:text-blue-500"
+                          to="/docs/Authentication/Scopes"
+                        >
+                          Scopes
+                        </Link>
+                      }
                       description="Request only the FHIR resource access you need with fine-grained scopes."
                     />
                   </div>
