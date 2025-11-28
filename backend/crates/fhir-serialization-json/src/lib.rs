@@ -19,6 +19,12 @@ pub fn from_bytes<T: FHIRJSONDeserializer>(bytes: &[u8]) -> Result<T, errors::De
     T::from_serde_value(&value, Context::AsValue)
 }
 
+pub fn from_serde_value<T: FHIRJSONDeserializer>(
+    value: &serde_json::Value,
+) -> Result<T, errors::DeserializeError> {
+    T::from_serde_value(value, Context::AsValue)
+}
+
 pub fn to_string<T: FHIRJSONSerializer>(value: &T) -> Result<String, SerializeError> {
     let mut writer = BufWriter::new(Vec::new());
     value.serialize_value(&mut writer)?;

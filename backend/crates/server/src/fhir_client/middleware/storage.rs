@@ -12,14 +12,14 @@ use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{
         FHIRBatchResponse, FHIRCreateResponse, FHIRDeleteInstanceResponse,
-        FHIRHistoryInstanceResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
-        FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
+        FHIRHistoryInstanceResponse, FHIRPatchResponse, FHIRReadResponse, FHIRRequest,
+        FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
         FHIRTransactionResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
     url::ParsedParameter,
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry},
+    resources::{Bundle, BundleEntry, Resource},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -31,7 +31,10 @@ use haste_repository::{
     Repository,
     fhir::{FHIRRepository, HistoryRequest},
 };
-use std::sync::Arc;
+use std::{
+    io::{BufWriter, Write},
+    sync::Arc,
+};
 
 pub struct Middleware {}
 impl Middleware {
@@ -430,7 +433,6 @@ impl<
                         )),
                     }
                 }
-
                 FHIRRequest::Transaction(transaction_request) => {
                     let mut transaction_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
@@ -486,7 +488,6 @@ impl<
                         ))
                     }
                 }
-
                 FHIRRequest::Batch(batch_request) => {
                     let mut batch_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
@@ -506,7 +507,125 @@ impl<
                         .await?,
                     })))
                 }
-                _ => Err(OperationOutcomeError::error(
+                FHIRRequest::Patch(fhir_patch_request) => {
+                    let Some(resource) = state
+                        .repo
+                        .read_latest(
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &fhir_patch_request.resource_type,
+                            &ResourceId::new(fhir_patch_request.id.to_string()),
+                        )
+                        .await?
+                    else {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::NotFound(None),
+                            format!("Resource with id '{}' not found", fhir_patch_request.id),
+                        ));
+                    };
+
+                    let mut writer = BufWriter::new(Vec::new());
+                    haste_fhir_serialization_json::to_writer(&mut writer, &resource).map_err(
+                        |e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::Exception(None),
+                                "Failed to serialize resource for patching: ".to_string()
+                                    + &e.to_string(),
+                            )
+                        },
+                    )?;
+                    writer.flush().map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "Failed to flush buffer: ".to_string() + &e.to_string(),
+                        )
+                    })?;
+
+                    let content: Vec<u8> = writer.into_inner().map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "Failed to retrieve buffer content: ".to_string() + &e.to_string(),
+                        )
+                    })?;
+
+                    let mut json: serde_json::Value = serde_json::from_reader(content.as_slice())
+                        .map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "Failed to deserialize JSON for patching: ".to_string()
+                                + &e.to_string(),
+                        )
+                    })?;
+
+                    json_patch::patch(&mut json, &fhir_patch_request.patch).map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            format!("Failed to apply JSON patch: '{}'", e.to_string()),
+                        )
+                    })?;
+
+                    let mut patched_resource =
+                        haste_fhir_serialization_json::from_serde_value::<Resource>(&json)
+                            .map_err(|e| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Exception(None),
+                                    format!("Failed to deserialize patched resource '{}'.", e),
+                                )
+                            })?;
+
+                    if std::mem::discriminant(&resource)
+                        != std::mem::discriminant(&patched_resource)
+                    {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::Conflict(None),
+                            "Resource type mismatch after patching".to_string(),
+                        ));
+                    }
+
+                    let patched_id = patched_resource
+                        .get_field("id")
+                        .ok_or_else(|| {
+                            OperationOutcomeError::error(
+                                IssueType::Invalid(None),
+                                "Missing resource ID".to_string(),
+                            )
+                        })?
+                        .as_any()
+                        .downcast_ref::<String>()
+                        .cloned()
+                        .ok_or_else(|| {
+                            OperationOutcomeError::error(
+                                IssueType::Invalid(None),
+                                "Invalid resource ID type".to_string(),
+                            )
+                        })?;
+
+                    if fhir_patch_request.id != patched_id {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::Conflict(None),
+                            "Resource ID mismatch after patching".to_string(),
+                        ));
+                    }
+
+                    Ok(Some(FHIRResponse::Patch(FHIRPatchResponse {
+                        resource: FHIRRepository::update(
+                            state.repo.as_ref(),
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &context.ctx.user,
+                            &context.ctx.fhir_version,
+                            &mut patched_resource,
+                            &fhir_patch_request.id,
+                        )
+                        .await?,
+                    })))
+                }
+                FHIRRequest::DeleteType(_)
+                | FHIRRequest::DeleteSystem(_)
+                | FHIRRequest::Capabilities
+                | FHIRRequest::InvokeInstance(_)
+                | FHIRRequest::InvokeType(_)
+                | FHIRRequest::InvokeSystem(_) => Err(OperationOutcomeError::error(
                     IssueType::NotSupported(None),
                     "Unsupported FHIR operation".to_string(),
                 )),
