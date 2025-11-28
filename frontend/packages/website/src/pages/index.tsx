@@ -220,13 +220,13 @@ export default function Home(): ReactNode {
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
                     Support for authentication with{" "}
-                    <Link to="/docs/Authentication/OIDC">
+                    <Link to="/docs/Authentication/Intro">
                       <span className="text-blue-600 hover:text-blue-500 underline">
                         OIDC
                       </span>{" "}
                       and{" "}
                     </Link>
-                    <Link to="/docs/Authentication/SMART%20on%20FHIR">
+                    <Link to="/docs/Authentication/smart-on-fhir">
                       <span className="text-blue-600 hover:text-blue-500  underline">
                         SMART on FHIR
                       </span>
