@@ -1,7 +1,9 @@
 use crate::{
     FHIRClient,
     middleware::{Context, Middleware, MiddlewareChain, Next},
-    request::{self, FHIRReadResponse, FHIRRequest, FHIRResponse},
+    request::{
+        self, FHIRCreateResponse, FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
+    },
 };
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -76,6 +78,8 @@ pub enum FHIRHTTPError {
     DeserializeError(#[from] haste_fhir_serialization_json::errors::DeserializeError),
     #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
     SerializeError(#[from] haste_fhir_serialization_json::SerializeError),
+    #[error(code = "invalid", diagnostic = "FHIR Serialization Error.")]
+    JSONSerializeError(#[from] serde_json::Error),
 }
 
 async fn fhir_request_to_http_request(
@@ -104,6 +108,57 @@ async fn fhir_request_to_http_request(
 
             Ok(request)
         }
+        FHIRRequest::Create(create_request) => {
+            let create_request_url = state
+                .api_url
+                .join(&format!(
+                    "{}/{}",
+                    state.api_url.path(),
+                    create_request.resource_type.as_ref(),
+                ))
+                .map_err(|_e| FHIRHTTPError::UrlParseError("Create request".to_string()))?;
+
+            let body = haste_fhir_serialization_json::to_string(&create_request.resource)
+                .map_err(FHIRHTTPError::from)?;
+
+            let request = state
+                .client
+                .post(create_request_url)
+                .header("Accept", "application/fhir+json")
+                .header("Content-Type", "application/fhir+json, application/json")
+                .body(body)
+                .build()
+                .map_err(FHIRHTTPError::from)?;
+
+            Ok(request)
+        }
+
+        FHIRRequest::Patch(patch_request) => {
+            let patch_request_url = state
+                .api_url
+                .join(&format!(
+                    "{}/{}/{}",
+                    state.api_url.path(),
+                    patch_request.resource_type.as_ref(),
+                    patch_request.id
+                ))
+                .map_err(|_e| FHIRHTTPError::UrlParseError("Patch request".to_string()))?;
+
+            let patch_body =
+                serde_json::to_string(&patch_request.patch).map_err(FHIRHTTPError::from)?;
+
+            let request = state
+                .client
+                .patch(patch_request_url)
+                .header("Accept", "application/fhir+json")
+                .header("Content-Type", "application/fhir+json, application/json")
+                .body(patch_body)
+                .build()
+                .map_err(FHIRHTTPError::from)?;
+
+            Ok(request)
+        }
+
         FHIRRequest::Transaction(transaction_request) => {
             let body = haste_fhir_serialization_json::to_string(&transaction_request.resource)
                 .map_err(FHIRHTTPError::from)?;
@@ -179,11 +234,36 @@ async fn http_response_to_fhir_response(
                 resource: Some(resource),
             }))
         }
-        FHIRRequest::Create(_) => todo!(),
+        FHIRRequest::Create(_) => {
+            let status = response.status();
+            let body = response
+                .bytes()
+                .await
+                .map_err(FHIRHTTPError::ReqwestError)?;
+
+            check_for_errors(&status, Some(&body)).await?;
+
+            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                .map_err(FHIRHTTPError::from)?;
+            Ok(FHIRResponse::Create(FHIRCreateResponse { resource }))
+        }
+        FHIRRequest::Patch(_) => {
+            let status = response.status();
+            let body = response
+                .bytes()
+                .await
+                .map_err(FHIRHTTPError::ReqwestError)?;
+
+            check_for_errors(&status, Some(&body)).await?;
+
+            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                .map_err(FHIRHTTPError::from)?;
+            Ok(FHIRResponse::Patch(FHIRPatchResponse { resource }))
+        }
         FHIRRequest::VersionRead(_) => todo!(),
         FHIRRequest::UpdateInstance(_) => todo!(),
         FHIRRequest::ConditionalUpdate(_) => todo!(),
-        FHIRRequest::Patch(_) => todo!(),
+
         FHIRRequest::DeleteInstance(_) => todo!(),
         FHIRRequest::DeleteType(_) => todo!(),
         FHIRRequest::DeleteSystem(_) => todo!(),
@@ -313,11 +393,26 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
     async fn create(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _resource: Resource,
+        ctx: CTX,
+        resource_type: ResourceType,
+        resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Create(request::FHIRCreateRequest {
+                    resource_type,
+                    resource,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Create(create_response)) => Ok(create_response.resource),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn update(
@@ -342,12 +437,28 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
     async fn patch(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _id: String,
-        _patches: json_patch::Patch,
+        ctx: CTX,
+        resource_type: ResourceType,
+        id: String,
+        patch: json_patch::Patch,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Patch(request::FHIRPatchRequest {
+                    resource_type,
+                    id,
+                    patch,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Patch(patch_response)) => Ok(patch_response.resource),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn read(

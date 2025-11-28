@@ -20,6 +20,7 @@ haste-jwt = { path = "../jwt" }
 reqwest = { version = "0.12", optional = true }
 thiserror = "2.0.12"
 haste-reflect = { path = "../reflect" }
+serde_json = "1.0.145"
 
 [dev-dependencies]
 tokio = { version = "1.46.1", features = ["rt", "macros"] }

@@ -4,7 +4,10 @@ use haste_fhir_client::{
     FHIRClient,
     http::{FHIRHttpClient, FHIRHttpState},
 };
-use haste_fhir_model::r4::generated::{resources::Bundle, terminology::IssueType};
+use haste_fhir_model::r4::generated::{
+    resources::{Bundle, ResourceType},
+    terminology::IssueType,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_serialization_json::FHIRJSONDeserializer;
 use haste_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
@@ -13,6 +16,20 @@ use tokio::sync::Mutex;
 
 #[derive(Subcommand, Debug)]
 pub enum ApiCommands {
+    Create {
+        resource_type: String,
+        resource: String,
+    },
+    Read {
+        resource_type: String,
+        id: String,
+    },
+    Patch {
+        resource_type: String,
+        id: String,
+        patch: String,
+    },
+    Update {},
     Transaction {
         #[arg(short, long)]
         parallel: Option<usize>,
@@ -205,6 +222,82 @@ pub async fn api_commands(
 ) -> Result<(), OperationOutcomeError> {
     let http_state = config_to_fhir_http_state(state).await?;
     match command {
+        ApiCommands::Create {
+            resource_type,
+            resource,
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
+            let resource = haste_fhir_serialization_json::from_str::<
+                haste_fhir_model::r4::generated::resources::Resource,
+            >(resource)
+            .map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!("Failed to parse resource JSON: {}", e),
+                )
+            })?;
+
+            let result = fhir_client.create((), resource_type, resource).await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
+        ApiCommands::Read {
+            resource_type: _,
+            id: _,
+        } => todo!(),
+        ApiCommands::Patch {
+            resource_type,
+            id,
+            patch,
+        } => {
+            let patch = serde_json::from_str::<json_patch::Patch>(patch).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!("Failed to parse patch JSON: {}", e),
+                )
+            })?;
+
+            let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
+
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let result = fhir_client
+                .patch((), resource_type, id.clone(), patch)
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
+        ApiCommands::Update {} => todo!(),
         ApiCommands::Transaction {
             transaction_file,
             output,

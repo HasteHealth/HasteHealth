@@ -1445,6 +1445,7 @@ dependencies = [
  "http",
  "json-patch",
  "reqwest",
+ "serde_json",
  "thiserror 2.0.17",
  "tokio",
 ]
@@ -1603,6 +1604,7 @@ dependencies = [
  "haste-jwt",
  "haste-repository",
  "haste-server",
+ "json-patch",
  "jsonwebtoken 10.2.0",
  "quote",
  "reqwest",
