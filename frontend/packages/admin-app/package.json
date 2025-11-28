@@ -44,7 +44,7 @@
     "start": "HOST=0.0.0.0 PORT=3001 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "eject": "react-scripts eject",
-    "deploy": "wrangler deploy",
+    "wrangler": "pnpm run build && wrangler deploy",
     "remove": "wrangler delete"
   },
   "files": [

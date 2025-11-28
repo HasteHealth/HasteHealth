@@ -107,6 +107,8 @@ services:
   hastehealth-admin-app:
     image: ghcr.io/hastehealth/hastehealth/admin-app:latest
     platform: linux/amd64
+    ports:
+      - 3001:80
     depends_on:
       - hastehealth-worker
       - hastehealth-server

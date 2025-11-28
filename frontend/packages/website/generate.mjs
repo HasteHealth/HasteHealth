@@ -82,9 +82,9 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
     {JSON.stringify({
       '@context': 'https://schema.org/',
       '@type': 'Organization',
-      name: 'IGUHealth',
-      url: 'https://iguhealth.app',
-      logo: 'https://iguhealth.app/img/logo.svg',
+      name: 'Haste Health',
+      url: 'https://haste.health',
+      logo: 'https://haste.health/img/logo.svg',
     })}
   </script>
 </head>
