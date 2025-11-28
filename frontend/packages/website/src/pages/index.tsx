@@ -226,9 +226,11 @@ export default function Home(): ReactNode {
                       </span>{" "}
                       and{" "}
                     </Link>
-                    <span className="text-blue-600 underline">
-                      SMART on FHIR
-                    </span>
+                    <Link to="/docs/Authentication/SMART%20on%20FHIR">
+                      <span className="text-blue-600 hover:text-blue-500  underline">
+                        SMART on FHIR
+                      </span>
+                    </Link>
                   </h3>
                   <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 py-4">
                     <DescriptionColumn
