@@ -1,6 +1,7 @@
 use crate::{CLIState, CONFIG_LOCATION};
 use clap::Subcommand;
-use dialoguer::Select;
+use dialoguer::{Confirm, Select};
+use dialoguer::{Input, Password, theme::ColorfulTheme};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
@@ -52,22 +53,8 @@ pub enum ProfileAuth {
 #[derive(Subcommand, Debug)]
 pub enum ConfigCommands {
     ShowProfile,
-    CreateProfile {
-        #[arg(short, long)]
-        name: String,
-        #[arg(short, long)]
-        r4_url: String,
-        #[arg(short, long)]
-        oidc_discovery_uri: String,
-        #[arg(long)]
-        client_id: String,
-        #[arg(long)]
-        client_secret: String,
-    },
-    DeleteProfile {
-        #[arg(short, long)]
-        name: String,
-    },
+    CreateProfile {},
+    DeleteProfile {},
     SetActiveProfile,
 }
 
@@ -140,13 +127,29 @@ pub async fn config(
 
             Ok(())
         }
-        ConfigCommands::CreateProfile {
-            name,
-            r4_url,
-            oidc_discovery_uri,
-            client_id,
-            client_secret,
-        } => {
+        ConfigCommands::CreateProfile {} => {
+            let name: String = Input::with_theme(&ColorfulTheme::default())
+                .with_prompt("Profile Name")
+                .interact_text()
+                .unwrap();
+
+            let r4_url: String = Input::with_theme(&ColorfulTheme::default())
+                .with_prompt("FHIR R4 Server URL")
+                .interact_text()
+                .unwrap();
+            let oidc_discovery_uri: String = Input::with_theme(&ColorfulTheme::default())
+                .with_prompt("OIDC Discovery URI")
+                .interact_text()
+                .unwrap();
+            let client_id: String = Input::with_theme(&ColorfulTheme::default())
+                .with_prompt("OIDC Client ID")
+                .interact_text()
+                .unwrap();
+            let client_secret: String = Password::with_theme(&ColorfulTheme::default())
+                .with_prompt("OIDC Client Secret")
+                .interact()
+                .unwrap();
+
             let mut state = state.lock().await;
             if state
                 .config
@@ -187,7 +190,25 @@ pub async fn config(
 
             Ok(())
         }
-        ConfigCommands::DeleteProfile { name } => {
+        ConfigCommands::DeleteProfile {} => {
+            let name: String = Input::with_theme(&ColorfulTheme::default())
+                .with_prompt("Enter the profile name you wish to delete")
+                .interact_text()
+                .unwrap();
+
+            let confirmed = Confirm::with_theme(&ColorfulTheme::default())
+                .with_prompt(format!(
+                    "Are you sure you want to delete the profile '{}'? ",
+                    name
+                ))
+                .interact()
+                .unwrap_or(false);
+
+            if !confirmed {
+                println!("Profile deletion cancelled.");
+                return Ok(());
+            }
+
             let mut state = state.lock().await;
             state
                 .config
