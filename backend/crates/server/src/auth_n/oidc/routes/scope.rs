@@ -3,7 +3,9 @@ use crate::{
     // extract::path_tenant::{Project, Tenant},
     auth_n::{
         oidc::{
-            extract::client_app::OIDCClientApplication, routes::route_string::oidc_route_string,
+            error::{OIDCError, OIDCErrorCode},
+            extract::client_app::OIDCClientApplication,
+            routes::route_string::oidc_route_string,
         },
         session,
     },
@@ -16,8 +18,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use haste_fhir_model::r4::generated::terminology::IssueType;
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::scopes::Scopes;
@@ -49,16 +49,15 @@ pub struct ScopeForm {
 pub fn verify_requested_scope_is_subset(
     requested: &Scopes,
     allowed: &Scopes,
-) -> Result<(), OperationOutcomeError> {
+) -> Result<(), OIDCError> {
     for scope in requested.0.iter() {
         if !allowed.0.contains(scope) {
-            return Err(OperationOutcomeError::error(
-                IssueType::Forbidden(None),
-                format!(
-                    "Requested scope '{}' is not allowed. Check client configuration for what scopes are allowed.",
-                    String::from(scope.clone())
-                ),
-            ));
+            return Err(OIDCError::new(
+                OIDCErrorCode::InvalidScope, 
+                Some("Requested scope '{}' is not allowed. Check client configuration for what scopes are allowed.".to_string()),
+                 None
+                )
+            );
         }
     }
     Ok(())
@@ -77,9 +76,15 @@ pub async fn scope_post<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Form(scope_data): Form<ScopeForm>,
-) -> Result<Response, OperationOutcomeError> {
+) -> Result<Response, OIDCError> {
     let user = session::user::get_user(&current_session, &tenant)
-        .await?
+        .await.map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to retrieve user from session.".to_string()),
+                Some(scope_data.redirect_uri.clone()),
+            )
+        })?
         .unwrap();
 
     if let Some("on") = scope_data.accept.as_ref().map(String::as_str) {
@@ -104,7 +109,13 @@ pub async fn scope_post<
                 scope: scope_data.scope.clone(),
             },
         )
-        .await?;
+        .await.map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to create scope authorization.".to_string()),
+                Some(scope_data.redirect_uri.clone()),
+            )
+        })?;
 
         let authorization_route = oidc_route_string(&tenant, &project, "auth/authorize")
             .to_str()
@@ -127,9 +138,10 @@ pub async fn scope_post<
         let redirect = axum::response::Redirect::to(&authorization_route);
         Ok(redirect.into_response())
     } else {
-        Err(OperationOutcomeError::error(
-            IssueType::Forbidden(None),
-            "User did not accept the requested scopes.".to_string(),
+        Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("User did not accept the requested scopes.".to_string()),
+            Some(scope_data.redirect_uri)
         ))
     }
 }

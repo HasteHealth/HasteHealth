@@ -1,7 +1,11 @@
 use std::sync::Arc;
 
 use crate::{
-    auth_n::oidc::{hardcoded_clients::get_hardcoded_clients, middleware::OIDCParameters},
+    auth_n::oidc::{
+        error::{OIDCError, OIDCErrorCode},
+        hardcoded_clients::get_hardcoded_clients,
+        middleware::OIDCParameters,
+    },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     fhir_client::ServerCTX,
     services::AppState,
@@ -14,11 +18,8 @@ use axum::{
 };
 use axum_extra::extract::Cached;
 use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::{
-    resources::{ClientApplication, Resource, ResourceType},
-    terminology::IssueType,
-};
-use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_model::r4::generated::resources::{ClientApplication, Resource, ResourceType};
+
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
@@ -33,7 +34,7 @@ pub async fn find_client_app<
     tenant: TenantId,
     project: ProjectId,
     client_id: String,
-) -> Result<ClientApplication, OperationOutcomeError> {
+) -> Result<ClientApplication, OIDCError> {
     let hardcoded_clients = get_hardcoded_clients(&*state.config);
 
     if let Some(client) = hardcoded_clients
@@ -53,14 +54,22 @@ pub async fn find_client_app<
                 ResourceType::ClientApplication,
                 client_id,
             )
-            .await?;
+            .await
+            .map_err(|_| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to retrieve client application.".to_string()),
+                    None,
+                )
+            })?;
 
         if let Some(Resource::ClientApplication(client_app)) = client_app {
             Ok(client_app)
         } else {
-            Err(OperationOutcomeError::error(
-                IssueType::NotFound(None),
-                "Client application not found".to_string(),
+            Err(OIDCError::new(
+                OIDCErrorCode::InvalidClient,
+                Some("Client application not found".to_string()),
+                None,
             ))
         }
     }

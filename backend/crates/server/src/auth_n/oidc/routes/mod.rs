@@ -1,6 +1,9 @@
 use crate::{
-    auth_n::oidc::middleware::{
-        AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig, project_exists,
+    auth_n::oidc::{
+        error::{OIDCError, OIDCErrorCode},
+        middleware::{
+            AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig, project_exists,
+        },
     },
     services::AppState,
 };
@@ -10,8 +13,6 @@ use axum::{
     middleware,
 };
 use axum_extra::routing::{RouterExt, TypedPath};
-use haste_fhir_model::r4::generated::terminology::IssueType;
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
@@ -55,23 +56,25 @@ async fn openid_configuration<
     _: WellKnown,
     OriginalUri(uri): OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-) -> Result<Json<WellKnownDiscoveryDocument>, OperationOutcomeError> {
+) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
     let api_url_string = state
         .config
         .get(crate::ServerEnvironmentVariables::APIURI)
         .unwrap_or_default();
 
     if api_url_string.is_empty() {
-        return Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
-            "API_URL is not set in the configuration".to_string(),
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("API_URL is not set in the configuration".to_string()),
+            None,
         ));
     }
 
     let Ok(api_url) = Url::parse(&api_url_string) else {
-        return Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
-            "Invalid API_URL format".to_string(),
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Invalid API_URL format".to_string()),
+            None,
         ));
     };
 
