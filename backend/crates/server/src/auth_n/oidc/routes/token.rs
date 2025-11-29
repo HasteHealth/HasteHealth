@@ -3,6 +3,7 @@ use crate::{
         certificates::encoding_key,
         oidc::{
             code_verification,
+            error::{OIDCError, OIDCErrorCode},
             extract::{body::ParsedBody, client_app::find_client_app},
             routes::scope::verify_requested_scope_is_subset,
             schemas,
@@ -23,9 +24,8 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{ClientApplication, ResourceType},
-    terminology::{ClientapplicationGrantType, IssueType},
+    terminology::ClientapplicationGrantType,
 };
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchRequest};
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
@@ -90,7 +90,7 @@ async fn create_token_response<Repo: Repository>(
     client_app: &ClientApplication,
     grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
     args: TokenResponseArguments,
-) -> Result<TokenResponse, OperationOutcomeError> {
+) -> Result<TokenResponse, OIDCError> {
     let token = jsonwebtoken::encode(
         &Header::new(Algorithm::RS256),
         &UserTokenClaims {
@@ -110,9 +110,10 @@ async fn create_token_response<Repo: Repository>(
         encoding_key(),
     )
     .map_err(|_| {
-        OperationOutcomeError::error(
-            IssueType::Exception(None),
-            "Failed to create access token.".to_string(),
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to create access token.".to_string()),
+            None,
         )
     })?;
 
@@ -161,7 +162,14 @@ async fn create_token_response<Repo: Repository>(
                     is_expired: None,
                 },
             )
-            .await?;
+            .await
+            .map_err(|_| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to retrieve existing refresh tokens.".to_string()),
+                    None,
+                )
+            })?;
 
         for existing_token in existing_refresh_tokens_for_agent {
             ProjectAuthAdmin::<CreateAuthorizationCode, _, _, _, _>::delete(
@@ -170,7 +178,14 @@ async fn create_token_response<Repo: Repository>(
                 &args.project,
                 &existing_token.code,
             )
-            .await?;
+            .await
+            .map_err(|_e| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to delete existing refresh token.".to_string()),
+                    None,
+                )
+            })?;
         }
 
         let refresh_token = ProjectAuthAdmin::create(
@@ -191,7 +206,14 @@ async fn create_token_response<Repo: Repository>(
                 }))),
             },
         )
-        .await?;
+        .await
+        .map_err(|_e| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to create refresh token.".to_string()),
+                None,
+            )
+        })?;
 
         response.refresh_token = Some(refresh_token.code);
     }
@@ -205,7 +227,7 @@ async fn get_approved_scopes<Repo: Repository>(
     project: &ProjectId,
     user_id: UserId,
     client_id: ClientId,
-) -> Result<Scopes, OperationOutcomeError> {
+) -> Result<Scopes, OIDCError> {
     let approved_scopes = ProjectAuthAdmin::<CreateScope, _, _, _, _>::search(
         repo,
         &tenant,
@@ -215,7 +237,14 @@ async fn get_approved_scopes<Repo: Repository>(
             client: Some(client_id),
         },
     )
-    .await?
+    .await
+    .map_err(|_e| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to retrieve user's approved scopes.".to_string()),
+            None,
+        )
+    })?
     .get(0)
     .map(|s| s.scope.clone())
     .unwrap_or_else(|| Default::default());
@@ -226,7 +255,7 @@ async fn get_approved_scopes<Repo: Repository>(
 fn validate_client_grant_type(
     client_app: &ClientApplication,
     grant_type: &ClientapplicationGrantType,
-) -> Result<(), OperationOutcomeError> {
+) -> Result<(), OIDCError> {
     if client_app
         .grantType
         .iter()
@@ -237,9 +266,10 @@ fn validate_client_grant_type(
         })
         .is_none()
     {
-        return Err(OperationOutcomeError::error(
-            IssueType::Forbidden(None),
-            "Client application is not authorized for the requested grant type.".to_string(),
+        return Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("Client application is not authorized for the requested grant type.".to_string()),
+            None,
         ));
     }
 
@@ -249,7 +279,7 @@ fn validate_client_grant_type(
 fn verify_client(
     client_app: &ClientApplication,
     token_request_body: &schemas::token_body::OAuth2TokenBody,
-) -> Result<(), OperationOutcomeError> {
+) -> Result<(), OIDCError> {
     // Verify the grant types align
     match token_request_body.grant_type {
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
@@ -272,6 +302,14 @@ fn verify_client(
         }
     }
 
+    if client_app.id.as_ref() != Some(&token_request_body.client_id) {
+        return Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("Invalid credentials".to_string()),
+            None,
+        ));
+    }
+
     if client_app
         .secret
         .as_ref()
@@ -281,16 +319,10 @@ fn verify_client(
             .as_ref()
             .map(String::as_str)
     {
-        return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
-            "Invalid credentials".to_string(),
-        ));
-    }
-
-    if client_app.id.as_ref() != Some(&token_request_body.client_id) {
-        return Err(OperationOutcomeError::error(
-            IssueType::Security(None),
-            "Invalid credentials".to_string(),
+        return Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("Invalid credentials".to_string()),
+            None,
         ));
     }
 
@@ -303,7 +335,7 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
     project: &ProjectId,
     user_id: &str,
     user_type: &ResourceType,
-) -> Result<Vec<VersionId>, OperationOutcomeError> {
+) -> Result<Vec<VersionId>, OIDCError> {
     let access_policies = search
         .search(
             &SupportedFHIRVersions::R4,
@@ -320,7 +352,14 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
             }),
             None,
         )
-        .await?;
+        .await
+        .map_err(|_e| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to search for user's access policies.".to_string()),
+                None,
+            )
+        })?;
 
     Ok(access_policies
         .entries
@@ -340,7 +379,7 @@ pub async fn token<
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     ParsedBody(token_body): ParsedBody<schemas::token_body::OAuth2TokenBody>,
-) -> Result<Response, OperationOutcomeError> {
+) -> Result<Response, OIDCError> {
     match &token_body.grant_type {
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
             let client_id = &token_body.client_id;
@@ -364,7 +403,13 @@ pub async fn token<
 
             verify_requested_scope_is_subset(
                 &requested_scopes,
-                &Scopes::try_from(client_app_scopes)?,
+                &Scopes::try_from(client_app_scopes).map_err(|_| {
+                    OIDCError::new(
+                        OIDCErrorCode::InvalidScope,
+                        Some("Client application's configured scopes are invalid.".to_string()),
+                        None,
+                    )
+                })?,
             )?;
 
             let response = create_token_response(
@@ -398,9 +443,10 @@ pub async fn token<
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
             let client_id = &token_body.client_id;
             let refresh_token = &token_body.refresh_token.as_ref().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "refresh_token is required for refresh_token grant type.".to_string(),
+                OIDCError::new(
+                    OIDCErrorCode::InvalidRequest,
+                    Some("refresh_token is required for refresh_token grant type.".to_string()),
+                    token_body.redirect_uri.clone(),
                 )
             })?;
 
@@ -418,19 +464,28 @@ pub async fn token<
                 None,
                 None,
             )
-            .await?;
+            .await
+            .map_err(|_| {
+                OIDCError::new(
+                    OIDCErrorCode::InvalidGrant,
+                    Some("Invalid refresh token.".to_string()),
+                    token_body.redirect_uri.clone(),
+                )
+            })?;
 
             if code.kind != AuthorizationCodeKind::RefreshToken {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
-                    "Invalid refresh token.".to_string(),
+                return Err(OIDCError::new(
+                    OIDCErrorCode::InvalidGrant,
+                    Some("Invalid refresh token.".to_string()),
+                    token_body.redirect_uri.clone(),
                 ));
             }
 
             if code.is_expired.unwrap_or(true) {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
-                    "Refresh token has expired.".to_string(),
+                return Err(OIDCError::new(
+                    OIDCErrorCode::InvalidGrant,
+                    Some("Refresh token has expired.".to_string()),
+                    token_body.redirect_uri.clone(),
                 ));
             }
 
@@ -449,11 +504,25 @@ pub async fn token<
                 &project,
                 &refresh_token,
             )
-            .await?;
+            .await
+            .map_err(|_e| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to delete used refresh token.".to_string()),
+                    token_body.redirect_uri.clone(),
+                )
+            })?;
 
             let user =
                 TenantAuthAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
-                    .await?;
+                    .await
+                    .map_err(|_e| {
+                        OIDCError::new(
+                            OIDCErrorCode::ServerError,
+                            Some("Failed to retrieve user.".to_string()),
+                            token_body.redirect_uri.clone(),
+                        )
+                    })?;
 
             let response = create_token_response(
                 &user_agent,
@@ -496,21 +565,26 @@ pub async fn token<
         schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
             let client_id = &token_body.client_id;
             let code = token_body.code.as_ref().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "code is required for authorization_code grant type.".to_string(),
+                OIDCError::new(
+                    OIDCErrorCode::InvalidRequest,
+                    Some("code is required for authorization_code grant type.".to_string()),
+                    None,
                 )
             })?;
             let code_verifier = token_body.code_verifier.as_ref().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "code_verifier is required for authorization_code grant type.".to_string(),
+                OIDCError::new(
+                    OIDCErrorCode::InvalidRequest,
+                    Some(
+                        "code_verifier is required for authorization_code grant type.".to_string(),
+                    ),
+                    None,
                 )
             })?;
             let redirect_uri = token_body.redirect_uri.as_ref().ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "redirect_uri is required for authorization_code grant type.".to_string(),
+                OIDCError::new(
+                    OIDCErrorCode::InvalidRequest,
+                    Some("redirect_uri is required for authorization_code grant type.".to_string()),
+                    None,
                 )
             })?;
 
@@ -528,19 +602,28 @@ pub async fn token<
                 Some(&redirect_uri),
                 Some(&code_verifier),
             )
-            .await?;
+            .await
+            .map_err(|_| {
+                OIDCError::new(
+                    OIDCErrorCode::AccessDenied,
+                    Some("Invalid authorization code.".to_string()),
+                    None,
+                )
+            })?;
 
             if code.kind != AuthorizationCodeKind::OAuth2CodeGrant {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
-                    "Invalid authorization code.".to_string(),
+                return Err(OIDCError::new(
+                    OIDCErrorCode::InvalidGrant,
+                    Some("Invalid authorization code.".to_string()),
+                    None,
                 ));
             }
 
             if code.is_expired.unwrap_or(true) {
-                return Err(OperationOutcomeError::fatal(
-                    IssueType::Invalid(None),
-                    "Authorization code has expired.".to_string(),
+                return Err(OIDCError::new(
+                    OIDCErrorCode::AccessDenied,
+                    Some("Authorization code has expired.".to_string()),
+                    None,
                 ));
             }
 
@@ -560,11 +643,25 @@ pub async fn token<
                 &project,
                 &code.code,
             )
-            .await?;
+            .await
+            .map_err(|_e| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to delete used authorization code.".to_string()),
+                    None,
+                )
+            })?;
 
             let user =
                 TenantAuthAdmin::<_, User, _, _, _>::read(&*state.repo, &tenant, &code.user_id)
-                    .await?;
+                    .await
+                    .map_err(|_e| {
+                        OIDCError::new(
+                            OIDCErrorCode::ServerError,
+                            Some("Failed to retrieve user.".to_string()),
+                            None,
+                        )
+                    })?;
 
             let response = create_token_response(
                 &user_agent,

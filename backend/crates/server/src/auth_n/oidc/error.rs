@@ -69,6 +69,9 @@ pub enum OIDCErrorCode {
      */
     #[serde(rename = "invalid_grant")]
     InvalidGrant,
+
+    #[serde(rename = "access_denied")]
+    AccessDenied,
 }
 
 impl From<&OIDCErrorCode> for &str {
@@ -82,6 +85,7 @@ impl From<&OIDCErrorCode> for &str {
             OIDCErrorCode::TemporarilyUnavailable => "temporarily_unavailable",
             OIDCErrorCode::InvalidClient => "invalid_client",
             OIDCErrorCode::InvalidGrant => "invalid_grant",
+            OIDCErrorCode::AccessDenied => "access_denied",
         }
     }
 }
@@ -93,6 +97,20 @@ pub struct OIDCError {
     pub description: Option<String>,
     #[serde(skip_serializing)]
     pub redirect_uri: Option<String>,
+}
+
+impl OIDCError {
+    pub fn new(
+        code: OIDCErrorCode,
+        description: Option<String>,
+        redirect_uri: Option<String>,
+    ) -> Self {
+        OIDCError {
+            code,
+            description,
+            redirect_uri,
+        }
+    }
 }
 
 impl IntoResponse for OIDCError {

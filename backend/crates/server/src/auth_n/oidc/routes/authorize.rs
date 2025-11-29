@@ -1,6 +1,7 @@
 use crate::{
     auth_n::{
         oidc::{
+            error::{OIDCError, OIDCErrorCode},
             extract::{client_app::OIDCClientApplication, scopes::Scopes},
             middleware::OIDCParameters,
             routes::scope::{ScopeForm, verify_requested_scope_is_subset},
@@ -19,8 +20,6 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use axum_extra::{extract::Cached, routing::TypedPath};
-use haste_fhir_model::r4::generated::terminology::IssueType;
-use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
@@ -52,7 +51,7 @@ pub async fn find_membership<Repo: Repository>(
     tenant: &TenantId,
     project: &ProjectId,
     user: &User,
-) -> Result<Option<Membership>, OperationOutcomeError> {
+) -> Result<Option<Membership>, OIDCError> {
     match &user.role {
         UserRole::Owner | UserRole::Admin => Ok(None),
         UserRole::Member => {
@@ -66,7 +65,14 @@ pub async fn find_membership<Repo: Repository>(
                     role: None,
                 },
             )
-            .await?;
+            .await
+            .map_err(|_e| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to search for user membership.".to_string()),
+                    None,
+                )
+            })?;
 
             Ok(membership.into_iter().next())
         }
@@ -91,19 +97,75 @@ pub async fn authorize<
     OIDCClientApplication(client_app): OIDCClientApplication,
     Extension(oidc_params): Extension<OIDCParameters>,
     Cached(current_session): Cached<Session>,
-) -> Result<Response, OperationOutcomeError> {
+) -> Result<Response, OIDCError> {
+    let state = oidc_params.parameters.get("state").ok_or_else(|| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("state parameter is required.".to_string()),
+            None,
+        )
+    })?;
+
+    let response_type = oidc_params.parameters.get("response_type").ok_or_else(|| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("response_type parameter is required.".to_string()),
+            None,
+        )
+    })?;
+
+    let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("redirect_uri parameter is required.".to_string()),
+            None,
+        )
+    })?;
+
+    if !is_valid_redirect_url(&redirect_uri, &client_app) {
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("Invalid redirect URI.".to_string()),
+            Some(redirect_uri.to_string()),
+        ));
+    }
+
+    let uri = Uri::try_from(redirect_uri).map_err(|_| {
+        OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("Invalid redirect URI.".to_string()),
+            Some(redirect_uri.to_string()),
+        )
+    })?;
+
     let user = session::user::get_user(&current_session, &tenant)
-        .await?
+        .await
+        .map_err(|_e| {
+            OIDCError::new(
+                OIDCErrorCode::ServerError,
+                Some("Failed to retrieve user from session.".to_string()),
+                Some(redirect_uri.to_string()),
+            )
+        })?
         .unwrap();
     // Verify the user has access to the given project.
 
     let membership = find_membership(&*app_state.repo, &tenant, &project, &user).await?;
 
     if membership.is_none() && &user.role == &UserRole::Member {
-        session::user::clear_user(&current_session, &tenant).await?;
-        return Err(OperationOutcomeError::error(
-            IssueType::Forbidden(None),
-            format!(
+        session::user::clear_user(&current_session, &tenant)
+            .await
+            .map_err(|_e| {
+                OIDCError::new(
+                    OIDCErrorCode::ServerError,
+                    Some("Failed to clear user session.".to_string()),
+                    Some(redirect_uri.to_string()),
+                )
+            })?;
+
+        return Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some(format!(
                 "User is not a member of project '{}'.",
                 project_resource
                     .name
@@ -111,46 +173,16 @@ pub async fn authorize<
                     .as_ref()
                     .map(|s| s.as_str())
                     .unwrap_or(project.as_ref())
-            ),
+            )),
+            Some(redirect_uri.to_string()),
         ));
     }
-
-    let state = oidc_params.parameters.get("state").ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "state parameter is required.".to_string(),
-        )
-    })?;
-
-    let response_type = oidc_params.parameters.get("response_type").ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "response_type parameter is required.".to_string(),
-        )
-    })?;
-
-    let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "redirect_uri parameter is required.".to_string(),
-        )
-    })?;
-
-    if !is_valid_redirect_url(&redirect_uri, &client_app) {
-        return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "Invalid redirect URI.".to_string(),
-        ));
-    }
-
-    let uri = Uri::try_from(redirect_uri).map_err(|_| {
-        OperationOutcomeError::error(IssueType::Invalid(None), "Invalid redirect uri".to_string())
-    })?;
 
     let Some(code_challenge) = oidc_params.parameters.get("code_challenge") else {
-        return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "code_challenge parameter is required.".to_string(),
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("code_challenge parameter is required.".to_string()),
+            Some(redirect_uri.to_string()),
         ));
     };
 
@@ -161,16 +193,18 @@ pub async fn authorize<
             PKCECodeChallengeMethod::try_from(code_challenge_method.as_str()).ok()
         })
     else {
-        return Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "code_challenge_method must be a valid PKCE code challenge method.".to_string(),
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("code_challenge_method must be a valid PKCE code challenge method.".to_string()),
+            Some(redirect_uri.to_string()),
         ));
     };
 
     let client_id = client_app.id.clone().ok_or_else(|| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "Client ID is required.".to_string(),
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to retrieve client ID.".to_string()),
+            Some(redirect_uri.to_string()),
         )
     })?;
 
@@ -183,7 +217,14 @@ pub async fn authorize<
             UserId::new(user.id.clone()),
         ),
     )
-    .await?;
+    .await
+    .map_err(|_e| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to retrieve users accepted scopes.".to_string()),
+            Some(redirect_uri.to_string()),
+        )
+    })?;
 
     if existing_scopes.as_ref().map(|s| &s.scope) != Some(&scopes) {
         verify_requested_scope_is_subset(
@@ -235,7 +276,14 @@ pub async fn authorize<
             meta: None,
         },
     )
-    .await?;
+    .await
+    .map_err(|_e| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to create authorization code.".to_string()),
+            Some(redirect_uri.to_string()),
+        )
+    })?;
 
     let redirection = Uri::builder()
         .scheme(uri.scheme().cloned().unwrap_or(Scheme::HTTPS))
