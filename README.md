@@ -15,7 +15,7 @@ cargo run server migrate artifacts
 cargo run server start && cargo run worker
 ```
 
-## Compiled Binaries
+## Binaries
 
 - [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
 - [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
