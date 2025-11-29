@@ -12,7 +12,7 @@
   "scripts": {
     "build": "rollup -c --bundleConfigAsCjs && pnpm postcss --config postcss.config.js -o dist/index.css src/index.css",
     "storybook": "storybook dev -p 6006",
-    "deploy": "wrangler deploy",
+    "wrangler": "pnpm build-storybook && wrangler deploy",
     "remove": "wrangler delete",
     "build-storybook": "storybook build",
     "watch-js": "rollup --watch -c --bundleConfigAsCjs",
