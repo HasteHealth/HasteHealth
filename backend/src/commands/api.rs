@@ -301,8 +301,6 @@ pub async fn api_commands(
             output,
             parallel,
         } => {
-            let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
-
             let bundle = read_from_file_or_stin::<Bundle>(transaction_file).await?;
 
             let parallel = parallel.unwrap_or(1);
