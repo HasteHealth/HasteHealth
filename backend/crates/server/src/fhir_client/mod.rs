@@ -484,7 +484,13 @@ impl<
             .await?;
 
         match res.response {
-            Some(FHIRResponse::SearchType(search_response)) => Ok(search_response.resources),
+            Some(FHIRResponse::SearchType(search_response)) => Ok(search_response
+                .bundle
+                .entry
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|entry| entry.resource.map(|r| *r))
+                .collect()),
             _ => panic!("Unexpected response type"),
         }
     }

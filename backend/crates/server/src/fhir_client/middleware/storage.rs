@@ -20,7 +20,8 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
-    terminology::IssueType,
+    terminology::{BundleType, IssueType},
+    types::FHIRUnsignedInt,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchRequest};
@@ -42,6 +43,31 @@ impl Middleware {
         Middleware {}
     }
 }
+
+pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, resources: Vec<Resource>) -> Bundle {
+    Bundle {
+        id: None,
+        meta: None,
+        total: total.map(|t| {
+            Box::new(FHIRUnsignedInt {
+                value: Some(t as u64),
+                ..Default::default()
+            })
+        }),
+        type_: Box::new(bundle_type),
+        entry: Some(
+            resources
+                .into_iter()
+                .map(|r| BundleEntry {
+                    resource: Some(Box::new(r)),
+                    ..Default::default()
+                })
+                .collect(),
+        ),
+        ..Default::default()
+    }
+}
+
 impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -153,7 +179,7 @@ impl<
 
                     Ok(Some(FHIRResponse::HistoryInstance(
                         FHIRHistoryInstanceResponse {
-                            resources: history_resources,
+                            bundle: to_bundle(BundleType::History(None), None, history_resources),
                         },
                     )))
                 }
@@ -169,7 +195,7 @@ impl<
 
                     Ok(Some(FHIRResponse::HistoryInstance(
                         FHIRHistoryInstanceResponse {
-                            resources: history_resources,
+                            bundle: to_bundle(BundleType::History(None), None, history_resources),
                         },
                     )))
                 }
@@ -185,7 +211,7 @@ impl<
 
                     Ok(Some(FHIRResponse::HistoryInstance(
                         FHIRHistoryInstanceResponse {
-                            resources: history_resources,
+                            bundle: to_bundle(BundleType::History(None), None, history_resources),
                         },
                     )))
                 }
@@ -263,8 +289,11 @@ impl<
                         .await?;
 
                     Ok(Some(FHIRResponse::SearchSystem(FHIRSearchSystemResponse {
-                        total: search_results.total,
-                        resources,
+                        bundle: to_bundle(
+                            BundleType::Searchset(None),
+                            search_results.total,
+                            resources,
+                        ),
                     })))
                 }
                 FHIRRequest::SearchType(search_type_request) => {
@@ -295,8 +324,11 @@ impl<
                         .await?;
 
                     Ok(Some(FHIRResponse::SearchType(FHIRSearchTypeResponse {
-                        total: search_results.total,
-                        resources,
+                        bundle: to_bundle(
+                            BundleType::Searchset(None),
+                            search_results.total,
+                            resources,
+                        ),
                     })))
                 }
                 FHIRRequest::ConditionalUpdate(update_request) => {
