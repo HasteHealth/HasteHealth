@@ -1588,7 +1588,7 @@ dependencies = [
 
 [[package]]
 name = "haste-health"
-version = "0.1.1"
+version = "0.1.0"
 dependencies = [
  "clap",
  "dialoguer",
@@ -1699,7 +1699,7 @@ dependencies = [
 
 [[package]]
 name = "haste-server"
-version = "0.2.1"
+version = "0.1.1"
 dependencies = [
  "axum",
  "axum-extra",

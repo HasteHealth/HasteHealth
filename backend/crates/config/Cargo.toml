@@ -1,10 +1,10 @@
 [package]
 name = "haste-config"
-version = "0.1.1"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 description = "Configuration utilities for Haste Health FHIR server and clients."
-license = "GPL-3.0"
-homepage = "https://haste.health"
+license = { workspace = true }
+homepage = { workspace = true }
 
 [dependencies]
 dotenvy = "0.15.7"

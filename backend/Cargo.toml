@@ -1,10 +1,8 @@
 [package]
 name = "haste-health"
-version = "0.1.1"
+version = "0.1.0"
 edition = "2024"
 description = "Haste Health binary."
-license = "GPL-3.0"
-homepage = "https://haste.health"
 
 # [profile.release]
 # strip = true    # Automatically strip symbols from the binary.
@@ -38,6 +36,13 @@ members = [
     "crates/repository",
     "crates/server",
 ]
+
+[workspace.package]
+version = "0.1.1"
+authors = ["Haste Health"]
+license = "GPL-3.0"
+homepage = "https://haste.health"
+edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"] }

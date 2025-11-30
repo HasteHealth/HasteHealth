@@ -1,10 +1,10 @@
 [package]
 name = "haste-indexing-worker"
-version = "0.1.1"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 description = "Haste Health FHIR indexing worker."
-license = "GPL-3.0"
-homepage = "https://haste.health"
+license = { workspace = true }
+homepage = { workspace = true }
 
 [dependencies]
 elasticsearch = "9.0.0-alpha.1"
