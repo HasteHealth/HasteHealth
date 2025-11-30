@@ -2,6 +2,9 @@
 name = "haste-health"
 version = "0.1.1"
 edition = "2024"
+description = "Haste Health binary."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 # [profile.release]
 # strip = true    # Automatically strip symbols from the binary.
