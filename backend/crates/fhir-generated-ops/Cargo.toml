@@ -1,10 +1,10 @@
 [package]
 name = "haste-fhir-generated-ops"
-version = "0.1.1"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 description = "Generated FHIR operations for Haste Health."
-license = "GPL-3.0"
-homepage = "https://haste.health"
+license = { workspace = true }
+homepage = { workspace = true }
 
 [dependencies]
 haste-fhir-model = { path = "../fhir-model" }

@@ -1,10 +1,10 @@
 [package]
 name = "haste-access-control"
-version = "0.1.1"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 description = "Access control utilities for Haste Health FHIR server and clients."
-license = "GPL-3.0"
-homepage = "https://haste.health"
+license = { workspace = true }
+homepage = { workspace = true }
 
 [dependencies]
 haste-fhir-client = { path = "../fhir-client" }

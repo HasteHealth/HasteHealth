@@ -1,10 +1,10 @@
 [package]
 name = "haste-fhir-ops"
-version = "0.1.1"
-edition = "2024"
+version = { workspace = true }
+edition = { workspace = true }
 description = "Haste Health FHIR operations library."
-license = "GPL-3.0"
-homepage = "https://haste.health"
+license = { workspace = true }
+homepage = { workspace = true }
 
 [features]
 derive = ["dep:haste-fhir-ops-derive"]
