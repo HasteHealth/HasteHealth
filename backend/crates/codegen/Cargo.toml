@@ -2,6 +2,9 @@
 name = "haste-codegen"
 version = "0.1.1"
 edition = "2024"
+description = "Code generation utilities for Haste Health FHIR server and clients."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [dependencies]
 indexmap = "2.10.0"

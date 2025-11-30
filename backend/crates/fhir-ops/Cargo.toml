@@ -2,6 +2,9 @@
 name = "haste-fhir-ops"
 version = "0.1.1"
 edition = "2024"
+description = "Haste Health FHIR operations library."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [features]
 derive = ["dep:haste-fhir-ops-derive"]

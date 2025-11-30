@@ -2,6 +2,9 @@
 name = "haste-reflect-derive"
 version = "0.1.1"
 edition = "2024"
+description = "Reflection derive macros for Haste Health."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [lib]
 proc-macro = true

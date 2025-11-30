@@ -2,6 +2,9 @@
 name = "haste-server"
 version = "0.2.1"
 edition = "2024"
+description = "Haste Health server application."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["macros"] }

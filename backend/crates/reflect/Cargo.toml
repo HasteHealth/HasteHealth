@@ -2,6 +2,9 @@
 name = "haste-reflect"
 version = "0.1.1"
 edition = "2024"
+description = "Reflection utilities for Haste Health."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [features]
 derive = ["dep:haste-reflect-derive"]

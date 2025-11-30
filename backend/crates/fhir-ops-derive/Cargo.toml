@@ -2,6 +2,9 @@
 name = "haste-fhir-ops-derive"
 version = "0.1.1"
 edition = "2024"
+description = "Haste Health FHIR operations derive macros."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [lib]
 proc-macro = true

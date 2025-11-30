@@ -2,6 +2,9 @@
 name = "haste-fhir-generated-ops"
 version = "0.1.1"
 edition = "2024"
+description = "Generated FHIR operations for Haste Health."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [dependencies]
 haste-fhir-model = { path = "../fhir-model" }

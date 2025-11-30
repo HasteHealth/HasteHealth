@@ -2,6 +2,9 @@
 name = "haste-indexing-worker"
 version = "0.1.1"
 edition = "2024"
+description = "Haste Health FHIR indexing worker."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [dependencies]
 elasticsearch = "9.0.0-alpha.1"

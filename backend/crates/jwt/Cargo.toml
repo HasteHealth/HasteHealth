@@ -2,6 +2,9 @@
 name = "haste-jwt"
 version = "0.1.1"
 edition = "2024"
+description = "JWT utilities and claims for Haste Health."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [features]
 sqlx = ["dep:sqlx"]

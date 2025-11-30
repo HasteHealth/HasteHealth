@@ -2,6 +2,9 @@
 name = "haste-repository"
 version = "0.1.1"
 edition = "2024"
+description = "Repository/storage for Haste Health resources."
+license = "GPL-3.0"
+homepage = "https://haste.health"
 
 [dependencies]
 moka = { version = "0.12.11", features = ["future"] }
