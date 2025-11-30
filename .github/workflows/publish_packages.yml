@@ -25,6 +25,7 @@ jobs:
       - name: Run release-plz
         uses: release-plz/action@v0.5
         with:
+          manifest_path: ./backend/Cargo.toml
           command: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,6 +47,7 @@ jobs:
       - name: Run release-plz
         uses: release-plz/action@v0.5
         with:
+          manifest_path: ./backend/Cargo.toml
           command: release-pr
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
