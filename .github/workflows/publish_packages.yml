@@ -1,3 +1,4 @@
+name: Release Packages
 on:
   push:
     tags:
