@@ -70,52 +70,26 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
             resource: None,
             ..Default::default()
         },
-        Ok(FHIRResponse::HistoryInstance(res)) => {
-            let bundle =
-                haste_fhir_client::axum::to_bundle(BundleType::History(None), None, res.resources);
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::HistoryType(res)) => {
-            let bundle =
-                haste_fhir_client::axum::to_bundle(BundleType::History(None), None, res.resources);
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::HistorySystem(res)) => {
-            let bundle =
-                haste_fhir_client::axum::to_bundle(BundleType::History(None), None, res.resources);
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::SearchSystem(res)) => {
-            let bundle = haste_fhir_client::axum::to_bundle(
-                BundleType::Searchset(None),
-                res.total,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
-        Ok(FHIRResponse::SearchType(res)) => {
-            let bundle = haste_fhir_client::axum::to_bundle(
-                BundleType::Searchset(None),
-                res.total,
-                res.resources,
-            );
-            BundleEntry {
-                resource: Some(Box::new(Resource::Bundle(bundle))),
-                ..Default::default()
-            }
-        }
+        Ok(FHIRResponse::HistoryInstance(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.bundle))),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::HistoryType(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.bundle))),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::HistorySystem(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.bundle))),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::SearchSystem(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.bundle))),
+            ..Default::default()
+        },
+        Ok(FHIRResponse::SearchType(res)) => BundleEntry {
+            resource: Some(Box::new(Resource::Bundle(res.bundle))),
+            ..Default::default()
+        },
         Ok(FHIRResponse::Patch(res)) => BundleEntry {
             resource: Some(Box::new(res.resource)),
             ..Default::default()

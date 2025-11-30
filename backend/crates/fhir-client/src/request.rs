@@ -213,25 +213,23 @@ pub struct FHIRCapabilitiesResponse {
 
 #[derive(Debug)]
 pub struct FHIRSearchTypeResponse {
-    pub total: Option<i64>,
-    pub resources: Vec<Resource>,
+    pub bundle: Bundle,
 }
 #[derive(Debug)]
 pub struct FHIRSearchSystemResponse {
-    pub total: Option<i64>,
-    pub resources: Vec<Resource>,
+    pub bundle: Bundle,
 }
 #[derive(Debug)]
 pub struct FHIRHistoryInstanceResponse {
-    pub resources: Vec<Resource>,
+    pub bundle: Bundle,
 }
 #[derive(Debug)]
 pub struct FHIRHistoryTypeResponse {
-    pub resources: Vec<Resource>,
+    pub bundle: Bundle,
 }
 #[derive(Debug)]
 pub struct FHIRHistorySystemResponse {
-    pub resources: Vec<Resource>,
+    pub bundle: Bundle,
 }
 #[derive(Debug)]
 pub struct FHIRInvokeInstanceResponse {

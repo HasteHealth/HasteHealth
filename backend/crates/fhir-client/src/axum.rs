@@ -1,37 +1,13 @@
 use crate::request::FHIRResponse;
 use axum::response::IntoResponse;
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, Resource},
-    terminology::{BundleType, IssueType},
-    types::{FHIRId, FHIRInstant, FHIRUnsignedInt},
+    resources::Resource,
+    terminology::IssueType,
+    types::{FHIRId, FHIRInstant},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
 use http::{HeaderMap, StatusCode};
-
-pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, resources: Vec<Resource>) -> Bundle {
-    Bundle {
-        id: None,
-        meta: None,
-        total: total.map(|t| {
-            Box::new(FHIRUnsignedInt {
-                value: Some(t as u64),
-                ..Default::default()
-            })
-        }),
-        type_: Box::new(bundle_type),
-        entry: Some(
-            resources
-                .into_iter()
-                .map(|r| BundleEntry {
-                    resource: Some(Box::new(r)),
-                    ..Default::default()
-                })
-                .collect(),
-        ),
-        ..Default::default()
-    }
-}
 
 fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) -> () {
     let _id = resource
@@ -143,60 +119,47 @@ impl IntoResponse for FHIRResponse {
             )
                 .into_response(),
             FHIRResponse::HistoryInstance(response) => {
-                let bundle = to_bundle(BundleType::History(None), None, response.resources);
                 (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response()
             }
             FHIRResponse::HistoryType(response) => {
-                let bundle = to_bundle(BundleType::History(None), None, response.resources);
                 (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response()
             }
             FHIRResponse::HistorySystem(response) => {
-                let bundle = to_bundle(BundleType::History(None), None, response.resources);
                 (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response()
             }
             FHIRResponse::SearchType(response) => {
-                let bundle = to_bundle(
-                    BundleType::Searchset(None),
-                    response.total,
-                    response.resources,
-                );
                 (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response()
             }
             FHIRResponse::SearchSystem(response) => {
-                let bundle = to_bundle(
-                    BundleType::Searchset(None),
-                    response.total,
-                    response.resources,
-                );
                 (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&bundle).unwrap(),
+                    haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
                     .into_response()
             }
