@@ -221,6 +221,7 @@ pub async fn api_commands(
     command: &ApiCommands,
 ) -> Result<(), OperationOutcomeError> {
     let http_state = config_to_fhir_http_state(state).await?;
+    let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
     match command {
         ApiCommands::Create {
             resource_type,
@@ -236,7 +237,6 @@ pub async fn api_commands(
                 )
             })?;
 
-            let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
             let resource = haste_fhir_serialization_json::from_str::<
                 haste_fhir_model::r4::generated::resources::Resource,
             >(resource)
@@ -273,8 +273,6 @@ pub async fn api_commands(
                 )
             })?;
 
-            let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
-
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
@@ -303,8 +301,6 @@ pub async fn api_commands(
             output,
             parallel,
         } => {
-            let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
-
             let bundle = read_from_file_or_stin::<Bundle>(transaction_file).await?;
 
             let parallel = parallel.unwrap_or(1);

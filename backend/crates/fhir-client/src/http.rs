@@ -3,6 +3,7 @@ use crate::{
     middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{
         self, FHIRCreateResponse, FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
+        Operation,
     },
     url::ParsedParameter,
 };
@@ -13,6 +14,7 @@ use haste_fhir_model::r4::generated::{
     terminology::IssueType,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_jwt::VersionId;
 use http::HeaderValue;
 use reqwest::Url;
 use std::{pin::Pin, sync::Arc};
@@ -990,12 +992,12 @@ impl<CTX: 'static + Send + Sync> FHIRHttpClient<CTX> {
 impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIRHttpClient<CTX> {
     async fn request(
         &self,
-        _ctx: CTX,
+        ctx: CTX,
         request: crate::request::FHIRRequest,
     ) -> Result<crate::request::FHIRResponse, OperationOutcomeError> {
         let response = self
             .middleware
-            .call(self.state.clone(), _ctx, request)
+            .call(self.state.clone(), ctx, request)
             .await?;
 
         response
@@ -1004,24 +1006,76 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
     }
 
     async fn capabilities(&self, _ctx: CTX) -> CapabilityStatement {
-        todo!()
+        let res = self
+            .middleware
+            .call(self.state.clone(), _ctx, FHIRRequest::Capabilities)
+            .await
+            .expect("Capabilities request failed");
+
+        match res.response {
+            Some(FHIRResponse::Capabilities(capabilities_response)) => {
+                capabilities_response.capabilities
+            }
+            _ => panic!("No response for Capabilities request"),
+        }
     }
 
     async fn search_system(
         &self,
-        _ctx: CTX,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::SearchSystem(request::FHIRSearchSystemRequest { parameters }),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::SearchSystem(search_system_response)) => {
+                let mut resources = Vec::new();
+                for entry in search_system_response.bundle.entry.unwrap_or_default() {
+                    if let Some(resource) = entry.resource {
+                        resources.push(*resource);
+                    }
+                }
+                Ok(resources)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn search_type(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        resource_type: ResourceType,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::SearchType(request::FHIRSearchTypeRequest {
+                    resource_type,
+                    parameters,
+                }),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::SearchType(search_type_response)) => {
+                let mut resources = Vec::new();
+                for entry in search_type_response.bundle.entry.unwrap_or_default() {
+                    if let Some(resource) = entry.resource {
+                        resources.push(*resource);
+                    }
+                }
+                Ok(resources)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn create(
@@ -1050,22 +1104,52 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
     async fn update(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _id: String,
-        _resource: Resource,
+        ctx: CTX,
+        resource_type: ResourceType,
+        id: String,
+        resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::UpdateInstance(request::FHIRUpdateInstanceRequest {
+                    resource_type,
+                    id,
+                    resource,
+                }),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn conditional_update(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _parameters: Vec<crate::ParsedParameter>,
-        _resource: Resource,
+        ctx: CTX,
+        resource_type: ResourceType,
+        parameters: Vec<crate::ParsedParameter>,
+        resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::ConditionalUpdate(request::FHIRConditionalUpdateRequest {
+                    resource_type,
+                    parameters,
+                    resource,
+                }),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::Update(update_response)) => Ok(update_response.resource),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn patch(
@@ -1117,95 +1201,289 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
     async fn vread(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _id: String,
-        _version_id: String,
+        ctx: CTX,
+        resource_type: ResourceType,
+        id: String,
+        version_id: String,
     ) -> Result<Option<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::VersionRead(request::FHIRVersionReadRequest {
+                    resource_type,
+                    id,
+                    version_id: VersionId::new(version_id),
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::VersionRead(version_read_response)) => {
+                Ok(Some(version_read_response.resource))
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn delete_instance(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _id: String,
+        ctx: CTX,
+        resource_type: ResourceType,
+        id: String,
     ) -> Result<(), OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::DeleteInstance(request::FHIRDeleteInstanceRequest {
+                    resource_type,
+                    id,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::DeleteInstance(_delete_instance_response)) => Ok(()),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn delete_type(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        resource_type: ResourceType,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::DeleteType(request::FHIRDeleteTypeRequest {
+                    resource_type,
+                    parameters,
+                }),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::DeleteType(_delete_type_response)) => Ok(()),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn delete_system(
         &self,
-        _ctx: CTX,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<(), OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::DeleteSystem(request::FHIRDeleteSystemRequest { parameters }),
+            )
+            .await?;
+        match res.response {
+            Some(FHIRResponse::DeleteSystem(_delete_system_response)) => Ok(()),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn history_system(
         &self,
-        _ctx: CTX,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::HistorySystem(request::FHIRHistorySystemRequest { parameters }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::HistorySystem(history_system_response)) => {
+                let mut resources = Vec::new();
+                for entry in history_system_response.bundle.entry.unwrap_or_default() {
+                    if let Some(resource) = entry.resource {
+                        resources.push(*resource);
+                    }
+                }
+                Ok(resources)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn history_type(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        resource_type: ResourceType,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::HistoryType(request::FHIRHistoryTypeRequest {
+                    resource_type,
+                    parameters,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::HistoryType(history_type_response)) => {
+                let mut resources = Vec::new();
+                for entry in history_type_response.bundle.entry.unwrap_or_default() {
+                    if let Some(resource) = entry.resource {
+                        resources.push(*resource);
+                    }
+                }
+                Ok(resources)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn history_instance(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _id: String,
-        _parameters: Vec<crate::ParsedParameter>,
+        ctx: CTX,
+        resource_type: ResourceType,
+        id: String,
+        parameters: Vec<crate::ParsedParameter>,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::HistoryInstance(request::FHIRHistoryInstanceRequest {
+                    resource_type,
+                    id,
+                    parameters,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::HistoryInstance(history_instance_response)) => {
+                let mut resources = Vec::new();
+                for entry in history_instance_response.bundle.entry.unwrap_or_default() {
+                    if let Some(resource) = entry.resource {
+                        resources.push(*resource);
+                    }
+                }
+                Ok(resources)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn invoke_instance(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _id: String,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: CTX,
+        resource_type: ResourceType,
+        id: String,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::InvokeInstance(request::FHIRInvokeInstanceRequest {
+                    resource_type,
+                    id,
+                    operation: Operation::new(&operation).map_err(|_e| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            "invalid operation".to_string(),
+                        )
+                    })?,
+                    parameters,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::InvokeInstance(invoke_instance_response)) => {
+                Ok(invoke_instance_response.resource)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn invoke_type(
         &self,
-        _ctx: CTX,
-        _resource_type: ResourceType,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: CTX,
+        resource_type: ResourceType,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::InvokeType(request::FHIRInvokeTypeRequest {
+                    resource_type,
+                    operation: Operation::new(&operation).map_err(|_e| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            "invalid operation".to_string(),
+                        )
+                    })?,
+                    parameters,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::InvokeType(invoke_type_response)) => {
+                Ok(invoke_type_response.resource)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn invoke_system(
         &self,
-        _ctx: CTX,
-        _operation: String,
-        _parameters: Parameters,
+        ctx: CTX,
+        operation: String,
+        parameters: Parameters,
     ) -> Result<Resource, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::InvokeSystem(request::FHIRInvokeSystemRequest {
+                    operation: Operation::new(&operation).map_err(|_e| {
+                        OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            "invalid operation".to_string(),
+                        )
+                    })?,
+                    parameters,
+                }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::InvokeSystem(invoke_system_response)) => {
+                Ok(invoke_system_response.resource)
+            }
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 
     async fn transaction(&self, ctx: CTX, bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
@@ -1226,7 +1504,19 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         }
     }
 
-    async fn batch(&self, _ctx: CTX, _bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
-        todo!()
+    async fn batch(&self, ctx: CTX, bundle: Bundle) -> Result<Bundle, OperationOutcomeError> {
+        let res = self
+            .middleware
+            .call(
+                self.state.clone(),
+                ctx,
+                FHIRRequest::Batch(request::FHIRBatchRequest { resource: bundle }),
+            )
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Batch(batch_response)) => Ok(batch_response.resource),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
+        }
     }
 }
