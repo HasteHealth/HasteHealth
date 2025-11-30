@@ -13,7 +13,7 @@ axum = ["dep:axum", "dep:haste-fhir-serialization-json"]
 [dependencies]
 anyhow = "1.0.98"
 axum = { version = "0.8.4", optional = true }
-haste-fhir-model = { path = "../fhir-model" }
-haste-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", optional = true }
-haste-fhir-serialization-json = { path = "../fhir-serialization-json", optional = true }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", version = "0.*", optional = true }
+haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*", optional = true }
 tracing = "0.1.41"

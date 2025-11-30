@@ -10,4 +10,4 @@ homepage = { workspace = true }
 derive = ["dep:haste-reflect-derive"]
 
 [dependencies]
-haste-reflect-derive = { path = "../reflect-derive", optional = true }
+haste-reflect-derive = { path = "../reflect-derive", version = "0.*", optional = true }

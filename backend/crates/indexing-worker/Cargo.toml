@@ -8,15 +8,17 @@ homepage = { workspace = true }
 
 [dependencies]
 elasticsearch = "9.0.0-alpha.1"
-haste-config = { path = "../config" }
-haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-config = { path = "../config", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
+    "sqlx",
+] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
-haste-fhir-search = { path = "../fhir-search" }
-haste-fhirpath = { path = "../fhirpath" }
-haste-jwt = { path = "../jwt" }
-haste-repository = { path = "../repository" }
+haste-fhir-search = { path = "../fhir-search", version = "0.*" }
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
+haste-repository = { path = "../repository", version = "0.*" }
 sqlx = { version = "0.8", features = [
     "runtime-tokio",
     "tls-native-tls",

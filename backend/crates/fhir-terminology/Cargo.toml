@@ -8,12 +8,12 @@ homepage = { workspace = true }
 
 [dependencies]
 dashmap = "6.1.0"
-haste-fhir-client = { path = "../fhir-client" }
-haste-fhir-generated-ops = { path = "../fhir-generated-ops" }
-haste-fhir-model = { path = "../fhir-model" }
-haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }
+haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
-haste-fhir-search = { path = "../fhir-search" }
-haste-jwt = { path = "../jwt" }
-haste-repository = { path = "../repository" }
+haste-fhir-search = { path = "../fhir-search", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
+haste-repository = { path = "../repository", version = "0.*" }

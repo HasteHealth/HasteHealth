@@ -10,7 +10,7 @@ homepage = { workspace = true }
 proc-macro = true
 
 [dependencies]
-haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
 syn = "2.0.104"

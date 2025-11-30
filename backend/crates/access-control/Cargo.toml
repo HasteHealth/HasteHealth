@@ -7,11 +7,13 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-haste-fhir-client = { path = "../fhir-client" }
-haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
+    "sqlx",
+] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
-haste-fhirpath = { path = "../fhirpath" }
-haste-jwt = { path = "../jwt", features = ["reflect"] }
-haste-reflect = { path = "../reflect", features = ["derive"] }
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*", features = ["reflect"] }
+haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
