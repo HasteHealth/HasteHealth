@@ -53,24 +53,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
 
-  npm-publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v5
-      # Setup .npmrc file to publish to npm
-      - name: EnableCorePack
-        run: corepack enable
+  # npm-publish:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     # Setup .npmrc file to publish to npm
+  #     - name: EnableCorePack
+  #       run: corepack enable
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "23.x"
-          registry-url: "https://registry.npmjs.org"
-      - run: pnpm install
-        working-directory: ./frontend
-      - run: pnpm -r publish --access public --force
-        working-directory: ./frontend
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "23.x"
+  #         registry-url: "https://registry.npmjs.org"
+  #     - run: pnpm install
+  #       working-directory: ./frontend
+  #     - run: pnpm -r publish --access public
+  #       working-directory: ./frontend
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
