@@ -1,5 +1,6 @@
 [package]
 name = "haste-artifacts"
+publish = false
 description = "FHIR artifacts for Haste Health."
 version = { workspace = true }
 edition = { workspace = true }
