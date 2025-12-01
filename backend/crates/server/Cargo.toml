@@ -1,10 +1,12 @@
 [package]
 name = "haste-server"
+publish = false
+description = "Haste Health server application."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health server application."
 license = { workspace = true }
 homepage = { workspace = true }
+
 
 [dependencies]
 axum = { version = "0.8.4", features = ["macros"] }

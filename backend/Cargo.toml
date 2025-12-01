@@ -3,6 +3,7 @@ name = "haste-health"
 version = "0.1.0"
 edition = "2024"
 description = "Haste Health binary."
+publish = false
 
 # [profile.release]
 # strip = true    # Automatically strip symbols from the binary.
