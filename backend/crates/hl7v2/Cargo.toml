@@ -7,5 +7,5 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-haste-fhir-operation-error = { path = "../fhir-operation-error" }
-haste-fhir-model = { path = "../fhir-model" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }

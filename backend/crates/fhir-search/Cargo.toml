@@ -1,24 +1,25 @@
 [package]
 name = "haste-fhir-search"
+publish = false
+description = "Haste Health FHIR search library."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health FHIR search library."
 license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
 chrono = "0.4.41"
 elasticsearch = "9.0.0-alpha.1"
-haste-artifacts = { path = "../artifacts" }
-haste-fhir-client = { path = "../fhir-client" }
-haste-fhir-model = { path = "../fhir-model" }
-haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-artifacts = { path = "../artifacts", version = "0.*" }
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
-haste-fhirpath = { path = "../fhirpath" }
-haste-jwt = { path = "../jwt" }
-haste-reflect = { path = "../reflect" }
-haste-repository = { path = "../repository" }
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
+haste-reflect = { path = "../reflect", version = "0.*" }
+haste-repository = { path = "../repository", version = "0.*" }
 rayon = "1.10.0"
 serde = "1.0.219"
 serde_json = "1.0.140"

@@ -1,10 +1,12 @@
 [package]
 name = "haste-server"
+publish = false
+description = "Haste Health server application."
+license = "GPL-3.0"
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health server application."
-license = { workspace = true }
 homepage = { workspace = true }
+
 
 [dependencies]
 axum = { version = "0.8.4", features = ["macros"] }
@@ -20,24 +22,29 @@ json-patch = "4.0.0"
 jsonwebtoken = "9.3.1"
 maud = { version = "0.27.0", features = ["axum"] }
 mime_guess = "2.0.5"
-haste-access-control = { path = "../access-control" }
-haste-artifacts = { path = "../artifacts" }
-haste-config = { path = "../config" }
-haste-fhir-client = { path = "../fhir-client", features = ["http", "axum"] }
-haste-fhir-generated-ops = { path = "../fhir-generated-ops" }
-haste-fhir-model = { path = "../fhir-model", features = ["sqlx"] }
-haste-fhir-operation-error = { path = "../fhir-operation-error", features = [
+haste-access-control = { path = "../access-control", version = "0.*" }
+haste-artifacts = { path = "../artifacts", version = "0.*" }
+haste-config = { path = "../config", version = "0.*" }
+haste-fhir-client = { path = "../fhir-client", version = "0.*", features = [
+    "http",
+    "axum",
+] }
+haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
+    "sqlx",
+] }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
     "axum",
 ] }
-haste-fhir-ops = { path = "../fhir-ops" }
-haste-fhir-search = { path = "../fhir-search" }
-haste-fhir-serialization-json = { path = "../fhir-serialization-json" }
-haste-fhir-terminology = { path = "../fhir-terminology" }
-haste-fhirpath = { path = "../fhirpath" }
-haste-jwt = { path = "../jwt" }
-haste-reflect = { path = "../reflect", features = ["derive"] }
-haste-repository = { path = "../repository" }
+haste-fhir-ops = { path = "../fhir-ops", version = "0.*" }
+haste-fhir-search = { path = "../fhir-search", version = "0.*" }
+haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
+haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
+haste-repository = { path = "../repository", version = "0.*" }
 petgraph = "0.8.3"
 rand = "0.8"
 regex = "1.11.1"
