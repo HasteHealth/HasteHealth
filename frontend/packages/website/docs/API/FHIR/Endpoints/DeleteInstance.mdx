@@ -8,71 +8,54 @@ sidebar_position: 5
 
 The FHIR [delete operation](https://www.hl7.org/fhir/http.html#delete) allows you to delete a specific resource instance from the FHIR server. This is done using an HTTP DELETE request to the endpoint corresponding to the resource type and ID.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```
-DELETE /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]
-```
+<Tabs>
+<TabItem value="cli" label="CLI" default>
 
-Where `[ResourceType]` is the type of resource you want to delete (e.g., Patient, Observation) and `[id]` is the logical ID of the resource instance.
-
-## Response
-
-If the resource is deleted successfully, the server will respond with a `204 No Content` status code with no response body.
-
-```
-HTTP/1.1 204 No Content
-```
-
-Alternatively, some servers may respond with `200 OK` and include an `OperationOutcome`:
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
-```
-
-```json
-{
-  "resourceType": "OperationOutcome",
-  "issue": [
-    {
-      "severity": "information",
-      "code": "informational",
-      "diagnostics": "Resource Patient/12345 deleted successfully"
-    }
-  ]
-}
-```
-
-## Error Handling
-
-If the resource is not found or cannot be deleted, the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
-
-```
-HTTP/1.1 404 Not Found
-Content-Type: application/fhir+json
-```
-
-```json
-{
-  "resourceType": "OperationOutcome",
-  "issue": [
-    {
-      "severity": "error",
-      "code": "not-found",
-      "diagnostics": "Resource Patient/12345 not found"
-    }
-  ]
-}
-```
-
-## Example using cURL
-
-Here is an example of how to delete a Patient resource using cURL:
+Delete a Patient resource using the Haste Health CLI:
 
 ```bash
-curl -X DELETE "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+haste-health api delete r4 Patient 12345
+```
+
+The CLI will prompt for confirmation before deleting the resource.
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Delete a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+await client.delete_instance(
+  {},
+  R4,
+  'Patient',
+  '12345'
+);
+
+console.log('Patient deleted successfully');
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Delete a Patient resource using cURL:
+
+```bash
+curl -X DELETE "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-This command sends a DELETE request to remove the Patient resource with ID 12345.
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+

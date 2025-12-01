@@ -7,15 +7,20 @@ sidebar_position: 0
 # Create Resource
 
 The FHIR [create operation](https://www.hl7.org/fhir/http.html#create) allows you to create a new resource of a specified type on the FHIR server. This is done using an HTTP POST request to the endpoint corresponding to the resource type.
-## Endpoint
 
-```
-POST /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Create a Patient resource using the Haste Health CLI:
+
+```bash
+haste-health api create r4 --file patient.json
 ```
 
-Where `[ResourceType]` is the type of resource you want to create (e.g., Patient, Observation, etc.).
-## Request Body
-The request body should contain the JSON representation of the resource you want to create. Here is an example of creating a new Patient resource:
+Where `patient.json` contains:
 
 ```json
 {
@@ -31,28 +36,81 @@ The request body should contain the JSON representation of the resource you want
   "birthDate": "1980-01-01"
 }
 ```
-## Response
-If the resource is created successfully, the server will respond with a `201 Created` status code and include the newly created resource in the response body, along with a `Location` header indicating the URL of the created resource.   
 
+Or pass the data inline:
 
-HTTP/1.1 201 Created
-Location: /w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345
-Content-Type: application/fhir+json
-```json
-{
+```bash
+echo '{
   "resourceType": "Patient",
-  "id": "12345",
-  "name": [
-    {
-      "use": "official",
-      "family": "Doe",
-      "given": ["John"]
-    }
-  ],
+  "name": [{"use": "official", "family": "Doe", "given": ["John"]}],
   "gender": "male",
   "birthDate": "1980-01-01"
-}
+}' | haste-health api create r4 --data -
 ```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Create a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Patient } from '@haste-health/fhir-types/r4/types';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const newPatient: Patient = {
+  resourceType: "Patient",
+  name: [
+    {
+      use: "official",
+      family: "Doe",
+      given: ["John"]
+    }
+  ],
+  gender: "male",
+  birthDate: "1980-01-01"
+};
+
+const createdPatient = await client.create(
+  {},
+  R4,
+  newPatient
+);
+
+console.log('Created Patient:', createdPatient);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Create a Patient resource using cURL:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Patient",
+           "name": [
+             {
+               "use": "official",
+               "family": "Doe",
+               "given": ["John"]
+             }
+           ],
+           "gender": "male",
+           "birthDate": "1980-01-01"
+         }'
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+
 ## Error Handling
 If there are any issues with the request (e.g., missing required fields, invalid data), the server will respond with an appropriate error status code (e.g., `400 Bad Request`) and include an `OperationOutcome` resource in the response body detailing the errors.   
 
@@ -72,22 +130,3 @@ Content-Type: application/fhir+json
 }
 
 ```
-## Example using cURL
-Here is an example of how to create a new Patient resource using cURL:  
-
-```bash
-curl -X POST "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "resourceType": "Patient",
-           "name": [
-             {  
-               "use": "official",
-               "family": "Doe",
-               "given": ["John"]
-             }
-           ]
-         }'
-```
-This command sends a POST request to create a new Patient resource with the specified name.

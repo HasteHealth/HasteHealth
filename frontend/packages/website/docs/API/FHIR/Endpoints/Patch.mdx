@@ -8,17 +8,19 @@ sidebar_position: 4
 
 The FHIR [patch operation](https://www.hl7.org/fhir/http.html#patch) allows you to partially update an existing resource on the FHIR server. This is done using an HTTP PATCH request to the endpoint corresponding to the resource type and ID. FHIR supports both JSON Patch and FHIRPath Patch formats.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Patch a Patient resource using the Haste Health CLI:
+
+```bash
+haste-health api patch r4 Patient 12345 --file patch.json
 ```
-PATCH /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]
-```
 
-Where `[ResourceType]` is the type of resource you want to patch (e.g., Patient, Observation) and `[id]` is the logical ID of the resource instance.
-
-## Request Body
-
-The request body should contain the patch operations. Here is an example using JSON Patch format to update a Patient's phone number:
+Where `patch.json` contains JSON Patch operations:
 
 ```json
 [
@@ -35,70 +37,64 @@ The request body should contain the patch operations. Here is an example using J
 ]
 ```
 
-For FHIRPath Patch, use `application/fhir+json` with a Parameters resource:
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
 
-```json
-{
-  "resourceType": "Parameters",
-  "parameter": [
-    {
-      "name": "operation",
-      "part": [
-        {
-          "name": "type",
-          "valueCode": "add"
-        },
-        {
-          "name": "path",
-          "valueString": "Patient.telecom"
-        },
-        {
-          "name": "value",
-          "valueContactPoint": {
-            "system": "phone",
-            "value": "555-1234"
-          }
-        }
-      ]
-    }
-  ]
-}
+Patch a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const patches = [
+  {
+    op: "add",
+    path: "/telecom",
+    value: [
+      {
+        system: "phone",
+        value: "555-1234"
+      }
+    ]
+  }
+];
+
+const patchedPatient = await client.patch(
+  {},
+  R4,
+  'Patient',
+  '12345',
+  patches
+);
+
+console.log('Patched Patient:', patchedPatient);
 ```
 
-## Response
+</TabItem>
+<TabItem value="curl" label="cURL">
 
-If the resource is patched successfully, the server will respond with a `200 OK` status code and include the updated resource in the response body.
+Patch a Patient resource using cURL with JSON Patch:
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
+```bash
+curl -X PATCH "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+     -H "Content-Type: application/json-patch+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '[
+           {
+             "op": "add",
+             "path": "/telecom",
+             "value": [{"system": "phone", "value": "555-1234"}]
+           }
+         ]'
 ```
 
-```json
-{
-  "resourceType": "Patient",
-  "id": "12345",
-  "meta": {
-    "versionId": "2",
-    "lastUpdated": "2025-11-26T10:30:00Z"
-  },
-  "name": [
-    {
-      "use": "official",
-      "family": "Doe",
-      "given": ["John"]
-    }
-  ],
-  "gender": "male",
-  "birthDate": "1980-01-01",
-  "telecom": [
-    {
-      "system": "phone",
-      "value": "555-1234"
-    }
-  ]
-}
-```
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 
 ## Error Handling
 
@@ -121,22 +117,3 @@ Content-Type: application/fhir+json
   ]
 }
 ```
-
-## Example using cURL
-
-Here is an example of how to patch a Patient resource using cURL with JSON Patch:
-
-```bash
-curl -X PATCH "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
-     -H "Content-Type: application/json-patch+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '[
-           {
-             "op": "add",
-             "path": "/telecom",
-             "value": [{"system": "phone", "value": "555-1234"}]
-           }
-         ]'
-```
-
-This command sends a PATCH request to add a phone number to the Patient resource with ID 12345.

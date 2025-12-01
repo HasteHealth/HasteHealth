@@ -8,73 +8,59 @@ sidebar_position: 2
 
 The FHIR [vread operation](https://www.hl7.org/fhir/http.html#vread) allows you to retrieve a specific version of a resource instance from the FHIR server. This is done using an HTTP GET request to the endpoint corresponding to the resource type, ID, and version ID.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```
-GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]/_history/{versionId}
-```
+<Tabs>
+<TabItem value="cli" label="CLI" default>
 
-Where `[ResourceType]` is the type of resource (e.g., Patient, Observation), `[id]` is the logical ID of the resource instance, and `{versionId}` is the specific version number.
-
-## Response
-
-If the resource version is found, the server will respond with a `200 OK` status code and include the resource at that specific version in the response body.
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
-```
-
-```json
-{
-  "resourceType": "Patient",
-  "id": "12345",
-  "meta": {
-    "versionId": "1",
-    "lastUpdated": "2025-11-20T08:15:00Z"
-  },
-  "name": [
-    {
-      "use": "official",
-      "family": "Doe",
-      "given": ["John"]
-    }
-  ],
-  "gender": "male",
-  "birthDate": "1980-01-01"
-}
-```
-
-## Error Handling
-
-If the resource version is not found, the server will respond with a `404 Not Found` status code and include an `OperationOutcome` resource in the response body.
-
-```
-HTTP/1.1 404 Not Found
-Content-Type: application/fhir+json
-```
-
-```json
-{
-  "resourceType": "OperationOutcome",
-  "issue": [
-    {
-      "severity": "error",
-      "code": "not-found",
-      "diagnostics": "Resource Patient/12345/_history/1 not found"
-    }
-  ]
-}
-```
-
-## Example using cURL
-
-Here is an example of how to read a specific version of a Patient resource using cURL:
+Read a specific version of a Patient resource using the Haste Health CLI:
 
 ```bash
-curl -X GET "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/1" \
+haste-health api vread r4 Patient 12345 1
+```
+
+This command retrieves version 1 of the Patient resource with ID `12345`.
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
+
+Read a specific version of a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const patientVersion = await client.vread<typeof R4, 'Patient'>(
+  {},
+  R4,
+  'Patient',
+  '12345',
+  '1'
+);
+
+if (patientVersion) {
+  console.log('Patient version found:', patientVersion);
+} else {
+  console.log('Patient version not found');
+}
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Read a specific version of a Patient resource using cURL:
+
+```bash
+curl -X GET "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/1" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-This command sends a GET request to retrieve version 1 of the Patient resource with ID 12345.
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
