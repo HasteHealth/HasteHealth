@@ -1,0 +1,41 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "access-policy",
+      "resource": {
+        "resourceType": "AccessPolicyV2",
+        "name": "ADMIN",
+        "engine": "full-access",
+        "target": [
+          {
+            "link": {
+              "reference": "client-app"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "AccessPolicyV2"
+      }
+    },
+    {
+      "fullUrl": "client-app",
+      "resource": {
+	"id": "cli",
+        "resourceType": "ClientApplication",
+        "name": "CLI",
+        "grantType": ["client_credentials"],
+        "responseTypes": "token",
+        "secret": "testing",
+        "scope": "openid system/*.*"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ClientApplication/cli"
+      }
+    }
+  ]
+}
