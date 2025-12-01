@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::CLIState;
 use clap::Subcommand;
 use haste_fhir_client::{
@@ -466,8 +467,24 @@ pub async fn api_commands(
 
             Ok(())
         }
-        ApiCommands::Batch { batch_file, output } => todo!(),
-        ApiCommands::HistorySystem { parameters } => todo!(),
+        ApiCommands::Batch { batch_file, output } => {
+            let bundle = read_from_file_or_stin::<Bundle>(batch_file).await?;
+
+            let result = fhir_client.batch((), bundle).await?;
+
+            if let Some(true) = output {
+                println!(
+                    "{:?}",
+                    haste_fhir_serialization_json::to_string(&result)
+                        .expect("Failed to serialize response")
+                );
+            }
+
+            Ok(())
+        }
+        ApiCommands::HistorySystem { parameters } => {
+            todo!();
+        }
         ApiCommands::HistoryType {
             resource_type,
             parameters,

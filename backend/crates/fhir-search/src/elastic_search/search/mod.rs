@@ -1,5 +1,5 @@
 use crate::{SearchOptions, SearchRequest};
-use haste_fhir_client::url::{Parameter, ParsedParameter};
+use haste_fhir_client::url::{Parameter, ParsedParameter, ParsedParameters};
 use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
     terminology::SearchParamType,
@@ -159,7 +159,7 @@ fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType>
     }
 }
 
-fn get_parameters<'a>(request: &'a SearchRequest) -> &'a Vec<ParsedParameter> {
+fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
     match request {
         SearchRequest::TypeSearch(type_search_request) => &type_search_request.parameters,
         SearchRequest::SystemSearch(system_search_request) => &system_search_request.parameters,
@@ -187,7 +187,7 @@ pub fn build_elastic_search_query(
     let mut sort: Vec<serde_json::Value> = Vec::new();
     let mut offset: usize = 0;
 
-    for parameter in parameters.iter() {
+    for parameter in parameters.parameters().iter() {
         match parameter {
             ParsedParameter::Resource(resource_param) => {
                 let search_param =

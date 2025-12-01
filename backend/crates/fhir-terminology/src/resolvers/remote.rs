@@ -1,6 +1,6 @@
 use dashmap::DashMap;
 use haste_fhir_client::request::FHIRSearchTypeRequest;
-use haste_fhir_client::url::{Parameter, ParsedParameter};
+use haste_fhir_client::url::{Parameter, ParsedParameter, ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -63,12 +63,12 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                             &ProjectId::System,
                             SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
                                 resource_type: resource_type.clone(),
-                                parameters: vec![ParsedParameter::Resource(Parameter {
+                                parameters: ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
                                     name: "url".to_string(),
                                     value: vec![url.to_string()],
                                     modifier: None,
                                     chains: None,
-                                })],
+                                })]),
                             }),
                             None,
                         )

@@ -7,7 +7,7 @@ use haste_fhir_client::request::{
     FHIRSearchSystemRequest, FHIRSearchTypeRequest, FHIRTransactionRequest,
     FHIRUpdateInstanceRequest, FHIRVersionReadRequest, Operation, OperationParseError,
 };
-use haste_fhir_client::url::{ParseError, parse_query};
+use haste_fhir_client::url::{ParseError, ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{
     Bundle, Parameters, Resource, ResourceType, ResourceTypeError,
 };
@@ -177,7 +177,7 @@ fn parse_request_1_non_empty(
             }
             Method::PUT => {
                 let resource_type = ResourceType::try_from(url_chunks[0].as_str())?;
-                let parameters = parse_query(&req.query)?;
+                let parameters = ParsedParameters::try_from(&req.query)?;
                 let resource = get_resource(&resource_type, req)?;
                 Ok(FHIRRequest::ConditionalUpdate(
                     FHIRConditionalUpdateRequest {
@@ -188,7 +188,7 @@ fn parse_request_1_non_empty(
                 ))
             }
             Method::DELETE => Ok(FHIRRequest::DeleteType(FHIRDeleteTypeRequest {
-                parameters: parse_query(&req.query)?,
+                parameters: ParsedParameters::try_from(&req.query)?,
                 resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
             })),
             Method::GET => {
@@ -198,13 +198,13 @@ fn parse_request_1_non_empty(
                         Ok(FHIRRequest::Capabilities)
                     }
                     "_history" => Ok(FHIRRequest::HistorySystem(FHIRHistorySystemRequest {
-                        parameters: parse_query(&req.query)?,
+                        parameters: ParsedParameters::try_from(&req.query)?,
                     })),
                     _ => {
                         // Handle search request
                         Ok(FHIRRequest::SearchType(FHIRSearchTypeRequest {
                             resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                            parameters: parse_query(&req.query)?,
+                            parameters: ParsedParameters::try_from(&req.query)?,
                         }))
                     }
                 }
@@ -251,11 +251,11 @@ fn parse_request_1_empty(
         Method::GET => {
             // Handle search system request
             Ok(FHIRRequest::SearchSystem(FHIRSearchSystemRequest {
-                parameters: parse_query(&req.query)?,
+                parameters: ParsedParameters::try_from(&req.query)?,
             }))
         }
         Method::DELETE => Ok(FHIRRequest::DeleteSystem(FHIRDeleteSystemRequest {
-            parameters: parse_query(&req.query)?,
+            parameters: ParsedParameters::try_from(&req.query)?,
         })),
         _ => Err(FHIRRequestParsingError::Unsupported(
             "Unsupported method for FHIR request".to_string(),
@@ -335,7 +335,7 @@ fn parse_request_2(
                 if url_chunks[1] == "_history" {
                     Ok(FHIRRequest::HistoryType(FHIRHistoryTypeRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
-                        parameters: parse_query(&req.query)?,
+                        parameters: ParsedParameters::try_from(&req.query)?,
                     }))
                 } else {
                     // Handle read request
@@ -417,7 +417,7 @@ fn parse_request_3(
                     Ok(FHIRRequest::HistoryInstance(FHIRHistoryInstanceRequest {
                         resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
                         id: url_chunks[1].to_string(),
-                        parameters: parse_query(&req.query)?,
+                        parameters: ParsedParameters::try_from(&req.query)?,
                     }))
                 } else {
                     // Handle read request

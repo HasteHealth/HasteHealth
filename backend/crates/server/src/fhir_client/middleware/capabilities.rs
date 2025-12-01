@@ -8,7 +8,7 @@ use crate::fhir_client::{
 use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest},
-    url::{Parameter, ParsedParameter},
+    url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -80,7 +80,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
     let sd_search = FHIRSearchTypeRequest {
         resource_type: ResourceType::StructureDefinition,
-        parameters: vec![
+        parameters: ParsedParameters::new(vec![
             ParsedParameter::Resource(Parameter {
                 name: "kind".to_string(),
                 value: vec!["resource".to_string()],
@@ -105,7 +105,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             //     modifier: None,
             //     chains: None,
             // }),
-        ],
+        ]),
     };
     let sd_results = search_engine
         .search(
@@ -149,7 +149,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             }),
             resource: Some(
                 sds.map(create_capability_rest_statement)
-                .collect::<Result<Vec<_>, _>>()?,
+                    .collect::<Result<Vec<_>, _>>()?,
             ),
             ..Default::default()
         }]),

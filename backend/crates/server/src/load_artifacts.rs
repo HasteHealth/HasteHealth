@@ -6,7 +6,7 @@ use haste_artifacts::ARTIFACT_RESOURCES;
 use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
-    url::{Parameter, ParsedParameter},
+    url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
@@ -129,7 +129,7 @@ pub async fn load_artifacts(
                     .conditional_update(
                         ctx.clone(),
                         resource_type.clone(),
-                        vec![
+                        ParsedParameters::new(vec![
                             ParsedParameter::Resource(Parameter {
                                 name: "_id".to_string(),
                                 value: vec![id.clone()],
@@ -142,7 +142,7 @@ pub async fn load_artifacts(
                                 modifier: Some("not".to_string()),
                                 chains: None,
                             }),
-                        ],
+                        ]),
                         resource.clone(),
                     )
                     .await;

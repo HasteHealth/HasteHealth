@@ -5,7 +5,7 @@ use crate::{
         self, FHIRCreateResponse, FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
         Operation,
     },
-    url::ParsedParameter,
+    url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -85,12 +85,9 @@ pub enum FHIRHTTPError {
     JSONSerializeError(#[from] serde_json::Error),
 }
 
-fn fhir_parameter_to_query_parameters(
-    http_url: &mut reqwest::Url,
-    parameters: &Vec<ParsedParameter>,
-) {
+fn fhir_parameter_to_query_parameters(http_url: &mut reqwest::Url, parameters: &ParsedParameters) {
     let mut query_parameters = http_url.query_pairs_mut();
-    for parameter in parameters {
+    for parameter in parameters.parameters() {
         let parameter = match parameter {
             ParsedParameter::Result(parameter) | ParsedParameter::Resource(parameter) => parameter,
         };
@@ -1023,7 +1020,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
     async fn search_system(
         &self,
         ctx: CTX,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
@@ -1051,7 +1048,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
@@ -1131,7 +1128,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         let res = self
@@ -1255,7 +1252,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
         let res = self
             .middleware
@@ -1277,7 +1274,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
     async fn delete_system(
         &self,
         ctx: CTX,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
         let res = self
             .middleware
@@ -1296,7 +1293,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
     async fn history_system(
         &self,
         ctx: CTX,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
@@ -1325,7 +1322,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
@@ -1358,7 +1355,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         ctx: CTX,
         resource_type: ResourceType,
         id: String,
-        parameters: Vec<crate::ParsedParameter>,
+        parameters: crate::ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware

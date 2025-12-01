@@ -16,7 +16,7 @@ use haste_fhir_client::{
         FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
         FHIRTransactionResponse, FHIRUpdateResponse, FHIRVersionReadResponse,
     },
-    url::ParsedParameter,
+    url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
@@ -340,15 +340,18 @@ impl<
                             &context.ctx.project,
                             SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
                                 resource_type: update_request.resource_type.clone(),
-                                parameters: update_request
-                                    .parameters
-                                    .clone()
-                                    .into_iter()
-                                    .filter(|p| match p {
-                                        ParsedParameter::Resource(_) => true,
-                                        _ => false,
-                                    })
-                                    .collect(),
+                                parameters: ParsedParameters::new(
+                                    update_request
+                                        .parameters
+                                        .parameters()
+                                        .clone()
+                                        .into_iter()
+                                        .filter(|p| match p {
+                                            ParsedParameter::Resource(_) => true,
+                                            _ => false,
+                                        })
+                                        .collect(),
+                                ),
                             }),
                             None,
                         )
