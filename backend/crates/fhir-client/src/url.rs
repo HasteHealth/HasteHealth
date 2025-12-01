@@ -94,50 +94,66 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_containedType",
 ];
 
-pub fn parse_query(
-    query_params: &HashMap<String, String>,
-) -> Result<Vec<ParsedParameter>, ParseError> {
-    if query_params.is_empty() {
-        return Ok(vec![]);
+#[derive(Debug, Clone)]
+pub struct ParsedParameters(Vec<ParsedParameter>);
+
+impl ParsedParameters {
+    pub fn new(params: Vec<ParsedParameter>) -> Self {
+        Self(params)
     }
-    query_params
-        .keys()
-        .map(|param_name| {
-            let value = query_params.get(param_name).unwrap();
+    pub fn parameters(&self) -> &Vec<ParsedParameter> {
+        &self.0
+    }
+}
 
-            let chain = param_name
-                .split('.')
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>();
+impl TryFrom<&HashMap<String, String>> for ParsedParameters {
+    type Error = ParseError;
+    fn try_from(query_params: &HashMap<String, String>) -> Result<Self, ParseError> {
+        if query_params.is_empty() {
+            return Ok(Self(vec![]));
+        }
 
-            if chain.is_empty() {
-                return Err(ParseError::InvalidParameter(param_name.to_string()));
-            }
+        let params = query_params
+            .keys()
+            .map(|param_name| {
+                let value = query_params.get(param_name).unwrap();
 
-            let name_and_modifier = chain[0].split(':').collect::<Vec<&str>>();
+                let chain = param_name
+                    .split('.')
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>();
 
-            if name_and_modifier.len() > 2 || name_and_modifier.is_empty() {
-                return Err(ParseError::InvalidParameter(param_name.to_string()));
-            }
+                if chain.is_empty() {
+                    return Err(ParseError::InvalidParameter(param_name.to_string()));
+                }
 
-            let name = name_and_modifier[0].to_string();
+                let name_and_modifier = chain[0].split(':').collect::<Vec<&str>>();
 
-            let param = Parameter {
-                name,
-                modifier: name_and_modifier.get(1).map(|s| s.to_string()),
-                value: value.split(',').map(|v| v.to_string()).collect(),
-                chains: if chain.len() > 1 {
-                    Some(chain[1..].to_vec())
+                if name_and_modifier.len() > 2 || name_and_modifier.is_empty() {
+                    return Err(ParseError::InvalidParameter(param_name.to_string()));
+                }
+
+                let name = name_and_modifier[0].to_string();
+
+                let param = Parameter {
+                    name,
+                    modifier: name_and_modifier.get(1).map(|s| s.to_string()),
+                    value: value.split(',').map(|v| v.to_string()).collect(),
+                    chains: if chain.len() > 1 {
+                        Some(chain[1..].to_vec())
+                    } else {
+                        None
+                    },
+                };
+
+                if RESULT_PARAMETERS.contains(&param.name.as_str()) {
+                    Ok(ParsedParameter::Result(param))
                 } else {
-                    None
-                },
-            };
+                    Ok(ParsedParameter::Resource(param))
+                }
+            })
+            .collect::<Result<Vec<ParsedParameter>, ParseError>>()?;
 
-            if RESULT_PARAMETERS.contains(&param.name.as_str()) {
-                Ok(ParsedParameter::Result(param))
-            } else {
-                Ok(ParsedParameter::Resource(param))
-            }
-        })
-        .collect()
+        Ok(Self(params))
+    }
 }

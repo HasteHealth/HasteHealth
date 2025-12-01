@@ -13,7 +13,7 @@ use haste_fhir_client::{
         FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRTransactionRequest,
         FHIRUpdateInstanceRequest,
     },
-    url::ParsedParameter,
+    url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
@@ -460,7 +460,7 @@ impl<
     async fn search_system(
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _parameters: Vec<ParsedParameter>,
+        _parameters: ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
@@ -469,7 +469,7 @@ impl<
         &self,
         ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         let res = self
             .middleware
@@ -550,7 +550,7 @@ impl<
         &self,
         ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
         resource: Resource,
     ) -> Result<Resource, OperationOutcomeError> {
         let res = self
@@ -627,7 +627,7 @@ impl<
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
-        _parameters: Vec<ParsedParameter>,
+        _parameters: ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
         todo!()
     }
@@ -635,7 +635,7 @@ impl<
     async fn delete_system(
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _parameters: Vec<ParsedParameter>,
+        _parameters: ParsedParameters,
     ) -> Result<(), OperationOutcomeError> {
         todo!()
     }
@@ -643,7 +643,7 @@ impl<
     async fn history_system(
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-        _parameters: Vec<ParsedParameter>,
+        _parameters: ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
@@ -652,7 +652,7 @@ impl<
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
-        _parameters: Vec<ParsedParameter>,
+        _parameters: ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }
@@ -662,7 +662,7 @@ impl<
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _id: String,
-        _parameters: Vec<ParsedParameter>,
+        _parameters: ParsedParameters,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         todo!()
     }

@@ -5,7 +5,7 @@ use haste_jwt::VersionId;
 use json_patch::Patch;
 use thiserror::Error;
 
-use crate::ParsedParameter;
+use crate::url::ParsedParameters;
 
 #[derive(Debug)]
 pub struct FHIRCreateRequest {
@@ -36,7 +36,7 @@ pub struct FHIRUpdateInstanceRequest {
 #[derive(Debug)]
 pub struct FHIRConditionalUpdateRequest {
     pub resource_type: ResourceType,
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
     pub resource: Resource,
 }
 
@@ -51,18 +51,18 @@ pub struct FHIRPatchRequest {
 pub struct FHIRHistoryInstanceRequest {
     pub resource_type: ResourceType,
     pub id: String,
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Debug)]
 pub struct FHIRHistoryTypeRequest {
     pub resource_type: ResourceType,
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Debug)]
 pub struct FHIRHistorySystemRequest {
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Debug)]
@@ -74,23 +74,23 @@ pub struct FHIRDeleteInstanceRequest {
 #[derive(Debug)]
 pub struct FHIRDeleteTypeRequest {
     pub resource_type: ResourceType,
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Debug)]
 pub struct FHIRDeleteSystemRequest {
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Debug)]
 pub struct FHIRSearchTypeRequest {
     pub resource_type: ResourceType,
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Debug)]
 pub struct FHIRSearchSystemRequest {
-    pub parameters: Vec<ParsedParameter>,
+    pub parameters: ParsedParameters,
 }
 
 #[derive(Error, Debug)]

@@ -5,7 +5,7 @@ use json_patch::Patch;
 
 use crate::{
     request::{FHIRRequest, FHIRResponse},
-    url::ParsedParameter,
+    url::ParsedParameters,
 };
 
 #[cfg(feature = "axum")]
@@ -28,13 +28,13 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
     fn search_system(
         &self,
         ctx: CTX,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
     fn search_type(
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
 
     fn create(
@@ -56,7 +56,7 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
         resource: Resource,
     ) -> impl Future<Output = Result<Resource, Error>> + Send;
 
@@ -94,26 +94,26 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<(), Error>> + Send;
 
     fn delete_system(
         &self,
         ctx: CTX,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<(), Error>> + Send;
 
     fn history_system(
         &self,
         ctx: CTX,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
 
     fn history_type(
         &self,
         ctx: CTX,
         resource_type: ResourceType,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
 
     fn history_instance(
@@ -121,7 +121,7 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         ctx: CTX,
         resource_type: ResourceType,
         id: String,
-        parameters: Vec<ParsedParameter>,
+        parameters: ParsedParameters,
     ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
 
     fn invoke_instance(
