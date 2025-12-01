@@ -25,6 +25,7 @@ jobs:
       - name: Run release-plz
         uses: release-plz/action@v0.5
         with:
+          config: ./backend/release-plz.toml
           manifest_path: ./backend/Cargo.toml
           command: release
         env:
@@ -47,6 +48,7 @@ jobs:
       - name: Run release-plz
         uses: release-plz/action@v0.5
         with:
+          config: ./backend/release-plz.toml
           manifest_path: ./backend/Cargo.toml
           command: release-pr
         env:
