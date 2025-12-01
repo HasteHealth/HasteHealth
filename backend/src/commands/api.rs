@@ -4,6 +4,7 @@ use clap::Subcommand;
 use haste_fhir_client::{
     FHIRClient,
     http::{FHIRHttpClient, FHIRHttpState},
+    url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, ResourceType},
@@ -58,27 +59,27 @@ pub enum ApiCommands {
     },
 
     HistorySystem {
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     HistoryType {
         resource_type: String,
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     HistoryInstance {
         resource_type: String,
         id: String,
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     SearchType {
         resource_type: String,
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     SearchSystem {
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     InvokeSystem {
@@ -101,11 +102,11 @@ pub enum ApiCommands {
 
     DeleteType {
         resource_type: String,
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     DeleteSystem {
-        parameters: Vec<String>,
+        parameters: String,
     },
 
     InvokeInstance {
@@ -483,43 +484,284 @@ pub async fn api_commands(
             Ok(())
         }
         ApiCommands::HistorySystem { parameters } => {
-            todo!();
+            let result = fhir_client
+                .history_system((), ParsedParameters::try_from(parameters.as_str())?)
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
         }
         ApiCommands::HistoryType {
             resource_type,
             parameters,
-        } => todo!(),
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let result = fhir_client
+                .history_type(
+                    (),
+                    resource_type,
+                    ParsedParameters::try_from(parameters.as_str())?,
+                )
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
         ApiCommands::HistoryInstance {
             resource_type,
             id,
             parameters,
-        } => todo!(),
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let result = fhir_client
+                .history_instance(
+                    (),
+                    resource_type,
+                    id.clone(),
+                    ParsedParameters::try_from(parameters.as_str())?,
+                )
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
         ApiCommands::SearchType {
             resource_type,
             parameters,
-        } => todo!(),
-        ApiCommands::SearchSystem { parameters } => todo!(),
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let result = fhir_client
+                .search_type(
+                    (),
+                    resource_type,
+                    ParsedParameters::try_from(parameters.as_str())?,
+                )
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
+        ApiCommands::SearchSystem { parameters } => {
+            let result = fhir_client
+                .search_system((), ParsedParameters::try_from(parameters.as_str())?)
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
         ApiCommands::InvokeSystem {
             operation_name,
             parameters_file,
-        } => todo!(),
+        } => {
+            let parameters = read_from_file_or_stin::<
+                haste_fhir_model::r4::generated::resources::Parameters,
+            >(parameters_file)
+            .await?;
+
+            let result = fhir_client
+                .invoke_system((), operation_name.clone(), parameters)
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
         ApiCommands::InvokeType {
             resource_type,
             operation_name,
             parameters_file,
-        } => todo!(),
-        ApiCommands::Capabilities {} => todo!(),
-        ApiCommands::DeleteInstance { resource_type, id } => todo!(),
-        ApiCommands::DeleteType {
-            resource_type,
-            parameters,
-        } => todo!(),
-        ApiCommands::DeleteSystem { parameters } => todo!(),
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let parameters = read_from_file_or_stin::<
+                haste_fhir_model::r4::generated::resources::Parameters,
+            >(parameters_file)
+            .await?;
+
+            let result = fhir_client
+                .invoke_type((), resource_type, operation_name.clone(), parameters)
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
         ApiCommands::InvokeInstance {
             resource_type,
             id,
             operation_name,
             parameters_file,
-        } => todo!(),
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let parameters = read_from_file_or_stin::<
+                haste_fhir_model::r4::generated::resources::Parameters,
+            >(parameters_file)
+            .await?;
+
+            let result = fhir_client
+                .invoke_instance(
+                    (),
+                    resource_type,
+                    id.clone(),
+                    operation_name.clone(),
+                    parameters,
+                )
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
+        ApiCommands::Capabilities {} => {
+            let result = fhir_client.capabilities(()).await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
+        ApiCommands::DeleteInstance { resource_type, id } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            fhir_client
+                .delete_instance((), resource_type.clone(), id.clone())
+                .await?;
+
+            println!(
+                "Resource of type '{}' with ID '{}' deleted.",
+                resource_type.as_ref(),
+                id
+            );
+
+            Ok(())
+        }
+        ApiCommands::DeleteType {
+            resource_type,
+            parameters,
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let parsed_parameters = ParsedParameters::try_from(parameters.as_str())?;
+
+            fhir_client
+                .delete_type((), resource_type.clone(), parsed_parameters)
+                .await?;
+
+            println!(
+                "Resources of type '{}' deleted based on provided parameters.",
+                resource_type.as_ref()
+            );
+
+            Ok(())
+        }
+        ApiCommands::DeleteSystem { parameters } => {
+            let parsed_parameters = ParsedParameters::try_from(parameters.as_str())?;
+
+            fhir_client.delete_system((), parsed_parameters).await?;
+
+            println!("Resources deleted based on provided system-level parameters.");
+
+            Ok(())
+        }
     }
 }

@@ -453,7 +453,7 @@ impl<
     async fn capabilities(
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-    ) -> CapabilityStatement {
+    ) -> Result<CapabilityStatement, OperationOutcomeError> {
         todo!()
     }
 

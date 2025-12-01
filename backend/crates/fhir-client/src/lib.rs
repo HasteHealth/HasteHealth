@@ -1,6 +1,7 @@
 use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
 };
+use haste_fhir_operation_error::OperationOutcomeError;
 use json_patch::Patch;
 
 use crate::{
@@ -23,7 +24,10 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         request: FHIRRequest,
     ) -> impl Future<Output = Result<FHIRResponse, Error>> + Send;
 
-    fn capabilities(&self, ctx: CTX) -> impl Future<Output = CapabilityStatement> + Send;
+    fn capabilities(
+        &self,
+        ctx: CTX,
+    ) -> impl Future<Output = Result<CapabilityStatement, OperationOutcomeError>> + Send;
 
     fn search_system(
         &self,

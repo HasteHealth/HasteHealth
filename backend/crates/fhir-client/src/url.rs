@@ -1,5 +1,5 @@
-use std::collections::HashMap;
-use thiserror::Error;
+use haste_fhir_operation_error::derive::OperationOutcomeError;
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug, Clone)]
 pub struct Parameter {
@@ -17,69 +17,26 @@ pub enum ParsedParameter {
     Resource(Parameter),
 }
 
-// // type SPECIAL_CHARACTER = "\\" | "|" | "$" | ",";
-// // const SPECIAL_CHARACTERS: SPECIAL_CHARACTER[] = ["\\", "|", "$", ","];
-
-// // /**
-// //  * Returns string with split pieces and unescapes special characters from the split piece.
-// //  * @param parameter Parameter to be split
-// //  * @param specialCharacter One of special characters that get escaped on parameter.
-// //  */
-// // export function splitParameter(
-// //   parameter: string,
-// //   specialCharacter: SPECIAL_CHARACTER,
-// // ): string[] {
-// //   const specialCharEg = new RegExp(`\\${specialCharacter}`, "g");
-// //   let prevIndex = -1;
-// //   const pieces = [];
-// //   let match;
-
-// //   while ((match = specialCharEg.exec(parameter))) {
-// //     if (match.index === 0 || parameter[match.index - 1] !== "\\") {
-// //       pieces.push(parameter.substring(prevIndex + 1, match.index));
-// //       prevIndex = match.index;
-// //     }
-// //   }
-// //   pieces.push(parameter.substring(prevIndex + 1));
-
-// //   return pieces.map(unescapeParameter);
-// // }
-
-// // /**
-// //  * Escapes a parameter values special characters
-// //  * Reference: https://hl7.org/fhir/R4/search.html#escaping
-// //  * @param parameter Parameter value to escape
-// //  * @returns Escaped Parameter
-// //  */
-// // export function escapeParameter(parameter: string): string {
-// //   return SPECIAL_CHARACTERS.reduce(
-// //     (parameter: string, character: string): string => {
-// //       return parameter.replaceAll(character, `\\${character}`);
-// //     },
-// //     parameter,
-// //   );
-// // }
-
-// // /**
-// //  * Unescapes a parameter values special characters.
-// //  * Reference: https://hl7.org/fhir/R4/search.html#escaping
-// //  * @param parameter Escaped Parameter
-// //  * @returns Unescaped Parameter
-// //  */
-// // export function unescapeParameter(parameter: string): string {
-// //   return SPECIAL_CHARACTERS.reduce(
-// //     (parameter: string, character: string): string => {
-// //       return parameter.replaceAll(`\\${character}`, character);
-// //     },
-// //     parameter,
-// //   );
-// // }
-
-#[derive(Error, Debug)]
+#[derive(Debug, OperationOutcomeError)]
 pub enum ParseError {
-    #[error("Error parsing query parameters: '{0}'")]
+    #[fatal(
+        code = "invalid",
+        diagnostic = "Error parsing query parameters '{arg0}'"
+    )]
     InvalidParameter(String),
 }
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParseError::InvalidParameter(param) => {
+                write!(f, "Invalid query parameter: {}", param)
+            }
+        }
+    }
+}
+
+impl std::error::Error for ParseError {}
 
 static RESULT_PARAMETERS: &[&str] = &[
     "_count",
