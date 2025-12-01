@@ -14,7 +14,7 @@ frontend/**/lib
 frontend/**/dist
 frontend/**/build
 frontend/**/coverage
-
+frontend/packages/components/src/docs
 storybook-static
 
 frontend/.yarn/install-state.gz
