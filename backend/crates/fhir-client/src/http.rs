@@ -1002,18 +1002,17 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .ok_or_else(|| FHIRHTTPError::NoResponse.into())
     }
 
-    async fn capabilities(&self, _ctx: CTX) -> CapabilityStatement {
+    async fn capabilities(&self, _ctx: CTX) -> Result<CapabilityStatement, OperationOutcomeError> {
         let res = self
             .middleware
             .call(self.state.clone(), _ctx, FHIRRequest::Capabilities)
-            .await
-            .expect("Capabilities request failed");
+            .await?;
 
         match res.response {
             Some(FHIRResponse::Capabilities(capabilities_response)) => {
-                capabilities_response.capabilities
+                Ok(capabilities_response.capabilities)
             }
-            _ => panic!("No response for Capabilities request"),
+            _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
 
