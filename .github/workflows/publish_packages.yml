@@ -70,7 +70,7 @@ jobs:
   #         registry-url: "https://registry.npmjs.org"
   #     - run: pnpm install
   #       working-directory: ./frontend
-  #     - run: pnpm -r publish --access public
+  #     - run: pnpm -r --no-bail run publish
   #       working-directory: ./frontend
   #       env:
   #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
