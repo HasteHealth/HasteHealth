@@ -24,12 +24,23 @@ pub enum ApiCommands {
         resource_type: String,
         id: String,
     },
+
+    VersionRead {
+        resource_type: String,
+        id: String,
+        version_id: String,
+    },
+
     Patch {
         resource_type: String,
         id: String,
         patch: String,
     },
-    Update {},
+    Update {
+        resource_type: String,
+        id: String,
+        resource: String,
+    },
     Transaction {
         #[arg(short, long)]
         parallel: Option<usize>,
@@ -37,6 +48,70 @@ pub enum ApiCommands {
         transaction_file: Option<String>,
         #[arg(short, long)]
         output: Option<bool>,
+    },
+    Batch {
+        #[arg(short, long)]
+        batch_file: Option<String>,
+        #[arg(short, long)]
+        output: Option<bool>,
+    },
+
+    HistorySystem {
+        parameters: Vec<String>,
+    },
+
+    HistoryType {
+        resource_type: String,
+        parameters: Vec<String>,
+    },
+
+    HistoryInstance {
+        resource_type: String,
+        id: String,
+        parameters: Vec<String>,
+    },
+
+    SearchType {
+        resource_type: String,
+        parameters: Vec<String>,
+    },
+
+    SearchSystem {
+        parameters: Vec<String>,
+    },
+
+    InvokeSystem {
+        operation_name: String,
+        parameters_file: Option<String>,
+    },
+
+    InvokeType {
+        resource_type: String,
+        operation_name: String,
+        parameters_file: Option<String>,
+    },
+
+    Capabilities {},
+
+    DeleteInstance {
+        resource_type: String,
+        id: String,
+    },
+
+    DeleteType {
+        resource_type: String,
+        parameters: Vec<String>,
+    },
+
+    DeleteSystem {
+        parameters: Vec<String>,
+    },
+
+    InvokeInstance {
+        resource_type: String,
+        id: String,
+        operation_name: String,
+        parameters_file: Option<String>,
     },
 }
 
@@ -295,7 +370,42 @@ pub async fn api_commands(
 
             Ok(())
         }
-        ApiCommands::Update {} => todo!(),
+        ApiCommands::Update {
+            resource_type,
+            id,
+            resource,
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let resource = haste_fhir_serialization_json::from_str::<
+                haste_fhir_model::r4::generated::resources::Resource,
+            >(resource)
+            .map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!("Failed to parse resource JSON: {}", e),
+                )
+            })?;
+
+            let result = fhir_client
+                .update((), resource_type, id.clone(), resource)
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+            Ok(())
+        }
         ApiCommands::Transaction {
             transaction_file,
             output,
@@ -329,5 +439,70 @@ pub async fn api_commands(
 
             Ok(())
         }
+        ApiCommands::VersionRead {
+            resource_type,
+            id,
+            version_id,
+        } => {
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "'{}' is not a valid FHIR resource type: {}",
+                        resource_type, e
+                    ),
+                )
+            })?;
+
+            let result = fhir_client
+                .vread((), resource_type, id.clone(), version_id.clone())
+                .await?;
+
+            println!(
+                "{:?}",
+                haste_fhir_serialization_json::to_string(&result)
+                    .expect("Failed to serialize response")
+            );
+
+            Ok(())
+        }
+        ApiCommands::Batch { batch_file, output } => todo!(),
+        ApiCommands::HistorySystem { parameters } => todo!(),
+        ApiCommands::HistoryType {
+            resource_type,
+            parameters,
+        } => todo!(),
+        ApiCommands::HistoryInstance {
+            resource_type,
+            id,
+            parameters,
+        } => todo!(),
+        ApiCommands::SearchType {
+            resource_type,
+            parameters,
+        } => todo!(),
+        ApiCommands::SearchSystem { parameters } => todo!(),
+        ApiCommands::InvokeSystem {
+            operation_name,
+            parameters_file,
+        } => todo!(),
+        ApiCommands::InvokeType {
+            resource_type,
+            operation_name,
+            parameters_file,
+        } => todo!(),
+        ApiCommands::Capabilities {} => todo!(),
+        ApiCommands::DeleteInstance { resource_type, id } => todo!(),
+        ApiCommands::DeleteType {
+            resource_type,
+            parameters,
+        } => todo!(),
+        ApiCommands::DeleteSystem { parameters } => todo!(),
+        ApiCommands::InvokeInstance {
+            resource_type,
+            id,
+            operation_name,
+            parameters_file,
+        } => todo!(),
     }
 }
