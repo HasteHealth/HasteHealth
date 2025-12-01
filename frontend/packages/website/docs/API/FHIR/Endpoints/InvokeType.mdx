@@ -8,18 +8,20 @@ sidebar_position: 13
 
 The FHIR [type-level operation invocation](https://www.hl7.org/fhir/operations.html) allows you to invoke a custom or standard operation on a specific resource type. This is done using an HTTP POST or GET request to the operation endpoint for the resource type.
 
-## Endpoint
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Invoke the `$validate` operation on the Patient resource type using the Haste Health CLI:
+
+```bash
+haste-health api invoke_type r4 Patient validate --file params.json
 ```
-POST /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/${code}
-GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/${code}?[parameters]
-```
 
-Where `[ResourceType]` is the type of resource (e.g., Patient, Observation) and `{code}` is the operation name (e.g., `$validate`, `$export`, `$import`).
-
-## Request Body (POST)
-
-For POST requests, the request body should contain a Parameters resource with the input parameters for the operation:
+Where `params.json` contains:
 
 ```json
 {
@@ -29,44 +31,79 @@ For POST requests, the request body should contain a Parameters resource with th
       "name": "resource",
       "resource": {
         "resourceType": "Patient",
-        "name": [
-          {
-            "use": "official",
-            "family": "Doe",
-            "given": ["John"]
-          }
-        ]
+        "name": [{"family": "Doe", "given": ["John"]}]
       }
-    },
-    {
-      "name": "mode",
-      "valueCode": "create"
     }
   ]
 }
 ```
 
-## Response
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
 
-If the operation executes successfully, the server will respond with a `200 OK` status code and the operation result. The result format depends on the specific operation.
+Invoke a type-level operation using the TypeScript client:
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
-```
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Parameters, Patient } from '@haste-health/fhir-types/r4/types';
 
-```json
-{
-  "resourceType": "OperationOutcome",
-  "issue": [
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const patientToValidate: Patient = {
+  resourceType: "Patient",
+  name: [{family: "Doe", given: ["John"]}]
+};
+
+const params: Parameters = {
+  resourceType: "Parameters",
+  parameter: [
     {
-      "severity": "information",
-      "code": "informational",
-      "diagnostics": "Validation successful"
+      name: "resource",
+      resource: patientToValidate
     }
   ]
-}
+};
+
+const result = await client.invoke_type(
+  {},
+  R4,
+  'Patient',
+  'validate',
+  params
+);
+
+console.log('Validation result:', result);
 ```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Invoke the `$validate` operation on the Patient resource type using cURL:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/\$validate" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             {
+               "name": "resource",
+               "resource": {
+                 "resourceType": "Patient",
+                 "name": [{"family": "Doe", "given": ["John"]}]
+               }
+             }
+           ]
+         }'
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 
 ## Error Handling
 
@@ -90,26 +127,3 @@ Content-Type: application/fhir+json
 }
 ```
 
-## Example using cURL
-
-Here is an example of how to invoke the `$validate` operation on the Patient resource type using cURL:
-
-```bash
-curl -X POST "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/\$validate" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "resourceType": "Parameters",
-           "parameter": [
-             {
-               "name": "resource",
-               "resource": {
-                 "resourceType": "Patient",
-                 "name": [{"family": "Doe", "given": ["John"]}]
-               }
-             }
-           ]
-         }'
-```
-
-This command sends a POST request to invoke the `$validate` operation on the Patient resource type to validate a Patient resource.

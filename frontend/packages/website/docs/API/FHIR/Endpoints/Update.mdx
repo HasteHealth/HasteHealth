@@ -8,17 +8,21 @@ sidebar_position: 3
 
 The FHIR [update operation](https://www.hl7.org/fhir/http.html#update) allows you to update an existing resource on the FHIR server. This is done using an HTTP PUT request to the endpoint corresponding to the resource type and ID.
 
-## Endpoint
+## Examples
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Update a Patient resource using the Haste Health CLI:
+
+```bash
+haste-health api update r4 Patient 12345 --file updated-patient.json
 ```
-PUT /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]
-```
 
-Where `[ResourceType]` is the type of resource you want to update (e.g., Patient, Observation) and `[id]` is the logical ID of the resource instance.
-
-## Request Body
-
-The request body should contain the complete JSON representation of the resource with the updated values. Here is an example of updating a Patient resource:
+Where `updated-patient.json` contains:
 
 ```json
 {
@@ -42,40 +46,78 @@ The request body should contain the complete JSON representation of the resource
 }
 ```
 
-## Response
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
 
-If the resource is updated successfully, the server will respond with a `200 OK` status code and include the updated resource in the response body.
+Update a Patient resource using the TypeScript client:
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
-```
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Patient } from '@haste-health/fhir-types/r4/types';
 
-```json
-{
-  "resourceType": "Patient",
-  "id": "12345",
-  "meta": {
-    "versionId": "2",
-    "lastUpdated": "2025-11-26T10:30:00Z"
-  },
-  "name": [
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const updatedPatient: Patient = {
+  resourceType: "Patient",
+  id: "12345",
+  name: [
     {
-      "use": "official",
-      "family": "Smith",
-      "given": ["John"]
+      use: "official",
+      family: "Smith",
+      given: ["John"]
     }
   ],
-  "gender": "male",
-  "birthDate": "1980-01-01",
-  "telecom": [
+  gender: "male",
+  birthDate: "1980-01-01",
+  telecom: [
     {
-      "system": "phone",
-      "value": "555-1234"
+      system: "phone",
+      value: "555-1234"
     }
   ]
-}
+};
+
+const result = await client.update(
+  {},
+  R4,
+  'Patient',
+  '12345',
+  updatedPatient
+);
+
+console.log('Updated Patient:', result);
 ```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Update a Patient resource using cURL:
+
+```bash
+curl -X PUT "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Patient",
+           "id": "12345",
+           "name": [
+             {
+               "use": "official",
+               "family": "Smith",
+               "given": ["John"]
+             }
+           ],
+           "gender": "male",
+           "birthDate": "1980-01-01"
+         }'
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 
 ## Error Handling
 
@@ -98,28 +140,3 @@ Content-Type: application/fhir+json
   ]
 }
 ```
-
-## Example using cURL
-
-Here is an example of how to update a Patient resource using cURL:
-
-```bash
-curl -X PUT "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "resourceType": "Patient",
-           "id": "12345",
-           "name": [
-             {
-               "use": "official",
-               "family": "Smith",
-               "given": ["John"]
-             }
-           ],
-           "gender": "male",
-           "birthDate": "1980-01-01"
-         }'
-```
-
-This command sends a PUT request to update the Patient resource with ID 12345.

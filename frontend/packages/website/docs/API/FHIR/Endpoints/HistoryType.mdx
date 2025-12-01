@@ -8,92 +8,65 @@ sidebar_position: 10
 
 The FHIR [history operation](https://www.hl7.org/fhir/http.html#history) allows you to retrieve the change history for all resources of a specific type. This is done using an HTTP GET request to the history endpoint for the resource type.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```
-GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/_history
-```
+<Tabs>
+<TabItem value="cli" label="CLI" default>
 
-Where `[ResourceType]` is the type of resource (e.g., Patient, Observation).
+Retrieve the history of all Patient resources using the Haste Health CLI:
 
-## Query Parameters
-
-Optional parameters to control the history results:
-
-- `_count` - Number of entries to return (default: server-defined)
-- `_since` - Return only changes since this date/time
-- `_at` - Return the state as of this date/time
-
-Example: `GET /w/[tenant]/api/v1/[project]/fhir/r4/Patient/_history?_count=20&_since=2025-01-01`
-
-## Response
-
-If the request is successful, the server will respond with a `200 OK` status code and a Bundle of type `history` containing versions of all resources of the specified type.
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
+```bash
+haste-health api history_type r4 Patient "_count=20&_since=2025-01-01"
 ```
 
-```json
-{
-  "resourceType": "Bundle",
-  "type": "history",
-  "total": 5,
-  "entry": [
-    {
-      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/_history/2",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "12345",
-        "meta": {
-          "versionId": "2",
-          "lastUpdated": "2025-11-26T10:30:00Z"
-        },
-        "name": [
-          {
-            "use": "official",
-            "family": "Smith",
-            "given": ["John"]
-          }
-        ]
-      },
-      "request": {
-        "method": "PUT",
-        "url": "Patient/12345"
-      },
-      "response": {
-        "status": "200"
-      }
-    },
-    {
-      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/67890/_history/1",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "67890",
-        "meta": {
-          "versionId": "1",
-          "lastUpdated": "2025-11-25T14:20:00Z"
-        },
-        "name": [
-          {
-            "use": "official",
-            "family": "Doe",
-            "given": ["Jane"]
-          }
-        ]
-      },
-      "request": {
-        "method": "POST",
-        "url": "Patient"
-      },
-      "response": {
-        "status": "201"
-      }
-    }
-  ]
-}
+This command retrieves the last 20 versions of Patient resources changed since January 1, 2025.
+
+You can also retrieve history without parameters:
+
+```bash
+haste-health api history_type r4 Patient
 ```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
+
+Retrieve the history of all Patient resources using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const history = await client.history_type(
+  {},
+  R4,
+  'Patient',
+  '_count=20&_since=2025-01-01'
+);
+
+console.log('Total versions:', history.total);
+console.log('History entries:', history.entry);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Retrieve the history of all Patient resources using cURL:
+
+```bash
+curl -X GET "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/_history?_count=20&_since=2025-01-01" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+
 
 ## Error Handling
 
@@ -116,15 +89,3 @@ Content-Type: application/fhir+json
   ]
 }
 ```
-
-## Example using cURL
-
-Here is an example of how to retrieve the history of all Patient resources using cURL:
-
-```bash
-curl -X GET "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/_history?_count=20&_since=2025-01-01" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-This command sends a GET request to retrieve the last 20 versions of Patient resources changed since January 1, 2025.

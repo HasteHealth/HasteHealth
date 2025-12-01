@@ -8,38 +8,62 @@ sidebar_position: 1
 
 The FHIR [read operation](https://www.hl7.org/fhir/http.html#read) allows you to retrieve a specific resource instance by its ID from the FHIR server. This is done using an HTTP GET request to the endpoint corresponding to the resource type and ID.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```
-GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]
-```
+<Tabs>
+<TabItem value="cli" label="CLI" default>
 
-Where `[ResourceType]` is the type of resource (e.g., Patient, Observation) and `[id]` is the logical ID of the resource instance.
+Read a Patient resource using the Haste Health CLI:
 
-## Response
-
-If the resource is found, the server will respond with a `200 OK` status code and include the resource in the response body.
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
+```bash
+haste-health api read r4 Patient 12345
 ```
 
-```json
-{
-  "resourceType": "Patient",
-  "id": "12345",
-  "name": [
-    {
-      "use": "official",
-      "family": "Doe",
-      "given": ["John"]
-    }
-  ],
-  "gender": "male",
-  "birthDate": "1980-01-01"
+This command retrieves the Patient resource with ID `12345` and outputs the result to the console.
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Read a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Patient } from '@haste-health/fhir-types/r4/types';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const patient = await client.read<typeof R4, 'Patient'>(
+  {},
+  R4,
+  'Patient',
+  '12345'
+);
+
+if (patient) {
+  console.log('Patient found:', patient);
+} else {
+  console.log('Patient not found');
 }
 ```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Read a Patient resource using cURL:
+
+```bash
+curl -X GET "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 
 ## Error Handling
 
@@ -62,15 +86,3 @@ Content-Type: application/fhir+json
   ]
 }
 ```
-
-## Example using cURL
-
-Here is an example of how to read a Patient resource using cURL:
-
-```bash
-curl -X GET "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-This command sends a GET request to retrieve the Patient resource with ID 12345.

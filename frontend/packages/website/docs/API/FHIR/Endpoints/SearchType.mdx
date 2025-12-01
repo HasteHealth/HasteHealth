@@ -8,76 +8,75 @@ sidebar_position: 7
 
 The FHIR [search operation](https://www.hl7.org/fhir/http.html#search) allows you to search for resources of a specific type that match certain search criteria. This is done using an HTTP GET request to the endpoint corresponding to the resource type with query parameters.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```
-GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]?[search parameters]
-```
+<Tabs>
+<TabItem value="cli" label="CLI" default>
 
-Where `[ResourceType]` is the type of resource you want to search (e.g., Patient, Observation) and the query parameters define the search criteria.
+Search for Patient resources using the Haste Health CLI:
 
-## Query Parameters
-
-Common search parameters include:
-
-- `_id` - Search by resource ID
-- `_lastUpdated` - Search by last updated date
-- `_tag` - Search by tag
-- `_profile` - Search by profile
-- Resource-specific parameters (e.g., `name`, `birthdate`, `identifier` for Patient)
-
-Example: `GET /w/[tenant]/api/v1/[project]/fhir/r4/Patient?name=Smith&birthdate=ge1980-01-01`
-
-## Response
-
-If the search is successful, the server will respond with a `200 OK` status code and a Bundle containing the matching resources.
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
+```bash
+haste-health api search_type r4 Patient "name=Smith&birthdate=ge1980-01-01"
 ```
 
-```json
-{
-  "resourceType": "Bundle",
-  "type": "searchset",
-  "total": 2,
-  "entry": [
-    {
-      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "12345",
-        "name": [
-          {
-            "use": "official",
-            "family": "Smith",
-            "given": ["John"]
-          }
-        ],
-        "gender": "male",
-        "birthDate": "1985-03-15"
-      }
-    },
-    {
-      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/67890",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "67890",
-        "name": [
-          {
-            "use": "official",
-            "family": "Smith",
-            "given": ["Jane"]
-          }
-        ],
-        "gender": "female",
-        "birthDate": "1982-07-22"
-      }
-    }
-  ]
-}
+This command searches for Patient resources with family name "Smith" born on or after January 1, 1980.
+
+You can also search without parameters to get all resources of a type:
+
+```bash
+haste-health api search_type r4 Patient
 ```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Search for Patient resources using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Patient } from '@haste-health/fhir-types/r4/types';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const searchResults = await client.search_type<typeof R4, 'Patient'>(
+  {},
+  R4,
+  'Patient',
+  'name=Smith&birthdate=ge1980-01-01'
+);
+
+console.log('Total matches:', searchResults.total);
+console.log('Patients found:', searchResults.resources);
+
+// You can also use parsed parameters
+import { parseQuery } from '@haste-health/client/url';
+
+const searchWithParsed = await client.search_type<typeof R4, 'Patient'>(
+  {},
+  R4,
+  'Patient',
+  parseQuery('name=Smith&birthdate=ge1980-01-01')
+);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Search for Patient resources using cURL:
+
+```bash
+curl -X GET "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient?name=Smith&birthdate=ge1980-01-01" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 
 ## Error Handling
 
@@ -100,15 +99,3 @@ Content-Type: application/fhir+json
   ]
 }
 ```
-
-## Example using cURL
-
-Here is an example of how to search for Patient resources using cURL:
-
-```bash
-curl -X GET "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient?name=Smith&birthdate=ge1980-01-01" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-This command sends a GET request to search for Patient resources with the family name "Smith" born on or after January 1, 1980.

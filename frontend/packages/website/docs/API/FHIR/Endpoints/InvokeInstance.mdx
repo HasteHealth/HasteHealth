@@ -8,18 +8,19 @@ sidebar_position: 12
 
 The FHIR [instance-level operation invocation](https://www.hl7.org/fhir/operations.html) allows you to invoke a custom or standard operation on a specific resource instance. This is done using an HTTP POST or GET request to the operation endpoint for the resource instance.
 
-## Endpoint
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Invoke the `$everything` operation on a Patient resource using the Haste Health CLI:
+
+```bash
+haste-health api invoke_instance r4 Patient 12345 everything --file params.json
 ```
-POST /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]/${code}
-GET /w/[tenant]/api/v1/[project]/fhir/r4/[ResourceType]/[id]/${code}?[parameters]
-```
 
-Where `[ResourceType]` is the type of resource (e.g., Patient, Observation), `[id]` is the logical ID of the resource instance, and `{code}` is the operation name (e.g., `$everything`, `$validate`).
-
-## Request Body (POST)
-
-For POST requests, the request body should contain a Parameters resource with the input parameters for the operation:
+Where `params.json` contains:
 
 ```json
 {
@@ -28,57 +29,70 @@ For POST requests, the request body should contain a Parameters resource with th
     {
       "name": "start",
       "valueDate": "2025-01-01"
-    },
-    {
-      "name": "end",
-      "valueDate": "2025-12-31"
     }
   ]
 }
 ```
 
-## Response
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
 
-If the operation executes successfully, the server will respond with a `200 OK` status code and the operation result. The result may be a resource, a Parameters resource, or a Bundle depending on the operation.
+Invoke an instance-level operation using the TypeScript client:
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/fhir+json
-```
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Parameters } from '@haste-health/fhir-types/r4/types';
 
-```json
-{
-  "resourceType": "Bundle",
-  "type": "searchset",
-  "entry": [
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const params: Parameters = {
+  resourceType: "Parameters",
+  parameter: [
     {
-      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "12345",
-        "name": [
-          {
-            "use": "official",
-            "family": "Doe",
-            "given": ["John"]
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl": "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Observation/67890",
-      "resource": {
-        "resourceType": "Observation",
-        "id": "67890",
-        "status": "final",
-        "subject": {
-          "reference": "Patient/12345"
-        }
-      }
+      name: "start",
+      valueDate: "2025-01-01"
     }
   ]
-}
+};
+
+const result = await client.invoke_instance(
+  {},
+  R4,
+  'Patient',
+  '12345',
+  'everything',
+  params
+);
+
+console.log('Operation result:', result);
 ```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Invoke the `$everything` operation on a Patient resource using cURL:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/\$everything" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             {
+               "name": "start",
+               "valueDate": "2025-01-01"
+             }
+           ]
+         }'
+```
+
+</TabItem>
+</Tabs>
+
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
 
 ## Error Handling
 
@@ -102,23 +116,3 @@ Content-Type: application/fhir+json
 }
 ```
 
-## Example using cURL
-
-Here is an example of how to invoke the `$everything` operation on a Patient resource using cURL:
-
-```bash
-curl -X POST "http://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/\$everything" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "resourceType": "Parameters",
-           "parameter": [
-             {
-               "name": "start",
-               "valueDate": "2025-01-01"
-             }
-           ]
-         }'
-```
-
-This command sends a POST request to invoke the `$everything` operation on Patient 12345, retrieving all related resources since January 1, 2025.
