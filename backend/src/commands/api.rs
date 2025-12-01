@@ -19,8 +19,9 @@ use tokio::sync::Mutex;
 #[derive(Subcommand, Debug)]
 pub enum ApiCommands {
     Create {
+        #[arg(short, long)]
+        file: Option<String>,
         resource_type: String,
-        resource: String,
     },
     Read {
         resource_type: String,
@@ -34,26 +35,28 @@ pub enum ApiCommands {
     },
 
     Patch {
+        #[arg(short, long)]
+        file: String,
         resource_type: String,
         id: String,
-        patch: String,
     },
     Update {
+        #[arg(short, long)]
+        file: Option<String>,
         resource_type: String,
         id: String,
-        resource: String,
     },
     Transaction {
         #[arg(short, long)]
         parallel: Option<usize>,
         #[arg(short, long)]
-        transaction_file: Option<String>,
+        file: Option<String>,
         #[arg(short, long)]
         output: Option<bool>,
     },
     Batch {
         #[arg(short, long)]
-        batch_file: Option<String>,
+        file: Option<String>,
         #[arg(short, long)]
         output: Option<bool>,
     },
@@ -83,14 +86,16 @@ pub enum ApiCommands {
     },
 
     InvokeSystem {
+        #[arg(short, long)]
+        file: Option<String>,
         operation_name: String,
-        parameters_file: Option<String>,
     },
 
     InvokeType {
+        #[arg(short, long)]
+        file: Option<String>,
         resource_type: String,
         operation_name: String,
-        parameters_file: Option<String>,
     },
 
     Capabilities {},
@@ -110,10 +115,11 @@ pub enum ApiCommands {
     },
 
     InvokeInstance {
+        #[arg(short, long)]
+        file: Option<String>,
         resource_type: String,
         id: String,
         operation_name: String,
-        parameters_file: Option<String>,
     },
 }
 
@@ -302,7 +308,7 @@ pub async fn api_commands(
     match command {
         ApiCommands::Create {
             resource_type,
-            resource,
+            file,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -314,15 +320,7 @@ pub async fn api_commands(
                 )
             })?;
 
-            let resource = haste_fhir_serialization_json::from_str::<
-                haste_fhir_model::r4::generated::resources::Resource,
-            >(resource)
-            .map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    format!("Failed to parse resource JSON: {}", e),
-                )
-            })?;
+            let resource = read_from_file_or_stin::<Resource>(file).await?;
 
             let result = fhir_client.create((), resource_type, resource).await?;
 
@@ -341,9 +339,16 @@ pub async fn api_commands(
         ApiCommands::Patch {
             resource_type,
             id,
-            patch,
+            file,
         } => {
-            let patch = serde_json::from_str::<json_patch::Patch>(patch).map_err(|e| {
+            let file_content = std::fs::read_to_string(file_path).map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Exception(None),
+                    format!("Failed to read transaction file: {}", e),
+                )
+            })?;
+
+            let patch = serde_json::from_str::<json_patch::Patch>(file_content).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     format!("Failed to parse patch JSON: {}", e),
@@ -375,7 +380,7 @@ pub async fn api_commands(
         ApiCommands::Update {
             resource_type,
             id,
-            resource,
+            file,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -387,15 +392,7 @@ pub async fn api_commands(
                 )
             })?;
 
-            let resource = haste_fhir_serialization_json::from_str::<
-                haste_fhir_model::r4::generated::resources::Resource,
-            >(resource)
-            .map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    format!("Failed to parse resource JSON: {}", e),
-                )
-            })?;
+            let resource = read_from_file_or_stin::<Resource>(file).await?;
 
             let result = fhir_client
                 .update((), resource_type, id.clone(), resource)
@@ -409,11 +406,11 @@ pub async fn api_commands(
             Ok(())
         }
         ApiCommands::Transaction {
-            transaction_file,
+            file,
             output,
             parallel,
         } => {
-            let bundle = read_from_file_or_stin::<Bundle>(transaction_file).await?;
+            let bundle = read_from_file_or_stin::<Bundle>(file).await?;
 
             let parallel = parallel.unwrap_or(1);
 
@@ -468,8 +465,8 @@ pub async fn api_commands(
 
             Ok(())
         }
-        ApiCommands::Batch { batch_file, output } => {
-            let bundle = read_from_file_or_stin::<Bundle>(batch_file).await?;
+        ApiCommands::Batch { file, output } => {
+            let bundle = read_from_file_or_stin::<Bundle>(file).await?;
 
             let result = fhir_client.batch((), bundle).await?;
 
@@ -603,11 +600,11 @@ pub async fn api_commands(
         }
         ApiCommands::InvokeSystem {
             operation_name,
-            parameters_file,
+            file,
         } => {
             let parameters = read_from_file_or_stin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
-            >(parameters_file)
+            >(file)
             .await?;
 
             let result = fhir_client
@@ -625,7 +622,7 @@ pub async fn api_commands(
         ApiCommands::InvokeType {
             resource_type,
             operation_name,
-            parameters_file,
+            file,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -639,7 +636,7 @@ pub async fn api_commands(
 
             let parameters = read_from_file_or_stin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
-            >(parameters_file)
+            >(file)
             .await?;
 
             let result = fhir_client
@@ -658,7 +655,7 @@ pub async fn api_commands(
             resource_type,
             id,
             operation_name,
-            parameters_file,
+            file,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -672,7 +669,7 @@ pub async fn api_commands(
 
             let parameters = read_from_file_or_stin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
-            >(parameters_file)
+            >(file)
             .await?;
 
             let result = fhir_client
