@@ -104,6 +104,43 @@ impl ParsedParameters {
     pub fn parameters(&self) -> &Vec<ParsedParameter> {
         &self.0
     }
+    pub fn get(&self, name: &str) -> Option<&ParsedParameter> {
+        self.0.iter().find(|p| match p {
+            ParsedParameter::Resource(param) | ParsedParameter::Result(param) => param.name == name,
+        })
+    }
+}
+
+impl TryFrom<&str> for ParsedParameters {
+    type Error = ParseError;
+    fn try_from(query_string: &str) -> Result<Self, ParseError> {
+        let mut query_string = query_string;
+        if query_string.is_empty() {
+            return Ok(Self(vec![]));
+        }
+
+        if query_string.starts_with('?') {
+            query_string = &query_string[1..];
+        }
+
+        let query_map = query_string.split('&').fold(
+            Ok(HashMap::new()),
+            |acc: Result<HashMap<String, String>, ParseError>, pair| {
+                let mut map = acc?;
+                let mut split = pair.splitn(2, '=');
+                let key = split
+                    .next()
+                    .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))?;
+                let value = split
+                    .next()
+                    .ok_or_else(|| ParseError::InvalidParameter(pair.to_string()))?;
+                map.insert(key.to_string(), value.to_string());
+                Ok(map)
+            },
+        )?;
+
+        Self::try_from(&query_map)
+    }
 }
 
 impl TryFrom<&HashMap<String, String>> for ParsedParameters {
@@ -155,5 +192,58 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
             .collect::<Result<Vec<ParsedParameter>, ParseError>>()?;
 
         Ok(Self(params))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_parameters() {
+        let query_string = "?name=John,Doe&_count=10&address.city=NewYork&status:exact=active";
+        let parsed_params = ParsedParameters::try_from(query_string).unwrap();
+
+        assert_eq!(parsed_params.parameters().len(), 4);
+
+        match parsed_params.get("name") {
+            Some(ParsedParameter::Resource(param)) => {
+                assert_eq!(param.name, "name");
+                assert_eq!(param.value, vec!["John", "Doe"]);
+                assert!(param.modifier.is_none());
+                assert!(param.chains.is_none());
+            }
+            _ => panic!("Expected Resource parameter"),
+        }
+
+        match parsed_params.get("_count") {
+            Some(ParsedParameter::Result(param)) => {
+                assert_eq!(param.name, "_count");
+                assert_eq!(param.value, vec!["10"]);
+                assert!(param.modifier.is_none());
+                assert!(param.chains.is_none());
+            }
+            _ => panic!("Expected Result parameter"),
+        }
+
+        match parsed_params.get("address") {
+            Some(ParsedParameter::Resource(param)) => {
+                assert_eq!(param.name, "address");
+                assert_eq!(param.value, vec!["NewYork"]);
+                assert!(param.modifier.is_none());
+                assert_eq!(param.chains, Some(vec!["city".to_string()]));
+            }
+            _ => panic!("Expected Resource parameter"),
+        }
+
+        match parsed_params.get("status") {
+            Some(ParsedParameter::Resource(param)) => {
+                assert_eq!(param.name, "status");
+                assert_eq!(param.value, vec!["active"]);
+                assert_eq!(param.modifier, Some("exact".to_string()));
+                assert!(param.chains.is_none());
+            }
+            _ => panic!("Expected Resource parameter"),
+        }
     }
 }
