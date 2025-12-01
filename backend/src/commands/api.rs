@@ -7,7 +7,7 @@ use haste_fhir_client::{
     url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, ResourceType},
+    resources::{Bundle, Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -341,14 +341,14 @@ pub async fn api_commands(
             id,
             file,
         } => {
-            let file_content = std::fs::read_to_string(file_path).map_err(|e| {
+            let file_content = std::fs::read_to_string(file).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::Exception(None),
                     format!("Failed to read transaction file: {}", e),
                 )
             })?;
 
-            let patch = serde_json::from_str::<json_patch::Patch>(file_content).map_err(|e| {
+            let patch = serde_json::from_str::<json_patch::Patch>(&file_content).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     format!("Failed to parse patch JSON: {}", e),
