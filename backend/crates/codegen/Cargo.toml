@@ -1,8 +1,9 @@
 [package]
 name = "haste-codegen"
+publish = false
+description = "Code generation utilities for Haste Health FHIR server and clients."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Code generation utilities for Haste Health FHIR server and clients."
 license = { workspace = true }
 homepage = { workspace = true }
 

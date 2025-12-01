@@ -1,8 +1,9 @@
 [package]
 name = "haste-indexing-worker"
+publish = false
+description = "Haste Health FHIR indexing worker."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health FHIR indexing worker."
 license = { workspace = true }
 homepage = { workspace = true }
 

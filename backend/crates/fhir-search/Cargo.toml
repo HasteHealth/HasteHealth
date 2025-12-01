@@ -1,9 +1,9 @@
 [package]
 name = "haste-fhir-search"
 publish = false
+description = "Haste Health FHIR search library."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health FHIR search library."
 license = { workspace = true }
 homepage = { workspace = true }
 

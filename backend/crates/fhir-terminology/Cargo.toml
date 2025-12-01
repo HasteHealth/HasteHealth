@@ -1,9 +1,9 @@
 [package]
 name = "haste-fhir-terminology"
 publish = false
+description = "Haste Health FHIR terminology services library."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health FHIR terminology services library."
 license = { workspace = true }
 homepage = { workspace = true }
 
