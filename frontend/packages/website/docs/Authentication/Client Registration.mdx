@@ -5,4 +5,316 @@ sidebar_position: 3
 tags:
   - authentication
   - oidc
+  - oauth2
+  - client
+  - registration
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Client Registration
+
+Client registration is the process of creating OAuth 2.0/OpenID Connect client applications in Haste Health. Clients represent applications that need to authenticate users or access resources on the FHIR server.
+
+In Haste Health, client applications are managed as FHIR resources using the [`ClientApplication`](/docs/API/FHIR/Model/Resources/ClientApplication) resource type. This allows clients to be created, updated, and managed through the standard FHIR API.
+
+## Overview
+
+A `ClientApplication` resource represents an OAuth 2.0 client and contains:
+
+- **Client Identity**: Unique identifier and human-readable name
+- **OAuth Configuration**: Grant types, response types, and redirect URIs
+- **Security Credentials**: Client secret for confidential clients
+- **Scopes**: Pre-approved scopes the client can request
+- **Additional Metadata**: Logo URI, description, and other client information
+
+## Client Types
+
+### Confidential Clients
+
+Confidential clients can securely store credentials (client secret). They are typically:
+
+- **Backend Services**: Server-to-server applications
+- **CLI Tools**: Command-line tools running in secure environments
+
+Confidential clients use grant types:
+- `client_credentials` - Machine-to-machine authentication
+
+### Public Clients
+
+Public clients cannot securely store credentials. They include:
+
+- **Single Page Applications (SPAs)**: JavaScript applications in the browser
+- **Mobile Apps**: Native mobile applications
+- **Desktop Applications**: Native desktop applications
+
+Public clients must use:
+- `authorization_code` with PKCE (Proof Key for Code Exchange)
+- `refresh_token` - Token refresh capability
+- No client secret
+
+## ClientApplication Resource Structure
+
+For complete field definitions, see the [ClientApplication resource documentation](/docs/API/FHIR/Model/Resources/ClientApplication).
+
+## Registering a Client
+
+### Method 1: Using the FHIR API
+
+Register a client by creating a `ClientApplication` resource through the FHIR API:
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Create a ClientApplication using the Haste Health CLI:
+
+```bash
+haste-health api create r4 --data '{
+  "resourceType": "ClientApplication",
+  "id": "cli",
+  "name": "CLI",
+  "grantType": [
+    "client_credentials"
+  ],
+  "responseTypes": "token",
+  "secret": "my-super-secret",
+  "scope": "openid system/*.*"
+}'
+```
+
+```bash
+haste-health api read r4 ClientApplication my-backend-service
+```
+
+**Save the `secret` value immediately** - it may be hashed and cannot be retrieved later.
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Create a ClientApplication using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { ClientApplication } from '@haste-health/fhir-types/r4/types';
+
+const client: AsynchronousClient<{}> = /* your configured client */;
+
+const newClient: ClientApplication = {
+  resourceType: "ClientApplication",
+  id: "cli",
+  name: "CLI",
+  grantType: [
+    "client_credentials"
+  ],
+  responseTypes: "token",
+  secret: "my-super-secret",
+  scope: "openid system/*.*"
+};
+
+const createdClient = await client.create(
+  {},
+  R4,
+  newClient
+);
+
+console.log('Client ID:', createdClient.id);
+console.log('Client Secret:', createdClient.secret);
+// ⚠️ Save the secret immediately!
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Create a ClientApplication using cURL:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/ClientApplication" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "ClientApplication",
+            "id": "cli",
+            "name": "CLI",
+            "grantType": [
+              "client_credentials"
+            ],
+            "responseTypes": "token",
+            "secret": "my-super-secret",
+            "scope": "openid system/*.*"
+         }'
+```
+
+
+</TabItem>
+</Tabs>
+<div className="border border-orange-100" />
+
+### Method 2: Using the Admin App
+
+You can also register clients through the Haste Health Admin App:
+
+1. Navigate to **resources/ClientApplication**
+2. Click **New**
+3. Fill in the client details:
+   - Client ID (must be unique)
+   - Client Name
+   - Grant Types
+   - Redirect URIs (for authorization code flow)
+   - Scopes
+4. Click **Create**
+
+
+## Client Configuration Examples
+
+
+<Tabs>
+<TabItem value="web-app" label="Web Application">
+
+A web application with user authentication:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "patient-portal",
+  "name": "Patient Portal",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "token",
+  "redirectUri": [
+    "https://portal.example.com/callback"
+  ],
+  "scope": "openid profile email patient/*.read offline_access",
+  "logoUri": "https://portal.example.com/logo.png"
+}
+```
+**Use Case**: Patient-facing web portal for viewing health records
+**Grant Flow**: Authorization Code with PKCE → User Login → Consent → Tokens → API Access
+
+</TabItem>
+
+<TabItem value="mobile-app" label="Mobile Application">
+
+A mobile app with patient context:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "mobile-health-app",
+  "name": "Mobile Health Tracker",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "token",
+  "redirectUri": [
+    "com.example.healthapp://callback"
+  ],
+  "scope": "openid profile email launch/patient patient/*.read patient/Observation.cru offline_access",
+  "logoUri": "https://example.com/app-logo.png"
+}
+```
+**Use Case**: Mobile health tracking app with patient data access
+**Grant Flow**: Authorization Code with PKCE → User Login → Patient Selection → Tokens → API Access
+
+</TabItem>
+
+<TabItem value="backend-service" label="CLI/Backend Service">
+A command-line tool for developers:
+
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "cli-tool",
+  "name": "Haste Health CLI",
+  "secret": "testing",
+  "grantType": [
+    "client_credentials"
+  ],
+  "responseTypes": "token",
+  "scope": "system/*.*"
+}
+```
+**Use Case**: Developer CLI for testing and automation
+**Grant Flow**: Client Credentials
+
+</TabItem>
+</Tabs>
+<div className="border border-orange-100" />
+
+
+## Grant Types
+
+For grant types we support see the following [documentation](/docs/category/openid-connect).
+
+## Scope Format
+
+```
+openid profile email offline_access patient/*.read user/Patient.cruds
+```
+
+See [Scopes documentation](/docs/Authentication/Scopes) for complete scope syntax.
+
+
+## Access Control
+
+After registering a client, you may need to configure access policies to grant permissions.
+
+<Tabs>
+<TabItem value="confidential" label="Client Credentials Flow">
+
+For machine-to-machine (M2M) using client credentials flow, you must create `AccessPolicyV2` resources to define what the client can access.
+
+### Example: Grant Client Full Access
+
+```json
+{
+      "fullUrl": "access-policy",
+      "resource": {
+        "resourceType": "AccessPolicyV2",
+        "name": "ADMIN",
+        "engine": "full-access",
+        "target": [
+          {
+            "link": {
+              "reference": "ClientApplication/my-backend-service"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "AccessPolicyV2"
+      }
+}
+```
+</TabItem>
+<TabItem value="public" label="Public clients" default>
+
+Public clients requires user consent for requested scopes. The access policy used will be whatever policies are tied to the authenticated user.
+
+</TabItem>
+</Tabs>
+<div className="border border-orange-100" />
+
+## Related Resources
+
+- [ClientApplication Resource Reference](/docs/API/FHIR/Model/Resources/ClientApplication) - Complete field definitions
+- [Scopes Documentation](/docs/Authentication/Scopes) - OAuth scope syntax and usage
+- [Client Credentials Grant](/docs/Authentication/OpenID%20Connect/client-credentials) - Machine-to-machine authentication
+- [Authorization Code Flow](/docs/Authentication/OpenID%20Connect/authorization-code) - User authentication flow
+- [SMART on FHIR](/docs/Authentication/smart-on-fhir) - Healthcare-specific authorization
+- [Access Control](/docs/Authorization/Intro) - Configuring client permissions
+
+## Support
+
+For questions or issues with client registration:
+
+1. Review the [ClientApplication resource documentation](/docs/API/FHIR/Model/Resources/ClientApplication)
+2. Check the [OpenID Connect specification](https://openid.net/specs/openid-connect-core-1_0.html)
+3. Consult the [OAuth 2.0 specification](https://datatracker.ietf.org/doc/html/rfc6749)
+4. Contact Haste Health support
+5. Open an issue on our [GitHub repository](https://github.com/HasteHealth/HasteHealth/issues)
