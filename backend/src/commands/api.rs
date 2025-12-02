@@ -62,27 +62,27 @@ pub enum ApiCommands {
     },
 
     HistorySystem {
-        parameters: String,
+        parameters: Option<String>,
     },
 
     HistoryType {
         resource_type: String,
-        parameters: String,
+        parameters: Option<String>,
     },
 
     HistoryInstance {
         resource_type: String,
         id: String,
-        parameters: String,
+        parameters: Option<String>,
     },
 
     SearchType {
         resource_type: String,
-        parameters: String,
+        parameters: Option<String>,
     },
 
     SearchSystem {
-        parameters: String,
+        parameters: Option<String>,
     },
 
     InvokeSystem {
@@ -107,11 +107,11 @@ pub enum ApiCommands {
 
     DeleteType {
         resource_type: String,
-        parameters: String,
+        parameters: Option<String>,
     },
 
     DeleteSystem {
-        parameters: String,
+        parameters: Option<String>,
     },
 
     InvokeInstance {
@@ -482,7 +482,10 @@ pub async fn api_commands(
         }
         ApiCommands::HistorySystem { parameters } => {
             let result = fhir_client
-                .history_system((), ParsedParameters::try_from(parameters.as_str())?)
+                .history_system(
+                    (),
+                    ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?,
+                )
                 .await?;
 
             println!(
@@ -511,7 +514,7 @@ pub async fn api_commands(
                 .history_type(
                     (),
                     resource_type,
-                    ParsedParameters::try_from(parameters.as_str())?,
+                    ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?,
                 )
                 .await?;
 
@@ -543,7 +546,7 @@ pub async fn api_commands(
                     (),
                     resource_type,
                     id.clone(),
-                    ParsedParameters::try_from(parameters.as_str())?,
+                    ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?,
                 )
                 .await?;
 
@@ -573,7 +576,7 @@ pub async fn api_commands(
                 .search_type(
                     (),
                     resource_type,
-                    ParsedParameters::try_from(parameters.as_str())?,
+                    ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?,
                 )
                 .await?;
 
@@ -587,7 +590,10 @@ pub async fn api_commands(
         }
         ApiCommands::SearchSystem { parameters } => {
             let result = fhir_client
-                .search_system((), ParsedParameters::try_from(parameters.as_str())?)
+                .search_system(
+                    (),
+                    ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?,
+                )
                 .await?;
 
             println!(
@@ -738,7 +744,8 @@ pub async fn api_commands(
                 )
             })?;
 
-            let parsed_parameters = ParsedParameters::try_from(parameters.as_str())?;
+            let parsed_parameters =
+                ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?;
 
             fhir_client
                 .delete_type((), resource_type.clone(), parsed_parameters)
@@ -752,7 +759,8 @@ pub async fn api_commands(
             Ok(())
         }
         ApiCommands::DeleteSystem { parameters } => {
-            let parsed_parameters = ParsedParameters::try_from(parameters.as_str())?;
+            let parsed_parameters =
+                ParsedParameters::try_from(parameters.clone().unwrap_or_default().as_str())?;
 
             fhir_client.delete_system((), parsed_parameters).await?;
 
