@@ -325,7 +325,7 @@ pub async fn api_commands(
             let result = fhir_client.create((), resource_type, resource).await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -370,7 +370,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -399,7 +399,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -429,7 +429,7 @@ pub async fn api_commands(
                 let bundle = bundle_result?;
                 if let Some(true) = output {
                     println!(
-                        "{:?}",
+                        "{}",
                         haste_fhir_serialization_json::to_string(&bundle)
                             .expect("Failed to serialize response")
                     );
@@ -458,7 +458,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -472,7 +472,7 @@ pub async fn api_commands(
 
             if let Some(true) = output {
                 println!(
-                    "{:?}",
+                    "{}",
                     haste_fhir_serialization_json::to_string(&result)
                         .expect("Failed to serialize response")
                 );
@@ -486,7 +486,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -516,7 +516,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -548,7 +548,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -578,7 +578,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -591,7 +591,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -612,7 +612,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -644,7 +644,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -683,7 +683,7 @@ pub async fn api_commands(
                 .await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
@@ -694,7 +694,7 @@ pub async fn api_commands(
             let result = fhir_client.capabilities(()).await?;
 
             println!(
-                "{:?}",
+                "{}",
                 haste_fhir_serialization_json::to_string(&result)
                     .expect("Failed to serialize response")
             );
