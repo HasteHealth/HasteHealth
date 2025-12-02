@@ -289,7 +289,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/Auth0">
+                      <Link to="/docs/Integration/Identity%20providers/auth0-integration">
                         <img
                           src="/img/auth0.svg"
                           alt="Auth0 Logo"
