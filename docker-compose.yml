@@ -1,71 +1,17 @@
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.2-arm64
-    volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
-    ports:
-      - 127.0.0.1:9200:9200
-    environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=elastic
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=false
-      - xpack.license.self_generated.type=trial
-      - xpack.ml.use_auto_machine_memory_percent=true
-      - ES_JAVA_OPTS=-Xms128m -Xmx2g
-      - cluster.routing.allocation.disk.watermark.low=1gb
-      - cluster.routing.allocation.disk.watermark.high=1gb
-      - cluster.routing.allocation.disk.watermark.flood_stage=1gb
-      - "_JAVA_OPTIONS=-XX:UseSVE=0"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl --output /dev/null --silent --head --fail -u elastic:elastic http://elasticsearch:9200",
-        ]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-
   postgres:
-    image: postgres:18.1
-    ports:
-      - 5432:5432
-    volumes:
-      - ./data/postgres:/var/lib/postgresql
-    environment:
-      - POSTGRES_DB=haste_health
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    extends:
+      file: docker-services-compose.yml
+      service: postgres
 
+  elasticsearch:
+    extends:
+      file: docker-services-compose.yml
+      service: elasticsearch
   hastehealth-migrate:
-    image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
-    platform: linux/amd64
-    depends_on:
-      postgres:
-        condition: service_healthy
-      elasticsearch: 
-        condition: service_healthy
-    command:
-      - server
-      - migrate
-      - all
-
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=elastic
-
+    extends:
+      file: docker-services-compose.yml
+      service: hastehealth-migrate
   hastehealth-server:
     image: ghcr.io/hastehealth/hastehealth/hastehealth:latest
     platform: linux/amd64
