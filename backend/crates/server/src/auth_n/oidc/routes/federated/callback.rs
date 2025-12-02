@@ -418,17 +418,32 @@ pub async fn federated_callback<
         .await
         .map_err(|_e| {
             tracing::error!("Failed to send request to token endpoint: {:?}", _e);
+
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Failed at sending request to identity provider token endpoint".to_string(),
             )
         })?;
 
+    println!("res status: {}", res.status());
+
+    if !res.status().is_success() {
+        tracing::error!("Token endpoint returned error status: {}", res.status());
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            format!(
+                "Identity provider token endpoint returned error status: {}",
+                res.status()
+            ),
+        ));
+    }
+
     let token_response_body = res
         .json::<FederatedTokenBodyResponse>()
         .await
         .map_err(|_e| {
             tracing::error!("Failed to parse token response body: {:?}", _e);
+
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Failed to parse token response from identity provider".to_string(),
