@@ -1,0 +1,72 @@
+---
+id: auth0-integration
+title: "Auth0"
+sidebar_position: 3
+tags:
+  - authentication
+  - oidc
+  - oauth2
+  - client
+  - registration
+---
+
+#
+<img src="/img/auth0.svg" alt="Auth0 Logo" style={{ width: '200px' }} />
+
+This guide provides step-by-step instructions on integrating Auth0 as an identity provider for your application.
+
+## Prerequisites
+- An Auth0 account. If you don't have one, you can sign up at [Auth0](https://auth0.com/).
+
+## Steps to Integrate Auth0
+
+1. **Create a New Application in Auth0**
+   - Log in to your Auth0 dashboard.
+   - Navigate to the "Applications" section and click on "Create Application".
+   - Choose a name for your application and select the application type (use single page application).
+   - Click "Create".
+
+2. **Copy the Client Id and Client Secret**
+    - After creating the application, navigate to the "Settings" tab.
+    - Copy the "Client ID" and "Client Secret". You will need these values to
+3. **Copy additional configuration**
+    - In settings scroll to the bottom and open up Advanced Settings
+    - Click Endpoints and copy the following URLs:
+      - **Authorization Url**: URL for authorization requests.
+      - **Token Url**: URL for token requests.
+      - **Json web key set Url**: URL for retrieving the JSON Web Key Set (JWKS).
+4. **Create IdentityProvider Resource in Haste Health**
+   - Go to the Haste Health Admin App for your tenant.
+   - Navigate to the system project.
+   - Click Identity Provider 
+   - Click **New**
+   - Provide the following details:
+     - **Name**: A friendly name for the identity provider (e.g., `Auth0`).
+     - **Status**: Set to `active`.
+     - **Access Type**: Set to `oidc`.
+     - **Authorization_endpiont**: The Authorization Url copied from Auth0.
+     - **Token_endpoint**: The Token Url copied from Auth0.
+     - **Jwks_uri**: The Json web key set Url copied from Auth0.
+     - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to veirfy user).
+     - **Client ID**: The Client ID copied from Auth0.
+     - **Client Secret**: The Client Secret copied from Auth0.
+     - **Enable PKCE**: Enable this option for enhanced security if your IDP supports it.
+5. **Save the Identity Provider**
+   - Click **Create** to save the new Identity Provider configuration.
+6. **Add Redirect URI in Auth0**
+   - Go back to your Auth0 application settings.
+   - In the "Allowed Callback URLs" field, add the redirect URI for your Haste Health application 
+     `https:://[haste-health-host]/w/[my-tenant]/api/v1/system/oidc/federated/[idp-resource-id]/callback`
+   - Save the changes.
+7. **Enable IDP for a project.**
+    - In the Haste Health Admin App, go to system project and click update to the desired project where you want to enable Auth0 as an identity provider.
+    - At the bottom go to Identity Providers section.
+    - Click **Add Identity Provider** and select the Auth0 identity provider you created earlier.
+    - Save the project configuration.
+8. **Test the Integration**
+   - Click the Project where you enabled the Auth0 identity provider.
+   - Click sign out from the admin-app if you are logged in.
+   - You should see a login option to authenticate using Auth0.
+   - Click the Auth0 login option and complete the authentication process.
+   - After successful authentication, you should be redirected back to your application with the user authenticated.
+
