@@ -108,8 +108,10 @@ curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patie
 
 </TabItem>
 </Tabs>
-
 Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+<div className="border border-orange-100" />
+
+
 
 ## Error Handling
 If there are any issues with the request (e.g., missing required fields, invalid data), the server will respond with an appropriate error status code (e.g., `400 Bad Request`) and include an `OperationOutcome` resource in the response body detailing the errors.   
