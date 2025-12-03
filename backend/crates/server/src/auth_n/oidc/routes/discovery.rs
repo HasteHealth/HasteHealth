@@ -3,12 +3,14 @@ use crate::{
         error::{OIDCError, OIDCErrorCode},
         routes::{AUTH_NESTED_PATH, authorize, jwks, token},
     },
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     services::AppState,
 };
-use axum::extract::{Json, OriginalUri, State};
-use axum_extra::routing::TypedPath;
+use axum::extract::{Json, State};
+use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -31,12 +33,22 @@ pub struct WellKnownDiscoveryDocument {
 #[typed_path("/.well-known/openid-configuration")]
 pub struct WellKnown;
 
+fn construct_oidc_route(tenant: &TenantId, project: &ProjectId, path: &str) -> String {
+    format!(
+        "/w/{}/{}/api/v1/oidc{}",
+        tenant.as_ref(),
+        project.as_ref(),
+        path
+    )
+}
+
 pub async fn openid_configuration<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    OriginalUri(uri): OriginalUri,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
     let api_url_string = state
@@ -60,18 +72,23 @@ pub async fn openid_configuration<
         ));
     };
 
-    let path = uri.path();
-    let well_known_path = WellKnown.to_string();
-
-    let authorize_path = path.replace(
-        &well_known_path,
+    let authorize_path = construct_oidc_route(
+        &tenant,
+        &project,
         &(AUTH_NESTED_PATH.to_string() + authorize::AuthorizePath.to_string().as_str()),
     );
-    let token_path: String = path.replace(
-        &well_known_path,
+
+    let token_path = construct_oidc_route(
+        &tenant,
+        &project,
         &(AUTH_NESTED_PATH.to_string() + token::TokenPath.to_string().as_str()),
     );
-    let jwks_path = path.replace(&well_known_path, jwks::JWKSPath.to_string().as_str());
+
+    let jwks_path = construct_oidc_route(
+        &tenant,
+        &project,
+        &(AUTH_NESTED_PATH.to_string() + jwks::JWKSPath.to_string().as_str()),
+    );
 
     let oidc_response = WellKnownDiscoveryDocument {
         issuer: api_url.to_string(),
