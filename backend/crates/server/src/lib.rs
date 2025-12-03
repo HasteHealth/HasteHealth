@@ -4,6 +4,7 @@ mod fhir_http;
 pub mod auth_n;
 pub mod fhir_client;
 pub mod load_artifacts;
+mod mcp;
 mod middleware;
 pub mod server;
 pub mod services;
