@@ -10,12 +10,7 @@ import HasteHealthContext, {
   InitialContext,
 } from "./HasteHealthContext";
 import { OIDC_WELL_KNOWN, HasteHealthReducer } from "./reducer";
-import {
-  conditionalAddTenant,
-  generateRandomString,
-  hasAuthQueryParams,
-  sha256,
-} from "./utilities";
+import { generateRandomString, hasAuthQueryParams, sha256 } from "./utilities";
 
 const CODE_CHALLENGE_METHOD = "S256";
 const state_key = (client_id: string) => `haste-health_state_${client_id}`;
