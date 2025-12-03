@@ -83,7 +83,7 @@ console.log('Validation result:', result);
 Invoke the `$validate` operation on the Patient resource type using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/\$validate" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/\$validate" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{

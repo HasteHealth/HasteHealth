@@ -184,7 +184,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     );
 
     let tenant_router = Router::new()
-        .nest("/api/v1/{project}", project_router)
+        .nest("/{project}/api/v1", project_router)
         .layer(
             // Relies on tenant for html so moving operation outcome error handling to here.
             ServiceBuilder::new()
@@ -192,7 +192,10 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 .layer(from_fn(log_operationoutcome_errors)),
         );
 
+    let discovery_document_router = Router::new();
+
     let app = Router::new()
+        .nest("/.well-known", discovery_document_router)
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()

@@ -501,7 +501,7 @@ pub fn create_federated_callback_url(
 
     Ok(api_url
         .join(&format!(
-            "w/{}/api/v1/system/oidc/federated/{}/callback",
+            "w/{}/system/api/v1/oidc/federated/{}/callback",
             tenant.as_ref(),
             idp_id
         ))

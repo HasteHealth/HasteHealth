@@ -73,19 +73,19 @@ sequenceDiagram
 **Launch URL Format:**
 ```
 https://app.example.com/launch?
-  iss=https://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4
+  iss=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4
   &launch=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Authorization Request:**
 ```http
-GET /w/{tenant}/api/v1/oauth/authorize?
+GET /w/{tenant}/oauth/api/v1/authorize?
   response_type=code&
   client_id=smart-app-id&
   redirect_uri=https://app.example.com/callback&
   scope=launch patient/*.read&
   state=random-state&
-  aud=https://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4&
+  aud=https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4&
   launch=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -268,14 +268,14 @@ Host: api.haste.health
 ```json
 {
   "issuer": "https://api.haste.health",
-  "authorization_endpoint": "https://api.haste.health/w/{tenant}/api/v1/oauth/authorize",
-  "token_endpoint": "https://api.haste.health/w/{tenant}/api/v1/oauth/token",
+  "authorization_endpoint": "https://api.haste.health/w/{tenant}/oauth/api/v1/authorize",
+  "token_endpoint": "https://api.haste.health/w/{tenant}/oauth/api/v1/token",
   "token_endpoint_auth_methods_supported": [
     "client_secret_basic",
     "client_secret_post",
     "private_key_jwt"
   ],
-  "registration_endpoint": "https://api.haste.health/w/{tenant}/api/v1/oauth/register",
+  "registration_endpoint": "https://api.haste.health/w/{tenant}/oauth/api/v1/register",
   "scopes_supported": [
     "openid",
     "profile",

@@ -75,7 +75,7 @@ console.log('Operation result:', result);
 Invoke the `$everything` operation on a Patient resource using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/Patient/12345/\$everything" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/12345/\$everything" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{

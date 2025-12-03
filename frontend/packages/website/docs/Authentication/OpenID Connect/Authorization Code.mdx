@@ -74,7 +74,7 @@ sequenceDiagram
     
     SPA->>Browser: Retrieve code_verifier<br/>from sessionStorage
     
-    SPA->>AuthServer: POST /w/{tenant}/api/v1/oauth/token
+    SPA->>AuthServer: POST /w/{tenant}/oauth/api/v1/token
     Note over SPA,AuthServer: Content-Type: application/x-www-form-urlencoded<br/>grant_type=authorization_code<br/>code=AUTH_CODE<br/>redirect_uri=https://app.com/callback<br/>client_id=spa-client-id<br/>code_verifier=ORIGINAL_VERIFIER
     
     AuthServer->>AuthServer: Validate authorization code<br/>Verify redirect_uri matches<br/>Hash code_verifier with SHA256<br/>Compare with stored code_challenge
@@ -95,7 +95,7 @@ sequenceDiagram
         
         SPA->>SPA: Get access_token from memory
         
-        SPA->>API: GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
+        SPA->>API: GET /w/{tenant}/{project}/api/v1/fhir/r4/Patient<br/>Authorization: Bearer ACCESS_TOKEN
         
         API->>API: Validate token<br/>Check expiration<br/>Verify scopes
         
@@ -113,7 +113,7 @@ The client application redirects the user to the authorization endpoint with the
 
 **Request:**
 ```http
-GET /w/{tenant}/api/v1/oauth/authorize?
+GET /w/{tenant}/oauth/api/v1/authorize?
   response_type=code&
   client_id=your-client-id&
   redirect_uri=https://yourapp.com/callback&
@@ -174,7 +174,7 @@ The SPA exchanges the authorization code for tokens using the code_verifier (no 
 
 **Request:**
 ```http
-POST /w/{tenant}/api/v1/oauth/token HTTP/1.1
+POST /w/{tenant}/oauth/api/v1/token HTTP/1.1
 Host: api.haste.health
 Content-Type: application/x-www-form-urlencoded
 
@@ -213,7 +213,7 @@ Use the access token to call protected APIs:
 
 **Request:**
 ```http
-GET /w/{tenant}/api/v1/{project}/fhir/r4/Patient/123 HTTP/1.1
+GET /w/{tenant}/{project}/api/v1/fhir/r4/Patient/123 HTTP/1.1
 Host: api.haste.health
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```

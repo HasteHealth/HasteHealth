@@ -50,7 +50,7 @@ fn invalid_jwt_response(
     };
 
     let Ok(well_known_url) = api_url.join(&format!(
-        "/w/{}/api/v1/{}/oidc{}",
+        "/w/{}/{}/api/v1/oidc{}",
         tenant.as_ref(),
         project.as_ref(),
         well_known

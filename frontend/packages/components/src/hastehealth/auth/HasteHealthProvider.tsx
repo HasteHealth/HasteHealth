@@ -248,7 +248,7 @@ export function HasteHealthProvider({
       try {
         const well_known_uri = new URL(
           conditionalAddTenant(
-            `/api/v1/${project}/oidc/.well-known/openid-configuration`,
+            `/${project}/api/v1/oidc/.well-known/openid-configuration`,
             tenant
           ),
           domain

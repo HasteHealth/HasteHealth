@@ -11,7 +11,7 @@ The [OpenID Connect Discovery endpoint](https://openid.net/specs/openid-connect-
 ## Endpoint
 
 ```
-GET /w/[tenant]/api/v1/[project]/oidc/.well-known/openid-configuration
+GET /w/[tenant]/[project]/api/v1/oidc/.well-known/openid-configuration
 ```
 
 This endpoint returns the OpenID Provider's configuration metadata.
@@ -28,9 +28,9 @@ Content-Type: application/json
 ```json
 {
   "issuer": "http://api.haste.health/",
-  "authorization_endpoint": "http://api.haste.health/w/ohio-health/api/v1/system/oidc/auth/authorize",
-  "jwks_uri": "http://api.haste.health/w/ohio-health/api/v1/system/oidc/certs/jwks",
-  "token_endpoint": "http://api.haste.health/w/ohio-health/api/v1/system/oidc/auth/token",
+  "authorization_endpoint": "http://api.haste.health/w/ohio-health/system/api/v1/oidc/auth/authorize",
+  "jwks_uri": "http://api.haste.health/w/ohio-health/system/api/v1/oidc/certs/jwks",
+  "token_endpoint": "http://api.haste.health/w/ohio-health/system/api/v1/oidc/auth/token",
   "scopes_supported": [
     "openid",
     "profile",
@@ -102,7 +102,7 @@ Content-Type: application/json
 Here is an example of how to retrieve the OpenID Connect discovery document using cURL:
 
 ```bash
-curl -X GET "http://api.haste.health/w/[tenant]/api/v1/[project]/oidc/.well-known/openid-configuration" \
+curl -X GET "http://api.haste.health/w/[tenant]/[project]/api/v1/oidc/.well-known/openid-configuration" \
      -H "Accept: application/json"
 ```
 
@@ -121,7 +121,7 @@ Example client initialization:
 
 ```typescript
 // Fetch and parse discovery document
-const response = await fetch('http://api.haste.health/w/[tenant]/api/v1/[project]/oidc/.well-known/openid-configuration');
+const response = await fetch('http://api.haste.health/w/[tenant]/[project]/api/v1/oidc/.well-known/openid-configuration');
 const config = await response.json();
 
 // Use discovered endpoints
