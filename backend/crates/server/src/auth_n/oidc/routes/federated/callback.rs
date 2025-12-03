@@ -54,7 +54,9 @@ struct FederatedTokenBodyRequest {
     pub code: String,
     pub redirect_uri: String,
     pub client_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub client_secret: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_verifier: Option<String>,
 }
 
@@ -425,15 +427,18 @@ pub async fn federated_callback<
             )
         })?;
 
-    println!("res status: {}", res.status());
-
     if !res.status().is_success() {
-        tracing::error!("Token endpoint returned error status: {}", res.status());
+        let status = res.status();
+        tracing::error!(
+            "Token endpoint returned: '{}'",
+            res.text().await.unwrap_or_default()
+        );
+        tracing::error!("Token endpoint returned error status: {}", status);
         return Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
             format!(
                 "Identity provider token endpoint returned error status: {}",
-                res.status()
+                status
             ),
         ));
     }

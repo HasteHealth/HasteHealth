@@ -41,10 +41,7 @@ This guide provides step-by-step instructions on integrating Microsoft Azure Act
       - **OAuth 2.0 authorization endpoint (v2)**: URL for authorization requests.
       - **OAuth 2.0 token endpoint (v2)l**: URL for token requests.
       - **Json web key set Url**: This will be in the format `https://login.microsoftonline.com/[directory-tenant-id]/discovery/v2.0/keys`
-3. **Set IDToken grant on Azure**
-    - In the Azure portal, navigate to "Authentication" under "Manage" for your registered application.
-    - Under "Implicit grant and hybrid flows", ensure that the "ID tokens" checkbox is selected to allow the application to receive ID tokens.
-4. **Create IdentityProvider Resource in Haste Health**
+3. **Create IdentityProvider Resource in Haste Health**
    - Go to the Haste Health Admin App for your tenant.
    - Navigate to the system project.
     - Click Identity Provider
@@ -62,9 +59,9 @@ This guide provides step-by-step instructions on integrating Microsoft Azure Act
          - In the Azure portal, navigate to "Certificates & secrets" under your registered application.
          - Click on "New client secret", provide a description and expiration period, then click "Add".
          - Copy the generated client secret value and paste it into the **Client Secret** field in Haste Health.
-      - **Enable PKCE**: Enable this option for enhanced security if your IDP supports it.
+      - **Enable PKCE**: Azure by default will support PKCE for public clients, enable this option for enhanced security. Use S256 as the code challenge method.
       - Click **Create** to save the new Identity Provider configuration.
-5. **Add Redirect URI in Azure AD**
+4. **Add Redirect URI in Azure AD**
    - Go back to your Azure AD application settings.
    - Navigate to "Authentication" under "Manage".
    - In the "Redirect URIs" section, add a new redirect URI for your Haste Health tenant:
