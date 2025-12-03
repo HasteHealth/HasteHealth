@@ -81,9 +81,9 @@ export function HasteHealthReducer(
     case "ON_SUCCESS": {
       const user = parseJwt(action.payload.id_token);
       const rootURL = new URL(
-        `/w/${
-          action.tenant ? action.tenant : user[CUSTOM_CLAIMS.TENANT]
-        }/api/v1/${action.project}/fhir`,
+        `/w/${action.tenant ? action.tenant : user[CUSTOM_CLAIMS.TENANT]}/${
+          action.project
+        }/api/v1/fhir`,
         action.domain
       ).toString();
 
@@ -100,7 +100,7 @@ export function HasteHealthReducer(
         logout: (redirect: string) => {
           const url = new URL(
             conditionalAddTenant(
-              `/api/v1/${action.project}/oidc/interactions/logout?client_id=${action.clientId}&redirect_uri=${redirect}`,
+              `/${action.project}/api/v1/oidc/interactions/logout?client_id=${action.clientId}&redirect_uri=${redirect}`,
               action.tenant
             ),
             action.domain

@@ -11,12 +11,12 @@ The FHIR [$validate-code operation](https://www.hl7.org/fhir/valueset-operation-
 ## Endpoint
 
 ```
-GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$validate-code
-POST /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$validate-code
-GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/{id}/$validate-code
-POST /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/{id}/$validate-code
-GET /w/{tenant}/api/v1/{project}/fhir/r4/CodeSystem/$validate-code
-POST /w/{tenant}/api/v1/{project}/fhir/r4/CodeSystem/{id}/$validate-code
+GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$validate-code
+POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$validate-code
+GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/{id}/$validate-code
+POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/{id}/$validate-code
+GET /w/{tenant}/{project}/api/v1/fhir/r4/CodeSystem/$validate-code
+POST /w/{tenant}/{project}/api/v1/fhir/r4/CodeSystem/{id}/$validate-code
 ```
 
 Where `{id}` is the logical ID of a specific ValueSet or CodeSystem resource (optional for type-level operations).
@@ -33,7 +33,7 @@ For GET requests, parameters are passed as query parameters:
 - `abstract` - Whether to validate that the code is not abstract (optional, default: false)
 - `displayLanguage` - The preferred display language (optional)
 
-Example: `GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender`
+Example: `GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender`
 
 ## Request Body (POST)
 
@@ -167,7 +167,7 @@ Content-Type: application/fhir+json
 ### GET Request
 
 ```bash
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$validate-code?url=http://hl7.org/fhir/ValueSet/administrative-gender&code=male&system=http://hl7.org/fhir/administrative-gender" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -175,7 +175,7 @@ curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSe
 ### POST Request with Parameters
 
 ```bash
-curl -X POST "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$validate-code" \
+curl -X POST "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$validate-code" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
@@ -200,7 +200,7 @@ curl -X POST "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueS
 ### Instance-Level Validation
 
 ```bash
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$validate-code?code=male&system=http://hl7.org/fhir/administrative-gender" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/administrative-gender/\$validate-code?code=male&system=http://hl7.org/fhir/administrative-gender" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```

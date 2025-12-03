@@ -81,7 +81,7 @@ console.log('Export initiated:', result);
 Invoke the `$export` operation at the system level using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/\$export" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/\$export" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -H "Prefer: respond-async" \

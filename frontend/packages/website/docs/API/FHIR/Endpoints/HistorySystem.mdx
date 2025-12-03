@@ -56,7 +56,7 @@ console.log('History entries:', history.entry);
 Retrieve the system-wide history using cURL:
 
 ```bash
-curl -X GET "https://api.haste.health/w/[tenant]/api/v1/[project]/fhir/r4/_history?_count=50&_since=2025-01-01" \
+curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/_history?_count=50&_since=2025-01-01" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```

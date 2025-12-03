@@ -54,12 +54,12 @@ Tenants provide complete data isolation:
 All API requests are scoped to a tenant:
 
 ```
-https://api.haste.health/w/{tenant}/api/v1/{project}/fhir/{version}
+https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{version}
 ```
 
 **Example:**
 ```
-https://api.haste.health/w/acme-health/api/v1/production/fhir/r4
+https://api.haste.health/w/acme-health/production/api/v1/fhir/r4
 ```
 
 Where:
@@ -190,7 +190,7 @@ User accounts associated with the tenant:
 Create a new project via the FHIR API:
 
 ```http
-POST /w/{tenant}/api/v1/system/fhir/r4/Project
+POST /w/{tenant}/system/api/v1/fhir/r4/Project
 Content-Type: application/fhir+json
 
 {
@@ -213,10 +213,10 @@ To work with resources in different projects, change the project in the URL:
 
 ```bash
 # Access production project
-GET /w/acme-health/api/v1/production/fhir/r4/Patient
+GET /w/acme-health/production/api/v1/fhir/r4/Patient
 
 # Access staging project
-GET /w/acme-health/api/v1/staging/fhir/r4/Patient
+GET /w/acme-health/staging/api/v1/fhir/r4/Patient
 ```
 
 ### Listing Projects
@@ -224,7 +224,7 @@ GET /w/acme-health/api/v1/staging/fhir/r4/Patient
 Query available projects:
 
 ```http
-GET /w/{tenant}/api/v1/system/fhir/r4/Project
+GET /w/{tenant}/system/api/v1/fhir/r4/Project
 ```
 
 ### Deleting a Project
@@ -232,7 +232,7 @@ GET /w/{tenant}/api/v1/system/fhir/r4/Project
 Delete a user-created project:
 
 ```http
-DELETE /w/{tenant}/api/v1/system/fhir/r4/Project/cardiology
+DELETE /w/{tenant}/system/api/v1/fhir/r4/Project/cardiology
 ```
 
 **Restrictions:**
@@ -245,7 +245,7 @@ DELETE /w/{tenant}/api/v1/system/fhir/r4/Project/cardiology
 ### Complete URL Anatomy
 
 ```
-https://api.haste.health/w/{tenant}/api/v1/{project}/fhir/{version}/{resourceType}/{id}
+https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{version}/{resourceType}/{id}
                               ↓              ↓                ↓           ↓          ↓         
                             Tenant         Project      FHIR Version  Resource    Resource ID
                            Isolation      Isolation                      Type
@@ -255,17 +255,17 @@ https://api.haste.health/w/{tenant}/api/v1/{project}/fhir/{version}/{resourceTyp
 
 **Patient in production project:**
 ```
-https://api.haste.health/w/acme-health/api/v1/production/fhir/r4/Patient/123
+https://api.haste.health/w/acme-health/production/api/v1/fhir/r4/Patient/123
 ```
 
 **User in system project:**
 ```
-https://api.haste.health/w/acme-health/api/v1/system/fhir/r4/User/user-456
+https://api.haste.health/w/acme-health/system/api/v1/fhir/r4/User/user-456
 ```
 
 **Search in specific project:**
 ```
-https://api.haste.health/w/acme-health/api/v1/cardiology/fhir/r4/Observation?patient=Patient/123
+https://api.haste.health/w/acme-health/cardiology/api/v1/fhir/r4/Observation?patient=Patient/123
 ```
 
 ## Authentication Context

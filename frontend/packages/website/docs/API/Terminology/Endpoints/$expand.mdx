@@ -11,10 +11,10 @@ The FHIR [$expand operation](https://www.hl7.org/fhir/valueset-operation-expand.
 ## Endpoint
 
 ```
-GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$expand
-POST /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$expand
-GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/{id}/$expand
-POST /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/{id}/$expand
+GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand
+POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand
+GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/{id}/$expand
+POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/{id}/$expand
 ```
 
 Where `{id}` is the logical ID of a specific ValueSet resource (optional for type-level operations).
@@ -38,7 +38,7 @@ For GET requests, parameters are passed as query parameters:
 - `displayLanguage` - The preferred display language (optional)
 - `system-version` - Version of specific code system (optional, format: system|version)
 
-Example: `GET /w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&count=10`
+Example: `GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&count=10`
 
 ## Request Body (POST)
 
@@ -217,7 +217,7 @@ Content-Type: application/fhir+json
 ### Basic GET Request
 
 ```bash
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -225,7 +225,7 @@ curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSe
 ### GET Request with Filter and Count
 
 ```bash
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&filter=mal&count=10" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&filter=mal&count=10" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -233,7 +233,7 @@ curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSe
 ### POST Request with Parameters
 
 ```bash
-curl -X POST "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand" \
+curl -X POST "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
@@ -258,7 +258,7 @@ curl -X POST "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueS
 ### Instance-Level Expansion
 
 ```bash
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/administrative-gender/\$expand?count=10" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/administrative-gender/\$expand?count=10" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
@@ -271,10 +271,10 @@ For large value sets, use the `count` and `offset` parameters to page through re
 
 ```bash
 # First page (codes 0-99)
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=0" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=0" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 
 # Second page (codes 100-199)
-curl -X GET "http://api.haste.health/w/{tenant}/api/v1/{project}/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=100" \
+curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=100" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
