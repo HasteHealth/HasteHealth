@@ -2,14 +2,12 @@ use axum::{extract::FromRequestParts, http::request::Parts};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 
-static AUTHORIZATION_HEADER: &str = "Authorization";
-
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct AuthBearer(pub String);
+pub struct AuthBearer(pub Option<String>);
 
 impl AuthBearer {
     fn from_header(contents: &str) -> Self {
-        Self(contents.to_string())
+        Self(Some(contents.to_string()))
     }
 }
 
@@ -21,20 +19,16 @@ where
 
     async fn from_request_parts(req: &mut Parts, _: &B) -> Result<Self, OperationOutcomeError> {
         // Get authorization header
-        let authorization = req
-            .headers
-            .get(AUTHORIZATION_HEADER)
-            .ok_or(OperationOutcomeError::error(
+        let Some(header) = req.headers.get(axum::http::header::AUTHORIZATION) else {
+            return Ok(Self(None));
+        };
+
+        let authorization = header.to_str().map_err(|_| {
+            OperationOutcomeError::error(
                 IssueType::Invalid(None),
-                "Missing Authorization Header".to_string(),
-            ))?
-            .to_str()
-            .map_err(|_| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Invalid Authorization Header".to_string(),
-                )
-            })?;
+                "Invalid Authorization Header".to_string(),
+            )
+        })?;
 
         // Check that its a well-formed bearer and return
         let split = authorization.split_once(' ');
