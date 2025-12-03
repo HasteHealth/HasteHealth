@@ -7,7 +7,7 @@ use crate::{
     services::AppState,
 };
 use axum::extract::{Json, State};
-use axum_extra::{extract::Cached, routing::TypedPath};
+use axum_extra::extract::Cached;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
