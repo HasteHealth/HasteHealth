@@ -1,27 +1,19 @@
 use crate::{
-    auth_n::oidc::{
-        error::{OIDCError, OIDCErrorCode},
-        middleware::{
-            AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig, project_exists,
-        },
+    auth_n::oidc::middleware::{
+        AuthSessionValidationLayer, OIDCParameterInjectLayer, ParameterConfig, project_exists,
     },
     services::AppState,
 };
-use axum::{
-    Router,
-    extract::{Json, OriginalUri, State},
-    middleware,
-};
-use axum_extra::routing::{RouterExt, TypedPath};
+use axum::{Router, middleware};
+use axum_extra::routing::RouterExt;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
-use serde::{Deserialize, Serialize};
 use std::sync::{Arc, LazyLock};
 use tower::ServiceBuilder;
-use url::Url;
 
 mod authorize;
+pub mod discovery;
 pub mod federated;
 mod interactions;
 mod jwks;
@@ -29,94 +21,7 @@ pub mod route_string;
 pub mod scope;
 mod token;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct WellKnownDiscoveryDocument {
-    pub issuer: String,
-    pub authorization_endpoint: String,
-    pub jwks_uri: String,
-    pub token_endpoint: String,
-    pub scopes_supported: Vec<String>,
-    pub response_types_supported: Vec<String>,
-    pub token_endpoint_auth_methods_supported: Vec<String>,
-    pub id_token_signing_alg_values_supported: Vec<String>,
-    pub subject_types_supported: Vec<String>,
-}
-
-#[derive(TypedPath)]
-#[typed_path("/.well-known/openid-configuration")]
-pub struct WellKnown;
-
-static AUTH_NESTED_PATH: &str = "/auth";
-
-async fn openid_configuration<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
-    _: WellKnown,
-    OriginalUri(uri): OriginalUri,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
-    let api_url_string = state
-        .config
-        .get(crate::ServerEnvironmentVariables::APIURI)
-        .unwrap_or_default();
-
-    if api_url_string.is_empty() {
-        return Err(OIDCError::new(
-            OIDCErrorCode::ServerError,
-            Some("API_URL is not set in the configuration".to_string()),
-            None,
-        ));
-    }
-
-    let Ok(api_url) = Url::parse(&api_url_string) else {
-        return Err(OIDCError::new(
-            OIDCErrorCode::ServerError,
-            Some("Invalid API_URL format".to_string()),
-            None,
-        ));
-    };
-
-    let path = uri.path();
-    let well_known_path = WellKnown.to_string();
-
-    let authorize_path = path.replace(
-        &well_known_path,
-        &(AUTH_NESTED_PATH.to_string() + authorize::AuthorizePath.to_string().as_str()),
-    );
-    let token_path = path.replace(
-        &well_known_path,
-        &(AUTH_NESTED_PATH.to_string() + token::TokenPath.to_string().as_str()),
-    );
-    let jwks_path = path.replace(&well_known_path, jwks::JWKSPath.to_string().as_str());
-
-    let oidc_response = WellKnownDiscoveryDocument {
-        issuer: api_url.to_string(),
-        authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
-        token_endpoint: api_url.join(&token_path).unwrap().to_string(),
-        jwks_uri: api_url.join(&jwks_path).unwrap().to_string(),
-        scopes_supported: vec![
-            "openid".to_string(),
-            "profile".to_string(),
-            "email".to_string(),
-            "offline_access".to_string(),
-        ],
-        response_types_supported: vec![
-            "code".to_string(),
-            "id_token".to_string(),
-            "id_token token".to_string(),
-        ],
-        token_endpoint_auth_methods_supported: vec![
-            "client_secret_basic".to_string(),
-            "client_secret_post".to_string(),
-        ],
-        id_token_signing_alg_values_supported: vec!["RS256".to_string()],
-        subject_types_supported: vec!["public".to_string()],
-    };
-
-    Ok(Json(oidc_response))
-}
+pub static AUTH_NESTED_PATH: &str = "/auth";
 
 static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
     Arc::new(ParameterConfig {
@@ -149,7 +54,7 @@ pub fn create_router<
 ) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     Router::new()
         .merge(Router::new().typed_get(jwks::jwks_get))
-        .merge(Router::new().typed_get(openid_configuration))
+        .merge(Router::new().typed_get(discovery::openid_configuration))
         .merge(federated::federated_router())
         .nest(
             AUTH_NESTED_PATH,

@@ -12,7 +12,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_serialization_json::FHIRJSONDeserializer;
-use haste_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
+use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 

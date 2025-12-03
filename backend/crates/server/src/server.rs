@@ -169,7 +169,8 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .route("/{fhir_version}/{*fhir_location}", any(fhir_type_handler))
         .layer(
             ServiceBuilder::new()
-                .layer(axum::middleware::from_fn(
+                .layer(axum::middleware::from_fn_with_state(
+                    shared_state.clone(),
                     auth_n::middleware::jwt::token_verifcation,
                 ))
                 .layer(axum::middleware::from_fn(
