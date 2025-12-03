@@ -13,7 +13,7 @@ use axum::{
     http::{Method, Uri},
     middleware::from_fn,
     response::{IntoResponse, Response},
-    routing::any,
+    routing::{any, get},
 };
 use haste_config::get_config;
 use haste_fhir_client::FHIRClient;
@@ -192,10 +192,18 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 .layer(from_fn(log_operationoutcome_errors)),
         );
 
-    let discovery_document_router = Router::new();
+    let discovery_2_0_document_router = Router::new()
+        .route(
+            "/openid-configuration/w/{tenant}/{project}/{*additional_path}",
+            get(auth_n::oidc::routes::discovery::openid_configuration),
+        )
+        .route(
+            "/openid-configuration/w/{tenant}/{project}",
+            get(auth_n::oidc::routes::discovery::openid_configuration),
+        );
 
     let app = Router::new()
-        .nest("/.well-known", discovery_document_router)
+        .nest("/.well-known", discovery_2_0_document_router)
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()

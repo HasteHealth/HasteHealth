@@ -36,7 +36,6 @@ pub async fn openid_configuration<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    _: WellKnown,
     OriginalUri(uri): OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
@@ -68,7 +67,7 @@ pub async fn openid_configuration<
         &well_known_path,
         &(AUTH_NESTED_PATH.to_string() + authorize::AuthorizePath.to_string().as_str()),
     );
-    let token_path = path.replace(
+    let token_path: String = path.replace(
         &well_known_path,
         &(AUTH_NESTED_PATH.to_string() + token::TokenPath.to_string().as_str()),
     );

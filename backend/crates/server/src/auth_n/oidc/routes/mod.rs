@@ -54,7 +54,6 @@ pub fn create_router<
 ) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     Router::new()
         .merge(Router::new().typed_get(jwks::jwks_get))
-        .merge(Router::new().typed_get(discovery::openid_configuration))
         .merge(federated::federated_router())
         .nest(
             AUTH_NESTED_PATH,
