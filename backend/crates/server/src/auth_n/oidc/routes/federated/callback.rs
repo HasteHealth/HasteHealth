@@ -54,7 +54,9 @@ struct FederatedTokenBodyRequest {
     pub code: String,
     pub redirect_uri: String,
     pub client_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub client_secret: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_verifier: Option<String>,
 }
 
@@ -418,17 +420,35 @@ pub async fn federated_callback<
         .await
         .map_err(|_e| {
             tracing::error!("Failed to send request to token endpoint: {:?}", _e);
+
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Failed at sending request to identity provider token endpoint".to_string(),
             )
         })?;
 
+    if !res.status().is_success() {
+        let status = res.status();
+        tracing::error!(
+            "Token endpoint returned: '{}'",
+            res.text().await.unwrap_or_default()
+        );
+        tracing::error!("Token endpoint returned error status: {}", status);
+        return Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            format!(
+                "Identity provider token endpoint returned error status: {}",
+                status
+            ),
+        ));
+    }
+
     let token_response_body = res
         .json::<FederatedTokenBodyResponse>()
         .await
         .map_err(|_e| {
             tracing::error!("Failed to parse token response body: {:?}", _e);
+
             OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Failed to parse token response from identity provider".to_string(),

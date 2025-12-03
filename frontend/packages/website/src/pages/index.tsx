@@ -280,7 +280,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/Azure">
+                      <Link to="/docs/Integration/Identity%20providers/azure-integration">
                         <img
                           src="/img/azure.svg"
                           alt="Azure Logo"
@@ -298,10 +298,10 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/AWS">
+                      <Link to="/docs/Integration/Identity%20providers/Github">
                         <img
-                          src="/img/aws_logo.svg"
-                          alt="AWS Logo"
+                          src="/img/github.svg"
+                          alt="Github Logo"
                           className="h-32 object-contain"
                         />
                       </Link>
