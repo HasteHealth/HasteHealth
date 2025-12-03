@@ -27,8 +27,14 @@ function SMARTSelector() {
     Record<string, string> | undefined
   >(undefined);
 
+  let url = new URL(window.API_URL);
+
+  let path = url.pathname;
+
+  let host = url.origin;
+
   useEffect(() => {
-    fetch(window.API_URL + "/oidc/.well-known/openid-configuration")
+    fetch(host + "/.well-known/openid-configuration" + path)
       .then((res) => res.json())
       .then((wellKnown: Record<string, string>) => {
         setWellKnown(wellKnown);

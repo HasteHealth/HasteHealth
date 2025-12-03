@@ -11,7 +11,7 @@ The [OpenID Connect Discovery endpoint](https://openid.net/specs/openid-connect-
 ## Endpoint
 
 ```
-GET /w/[tenant]/[project]/api/v1/oidc/.well-known/openid-configuration
+GET /.well-known/openid-configuration/w/[tenant]/[project]
 ```
 
 This endpoint returns the OpenID Provider's configuration metadata.
@@ -102,7 +102,7 @@ Content-Type: application/json
 Here is an example of how to retrieve the OpenID Connect discovery document using cURL:
 
 ```bash
-curl -X GET "http://api.haste.health/w/[tenant]/[project]/api/v1/oidc/.well-known/openid-configuration" \
+curl -X GET "http://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project]" \
      -H "Accept: application/json"
 ```
 
@@ -121,37 +121,11 @@ Example client initialization:
 
 ```typescript
 // Fetch and parse discovery document
-const response = await fetch('http://api.haste.health/w/[tenant]/[project]/api/v1/oidc/.well-known/openid-configuration');
+const response = await fetch('http://api.haste.health/.well-known/openid-configuration/w/[tenant]/[project]');
 const config = await response.json();
 
 // Use discovered endpoints
 const authUrl = `${config.authorization_endpoint}?${params}`;
 const tokenUrl = config.token_endpoint;
 const jwksUri = config.jwks_uri;
-```
-
-## JWKS Endpoint
-
-The `jwks_uri` field points to the JSON Web Key Set endpoint, which provides the public keys used to verify JWT signatures:
-
-```bash
-curl -X GET "http://api.haste.health/.well-known/jwks.json" \
-     -H "Accept: application/json"
-```
-
-Example JWKS response:
-
-```json
-{
-  "keys": [
-    {
-      "kty": "RSA",
-      "use": "sig",
-      "kid": "2023-11-26-key-1",
-      "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
-      "e": "AQAB",
-      "alg": "RS256"
-    }
-  ]
-}
 ```

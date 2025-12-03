@@ -29,10 +29,6 @@ pub struct WellKnownDiscoveryDocument {
     pub subject_types_supported: Vec<String>,
 }
 
-#[derive(TypedPath)]
-#[typed_path("/.well-known/openid-configuration")]
-pub struct WellKnown;
-
 fn construct_oidc_route(tenant: &TenantId, project: &ProjectId, path: &str) -> String {
     format!(
         "/w/{}/{}/api/v1/oidc{}",

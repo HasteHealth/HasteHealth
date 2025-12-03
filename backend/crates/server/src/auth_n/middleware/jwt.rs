@@ -1,5 +1,5 @@
 use crate::{
-    auth_n::{certificates, oidc::routes::discovery::WellKnown},
+    auth_n::certificates,
     extract::{
         bearer_token::AuthBearer,
         path_tenant::{ProjectIdentifier, TenantIdentifier},
@@ -44,16 +44,14 @@ fn invalid_jwt_response(
     project: &ProjectId,
     status_code: StatusCode,
 ) -> Response {
-    let well_known = WellKnown.to_string();
     let Ok(api_url) = Url::parse(&api_url) else {
         return (status_code).into_response();
     };
 
     let Ok(well_known_url) = api_url.join(&format!(
-        "/w/{}/{}/api/v1/oidc{}",
+        "/.well-known/openid-configuration/w/{}/{}",
         tenant.as_ref(),
         project.as_ref(),
-        well_known
     )) else {
         return (status_code).into_response();
     };
