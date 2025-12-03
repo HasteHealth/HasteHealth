@@ -5,7 +5,7 @@ use std::{
 
 use clap::{Parser, Subcommand};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_server::auth_n::oidc::routes::WellKnownDiscoveryDocument;
+use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use tokio::sync::Mutex;
 
 use crate::commands::config::{CLIConfiguration, load_config};
