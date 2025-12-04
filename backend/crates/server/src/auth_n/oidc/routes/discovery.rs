@@ -14,7 +14,7 @@ use axum::{
 use axum_extra::extract::Cached;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::{ProjectId, TenantId, scopes::Scopes};
 use haste_repository::Repository;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -226,6 +226,9 @@ pub async fn oauth_protected_resource<
         ));
     };
 
+    // Default to openid profile user/*.* scopes for FHIR access.
+    let default_scopes = Scopes::try_from("openid profile user/*.*").unwrap_or_default();
+
     let oauth_protected_resource = OAuthProtectedResourceDocument {
         resource: api_url
             .join(&format!(
@@ -244,7 +247,14 @@ pub async fn oauth_protected_resource<
                 .to_string(),
         ]),
         jwks_uri: None,
-        scopes_supported: None,
+
+        scopes_supported: Some(
+            default_scopes
+                .0
+                .into_iter()
+                .map(|s| String::from(s))
+                .collect::<Vec<_>>(),
+        ),
         bearer_methods_supported: None,
         resource_signing_alg_values_supported: None,
         resource_name: None,

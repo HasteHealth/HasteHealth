@@ -3,7 +3,7 @@
     "title": "OAuth2TokenBody",
     "type": "object",
     "$id": "https://haste.health/jsonschema/oauth2/token-body",
-    "additionalProperties": false,
+    "additionalProperties": true,
     "required": [
         "grant_type",
         "client_id"
