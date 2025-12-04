@@ -31,13 +31,34 @@ pub async fn list_tools<
         .map(|resource| {
             let type_: Option<String> = resource.type_.as_ref().into();
 
+            let methods = resource
+                .interaction
+                .unwrap_or_default()
+                .into_iter()
+                .map(|i| i.code)
+                .filter_map(|c| {
+                    let code: Option<String> = c.as_ref().into();
+                    code
+                });
+
+            let mut input_schema_properties = HashMap::new();
+
+            input_schema_properties.insert(
+                "method".to_string(),
+                serde_json::from_value(serde_json::json!({
+                    "type": "string",
+                    "enum": methods.collect::<Vec<String>>(),
+                }))
+                .unwrap(),
+            );
+
             Tool {
                 annotations: None,
                 description: resource.profile.and_then(|p| p.value),
                 execution: None,
                 icons: vec![],
                 input_schema: ToolInputSchema {
-                    properties: HashMap::new(),
+                    properties: input_schema_properties,
                     required: vec![],
                     schema: None,
                     type_: "object".to_string(),
