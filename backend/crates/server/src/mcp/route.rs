@@ -16,7 +16,6 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
-use reqwest::Method;
 use std::{collections::HashMap, sync::Arc};
 
 #[derive(serde::Serialize)]
@@ -39,8 +38,7 @@ pub async fn mcp_handler<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    method: Method,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    State(_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Json(mcp_request): Json<MCPRequest>,
 ) -> Result<Response, OperationOutcomeError> {
     match mcp_request {
