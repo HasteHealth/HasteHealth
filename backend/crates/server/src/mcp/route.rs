@@ -1,4 +1,6 @@
 use crate::{
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
+    fhir_client::ServerCTX,
     mcp::{
         error::MCPError,
         operations,
@@ -7,16 +9,18 @@ use crate::{
     services::AppState,
 };
 use axum::{
-    Json,
+    Extension, Json,
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use axum_extra::extract::Cached;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
+use haste_jwt::claims::UserTokenClaims;
+use haste_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::Arc;
 
 #[derive(serde::Serialize)]
@@ -39,18 +43,40 @@ pub async fn mcp_handler<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    State(_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Extension(claims): Extension<Arc<UserTokenClaims>>,
     Json(mcp_request): Json<MCPRequest>,
 ) -> Result<Response, MCPError<serde_json::Value>> {
+    let ctx = Arc::new(ServerCTX::new(
+        tenant,
+        project,
+        SupportedFHIRVersions::R4,
+        claims.clone(),
+        state.fhir_client.clone(),
+    ));
+
     match mcp_request {
         MCPRequest::ClientRequest(ClientRequest::InitializeRequest(initialize_request)) => {
             let result = ServerResult {
-                subtype_1: Some(operations::initialize(&initialize_request).await?),
+                subtype_1: Some(operations::initialize(ctx, &initialize_request).await?),
                 ..ServerResult::default()
             };
             Ok(Json(JSONRPCResult {
                 id: Some(initialize_request.id),
                 result,
+                jsonrpc: "2.0".to_string(),
+            })
+            .into_response())
+        }
+        MCPRequest::ClientRequest(ClientRequest::ListToolsRequest(list_tools_request)) => {
+            Ok(Json(JSONRPCResult {
+                id: Some(list_tools_request.id.clone()),
+                result: ServerResult {
+                    subtype_7: Some(operations::list_tools(ctx, &list_tools_request).await?),
+                    ..ServerResult::default()
+                },
                 jsonrpc: "2.0".to_string(),
             })
             .into_response())

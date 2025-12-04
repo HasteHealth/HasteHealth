@@ -167,7 +167,11 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
 
     let fhir_router = Router::new()
         .route("/{fhir_version}", any(fhir_root_handler))
-        .route("/{fhir_version}/{*fhir_location}", any(fhir_type_handler))
+        .route("/{fhir_version}/{*fhir_location}", any(fhir_type_handler));
+
+    let protected_resources_router = Router::new()
+        .nest("/fhir", fhir_router)
+        .route("/mcp", post(mcp::route::mcp_handler))
         .layer(
             ServiceBuilder::new()
                 .layer(axum::middleware::from_fn_with_state(
@@ -179,13 +183,10 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 )),
         );
 
-    let project_router = Router::new()
-        .nest("/fhir", fhir_router)
-        .route("/mcp", post(mcp::route::mcp_handler))
-        .nest(
-            "/oidc",
-            auth_n::oidc::routes::create_router(shared_state.clone()),
-        );
+    let project_router = Router::new().merge(protected_resources_router).nest(
+        "/oidc",
+        auth_n::oidc::routes::create_router(shared_state.clone()),
+    );
 
     let tenant_router = Router::new()
         .nest("/{project}/api/v1", project_router)
