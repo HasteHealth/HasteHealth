@@ -194,12 +194,16 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
 
     let discovery_2_0_document_router = Router::new()
         .route(
-            "/openid-configuration/w/{tenant}/{project}/{*additional_path}",
+            "/openid-configuration/w/{tenant}/{project}/{*resource}",
             get(auth_n::oidc::routes::discovery::openid_configuration),
         )
         .route(
             "/openid-configuration/w/{tenant}/{project}",
             get(auth_n::oidc::routes::discovery::openid_configuration),
+        )
+        .route(
+            "/oauth-protected-resource/w/{tenant}/{project}/{*resource}",
+            get(auth_n::oidc::routes::discovery::oauth_protected_resource),
         );
 
     let app = Router::new()

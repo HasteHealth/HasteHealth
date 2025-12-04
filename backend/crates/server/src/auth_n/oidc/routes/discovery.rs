@@ -6,7 +6,11 @@ use crate::{
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
     services::AppState,
 };
-use axum::extract::{Json, State};
+use axum::{
+    extract::{FromRequestParts, Json, Path, State},
+    http::request::Parts,
+    response::{IntoResponse, Response},
+};
 use axum_extra::extract::Cached;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -47,6 +51,7 @@ pub struct OAuthProtectedResourceDocument {
      * enumerable, in which case this metadata parameter would not be
      * used.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     authorization_servers: Option<Vec<String>>,
 
     /**
@@ -59,6 +64,7 @@ pub struct OAuthProtectedResourceDocument {
      * all keys in the referenced JWK Set to indicate each key's intended
      * usage.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     jwks_uri: Option<String>,
 
     /**
@@ -68,6 +74,7 @@ pub struct OAuthProtectedResourceDocument {
      * resources MAY choose not to advertise some scope values supported
      * even when this parameter is used.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     scopes_supported: Option<Vec<String>>,
 
     /**
@@ -80,6 +87,7 @@ pub struct OAuthProtectedResourceDocument {
      * supported are implied, nor does its absence indicate that they are
      * not supported.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     bearer_methods_supported: Option<Vec<String>>,
 
     /**
@@ -89,6 +97,7 @@ pub struct OAuthProtectedResourceDocument {
      * [FAPI.MessageSigning].  No default algorithms are implied if this
      * entry is omitted.  The value none MUST NOT be used.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     resource_signing_alg_values_supported: Option<Vec<String>>,
 
     /**
@@ -97,6 +106,7 @@ pub struct OAuthProtectedResourceDocument {
      * metadata include this field.  The value of this field MAY be
      * internationalized, as described in Section 2.1.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     resource_name: Option<String>,
 
     /**
@@ -105,6 +115,7 @@ pub struct OAuthProtectedResourceDocument {
      * protected resource.  The value of this field MAY be
      * internationalized, as described in Section 2.1.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     resource_documentation: Option<String>,
 
     /**
@@ -113,6 +124,7 @@ pub struct OAuthProtectedResourceDocument {
      * use the data provided by the protected resource.  The value of
      * this field MAY be internationalized, as described in Section 2.1.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     resource_policy_uri: Option<String>,
 
     /**
@@ -120,6 +132,7 @@ pub struct OAuthProtectedResourceDocument {
      * about the protected resource's terms of service.  The value of
      * this field MAY be internationalized, as described in Section 2.1.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     resource_tos_uri: Option<String>,
 
     /**
@@ -127,6 +140,7 @@ pub struct OAuthProtectedResourceDocument {
      * mutual-TLS client certificate-bound access tokens [RFC8705].  If
      * omitted, the default value is false.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     tls_client_certificate_bound_access_tokens: Option<bool>,
 
     /**
@@ -134,6 +148,7 @@ pub struct OAuthProtectedResourceDocument {
      * details type values supported by the resource server when the
      * authorization_details request parameter [RFC9396] is used.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     authorization_details_types_supported: Option<Vec<String>>,
 
     /**
@@ -142,6 +157,7 @@ pub struct OAuthProtectedResourceDocument {
      * [IANA.JOSE]) supported by the resource server for validating
      * Demonstrating Proof of Possession (DPoP) proof JWTs [RFC9449].
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     dpop_signing_alg_values_supported: Option<Vec<String>>,
 
     /**
@@ -149,6 +165,7 @@ pub struct OAuthProtectedResourceDocument {
      * always requires the use of DPoP-bound access tokens [RFC9449].  If
      * omitted, the default value is false.
      */
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     dpop_bound_access_tokens_required: Option<bool>,
 }
 
@@ -161,21 +178,86 @@ fn construct_oidc_route(tenant: &TenantId, project: &ProjectId, path: &str) -> S
     )
 }
 
+#[derive(Deserialize, Clone)]
+pub struct ResourcePath {
+    pub resource: String,
+}
+
+impl<S: Send + Sync> FromRequestParts<S> for ResourcePath {
+    type Rejection = Response;
+
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let Path(resource) = Path::<ResourcePath>::from_request_parts(parts, state)
+            .await
+            .map_err(|err| err.into_response())?;
+
+        Ok(resource)
+    }
+}
+
 pub async fn oauth_protected_resource<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
+    Cached(ResourcePath { resource }): Cached<ResourcePath>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
+) -> Result<Json<OAuthProtectedResourceDocument>, OIDCError> {
     let api_url_string = state
         .config
         .get(crate::ServerEnvironmentVariables::APIURI)
         .unwrap_or_default();
 
-    todo!();
+    if api_url_string.is_empty() {
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("API_URL is not set in the configuration".to_string()),
+            None,
+        ));
+    }
+
+    let Ok(api_url) = Url::parse(&api_url_string) else {
+        return Err(OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Invalid API_URL format".to_string()),
+            None,
+        ));
+    };
+
+    let oauth_protected_resource = OAuthProtectedResourceDocument {
+        resource: api_url
+            .join(&format!(
+                "/w/{}/{}/{}",
+                tenant.as_ref(),
+                project.as_ref(),
+                resource
+            ))
+            .unwrap()
+            .to_string(),
+
+        authorization_servers: Some(vec![
+            api_url
+                .join(&format!("/w/{}/{}", tenant.as_ref(), project.as_ref()))
+                .unwrap()
+                .to_string(),
+        ]),
+        jwks_uri: None,
+        scopes_supported: None,
+        bearer_methods_supported: None,
+        resource_signing_alg_values_supported: None,
+        resource_name: None,
+        resource_documentation: None,
+        resource_policy_uri: None,
+        resource_tos_uri: None,
+        tls_client_certificate_bound_access_tokens: None,
+        authorization_details_types_supported: None,
+        dpop_signing_alg_values_supported: None,
+        dpop_bound_access_tokens_required: None,
+    };
+
+    Ok(Json(oauth_protected_resource))
 }
 
 pub async fn openid_configuration<
