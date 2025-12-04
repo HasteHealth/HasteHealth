@@ -20,7 +20,6 @@ pub async fn initialize<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-    _request: &InitializeRequest,
 ) -> Result<InitializeResult, MCPError<serde_json::Value>> {
     Ok(InitializeResult {
         capabilities: ServerCapabilities {

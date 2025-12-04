@@ -18,7 +18,6 @@ pub async fn list_tools<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
-    _request: &ListToolsRequest,
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
     let _capabilities = ctx.client.capabilities(ctx.clone()).await?;
 
