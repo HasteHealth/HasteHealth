@@ -1,7 +1,8 @@
 use crate::{
-    mcp::schemas::schema_2025_11_25::{
-        ClientNotification, ClientRequest, Implementation, InitializeResult, RequestId,
-        ServerCapabilities, ServerResult,
+    mcp::{
+        error::MCPError,
+        operations,
+        schemas::schema_2025_11_25::{ClientNotification, ClientRequest, RequestId, ServerResult},
     },
     services::AppState,
 };
@@ -16,7 +17,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 #[derive(serde::Serialize)]
 pub struct JSONRPCResult<T> {
@@ -40,32 +41,11 @@ pub async fn mcp_handler<
 >(
     State(_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Json(mcp_request): Json<MCPRequest>,
-) -> Result<Response, OperationOutcomeError> {
+) -> Result<Response, MCPError<serde_json::Value>> {
     match mcp_request {
         MCPRequest::ClientRequest(ClientRequest::InitializeRequest(initialize_request)) => {
             let result = ServerResult {
-                subtype_1: Some(InitializeResult {
-                    capabilities: ServerCapabilities {
-                        completions: serde_json::Map::new(),
-                        experimental: HashMap::new(),
-                        logging: serde_json::Map::new(),
-                        prompts: None,
-                        resources: None,
-                        tasks: None,
-                        tools: None,
-                    },
-                    instructions: None,
-                    meta: None,
-                    protocol_version: "2025-03-26".to_string(),
-                    server_info: Implementation {
-                        description: None,
-                        icons: vec![],
-                        name: "Haste Health MCP Server".to_string(),
-                        title: Some("Haste Health MCP Server".to_string()),
-                        version: "0.0.1".to_string(),
-                        website_url: Some("https://haste.health".to_string()),
-                    },
-                }),
+                subtype_1: Some(operations::initialize(&initialize_request).await?),
                 ..ServerResult::default()
             };
             Ok(Json(JSONRPCResult {
@@ -81,6 +61,7 @@ pub async fn mcp_handler<
         _ => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
             "Only InitializeRequest is implemented".to_string(),
-        )),
+        )
+        .into()),
     }
 }

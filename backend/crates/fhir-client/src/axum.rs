@@ -28,7 +28,7 @@ fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) -> () {
 
     if let Some(last_modified) = last_modified {
         headers.insert(
-            "Last-Modified",
+            axum::http::header::LAST_MODIFIED,
             last_modified
                 .format("%a, %d %b %G %H:%M:%S GMT")
                 .parse()
@@ -36,13 +36,19 @@ fn add_resource_headers(headers: &mut HeaderMap, resource: &Resource) -> () {
         );
     }
     if let Some(version_id) = version_id {
-        headers.insert("ETag", format!("W/\"{}\"", version_id).parse().unwrap());
+        headers.insert(
+            axum::http::header::ETAG,
+            format!("W/\"{}\"", version_id).parse().unwrap(),
+        );
     }
 }
 
 fn add_headers(response: &FHIRResponse) -> HeaderMap {
     let mut header = HeaderMap::new();
-    header.insert("Content-Type", "application/fhir+json".parse().unwrap());
+    header.insert(
+        axum::http::header::CONTENT_TYPE,
+        "application/fhir+json".parse().unwrap(),
+    );
 
     match response {
         FHIRResponse::Create(resp) => {
