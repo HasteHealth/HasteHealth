@@ -74,10 +74,10 @@ fn create_capability_rest_statement(
     })
 }
 
-async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
     repo: &Repo,
     search_engine: &Search,
-) -> Result<CapabilityStatement, OperationOutcomeError> {
+) -> Result<Vec<StructureDefinition>, OperationOutcomeError> {
     let sd_search = FHIRSearchTypeRequest {
         resource_type: ResourceType::StructureDefinition,
         parameters: ParsedParameters::new(vec![
@@ -137,6 +137,15 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             _ => None,
         });
 
+    Ok(sds.collect())
+}
+
+async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+) -> Result<CapabilityStatement, OperationOutcomeError> {
+    let sds = get_all_sds(repo, search_engine).await?;
+
     Ok(CapabilityStatement {
         rest: Some(vec![CapabilityStatementRest {
             mode: Box::new(RestfulCapabilityMode::Server(None)),
@@ -148,7 +157,8 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
                 ..Default::default()
             }),
             resource: Some(
-                sds.map(create_capability_rest_statement)
+                sds.into_iter()
+                    .map(create_capability_rest_statement)
                     .collect::<Result<Vec<_>, _>>()?,
             ),
             ..Default::default()
