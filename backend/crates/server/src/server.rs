@@ -2,6 +2,7 @@ use crate::{
     auth_n,
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
+    mcp,
     middleware::errors::{log_operationoutcome_errors, operation_outcome_error_handle},
     services::{AppState, ConfigError, create_services, get_pool},
     static_assets::{create_static_server, root_asset_route},
@@ -13,7 +14,7 @@ use axum::{
     http::{Method, Uri},
     middleware::from_fn,
     response::{IntoResponse, Response},
-    routing::{any, get},
+    routing::{any, get, post},
 };
 use haste_config::get_config;
 use haste_fhir_client::FHIRClient;
@@ -178,10 +179,13 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 )),
         );
 
-    let project_router = Router::new().nest("/fhir", fhir_router).nest(
-        "/oidc",
-        auth_n::oidc::routes::create_router(shared_state.clone()),
-    );
+    let project_router = Router::new()
+        .nest("/fhir", fhir_router)
+        .route("/mcp", post(mcp::route::mcp_handler))
+        .nest(
+            "/oidc",
+            auth_n::oidc::routes::create_router(shared_state.clone()),
+        );
 
     let tenant_router = Router::new()
         .nest("/{project}/api/v1", project_router)
