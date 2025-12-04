@@ -1,24 +1,30 @@
 use crate::{
-    mcp::schemas::schema_2025_11_25::{
-        ClientNotification, ClientRequest, Implementation, InitializeResult, RequestId,
-        ServerCapabilities, ServerResult,
+    extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
+    fhir_client::ServerCTX,
+    mcp::{
+        error::MCPError,
+        operations,
+        request::MCPRequest,
+        schemas::schema_2025_11_25::{RequestId, ServerResult},
     },
     services::AppState,
 };
 use axum::{
-    Json,
+    Extension, Json,
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use axum_extra::extract::Cached;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
-use std::{collections::HashMap, sync::Arc};
+use haste_jwt::claims::UserTokenClaims;
+use haste_repository::{Repository, types::SupportedFHIRVersions};
+use std::sync::Arc;
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug)]
 pub struct JSONRPCResult<T> {
     #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<RequestId>,
@@ -26,61 +32,54 @@ pub struct JSONRPCResult<T> {
     result: T,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
-pub enum MCPRequest {
-    ClientRequest(ClientRequest),
-    ClientNotification(ClientNotification),
-}
-
 pub async fn mcp_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    State(_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Extension(claims): Extension<Arc<UserTokenClaims>>,
     Json(mcp_request): Json<MCPRequest>,
-) -> Result<Response, OperationOutcomeError> {
+) -> Result<Response, MCPError<serde_json::Value>> {
+    let ctx = Arc::new(ServerCTX::new(
+        tenant,
+        project,
+        SupportedFHIRVersions::R4,
+        claims.clone(),
+        state.fhir_client.clone(),
+    ));
+
     match mcp_request {
-        MCPRequest::ClientRequest(ClientRequest::InitializeRequest(initialize_request)) => {
+        MCPRequest::Initialize(initialize_request) => {
             let result = ServerResult {
-                subtype_1: Some(InitializeResult {
-                    capabilities: ServerCapabilities {
-                        completions: serde_json::Map::new(),
-                        experimental: HashMap::new(),
-                        logging: serde_json::Map::new(),
-                        prompts: None,
-                        resources: None,
-                        tasks: None,
-                        tools: None,
-                    },
-                    instructions: None,
-                    meta: None,
-                    protocol_version: "2025-03-26".to_string(),
-                    server_info: Implementation {
-                        description: None,
-                        icons: vec![],
-                        name: "Haste Health MCP Server".to_string(),
-                        title: Some("Haste Health MCP Server".to_string()),
-                        version: "0.0.1".to_string(),
-                        website_url: Some("https://haste.health".to_string()),
-                    },
-                }),
+                subtype_1: Some(operations::initialize(ctx, &initialize_request).await?),
                 ..ServerResult::default()
             };
             Ok(Json(JSONRPCResult {
-                id: Some(initialize_request.id),
+                id: initialize_request.id.clone(),
                 result,
                 jsonrpc: "2.0".to_string(),
             })
             .into_response())
         }
-        MCPRequest::ClientNotification(ClientNotification::InitializedNotification(
-            _notification,
-        )) => Ok(StatusCode::OK.into_response()),
+        MCPRequest::ListTools(list_tools_request) => Ok(Json(JSONRPCResult {
+            id: list_tools_request.id.clone(),
+            result: ServerResult {
+                subtype_7: Some(operations::list_tools(ctx, &list_tools_request).await?),
+                ..ServerResult::default()
+            },
+            jsonrpc: "2.0".to_string(),
+        })
+        .into_response()),
+        MCPRequest::InitializedNotification(_initialized_notification) => {
+            Ok(StatusCode::OK.into_response())
+        }
         _ => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
-            "Only InitializeRequest is implemented".to_string(),
-        )),
+            "Request not implemented".to_string(),
+        )
+        .into()),
     }
 }

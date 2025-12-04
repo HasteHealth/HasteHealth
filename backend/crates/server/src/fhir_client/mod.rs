@@ -454,7 +454,17 @@ impl<
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     ) -> Result<CapabilityStatement, OperationOutcomeError> {
-        todo!()
+        let res = self
+            .middleware
+            .call(self.state.clone(), _ctx, FHIRRequest::Capabilities)
+            .await?;
+
+        match res.response {
+            Some(FHIRResponse::Capabilities(capabilities_response)) => {
+                Ok(capabilities_response.capabilities)
+            }
+            _ => panic!("Unexpected response type"),
+        }
     }
 
     async fn search_system(
