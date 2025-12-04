@@ -4,9 +4,8 @@ use crate::{
     mcp::{
         error::MCPError,
         operations,
-        schemas::schema_2025_11_25::{
-            ClientNotification, ClientRequest, InitializeRequestParams, RequestId, ServerResult,
-        },
+        request::MCPRequest,
+        schemas::schema_2025_11_25::{RequestId, ServerResult},
     },
     services::AppState,
 };
@@ -33,23 +32,6 @@ pub struct JSONRPCResult<T> {
     result: T,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-#[serde(tag = "method")]
-pub enum MCPRequest {
-    #[serde(rename = "ping")]
-    Ping {},
-    #[serde(rename = "initialize")]
-    Initialize {
-        id: Option<RequestId>,
-        jsonrpc: ::std::string::String,
-        params: InitializeRequestParams,
-    },
-    #[serde(rename = "tools/list")]
-    ListTools { id: Option<RequestId> },
-    #[serde(rename = "notifications/initialized")]
-    InitializedNotification { id: Option<RequestId> },
-}
-
 pub async fn mcp_handler<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -70,32 +52,30 @@ pub async fn mcp_handler<
     ));
 
     match mcp_request {
-        MCPRequest::Initialize {
-            id,
-            jsonrpc,
-            params,
-        } => {
+        MCPRequest::Initialize(initialize_request) => {
             let result = ServerResult {
-                subtype_1: Some(operations::initialize(ctx).await?),
+                subtype_1: Some(operations::initialize(ctx, &initialize_request).await?),
                 ..ServerResult::default()
             };
             Ok(Json(JSONRPCResult {
-                id: id,
+                id: initialize_request.id.clone(),
                 result,
                 jsonrpc: "2.0".to_string(),
             })
             .into_response())
         }
-        MCPRequest::ListTools { id } => Ok(Json(JSONRPCResult {
-            id: id.clone(),
+        MCPRequest::ListTools(list_tools_request) => Ok(Json(JSONRPCResult {
+            id: list_tools_request.id.clone(),
             result: ServerResult {
-                subtype_7: Some(operations::list_tools(ctx).await?),
+                subtype_7: Some(operations::list_tools(ctx, &list_tools_request).await?),
                 ..ServerResult::default()
             },
             jsonrpc: "2.0".to_string(),
         })
         .into_response()),
-        MCPRequest::InitializedNotification { id } => Ok(StatusCode::OK.into_response()),
+        MCPRequest::InitializedNotification(_initialized_notification) => {
+            Ok(StatusCode::OK.into_response())
+        }
         _ => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
             "Request not implemented".to_string(),

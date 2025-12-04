@@ -1,18 +1,17 @@
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
-use std::{collections::HashMap, sync::Arc};
-
 use crate::{
     fhir_client::ServerCTX,
     mcp::{
         error::MCPError,
+        request::InitializeRequest,
         schemas::schema_2025_11_25::{
-            Implementation, InitializeRequest, InitializeResult, ServerCapabilities,
-            ServerCapabilitiesTools,
+            Implementation, InitializeResult, ServerCapabilities, ServerCapabilitiesTools,
         },
     },
 };
+use haste_fhir_search::SearchEngine;
+use haste_fhir_terminology::FHIRTerminology;
+use haste_repository::Repository;
+use std::{collections::HashMap, sync::Arc};
 
 pub async fn initialize<
     Repo: Repository + Send + Sync + 'static,
@@ -20,6 +19,7 @@ pub async fn initialize<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    _request: &InitializeRequest,
 ) -> Result<InitializeResult, MCPError<serde_json::Value>> {
     Ok(InitializeResult {
         capabilities: ServerCapabilities {
