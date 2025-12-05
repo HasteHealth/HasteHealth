@@ -13,8 +13,9 @@ use haste_fhir_client::{
 use haste_fhir_model::r4::generated::{
     resources::{
         CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
-        CapabilityStatementRestResourceInteraction, CapabilityStatementRestSecurity, Resource,
-        ResourceType, StructureDefinition,
+        CapabilityStatementRestResourceInteraction, CapabilityStatementRestResourceSearchParam,
+        CapabilityStatementRestSecurity, Resource, ResourceType, SearchParameter,
+        StructureDefinition,
     },
     terminology::{
         IssueType, ResourceTypes, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
@@ -34,23 +35,63 @@ static CAPABILITIES: LazyLock<Mutex<Option<CapabilityStatement>>> =
 
 fn create_capability_rest_statement(
     sd: StructureDefinition,
+    all_sps: &Vec<SearchParameter>,
 ) -> Result<CapabilityStatementRestResource, OperationOutcomeError> {
+    let sd_type = sd.type_.value.unwrap_or_default();
+    let shared_base_types = vec!["DomainResource".to_string(), "Resource".to_string()];
+
+    let resource_parameters = all_sps
+        .iter()
+        .filter(|sp| {
+            let types = sp
+                .base
+                .iter()
+                .map(|b| b.as_ref().into())
+                .filter_map(|b: Option<String>| b)
+                .collect::<Vec<_>>();
+
+            if types.contains(&shared_base_types[0])
+                || types.contains(&shared_base_types[1])
+                || types.contains(&sd_type)
+            {
+                true
+            } else {
+                false
+            }
+        })
+        .collect::<Vec<&SearchParameter>>();
+
     Ok(CapabilityStatementRestResource {
-        type_: Box::new(
-            ResourceTypes::try_from(sd.type_.value.unwrap_or_default()).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    format!(
-                        "Failed to parse resource type in capabilities generation: '{}'",
-                        e
-                    ),
-                )
-            })?,
-        ),
+        type_: Box::new(ResourceTypes::try_from(sd_type).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!(
+                    "Failed to parse resource type in capabilities generation: '{}'",
+                    e
+                ),
+            )
+        })?),
         profile: Some(Box::new(FHIRString {
             value: sd.url.value,
             ..Default::default()
         })),
+        searchParam: Some(
+            resource_parameters
+                .into_iter()
+                .map(|sp| CapabilityStatementRestResourceSearchParam {
+                    name: sp.name.clone(),
+                    definition: sp.url.value.clone().map(|v| {
+                        Box::new(FHIRString {
+                            value: Some(v),
+                            ..Default::default()
+                        })
+                    }),
+                    type_: sp.type_.clone(),
+                    documentation: Some(sp.description.clone()),
+                    ..Default::default()
+                })
+                .collect(),
+        ),
         interaction: Some(
             vec![
                 TypeRestfulInteraction::Read(None),
@@ -74,10 +115,10 @@ fn create_capability_rest_statement(
     })
 }
 
-async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
     repo: &Repo,
     search_engine: &Search,
-) -> Result<CapabilityStatement, OperationOutcomeError> {
+) -> Result<Vec<StructureDefinition>, OperationOutcomeError> {
     let sd_search = FHIRSearchTypeRequest {
         resource_type: ResourceType::StructureDefinition,
         parameters: ParsedParameters::new(vec![
@@ -137,6 +178,62 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
             _ => None,
         });
 
+    Ok(sds.collect())
+}
+
+async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+) -> Result<Vec<SearchParameter>, OperationOutcomeError> {
+    let sp_search = FHIRSearchTypeRequest {
+        resource_type: ResourceType::SearchParameter,
+        parameters: ParsedParameters::new(vec![]),
+    };
+    let sp_results = search_engine
+        .search(
+            &SupportedFHIRVersions::R4,
+            &TenantId::System,
+            &ProjectId::System,
+            SearchRequest::TypeSearch(&sp_search),
+            Some(SearchOptions { count_limit: false }),
+        )
+        .await?;
+
+    let version_ids = sp_results
+        .entries
+        .iter()
+        .map(|v| &v.version_id)
+        .collect::<Vec<_>>();
+
+    let sps = repo
+        .read_by_version_ids(
+            &TenantId::System,
+            &ProjectId::System,
+            version_ids.as_slice(),
+            CachePolicy::NoCache,
+        )
+        .await?
+        .into_iter()
+        .filter_map(|r| match r {
+            Resource::SearchParameter(sp) => Some(sp),
+            _ => None,
+        });
+
+    Ok(sps.collect())
+}
+
+async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+) -> Result<CapabilityStatement, OperationOutcomeError> {
+    let (sds, sps) = tokio::join!(
+        get_all_sds(repo, search_engine),
+        get_all_sps(repo, search_engine)
+    );
+
+    let sds = sds?;
+    let sps = sps?;
+
     Ok(CapabilityStatement {
         rest: Some(vec![CapabilityStatementRest {
             mode: Box::new(RestfulCapabilityMode::Server(None)),
@@ -148,7 +245,8 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
                 ..Default::default()
             }),
             resource: Some(
-                sds.map(create_capability_rest_statement)
+                sds.into_iter()
+                    .map(|sd| create_capability_rest_statement(sd, &sps))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
             ..Default::default()
