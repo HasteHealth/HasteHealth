@@ -219,55 +219,99 @@ export default function Home(): ReactNode {
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
-                    Support for authentication with{" "}
-                    <Link to="/docs/Authentication/Intro">
-                      <span className="text-blue-600 hover:text-blue-500 underline">
-                        OIDC
+                    Built in support for connecting to{" "}
+                    <Link to="/docs/Integration/AI/Intro">
+                      <span className="text-purple-600 hover:text-purple-500 underline">
+                        AI Applications
                       </span>{" "}
-                      and{" "}
-                    </Link>
-                    <Link to="/docs/Authentication/smart-on-fhir">
-                      <span className="text-blue-600 hover:text-blue-500  underline">
-                        SMART on FHIR
-                      </span>
                     </Link>
                   </h3>
-                  <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 py-4">
+                  <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-4 py-4">
                     <DescriptionColumn
                       title={
                         <Link
-                          className="hover:text-blue-500"
-                          to="/docs/category/openid-connect"
+                          className="hover:text-purple-500"
+                          to="/docs/category/model-context-protocol"
                         >
-                          Grants
+                          Model Context Protocol
                         </Link>
                       }
-                      description="Support for Authorization Code, Client Credentials, and Refresh Token grants."
+                      description="Easily provide LLMs with secure, real-time access to patient data using Haste's Model Context Protocol (MCP) implementation."
                     />
                     <DescriptionColumn
                       title={
                         <Link
-                          className="hover:text-blue-500"
-                          to="/docs/Authentication/Federated%20Login"
-                        >
-                          Federated login
-                        </Link>
-                      }
-                      description="Login with any identity provider that supports OIDC."
-                    />
-                    <DescriptionColumn
-                      title={
-                        <Link
-                          className="hover:text-blue-500"
+                          className="hover:text-purple-500"
                           to="/docs/Authentication/Scopes"
                         >
-                          Scopes
+                          Control data access
                         </Link>
                       }
-                      description="Request only the FHIR resource access you need with fine-grained scopes."
+                      description="Support for detailed scopes to control exactly what data AI applications can access."
                     />
                   </div>
                 </div>
+                <div className="p-6 rounded-lg ">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
+                      <Link to="/docs/Integration/AI/OpenAI">
+                        <img
+                          src="/img/openai_logo.svg"
+                          alt="OpenAI Logo"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
+                      <Link to="/docs/Integration/AI/Claude">
+                        <img
+                          src="/img/claude_logo.svg"
+                          alt="Claude Logo"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
+                      <Link to="/docs/Integration/AI/Gemini">
+                        <img
+                          src="/img/gemini_logo.svg"
+                          alt="Gemini Logo"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
+                      <Link to="/docs/Integration/AI/Mistral">
+                        <img
+                          src="/img/mistral_logo.svg"
+                          alt="Mistral Logo"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
+                      <Link to="/docs/Integration/AI/CoPilot">
+                        <img
+                          src="/img/copilot_logo.svg"
+                          alt="CoPilot Logo"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
+                    </div>
+                    <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
+                      <Link to="/docs/Integration/AI/DeepSeek">
+                        <img
+                          src="/img/deepseek_logo.svg"
+                          alt="DeepSeek Logo"
+                          className="h-32 object-contain"
+                        />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
@@ -324,6 +368,57 @@ export default function Home(): ReactNode {
                         />
                       </Link>
                     </div>
+                  </div>
+                </div>
+                <div className="space-y-2 p-6">
+                  <h3 className="text-5xl font-bold">
+                    Support for authentication with{" "}
+                    <Link to="/docs/Authentication/Intro">
+                      <span className="text-blue-600 hover:text-blue-500 underline">
+                        OIDC
+                      </span>{" "}
+                      and{" "}
+                    </Link>
+                    <Link to="/docs/Authentication/smart-on-fhir">
+                      <span className="text-blue-600 hover:text-blue-500  underline">
+                        SMART on FHIR
+                      </span>
+                    </Link>
+                  </h3>
+                  <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 py-4">
+                    <DescriptionColumn
+                      title={
+                        <Link
+                          className="hover:text-blue-500"
+                          to="/docs/category/openid-connect"
+                        >
+                          Grants
+                        </Link>
+                      }
+                      description="Support for Authorization Code, Client Credentials, and Refresh Token grants."
+                    />
+                    <DescriptionColumn
+                      title={
+                        <Link
+                          className="hover:text-blue-500"
+                          to="/docs/Authentication/Federated%20Login"
+                        >
+                          Federated login
+                        </Link>
+                      }
+                      description="Login with any identity provider that supports OIDC."
+                    />
+                    <DescriptionColumn
+                      title={
+                        <Link
+                          className="hover:text-blue-500"
+                          to="/docs/Authentication/Scopes"
+                        >
+                          Scopes
+                        </Link>
+                      }
+                      description="Request only the FHIR resource access you need with fine-grained scopes."
+                    />
                   </div>
                 </div>
               </div>
