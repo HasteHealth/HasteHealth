@@ -471,7 +471,7 @@ impl<
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _parameters: ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 
@@ -480,7 +480,7 @@ impl<
         ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         resource_type: ResourceType,
         parameters: ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -494,13 +494,7 @@ impl<
             .await?;
 
         match res.response {
-            Some(FHIRResponse::SearchType(search_response)) => Ok(search_response
-                .bundle
-                .entry
-                .unwrap_or_default()
-                .into_iter()
-                .filter_map(|entry| entry.resource.map(|r| *r))
-                .collect()),
+            Some(FHIRResponse::SearchType(search_response)) => Ok(search_response.bundle),
             _ => panic!("Unexpected response type"),
         }
     }
@@ -654,7 +648,7 @@ impl<
         &self,
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _parameters: ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 
@@ -663,7 +657,7 @@ impl<
         _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
         _resource_type: ResourceType,
         _parameters: ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 
@@ -673,7 +667,7 @@ impl<
         _resource_type: ResourceType,
         _id: String,
         _parameters: ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         todo!()
     }
 

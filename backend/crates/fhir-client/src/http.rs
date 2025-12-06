@@ -1020,7 +1020,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         &self,
         ctx: CTX,
         parameters: crate::ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -1031,13 +1031,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .await?;
         match res.response {
             Some(FHIRResponse::SearchSystem(search_system_response)) => {
-                let mut resources = Vec::new();
-                for entry in search_system_response.bundle.entry.unwrap_or_default() {
-                    if let Some(resource) = entry.resource {
-                        resources.push(*resource);
-                    }
-                }
-                Ok(resources)
+                Ok(search_system_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
@@ -1048,7 +1042,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         ctx: CTX,
         resource_type: ResourceType,
         parameters: crate::ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -1061,15 +1055,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             )
             .await?;
         match res.response {
-            Some(FHIRResponse::SearchType(search_type_response)) => {
-                let mut resources = Vec::new();
-                for entry in search_type_response.bundle.entry.unwrap_or_default() {
-                    if let Some(resource) = entry.resource {
-                        resources.push(*resource);
-                    }
-                }
-                Ok(resources)
-            }
+            Some(FHIRResponse::SearchType(search_type_response)) => Ok(search_type_response.bundle),
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
@@ -1293,7 +1279,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         &self,
         ctx: CTX,
         parameters: crate::ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -1305,13 +1291,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
         match res.response {
             Some(FHIRResponse::HistorySystem(history_system_response)) => {
-                let mut resources = Vec::new();
-                for entry in history_system_response.bundle.entry.unwrap_or_default() {
-                    if let Some(resource) = entry.resource {
-                        resources.push(*resource);
-                    }
-                }
-                Ok(resources)
+                Ok(history_system_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
@@ -1322,7 +1302,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         ctx: CTX,
         resource_type: ResourceType,
         parameters: crate::ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -1337,13 +1317,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
         match res.response {
             Some(FHIRResponse::HistoryType(history_type_response)) => {
-                let mut resources = Vec::new();
-                for entry in history_type_response.bundle.entry.unwrap_or_default() {
-                    if let Some(resource) = entry.resource {
-                        resources.push(*resource);
-                    }
-                }
-                Ok(resources)
+                Ok(history_type_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
@@ -1355,7 +1329,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
         resource_type: ResourceType,
         id: String,
         parameters: crate::ParsedParameters,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Bundle, OperationOutcomeError> {
         let res = self
             .middleware
             .call(
@@ -1371,13 +1345,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
 
         match res.response {
             Some(FHIRResponse::HistoryInstance(history_instance_response)) => {
-                let mut resources = Vec::new();
-                for entry in history_instance_response.bundle.entry.unwrap_or_default() {
-                    if let Some(resource) = entry.resource {
-                        resources.push(*resource);
-                    }
-                }
-                Ok(resources)
+                Ok(history_instance_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }

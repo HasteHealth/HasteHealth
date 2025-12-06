@@ -79,7 +79,10 @@ fn create_capability_rest_statement(
             resource_parameters
                 .into_iter()
                 .map(|sp| CapabilityStatementRestResourceSearchParam {
-                    name: sp.name.clone(),
+                    name: Box::new(FHIRString {
+                        value: sp.code.value.clone(),
+                        ..Default::default()
+                    }),
                     definition: sp.url.value.clone().map(|v| {
                         Box::new(FHIRString {
                             value: Some(v),

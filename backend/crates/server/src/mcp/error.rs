@@ -3,19 +3,19 @@ use axum::response::IntoResponse;
 use haste_fhir_operation_error::OperationOutcomeError;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-struct MCPErrorDetail<T> {
-    code: u16,
-    message: String,
+pub struct MCPErrorDetail<T> {
+    pub code: u16,
+    pub message: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    data: Option<T>,
+    pub data: Option<T>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct MCPError<T> {
     #[serde(skip_serializing_if = "Option::is_none")]
-    id: Option<RequestId>,
-    jsonrpc: String,
-    error: MCPErrorDetail<T>,
+    pub id: Option<RequestId>,
+    pub jsonrpc: String,
+    pub error: MCPErrorDetail<T>,
 }
 
 impl From<OperationOutcomeError> for MCPError<serde_json::Value> {
