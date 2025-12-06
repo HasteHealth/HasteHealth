@@ -477,7 +477,7 @@ impl CallToolRequest {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 pub struct CallToolRequestParams {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub arguments: ::std::option::Option<CallToolRequestParamsArguments>,
+    pub arguments: ::std::option::Option<serde_json::Value>,
     #[serde(
         rename = "_meta",
         default,
@@ -635,7 +635,7 @@ pub struct CallToolResult {
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub structured_content: ::std::option::Option<CallToolResultStructuredContent>,
+    pub structured_content: ::std::option::Option<serde_json::Value>,
 }
 impl ::std::convert::From<&CallToolResult> for CallToolResult {
     fn from(value: &CallToolResult) -> Self {
@@ -677,36 +677,7 @@ impl CallToolResultMeta {
         Default::default()
     }
 }
-#[doc = "An optional JSON object that represents the structured result of the tool call."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"description\": \"An optional JSON object that represents the structured result of the tool call.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct CallToolResultStructuredContent {}
-impl ::std::convert::From<&CallToolResultStructuredContent> for CallToolResultStructuredContent {
-    fn from(value: &CallToolResultStructuredContent) -> Self {
-        value.clone()
-    }
-}
-impl ::std::default::Default for CallToolResultStructuredContent {
-    fn default() -> Self {
-        Self {}
-    }
-}
-impl CallToolResultStructuredContent {
-    pub fn builder() -> builder::CallToolResultStructuredContent {
-        Default::default()
-    }
-}
+
 #[doc = "A request to cancel a task."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -12429,7 +12400,7 @@ pub struct Tool {
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub icons: ::std::vec::Vec<Icon>,
     #[serde(rename = "inputSchema")]
-    pub input_schema: ToolInputSchema,
+    pub input_schema: serde_json::Value,
     #[serde(
         rename = "_meta",
         default,
@@ -12806,73 +12777,7 @@ impl ::std::convert::TryFrom<::std::string::String> for ToolExecutionTaskSupport
         value.parse()
     }
 }
-#[doc = "A JSON Schema object defining the expected parameters for the tool."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"description\": \"A JSON Schema object defining the expected parameters for the tool.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"type\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"$schema\": {"]
-#[doc = "      \"type\": \"string\""]
-#[doc = "    },"]
-#[doc = "    \"properties\": {"]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"additionalProperties\": {"]
-#[doc = "        \"type\": \"object\","]
-#[doc = "        \"additionalProperties\": true"]
-#[doc = "      }"]
-#[doc = "    },"]
-#[doc = "    \"required\": {"]
-#[doc = "      \"type\": \"array\","]
-#[doc = "      \"items\": {"]
-#[doc = "        \"type\": \"string\""]
-#[doc = "      }"]
-#[doc = "    },"]
-#[doc = "    \"type\": {"]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"const\": \"object\""]
-#[doc = "    }"]
-#[doc = "  }"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-pub struct ToolInputSchema {
-    #[serde(
-        default,
-        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
-    )]
-    pub properties: ::std::collections::HashMap<
-        ::std::string::String,
-        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-    >,
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub required: ::std::vec::Vec<::std::string::String>,
-    #[serde(
-        rename = "$schema",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
-    pub schema: ::std::option::Option<::std::string::String>,
-    #[serde(rename = "type")]
-    pub type_: ::std::string::String,
-}
-impl ::std::convert::From<&ToolInputSchema> for ToolInputSchema {
-    fn from(value: &ToolInputSchema) -> Self {
-        value.clone()
-    }
-}
-impl ToolInputSchema {
-    pub fn builder() -> builder::ToolInputSchema {
-        Default::default()
-    }
-}
+
 #[doc = "An optional notification from the server to the client, informing it that the list of tools it offers has changed. This may be issued by servers without any previous subscription from the client."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -14417,10 +14322,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct CallToolRequestParams {
-        arguments: ::std::result::Result<
-            ::std::option::Option<super::CallToolRequestParamsArguments>,
-            ::std::string::String,
-        >,
+        arguments:
+            ::std::result::Result<::std::option::Option<serde_json::Value>, ::std::string::String>,
         meta: ::std::result::Result<
             ::std::option::Option<super::CallToolRequestParamsMeta>,
             ::std::string::String,
@@ -14444,9 +14347,7 @@ pub mod builder {
     impl CallToolRequestParams {
         pub fn arguments<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<
-                    ::std::option::Option<super::CallToolRequestParamsArguments>,
-                >,
+            T: ::std::convert::TryInto<::std::option::Option<serde_json::Value>>,
             T::Error: ::std::fmt::Display,
         {
             self.arguments = value
@@ -14584,10 +14485,8 @@ pub mod builder {
             ::std::option::Option<super::CallToolResultMeta>,
             ::std::string::String,
         >,
-        structured_content: ::std::result::Result<
-            ::std::option::Option<super::CallToolResultStructuredContent>,
-            ::std::string::String,
-        >,
+        structured_content:
+            ::std::result::Result<::std::option::Option<serde_json::Value>, ::std::string::String>,
     }
     impl ::std::default::Default for CallToolResult {
         fn default() -> Self {
@@ -14632,9 +14531,7 @@ pub mod builder {
         }
         pub fn structured_content<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<
-                    ::std::option::Option<super::CallToolResultStructuredContent>,
-                >,
+            T: ::std::convert::TryInto<::std::option::Option<serde_json::Value>>,
             T::Error: ::std::fmt::Display,
         {
             self.structured_content = value.try_into().map_err(|e| {
@@ -14690,31 +14587,7 @@ pub mod builder {
             Self {}
         }
     }
-    #[derive(Clone, Debug)]
-    pub struct CallToolResultStructuredContent {}
-    impl ::std::default::Default for CallToolResultStructuredContent {
-        fn default() -> Self {
-            Self {}
-        }
-    }
-    impl CallToolResultStructuredContent {}
-    impl ::std::convert::TryFrom<CallToolResultStructuredContent>
-        for super::CallToolResultStructuredContent
-    {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            _value: CallToolResultStructuredContent,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {})
-        }
-    }
-    impl ::std::convert::From<super::CallToolResultStructuredContent>
-        for CallToolResultStructuredContent
-    {
-        fn from(_value: super::CallToolResultStructuredContent) -> Self {
-            Self {}
-        }
-    }
+
     #[derive(Clone, Debug)]
     pub struct CancelTaskRequest {
         id: ::std::result::Result<super::RequestId, ::std::string::String>,
@@ -26545,7 +26418,7 @@ pub mod builder {
             ::std::string::String,
         >,
         icons: ::std::result::Result<::std::vec::Vec<super::Icon>, ::std::string::String>,
-        input_schema: ::std::result::Result<super::ToolInputSchema, ::std::string::String>,
+        input_schema: ::std::result::Result<serde_json::Value, ::std::string::String>,
         meta: ::std::result::Result<::std::option::Option<super::ToolMeta>, ::std::string::String>,
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
         output_schema: ::std::result::Result<
@@ -26615,7 +26488,7 @@ pub mod builder {
         }
         pub fn input_schema<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ToolInputSchema>,
+            T: ::std::convert::TryInto<serde_json::Value>,
             T::Error: ::std::fmt::Display,
         {
             self.input_schema = value
@@ -26881,103 +26754,7 @@ pub mod builder {
             }
         }
     }
-    #[derive(Clone, Debug)]
-    pub struct ToolInputSchema {
-        properties: ::std::result::Result<
-            ::std::collections::HashMap<
-                ::std::string::String,
-                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-            >,
-            ::std::string::String,
-        >,
-        required:
-            ::std::result::Result<::std::vec::Vec<::std::string::String>, ::std::string::String>,
-        schema: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
-            ::std::string::String,
-        >,
-        type_: ::std::result::Result<::std::string::String, ::std::string::String>,
-    }
-    impl ::std::default::Default for ToolInputSchema {
-        fn default() -> Self {
-            Self {
-                properties: Ok(Default::default()),
-                required: Ok(Default::default()),
-                schema: Ok(Default::default()),
-                type_: Err("no value supplied for type_".to_string()),
-            }
-        }
-    }
-    impl ToolInputSchema {
-        pub fn properties<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<
-                        ::std::string::String,
-                        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-                    >,
-                >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.properties = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for properties: {}", e));
-            self
-        }
-        pub fn required<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.required = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for required: {}", e));
-            self
-        }
-        pub fn schema<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.schema = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for schema: {}", e));
-            self
-        }
-        pub fn type_<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.type_ = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for type_: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<ToolInputSchema> for super::ToolInputSchema {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: ToolInputSchema,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                properties: value.properties?,
-                required: value.required?,
-                schema: value.schema?,
-                type_: value.type_?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::ToolInputSchema> for ToolInputSchema {
-        fn from(value: super::ToolInputSchema) -> Self {
-            Self {
-                properties: Ok(value.properties),
-                required: Ok(value.required),
-                schema: Ok(value.schema),
-                type_: Ok(value.type_),
-            }
-        }
-    }
+
     #[derive(Clone, Debug)]
     pub struct ToolListChangedNotification {
         jsonrpc: ::std::result::Result<::std::string::String, ::std::string::String>,

@@ -1,4 +1,6 @@
-use crate::mcp::schemas::schema_2025_11_25::{InitializeRequestParams, RequestId};
+use crate::mcp::schemas::schema_2025_11_25::{
+    CallToolRequestParams, InitializeRequestParams, RequestId,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct InitializeRequest {
@@ -18,14 +20,24 @@ pub struct InitializeNotification {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct CallToolRequest {
+    pub id: Option<RequestId>,
+    pub jsonrpc: ::std::string::String,
+    pub params: CallToolRequestParams,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 #[serde(tag = "method")]
 pub enum MCPRequest {
     #[serde(rename = "ping")]
     Ping(PingRequest),
     #[serde(rename = "initialize")]
     Initialize(InitializeRequest),
-    #[serde(rename = "tools/list")]
-    ListTools(ListToolsRequest),
     #[serde(rename = "notifications/initialized")]
     InitializedNotification(InitializeNotification),
+
+    #[serde(rename = "tools/list")]
+    ListTools(ListToolsRequest),
+    #[serde(rename = "tools/call")]
+    ToolsCall(CallToolRequest),
 }

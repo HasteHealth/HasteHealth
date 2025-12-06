@@ -33,13 +33,13 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         &self,
         ctx: CTX,
         parameters: ParsedParameters,
-    ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
+    ) -> impl Future<Output = Result<Bundle, Error>> + Send;
     fn search_type(
         &self,
         ctx: CTX,
         resource_type: ResourceType,
         parameters: ParsedParameters,
-    ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
+    ) -> impl Future<Output = Result<Bundle, Error>> + Send;
 
     fn create(
         &self,
@@ -111,14 +111,14 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         &self,
         ctx: CTX,
         parameters: ParsedParameters,
-    ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
+    ) -> impl Future<Output = Result<Bundle, Error>> + Send;
 
     fn history_type(
         &self,
         ctx: CTX,
         resource_type: ResourceType,
         parameters: ParsedParameters,
-    ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
+    ) -> impl Future<Output = Result<Bundle, Error>> + Send;
 
     fn history_instance(
         &self,
@@ -126,7 +126,7 @@ pub trait FHIRClient<CTX, Error>: Send + Sync {
         resource_type: ResourceType,
         id: String,
         parameters: ParsedParameters,
-    ) -> impl Future<Output = Result<Vec<Resource>, Error>> + Send;
+    ) -> impl Future<Output = Result<Bundle, Error>> + Send;
 
     fn invoke_instance(
         &self,

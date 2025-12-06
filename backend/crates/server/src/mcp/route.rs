@@ -76,6 +76,20 @@ pub async fn mcp_handler<
         MCPRequest::InitializedNotification(_initialized_notification) => {
             Ok(StatusCode::OK.into_response())
         }
+        MCPRequest::ToolsCall(tools_call_request) => {
+            let id = tools_call_request.id.clone();
+            let result = operations::tools_call(ctx, tools_call_request).await?;
+
+            Ok(Json(JSONRPCResult {
+                id,
+                result: ServerResult {
+                    subtype_8: Some(result),
+                    ..ServerResult::default()
+                },
+                jsonrpc: "2.0".to_string(),
+            })
+            .into_response())
+        }
         _ => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
             "Request not implemented".to_string(),

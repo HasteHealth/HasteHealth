@@ -44,6 +44,10 @@ fn invalid_jwt_response(
     project: &ProjectId,
     status_code: StatusCode,
 ) -> Response {
+    tracing::warn!(
+        "Invalid JWT token provided in request sending '{}'",
+        status_code
+    );
     let Ok(api_url) = Url::parse(&api_url) else {
         return (status_code).into_response();
     };
