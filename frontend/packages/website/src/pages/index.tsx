@@ -220,7 +220,7 @@ export default function Home(): ReactNode {
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
                     Built in support for connecting to{" "}
-                    <Link to="/docs/Integration/AI/Intro">
+                    <Link to="/docs/category/ai-integrations">
                       <span className="text-purple-600 hover:text-purple-500 underline">
                         AI Applications
                       </span>{" "}
@@ -254,7 +254,7 @@ export default function Home(): ReactNode {
                 <div className="p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/AI/OpenAI">
+                      <Link to="/docs/Integration/AI%20Applications/openai-integration">
                         <img
                           src="/img/openai_logo.svg"
                           alt="OpenAI Logo"
@@ -263,7 +263,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/AI/Claude">
+                      <Link to="/docs/Integration/AI%20Applications/claude-integration">
                         <img
                           src="/img/claude_logo.svg"
                           alt="Claude Logo"
@@ -272,7 +272,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/AI/Gemini">
+                      <Link to="/docs/Integration/AI%20Applications/gemini-integration">
                         <img
                           src="/img/gemini_logo.svg"
                           alt="Gemini Logo"
@@ -281,7 +281,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/AI/Mistral">
+                      <Link to="/docs/Integration/AI%20Applications/mistral-integration">
                         <img
                           src="/img/mistral_logo.svg"
                           alt="Mistral Logo"
@@ -290,7 +290,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/AI/CoPilot">
+                      <Link to="/docs/Integration/AI%20Applications/github-copilot-integration">
                         <img
                           src="/img/copilot_logo.svg"
                           alt="CoPilot Logo"
@@ -299,7 +299,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/AI/DeepSeek">
+                      <Link to="/docs/Integration/AI%20Applications/deepseek-integration">
                         <img
                           src="/img/deepseek_logo.svg"
                           alt="DeepSeek Logo"
