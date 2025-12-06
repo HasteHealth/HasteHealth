@@ -77,7 +77,7 @@ export default function Home(): ReactNode {
         <HomepageHeader />
         <main className="mt-12 z-1 text-orange-950">
           <div id="tw-scope" className="mt-4">
-            <div className="space-y-20">
+            <div className="space-y-16">
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
@@ -173,7 +173,7 @@ export default function Home(): ReactNode {
               </div>
 
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-                <div className="p-6 justify-center border border-slate-200 rounded-lg min-h-72 grid grid-cols-2 gap-2">
+                <div className="order-2 md:order-1 p-6 justify-center border border-slate-200 rounded-lg min-h-72 grid grid-cols-2 gap-2">
                   <div className="flex flex-col space-y-1">
                     <h3 className="text-4xl font-bold">
                       {"<10"}
@@ -207,7 +207,7 @@ export default function Home(): ReactNode {
                     <span>Memory usage for a single instance.</span>
                   </div>
                 </div>
-                <div className="space-y-2 p-6">
+                <div className="order-1 md:order-2 space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
                     High performance with{" "}
                     <span className="text-green-600">low latency</span> that can
@@ -312,7 +312,7 @@ export default function Home(): ReactNode {
               </div>
 
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-                <div className="p-6 rounded-lg ">
+                <div className="order-2 md:order-1 p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="flex justify-center items-center w-full p-4 shadow-sm border border-slate-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Identity%20providers/Okta">
@@ -370,7 +370,7 @@ export default function Home(): ReactNode {
                     </div>
                   </div>
                 </div>
-                <div className="space-y-2 p-6">
+                <div className="order-1 md:order-2 space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
                     Support for authentication with{" "}
                     <Link to="/docs/Authentication/Intro">
