@@ -65,6 +65,16 @@ function CarouselCard(
   );
 }
 
+function BorderBlock() {
+  return undefined;
+  // return (
+  //   <div
+  //     style={{ width: "calc(100vw - 1.1rem)" }}
+  //     className="border border-dashed border-orange-200 w-screen absolute left-0 -mt-6"
+  //   />
+  // );
+}
+
 export default function Home(): ReactNode {
   return (
     <Layout
@@ -73,11 +83,12 @@ export default function Home(): ReactNode {
       description="Description will go into a meta tag in <head />"
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
-      <div className="container mx-auto px-2 ">
+      <div className="container mx-auto px-4 border-y-0 border-dashed border-x border-orange-200">
         <HomepageHeader />
         <main className="mt-12 z-1 text-orange-950">
           <div id="tw-scope" className="mt-4">
             <div className="space-y-16">
+              <BorderBlock />
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
@@ -172,6 +183,7 @@ export default function Home(): ReactNode {
                 </div>
               </div>
 
+              <BorderBlock />
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="order-2 md:order-1 p-6 justify-center border border-slate-200 rounded-lg min-h-72 grid grid-cols-2 gap-2">
                   <div className="flex flex-col space-y-1">
@@ -215,7 +227,7 @@ export default function Home(): ReactNode {
                   </h3>
                 </div>
               </div>
-
+              <BorderBlock />
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="space-y-2 p-6">
                   <h3 className="text-5xl font-bold">
@@ -310,7 +322,7 @@ export default function Home(): ReactNode {
                   </div>
                 </div>
               </div>
-
+              <BorderBlock />
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="order-2 md:order-1 p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
