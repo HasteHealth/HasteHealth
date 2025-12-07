@@ -30,7 +30,7 @@ pub async fn find_client_app<
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    state: &Arc<AppState<Repo, Search, Terminology>>,
+    state: &AppState<Repo, Search, Terminology>,
     tenant: TenantId,
     project: ProjectId,
     client_id: String,

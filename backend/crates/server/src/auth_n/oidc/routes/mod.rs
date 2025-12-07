@@ -19,7 +19,7 @@ mod interactions;
 mod jwks;
 pub mod route_string;
 pub mod scope;
-mod token;
+pub mod token;
 
 pub static AUTH_NESTED_PATH: &str = "/auth";
 
