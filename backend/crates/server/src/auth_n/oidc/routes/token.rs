@@ -63,11 +63,11 @@ pub static TOKEN_EXPIRATION: usize = 7200; // 2 hours
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
-    access_token: String,
+    pub access_token: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     refresh_token: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    id_token: Option<String>,
+    pub id_token: Option<String>,
     token_type: TokenType,
     expires_in: usize,
 }
@@ -368,6 +368,76 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
         .collect())
 }
 
+pub async fn client_credentials_to_token_response<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    state: &AppState<Repo, Search, Terminology>,
+    tenant: &TenantId,
+    project: &ProjectId,
+    user_agent: &Option<TypedHeader<UserAgent>>,
+    token_body: &schemas::token_body::OAuth2TokenBody,
+) -> Result<TokenResponse, OIDCError> {
+    let client_id = &token_body.client_id;
+    let client_app =
+        find_client_app(state, tenant.clone(), project.clone(), client_id.clone()).await?;
+
+    verify_client(&client_app, &token_body)?;
+
+    let client_app_scopes = client_app
+        .scope
+        .as_ref()
+        .and_then(|s| s.value.as_ref().map(String::as_str))
+        .unwrap_or_default();
+
+    let requested_scopes = Scopes::from(
+        token_body
+            .scope
+            .clone()
+            .unwrap_or_else(|| client_app_scopes.to_string()),
+    );
+
+    verify_requested_scope_is_subset(
+        &requested_scopes,
+        &Scopes::try_from(client_app_scopes).map_err(|_| {
+            OIDCError::new(
+                OIDCErrorCode::InvalidScope,
+                Some("Client application's configured scopes are invalid.".to_string()),
+                None,
+            )
+        })?,
+    )?;
+
+    let response = create_token_response(
+        user_agent,
+        &*state.repo,
+        &client_app,
+        &token_body.grant_type,
+        TokenResponseArguments {
+            user_id: client_app.id.clone().unwrap_or_default(),
+            user_role: UserRole::Member,
+            user_kind: AuthorKind::ClientApplication,
+            client_id: client_app.id.clone().unwrap_or_default(),
+            scopes: requested_scopes,
+            tenant: tenant.clone(),
+            project: project.clone(),
+            membership: None,
+            access_policy_version_ids: find_users_access_policy_version_ids(
+                state.search.as_ref(),
+                &tenant,
+                &project,
+                client_id,
+                &ResourceType::ClientApplication,
+            )
+            .await?,
+        },
+    )
+    .await?;
+
+    Ok(response)
+}
+
 pub async fn token<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -382,59 +452,12 @@ pub async fn token<
 ) -> Result<Response, OIDCError> {
     match &token_body.grant_type {
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
-            let client_id = &token_body.client_id;
-            let client_app =
-                find_client_app(&state, tenant.clone(), project.clone(), client_id.clone()).await?;
-
-            verify_client(&client_app, &token_body)?;
-
-            let client_app_scopes = client_app
-                .scope
-                .as_ref()
-                .and_then(|s| s.value.as_ref().map(String::as_str))
-                .unwrap_or_default();
-
-            let requested_scopes = Scopes::from(
-                token_body
-                    .scope
-                    .clone()
-                    .unwrap_or_else(|| client_app_scopes.to_string()),
-            );
-
-            verify_requested_scope_is_subset(
-                &requested_scopes,
-                &Scopes::try_from(client_app_scopes).map_err(|_| {
-                    OIDCError::new(
-                        OIDCErrorCode::InvalidScope,
-                        Some("Client application's configured scopes are invalid.".to_string()),
-                        None,
-                    )
-                })?,
-            )?;
-
-            let response = create_token_response(
+            let response = client_credentials_to_token_response(
+                &*state,
+                &tenant,
+                &project,
                 &user_agent,
-                &*state.repo,
-                &client_app,
-                &token_body.grant_type,
-                TokenResponseArguments {
-                    user_id: client_app.id.clone().unwrap_or_default(),
-                    user_role: UserRole::Member,
-                    user_kind: AuthorKind::ClientApplication,
-                    client_id: client_app.id.clone().unwrap_or_default(),
-                    scopes: requested_scopes,
-                    tenant: tenant.clone(),
-                    project: project.clone(),
-                    membership: None,
-                    access_policy_version_ids: find_users_access_policy_version_ids(
-                        state.search.as_ref(),
-                        &tenant,
-                        &project,
-                        client_id,
-                        &ResourceType::ClientApplication,
-                    )
-                    .await?,
-                },
+                &token_body,
             )
             .await?;
 
