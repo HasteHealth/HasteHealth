@@ -394,10 +394,7 @@ pub async fn client_credentials_to_token_response<
 
     // Allow basic auth if client app allows grant.
     if method == ClientCredentialsMethod::BasicAuth {
-        validate_client_grant_type(
-            &client_app,
-            &ClientapplicationGrantType::Client_credentials(None),
-        )?;
+        validate_client_grant_type(&client_app, &ClientapplicationGrantType::Basic_auth(None))?;
     }
 
     let client_app_scopes = client_app
