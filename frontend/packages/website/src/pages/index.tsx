@@ -69,7 +69,7 @@ function BorderBlock() {
   return (
     <div
       style={{ width: "calc(100vw - 1.1rem)" }}
-      className="border-b border-dashed border-orange-200 w-screen absolute left-0 -mt-6"
+      className="border-b  border-orange-200 w-screen absolute left-0 -mt-6"
     />
   );
 }
@@ -79,7 +79,7 @@ function BorderVertical({ height }: { height?: number }) {
   return (
     <div
       style={{ height: height }}
-      className="border-0 md:border-l border-dashed border-orange-200  absolute left-1/2 -mt-6"
+      className="border-0 md:border-l  border-orange-200  absolute left-1/2 -mt-6"
     />
   );
 }
@@ -107,12 +107,12 @@ export default function Home(): ReactNode {
       description="Description will go into a meta tag in <head />"
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
-      <div className="container mx-auto px-4 border-x border-y-0 border-dashed border-orange-200">
+      <div className="container mx-auto px-4 border-x border-y-0  border-orange-200">
         <HomepageHeader />
 
         <main ref={containerRef} className="mt-12 z-1 text-orange-950">
           <div id="tw-scope" className="mt-4">
-            <BorderVertical height={containerHeight} />
+            {/* <BorderVertical height={containerHeight} /> */}
             <div className="space-y-16">
               <BorderBlock />
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
@@ -290,7 +290,7 @@ export default function Home(): ReactNode {
                   </div>
                 </div>
                 <div className="p-6 rounded-lg ">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                     <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/AI%20Applications/openai-integration">
                         <img
@@ -351,7 +351,7 @@ export default function Home(): ReactNode {
               <BorderBlock />
               <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
                 <div className="order-2 md:order-1 p-6 rounded-lg ">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                     <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
                       <Link to="/docs/Integration/Identity%20providers/Okta">
                         <img
