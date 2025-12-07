@@ -231,7 +231,7 @@ export default function Home(): ReactNode {
                       title={
                         <Link
                           className="hover:text-purple-500"
-                          to="/docs/category/model-context-protocol"
+                          to="/docs/API/Model%20Context%20Protocol/Endpoint"
                         >
                           Model Context Protocol
                         </Link>
