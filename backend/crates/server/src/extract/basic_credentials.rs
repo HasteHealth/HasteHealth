@@ -11,7 +11,20 @@ pub struct BasicCredentialsHeader(pub Option<BasicCredentials>);
 
 impl BasicCredentialsHeader {
     fn from_header(contents: &str) -> Result<Self, OperationOutcomeError> {
-        let decoded_content = PAD.decode(contents);
+        let decoded_content: String =
+            String::from_utf8(BASE64_STANDARD.decode(contents).map_err(|_| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Failed to decode Basic Authorization Header".to_string(),
+                )
+            })?)
+            .map_err(|_| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid UTF-8 in Basic Authorization Header".to_string(),
+                )
+            })?;
+
         let parts = decoded_content.split(":").collect::<Vec<&str>>();
 
         if parts.len() != 2 {

@@ -1,7 +1,7 @@
 use crate::{
     auth_n::oidc::{
         error::{OIDCError, OIDCErrorCode},
-        routes::token::client_credentials_to_token_response,
+        routes::token::{ClientCredentialsMethod, client_credentials_to_token_response},
         schemas::token_body::{OAuth2TokenBody, OAuth2TokenBodyGrantType},
     },
     extract::{
@@ -21,7 +21,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
 
-pub async fn basic_auth<
+pub async fn basic_auth_middleware<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -53,6 +53,7 @@ pub async fn basic_auth<
                 refresh_token: None,
                 scope: None,
             },
+            ClientCredentialsMethod::BasicAuth,
         )
         .await?;
 

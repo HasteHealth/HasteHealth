@@ -368,6 +368,12 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
         .collect())
 }
 
+#[derive(PartialEq, Eq)]
+pub enum ClientCredentialsMethod {
+    BasicAuth,
+    Body,
+}
+
 pub async fn client_credentials_to_token_response<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -378,12 +384,21 @@ pub async fn client_credentials_to_token_response<
     project: &ProjectId,
     user_agent: &Option<TypedHeader<UserAgent>>,
     token_body: &schemas::token_body::OAuth2TokenBody,
+    method: ClientCredentialsMethod,
 ) -> Result<TokenResponse, OIDCError> {
     let client_id = &token_body.client_id;
     let client_app =
         find_client_app(state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
     verify_client(&client_app, &token_body)?;
+
+    // Allow basic auth if client app allows grant.
+    if method == ClientCredentialsMethod::BasicAuth {
+        validate_client_grant_type(
+            &client_app,
+            &ClientapplicationGrantType::Client_credentials(None),
+        )?;
+    }
 
     let client_app_scopes = client_app
         .scope
@@ -458,6 +473,7 @@ pub async fn token<
                 &project,
                 &user_agent,
                 &token_body,
+                ClientCredentialsMethod::Body,
             )
             .await?;
 
