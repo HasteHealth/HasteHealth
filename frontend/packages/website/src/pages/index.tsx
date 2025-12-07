@@ -66,13 +66,12 @@ function CarouselCard(
 }
 
 function BorderBlock() {
-  return undefined;
-  // return (
-  //   <div
-  //     style={{ width: "calc(100vw - 1.1rem)" }}
-  //     className="border border-dashed border-orange-200 w-screen absolute left-0 -mt-6"
-  //   />
-  // );
+  return (
+    <div
+      style={{ width: "calc(100vw - 1.1rem)" }}
+      className="border border-dashed border-orange-100 w-screen absolute left-0 -mt-6"
+    />
+  );
 }
 
 export default function Home(): ReactNode {
@@ -83,7 +82,7 @@ export default function Home(): ReactNode {
       description="Description will go into a meta tag in <head />"
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
-      <div className="container mx-auto px-4 border-y-0 border-dashed border-x border-orange-200">
+      <div className="container mx-auto px-4 border-y-0 border-dashed border-x border-orange-100">
         <HomepageHeader />
         <main className="mt-12 z-1 text-orange-950">
           <div id="tw-scope" className="mt-4">

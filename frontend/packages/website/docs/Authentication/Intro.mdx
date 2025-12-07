@@ -4,7 +4,201 @@ title: Intro
 sidebar_position: 1
 tags:
   - authentication
+  - authorization
+  - oauth2
   - oidc
+  - security
 ---
 
 # Intro
+
+Haste Health provides a comprehensive authentication and authorization system built on industry standards including OAuth 2.0, OpenID Connect (OIDC), and SMART on FHIR. This ensures secure access to healthcare data while maintaining compliance with healthcare regulations.
+
+## Overview
+
+Haste Health's authentication system supports multiple authentication methods and authorization flows to accommodate different application types and use cases:
+
+- **User Authentication** - OpenID Connect for web and mobile applications
+- **Machine-to-Machine** - OAuth 2.0 Client Credentials for backend services
+- **Healthcare-Specific** - SMART on FHIR for EHR integrations
+- **Federated Identity** - Single Sign-On (SSO) with external identity providers
+- **Fine-Grained Authorization** - Resource-level access control with scopes
+
+## Authentication Methods
+
+### 1. Authorization Code Flow
+
+**Best for**: Web applications, mobile apps, single-page applications (SPAs)
+
+User-centric authentication where users log in and authorize access. The application receives an authorization code that's exchanged for tokens.
+
+**Features**:
+- User authentication with login
+- User consent for permissions
+- Proof Key for Code Exchange (PKCE) for security
+- Refresh token support for long-lived access
+
+**Flow**:
+```
+User → Login → Consent → Authorization Code → Access Token + ID Token
+```
+
+Learn more: [Authorization Code Flow](/docs/Authentication/OpenID%20Connect/Authorization%20Code)
+
+### 2. Client Credentials Flow
+
+**Best for**: Backend services, CLI tools, system integrations
+
+Machine-to-machine authentication without user involvement. The application authenticates using client credentials.
+
+**Features**:
+- Direct authentication with client ID and secret
+- No user interaction required
+- System-level access
+- Ideal for automated processes
+
+**Flow**:
+```
+Client ID + Client Secret → Access Token
+```
+
+Learn more: [Client Credentials Flow](/docs/Authentication/OpenID%20Connect/Client%20Credentials)
+
+### 3. Refresh Token Flow
+
+**Best for**: Maintaining long-lived access
+
+Obtain new access tokens without requiring user re-authentication.
+
+**Features**:
+- Extends session lifetime
+- Works with Authorization Code or Client Credentials
+- Secure token rotation
+- Offline access capability
+
+**Flow**:
+```
+Refresh Token → New Access Token
+```
+
+Learn more: [Refresh Token Flow](/docs/Authentication/OpenID%20Connect/Refresh%20Token)
+
+## SMART on FHIR
+
+SMART (Substitutable Medical Applications, Reusable Technologies) on FHIR extends OAuth 2.0 for healthcare applications.
+
+**Key Features**:
+- **Launch Contexts** - EHR launch with patient/encounter context
+- **Healthcare Scopes** - Resource-level permissions (e.g., `patient/Observation.read`)
+- **User Identity** - `fhirUser` scope for identifying clinicians
+- **Standards Compliance** - Follows HL7 SMART App Launch specification
+
+**Launch Types**:
+- **EHR Launch** - Application launched from within an EHR
+- **Standalone Launch** - Application launched independently
+
+Learn more about our support for [SMART on FHIR](/docs/Authentication/SMART%20on%20FHIR)
+
+## Federated Login
+
+Connect external identity providers for Single Sign-On (SSO):
+
+Learn more about our support for [Federated Login](/docs/Authentication/Federated%20Login)
+
+## Getting Started
+
+### Quick Start Guide
+
+1. **Register a Client Application**
+   see [Client Registration](/docs/Authentication/Client%20Registration)
+
+2. **Configure OAuth Settings**
+   - Discovery URI: `https://api.haste.health/.well-known/openid-configuration/w/{tenant}/{project}`
+   - Authorization Endpoint: `https://api.haste.health/w/{tenant}/api/v1/{project}/oauth/authorize`
+   - Token Endpoint: `https://api.haste.health/w/{tenant}/api/v1/{project}/oauth/token`
+
+3. **Implement Authentication Flow**
+   - See [Authorization Code Flow](/docs/Authentication/OpenID%20Connect/authorization-code) for web apps
+   - See [Client Credentials Flow](/docs/Authentication/OpenID%20Connect/client-credentials) for backend services
+
+
+## Discovery & Configuration
+
+### OpenID Connect Discovery
+
+Haste Health provides an OpenID Connect discovery document at:
+
+```
+https://api.haste.health/.well-known/openid-configuration/w/{tenant}/{project}
+```
+
+**Response includes**:
+- `issuer` - Token issuer identifier
+- `authorization_endpoint` - Authorization URL
+- `token_endpoint` - Token exchange URL
+- `jwks_uri` - Public keys for token verification
+- `scopes_supported` - Available OAuth scopes
+- `response_types_supported` - Supported OAuth response types
+- `grant_types_supported` - Supported OAuth grant types
+
+**Example**:
+```json
+{
+  "issuer": "https://api.haste.health",
+  "authorization_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oauth/authorize",
+  "token_endpoint": "https://api.haste.health/w/{tenant}/{project}/api/v1/oauth/token",
+  "jwks_uri": "https://api.haste.health/w/{tenant}/{project}/api/v1/oauth/jwks",
+  "scopes_supported": ["openid", "profile", "email", "offline_access"],
+  "response_types_supported": ["code", "token", "id_token"],
+  "grant_types_supported": ["authorization_code", "client_credentials", "refresh_token"]
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `invalid_client` | Client ID or secret incorrect | Verify ClientApplication credentials |
+| `invalid_grant` | Authorization code expired or used | Generate new authorization code |
+| `invalid_scope` | Requested scope not allowed | Check ClientApplication scope configuration |
+| `unauthorized_client` | Grant type not allowed | Update ClientApplication grant types |
+| `access_denied` | User denied consent | User must approve requested permissions |
+| `invalid_request` | Missing required parameter | Check OAuth request parameters |
+
+### Getting Help
+
+- Review detailed documentation for specific flows
+- Check application logs and error messages
+- Verify ClientApplication configuration
+- Test with curl or Postman to isolate issues
+- Contact Haste Health support with request details
+- Open an issue on our [GitHub repository](https://github.com/HasteHealth/HasteHealth/issues)
+
+## Documentation Index
+
+### Core Concepts
+- [Client Registration](/docs/Authentication/Client%20Registration) - Register OAuth clients
+- [Scopes](/docs/Authentication/Scopes) - OAuth scope configuration
+
+### Authentication Flows
+- [Authorization Code](/docs/Authentication/OpenID%20Connect/authorization-code) - User authentication flow
+- [Client Credentials](/docs/Authentication/OpenID%20Connect/client-credentials) - Machine-to-machine auth
+- [Refresh Token](/docs/Authentication/OpenID%20Connect/refresh-token) - Token refresh flow
+
+### Advanced Topics
+- [SMART on FHIR](/docs/Authentication/smart-on-fhir) - Healthcare-specific authorization
+- [Federated Login](/docs/Authentication/Federated%20Login) - External identity provider integration
+- [Access Control](/docs/Authorization/Access%20Control) - Fine-grained permissions
+
+## Standards & Specifications
+
+Haste Health authentication implements:
+
+- [OAuth 2.0 (RFC 6749)](https://datatracker.ietf.org/doc/html/rfc6749)
+- [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)
+- [OAuth 2.0 Security Best Practices](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics)
+- [SMART App Launch Framework](https://hl7.org/fhir/smart-app-launch/)
+- [PKCE (RFC 7636)](https://datatracker.ietf.org/doc/html/rfc7636)
+- [JWT (RFC 7519)](https://datatracker.ietf.org/doc/html/rfc7519)
