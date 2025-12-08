@@ -380,10 +380,10 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/Github">
+                      <Link to="/docs/Integration/Identity%20providers/haste-health-integration">
                         <img
-                          src="/img/github.svg"
-                          alt="Github Logo"
+                          src="/img/logo.svg"
+                          alt="Haste Health Logo"
                           className="h-32 object-contain"
                         />
                       </Link>

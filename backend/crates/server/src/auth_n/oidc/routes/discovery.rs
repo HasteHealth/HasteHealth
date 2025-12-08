@@ -313,11 +313,7 @@ pub async fn openid_configuration<
         &(AUTH_NESTED_PATH.to_string() + token::TokenPath.to_string().as_str()),
     );
 
-    let jwks_path = construct_oidc_route(
-        &tenant,
-        &project,
-        &(AUTH_NESTED_PATH.to_string() + jwks::JWKSPath.to_string().as_str()),
-    );
+    let jwks_path = construct_oidc_route(&tenant, &project, &(jwks::JWKSPath.to_string().as_str()));
 
     let oidc_response = WellKnownDiscoveryDocument {
         issuer: api_url.to_string(),
