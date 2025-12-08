@@ -76,6 +76,47 @@ pub mod HasteHealthListRefreshTokens {
         }
     }
 }
+pub mod TenantEndpointInformation {
+    use super::*;
+    pub const CODE: &str = "endpoints";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[parameter_rename = "fhir-r4-base-url"]
+        pub fhir_r4_base_url: FHIRUri,
+        #[parameter_rename = "fhir-r4-capabilities-url"]
+        pub fhir_r4_capabilities_url: FHIRUri,
+        #[parameter_rename = "oidc-discovery-url"]
+        pub oidc_discovery_url: FHIRUri,
+        #[parameter_rename = "oidc-token-endpoint"]
+        pub oidc_token_endpoint: FHIRUri,
+        #[parameter_rename = "oidc-authorize-endpoint"]
+        pub oidc_authorize_endpoint: FHIRUri,
+        #[parameter_rename = "oidc-jwks-endpoint"]
+        pub oidc_jwks_endpoint: FHIRUri,
+        #[parameter_rename = "mcp-endpoint"]
+        pub mcp_endpoint: FHIRUri,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 pub mod HasteHealthDeleteScope {
     use super::*;
     pub const CODE: &str = "delete-scope";

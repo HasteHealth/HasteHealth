@@ -489,6 +489,7 @@ impl<
                             transaction_repo.clone(),
                             state.search.clone(),
                             state.terminology.clone(),
+                            state.config.clone(),
                         ));
 
                         Ok(process_transaction_bundle(
@@ -531,6 +532,7 @@ impl<
                         state.repo.clone(),
                         state.search.clone(),
                         state.terminology.clone(),
+                        state.config.clone(),
                     ));
 
                     Ok(Some(FHIRResponse::Batch(FHIRBatchResponse {

@@ -271,20 +271,11 @@ pub async fn oauth_protected_resource<
     Ok(Json(oauth_protected_resource))
 }
 
-pub async fn openid_configuration<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
-    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
-    let api_url_string = state
-        .config
-        .get(crate::ServerEnvironmentVariables::APIURI)
-        .unwrap_or_default();
-
+pub fn create_oidc_discovery_document(
+    tenant: &TenantId,
+    project: &ProjectId,
+    api_url_string: &str,
+) -> Result<WellKnownDiscoveryDocument, OIDCError> {
     if api_url_string.is_empty() {
         return Err(OIDCError::new(
             OIDCErrorCode::ServerError,
@@ -339,5 +330,26 @@ pub async fn openid_configuration<
         subject_types_supported: vec!["public".to_string()],
     };
 
-    Ok(Json(oidc_response))
+    Ok(oidc_response)
+}
+
+pub async fn openid_configuration<
+    Repo: Repository + Send + Sync,
+    Search: SearchEngine + Send + Sync,
+    Terminology: FHIRTerminology + Send + Sync,
+>(
+    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
+    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
+    State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
+) -> Result<Json<WellKnownDiscoveryDocument>, OIDCError> {
+    let api_url_string = state
+        .config
+        .get(crate::ServerEnvironmentVariables::APIURI)
+        .unwrap_or_default();
+
+    Ok(Json(create_oidc_discovery_document(
+        &tenant,
+        &project,
+        &api_url_string,
+    )?))
 }
