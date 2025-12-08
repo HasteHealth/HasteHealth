@@ -156,6 +156,93 @@ export namespace HasteHealthEncrypt {
     ],
   } as fhirTypes.OperationDefinition);
 }
+export namespace TenantEndpointInformation {
+  export type Input = Record<string, never>;
+  export type Output = {
+    "fhir-r4-base-url": fhirTypes.uri;
+    "fhir-r4-capabilities-url": fhirTypes.uri;
+    "oidc-discovery-url": fhirTypes.uri;
+    "oidc-token-endpoint": fhirTypes.uri;
+    "oidc-authorize-endpoint": fhirTypes.uri;
+    "oidc-jwks-endpoint": fhirTypes.uri;
+    "mcp-endpoint": fhirTypes.uri;
+  };
+  export type IOp = IOperation<Input, Output>;
+  export const Op: IOp = new Operation<Input, Output>({
+    resourceType: "OperationDefinition",
+    id: "tenant-endpoint-information",
+    url: "https://haste.health/OperationDefinition/tenant-endpoint-information",
+    version: "4.0.1",
+    name: "Current Tenant Endpoint Information",
+    status: "draft",
+    kind: "operation",
+    date: "2023-11-16T09:29:23+11:00",
+    publisher: "HasteHealth",
+    description: "Get tenant endpoint information for the current tenant.",
+    code: "endpoints",
+    system: true,
+    type: false,
+    instance: false,
+    parameter: [
+      {
+        name: "fhir-r4-base-url",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "FHIR R4 Endpoint URL.",
+        type: "uri",
+      },
+      {
+        name: "fhir-r4-capabilities-url",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "FHIR R4 Capabilities URL.",
+        type: "uri",
+      },
+      {
+        name: "oidc-discovery-url",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "OIDC Discovery URL.",
+        type: "uri",
+      },
+      {
+        name: "oidc-token-endpoint",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "OIDC Token Endpoint.",
+        type: "uri",
+      },
+      {
+        name: "oidc-authorize-endpoint",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "OIDC Authorize Endpoint.",
+        type: "uri",
+      },
+      {
+        name: "oidc-jwks-endpoint",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "OIDC JWKS Endpoint.",
+        type: "uri",
+      },
+      {
+        name: "mcp-endpoint",
+        use: "out",
+        min: 1,
+        max: "1",
+        documentation: "Model context protocol endpoint.",
+        type: "uri",
+      },
+    ],
+  } as fhirTypes.OperationDefinition);
+}
 export namespace HasteHealthEvaluatePolicy {
   export type Input = { user?: fhirTypes.Reference; request: fhirTypes.Bundle };
   export type Output = fhirTypes.OperationOutcome;

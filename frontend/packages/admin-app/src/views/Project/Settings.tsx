@@ -1,7 +1,6 @@
 import { useAtomValue } from "jotai";
 import React from "react";
 
-import { deriveHasteHealthVersionedURL } from "@haste-health/client/http";
 import {
   Loading,
   Table,
@@ -15,10 +14,12 @@ import {
   HasteHealthDeleteScope,
   HasteHealthListRefreshTokens,
   HasteHealthListScopes,
+  TenantEndpointInformation,
 } from "@haste-health/generated-ops/lib/r4/ops";
 import { IDTokenPayload } from "@haste-health/jwt/types";
 
 import { getClient } from "../../db/client";
+import { getEndpointMetadata } from "../../db/endpointMeta";
 
 function copytoClipboard(token: string | undefined) {
   if (token) {
@@ -197,8 +198,6 @@ function RefreshTokens() {
     };
   }, [hasteHealth]);
 
-  console.log("Refresh Tokens:", refreshTokens);
-
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-semibold underline">Active Refresh Tokens</h2>
@@ -295,8 +294,12 @@ function UserData({ user }: Readonly<SettingProps>) {
   );
 }
 
-function FHIRSettings() {
+function FHIRSettings({
+  endpointMetadata,
+}: Readonly<{ endpointMetadata: TenantEndpointInformation.Output }>) {
   const hasteHealth = useHasteHealth();
+
+  // deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4)
   return (
     <div className="space-y-2">
       <h3 className="text-md font-semibold underline">FHIR</h3>
@@ -304,22 +307,13 @@ function FHIRSettings() {
         <div className="flex flex-col">
           <Copyable
             label="R4 Root"
-            value={
-              hasteHealth.rootURL
-                ? deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4)
-                : ""
-            }
+            value={endpointMetadata["fhir-r4-base-url"]}
           />
         </div>
         <div className="flex flex-col">
           <Copyable
             label="R4 Metdata"
-            value={
-              hasteHealth.rootURL
-                ? deriveHasteHealthVersionedURL(hasteHealth.rootURL, R4) +
-                  "/metadata"
-                : ""
-            }
+            value={endpointMetadata["fhir-r4-capabilities-url"]}
           />
         </div>
       </div>
@@ -327,25 +321,30 @@ function FHIRSettings() {
   );
 }
 
-function OpenIDConnectSettings() {
+function OpenIDConnectSettings({
+  endpointMetadata,
+}: Readonly<{ endpointMetadata: TenantEndpointInformation.Output }>) {
   const hasteHealth = useHasteHealth();
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold underline">OpenID Connect</h3>
       <div className=" space-y-2">
         <div className="flex flex-col">
-          <Copyable label="Discovery" value={hasteHealth.well_known_uri} />
+          <Copyable
+            label="Discovery"
+            value={endpointMetadata["oidc-discovery-url"]}
+          />
         </div>
         <div className="flex flex-col">
           <Copyable
             label="Token"
-            value={hasteHealth.well_known?.token_endpoint}
+            value={endpointMetadata["oidc-token-endpoint"]}
           />
         </div>
         <div className="flex flex-col">
           <Copyable
             label="Authorization"
-            value={hasteHealth.well_known?.authorization_endpoint}
+            value={endpointMetadata["oidc-authorize-endpoint"]}
           />
         </div>
       </div>
@@ -354,6 +353,8 @@ function OpenIDConnectSettings() {
 }
 
 function SettingDisplay({ user }: Readonly<SettingProps>) {
+  const endpointMetadata = useAtomValue(getEndpointMetadata);
+
   return (
     <div className="flex flex-col flex-1 space-y-4 w-full">
       <h2 className="text-2xl font-semibold mb-0">Settings</h2>
@@ -363,10 +364,10 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
           <UserData user={user} />
         </Card>
         <Card>
-          <FHIRSettings />
+          <FHIRSettings endpointMetadata={endpointMetadata} />
         </Card>
         <Card>
-          <OpenIDConnectSettings />
+          <OpenIDConnectSettings endpointMetadata={endpointMetadata} />
         </Card>
         <Card>
           <Scopes />

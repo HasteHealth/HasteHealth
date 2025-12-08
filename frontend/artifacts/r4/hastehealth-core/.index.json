@@ -18,6 +18,10 @@
       "resourceType": "OperationDefinition"
     },
     {
+      "filename": "definitions/haste-health/operation/endpoint_meta.json",
+      "resourceType": "OperationDefinition"
+    },
+    {
       "filename": "definitions/haste-health/operation/evaluate-policy.json",
       "resourceType": "OperationDefinition"
     },
@@ -336,6 +340,10 @@
     {
       "filename": "definitions/haste-health/terminology/identity-provider/status.json",
       "resourceType": "ValueSet"
+    },
+    {
+      "filename": "definitions/haste-health/terminology/resource_types.json",
+      "resourceType": "CodeSystem"
     },
     {
       "filename": "definitions/haste-health/terminology/supportedFhirVersion.json",

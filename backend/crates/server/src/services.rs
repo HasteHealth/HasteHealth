@@ -93,6 +93,7 @@ impl<
                     tx_repo,
                     self.search.clone(),
                     self.terminology.clone(),
+                    self.config.clone(),
                 ))),
                 config: self.config.clone(),
             }
@@ -169,9 +170,15 @@ pub async fn create_services(
             repo.clone(),
             search_engine.clone(),
             terminology.clone(),
+            config.clone(),
         )
     } else {
-        ServerClientConfig::new(repo.clone(), search_engine.clone(), terminology.clone())
+        ServerClientConfig::new(
+            repo.clone(),
+            search_engine.clone(),
+            terminology.clone(),
+            config.clone(),
+        )
     }));
 
     let shared_state = Arc::new(AppState {

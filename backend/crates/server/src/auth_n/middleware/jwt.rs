@@ -13,6 +13,8 @@ use axum::{
     response::{IntoResponse as _, Response},
 };
 use axum_extra::extract::Cached;
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
@@ -38,6 +40,33 @@ fn validate_jwt(token: &str) -> Result<UserTokenClaims, StatusCode> {
     Ok(result.claims)
 }
 
+pub fn derive_well_known_url(
+    api_url: &str,
+    tenant: &TenantId,
+    project: &ProjectId,
+) -> Result<Url, OperationOutcomeError> {
+    if let Ok(api_url) = Url::parse(&api_url) {
+        api_url
+            .join(&format!(
+                "/.well-known/openid-configuration/w/{}/{}",
+                tenant.as_ref(),
+                project.as_ref(),
+            ))
+            .map_err(|e| {
+                tracing::error!("Failed to derive well-known URL: {:?}", e);
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid API URL configured".to_string(),
+                )
+            })
+    } else {
+        Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid API URL configured".to_string(),
+        ))
+    }
+}
+
 fn invalid_jwt_response(
     api_url: &str,
     tenant: &TenantId,
@@ -48,15 +77,8 @@ fn invalid_jwt_response(
         "Invalid JWT token provided in request sending '{}'",
         status_code
     );
-    let Ok(api_url) = Url::parse(&api_url) else {
-        return (status_code).into_response();
-    };
 
-    let Ok(well_known_url) = api_url.join(&format!(
-        "/.well-known/openid-configuration/w/{}/{}",
-        tenant.as_ref(),
-        project.as_ref(),
-    )) else {
+    let Ok(well_known_url) = derive_well_known_url(api_url, tenant, project) else {
         return (status_code).into_response();
     };
 

@@ -39,6 +39,7 @@ pub async fn setup_transaction_context<
                     repo: transaction_client.clone(),
                     search: state.search.clone(),
                     terminology: state.terminology.clone(),
+                    config: state.config.clone(),
                 }))
             }
         }

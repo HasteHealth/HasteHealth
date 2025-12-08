@@ -1,10 +1,14 @@
-use crate::fhir_client::{
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+use crate::{
+    ServerEnvironmentVariables,
+    fhir_client::{
+        middleware::{
+            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+            ServerMiddlewareState,
+        },
+        utilities::request_to_resource_type,
     },
-    utilities::request_to_resource_type,
 };
+use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
     middleware::{Middleware, MiddlewareChain},
@@ -137,6 +141,7 @@ struct ClientState<
     repo: Arc<Repo>,
     search: Arc<Search>,
     terminology: Arc<Terminology>,
+    config: Arc<dyn Config<ServerEnvironmentVariables>>,
 }
 
 pub struct Route<
@@ -266,6 +271,7 @@ pub struct ServerClientConfig<
     pub search: Arc<Search>,
     pub terminology: Arc<Terminology>,
     pub mutate_artifacts: bool,
+    pub config: Arc<dyn Config<ServerEnvironmentVariables>>,
 }
 
 impl<
@@ -274,12 +280,18 @@ impl<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 > ServerClientConfig<Repo, Search, Terminology>
 {
-    pub fn new(repo: Arc<Repo>, search: Arc<Search>, terminology: Arc<Terminology>) -> Self {
+    pub fn new(
+        repo: Arc<Repo>,
+        search: Arc<Search>,
+        terminology: Arc<Terminology>,
+        config: Arc<dyn Config<ServerEnvironmentVariables>>,
+    ) -> Self {
         ServerClientConfig {
             repo,
             search,
             terminology,
             mutate_artifacts: false,
+            config,
         }
     }
 
@@ -287,11 +299,13 @@ impl<
         repo: Arc<Repo>,
         search: Arc<Search>,
         terminology: Arc<Terminology>,
+        config: Arc<dyn Config<ServerEnvironmentVariables>>,
     ) -> Self {
         Self {
             repo,
             search,
             terminology,
+            config,
             mutate_artifacts: true,
         }
     }
@@ -417,6 +431,7 @@ impl<
                 repo: config.repo,
                 search: config.search,
                 terminology: config.terminology,
+                config: config.config,
             }),
             middleware: Middleware::new(vec![
                 Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
