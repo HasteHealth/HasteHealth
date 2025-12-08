@@ -389,7 +389,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4 shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/Keycloak">
+                      <Link to="/docs/Integration/Identity%20providers/keycloak-integration">
                         <img
                           src="/img/keycloak.png"
                           alt="Keycloak Logo"
