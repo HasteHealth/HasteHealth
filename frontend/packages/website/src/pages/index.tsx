@@ -353,7 +353,7 @@ export default function Home(): ReactNode {
                 <div className="order-2 md:order-1 p-6 rounded-lg ">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                     <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/Okta">
+                      <Link to="/docs/Integration/Identity%20providers/okta-integration">
                         <img
                           src="/img/okta.svg"
                           alt="Okta Logo"
@@ -398,7 +398,7 @@ export default function Home(): ReactNode {
                       </Link>
                     </div>
                     <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                      <Link to="/docs/Integration/Identity%20providers/GCP">
+                      <Link to="/docs/Integration/Identity%20providers/gcp-integration">
                         <img
                           src="/img/gcp.png"
                           alt="GCP Logo"
