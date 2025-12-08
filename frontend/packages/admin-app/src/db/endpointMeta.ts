@@ -1,6 +1,4 @@
-import deepEqual from "fast-deep-equal";
 import { atom } from "jotai";
-import { atomFamily } from "jotai/utils";
 
 import { R4 } from "@haste-health/fhir-types/versions";
 import { TenantEndpointInformation } from "@haste-health/generated-ops/r4";
