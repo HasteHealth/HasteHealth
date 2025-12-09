@@ -1,8 +1,6 @@
 /// FHIR Access
 use crate::types::{FHIRMethod, SupportedFHIRVersions};
-use haste_fhir_client::request::{
-    FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
-};
+use haste_fhir_client::request::HistoryRequest;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_model::r4::sqlx::FHIRJson;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -17,12 +15,6 @@ pub struct ResourcePollingValue {
     pub resource: FHIRJson<Resource>,
     pub sequence: i64,
     pub fhir_method: FHIRMethod,
-}
-
-pub enum HistoryRequest<'a> {
-    System(&'a FHIRHistorySystemRequest),
-    Type(&'a FHIRHistoryTypeRequest),
-    Instance(&'a FHIRHistoryInstanceRequest),
 }
 
 #[derive(PartialEq, Eq)]
@@ -79,7 +71,7 @@ pub trait FHIRRepository: Sized {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        request: HistoryRequest,
+        request: &HistoryRequest,
     ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,

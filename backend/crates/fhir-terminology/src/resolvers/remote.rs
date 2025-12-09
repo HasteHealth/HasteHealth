@@ -1,10 +1,10 @@
 use dashmap::DashMap;
-use haste_fhir_client::request::FHIRSearchTypeRequest;
+use haste_fhir_client::request::{FHIRSearchTypeRequest, SearchRequest};
 use haste_fhir_client::url::{Parameter, ParsedParameter, ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::{SearchEngine, SearchRequest};
+use haste_fhir_search::SearchEngine;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
 use haste_repository::types::SupportedFHIRVersions::R4;
@@ -61,7 +61,7 @@ impl<Repo: Repository + Send + Sync + 'static, Search: SearchEngine + Send + Syn
                             &R4,
                             &TenantId::System,
                             &ProjectId::System,
-                            SearchRequest::TypeSearch(&FHIRSearchTypeRequest {
+                            &SearchRequest::Type(FHIRSearchTypeRequest {
                                 resource_type: resource_type.clone(),
                                 parameters: ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
                                     name: "url".to_string(),

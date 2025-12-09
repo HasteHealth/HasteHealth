@@ -7,7 +7,9 @@ use crate::fhir_client::{
 };
 use haste_fhir_client::{
     middleware::MiddlewareChain,
-    request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest},
+    request::{
+        FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, SearchRequest,
+    },
     url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
@@ -23,7 +25,7 @@ use haste_fhir_model::r4::generated::{
     types::{FHIRBoolean, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::{SearchEngine, SearchOptions, SearchRequest};
+use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
@@ -156,7 +158,7 @@ async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
             &SupportedFHIRVersions::R4,
             &TenantId::System,
             &ProjectId::System,
-            SearchRequest::TypeSearch(&sd_search),
+            &SearchRequest::Type(sd_search),
             Some(SearchOptions { count_limit: false }),
         )
         .await?;
@@ -197,7 +199,7 @@ async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
             &SupportedFHIRVersions::R4,
             &TenantId::System,
             &ProjectId::System,
-            SearchRequest::TypeSearch(&sp_search),
+            &SearchRequest::Type(sp_search),
             Some(SearchOptions { count_limit: false }),
         )
         .await?;

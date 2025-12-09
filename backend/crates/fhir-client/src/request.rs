@@ -143,33 +143,58 @@ pub struct FHIRTransactionRequest {
 }
 
 #[derive(Debug)]
+pub enum InvocationRequest {
+    Instance(FHIRInvokeInstanceRequest),
+    Type(FHIRInvokeTypeRequest),
+    System(FHIRInvokeSystemRequest),
+}
+
+#[derive(Debug)]
+pub enum HistoryRequest {
+    Instance(FHIRHistoryInstanceRequest),
+    Type(FHIRHistoryTypeRequest),
+    System(FHIRHistorySystemRequest),
+}
+
+#[derive(Debug)]
+pub enum SearchRequest {
+    Type(FHIRSearchTypeRequest),
+    System(FHIRSearchSystemRequest),
+}
+
+#[derive(Debug)]
+pub enum DeleteRequest {
+    Instance(FHIRDeleteInstanceRequest),
+    Type(FHIRDeleteTypeRequest),
+    System(FHIRDeleteSystemRequest),
+}
+
+#[derive(Debug)]
+pub enum UpdateRequest {
+    Instance(FHIRUpdateInstanceRequest),
+    Conditional(FHIRConditionalUpdateRequest),
+}
+
+#[derive(Debug)]
 pub enum FHIRRequest {
     Create(FHIRCreateRequest),
 
     Read(FHIRReadRequest),
     VersionRead(FHIRVersionReadRequest),
 
-    UpdateInstance(FHIRUpdateInstanceRequest),
-    ConditionalUpdate(FHIRConditionalUpdateRequest),
+    Update(UpdateRequest),
 
     Patch(FHIRPatchRequest),
 
-    DeleteInstance(FHIRDeleteInstanceRequest),
-    DeleteType(FHIRDeleteTypeRequest),
-    DeleteSystem(FHIRDeleteSystemRequest),
+    Delete(DeleteRequest),
 
     Capabilities,
 
-    SearchType(FHIRSearchTypeRequest),
-    SearchSystem(FHIRSearchSystemRequest),
+    Search(SearchRequest),
 
-    HistoryInstance(FHIRHistoryInstanceRequest),
-    HistoryType(FHIRHistoryTypeRequest),
-    HistorySystem(FHIRHistorySystemRequest),
+    History(HistoryRequest),
 
-    InvokeInstance(FHIRInvokeInstanceRequest),
-    InvokeType(FHIRInvokeTypeRequest),
-    InvokeSystem(FHIRInvokeSystemRequest),
+    Invocation(InvocationRequest),
 
     Batch(FHIRBatchRequest),
     Transaction(FHIRTransactionRequest),
@@ -253,6 +278,33 @@ pub struct FHIRTransactionResponse {
 }
 
 #[derive(Debug)]
+pub enum HistoryResponse {
+    Instance(FHIRHistoryInstanceResponse),
+    Type(FHIRHistoryTypeResponse),
+    System(FHIRHistorySystemResponse),
+}
+
+#[derive(Debug)]
+pub enum SearchResponse {
+    Type(FHIRSearchTypeResponse),
+    System(FHIRSearchSystemResponse),
+}
+
+#[derive(Debug)]
+pub enum DeleteResponse {
+    Instance(FHIRDeleteInstanceResponse),
+    Type(FHIRDeleteTypeResponse),
+    System(FHIRDeleteSystemResponse),
+}
+
+#[derive(Debug)]
+pub enum InvokeResponse {
+    Instance(FHIRInvokeInstanceResponse),
+    Type(FHIRInvokeTypeResponse),
+    System(FHIRInvokeSystemResponse),
+}
+
+#[derive(Debug)]
 pub enum FHIRResponse {
     Create(FHIRCreateResponse),
 
@@ -263,22 +315,15 @@ pub enum FHIRResponse {
 
     Patch(FHIRPatchResponse),
 
-    DeleteInstance(FHIRDeleteInstanceResponse),
-    DeleteType(FHIRDeleteTypeResponse),
-    DeleteSystem(FHIRDeleteSystemResponse),
+    Delete(DeleteResponse),
 
     Capabilities(FHIRCapabilitiesResponse),
 
-    SearchType(FHIRSearchTypeResponse),
-    SearchSystem(FHIRSearchSystemResponse),
+    Search(SearchResponse),
 
-    HistoryInstance(FHIRHistoryInstanceResponse),
-    HistoryType(FHIRHistoryTypeResponse),
-    HistorySystem(FHIRHistorySystemResponse),
+    History(HistoryResponse),
 
-    InvokeInstance(FHIRInvokeInstanceResponse),
-    InvokeType(FHIRInvokeTypeResponse),
-    InvokeSystem(FHIRInvokeSystemResponse),
+    Invoke(InvokeResponse),
 
     Batch(FHIRBatchResponse),
     Transaction(FHIRTransactionResponse),

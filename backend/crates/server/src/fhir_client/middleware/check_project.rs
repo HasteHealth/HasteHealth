@@ -96,10 +96,7 @@ impl<
         Box::pin(async move {
             if let Some(next) = next {
                 match &context.request {
-                    FHIRRequest::Read(_)
-                    | FHIRRequest::VersionRead(_)
-                    | FHIRRequest::SearchSystem(_)
-                    | FHIRRequest::SearchType(_) => {
+                    FHIRRequest::Read(_) | FHIRRequest::VersionRead(_) | FHIRRequest::Search(_) => {
                         context.ctx = Arc::new(ServerCTX::new(
                             context.ctx.tenant.clone(),
                             project_id,

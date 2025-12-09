@@ -12,6 +12,7 @@ use elasticsearch::{
         transport::{BuildError, SingleNodeConnectionPool, TransportBuilder},
     },
 };
+use haste_fhir_client::request::SearchRequest;
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, SearchParameter},
     terminology::IssueType,
@@ -208,12 +209,12 @@ fn unique_index_id(
 }
 
 impl SearchEngine for ElasticSearchEngine {
-    async fn search<'a>(
+    async fn search(
         &self,
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
         project: &ProjectId,
-        search_request: super::SearchRequest<'a>,
+        search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(tenant, project, &search_request, &options)?;
