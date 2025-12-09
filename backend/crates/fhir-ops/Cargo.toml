@@ -1,8 +1,8 @@
 [package]
 name = "haste-fhir-ops"
+description = "Haste Health FHIR operations library."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Haste Health FHIR operations library."
 license = { workspace = true }
 homepage = { workspace = true }
 
@@ -14,3 +14,4 @@ haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-ops-derive = { path = "../fhir-ops-derive", version = "0.*", optional = true }
 haste-jwt = { path = "../jwt", version = "0.*" }
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }

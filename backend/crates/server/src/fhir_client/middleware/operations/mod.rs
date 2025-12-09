@@ -55,6 +55,7 @@ impl<
             Box::new(custom_operations::delete_approved_scope()),
             Box::new(custom_operations::delete_refresh_token()),
             Box::new(custom_operations::endpoint_metadata()),
+            Box::new(custom_operations::idp_registration_info()),
         ];
 
         Self(Arc::new(executors))
@@ -135,7 +136,7 @@ impl<
                 && let Some(op_executor) = executors.find_operation(code)
             {
                 let output: Resource = match &context.request {
-                    FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
+                    FHIRRequest::Invocation(request) => {
                         let output = op_executor
                             .execute(
                                 ServerOperationContext {
@@ -144,35 +145,7 @@ impl<
                                 },
                                 context.ctx.tenant.clone(),
                                 context.ctx.project.clone(),
-                                instance_request.parameters.clone(),
-                            )
-                            .await?;
-                        Ok(Resource::from(output))
-                    }
-                    FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
-                        let output = op_executor
-                            .execute(
-                                ServerOperationContext {
-                                    state,
-                                    ctx: context.ctx.clone(),
-                                },
-                                context.ctx.tenant.clone(),
-                                context.ctx.project.clone(),
-                                type_request.parameters.clone(),
-                            )
-                            .await?;
-                        Ok(Resource::from(output))
-                    }
-                    FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
-                        let output = op_executor
-                            .execute(
-                                ServerOperationContext {
-                                    state,
-                                    ctx: context.ctx.clone(),
-                                },
-                                context.ctx.tenant.clone(),
-                                context.ctx.project.clone(),
-                                system_request.parameters.clone(),
+                                &request,
                             )
                             .await?;
                         Ok(Resource::from(output))

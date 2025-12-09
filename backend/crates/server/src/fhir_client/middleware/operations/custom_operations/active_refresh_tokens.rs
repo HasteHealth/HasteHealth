@@ -1,4 +1,5 @@
 use crate::fhir_client::middleware::operations::ServerOperationContext;
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::HasteHealthListRefreshTokens;
 use haste_fhir_model::r4::{
     datetime::parse_datetime,
@@ -44,6 +45,7 @@ pub fn active_refresh_tokens<
             |context: ServerOperationContext<Repo, Search, Terminology>,
              tenant: TenantId,
              project: ProjectId,
+             _request: &InvocationRequest,
              _input: HasteHealthListRefreshTokens::Input| {
                 Box::pin(async move {
                     let active_refresh_tokens = ProjectAuthAdmin::search(

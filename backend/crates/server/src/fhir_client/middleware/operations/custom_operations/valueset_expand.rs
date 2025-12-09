@@ -1,4 +1,5 @@
 use crate::fhir_client::middleware::operations::ServerOperationContext;
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::ValueSetExpand;
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_search::SearchEngine;
@@ -21,6 +22,7 @@ pub fn valueset_expand<
             |context: ServerOperationContext<Repo, Search, Terminology>,
              _tenant: TenantId,
              _project: ProjectId,
+             _request: &InvocationRequest,
              input: ValueSetExpand::Input| {
                 Box::pin(async move {
                     let output = context.state.terminology.expand(input).await?;

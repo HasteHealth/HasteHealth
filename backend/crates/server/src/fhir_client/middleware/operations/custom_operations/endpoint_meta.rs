@@ -6,6 +6,7 @@ use crate::{
     },
     fhir_client::middleware::operations::ServerOperationContext,
 };
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::TenantEndpointInformation;
 use haste_fhir_model::r4::generated::{terminology::IssueType, types::FHIRUri};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -31,6 +32,7 @@ pub fn endpoint_metadata<
             |context: ServerOperationContext<Repo, Search, Terminology>,
              tenant: TenantId,
              project: ProjectId,
+             _request: &InvocationRequest,
              _input: TenantEndpointInformation::Input| {
                 Box::pin(async move {
                     let api_url_string = context
