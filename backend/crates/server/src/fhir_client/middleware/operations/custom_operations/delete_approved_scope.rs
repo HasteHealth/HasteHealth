@@ -1,4 +1,5 @@
 use crate::fhir_client::middleware::operations::ServerOperationContext;
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::HasteHealthDeleteScope;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue},
@@ -31,6 +32,7 @@ pub fn delete_approved_scope<
             |context: ServerOperationContext<Repo, Search, Terminology>,
              tenant: TenantId,
              project: ProjectId,
+             _request: &InvocationRequest,
              input: HasteHealthDeleteScope::Input| {
                 Box::pin(async move {
                     let client_id = input.client_id.value.ok_or_else(|| {

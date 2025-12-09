@@ -1,4 +1,5 @@
 use crate::fhir_client::middleware::operations::ServerOperationContext;
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::ProjectInformation;
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType},
@@ -26,6 +27,7 @@ pub fn project_information<
             |context: ServerOperationContext<Repo, Search, Terminology>,
              tenant: TenantId,
              project: ProjectId,
+             _request: &InvocationRequest,
              _input: ProjectInformation::Input| {
                 Box::pin(async move {
                     let output = context

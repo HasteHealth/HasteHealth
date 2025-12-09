@@ -3,6 +3,7 @@ mod approved_scopes;
 mod delete_approved_scope;
 mod delete_refresh_token;
 mod endpoint_meta;
+mod idp_info;
 mod project_information;
 mod valueset_expand;
 
@@ -11,5 +12,6 @@ pub use approved_scopes::*;
 pub use delete_approved_scope::*;
 pub use delete_refresh_token::*;
 pub use endpoint_meta::*;
+pub use idp_info::*;
 pub use project_information::*;
 pub use valueset_expand::*;

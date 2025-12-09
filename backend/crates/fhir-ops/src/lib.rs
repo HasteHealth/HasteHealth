@@ -1,5 +1,6 @@
 use std::{pin::Pin, sync::Arc};
 
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_model::r4::generated::resources::{Parameters, ParametersParameter, Resource};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
@@ -32,13 +33,13 @@ impl<
 }
 
 pub trait OperationInvocation<CTX: Send>: Send + Sync {
-    fn execute(
+    fn execute<'a>(
         &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
-        input: Parameters,
-    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>>;
+        request: &'a InvocationRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a>>;
     fn code<'a>(&'a self) -> &'a str;
 }
 
@@ -57,6 +58,7 @@ pub struct OperationExecutor<
                     CTX,
                     TenantId,
                     ProjectId,
+                    &InvocationRequest,
                     I,
                 )
                     -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
@@ -81,6 +83,7 @@ impl<
                     CTX,
                     TenantId,
                     ProjectId,
+                    &InvocationRequest,
                     I,
                 )
                     -> Pin<Box<dyn Future<Output = Result<O, OperationOutcomeError>> + Send>>
@@ -108,18 +111,24 @@ impl<
         + 'static,
 > OperationInvocation<CTX> for OperationExecutor<CTX, I, O>
 {
-    fn execute(
+    fn execute<'a>(
         &self,
         ctx: CTX,
         tenant: TenantId,
         project: ProjectId,
-        input: Parameters,
-    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>> {
+        request: &'a InvocationRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send + 'a>> {
         let executor = self.executor.clone();
         Box::pin(async move {
-            let input = I::try_from(input.parameter.unwrap_or_default())?;
+            let parameters = match request {
+                InvocationRequest::Instance(instance_request) => &instance_request.parameters,
+                InvocationRequest::Type(type_request) => &type_request.parameters,
+                InvocationRequest::System(system_request) => &system_request.parameters,
+            };
 
-            let output = (executor)(ctx, tenant, project, input).await?;
+            let input = I::try_from(parameters.parameter.clone().unwrap_or_default())?;
+
+            let output = (executor)(ctx, tenant, project, request, input).await?;
 
             Ok(output.into())
         })
