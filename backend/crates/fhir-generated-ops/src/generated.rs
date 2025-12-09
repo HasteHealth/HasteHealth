@@ -117,6 +117,49 @@ pub mod TenantEndpointInformation {
         }
     }
 }
+pub mod HasteHealthIdpRegistrationInfo {
+    use super::*;
+    pub const CODE: &str = "registration-info";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {}
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct OutputInformation {
+        pub name: FHIRString,
+        pub value: FHIRString,
+    }
+    impl From<OutputInformation> for Resource {
+        fn from(value: OutputInformation) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Output {
+        #[parameter_nested]
+        pub information: Option<Vec<OutputInformation>>,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+}
 pub mod HasteHealthDeleteScope {
     use super::*;
     pub const CODE: &str = "delete-scope";

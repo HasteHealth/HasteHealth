@@ -7,7 +7,9 @@ use crate::fhir_client::{
 };
 use haste_fhir_client::{
     middleware::MiddlewareChain,
-    request::{FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse},
+    request::{
+        FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse, InvocationRequest, InvokeResponse,
+    },
 };
 use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -94,9 +96,15 @@ impl<
 
 fn get_request_operation_code<'a>(request: &'a FHIRRequest) -> Option<&'a str> {
     match request {
-        FHIRRequest::InvokeInstance(instance_request) => Some(&instance_request.operation.name()),
-        FHIRRequest::InvokeType(type_request) => Some(&type_request.operation.name()),
-        FHIRRequest::InvokeSystem(system_request) => Some(&system_request.operation.name()),
+        FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
+            Some(&instance_request.operation.name())
+        }
+        FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
+            Some(&type_request.operation.name())
+        }
+        FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
+            Some(&system_request.operation.name())
+        }
         _ => None,
     }
 }
@@ -127,7 +135,7 @@ impl<
                 && let Some(op_executor) = executors.find_operation(code)
             {
                 let output: Resource = match &context.request {
-                    FHIRRequest::InvokeInstance(instance_request) => {
+                    FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
                         let output = op_executor
                             .execute(
                                 ServerOperationContext {
@@ -141,7 +149,7 @@ impl<
                             .await?;
                         Ok(Resource::from(output))
                     }
-                    FHIRRequest::InvokeType(type_request) => {
+                    FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
                         let output = op_executor
                             .execute(
                                 ServerOperationContext {
@@ -155,7 +163,7 @@ impl<
                             .await?;
                         Ok(Resource::from(output))
                     }
-                    FHIRRequest::InvokeSystem(system_request) => {
+                    FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
                         let output = op_executor
                             .execute(
                                 ServerOperationContext {
@@ -175,9 +183,9 @@ impl<
                     )),
                 }?;
 
-                context.response = Some(FHIRResponse::InvokeSystem(FHIRInvokeSystemResponse {
-                    resource: output,
-                }));
+                context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
+                    FHIRInvokeSystemResponse { resource: output },
+                )));
 
                 Ok(context)
             } else {

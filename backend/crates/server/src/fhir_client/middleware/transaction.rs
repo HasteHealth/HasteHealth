@@ -27,10 +27,7 @@ pub async fn setup_transaction_context<
     state: ServerMiddlewareState<Repo, Search, Terminology>,
 ) -> Result<ServerMiddlewareState<Repo, Search, Terminology>, OperationOutcomeError> {
     match request {
-        FHIRRequest::Create(_)
-        | FHIRRequest::DeleteInstance(_)
-        | FHIRRequest::UpdateInstance(_)
-        | FHIRRequest::ConditionalUpdate(_) => {
+        FHIRRequest::Create(_) | FHIRRequest::Delete(_) | FHIRRequest::Update(_) => {
             if state.repo.in_transaction() {
                 return Ok(state);
             } else {
@@ -43,10 +40,10 @@ pub async fn setup_transaction_context<
                 }))
             }
         }
-        FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => Ok(state),
+        FHIRRequest::Read(_) | FHIRRequest::Search(_) => Ok(state),
         _ => Err(OperationOutcomeError::fatal(
             IssueType::NotSupported(None),
-            "Request type not supported for membership middleware.".to_string(),
+            "Request type not supported for transaction middleware.".to_string(),
         )),
     }
 }

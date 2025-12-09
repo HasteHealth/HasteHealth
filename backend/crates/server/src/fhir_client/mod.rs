@@ -15,7 +15,7 @@ use haste_fhir_client::{
     request::{
         FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest,
         FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRTransactionRequest,
-        FHIRUpdateInstanceRequest,
+        FHIRUpdateInstanceRequest, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -320,10 +320,7 @@ impl<
     pub fn new(config: ServerClientConfig<Repo, Search, Terminology>) -> Self {
         let clinical_resources_route = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::InvokeInstance(_)
-                | FHIRRequest::InvokeType(_)
-                | FHIRRequest::InvokeSystem(_)
-                | FHIRRequest::Capabilities => false,
+                FHIRRequest::Invocation(_) | FHIRRequest::Capabilities => false,
                 _ => {
                     if let Some(resource_type) = request_to_resource_type(req) {
                         !SPECIAL_TYPES.contains(&resource_type)
@@ -337,9 +334,7 @@ impl<
 
         let operation_invocation_routes = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::InvokeInstance(_)
-                | FHIRRequest::InvokeType(_)
-                | FHIRRequest::InvokeSystem(_) => true,
+                FHIRRequest::Invocation(_) => true,
                 _ => false,
             }),
             middleware: Middleware::new(vec![Box::new(middleware::operations::Middleware::new())]),
@@ -348,10 +343,9 @@ impl<
         let artifact_routes = Route {
             filter: if config.mutate_artifacts {
                 Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::UpdateInstance(_)
-                    | FHIRRequest::ConditionalUpdate(_)
+                    FHIRRequest::Update(_)
                     | FHIRRequest::Read(_)
-                    | FHIRRequest::SearchType(_) => {
+                    | FHIRRequest::Search(SearchRequest::Type(_)) => {
                         if let Some(resource_type) = request_to_resource_type(req) {
                             ARTIFACT_TYPES.contains(&resource_type)
                         } else {
@@ -362,7 +356,7 @@ impl<
                 })
             } else {
                 Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Read(_) | FHIRRequest::SearchType(_) => {
+                    FHIRRequest::Read(_) | FHIRRequest::Search(SearchRequest::Type(_)) => {
                         if let Some(resource_type) = request_to_resource_type(req) {
                             ARTIFACT_TYPES.contains(&resource_type)
                         } else {
@@ -380,9 +374,7 @@ impl<
 
         let project_auth_routes = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::InvokeInstance(_)
-                | FHIRRequest::InvokeType(_)
-                | FHIRRequest::InvokeSystem(_) => false,
+                FHIRRequest::Invocation(_) => false,
                 _ => request_to_resource_type(req)
                     .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
             }),
@@ -395,9 +387,7 @@ impl<
 
         let tenant_auth_routes = Route {
             filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::InvokeInstance(_)
-                | FHIRRequest::InvokeType(_)
-                | FHIRRequest::InvokeSystem(_) => false,
+                FHIRRequest::Invocation(_) => false,
                 _ => {
                     request_to_resource_type(req).map_or(false, |rt| TENANT_AUTH_TYPES.contains(rt))
                 }
@@ -501,15 +491,17 @@ impl<
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::SearchType(FHIRSearchTypeRequest {
+                FHIRRequest::Search(SearchRequest::Type(FHIRSearchTypeRequest {
                     resource_type,
                     parameters,
-                }),
+                })),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::SearchType(search_response)) => Ok(search_response.bundle),
+            Some(FHIRResponse::Search(SearchResponse::Type(search_response))) => {
+                Ok(search_response.bundle)
+            }
             _ => panic!("Unexpected response type"),
         }
     }
@@ -550,11 +542,11 @@ impl<
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::UpdateInstance(FHIRUpdateInstanceRequest {
+                FHIRRequest::Update(UpdateRequest::Instance(FHIRUpdateInstanceRequest {
                     resource_type,
                     id,
                     resource,
-                }),
+                })),
             )
             .await?;
 
@@ -577,11 +569,11 @@ impl<
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::ConditionalUpdate(FHIRConditionalUpdateRequest {
+                FHIRRequest::Update(UpdateRequest::Conditional(FHIRConditionalUpdateRequest {
                     resource_type,
                     parameters,
                     resource,
-                }),
+                })),
             )
             .await?;
 

@@ -8,7 +8,7 @@ use crate::fhir_client::{
 };
 use haste_fhir_client::{
     middleware::MiddlewareChain,
-    request::{FHIRRequest, FHIRResponse},
+    request::{DeleteResponse, FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, User},
@@ -99,7 +99,7 @@ impl<
                                 ))
                             }
                         }
-                        Some(FHIRResponse::DeleteInstance(delete_response)) => {
+                        Some(FHIRResponse::Delete(DeleteResponse::Instance(delete_response))) => {
                             if let Resource::User(user) = &delete_response.resource
                                 && let Some(id) = user.id.as_ref()
                             {

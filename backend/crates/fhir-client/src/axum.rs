@@ -1,4 +1,6 @@
-use crate::request::FHIRResponse;
+use crate::request::{
+    DeleteResponse, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse,
+};
 use axum::response::IntoResponse;
 use haste_fhir_model::r4::generated::{
     resources::Resource,
@@ -124,51 +126,45 @@ impl IntoResponse for FHIRResponse {
                 haste_fhir_serialization_json::to_string(&response.capabilities).unwrap(),
             )
                 .into_response(),
-            FHIRResponse::HistoryInstance(response) => {
-                (
+            FHIRResponse::History(history_response) => match history_response {
+                HistoryResponse::Instance(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
                     haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
-                    .into_response()
-            }
-            FHIRResponse::HistoryType(response) => {
-                (
+                    .into_response(),
+                HistoryResponse::Type(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
                     haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
-                    .into_response()
-            }
-            FHIRResponse::HistorySystem(response) => {
-                (
+                    .into_response(),
+                HistoryResponse::System(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
                     haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
-                    .into_response()
-            }
-            FHIRResponse::SearchType(response) => {
-                (
+                    .into_response(),
+            },
+            FHIRResponse::Search(search_response) => match search_response {
+                SearchResponse::Type(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
                     haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
-                    .into_response()
-            }
-            FHIRResponse::SearchSystem(response) => {
-                (
+                    .into_response(),
+                SearchResponse::System(response) => (
                     StatusCode::OK,
                     header,
                     // Unwrap should be safe here.
                     haste_fhir_serialization_json::to_string(&response.bundle).unwrap(),
                 )
-                    .into_response()
-            }
+                    .into_response(),
+            },
             FHIRResponse::Batch(response) => {
                 (
                     StatusCode::OK,
@@ -178,36 +174,45 @@ impl IntoResponse for FHIRResponse {
                 )
                     .into_response()
             }
-            FHIRResponse::InvokeInstance(response) => {
-                (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
-                )
-                    .into_response()
-            }
-            FHIRResponse::InvokeType(response) => {
-                (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
-                )
-                    .into_response()
-            }
-            FHIRResponse::InvokeSystem(response) => {
-                (
-                    StatusCode::OK,
-                    header,
-                    // Unwrap should be safe here.
-                    haste_fhir_serialization_json::to_string(&response.resource).unwrap(),
-                )
-                    .into_response()
-            }
-            FHIRResponse::DeleteInstance(_response) => {
-                (StatusCode::NO_CONTENT, header, "").into_response()
-            }
+            FHIRResponse::Invoke(invoke_response) => match invoke_response {
+                InvokeResponse::Instance(invoke_response) => {
+                    (
+                        StatusCode::OK,
+                        header,
+                        // Unwrap should be safe here.
+                        haste_fhir_serialization_json::to_string(&invoke_response.resource)
+                            .unwrap(),
+                    )
+                        .into_response()
+                }
+                InvokeResponse::Type(invoke_response) => {
+                    (
+                        StatusCode::OK,
+                        header,
+                        // Unwrap should be safe here.
+                        haste_fhir_serialization_json::to_string(&invoke_response.resource)
+                            .unwrap(),
+                    )
+                        .into_response()
+                }
+                InvokeResponse::System(invoke_response) => {
+                    (
+                        StatusCode::OK,
+                        header,
+                        // Unwrap should be safe here.
+                        haste_fhir_serialization_json::to_string(&invoke_response.resource)
+                            .unwrap(),
+                    )
+                        .into_response()
+                }
+            },
+
+            FHIRResponse::Delete(delete_response) => match delete_response {
+                DeleteResponse::Instance(_) => (StatusCode::NO_CONTENT, header, "").into_response(),
+                DeleteResponse::Type(_) => (StatusCode::NO_CONTENT, header, "").into_response(),
+                DeleteResponse::System(_) => (StatusCode::NO_CONTENT, header, "").into_response(),
+            },
+
             FHIRResponse::Patch(fhirpatch_response) => (
                 StatusCode::OK,
                 header,
@@ -215,12 +220,7 @@ impl IntoResponse for FHIRResponse {
                 haste_fhir_serialization_json::to_string(&fhirpatch_response.resource).unwrap(),
             )
                 .into_response(),
-            FHIRResponse::DeleteType(_fhirdelete_type_response) => {
-                (StatusCode::NO_CONTENT, header, "").into_response()
-            }
-            FHIRResponse::DeleteSystem(_fhirdelete_system_response) => {
-                (StatusCode::NO_CONTENT, header, "").into_response()
-            }
+
             FHIRResponse::Transaction(fhirtransaction_response) => {
                 (
                     StatusCode::OK,

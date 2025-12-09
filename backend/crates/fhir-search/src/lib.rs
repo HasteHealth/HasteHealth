@@ -1,4 +1,4 @@
-use haste_fhir_client::request::{FHIRSearchSystemRequest, FHIRSearchTypeRequest};
+use haste_fhir_client::request::SearchRequest;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
@@ -7,11 +7,6 @@ use serde::Deserialize;
 
 pub mod elastic_search;
 mod indexing_conversion;
-
-pub enum SearchRequest<'a> {
-    TypeSearch(&'a FHIRSearchTypeRequest),
-    SystemSearch(&'a FHIRSearchSystemRequest),
-}
 
 pub struct RemoveIndex {
     // resource_type: ResourceType,
@@ -54,7 +49,7 @@ pub trait SearchEngine: Send + Sync {
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
         project: &ProjectId,
-        search_request: SearchRequest,
+        search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send + Sync;
 

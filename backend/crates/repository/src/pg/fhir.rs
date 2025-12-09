@@ -1,9 +1,10 @@
 use crate::{
-    fhir::{CachePolicy, FHIRRepository, HistoryRequest, ResourcePollingValue},
+    fhir::{CachePolicy, FHIRRepository, ResourcePollingValue},
     pg::{PGConnection, StoreError},
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
 };
+use haste_fhir_client::request::HistoryRequest;
 use haste_fhir_model::r4::{
     generated::resources::{Resource, ResourceType},
     sqlx::{FHIRJson, FHIRJsonRef},
@@ -294,7 +295,7 @@ impl FHIRRepository for PGConnection {
         &self,
         tenant_id: &TenantId,
         project_id: &ProjectId,
-        request: HistoryRequest<'_>,
+        request: &HistoryRequest,
     ) -> Result<Vec<Resource>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
@@ -553,7 +554,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant_id: &'a TenantId,
     project_id: &'a ProjectId,
-    history_request: HistoryRequest<'a>,
+    history_request: &'a HistoryRequest,
 ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;

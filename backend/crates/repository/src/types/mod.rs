@@ -40,11 +40,8 @@ impl TryFrom<&FHIRRequest> for FHIRMethod {
         match request {
             FHIRRequest::Create(_) => Ok(FHIRMethod::Create),
             FHIRRequest::Read(_) => Ok(FHIRMethod::Read),
-            FHIRRequest::UpdateInstance(_) => Ok(FHIRMethod::Update),
-            FHIRRequest::ConditionalUpdate(_) => Ok(FHIRMethod::Update),
-            FHIRRequest::DeleteInstance(_) => Ok(FHIRMethod::Delete),
-            FHIRRequest::DeleteType(_) => Ok(FHIRMethod::Delete),
-            FHIRRequest::DeleteSystem(_) => Ok(FHIRMethod::Delete),
+            FHIRRequest::Update(_) => Ok(FHIRMethod::Update),
+            FHIRRequest::Delete(_) => Ok(FHIRMethod::Delete),
             _ => Err("Unsupported FHIR request".to_string()),
         }
     }

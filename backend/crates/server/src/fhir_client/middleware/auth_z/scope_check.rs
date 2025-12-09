@@ -1,10 +1,10 @@
 use crate::fhir_client::{
     ServerCTX,
-    batch_transaction_processing::get_resource_type_from_fhir_request,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
     },
+    utilities::request_to_resource_type,
 };
 
 use haste_fhir_client::{
@@ -29,9 +29,7 @@ fn request_type_to_permission(
         FHIRRequest::Capabilities
         | FHIRRequest::Batch(_)
         | FHIRRequest::Transaction(_)
-        | FHIRRequest::InvokeInstance(_)
-        | FHIRRequest::InvokeType(_)
-        | FHIRRequest::InvokeSystem(_) => Err(OperationOutcomeError::fatal(
+        | FHIRRequest::Invocation(_) => Err(OperationOutcomeError::fatal(
             IssueType::Exception(None),
             "Cannot determine permission for this request type".to_string(),
         )),
@@ -41,19 +39,13 @@ fn request_type_to_permission(
             Ok(SmartResourceScopePermission::Read)
         }
 
-        FHIRRequest::UpdateInstance(_)
-        | FHIRRequest::ConditionalUpdate(_)
-        | FHIRRequest::Patch(_) => Ok(SmartResourceScopePermission::Update),
+        FHIRRequest::Update(_) | FHIRRequest::Patch(_) => Ok(SmartResourceScopePermission::Update),
 
-        FHIRRequest::DeleteInstance(_)
-        | FHIRRequest::DeleteType(_)
-        | FHIRRequest::DeleteSystem(_) => Ok(SmartResourceScopePermission::Delete),
+        FHIRRequest::Delete(_) => Ok(SmartResourceScopePermission::Delete),
 
-        FHIRRequest::HistoryInstance(_)
-        | FHIRRequest::HistoryType(_)
-        | FHIRRequest::HistorySystem(_)
-        | FHIRRequest::SearchType(_)
-        | FHIRRequest::SearchSystem(_) => Ok(SmartResourceScopePermission::Search),
+        FHIRRequest::Search(_) | FHIRRequest::History(_) => {
+            Ok(SmartResourceScopePermission::Search)
+        }
     }
 }
 
@@ -82,7 +74,7 @@ fn get_highest_value_for_request_scope<'a>(
     request: &FHIRRequest,
 ) -> Result<Option<&'a SMARTResourceScope>, OperationOutcomeError> {
     let request_scope_requested = request_type_to_permission(request)?;
-    let request_resource_type = get_resource_type_from_fhir_request(request);
+    let request_resource_type = request_to_resource_type(request);
 
     let found_scopes = scopes
         .0
@@ -92,7 +84,7 @@ fn get_highest_value_for_request_scope<'a>(
             _ => None,
         })
         .filter(|s| {
-            fits_resource_type(s, request_resource_type.as_ref())
+            fits_resource_type(s, request_resource_type)
                 && s.permissions.has_permission(&request_scope_requested)
         })
         .collect::<Vec<_>>();
@@ -142,9 +134,7 @@ impl<
                 FHIRRequest::Capabilities
                 | FHIRRequest::Batch(_)
                 | FHIRRequest::Transaction(_)
-                | FHIRRequest::InvokeInstance(_)
-                | FHIRRequest::InvokeType(_)
-                | FHIRRequest::InvokeSystem(_) => {
+                | FHIRRequest::Invocation(_) => {
                     if let Some(next) = next {
                         Ok(next(state, context).await?)
                     } else {
@@ -154,17 +144,11 @@ impl<
                 FHIRRequest::Create(_)
                 | FHIRRequest::Read(_)
                 | FHIRRequest::VersionRead(_)
-                | FHIRRequest::UpdateInstance(_)
-                | FHIRRequest::ConditionalUpdate(_)
+                | FHIRRequest::Update(_)
                 | FHIRRequest::Patch(_)
-                | FHIRRequest::DeleteInstance(_)
-                | FHIRRequest::DeleteType(_)
-                | FHIRRequest::DeleteSystem(_)
-                | FHIRRequest::SearchType(_)
-                | FHIRRequest::SearchSystem(_)
-                | FHIRRequest::HistoryInstance(_)
-                | FHIRRequest::HistoryType(_)
-                | FHIRRequest::HistorySystem(_) => {
+                | FHIRRequest::Delete(_)
+                | FHIRRequest::Search(_)
+                | FHIRRequest::History(_) => {
                     let user_scopes = &context.ctx.user.scope;
 
                     let matched_scope =

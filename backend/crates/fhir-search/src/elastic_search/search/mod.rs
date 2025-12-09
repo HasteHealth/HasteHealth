@@ -1,5 +1,8 @@
-use crate::{SearchOptions, SearchRequest};
-use haste_fhir_client::url::{Parameter, ParsedParameter, ParsedParameters};
+use crate::SearchOptions;
+use haste_fhir_client::{
+    request::SearchRequest,
+    url::{Parameter, ParsedParameter, ParsedParameters},
+};
 use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
     terminology::SearchParamType,
@@ -154,15 +157,15 @@ static DEFAULT_MAX_COUNT: usize = 50;
 
 fn get_resource_type<'a>(request: &'a SearchRequest) -> Option<&'a ResourceType> {
     match request {
-        SearchRequest::TypeSearch(type_search_request) => Some(&type_search_request.resource_type),
+        SearchRequest::Type(type_search_request) => Some(&type_search_request.resource_type),
         _ => None,
     }
 }
 
 fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
     match request {
-        SearchRequest::TypeSearch(type_search_request) => &type_search_request.parameters,
-        SearchRequest::SystemSearch(system_search_request) => &system_search_request.parameters,
+        SearchRequest::Type(type_search_request) => &type_search_request.parameters,
+        SearchRequest::System(system_search_request) => &system_search_request.parameters,
     }
 }
 

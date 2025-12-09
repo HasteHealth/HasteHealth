@@ -8,7 +8,10 @@ use crate::fhir_client::{
 };
 use haste_fhir_client::{
     middleware::MiddlewareChain,
-    request::{FHIRDeleteInstanceRequest, FHIRRequest, FHIRResponse, FHIRUpdateInstanceRequest},
+    request::{
+        DeleteRequest, FHIRDeleteInstanceRequest, FHIRRequest, FHIRResponse,
+        FHIRUpdateInstanceRequest, SearchRequest, UpdateRequest,
+    },
 };
 use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType},
@@ -97,7 +100,7 @@ impl<
                                     ServerMiddlewareContext {
                                         ctx: context.ctx.clone(),
                                         response: None,
-                                        request: FHIRRequest::UpdateInstance(
+                                        request: FHIRRequest::Update(UpdateRequest::Instance(
                                             FHIRUpdateInstanceRequest {
                                                 resource_type: ResourceType::Project,
                                                 id: id.clone(),
@@ -112,7 +115,7 @@ impl<
                                                     ..Default::default()
                                                 }),
                                             },
-                                        ),
+                                        )),
                                     },
                                 )
                                 .await?;
@@ -126,7 +129,7 @@ impl<
                             }
                         }
 
-                        FHIRRequest::UpdateInstance(update_request) => {
+                        FHIRRequest::Update(UpdateRequest::Instance(update_request)) => {
                             if let Resource::Project(project) = &update_request.resource {
                                 let fhir_version = match &*project.fhirVersion {
                                     SupportedFhirVersion::R4(_) => Ok(SupportedFHIRVersions::R4),
@@ -201,7 +204,7 @@ impl<
                             }
                         }
 
-                        FHIRRequest::DeleteInstance(delete_request) => {
+                        FHIRRequest::Delete(DeleteRequest::Instance(delete_request)) => {
                             TenantAuthAdmin::<CreateProject, _, _, _, _>::delete(
                                 state.repo.as_ref(),
                                 &context.ctx.tenant,
@@ -214,12 +217,12 @@ impl<
                                 ServerMiddlewareContext {
                                     ctx: context.ctx.clone(),
                                     response: None,
-                                    request: FHIRRequest::DeleteInstance(
+                                    request: FHIRRequest::Delete(DeleteRequest::Instance(
                                         FHIRDeleteInstanceRequest {
                                             resource_type: ResourceType::Project,
                                             id: delete_request.id.clone(),
                                         },
-                                    ),
+                                    )),
                                 },
                             )
                             .await?;
@@ -227,7 +230,9 @@ impl<
                             Ok(res)
                         }
 
-                        FHIRRequest::SearchType(_) => next(state.clone(), context).await,
+                        FHIRRequest::Search(SearchRequest::Type(_)) => {
+                            next(state.clone(), context).await
+                        }
 
                         FHIRRequest::Read(_read_request) => next(state.clone(), context).await,
 

@@ -2,8 +2,9 @@ use crate::{
     FHIRClient,
     middleware::{Context, Middleware, MiddlewareChain, Next},
     request::{
-        self, FHIRCreateResponse, FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
-        Operation,
+        self, DeleteRequest, DeleteResponse, FHIRCreateResponse, FHIRPatchResponse,
+        FHIRReadResponse, FHIRRequest, FHIRResponse, HistoryRequest, HistoryResponse,
+        InvocationRequest, InvokeResponse, Operation, SearchRequest, SearchResponse, UpdateRequest,
     },
     url::{ParsedParameter, ParsedParameters},
 };
@@ -218,173 +219,184 @@ async fn fhir_request_to_http_request(
 
             Ok(request)
         }
-        FHIRRequest::UpdateInstance(update_request) => {
-            let update_request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}/{}",
-                    state.api_url.path(),
-                    update_request.resource_type.as_ref(),
-                    update_request.id
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("Update request".to_string()))?;
 
-            let request = state
-                .client
-                .put(update_request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .body(
-                    haste_fhir_serialization_json::to_string(&update_request.resource)
-                        .map_err(FHIRHTTPError::from)?,
-                )
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+        FHIRRequest::Update(update_request) => match &update_request {
+            UpdateRequest::Instance(update_request) => {
+                let update_request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}/{}",
+                        state.api_url.path(),
+                        update_request.resource_type.as_ref(),
+                        update_request.id
+                    ))
+                    .map_err(|_e| FHIRHTTPError::UrlParseError("Update request".to_string()))?;
 
-            Ok(request)
-        }
-        FHIRRequest::SearchType(search_type_request) => {
-            let mut request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}",
-                    state.api_url.path(),
-                    search_type_request.resource_type.as_ref(),
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("SearchType request".to_string()))?;
-
-            fhir_parameter_to_query_parameters(&mut request_url, &search_type_request.parameters);
-
-            let request = state
-                .client
-                .get(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
-
-            Ok(request)
-        }
-        FHIRRequest::SearchSystem(fhirsearch_system_request) => {
-            let mut request_url = state
-                .api_url
-                .join(state.api_url.path())
-                .map_err(|_e| FHIRHTTPError::UrlParseError("SearchSystem request".to_string()))?;
-
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirsearch_system_request.parameters,
-            );
-
-            let request = state
-                .client
-                .get(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
-
-            Ok(request)
-        }
-        FHIRRequest::ConditionalUpdate(fhirconditional_update_request) => {
-            let mut request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}",
-                    state.api_url.path(),
-                    fhirconditional_update_request.resource_type.as_ref(),
-                ))
-                .map_err(|_e| {
-                    FHIRHTTPError::UrlParseError("ConditionalUpdate request".to_string())
-                })?;
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirconditional_update_request.parameters,
-            );
-
-            let request = state
-                .client
-                .put(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .body(
-                    haste_fhir_serialization_json::to_string(
-                        &fhirconditional_update_request.resource,
+                let request = state
+                    .client
+                    .put(update_request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .body(
+                        haste_fhir_serialization_json::to_string(&update_request.resource)
+                            .map_err(FHIRHTTPError::from)?,
                     )
-                    .map_err(FHIRHTTPError::from)?,
-                )
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
 
-            Ok(request)
-        }
-        FHIRRequest::DeleteInstance(fhirdelete_instance_request) => {
-            let delete_request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}/{}",
-                    state.api_url.path(),
-                    fhirdelete_instance_request.resource_type.as_ref(),
-                    fhirdelete_instance_request.id
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("DeleteInstance request".to_string()))?;
+                Ok(request)
+            }
+            UpdateRequest::Conditional(fhirconditional_update_request) => {
+                let mut request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}",
+                        state.api_url.path(),
+                        fhirconditional_update_request.resource_type.as_ref(),
+                    ))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("ConditionalUpdate request".to_string())
+                    })?;
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirconditional_update_request.parameters,
+                );
 
-            let request = state
-                .client
-                .delete(delete_request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                let request = state
+                    .client
+                    .put(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .body(
+                        haste_fhir_serialization_json::to_string(
+                            &fhirconditional_update_request.resource,
+                        )
+                        .map_err(FHIRHTTPError::from)?,
+                    )
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
 
-            Ok(request)
-        }
-        FHIRRequest::DeleteType(fhirdelete_type_request) => {
-            let mut request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}",
-                    state.api_url.path(),
-                    fhirdelete_type_request.resource_type.as_ref(),
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("DeleteType request".to_string()))?;
+                Ok(request)
+            }
+        },
 
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirdelete_type_request.parameters,
-            );
+        FHIRRequest::Search(search_request) => match &search_request {
+            SearchRequest::Type(search_type_request) => {
+                let mut request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}",
+                        state.api_url.path(),
+                        search_type_request.resource_type.as_ref(),
+                    ))
+                    .map_err(|_e| FHIRHTTPError::UrlParseError("SearchType request".to_string()))?;
 
-            let request = state
-                .client
-                .delete(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &search_type_request.parameters,
+                );
 
-            Ok(request)
-        }
-        FHIRRequest::DeleteSystem(fhirdelete_system_request) => {
-            let mut request_url = state
-                .api_url
-                .join(state.api_url.path())
-                .map_err(|_e| FHIRHTTPError::UrlParseError("DeleteSystem request".to_string()))?;
+                let request = state
+                    .client
+                    .get(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
 
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirdelete_system_request.parameters,
-            );
+                Ok(request)
+            }
+            SearchRequest::System(fhirsearch_system_request) => {
+                let mut request_url = state.api_url.join(state.api_url.path()).map_err(|_e| {
+                    FHIRHTTPError::UrlParseError("SearchSystem request".to_string())
+                })?;
 
-            let request = state
-                .client
-                .delete(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirsearch_system_request.parameters,
+                );
 
-            Ok(request)
-        }
+                let request = state
+                    .client
+                    .get(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+        },
+        FHIRRequest::Delete(delete_request) => match delete_request {
+            DeleteRequest::Instance(fhirdelete_instance_request) => {
+                let delete_request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}/{}",
+                        state.api_url.path(),
+                        fhirdelete_instance_request.resource_type.as_ref(),
+                        fhirdelete_instance_request.id
+                    ))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("DeleteInstance request".to_string())
+                    })?;
+
+                let request = state
+                    .client
+                    .delete(delete_request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+            DeleteRequest::Type(fhirdelete_type_request) => {
+                let mut request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}",
+                        state.api_url.path(),
+                        fhirdelete_type_request.resource_type.as_ref(),
+                    ))
+                    .map_err(|_e| FHIRHTTPError::UrlParseError("DeleteType request".to_string()))?;
+
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirdelete_type_request.parameters,
+                );
+
+                let request = state
+                    .client
+                    .delete(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+            DeleteRequest::System(fhirdelete_system_request) => {
+                let mut request_url = state.api_url.join(state.api_url.path()).map_err(|_e| {
+                    FHIRHTTPError::UrlParseError("DeleteSystem request".to_string())
+                })?;
+
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirdelete_system_request.parameters,
+                );
+
+                let request = state
+                    .client
+                    .delete(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+        },
         FHIRRequest::Capabilities => {
             let request = state
                 .client
@@ -396,161 +408,176 @@ async fn fhir_request_to_http_request(
 
             Ok(request)
         }
-        FHIRRequest::HistoryInstance(fhirhistory_instance_request) => {
-            let mut request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}/{}/_history",
-                    state.api_url.path(),
-                    fhirhistory_instance_request.resource_type.as_ref(),
-                    fhirhistory_instance_request.id
-                ))
-                .map_err(|_e| {
-                    FHIRHTTPError::UrlParseError("HistoryInstance request".to_string())
-                })?;
 
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirhistory_instance_request.parameters,
-            );
+        FHIRRequest::History(history_request) => match history_request {
+            HistoryRequest::Instance(fhirhistory_instance_request) => {
+                let mut request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}/{}/_history",
+                        state.api_url.path(),
+                        fhirhistory_instance_request.resource_type.as_ref(),
+                        fhirhistory_instance_request.id
+                    ))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("HistoryInstance request".to_string())
+                    })?;
 
-            let request = state
-                .client
-                .get(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirhistory_instance_request.parameters,
+                );
 
-            Ok(request)
-        }
-        FHIRRequest::HistoryType(fhirhistory_type_request) => {
-            let mut request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}/_history",
-                    state.api_url.path(),
-                    fhirhistory_type_request.resource_type.as_ref(),
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("HistoryType request".to_string()))?;
-
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirhistory_type_request.parameters,
-            );
-
-            let request = state
-                .client
-                .get(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
-
-            Ok(request)
-        }
-        FHIRRequest::HistorySystem(fhirhistory_system_request) => {
-            let mut request_url = state
-                .api_url
-                .join(&format!("{}/_history", state.api_url.path()))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("HistorySystem request".to_string()))?;
-
-            fhir_parameter_to_query_parameters(
-                &mut request_url,
-                &fhirhistory_system_request.parameters,
-            );
-
-            let request = state
-                .client
-                .get(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .build()
-                .map_err(FHIRHTTPError::from)?;
-
-            Ok(request)
-        }
-        FHIRRequest::InvokeInstance(fhirinvoke_instance_request) => {
-            let request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}/{}/${}",
-                    state.api_url.path(),
-                    fhirinvoke_instance_request.resource_type.as_ref(),
-                    fhirinvoke_instance_request.id,
-                    fhirinvoke_instance_request.operation.name(),
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("InvokeInstance request".to_string()))?;
-
-            // Parameters for invoke are passed in the body as a Parameters resource.
-            let body =
-                haste_fhir_serialization_json::to_string(&fhirinvoke_instance_request.parameters)
+                let request = state
+                    .client
+                    .get(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
                     .map_err(FHIRHTTPError::from)?;
 
-            let request = state
-                .client
-                .post(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .body(body)
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                Ok(request)
+            }
+            HistoryRequest::Type(fhirhistory_type_request) => {
+                let mut request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}/_history",
+                        state.api_url.path(),
+                        fhirhistory_type_request.resource_type.as_ref(),
+                    ))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("HistoryType request".to_string())
+                    })?;
 
-            Ok(request)
-        }
-        FHIRRequest::InvokeType(fhirinvoke_type_request) => {
-            let request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/{}/${}",
-                    state.api_url.path(),
-                    fhirinvoke_type_request.resource_type.as_ref(),
-                    fhirinvoke_type_request.operation.name(),
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("InvokeType request".to_string()))?;
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirhistory_type_request.parameters,
+                );
 
-            // Parameters for invoke are passed in the body as a Parameters resource.
-            let body =
-                haste_fhir_serialization_json::to_string(&fhirinvoke_type_request.parameters)
+                let request = state
+                    .client
+                    .get(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
                     .map_err(FHIRHTTPError::from)?;
 
-            let request = state
-                .client
-                .post(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .body(body)
-                .build()
-                .map_err(FHIRHTTPError::from)?;
+                Ok(request)
+            }
+            HistoryRequest::System(fhirhistory_system_request) => {
+                let mut request_url = state
+                    .api_url
+                    .join(&format!("{}/_history", state.api_url.path()))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("HistorySystem request".to_string())
+                    })?;
 
-            Ok(request)
-        }
-        FHIRRequest::InvokeSystem(fhirinvoke_system_request) => {
-            let request_url = state
-                .api_url
-                .join(&format!(
-                    "{}/${}",
-                    state.api_url.path(),
-                    fhirinvoke_system_request.operation.name(),
-                ))
-                .map_err(|_e| FHIRHTTPError::UrlParseError("InvokeSystem request".to_string()))?;
+                fhir_parameter_to_query_parameters(
+                    &mut request_url,
+                    &fhirhistory_system_request.parameters,
+                );
 
-            // Parameters for invoke are passed in the body as a Parameters resource.
-            let body =
-                haste_fhir_serialization_json::to_string(&fhirinvoke_system_request.parameters)
+                let request = state
+                    .client
+                    .get(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .build()
                     .map_err(FHIRHTTPError::from)?;
 
-            let request = state
-                .client
-                .post(request_url)
-                .header("Accept", "application/fhir+json")
-                .header("Content-Type", "application/fhir+json, application/json")
-                .body(body)
-                .build()
+                Ok(request)
+            }
+        },
+
+        FHIRRequest::Invocation(invoke_request) => match invoke_request {
+            InvocationRequest::Instance(fhirinvoke_instance_request) => {
+                let request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}/{}/${}",
+                        state.api_url.path(),
+                        fhirinvoke_instance_request.resource_type.as_ref(),
+                        fhirinvoke_instance_request.id,
+                        fhirinvoke_instance_request.operation.name(),
+                    ))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("InvokeInstance request".to_string())
+                    })?;
+
+                // Parameters for invoke are passed in the body as a Parameters resource.
+                let body = haste_fhir_serialization_json::to_string(
+                    &fhirinvoke_instance_request.parameters,
+                )
                 .map_err(FHIRHTTPError::from)?;
 
-            Ok(request)
-        }
+                let request = state
+                    .client
+                    .post(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .body(body)
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+            InvocationRequest::Type(fhirinvoke_type_request) => {
+                let request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/{}/${}",
+                        state.api_url.path(),
+                        fhirinvoke_type_request.resource_type.as_ref(),
+                        fhirinvoke_type_request.operation.name(),
+                    ))
+                    .map_err(|_e| FHIRHTTPError::UrlParseError("InvokeType request".to_string()))?;
+
+                // Parameters for invoke are passed in the body as a Parameters resource.
+                let body =
+                    haste_fhir_serialization_json::to_string(&fhirinvoke_type_request.parameters)
+                        .map_err(FHIRHTTPError::from)?;
+
+                let request = state
+                    .client
+                    .post(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .body(body)
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+            InvocationRequest::System(fhirinvoke_system_request) => {
+                let request_url = state
+                    .api_url
+                    .join(&format!(
+                        "{}/${}",
+                        state.api_url.path(),
+                        fhirinvoke_system_request.operation.name(),
+                    ))
+                    .map_err(|_e| {
+                        FHIRHTTPError::UrlParseError("InvokeSystem request".to_string())
+                    })?;
+
+                // Parameters for invoke are passed in the body as a Parameters resource.
+                let body =
+                    haste_fhir_serialization_json::to_string(&fhirinvoke_system_request.parameters)
+                        .map_err(FHIRHTTPError::from)?;
+
+                let request = state
+                    .client
+                    .post(request_url)
+                    .header("Accept", "application/fhir+json")
+                    .header("Content-Type", "application/fhir+json, application/json")
+                    .body(body)
+                    .build()
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(request)
+            }
+        },
         FHIRRequest::Batch(fhirbatch_request) => {
             let body = haste_fhir_serialization_json::to_string(&fhirbatch_request.resource)
                 .map_err(FHIRHTTPError::from)?;
@@ -684,88 +711,95 @@ async fn http_response_to_fhir_response(
                 request::FHIRVersionReadResponse { resource },
             ))
         }
-        FHIRRequest::UpdateInstance(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+        FHIRRequest::Update(update_request) => match &update_request {
+            UpdateRequest::Instance(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            Ok(FHIRResponse::Update(request::FHIRUpdateResponse {
-                resource,
-            }))
-        }
-        FHIRRequest::ConditionalUpdate(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                Ok(FHIRResponse::Update(request::FHIRUpdateResponse {
+                    resource,
+                }))
+            }
+            UpdateRequest::Conditional(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            Ok(FHIRResponse::Update(request::FHIRUpdateResponse {
-                resource,
-            }))
-        }
-        FHIRRequest::DeleteInstance(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                Ok(FHIRResponse::Update(request::FHIRUpdateResponse {
+                    resource,
+                }))
+            }
+        },
 
-            check_for_errors(&status, Some(&body)).await?;
+        FHIRRequest::Delete(delete_request) => match delete_request {
+            DeleteRequest::Instance(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            Ok(FHIRResponse::DeleteInstance(
-                request::FHIRDeleteInstanceResponse { resource },
-            ))
-        }
-        FHIRRequest::DeleteType(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                Ok(FHIRResponse::Delete(DeleteResponse::Instance(
+                    request::FHIRDeleteInstanceResponse { resource },
+                )))
+            }
+            DeleteRequest::Type(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            let resources = haste_fhir_serialization_json::from_bytes::<Vec<Resource>>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            Ok(FHIRResponse::DeleteType(request::FHIRDeleteTypeResponse {
-                resource: resources,
-            }))
-        }
-        FHIRRequest::DeleteSystem(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                let resources = haste_fhir_serialization_json::from_bytes::<Vec<Resource>>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                Ok(FHIRResponse::Delete(DeleteResponse::Type(
+                    request::FHIRDeleteTypeResponse {
+                        resource: resources,
+                    },
+                )))
+            }
+            DeleteRequest::System(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            let resources = haste_fhir_serialization_json::from_bytes::<Vec<Resource>>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            Ok(FHIRResponse::DeleteSystem(
-                request::FHIRDeleteSystemResponse {
-                    resource: resources,
-                },
-            ))
-        }
+                let resources = haste_fhir_serialization_json::from_bytes::<Vec<Resource>>(&body)
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(FHIRResponse::Delete(DeleteResponse::System(
+                    request::FHIRDeleteSystemResponse {
+                        resource: resources,
+                    },
+                )))
+            }
+        },
         FHIRRequest::Capabilities => {
             let status = response.status();
             let body = response
@@ -783,134 +817,144 @@ async fn http_response_to_fhir_response(
                 request::FHIRCapabilitiesResponse { capabilities },
             ))
         }
-        FHIRRequest::SearchType(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+        FHIRRequest::Search(search_request) => match search_request {
+            SearchRequest::Type(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            Ok(FHIRResponse::SearchType(request::FHIRSearchTypeResponse {
-                bundle,
-            }))
-        }
-        FHIRRequest::SearchSystem(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                Ok(FHIRResponse::Search(SearchResponse::Type(
+                    request::FHIRSearchTypeResponse { bundle },
+                )))
+            }
+            SearchRequest::System(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            Ok(FHIRResponse::SearchSystem(
-                request::FHIRSearchSystemResponse { bundle },
-            ))
-        }
-        FHIRRequest::HistoryInstance(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                Ok(FHIRResponse::Search(SearchResponse::System(
+                    request::FHIRSearchSystemResponse { bundle },
+                )))
+            }
+        },
 
-            let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                .map_err(FHIRHTTPError::from)?;
+        FHIRRequest::History(history_request) => match history_request {
+            HistoryRequest::Instance(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            Ok(FHIRResponse::HistoryInstance(
-                request::FHIRHistoryInstanceResponse { bundle },
-            ))
-        }
-        FHIRRequest::HistoryType(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                Ok(FHIRResponse::History(HistoryResponse::Instance(
+                    request::FHIRHistoryInstanceResponse { bundle },
+                )))
+            }
+            HistoryRequest::Type(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            Ok(FHIRResponse::HistoryType(
-                request::FHIRHistoryTypeResponse { bundle },
-            ))
-        }
-        FHIRRequest::HistorySystem(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                Ok(FHIRResponse::History(HistoryResponse::Type(
+                    request::FHIRHistoryTypeResponse { bundle },
+                )))
+            }
+            HistoryRequest::System(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            Ok(FHIRResponse::HistorySystem(
-                request::FHIRHistorySystemResponse { bundle },
-            ))
-        }
-        FHIRRequest::InvokeInstance(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                let bundle = haste_fhir_serialization_json::from_bytes::<Bundle>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                Ok(FHIRResponse::History(HistoryResponse::System(
+                    request::FHIRHistorySystemResponse { bundle },
+                )))
+            }
+        },
 
-            Ok(FHIRResponse::InvokeInstance(
-                request::FHIRInvokeInstanceResponse { resource },
-            ))
-        }
-        FHIRRequest::InvokeType(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+        FHIRRequest::Invocation(invoke_request) => match invoke_request {
+            InvocationRequest::Instance(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            Ok(FHIRResponse::InvokeType(request::FHIRInvokeTypeResponse {
-                resource,
-            }))
-        }
-        FHIRRequest::InvokeSystem(_) => {
-            let status = response.status();
-            let body = response
-                .bytes()
-                .await
-                .map_err(FHIRHTTPError::ReqwestError)?;
+                Ok(FHIRResponse::Invoke(InvokeResponse::Instance(
+                    request::FHIRInvokeInstanceResponse { resource },
+                )))
+            }
+            InvocationRequest::Type(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
 
-            check_for_errors(&status, Some(&body)).await?;
+                check_for_errors(&status, Some(&body)).await?;
 
-            let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
-                .map_err(FHIRHTTPError::from)?;
+                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                    .map_err(FHIRHTTPError::from)?;
 
-            Ok(FHIRResponse::InvokeSystem(
-                request::FHIRInvokeSystemResponse { resource },
-            ))
-        }
+                Ok(FHIRResponse::Invoke(InvokeResponse::Type(
+                    request::FHIRInvokeTypeResponse { resource },
+                )))
+            }
+            InvocationRequest::System(_) => {
+                let status = response.status();
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(FHIRHTTPError::ReqwestError)?;
+
+                check_for_errors(&status, Some(&body)).await?;
+
+                let resource = haste_fhir_serialization_json::from_bytes::<Resource>(&body)
+                    .map_err(FHIRHTTPError::from)?;
+
+                Ok(FHIRResponse::Invoke(InvokeResponse::System(
+                    request::FHIRInvokeSystemResponse { resource },
+                )))
+            }
+        },
+
         FHIRRequest::Batch(_) => {
             let status = response.status();
             let body = response
@@ -1026,11 +1070,13 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::SearchSystem(request::FHIRSearchSystemRequest { parameters }),
+                FHIRRequest::Search(SearchRequest::System(request::FHIRSearchSystemRequest {
+                    parameters,
+                })),
             )
             .await?;
         match res.response {
-            Some(FHIRResponse::SearchSystem(search_system_response)) => {
+            Some(FHIRResponse::Search(SearchResponse::System(search_system_response))) => {
                 Ok(search_system_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
@@ -1048,14 +1094,16 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::SearchType(request::FHIRSearchTypeRequest {
+                FHIRRequest::Search(SearchRequest::Type(request::FHIRSearchTypeRequest {
                     resource_type,
                     parameters,
-                }),
+                })),
             )
             .await?;
         match res.response {
-            Some(FHIRResponse::SearchType(search_type_response)) => Ok(search_type_response.bundle),
+            Some(FHIRResponse::Search(SearchResponse::Type(search_type_response))) => {
+                Ok(search_type_response.bundle)
+            }
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
@@ -1096,11 +1144,13 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::UpdateInstance(request::FHIRUpdateInstanceRequest {
-                    resource_type,
-                    id,
-                    resource,
-                }),
+                FHIRRequest::Update(UpdateRequest::Instance(
+                    request::FHIRUpdateInstanceRequest {
+                        resource_type,
+                        id,
+                        resource,
+                    },
+                )),
             )
             .await?;
         match res.response {
@@ -1121,11 +1171,13 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::ConditionalUpdate(request::FHIRConditionalUpdateRequest {
-                    resource_type,
-                    parameters,
-                    resource,
-                }),
+                FHIRRequest::Update(UpdateRequest::Conditional(
+                    request::FHIRConditionalUpdateRequest {
+                        resource_type,
+                        parameters,
+                        resource,
+                    },
+                )),
             )
             .await?;
         match res.response {
@@ -1220,15 +1272,14 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::DeleteInstance(request::FHIRDeleteInstanceRequest {
-                    resource_type,
-                    id,
-                }),
+                FHIRRequest::Delete(DeleteRequest::Instance(
+                    request::FHIRDeleteInstanceRequest { resource_type, id },
+                )),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::DeleteInstance(_delete_instance_response)) => Ok(()),
+            Some(FHIRResponse::Delete(_delete_instance_response)) => Ok(()),
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
@@ -1244,14 +1295,14 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::DeleteType(request::FHIRDeleteTypeRequest {
+                FHIRRequest::Delete(DeleteRequest::Type(request::FHIRDeleteTypeRequest {
                     resource_type,
                     parameters,
-                }),
+                })),
             )
             .await?;
         match res.response {
-            Some(FHIRResponse::DeleteType(_delete_type_response)) => Ok(()),
+            Some(FHIRResponse::Delete(_delete_type_response)) => Ok(()),
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
@@ -1266,11 +1317,13 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::DeleteSystem(request::FHIRDeleteSystemRequest { parameters }),
+                FHIRRequest::Delete(DeleteRequest::System(request::FHIRDeleteSystemRequest {
+                    parameters,
+                })),
             )
             .await?;
         match res.response {
-            Some(FHIRResponse::DeleteSystem(_delete_system_response)) => Ok(()),
+            Some(FHIRResponse::Delete(_delete_system_response)) => Ok(()),
             _ => Err(FHIRHTTPError::NoResponse.into()),
         }
     }
@@ -1285,12 +1338,14 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::HistorySystem(request::FHIRHistorySystemRequest { parameters }),
+                FHIRRequest::History(HistoryRequest::System(request::FHIRHistorySystemRequest {
+                    parameters,
+                })),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::HistorySystem(history_system_response)) => {
+            Some(FHIRResponse::History(HistoryResponse::System(history_system_response))) => {
                 Ok(history_system_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
@@ -1308,15 +1363,15 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::HistoryType(request::FHIRHistoryTypeRequest {
+                FHIRRequest::History(HistoryRequest::Type(request::FHIRHistoryTypeRequest {
                     resource_type,
                     parameters,
-                }),
+                })),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::HistoryType(history_type_response)) => {
+            Some(FHIRResponse::History(HistoryResponse::Type(history_type_response))) => {
                 Ok(history_type_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
@@ -1335,16 +1390,18 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::HistoryInstance(request::FHIRHistoryInstanceRequest {
-                    resource_type,
-                    id,
-                    parameters,
-                }),
+                FHIRRequest::History(HistoryRequest::Instance(
+                    request::FHIRHistoryInstanceRequest {
+                        resource_type,
+                        id,
+                        parameters,
+                    },
+                )),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::HistoryInstance(history_instance_response)) => {
+            Some(FHIRResponse::History(HistoryResponse::Instance(history_instance_response))) => {
                 Ok(history_instance_response.bundle)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
@@ -1364,22 +1421,24 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::InvokeInstance(request::FHIRInvokeInstanceRequest {
-                    resource_type,
-                    id,
-                    operation: Operation::new(&operation).map_err(|_e| {
-                        OperationOutcomeError::error(
-                            IssueType::Exception(None),
-                            "invalid operation".to_string(),
-                        )
-                    })?,
-                    parameters,
-                }),
+                FHIRRequest::Invocation(InvocationRequest::Instance(
+                    request::FHIRInvokeInstanceRequest {
+                        resource_type,
+                        id,
+                        operation: Operation::new(&operation).map_err(|_e| {
+                            OperationOutcomeError::error(
+                                IssueType::Exception(None),
+                                "invalid operation".to_string(),
+                            )
+                        })?,
+                        parameters,
+                    },
+                )),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::InvokeInstance(invoke_instance_response)) => {
+            Some(FHIRResponse::Invoke(InvokeResponse::Instance(invoke_instance_response))) => {
                 Ok(invoke_instance_response.resource)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
@@ -1398,7 +1457,7 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::InvokeType(request::FHIRInvokeTypeRequest {
+                FHIRRequest::Invocation(InvocationRequest::Type(request::FHIRInvokeTypeRequest {
                     resource_type,
                     operation: Operation::new(&operation).map_err(|_e| {
                         OperationOutcomeError::error(
@@ -1407,12 +1466,12 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
                         )
                     })?,
                     parameters,
-                }),
+                })),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::InvokeType(invoke_type_response)) => {
+            Some(FHIRResponse::Invoke(InvokeResponse::Type(invoke_type_response))) => {
                 Ok(invoke_type_response.resource)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
@@ -1430,20 +1489,22 @@ impl<CTX: 'static + Send + Sync> FHIRClient<CTX, OperationOutcomeError> for FHIR
             .call(
                 self.state.clone(),
                 ctx,
-                FHIRRequest::InvokeSystem(request::FHIRInvokeSystemRequest {
-                    operation: Operation::new(&operation).map_err(|_e| {
-                        OperationOutcomeError::error(
-                            IssueType::Exception(None),
-                            "invalid operation".to_string(),
-                        )
-                    })?,
-                    parameters,
-                }),
+                FHIRRequest::Invocation(InvocationRequest::System(
+                    request::FHIRInvokeSystemRequest {
+                        operation: Operation::new(&operation).map_err(|_e| {
+                            OperationOutcomeError::error(
+                                IssueType::Exception(None),
+                                "invalid operation".to_string(),
+                            )
+                        })?,
+                        parameters,
+                    },
+                )),
             )
             .await?;
 
         match res.response {
-            Some(FHIRResponse::InvokeSystem(invoke_system_response)) => {
+            Some(FHIRResponse::Invoke(InvokeResponse::System(invoke_system_response))) => {
                 Ok(invoke_system_response.resource)
             }
             _ => Err(FHIRHTTPError::NoResponse.into()),
