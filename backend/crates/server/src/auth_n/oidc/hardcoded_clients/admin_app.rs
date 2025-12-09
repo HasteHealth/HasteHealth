@@ -4,7 +4,7 @@ use haste_fhir_model::r4::generated::{
     terminology::{ClientapplicationGrantType, ClientapplicationResponseTypes},
     types::FHIRString,
 };
-use haste_jwt::TenantId;
+use haste_jwt::{ProjectId, TenantId};
 
 use crate::ServerEnvironmentVariables;
 
@@ -41,7 +41,8 @@ pub fn get_admin_app(config: &dyn Config<ServerEnvironmentVariables>) -> Option<
 // Return the Admin app redirect url for the current tenant.
 pub fn redirect_url(
     config: &dyn Config<ServerEnvironmentVariables>,
-    tenant_id: TenantId,
+    tenant_id: &TenantId,
+    project_id: &ProjectId,
 ) -> Option<String> {
     let admin_app = get_admin_app(config);
 
@@ -50,7 +51,12 @@ pub fn redirect_url(
             .as_ref()
             .and_then(|uris| uris.get(0))
             .and_then(|uri| uri.value.as_ref())
-            .map(|uri| uri.replace("*", tenant_id.as_ref()))
+            .map(|uri| {
+                uri.replace(
+                    "*",
+                    &(tenant_id.as_ref().to_string() + "_" + project_id.as_ref()),
+                )
+            })
     } else {
         None
     }

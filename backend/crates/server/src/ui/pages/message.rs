@@ -17,7 +17,7 @@ pub fn message_html(
         .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
 
     page_html(html! {
-        (banner(tenant, Some(&project_name)))
+        (banner(tenant.as_ref(), Some(&project_name)))
         div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 (message)

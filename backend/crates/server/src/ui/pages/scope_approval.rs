@@ -9,7 +9,7 @@ use std::borrow::Cow;
 
 fn exclamation_point() -> Markup {
     html! {
-        svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" class="w-6 h-6 text-gray-300" {
+        svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" class="w-6 h-6 text-slate-300" {
             path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" {}
         }
     }
@@ -33,12 +33,12 @@ pub fn scope_approval_html(
     let scope_route_str = scope_route.to_str().expect("Could not create scope route");
 
     page_html(html! {
-            (banner(tenant, Some(&project_name)))
+            (banner(tenant.as_ref(), Some(&project_name)))
             div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                     (client_app_header_html(client_application))
                     div {
-                        span class="text-sm text-gray-500" {
+                        span class="text-sm text-slate-500" {
                             "The above app is requesting the following permissions. Please review and either consent or deny access for the app."
                         }
                     }
@@ -84,7 +84,7 @@ pub fn scope_approval_html(
                             input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                             input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
                             input readonly="" class="hidden" type="checkbox" name="accept" {}
-                            button type="submit" class="cursor-pointer w-full text-gray-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" {
+                            button type="submit" class="cursor-pointer w-full text-slate-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" {
                                 "Deny"
                             }
                         }

@@ -1,9 +1,8 @@
-use haste_jwt::TenantId;
 use maud::{Markup, html};
 
 use crate::static_assets::asset_route;
 
-pub fn banner(tenant: &TenantId, project_name: Option<&str>) -> Markup {
+pub fn banner(header: &str, subheader: Option<&str>) -> Markup {
     html! {
         div class="flex flex-col items-center justify-center space-y-1" {
             a href="#" class="relative flex items-center text-2xl font-semibold text-gray-900" {
@@ -13,10 +12,10 @@ pub fn banner(tenant: &TenantId, project_name: Option<&str>) -> Markup {
             div class="flex space-x-1 items-center justify-center text-sm text-slate-400" {
                 div {
                     span class="font-bold" {
-                        (tenant.as_ref())
+                        (header)
                     }
                 }
-                @if let Some(project_name) = project_name {
+                @if let Some(project_name) = subheader {
                     div {
                         span {
                             (project_name)

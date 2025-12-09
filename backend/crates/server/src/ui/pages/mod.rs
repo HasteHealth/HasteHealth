@@ -3,3 +3,4 @@ pub mod error;
 pub mod login;
 pub mod message;
 pub mod scope_approval;
+pub mod tenant_select;
