@@ -1,7 +1,10 @@
 use crate::fhir_client::middleware::operations::ServerOperationContext;
-use haste_fhir_client::request::InvocationRequest;
+use haste_fhir_client::request::{FHIRInvokeInstanceRequest, InvocationRequest};
 use haste_fhir_generated_ops::generated::HasteHealthIdpRegistrationInfo;
-use haste_fhir_model::r4::generated::types::FHIRString;
+use haste_fhir_model::r4::generated::{
+    resources::ResourceType, terminology::IssueType, types::FHIRString,
+};
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -23,9 +26,28 @@ pub fn idp_registration_info<
             |_context: ServerOperationContext<Repo, Search, Terminology>,
              _tenant: TenantId,
              _project: ProjectId,
-             _request: &InvocationRequest,
+             request: &InvocationRequest,
              _input: HasteHealthIdpRegistrationInfo::Input| {
                 Box::pin(async move {
+                    let InvocationRequest::Instance(FHIRInvokeInstanceRequest {
+                        resource_type,
+                        id,
+                        ..
+                    }) = request
+                    else {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            "Invalid invocation request type".to_string(),
+                        ));
+                    };
+
+                    if resource_type != &ResourceType::IdentityProvider {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::Invalid(None),
+                            "Resource type must be IdentityProvider".to_string(),
+                        ));
+                    }
+
                     Ok(HasteHealthIdpRegistrationInfo::Output {
                         information: Some(vec![
                             HasteHealthIdpRegistrationInfo::OutputInformation {
