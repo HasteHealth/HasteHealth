@@ -42,7 +42,7 @@ pub fn login_form_html(
         });
 
     page_html(html! {
-        (banner(tenant, Some(&project_name)))
+        (banner(tenant.as_ref(), Some(&project_name)))
         div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 sm:max-w-md text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 // div {}
@@ -54,16 +54,16 @@ pub fn login_form_html(
                         }
                     }
                 }
-                h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl " { "Sign in to " span class="underline text-slate-500 " {(client_name)} }
+                h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl " { "Sign in to " span class="underline text-slate-500 " {(client_name)} }
                 form class="space-y-4 md:space-y-6" action=(login_route) method="POST" {
                     div {
-                        label for="email" class="block mb-2 text-sm font-medium text-gray-900 " { "Your email" }
-                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
+                        label for="email" class="block mb-2 text-sm font-medium text-slate-600 " { "Your email" }
+                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
                     }
                     div class="space-y-2" {
                         div {
-                            label for="password" class="block mb-2 text-sm font-medium text-gray-900" { "Password" }
-                            input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required name="password" {}
+                            label for="password" class="block mb-2 text-sm font-medium text-slate-600" { "Password" }
+                            input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required name="password" {}
                         }
                         div class="flex items-center justify-between" {
                             a href=(password_reset_route_str) class="text-sm font-medium text-orange-600 hover:underline " { "Forgot password?" }

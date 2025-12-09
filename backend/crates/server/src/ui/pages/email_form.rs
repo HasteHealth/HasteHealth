@@ -21,15 +21,15 @@ pub fn email_form_html(
         .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
 
     page_html(html! {
-        (banner(tenant, Some(&project_name)))
+        (banner(tenant.as_ref(), Some(&project_name)))
         div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
             form class="space-y-4 md:space-y-6" action=(email_information.continue_url) method="POST" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                     div {
-                        label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {
+                        label for="email" class="block mb-2 text-sm font-medium text-slate-600 dark:text-white" {
                             "Enter your email"
                         }
-                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="" name="email" {}
+                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="" name="email" {}
                     }
                     button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
                         "Continue"
