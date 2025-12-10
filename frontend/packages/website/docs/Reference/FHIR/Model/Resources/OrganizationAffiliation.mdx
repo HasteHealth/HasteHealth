@@ -1,0 +1,339 @@
+---
+id: OrganizationAffiliation
+title: OrganizationAffiliation
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# OrganizationAffiliation
+
+Defines an affiliation/assotiation/relationship between 2 distinct oganizations, that is not a part-of relationship/sub-division relationship.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'Haste Health',
+      url: 'https://haste.health',
+      logo: 'https://haste.health/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="OrganizationAffiliation" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">active</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Whether this organization affiliation record is in active use</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.active</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The period during which the participatingOrganization is affiliated with the primary organization</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.period</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">email</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A value in an email contact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.telecom.where(system='email')</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">endpoint</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Technical endpoints providing access to services operated for this role</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.endpoint</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>An organization affiliation's Identifier</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">location</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The location%28s%29 at which the role occurs</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.location</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">network</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Health insurance provider network in which the participatingOrganization provides the role's services %28if defined%29 at the indicated locations %28if defined%29</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.network</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">participating-organization</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The organization that provides services to the primary organization</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.participatingOrganization</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">phone</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A value in a phone contact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.telecom.where(system='phone')</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">primary-organization</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The organization that receives the services from the participating organization</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.organization</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">role</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Definition of the role the participatingOrganization plays</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">service</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Healthcare services provided through the role</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.healthcareService</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">specialty</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Specific specialty of the participatingOrganization in the context of the role</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.specialty</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">telecom</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The value in any kind of contact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>OrganizationAffiliation.telecom</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

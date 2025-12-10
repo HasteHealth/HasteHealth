@@ -1,0 +1,279 @@
+---
+id: Medication
+title: Medication
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# Medication
+
+This resource is primarily used for the identification and definition of a medication for the purposes of prescribing, dispensing, and administering a medication as well as for making statements about medication use.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'Haste Health',
+      url: 'https://haste.health',
+      logo: 'https://haste.health/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="Medication" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">code</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BAllergyIntolerance%5D%28allergyintolerance.html%29: Code that identifies the allergy or intolerance* %5BCondition%5D%28condition.html%29: Code for the condition* %5BDeviceRequest%5D%28devicerequest.html%29: Code for what is being requested/ordered* %5BDiagnosticReport%5D%28diagnosticreport.html%29: The code for the report, as opposed to codes for the atomic results, which are the names on the observation resource referred to from the result* %5BFamilyMemberHistory%5D%28familymemberhistory.html%29: A search by a condition code* %5BList%5D%28list.html%29: What the purpose of this list is* %5BMedication%5D%28medication.html%29: Returns medications for a specific code* %5BMedicationAdministration%5D%28medicationadministration.html%29: Return administrations of this medication code* %5BMedicationDispense%5D%28medicationdispense.html%29: Returns dispenses of this medicine code* %5BMedicationRequest%5D%28medicationrequest.html%29: Return prescriptions of this medication code* %5BMedicationStatement%5D%28medicationstatement.html%29: Return statements of this medication code* %5BObservation%5D%28observation.html%29: The code of the observation type* %5BProcedure%5D%28procedure.html%29: A code to identify a  procedure* %5BServiceRequest%5D%28servicerequest.html%29: What is being requested/ordered</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AllergyIntolerance.code / AllergyIntolerance.reaction.substance / Condition.code / (DeviceRequest.code.ofType(CodeableConcept)) / DiagnosticReport.code / FamilyMemberHistory.condition.code / List.code / Medication.code / (MedicationAdministration.medication.ofType(CodeableConcept)) / (MedicationDispense.medication.ofType(CodeableConcept)) / (MedicationRequest.medication.ofType(CodeableConcept)) / (MedicationStatement.medication.ofType(CodeableConcept)) / Observation.code / Procedure.code / ServiceRequest.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">expiration-date</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications in a batch with this expiration date</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Medication.batch.expirationDate</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">form</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications for a specific dose form</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Medication.form</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications with this external identifier</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Medication.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">ingredient</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications for this ingredient reference</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(Medication.ingredient.item.ofType(Reference))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">ingredient-code</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications for this ingredient code</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(Medication.ingredient.item.ofType(CodeableConcept))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">lot-number</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications in a batch with this lot number</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Medication.batch.lotNumber</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">manufacturer</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications made or sold for this manufacturer</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Medication.manufacturer</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Returns medications for this status</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Medication.status</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

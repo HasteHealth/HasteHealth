@@ -1,0 +1,8 @@
+{
+    "label": "Resources",
+    "position": 0,
+    "link": {
+        "type": "generated-index",
+        "description": "FHIR Resources Reference Documentation for Haste Health."
+    }
+}

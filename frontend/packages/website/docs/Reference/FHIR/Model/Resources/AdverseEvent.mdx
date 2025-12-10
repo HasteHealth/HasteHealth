@@ -1,0 +1,315 @@
+---
+id: AdverseEvent
+title: AdverseEvent
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# AdverseEvent
+
+Actual or  potential/avoided event causing unintended physical injury resulting from or contributed to by medical care, a research study or other healthcare setting factors that requires additional monitoring, treatment, or hospitalization, or that results in death.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'Haste Health',
+      url: 'https://haste.health',
+      logo: 'https://haste.health/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="AdverseEvent" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">actuality</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>actual / potential</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.actuality</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">category</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>product-problem / product-quality / product-use-error / wrong-dose / incorrect-prescribing-information / wrong-technique / wrong-route-of-administration / wrong-rate / wrong-duration / wrong-time / expired-drug / medical-device-use-error / problem-different-manufacturer / unsafe-physical-environment</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.category</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>When the event occurred</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">event</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Type of the event itself in relation to the subject</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.event</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">location</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Location where adverse event occurred</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.location</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">recorder</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Who recorded the adverse event</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.recorder</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">resultingcondition</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Effect on the subject due to this event</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.resultingCondition</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">seriousness</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Seriousness of the event</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.seriousness</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">severity</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>mild / moderate / severe</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.severity</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">study</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>AdverseEvent.study</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.study</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">subject</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Subject impacted by event</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.subject</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">substance</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Refers to the specific entity that caused the adverse event</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>AdverseEvent.suspectEntity.instance</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>
