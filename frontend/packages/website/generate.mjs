@@ -159,7 +159,7 @@ async function generateFHIRDocumentation() {
     .filter((r) => r.kind === "complex-type" || r.kind === "primitive-type");
 
   for (const structureDefinition of r4StructureDefinitions) {
-    const pathName = `./docs/Reference/FHIR/Model/Resources/${structureDefinition.name}.mdx`;
+    const pathName = `./docs/Reference/fhir/model/resources/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
       structureDefinition
@@ -172,7 +172,7 @@ async function generateFHIRDocumentation() {
   }
 
   for (const structureDefinition of r4DataTypes) {
-    const pathName = `./docs/Reference/FHIR/Model/Types/${structureDefinition.name}.mdx`;
+    const pathName = `./docs/Reference/fhir/model/types/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
       structureDefinition

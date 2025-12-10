@@ -10,6 +10,7 @@ const config: Config = {
   title: "Haste Health",
   tagline: "Documentation Site",
   favicon: "/img/favicon.ico",
+  trailingSlash: false,
 
   headTags: [
     {
@@ -120,7 +121,7 @@ const config: Config = {
       items: [
         {
           type: "docSidebar",
-          sidebarId: "tutorialSidebar",
+          sidebarId: "documentationSidebar",
           position: "left",
           label: "Documentation",
         },
@@ -145,7 +146,7 @@ const config: Config = {
           items: [
             {
               label: "Getting Started",
-              to: "docs/Getting%20Started/Intro",
+              to: "/docs/getting_started/intro",
             },
           ],
         },

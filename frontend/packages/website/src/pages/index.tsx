@@ -99,7 +99,7 @@ export default function Home(): ReactNode {
               <div className="flex justify-center items-center">
                 <Link
                   className="text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-orange-600 hover:bg-orange-500"
-                  to="/docs/Getting Started/Intro"
+                  to="/docs/getting_started/intro"
                 >
                   Getting Started - 5min ⏱️
                 </Link>
@@ -137,28 +137,28 @@ export default function Home(): ReactNode {
               <div className="p-6 flex justify-center items-center  rounded-lg min-h-72">
                 <div className="carousel basic">
                   <div className="group font-bold text-3xl">
-                    <Link to="/docs/Integration/EHR/Epic">
+                    <Link to="/docs/integration/ehr/epic">
                       <CarouselCard>
                         <span className="text-rose-700 hover:underline ">
                           Epic Systems
                         </span>
                       </CarouselCard>
                     </Link>
-                    <Link to="/docs/Integration/EHR/Cerner">
+                    <Link to="/docs/integration/ehr/cerner">
                       <CarouselCard>
                         <span className="text-sky-600  hover:underline ">
                           Cerner
                         </span>
                       </CarouselCard>
                     </Link>
-                    <Link to="/docs/Integration/EHR/Athenahealth">
+                    <Link to="/docs/integration/ehr/athena_health">
                       <CarouselCard>
                         <span className="text-slate-700 hover:underline ">
                           Athenahealth
                         </span>
                       </CarouselCard>
                     </Link>
-                    <Link to="/docs/Integration/EHR/Meditech">
+                    <Link to="/docs/integration/ehr/meditech">
                       <CarouselCard>
                         <span className="text-emerald-600 hover:underline ">
                           Meditech
@@ -167,28 +167,28 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="group  font-bold text-3xl">
-                    <Link to="/docs/Integration/EHR/Epic">
+                    <Link to="/docs/integration/ehr/epic">
                       <CarouselCard>
                         <span className="text-rose-700 hover:underline ">
                           Epic Systems
                         </span>
                       </CarouselCard>
                     </Link>
-                    <Link to="/docs/Integration/EHR/Cerner">
+                    <Link to="/docs/integration/ehr/cerner">
                       <CarouselCard>
                         <span className="text-sky-600  hover:underline ">
                           Cerner
                         </span>
                       </CarouselCard>
                     </Link>
-                    <Link to="/docs/Integration/EHR/Athenahealth">
+                    <Link to="/docs/integration/ehr/athena_health">
                       <CarouselCard>
                         <span className="text-slate-700 hover:underline ">
                           Athenahealth
                         </span>
                       </CarouselCard>
                     </Link>
-                    <Link to="/docs/Integration/EHR/Meditech">
+                    <Link to="/docs/integration/ehr/meditech">
                       <CarouselCard>
                         <span className="text-emerald-600 hover:underline ">
                           Meditech
@@ -258,7 +258,7 @@ export default function Home(): ReactNode {
                     title={
                       <Link
                         className="hover:text-purple-500"
-                        to="/docs/APIs%20&%20SDKs/Rest%20API/Model%20Context%20Protocol/Endpoint"
+                        to="/docs/api/rest_api/model_context_protocol/endpoint"
                       >
                         Model Context Protocol
                       </Link>
@@ -269,7 +269,7 @@ export default function Home(): ReactNode {
                     title={
                       <Link
                         className="hover:text-purple-500"
-                        to="/docs/APIs%20&%20SDKs/Authorization/scopes"
+                        to="/docs/api/authorization/scopes"
                       >
                         Control data access
                       </Link>
@@ -281,7 +281,7 @@ export default function Home(): ReactNode {
               <div className="p-6 rounded-lg ">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/AI/openai">
+                    <Link to="/docs/integration/ai/openai">
                       <img
                         src="/img/openai_logo.svg"
                         alt="OpenAI Logo"
@@ -290,7 +290,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/AI/claude">
+                    <Link to="/docs/integration/ai/claude">
                       <img
                         src="/img/claude_logo.svg"
                         alt="Claude Logo"
@@ -299,7 +299,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/AI/gemini">
+                    <Link to="/docs/integration/ai/gemini">
                       <img
                         src="/img/gemini_logo.svg"
                         alt="Gemini Logo"
@@ -308,7 +308,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/AI/mistral">
+                    <Link to="/docs/integration/ai/mistral">
                       <img
                         src="/img/mistral_logo.svg"
                         alt="Mistral Logo"
@@ -317,7 +317,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/AI/github-copilot">
+                    <Link to="/docs/integration/ai/github-copilot">
                       <img
                         src="/img/copilot_logo.svg"
                         alt="CoPilot Logo"
@@ -326,7 +326,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4 shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/AI/deepseek">
+                    <Link to="/docs/integration/ai/deepseek">
                       <img
                         src="/img/deepseek_logo.svg"
                         alt="DeepSeek Logo"
@@ -342,7 +342,7 @@ export default function Home(): ReactNode {
               <div className="order-2 md:order-1 p-6 rounded-lg ">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/Identity%20providers/okta">
+                    <Link to="/docs/integration/identity_providers/okta">
                       <img
                         src="/img/okta.svg"
                         alt="Okta Logo"
@@ -351,7 +351,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/Identity%20providers/azure">
+                    <Link to="/docs/integration/identity_providers/azure">
                       <img
                         src="/img/azure.svg"
                         alt="Azure Logo"
@@ -360,7 +360,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/Identity%20providers/auth0">
+                    <Link to="/docs/integration/identity_providers/auth0">
                       <img
                         src="/img/auth0.svg"
                         alt="Auth0 Logo"
@@ -369,7 +369,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/Identity%20providers/haste-health">
+                    <Link to="/docs/integration/identity_providers/haste-health">
                       <img
                         src="/img/logo.svg"
                         alt="Haste Health Logo"
@@ -378,7 +378,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4 shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/Identity%20providers/keycloak">
+                    <Link to="/docs/integration/identity_providers/keycloak">
                       <img
                         src="/img/keycloak.png"
                         alt="Keycloak Logo"
@@ -387,7 +387,7 @@ export default function Home(): ReactNode {
                     </Link>
                   </div>
                   <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-200 hover:bg-orange-100">
-                    <Link to="/docs/Integration/Identity%20providers/gcp">
+                    <Link to="/docs/integration/identity_providers/gcp">
                       <img
                         src="/img/gcp.png"
                         alt="GCP Logo"
@@ -400,13 +400,13 @@ export default function Home(): ReactNode {
               <div className="order-1 md:order-2 space-y-2 p-6">
                 <h3 className="text-5xl font-bold">
                   Support for authentication with{" "}
-                  <Link to="/docs/APIs%20&%20SDKs/Authentication/Intro">
+                  <Link to="/docs/api/authentication/intro">
                     <span className="text-blue-600 hover:text-blue-500 underline">
                       OIDC
                     </span>{" "}
                     and{" "}
                   </Link>
-                  <Link to="/docs/APIs%20&%20SDKs/Authentication/smart-on-fhir">
+                  <Link to="/docs/api/authentication/smart_on_fhir">
                     <span className="text-blue-600 hover:text-blue-500  underline">
                       SMART on FHIR
                     </span>
@@ -428,7 +428,7 @@ export default function Home(): ReactNode {
                     title={
                       <Link
                         className="hover:text-blue-500"
-                        to="/docs/APIs%20&%20SDKs/Authentication/federated-login"
+                        to="/docs/api/authentication/federated_login"
                       >
                         Federated login
                       </Link>
@@ -439,7 +439,7 @@ export default function Home(): ReactNode {
                     title={
                       <Link
                         className="hover:text-blue-500"
-                        to="/docs/APIs%20&%20SDKs/Authorization/scopes"
+                        to="/docs/api/authorization/scopes"
                       >
                         Scopes
                       </Link>
