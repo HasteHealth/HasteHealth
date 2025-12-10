@@ -20,6 +20,11 @@ cargo run server start && cargo run worker
 - [Linux](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_linux)
 - [MacOS](https://github.com/HasteHealth/HasteHealth/releases/latest/download/haste-health_macos)
 
+## Docker Images
+
+- [Server](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fhastehealth)
+- [Admin App](https://github.com/HasteHealth/HasteHealth/pkgs/container/hastehealth%2Fadmin-app)
+
 ## Repository Structure
 
 ```
