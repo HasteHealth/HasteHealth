@@ -11,7 +11,17 @@ const config: Config = {
   tagline: "Documentation Site",
   favicon: "/img/favicon.ico",
 
-  onBrokenLinks: "warn",
+  headTags: [
+    {
+      tagName: "meta",
+      attributes: {
+        name: "algolia-site-verification",
+        content: "2EFDB046F281A382",
+      },
+    },
+  ],
+
+  onBrokenLinks: "throw",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -134,28 +144,28 @@ const config: Config = {
           title: "Docs",
           items: [
             {
-              label: "Tutorial",
-              to: "/docs/intro",
+              label: "Getting Started",
+              to: "docs/Getting%20Started/Intro",
             },
           ],
         },
-        {
-          title: "Community",
-          items: [
-            {
-              label: "Stack Overflow",
-              href: "https://stackoverflow.com/questions/tagged/docusaurus",
-            },
-            {
-              label: "Discord",
-              href: "https://discordapp.com/invite/docusaurus",
-            },
-            {
-              label: "X",
-              href: "https://x.com/docusaurus",
-            },
-          ],
-        },
+        // {
+        //   title: "Community",
+        //   items: [
+        //     {
+        //       label: "Stack Overflow",
+        //       href: "https://stackoverflow.com/questions/tagged/docusaurus",
+        //     },
+        //     {
+        //       label: "Discord",
+        //       href: "https://discordapp.com/invite/docusaurus",
+        //     },
+        //     {
+        //       label: "X",
+        //       href: "https://x.com/docusaurus",
+        //     },
+        //   ],
+        // },
         {
           title: "More",
           items: [
@@ -179,12 +189,12 @@ const config: Config = {
     },
     algolia: {
       // The application ID provided by Algolia
-      appId: "409NX57XYC",
+      appId: "9M3PZB2S4M",
 
       // Public API key: it is safe to commit it
-      apiKey: "4f91b991f1851bc5fd71fa7c6a6c88c6",
+      apiKey: "06ecebc0265bb31186be933a6c982863",
 
-      indexName: "search-crawler",
+      indexName: "Haste Health",
 
       // Optional: see doc section below
       contextualSearch: true,

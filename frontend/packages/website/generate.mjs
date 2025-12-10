@@ -34,6 +34,14 @@ function escapeCharacters(v) {
     .replaceAll("<", "\\<");
 }
 
+function escapeLinks(v) {
+  return v
+    .replaceAll("(", "%28")
+    .replaceAll(")", "%29")
+    .replaceAll("[", "%5B")
+    .replaceAll("]", "%5D");
+}
+
 function metaProperties(sd) {
   return `
 |Property|Value|
@@ -74,7 +82,7 @@ import StructureDefinitionDisplay from '@site/src/components/StructureDefinition
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
 # ${structureDefinition.name}\n
-${structureDefinition.snapshot?.element[0]?.definition ?? ""}
+${escapeLinks(structureDefinition.snapshot?.element[0]?.definition ?? "")}
 
 <head>
   <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
@@ -117,7 +125,9 @@ ${structureDefinition.snapshot?.element[0]?.definition ?? ""}
         <div class="text-sm">
             <span class="font-semibold">${name}</span> <span> (${type})</span>
         </div>
-        <div class="text-orange-900 line-clamp-3 truncate">${description}</div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>${escapeLinks(
+          description
+        )}</span></div>
         ${
           expression
             ? `<div class="line-clamp-3 truncate">
@@ -149,7 +159,7 @@ async function generateFHIRDocumentation() {
     .filter((r) => r.kind === "complex-type" || r.kind === "primitive-type");
 
   for (const structureDefinition of r4StructureDefinitions) {
-    const pathName = `./docs/API/FHIR/Model/Resources/${structureDefinition.name}.mdx`;
+    const pathName = `./docs/Reference/FHIR/Model/Resources/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
       structureDefinition
@@ -162,7 +172,7 @@ async function generateFHIRDocumentation() {
   }
 
   for (const structureDefinition of r4DataTypes) {
-    const pathName = `./docs/API/FHIR/Model/Types/${structureDefinition.name}.mdx`;
+    const pathName = `./docs/Reference/FHIR/Model/Types/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
       structureDefinition

@@ -46,7 +46,7 @@
         "experimental": false,
         "date": "2022-05-28T12:47:40+10:00",
         "publisher": "Health Level Seven International (FHIR Infrastructure)",
-        "description": "Missing in search-parameter.json for R4 this is derived from the R4B Definition",
+        "description": "Derived from the R4B Definition",
         "code": "_type",
         "base": [
           "Resource"

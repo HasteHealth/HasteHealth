@@ -1,0 +1,8 @@
+{
+    "label": "AI",
+    "position": 1,
+    "link": {
+        "type": "generated-index",
+        "description": "Guides to integrate various AI applications with Haste Health."
+    }
+}

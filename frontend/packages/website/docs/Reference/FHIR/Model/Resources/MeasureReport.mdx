@@ -1,0 +1,279 @@
+---
+id: MeasureReport
+title: MeasureReport
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# MeasureReport
+
+The MeasureReport resource contains the results of the calculation of a measure; and optionally a reference to the resources involved in that calculation.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'Haste Health',
+      url: 'https://haste.health',
+      logo: 'https://haste.health/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="MeasureReport" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The date of the measure report</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">evaluated-resource</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>An evaluated resource referenced by the measure report</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.evaluatedResource</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>External identifier of the measure report to be returned</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">measure</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The measure to return measure report results for</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.measure</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">patient</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The identity of a patient to search for individual measure report results for</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.subject.where(resolve() is Patient)</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">period</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The period of the measure report</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.period</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">reporter</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The reporter to return measure report results for</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.reporter</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The status of the measure report</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">subject</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The identity of a subject to search for individual measure report results for</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>MeasureReport.subject</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

@@ -1,0 +1,262 @@
+---
+id: scopes
+title: Scopes & Permissions
+sidebar_position: 4
+tags:
+  - authentication
+  - authorization
+  - oauth2
+  - smart-on-fhir
+  - scopes
+  - permissions
+---
+
+# Scopes
+
+Haste Health implements a comprehensive scope system that combines OpenID Connect (OIDC) scopes with SMART on FHIR scopes to provide fine-grained access control for healthcare applications.
+
+## Overview
+
+Scopes define what permissions an access token grants. When a client application requests an access token, it specifies the scopes it needs. The authorization server then issues a token with the approved scopes, which determine what resources and operations the client can access.
+
+Haste Health supports two types of scopes:
+
+1. **OIDC Scopes** - Standard OpenID Connect scopes for authentication and user information
+2. **SMART Scopes** - Healthcare-specific scopes following the SMART on FHIR specification
+
+## OIDC Scopes
+
+OpenID Connect scopes provide basic authentication and user profile information.
+
+### Available OIDC Scopes
+
+| Scope | Description |
+|-------|-------------|
+| `openid` | Required for OpenID Connect authentication. Indicates that the application intends to use OIDC to verify the user's identity. |
+| `profile` | Grants access to the user's default profile claims (name, family_name, given_name, etc.). |
+| `email` | Grants access to the user's email address and email_verified claims. |
+| `offline_access` | Requests a refresh token that allows the application to obtain new access tokens without user interaction. Used for long-running or background access. |
+| `online_access` | Requests access limited to the current session. No refresh token is issued. |
+
+### Example OIDC Scope Requests
+
+```
+openid profile email
+```
+
+```
+openid profile offline_access
+```
+
+## SMART on FHIR Scopes
+
+SMART scopes provide fine-grained access control over FHIR resources and operations. They follow the SMART App Launch specification.
+
+### SMART Scope Format
+
+SMART resource scopes follow this pattern:
+
+```
+user/resource.permissions
+```
+
+Where:
+- **user**: The access level (`user`, `patient`, or `system`)
+- **resource**: The FHIR resource type or `*` for all resources
+- **permissions**: The allowed operations (combination of `c`, `r`, `u`, `d`, `s`)
+
+### Access Levels (User Context)
+
+| Level | Description | Use Case |
+|-------|-------------|----------|
+| `user` | Access resources in the context of a logged-in user | Clinician applications, provider portals |
+| `patient` | Access resources in the context of a specific patient | Patient-facing applications, personal health records |
+| `system` | Access resources without a user context | Backend services, system integrations, automated processes |
+
+### Permission Characters
+
+Permissions must be specified in the order: **c-r-u-d-s**
+
+| Character | Permission | Operations Included |
+|-----------|------------|---------------------|
+| `c` | Create | Type-level create |
+| `r` | Read | Instance-level read, vread, history |
+| `u` | Update | Instance-level update, patch (may also create new instances) |
+| `d` | Delete | Instance-level delete |
+| `s` | Search | Type-level search and history, system-level search and history |
+
+#### Permission Shortcuts
+
+| Shortcut | Equivalent | Description |
+|----------|------------|-------------|
+| `*` | `cruds` | All permissions |
+| `read` | `rs` | Read and search only |
+| `write` | `cud` | Create, update, and delete only |
+
+**Important:** Permissions must be in order. Invalid orderings like `dcu` or `sr` will be rejected.
+
+### Resource Scope Examples
+
+#### Single Resource Type
+
+```
+user/Patient.read
+```
+Grants read and search access to Patient resources in user context.
+
+```
+patient/Observation.rs
+```
+Grants read and search access to Observation resources in patient context (same as `patient/Observation.read`).
+
+```
+system/Medication.cruds
+```
+Grants full access to Medication resources in system context (same as `system/Medication.*`).
+
+#### All Resources
+
+```
+user/*.read
+```
+Grants read and search access to all resource types in user context.
+
+```
+system/*.*
+```
+Grants full access to all resource types in system context (same as `system/*.cruds`).
+
+#### Specific Permissions
+
+```
+user/Patient.cru
+```
+Grants create, read, update, and search (via read) access to Patient resources, but not delete.
+
+```
+system/Observation.rs
+```
+Grants read and search access to Observation resources in system context.
+
+```
+patient/Condition.r
+```
+Grants read-only access (no search) to Condition resources in patient context.
+
+### Launch Scopes
+
+Launch scopes are used in SMART App Launch workflows to establish context for EHR-integrated applications.
+
+| Scope | Description |
+|-------|-------------|
+| `launch` | Required for SMART launch from an EHR. Indicates the app is being launched from within an EHR workflow. |
+| `launch/patient` | Requests that a patient be selected and made available in the launch context. |
+| `launch/encounter` | Requests that an encounter be selected and made available in the launch context. |
+
+### Special SMART Scopes
+
+| Scope | Description |
+|-------|-------------|
+| `fhirUser` | Requests the identity of the current user as a FHIR resource reference (e.g., `Practitioner/123`). |
+
+## Combining Scopes
+
+Multiple scopes can be requested together by separating them with spaces.
+
+### Example: Patient Portal Application
+
+```
+openid profile email patient/*.read launch/patient fhirUser
+```
+
+This grants:
+- OpenID Connect authentication
+- Access to user profile and email
+- Read access to all FHIR resources for the patient
+- Patient launch context
+- User identity as FHIR reference
+
+### Example: Clinician EHR Application
+
+```
+openid profile offline_access launch/patient user/Patient.* user/Observation.* user/Condition.rs fhirUser
+```
+
+This grants:
+- OpenID Connect authentication
+- User profile access
+- Refresh token for offline access
+- Patient launch context
+- Full access to Patient resources
+- Full access to Observation resources
+- Read and search access to Condition resources
+- User identity as FHIR reference
+
+### Example: Backend Integration Service
+
+```
+system/*.* offline_access
+```
+
+This grants:
+- Full access to all FHIR resources without user context
+- Refresh token for long-running access
+
+### Example: Read-Only Analytics Service
+
+```
+system/*.read offline_access
+```
+
+This grants:
+- Read and search access to all FHIR resources
+- Refresh token for continuous data access
+
+## Scope Validation Rules
+
+### Permission Ordering
+
+Permissions **must** be in the correct order: `c-r-u-d-s`
+
+✅ **Valid:**
+- `patient/Patient.cr`
+- `user/Observation.cruds`
+- `system/*.cud`
+
+❌ **Invalid:**
+- `patient/Patient.rc` (wrong order)
+- `user/Observation.duc` (wrong order)
+- `system/*.sdr` (wrong order)
+
+### Resource Type Validation
+
+Only valid FHIR resource types are accepted:
+
+✅ **Valid:**
+- `user/Patient.read`
+- `user/Observation.read`
+- `user/Practitioner.read`
+
+❌ **Invalid:**
+- `user/InvalidType.read` (not a FHIR resource type)
+- `user/patient.read` (case-sensitive, must be `Patient`)
+
+## Related Resources
+
+- [OpenID Connect Core Specification](https://openid.net/specs/openid-connect-core-1_0.html)
+- [SMART App Launch Framework](https://hl7.org/fhir/smart-app-launch/)
+- [OAuth 2.0 Scopes](https://datatracker.ietf.org/doc/html/rfc6749#section-3.3)
+- [FHIR Resource Types](https://www.hl7.org/fhir/r4/resourcelist.html)
+
+## Summary
+
+Haste Health's scope system provides:
+
+- **OIDC scopes** for authentication and user information
+- **SMART scopes** for fine-grained FHIR resource access
+- **Three user contexts**: `patient`, `user`, and `system`
+- **Five permission types**: create, read, update, delete, search
+- **Launch context** for EHR integration
+- **Flexible combinations** for various application types
+
+By properly requesting and validating scopes, applications can implement secure, least-privilege access to healthcare data while maintaining compliance with SMART on FHIR standards.
