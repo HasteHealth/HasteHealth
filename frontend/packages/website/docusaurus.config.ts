@@ -146,7 +146,7 @@ const config: Config = {
           items: [
             {
               label: "Getting Started",
-              to: "/docs/getting_started/intro",
+              to: "/docs/getting_started/quick_start",
             },
           ],
         },

@@ -99,7 +99,7 @@ export default function Home(): ReactNode {
               <div className="flex justify-center items-center">
                 <Link
                   className="text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-orange-600 hover:bg-orange-500"
-                  to="/docs/getting_started/intro"
+                  to="/docs/getting_started/quick_start"
                 >
                   Getting Started - 5min ⏱️
                 </Link>
