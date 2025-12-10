@@ -1,0 +1,90 @@
+---
+id: read
+title: read
+sidebar_position: 1
+---
+
+# Read Resource
+
+The FHIR [read operation](https://www.hl7.org/fhir/http.html#read) allows you to retrieve a specific resource instance by its ID from the FHIR server. This is done using an HTTP GET request to the endpoint corresponding to the resource type and ID.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Read a Patient resource using the Haste Health CLI:
+
+```bash
+haste-health api read Patient 12345
+```
+
+This command retrieves the Patient resource with ID `12345` and outputs the result to the console.
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Read a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Patient } from '@haste-health/fhir-types/r4/types';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const patient = await client.read<typeof R4, 'Patient'>(
+  {},
+  R4,
+  'Patient',
+  '12345'
+);
+
+if (patient) {
+  console.log('Patient found:', patient);
+} else {
+  console.log('Patient not found');
+}
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Read a Patient resource using cURL:
+
+```bash
+curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/12345" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+</TabItem>
+</Tabs>
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+<div className="border border-orange-100" />
+
+
+
+## Error Handling
+
+If the resource is not found, the server will respond with a `404 Not Found` status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "not-found",
+      "diagnostics": "Resource Patient/12345 not found"
+    }
+  ]
+}
+```

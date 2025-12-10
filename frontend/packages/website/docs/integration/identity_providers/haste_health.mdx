@@ -1,0 +1,65 @@
+---
+id: haste-health
+title: "Haste Health"
+sidebar_position: 6
+tags:
+  - authentication
+  - oidc
+  - oauth2
+  - client
+  - registration
+---
+
+#
+<img class="mb-4" src="/img/logo.svg" alt="Haste Health Logo" style={{ width: '100px' }} />
+
+# Haste Health Integration
+
+This guide provides step-by-step instructions on integrating a seperate Haste Health tenant as an identity provider for your Project.
+
+## Prerequisites
+- Two Haste Health tenants and accounts with access to both Haste Health Admin Consoles.
+
+## Steps to Integrate Haste Health
+1. **Register a New Application for Haste Health Tenant you wish to use as an Identity Provider**
+   - Log in to the Haste Health Admin App.
+   - Navigate to "Security" > "Client Applications".
+   - Provide the following details:
+     - **Name**: A friendly name for the application (e.g., `Haste Health IDP Client`).
+     - **Grant Type**: Select `Authorization Code`
+     - **Response Types**: Select `token`
+     - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to verify user).
+     - **Redirect URIs**: Add a new redirect URI for your Haste Health tenant that will use this identity provider:
+       `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+2. **Copy Metadata**
+   - Copy ClientId and Client secret (if set) from step 1.
+   - Go to https://local.haste.health/.well-known/openid-configuration/w/[tenant]/[project]
+   - Copy token_endpoint, authorization_endpoint, jwks_uri
+
+3. **Configure Haste Health Instance for IDP**
+    - Go to the Haste Health Admin App for your tenant where you want to add the identity provider.
+    - Navigate to the system project.
+    - Click Identity Provider
+    - Click **New**
+    - Provide the following details:
+      - **Name**: A friendly name for the identity provider (e.g., `Haste Health IDP`).
+      - **Status**: Set to `active`.
+      - **Access Type**: Set to `oidc`.
+      - **Authorization_endpiont**: The authorization_endpoint copied from step 2.
+      - **Token_endpoint**: The token_endpoint copied from step 2.
+      - **Jwks_uri**: The jwks_uri copied from step 2.
+      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to verify user).
+      - **Client ID**: The ClientId copied from step 1.
+      - **Client Secret**: The Client secret copied from step 1.
+      - **Enable PKCE**: We require PKCE so enable this option and use S256 as the code challenge method.
+4. **Set Health Tenant redirect url in Identity Provider Tenant**
+    - Go back to your Haste Health tenant you are using as an identity provider.
+    - Navigate to "Security" > "Client Applications".
+    - Edit the application you created in step 1.
+    - In the "Redirect URIs" section, ensure the redirect URI for your Haste Health tenant that will use this identity provider is added:
+      `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+4. **Test the Integration**
+    - Click Projects in system admin app and modify at the bottom identity providers.
+    - Add the Haste Health identity provider to the desired project.
+    - Click the project and log out.
+    - Click to log in using the newly added Haste Health identity provider to ensure everything is set up correctly.

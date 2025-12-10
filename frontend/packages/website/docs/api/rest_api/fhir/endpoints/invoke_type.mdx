@@ -1,0 +1,131 @@
+---
+id: invoke-type
+title: invoke-type
+sidebar_position: 13
+---
+
+# Invoke Type Operation
+
+The FHIR [type-level operation invocation](https://www.hl7.org/fhir/operations.html) allows you to invoke a custom or standard operation on a specific resource type. This is done using an HTTP POST or GET request to the operation endpoint for the resource type.
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Invoke the `$validate` operation on the Patient resource type using the Haste Health CLI:
+
+```bash
+haste-health api invoke-type Patient validate --file params.json
+```
+
+Where `params.json` contains:
+
+```json
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "resource",
+      "resource": {
+        "resourceType": "Patient",
+        "name": [{"family": "Doe", "given": ["John"]}]
+      }
+    }
+  ]
+}
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
+
+Invoke a type-level operation using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Parameters, Patient } from '@haste-health/fhir-types/r4/types';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const patientToValidate: Patient = {
+  resourceType: "Patient",
+  name: [{family: "Doe", given: ["John"]}]
+};
+
+const params: Parameters = {
+  resourceType: "Parameters",
+  parameter: [
+    {
+      name: "resource",
+      resource: patientToValidate
+    }
+  ]
+};
+
+const result = await client.invoke_type(
+  {},
+  R4,
+  'Patient',
+  'validate',
+  params
+);
+
+console.log('Validation result:', result);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Invoke the `$validate` operation on the Patient resource type using cURL:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/\$validate" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Parameters",
+           "parameter": [
+             {
+               "name": "resource",
+               "resource": {
+                 "resourceType": "Patient",
+                 "name": [{"family": "Doe", "given": ["John"]}]
+               }
+             }
+           ]
+         }'
+```
+
+</TabItem>
+</Tabs>
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+<div className="border border-orange-100" />
+
+
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid parameters, operation not supported), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid resource: missing required field"
+    }
+  ]
+}
+```
+

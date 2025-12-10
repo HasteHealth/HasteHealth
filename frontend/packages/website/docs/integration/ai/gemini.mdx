@@ -1,0 +1,235 @@
+---
+id: gemini
+title: "Gemini"
+sidebar_position: 2
+tags:
+  - authentication
+  - AI applications
+  - Model Context Protocol
+  - OAuth
+  - MCP
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+#
+<img class="mb-4" src="/img/gemini_logo.svg" alt="Gemini Logo" style={{ width: '200px' }} />
+
+# Integrating Gemini with Haste Health
+
+This guide provides step-by-step instructions for integrating Google Gemini with your Haste Health platform using the Model Context Protocol (MCP). Gemini can access your FHIR data through OAuth authentication, enabling AI-powered healthcare applications.
+
+## Overview
+
+Gemini integration with Haste Health involves:
+
+1. **Registering a ClientApplication** - Create OAuth credentials for Gemini
+2. **Installing Gemini Desktop App** - Set up the Gemini application
+3. **Configuring MCP Server** - Connect Gemini to Haste Health via MCP with OAuth
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- ✅ A Haste Health account with admin access
+- ✅ Access to create ClientApplication resources
+- ✅ Your tenant and project identifiers
+- ✅ Gemini installed `npm install -g @google/gemini-cli`
+
+## Step 1: Register a ClientApplication
+
+First, create an OAuth client that Gemini will use to authenticate with Haste Health.
+
+<Tabs>
+<TabItem value="admin-app" label="Admin App" default>
+1. Navigate to **Security/ClientApplications** in your Haste Health Admin App
+2. Click **New**
+3. Configure the following settings:
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| **Name** | `Gemini` | Human-readable name |
+| **Grant Types** | `authorization_code` and `refresh_token` | Machine-to-machine authentication |
+| **Response Types** | `token` | OAuth response type |
+| **Scope** | `openid profile email offline_access user/*.*` | Access level (read-only or full access) |
+| **Redirect URIs** | `http://localhost:7777/oauth/callback` | Redirect URI for OAuth flow |
+
+Create the ClientApplication using the Haste Health CLI:
+
+Note that the redirect uri should be `http://localhost:7777/oauth/callback` per Gemini [documentation](https://geminicli.com/docs/tools/mcp-server/#browser-redirect-requirements).
+
+4. Click **Actions/Create**
+5. **⚠️ Important**: Copy and save the generated id for later use.
+</TabItem>
+<TabItem value="cli" label="CLI" default>
+
+```bash
+haste-health api create ClientApplication '{
+  "resourceType": "ClientApplication",
+  "name": "Gemini",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "token",
+  "redirectUri": [
+    "http://localhost:7777/oauth/callback"
+  ],
+  "scope": "openid profile email offline_access user/*.*"
+}'
+```
+
+**Response:**
+```json
+{
+  "resourceType": "ClientApplication",
+  "id": "generated-id",
+  "name": "Gemini",
+  "grantType": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "responseTypes": "token",
+  "redirectUri": [
+    "http://localhost:7777/oauth/callback"
+  ],
+  "scope": "openid profile email offline_access user/*.*"
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Scope Configuration
+
+Choose appropriate scopes based on what Gemini needs to access:
+
+**Read-Only Access (Recommended for most cases):**
+```json
+"scope": "user/*.read"
+```
+
+**Specific Resource Types:**
+```json
+"scope": "user/Patient.read user/Observation.read user/Condition.read"
+```
+
+**Full Access (Use with caution):**
+```json
+"scope": "user/*.*"
+```
+
+For more information, see [Scopes documentation](/docs/api/authorization/scopes).
+
+## Step 2: Install Gemini CLI.
+
+1. Run `npm install -g @google/gemini-cli` to install the Gemini CLI.
+
+## Step 3: Configure Gemini
+
+Navigate to Home/.gemini/settings.json and add a new MCP server configuration. Client ID should be from result in Step 1.
+
+```json
+"mcpServers": {
+    "haste-health": {
+      "httpUrl": "https://api.haste.health/w/ohio-health/5nst9f43/api/v1/mcp",
+      "authProviderType": "dynamic_discovery",
+      "targetAudience": "lir9o7yvzv80yr0dm20pbxz26-",
+      "oauth": {
+        "clientId": "lir9o7yvzv80yr0dm20pbxz26-",
+        "enabled": true,
+        "scopes": ["openid profile email user/*.*"],
+        "audiences": ["lir9o7yvzv80yr0dm20pbxz26-"],
+        "redirectUri": "http://localhost:7777/oauth/callback"
+      }
+    }
+}
+```
+
+## Step 4. Authenticate Gemini with Haste Health
+
+Run the following to open up Gemini in your terminal:
+```bash
+OAUTH_CALLBACK_PORT=7777 gemini
+```
+
+Note OAUTH_CALLBACK_PORT must be set to match port in configuration. This is due to a bug in gemini-cli see the following [issue](https://github.com/google-gemini/gemini-cli/issues/14419).
+
+
+then run the following command: 
+```
+/mcp auth haste-health
+```
+
+This will open a browser window prompting you to log in to Haste Health and authorize Gemini. After successful authentication, Gemini will receive an OAuth token to access your Haste Health data.
+
+## Step 5: Test the Integration
+
+Test that Gemini can access your Haste Health data:
+
+### Example Prompts
+
+**Search for Observations:**
+```
+Find all blood pressure observations from the last 30 days
+```
+
+**Query Patient Data:**
+```
+Get patient demographics for Buddy.
+```
+
+**Analyze Conditions:**
+```
+List all patients with diabetes and their latest HbA1c readings
+```
+
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. "Invalid Client" Error
+
+**Symptom:** Gemini cannot authenticate with Haste Health
+
+**Solutions:**
+- ✅ Verify the `client_id` matches the ClientApplication ID exactly
+- ✅ Check that the ClientApplication exists: `haste-health api read ClientApplication gemini`
+- ✅ Ensure the ClientApplication has `authorization_code` and `refresh_token` grant types.
+
+#### 2. "Insufficient Scope" Error
+
+**Symptom:** Authentication works but data access fails
+
+**Solutions:**
+- ✅ Check the `scope` field in your ClientApplication resource
+- ✅ Ensure requested scopes match what's configured in the ClientApplication
+- ✅ Verify access policies grant permissions to your given user.
+- ✅ Update scopes: `haste-health api update r4 ClientApplication gemini --data '{ "scope": "system/*.*" }'`
+
+
+### Enable Debug Logging
+
+To enable detailed logging for troubleshooting enable debugging in Gemini via `--debug` flag.
+
+## Related Resources
+
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle)
+- [Client Registration](/docs/api/authentication/client_registration) - Complete ClientApplication documentation
+- [OAuth 2.0 Authorization codes](/docs/api/authentication/openid_connect/authorization_code) - Authentication code grant details
+- [OAuth 2.0 Refresh tokens](/docs/api/authentication/openid_connect/refresh_token) - Refresh token grant details
+- [Scopes](/docs/api/authorization/scopes) - OAuth scope configuration
+- [Model Context Protocol](/docs/api/rest_api/model_context_protocol/endpoint) - MCP overview and setup
+- [FHIR API Documentation](/docs/category/fhir) - Available FHIR operations
+
+## Support
+
+For issues or questions:
+
+1. Check the [Troubleshooting](#troubleshooting) section above
+2. Review Gemini logs for error details
+3. Verify your ClientApplication configuration
+4. Test OAuth authentication manually
+5. File an issue on the [Haste Health GitHub repository](https://github.com/HasteHealth/HasteHealth/issues)

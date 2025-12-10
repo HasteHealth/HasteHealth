@@ -1,0 +1,65 @@
+---
+id: authorize
+title: authorize
+sidebar_position: 1
+---
+
+# Authorization Endpoint
+
+The [OAuth 2.0 authorization endpoint](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint) is used to initiate the authentication and authorization flow. This endpoint redirects the user to authenticate and consent to the requested permissions.
+
+## Endpoint
+
+```
+GET /oauth2/authorize
+```
+
+This endpoint initiates the OAuth 2.0 / OpenID Connect authorization flow.
+
+## Query Parameters
+
+Required parameters:
+
+- `response_type` - The OAuth 2.0 response type. Use `code` for authorization code flow
+- `client_id` - The client identifier issued during registration
+- `redirect_uri` - The URI to redirect to after authorization (must be pre-registered)
+- `scope` - Space-delimited list of scopes (e.g., `openid profile email`)
+- `state` - An opaque value used to maintain state between request and callback (recommended for security)
+- `code_challenge` - PKCE code challenge (for public clients)
+- `code_challenge_method` - PKCE code challenge method (`S256` or `plain`)
+
+We require the use of PKCE for all clients.
+
+## Response
+
+If the user successfully authenticates and authorizes, the server will redirect to the `redirect_uri` with an authorization code:
+
+```
+HTTP/1.1 302 Found
+Location: https://example.com/callback?code=AUTH_CODE_HERE&state=abc123
+```
+
+The redirect includes:
+- `code` - The authorization code (short-lived, single-use)
+- `state` - The state parameter from the request (for validation)
+
+## Error Handling
+
+If there is an error, the server will redirect to the `redirect_uri` with error parameters:
+
+```
+HTTP/1.1 302 Found
+Location: https://example.com/callback?error=access_denied&error_description=The+user+denied+the+request&state=abc123
+```
+
+Common error codes:
+
+- `invalid_request` - The request is missing a required parameter or is otherwise malformed
+- `unauthorized_client` - The client is not authorized to request an authorization code
+- `access_denied` - The user or authorization server denied the request
+- `unsupported_response_type` - The authorization server does not support this response type
+- `invalid_scope` - The requested scope is invalid, unknown, or malformed
+- `server_error` - The authorization server encountered an unexpected error
+- `temporarily_unavailable` - The authorization server is temporarily unavailable
+
+After receiving the authorization code, exchange it for tokens at the token endpoint using the `code_verifier`.

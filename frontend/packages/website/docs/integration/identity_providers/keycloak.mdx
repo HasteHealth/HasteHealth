@@ -1,0 +1,72 @@
+---
+id: keycloak
+title: "Keycloak"
+sidebar_position: 5
+tags:
+  - authentication
+  - oidc
+  - oauth2
+  - client
+  - registration
+---
+
+#
+<img class="mb-4" src="/img/keycloak.png" alt="Keycloak Logo" style={{ width: '100px' }} />
+# Keycloak Integration
+
+This guide provides step-by-step instructions on integrating Keycloak as an identity provider for your Project.
+
+## Prerequisites
+- A Keycloak instance with access to the Keycloak Admin Console.
+- To test a local Keycloak instance, you can use the [Keycloak Docker Image](https://www.keycloak.org/getting-started/getting-started-docker).
+
+## Steps to Integrate Keycloak
+1. **Register a New Application in Keycloak Admin Console**
+   - Log in to the [Keycloak Admin Console](https://www.keycloak.org/).
+   - Navigate to "Clients".
+   - Click Create client
+   - Choose OpenID Connect as the client protocol
+   - Provide a Name and Client ID
+   - Click Next
+   - Set Client authentication to off
+   - Set Authorization enabled to off
+   - Choose Standard flow for authentication flow
+   - Enable PKCE and set S256 as the code challenge method.
+   - Click Next
+   - Click Save
+2. **Copy Configuration information**
+    Go to https://[keycloak-domain]/realms/[keycloak-realm]/.well-known/openid-configuration
+    And copy the following endpoints in the json for use later
+    - authorization_endpoint: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/auth`
+    - token_endpoint: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/token`
+    - jwks_uri: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/certs`
+
+3. **Create IdentityProvider Resource in Haste Health**
+   - Go to the Haste Health Admin App for your tenant.
+   - Navigate to the system project.
+    - Click Identity Provider
+    - Click **New**
+    - Provide the following details:
+      - **Name**: A friendly name for the identity provider (e.g., `Keycloak`).
+      - **Status**: Set to `active`.
+      - **Access Type**: Set to `oidc`.
+      - **Authorization_endpiont**: The OAuth 2.0 authorization endpoint copied from step 2.
+      - **Token_endpoint**: The OAuth 2.0 token endpoint copied from step 2.
+      - **Jwks_uri**: The Json web key set Url copied from step 2.
+      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to veirfy user).
+      - **Client ID**: The Application (client) ID copied from Keycloak.
+      - **Client Secret**: Copied from Keycloak in step 2.
+      - **Enable PKCE**: Use S256 as the code challenge method.
+      - Click **Create** to save the new Identity Provider configuration.
+      - Copy the id of the created Identity Provider for use in the next step.
+4. **Add Redirect URI in Keycloak app**
+   - Go back to your Keycloak client you created in step 2.
+   - At the bottom in "Valid Redirect URIs" section, add a new redirect URI for your Haste Health tenant:
+     `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+
+5. **Test the Integration**
+   - Click Projects in system admin app and modify at the bottom identity providers.
+   - Add the Keycloak identity provider to the desired project.
+   - Click the project and log out.
+   - At the login screen click the Keycloak button.
+   - Confirm redirect to Keycloak and login.

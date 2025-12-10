@@ -1,0 +1,62 @@
+---
+id: delete-type
+title: delete-type
+sidebar_position: 6
+---
+
+# Delete Resource Type
+
+The FHIR [conditional delete operation](https://www.hl7.org/fhir/http.html#3.1.0.7.1) allows you to delete resources of a specific type that match certain search criteria. This is done using an HTTP DELETE request to the endpoint corresponding to the resource type with query parameters.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+**Note:** The CLI `delete` command only supports deleting individual resource instances, not conditional deletion by type. For conditional deletion, use the TypeScript client or cURL.
+
+To delete a single Patient resource:
+
+```bash
+haste-health api delete-type Patient 12345
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
+
+Conditionally delete Patient resources using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+await client.delete_type(
+  {},
+  R4,
+  'Patient',
+  'identifier=http://example.org/fhir/ids|12345'
+);
+
+console.log('Matching Patient resources deleted');
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Conditionally delete Patient resources using cURL:
+
+```bash
+curl -X DELETE "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient?identifier=http://example.org/fhir/ids|12345" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+</TabItem>
+</Tabs>
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+<div className="border border-orange-100" />
+
+

@@ -1,0 +1,411 @@
+---
+id: CodeSystem
+title: CodeSystem
+hide_table_of_contents: true
+tags:
+  - fhir
+  - Fast Healthcare Interoperability Resources
+  - hl7
+  - healthcare it
+  - interoperability
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+import StructureDefinitionDisplay from '@site/src/components/StructureDefinitionDisplay';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
+# CodeSystem
+
+The CodeSystem resource is used to declare the existence of and describe a code system or code system supplement and its key properties, and optionally define a part or all of its content.
+
+<head>
+  <meta name="keywords" content="fhir, hl7, interoperability, healthcare" />
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org/',
+      '@type': 'Organization',
+      name: 'Haste Health',
+      url: 'https://haste.health',
+      logo: 'https://haste.health/img/logo.svg',
+    })}
+  </script>
+</head>
+
+  
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div className="col-span-2">
+  ## Structure
+  <BrowserOnly> {() => <StructureDefinitionDisplay sd="CodeSystem" />}</BrowserOnly>
+  </div>
+  
+ 
+  <div>
+  ## Search Parameters
+<div class="space-y-4"> 
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_haste-health-author</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The author of the resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.extension.where(url='https://haste.health/author').value</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Derived from the R4B Definition</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>$this.type().name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_text</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the narrative of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_content</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Search on the entire content of the resource</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_id</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Logical id of this artifact</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.id</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_lastUpdated</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>When the resource version last changed</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.lastUpdated</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_profile</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Profiles this resource claims to conform to</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.profile</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_query</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A custom search profile that describes a specific defined query operation</span></div>
+        
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_security</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Security Labels applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.security</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_source</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Identifies where the resource comes from</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.source</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">_tag</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Tags applied to this resource</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>Resource.meta.tag</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: A use context assigned to the capability statement* %5BCodeSystem%5D%28codesystem.html%29: A use context assigned to the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: A use context assigned to the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: A use context assigned to the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: A use context assigned to the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: A use context assigned to the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: A use context assigned to the message definition* %5BNamingSystem%5D%28namingsystem.html%29: A use context assigned to the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: A use context assigned to the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: A use context assigned to the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: A use context assigned to the structure definition* %5BStructureMap%5D%28structuremap.html%29: A use context assigned to the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: A use context assigned to the terminology capabilities* %5BValueSet%5D%28valueset.html%29: A use context assigned to the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(CapabilityStatement.useContext.value.ofType(CodeableConcept)) / (CodeSystem.useContext.value.ofType(CodeableConcept)) / (CompartmentDefinition.useContext.value.ofType(CodeableConcept)) / (ConceptMap.useContext.value.ofType(CodeableConcept)) / (GraphDefinition.useContext.value.ofType(CodeableConcept)) / (ImplementationGuide.useContext.value.ofType(CodeableConcept)) / (MessageDefinition.useContext.value.ofType(CodeableConcept)) / (NamingSystem.useContext.value.ofType(CodeableConcept)) / (OperationDefinition.useContext.value.ofType(CodeableConcept)) / (SearchParameter.useContext.value.ofType(CodeableConcept)) / (StructureDefinition.useContext.value.ofType(CodeableConcept)) / (StructureMap.useContext.value.ofType(CodeableConcept)) / (TerminologyCapabilities.useContext.value.ofType(CodeableConcept)) / (ValueSet.useContext.value.ofType(CodeableConcept))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-quantity</span> <span> (quantity)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: A quantity- or range-valued use context assigned to the capability statement* %5BCodeSystem%5D%28codesystem.html%29: A quantity- or range-valued use context assigned to the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: A quantity- or range-valued use context assigned to the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: A quantity- or range-valued use context assigned to the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: A quantity- or range-valued use context assigned to the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: A quantity- or range-valued use context assigned to the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: A quantity- or range-valued use context assigned to the message definition* %5BNamingSystem%5D%28namingsystem.html%29: A quantity- or range-valued use context assigned to the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: A quantity- or range-valued use context assigned to the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: A quantity- or range-valued use context assigned to the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: A quantity- or range-valued use context assigned to the structure definition* %5BStructureMap%5D%28structuremap.html%29: A quantity- or range-valued use context assigned to the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: A quantity- or range-valued use context assigned to the terminology capabilities* %5BValueSet%5D%28valueset.html%29: A quantity- or range-valued use context assigned to the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>(CapabilityStatement.useContext.value.ofType(Quantity)) / (CapabilityStatement.useContext.value.ofType(Range)) / (CodeSystem.useContext.value.ofType(Quantity)) / (CodeSystem.useContext.value.ofType(Range)) / (CompartmentDefinition.useContext.value.ofType(Quantity)) / (CompartmentDefinition.useContext.value.ofType(Range)) / (ConceptMap.useContext.value.ofType(Quantity)) / (ConceptMap.useContext.value.ofType(Range)) / (GraphDefinition.useContext.value.ofType(Quantity)) / (GraphDefinition.useContext.value.ofType(Range)) / (ImplementationGuide.useContext.value.ofType(Quantity)) / (ImplementationGuide.useContext.value.ofType(Range)) / (MessageDefinition.useContext.value.ofType(Quantity)) / (MessageDefinition.useContext.value.ofType(Range)) / (NamingSystem.useContext.value.ofType(Quantity)) / (NamingSystem.useContext.value.ofType(Range)) / (OperationDefinition.useContext.value.ofType(Quantity)) / (OperationDefinition.useContext.value.ofType(Range)) / (SearchParameter.useContext.value.ofType(Quantity)) / (SearchParameter.useContext.value.ofType(Range)) / (StructureDefinition.useContext.value.ofType(Quantity)) / (StructureDefinition.useContext.value.ofType(Range)) / (StructureMap.useContext.value.ofType(Quantity)) / (StructureMap.useContext.value.ofType(Range)) / (TerminologyCapabilities.useContext.value.ofType(Quantity)) / (TerminologyCapabilities.useContext.value.ofType(Range)) / (ValueSet.useContext.value.ofType(Quantity)) / (ValueSet.useContext.value.ofType(Range))</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: A type of use context assigned to the capability statement* %5BCodeSystem%5D%28codesystem.html%29: A type of use context assigned to the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: A type of use context assigned to the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: A type of use context assigned to the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: A type of use context assigned to the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: A type of use context assigned to the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: A type of use context assigned to the message definition* %5BNamingSystem%5D%28namingsystem.html%29: A type of use context assigned to the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: A type of use context assigned to the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: A type of use context assigned to the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: A type of use context assigned to the structure definition* %5BStructureMap%5D%28structuremap.html%29: A type of use context assigned to the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: A type of use context assigned to the terminology capabilities* %5BValueSet%5D%28valueset.html%29: A type of use context assigned to the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.useContext.code / CodeSystem.useContext.code / CompartmentDefinition.useContext.code / ConceptMap.useContext.code / GraphDefinition.useContext.code / ImplementationGuide.useContext.code / MessageDefinition.useContext.code / NamingSystem.useContext.code / OperationDefinition.useContext.code / SearchParameter.useContext.code / StructureDefinition.useContext.code / StructureMap.useContext.code / TerminologyCapabilities.useContext.code / ValueSet.useContext.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">date</span> <span> (date)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: The capability statement publication date* %5BCodeSystem%5D%28codesystem.html%29: The code system publication date* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: The compartment definition publication date* %5BConceptMap%5D%28conceptmap.html%29: The concept map publication date* %5BGraphDefinition%5D%28graphdefinition.html%29: The graph definition publication date* %5BImplementationGuide%5D%28implementationguide.html%29: The implementation guide publication date* %5BMessageDefinition%5D%28messagedefinition.html%29: The message definition publication date* %5BNamingSystem%5D%28namingsystem.html%29: The naming system publication date* %5BOperationDefinition%5D%28operationdefinition.html%29: The operation definition publication date* %5BSearchParameter%5D%28searchparameter.html%29: The search parameter publication date* %5BStructureDefinition%5D%28structuredefinition.html%29: The structure definition publication date* %5BStructureMap%5D%28structuremap.html%29: The structure map publication date* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: The terminology capabilities publication date* %5BValueSet%5D%28valueset.html%29: The value set publication date</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.date / CodeSystem.date / CompartmentDefinition.date / ConceptMap.date / GraphDefinition.date / ImplementationGuide.date / MessageDefinition.date / NamingSystem.date / OperationDefinition.date / SearchParameter.date / StructureDefinition.date / StructureMap.date / TerminologyCapabilities.date / ValueSet.date</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">description</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: The description of the capability statement* %5BCodeSystem%5D%28codesystem.html%29: The description of the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: The description of the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: The description of the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: The description of the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: The description of the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: The description of the message definition* %5BNamingSystem%5D%28namingsystem.html%29: The description of the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: The description of the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: The description of the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: The description of the structure definition* %5BStructureMap%5D%28structuremap.html%29: The description of the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: The description of the terminology capabilities* %5BValueSet%5D%28valueset.html%29: The description of the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.description / CodeSystem.description / CompartmentDefinition.description / ConceptMap.description / GraphDefinition.description / ImplementationGuide.description / MessageDefinition.description / NamingSystem.description / OperationDefinition.description / SearchParameter.description / StructureDefinition.description / StructureMap.description / TerminologyCapabilities.description / ValueSet.description</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">jurisdiction</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: Intended jurisdiction for the capability statement* %5BCodeSystem%5D%28codesystem.html%29: Intended jurisdiction for the code system* %5BConceptMap%5D%28conceptmap.html%29: Intended jurisdiction for the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: Intended jurisdiction for the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: Intended jurisdiction for the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: Intended jurisdiction for the message definition* %5BNamingSystem%5D%28namingsystem.html%29: Intended jurisdiction for the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: Intended jurisdiction for the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: Intended jurisdiction for the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: Intended jurisdiction for the structure definition* %5BStructureMap%5D%28structuremap.html%29: Intended jurisdiction for the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: Intended jurisdiction for the terminology capabilities* %5BValueSet%5D%28valueset.html%29: Intended jurisdiction for the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.jurisdiction / CodeSystem.jurisdiction / ConceptMap.jurisdiction / GraphDefinition.jurisdiction / ImplementationGuide.jurisdiction / MessageDefinition.jurisdiction / NamingSystem.jurisdiction / OperationDefinition.jurisdiction / SearchParameter.jurisdiction / StructureDefinition.jurisdiction / StructureMap.jurisdiction / TerminologyCapabilities.jurisdiction / ValueSet.jurisdiction</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">name</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: Computationally friendly name of the capability statement* %5BCodeSystem%5D%28codesystem.html%29: Computationally friendly name of the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: Computationally friendly name of the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: Computationally friendly name of the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: Computationally friendly name of the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: Computationally friendly name of the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: Computationally friendly name of the message definition* %5BNamingSystem%5D%28namingsystem.html%29: Computationally friendly name of the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: Computationally friendly name of the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: Computationally friendly name of the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: Computationally friendly name of the structure definition* %5BStructureMap%5D%28structuremap.html%29: Computationally friendly name of the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: Computationally friendly name of the terminology capabilities* %5BValueSet%5D%28valueset.html%29: Computationally friendly name of the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.name / CodeSystem.name / CompartmentDefinition.name / ConceptMap.name / GraphDefinition.name / ImplementationGuide.name / MessageDefinition.name / NamingSystem.name / OperationDefinition.name / SearchParameter.name / StructureDefinition.name / StructureMap.name / TerminologyCapabilities.name / ValueSet.name</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">publisher</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: Name of the publisher of the capability statement* %5BCodeSystem%5D%28codesystem.html%29: Name of the publisher of the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: Name of the publisher of the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: Name of the publisher of the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: Name of the publisher of the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: Name of the publisher of the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: Name of the publisher of the message definition* %5BNamingSystem%5D%28namingsystem.html%29: Name of the publisher of the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: Name of the publisher of the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: Name of the publisher of the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: Name of the publisher of the structure definition* %5BStructureMap%5D%28structuremap.html%29: Name of the publisher of the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: Name of the publisher of the terminology capabilities* %5BValueSet%5D%28valueset.html%29: Name of the publisher of the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.publisher / CodeSystem.publisher / CompartmentDefinition.publisher / ConceptMap.publisher / GraphDefinition.publisher / ImplementationGuide.publisher / MessageDefinition.publisher / NamingSystem.publisher / OperationDefinition.publisher / SearchParameter.publisher / StructureDefinition.publisher / StructureMap.publisher / TerminologyCapabilities.publisher / ValueSet.publisher</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">status</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: The current status of the capability statement* %5BCodeSystem%5D%28codesystem.html%29: The current status of the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: The current status of the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: The current status of the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: The current status of the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: The current status of the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: The current status of the message definition* %5BNamingSystem%5D%28namingsystem.html%29: The current status of the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: The current status of the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: The current status of the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: The current status of the structure definition* %5BStructureMap%5D%28structuremap.html%29: The current status of the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: The current status of the terminology capabilities* %5BValueSet%5D%28valueset.html%29: The current status of the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.status / CodeSystem.status / CompartmentDefinition.status / ConceptMap.status / GraphDefinition.status / ImplementationGuide.status / MessageDefinition.status / NamingSystem.status / OperationDefinition.status / SearchParameter.status / StructureDefinition.status / StructureMap.status / TerminologyCapabilities.status / ValueSet.status</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">title</span> <span> (string)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: The human-friendly name of the capability statement* %5BCodeSystem%5D%28codesystem.html%29: The human-friendly name of the code system* %5BConceptMap%5D%28conceptmap.html%29: The human-friendly name of the concept map* %5BImplementationGuide%5D%28implementationguide.html%29: The human-friendly name of the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: The human-friendly name of the message definition* %5BOperationDefinition%5D%28operationdefinition.html%29: The human-friendly name of the operation definition* %5BStructureDefinition%5D%28structuredefinition.html%29: The human-friendly name of the structure definition* %5BStructureMap%5D%28structuremap.html%29: The human-friendly name of the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: The human-friendly name of the terminology capabilities* %5BValueSet%5D%28valueset.html%29: The human-friendly name of the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.title / CodeSystem.title / ConceptMap.title / ImplementationGuide.title / MessageDefinition.title / OperationDefinition.title / StructureDefinition.title / StructureMap.title / TerminologyCapabilities.title / ValueSet.title</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">url</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: The uri that identifies the capability statement* %5BCodeSystem%5D%28codesystem.html%29: The uri that identifies the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: The uri that identifies the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: The uri that identifies the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: The uri that identifies the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: The uri that identifies the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: The uri that identifies the message definition* %5BOperationDefinition%5D%28operationdefinition.html%29: The uri that identifies the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: The uri that identifies the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: The uri that identifies the structure definition* %5BStructureMap%5D%28structuremap.html%29: The uri that identifies the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: The uri that identifies the terminology capabilities* %5BValueSet%5D%28valueset.html%29: The uri that identifies the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.url / CodeSystem.url / CompartmentDefinition.url / ConceptMap.url / GraphDefinition.url / ImplementationGuide.url / MessageDefinition.url / OperationDefinition.url / SearchParameter.url / StructureDefinition.url / StructureMap.url / TerminologyCapabilities.url / ValueSet.url</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">version</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: The business version of the capability statement* %5BCodeSystem%5D%28codesystem.html%29: The business version of the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: The business version of the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: The business version of the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: The business version of the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: The business version of the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: The business version of the message definition* %5BOperationDefinition%5D%28operationdefinition.html%29: The business version of the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: The business version of the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: The business version of the structure definition* %5BStructureMap%5D%28structuremap.html%29: The business version of the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: The business version of the terminology capabilities* %5BValueSet%5D%28valueset.html%29: The business version of the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.version / CodeSystem.version / CompartmentDefinition.version / ConceptMap.version / GraphDefinition.version / ImplementationGuide.version / MessageDefinition.version / OperationDefinition.version / SearchParameter.version / StructureDefinition.version / StructureMap.version / TerminologyCapabilities.version / ValueSet.version</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type-quantity</span> <span> (composite)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: A use context type and quantity- or range-based value assigned to the capability statement* %5BCodeSystem%5D%28codesystem.html%29: A use context type and quantity- or range-based value assigned to the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: A use context type and quantity- or range-based value assigned to the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: A use context type and quantity- or range-based value assigned to the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: A use context type and quantity- or range-based value assigned to the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: A use context type and quantity- or range-based value assigned to the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: A use context type and quantity- or range-based value assigned to the message definition* %5BNamingSystem%5D%28namingsystem.html%29: A use context type and quantity- or range-based value assigned to the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: A use context type and quantity- or range-based value assigned to the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: A use context type and quantity- or range-based value assigned to the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: A use context type and quantity- or range-based value assigned to the structure definition* %5BStructureMap%5D%28structuremap.html%29: A use context type and quantity- or range-based value assigned to the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: A use context type and quantity- or range-based value assigned to the terminology capabilities* %5BValueSet%5D%28valueset.html%29: A use context type and quantity- or range-based value assigned to the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.useContext / CodeSystem.useContext / CompartmentDefinition.useContext / ConceptMap.useContext / GraphDefinition.useContext / ImplementationGuide.useContext / MessageDefinition.useContext / NamingSystem.useContext / OperationDefinition.useContext / SearchParameter.useContext / StructureDefinition.useContext / StructureMap.useContext / TerminologyCapabilities.useContext / ValueSet.useContext</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">context-type-value</span> <span> (composite)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCapabilityStatement%5D%28capabilitystatement.html%29: A use context type and value assigned to the capability statement* %5BCodeSystem%5D%28codesystem.html%29: A use context type and value assigned to the code system* %5BCompartmentDefinition%5D%28compartmentdefinition.html%29: A use context type and value assigned to the compartment definition* %5BConceptMap%5D%28conceptmap.html%29: A use context type and value assigned to the concept map* %5BGraphDefinition%5D%28graphdefinition.html%29: A use context type and value assigned to the graph definition* %5BImplementationGuide%5D%28implementationguide.html%29: A use context type and value assigned to the implementation guide* %5BMessageDefinition%5D%28messagedefinition.html%29: A use context type and value assigned to the message definition* %5BNamingSystem%5D%28namingsystem.html%29: A use context type and value assigned to the naming system* %5BOperationDefinition%5D%28operationdefinition.html%29: A use context type and value assigned to the operation definition* %5BSearchParameter%5D%28searchparameter.html%29: A use context type and value assigned to the search parameter* %5BStructureDefinition%5D%28structuredefinition.html%29: A use context type and value assigned to the structure definition* %5BStructureMap%5D%28structuremap.html%29: A use context type and value assigned to the structure map* %5BTerminologyCapabilities%5D%28terminologycapabilities.html%29: A use context type and value assigned to the terminology capabilities* %5BValueSet%5D%28valueset.html%29: A use context type and value assigned to the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CapabilityStatement.useContext / CodeSystem.useContext / CompartmentDefinition.useContext / ConceptMap.useContext / GraphDefinition.useContext / ImplementationGuide.useContext / MessageDefinition.useContext / NamingSystem.useContext / OperationDefinition.useContext / SearchParameter.useContext / StructureDefinition.useContext / StructureMap.useContext / TerminologyCapabilities.useContext / ValueSet.useContext</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">code</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A code defined in the code system</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CodeSystem.concept.code</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">content-mode</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>not-present / example / fragment / complete / supplement</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CodeSystem.content</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">identifier</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Multiple Resources: * %5BCodeSystem%5D%28codesystem.html%29: External identifier for the code system* %5BConceptMap%5D%28conceptmap.html%29: External identifier for the concept map* %5BMessageDefinition%5D%28messagedefinition.html%29: External identifier for the message definition* %5BStructureDefinition%5D%28structuredefinition.html%29: External identifier for the structure definition* %5BStructureMap%5D%28structuremap.html%29: External identifier for the structure map* %5BValueSet%5D%28valueset.html%29: External identifier for the value set</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CodeSystem.identifier / ConceptMap.identifier / MessageDefinition.identifier / StructureDefinition.identifier / StructureMap.identifier / ValueSet.identifier</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">language</span> <span> (token)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>A language in which a designation is provided</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CodeSystem.concept.designation.language</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">supplements</span> <span> (reference)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>Find code system supplements for the referenced code system</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CodeSystem.supplements</code>
+            </div>
+    </div>
+    
+
+   
+    <div class="text-xs space-y-1">
+        <div class="text-sm">
+            <span class="font-semibold">system</span> <span> (uri)</span>
+        </div>
+        <div class="text-orange-900 line-clamp-3 truncate"> <span>The system for any codes defined by this code system %28same as 'url'%29</span></div>
+        <div class="line-clamp-3 truncate">
+              <code>CodeSystem.url</code>
+            </div>
+    </div>
+    
+
+   </div></div> </div>

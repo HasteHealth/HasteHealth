@@ -1,0 +1,93 @@
+---
+id: history-type
+title: history-type
+sidebar_position: 10
+---
+
+# History Resource Type
+
+The FHIR [history operation](https://www.hl7.org/fhir/http.html#history) allows you to retrieve the change history for all resources of a specific type. This is done using an HTTP GET request to the history endpoint for the resource type.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Retrieve the history of all Patient resources using the Haste Health CLI:
+
+```bash
+haste-health api history-type Patient "_count=20&_since=2025-01-01"
+```
+
+This command retrieves the last 20 versions of Patient resources changed since January 1, 2025.
+
+You can also retrieve history without parameters:
+
+```bash
+haste-health api history-type Patient
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript Client">
+
+Retrieve the history of all Patient resources using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const history = await client.history_type(
+  {},
+  R4,
+  'Patient',
+  '_count=20&_since=2025-01-01'
+);
+
+console.log('Total versions:', history.total);
+console.log('History entries:', history.entry);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Retrieve the history of all Patient resources using cURL:
+
+```bash
+curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/_history?_count=20&_since=2025-01-01" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+</TabItem>
+</Tabs>
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+<div className="border border-orange-100" />
+
+
+
+
+## Error Handling
+
+If there are any issues with the request (e.g., invalid parameters), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Invalid _since parameter format"
+    }
+  ]
+}
+```

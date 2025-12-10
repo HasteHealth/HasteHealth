@@ -1,0 +1,134 @@
+---
+id: create-resource
+title: create-resource
+sidebar_position: 0
+---
+
+# Create Resource
+
+The FHIR [create operation](https://www.hl7.org/fhir/http.html#create) allows you to create a new resource of a specified type on the FHIR server. This is done using an HTTP POST request to the endpoint corresponding to the resource type.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+<TabItem value="cli" label="CLI" default>
+
+Create a Patient resource using the Haste Health CLI:
+
+```bash
+haste-health api create --file patient.json
+```
+
+Where `patient.json` contains:
+
+```json
+{
+  "resourceType": "Patient",
+  "name": [
+    {
+      "use": "official",
+      "family": "Doe",
+      "given": ["John"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1980-01-01"
+}
+```
+
+Or pass the data inline:
+
+```bash
+echo '{
+  "resourceType": "Patient",
+  "name": [{"use": "official", "family": "Doe", "given": ["John"]}],
+  "gender": "male",
+  "birthDate": "1980-01-01"
+}' | haste-health api create r4 --data -
+```
+
+</TabItem>
+<TabItem value="typescript" label="TypeScript">
+
+Create a Patient resource using the TypeScript client:
+
+```typescript
+import { AsynchronousClient } from '@haste-health/client';
+import { R4 } from '@haste-health/fhir-types/versions';
+import { Patient } from '@haste-health/fhir-types/r4/types';
+
+// Assuming you have a configured client
+const client: AsynchronousClient<{}> = /* ... */;
+
+const newPatient: Patient = {
+  resourceType: "Patient",
+  name: [
+    {
+      use: "official",
+      family: "Doe",
+      given: ["John"]
+    }
+  ],
+  gender: "male",
+  birthDate: "1980-01-01"
+};
+
+const createdPatient = await client.create(
+  {},
+  R4,
+  newPatient
+);
+
+console.log('Created Patient:', createdPatient);
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+Create a Patient resource using cURL:
+
+```bash
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient" \
+     -H "Content-Type: application/fhir+json" \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     -d '{
+           "resourceType": "Patient",
+           "name": [
+             {
+               "use": "official",
+               "family": "Doe",
+               "given": ["John"]
+             }
+           ],
+           "gender": "male",
+           "birthDate": "1980-01-01"
+         }'
+```
+
+</TabItem>
+</Tabs>
+Replace `[tenant]` with your tenant name and `[project]` with your project ID.
+<div className="border border-orange-100" />
+
+
+
+## Error Handling
+If there are any issues with the request (e.g., missing required fields, invalid data), the server will respond with an appropriate error status code (e.g., `400 Bad Request`) and include an `OperationOutcome` resource in the response body detailing the errors.   
+
+
+HTTP/1.1 400 Bad Request
+Content-Type: application/fhir+json
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "diagnostics": "Missing required field: name"
+    }
+  ]
+}
+
+```

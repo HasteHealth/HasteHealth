@@ -1,0 +1,35 @@
+---
+title: Intro
+sidebar_position: 0
+---
+
+# Intro
+
+Welcome to the Haste Health documentation! This guide will help you get started with setting up and using Haste Health.
+
+## What is Haste Health?
+Haste Health is a fast open-source healthcare developer platform designed to facilitate healthcare data interoperability using the FHIR (
+Fast Healthcare Interoperability Resources) standard. It provides tools and services to manage, store, and exchange healthcare information efficiently.
+
+
+## Prerequisites
+Before you begin, ensure you have the following installed on your machine:
+- [Docker](https://www.docker.com/get-started) (Docker Engine version 27 or later)
+
+## Running Haste Health with Docker
+This will setup all the infrastructure required to run Haste Health and start the main server and worker.
+
+The server will be available at http://api.haste.health
+
+```bash
+curl https://raw.githubusercontent.com/HasteHealth/HasteHealth/refs/heads/main/docker-compose.yml -o docker-compose.yml
+docker-compose up
+```
+
+Write out a detailed site guide and link to other documentation pages as needed.
+
+## Next Steps
+To learn more about Haste Health, check out the following sections:
+- [FHIR Intro](../api/rest_api/fhir/intro)
+- [Authentication](../api/authentication/intro)
+We hope you enjoy using Haste Health!

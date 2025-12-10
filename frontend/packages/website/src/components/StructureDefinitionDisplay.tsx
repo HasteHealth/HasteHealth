@@ -36,7 +36,7 @@ function DisplayType({ element }: Readonly<{ element: ElementDefinition }>) {
     isTypeChoice(element) &&
     !display.startsWith("http://hl7.org/fhirpath/System.")
       ? null
-      : "/docs/Reference/FHIR/Model/Types/" + display + "/";
+      : "/reference/fhir/model/types/" + display + "/";
 
   return (
     <div className="ml-2">
