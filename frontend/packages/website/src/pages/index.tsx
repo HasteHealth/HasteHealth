@@ -84,12 +84,12 @@ export default function Home(): ReactNode {
             <header className="space-y-6 pt-16">
               <Heading
                 as="h1"
-                className="text-5xl font-bold text-orange-950 text-center"
+                className="text-6xl md:text-7xl font-bold text-orange-950 text-center"
               >
                 {siteConfig.title}
               </Heading>
               <div className="text-center">
-                <span className="text-lg text-orange-950 font-semibold">
+                <span className="text-2xl text-orange-950 font-semibold">
                   Modern healthcare development platform. Built for{" "}
                   <span className="text-orange-600 ">performance</span> and{" "}
                   <span className="text-orange-600 ">scale</span>.
