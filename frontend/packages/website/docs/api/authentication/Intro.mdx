@@ -42,7 +42,7 @@ User-centric authentication where users log in and authorize access. The applica
 User → Login → Consent → Authorization Code → Access Token + ID Token
 ```
 
-Learn more: [Authorization Code Flow](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/authorization-code)
+Learn more: [Authorization Code Flow](/docs/api/authentication/openid_connect/authorization_code)
 
 ### 2. Client Credentials Flow
 
@@ -61,7 +61,7 @@ Machine-to-machine authentication without user involvement. The application auth
 Client ID + Client Secret → Access Token
 ```
 
-Learn more: [Client Credentials Flow](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/client-credentials)
+Learn more: [Client Credentials Flow](/docs/api/authentication/openid_connect/client_credentials)
 
 ### 3. Refresh Token Flow
 
@@ -80,7 +80,7 @@ Obtain new access tokens without requiring user re-authentication.
 Refresh Token → New Access Token
 ```
 
-Learn more: [Refresh Token Flow](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/refresh-token)
+Learn more: [Refresh Token Flow](/docs/api/authentication/openid_connect/refresh_token)
 
 ## SMART on FHIR
 
@@ -96,20 +96,20 @@ SMART (Substitutable Medical Applications, Reusable Technologies) on FHIR extend
 - **EHR Launch** - Application launched from within an EHR
 - **Standalone Launch** - Application launched independently
 
-Learn more about our support for [SMART on FHIR](/docs/APIs%20&%20SDKs/Authentication/smart-on-fhir)
+Learn more about our support for [SMART on FHIR](/docs/api/authentication/smart_on_fhir)
 
 ## Federated Login
 
 Connect external identity providers for Single Sign-On (SSO):
 
-Learn more about our support for [Federated Login](/docs/APIs%20&%20SDKs/Authentication/federated-login)
+Learn more about our support for [Federated Login](/docs/api/authentication/federated_login)
 
 ## Getting Started
 
 ### Quick Start Guide
 
 1. **Register a Client Application**
-   see [Client Registration](/docs/APIs%20&%20SDKs/Authentication/Client%20Registration)
+   see [Client Registration](/docs/api/authentication/client_registration)
 
 2. **Configure OAuth Settings**
    - Discovery URI: `https://api.haste.health/.well-known/openid-configuration/w/{tenant}/{project}`
@@ -117,8 +117,8 @@ Learn more about our support for [Federated Login](/docs/APIs%20&%20SDKs/Authent
    - Token Endpoint: `https://api.haste.health/w/{tenant}/api/v1/{project}/oauth/token`
 
 3. **Implement Authentication Flow**
-   - See [Authorization Code Flow](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/authorization-code) for web apps
-   - See [Client Credentials Flow](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/client-credentials) for backend services
+   - See [Authorization Code Flow](/docs/api/authentication/openid_connect/authorization_code) for web apps
+   - See [Client Credentials Flow](/docs/api/authentication/openid_connect/client_credentials) for backend services
 
 
 ## Discovery & Configuration
@@ -178,18 +178,18 @@ https://api.haste.health/.well-known/openid-configuration/w/{tenant}/{project}
 ## Documentation Index
 
 ### Core Concepts
-- [Client Registration](/docs/APIs%20&%20SDKs/Authentication/Client%20Registration) - Register OAuth clients
-- [Scopes](/docs/APIs%20&%20SDKs/Authorization/scopes) - OAuth scope configuration
+- [Client Registration](/docs/api/authentication/client_registration) - Register OAuth clients
+- [Scopes](/docs/api/authorization/scopes) - OAuth scope configuration
 
 ### Authentication Flows
-- [Authorization Code](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/authorization-code) - User authentication flow
-- [Client Credentials](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/client-credentials) - Machine-to-machine auth
-- [Refresh Token](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/refresh-token) - Token refresh flow
+- [Authorization Code](/docs/api/authentication/openid_connect/authorization_code) - User authentication flow
+- [Client Credentials](/docs/api/authentication/openid_connect/client_credentials) - Machine-to-machine auth
+- [Refresh Token](/docs/api/authentication/openid_connect/refresh_token) - Token refresh flow
 
 ### Advanced Topics
-- [SMART on FHIR](/docs/APIs%20&%20SDKs/Authentication/smart-on-fhir) - Healthcare-specific authorization
-- [Federated Login](/docs/APIs%20&%20SDKs/Authentication/federated-login) - External identity provider integration
-- [Access Control](/docs/APIs%20&%20SDKs/Authorization/Access%20Control) - Fine-grained permissions
+- [SMART on FHIR](/docs/api/authentication/smart_on_fhir) - Healthcare-specific authorization
+- [Federated Login](/docs/api/authentication/federated_login) - External identity provider integration
+- [Access Control](/docs/api/authorization/access_control) - Fine-grained permissions
 
 ## Standards & Specifications
 

@@ -16,7 +16,7 @@ import TabItem from '@theme/TabItem';
 
 Client registration is the process of creating OAuth 2.0/OpenID Connect client applications in Haste Health. Clients represent applications that need to authenticate users or access resources on the FHIR server.
 
-In Haste Health, client applications are managed as FHIR resources using the [`ClientApplication`](/docs/Reference/FHIR/Model/Resources/ClientApplication) resource type. This allows clients to be created, updated, and managed through the standard FHIR API.
+In Haste Health, client applications are managed as FHIR resources using the [`ClientApplication`](/docs/reference/fhir/model/resources/ClientApplication) resource type. This allows clients to be created, updated, and managed through the standard FHIR API.
 
 ## Overview
 
@@ -55,7 +55,7 @@ Public clients must use:
 
 ## ClientApplication Resource Structure
 
-For complete field definitions, see the [ClientApplication resource documentation](/docs/Reference/FHIR/Model/Resources/ClientApplication).
+For complete field definitions, see the [ClientApplication resource documentation](/docs/reference/fhir/model/resources/ClientApplication).
 
 ## Registering a Client
 
@@ -255,7 +255,7 @@ For grant types we support see the following [documentation](/docs/category/open
 openid profile email offline_access patient/*.read user/Patient.cruds
 ```
 
-See [Scopes documentation](/docs/APIs%20&%20SDKs/Authorization/scopes) for complete scope syntax.
+See [Scopes documentation](/docs/api/authorization/scopes) for complete scope syntax.
 
 
 ## Access Control
@@ -301,18 +301,18 @@ Public clients requires user consent for requested scopes. The access policy use
 
 ## Related Resources
 
-- [ClientApplication Resource Reference](/docs/Reference/FHIR/Model/Resources/ClientApplication) - Complete field definitions
-- [Scopes Documentation](/docs/APIs%20&%20SDKs/Authorization/scopes) - OAuth scope syntax and usage
-- [Client Credentials Grant](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/client-credentials) - Machine-to-machine authentication
-- [Authorization Code Flow](/docs/APIs%20&%20SDKs/Authentication/OpenID%20Connect/authorization-code) - User authentication flow
-- [SMART on FHIR](/docs/APIs%20&%20SDKs/Authentication/smart-on-fhir) - Healthcare-specific authorization
-- [Access Control](/docs/APIs%20&%20SDKs/Authorization/Intro) - Configuring client permissions
+- [ClientApplication Resource Reference](/docs/reference/fhir/model/resources/ClientApplication) - Complete field definitions
+- [Scopes Documentation](/docs/api/authorization/scopes) - OAuth scope syntax and usage
+- [Client Credentials Grant](/docs/api/authentication/openid_connect/client_credentials) - Machine-to-machine authentication
+- [Authorization Code Flow](/docs/api/authentication/openid_connect/authorization_code) - User authentication flow
+- [SMART on FHIR](/docs/api/authentication/smart_on_fhir) - Healthcare-specific authorization
+- [Access Control](/docs/api/authorization/intro) - Configuring client permissions
 
 ## Support
 
 For questions or issues with client registration:
 
-1. Review the [ClientApplication resource documentation](/docs/Reference/FHIR/Model/Resources/ClientApplication)
+1. Review the [ClientApplication resource documentation](/docs/reference/fhir/model/resources/ClientApplication)
 2. Check the [OpenID Connect specification](https://openid.net/specs/openid-connect-core-1_0.html)
 3. Consult the [OAuth 2.0 specification](https://datatracker.ietf.org/doc/html/rfc6749)
 4. Contact Haste Health support
