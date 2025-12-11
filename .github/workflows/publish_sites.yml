@@ -18,7 +18,8 @@ jobs:
       - name: Compile documentation.
         run: cd backend && RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo +nightly doc --workspace --no-deps
       - name: Copy wrangler config
-        run: cp backend/wrangler/rust-book.wrangler.jsonc ./backend/wrangler.jsonc
+        # Tmp delete large file that wrangler chokes on.
+        run: cp backend/wrangler/rust-book.wrangler.jsonc ./backend/wrangler.jsonc && rm backend/target/doc/src/haste_fhir_model/r4/generated/terminology.rs.html
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
