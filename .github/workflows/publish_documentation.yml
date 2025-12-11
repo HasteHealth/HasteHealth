@@ -36,8 +36,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: EnableCorePack
-        run: corepack enable
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.24.0
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -58,8 +59,8 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           wranglerVersion: "4.50.0"
-          workingDirectory: "frontend"
+          workingDirectory: frontend
           packageManager: pnpm
-          command: pages deploy public/ --project-name=adishwar-rishi-website
+          command: deploy
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
