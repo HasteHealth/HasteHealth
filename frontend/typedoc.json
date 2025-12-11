@@ -1,0 +1,9 @@
+{
+  "entryPoints": ["packages/*", "artifacts/*"],
+  "name": "IGUHealth",
+  "entryPointStrategy": "packages",
+  "includeVersion": false
+
+  // Potentially useful for debugging
+  // "logLevel": "Verbose"
+}

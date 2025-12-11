@@ -1,0 +1,17 @@
+{
+  // "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "haste-health-typedoc",
+  "compatibility_date": "2025-06-14",
+  "assets": {
+    "directory": "./docs"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    {
+      "pattern": "typescript.haste.health",
+      "custom_domain": true
+    }
+  ]
+}
