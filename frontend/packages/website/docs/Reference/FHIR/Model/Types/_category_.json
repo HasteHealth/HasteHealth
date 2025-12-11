@@ -1,8 +1,0 @@
-{
-    "label": "Types",
-    "position": 1,
-    "link": {
-        "type": "generated-index",
-        "description": "FHIR Types Reference Documentation for Haste Health."
-    }
-}
