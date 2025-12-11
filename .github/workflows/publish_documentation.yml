@@ -60,5 +60,6 @@ jobs:
           wranglerVersion: "4.50.0"
           workingDirectory: "frontend"
           packageManager: pnpm
+          command: pages deploy public/ --project-name=adishwar-rishi-website
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
