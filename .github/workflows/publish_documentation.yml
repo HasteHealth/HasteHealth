@@ -53,10 +53,12 @@ jobs:
 
       - name: Copy wrangler config
         run: cp frontend/wrangler/typedoc.wrangler.jsonc ./frontend/wrangler.jsonc
+
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
           wranglerVersion: "4.50.0"
           workingDirectory: "frontend"
+          packageManager: pnpm
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
