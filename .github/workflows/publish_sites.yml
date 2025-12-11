@@ -1,0 +1,27 @@
+name: Release
+on:
+  release:
+    types: [published]
+
+jobs:
+  rust_book:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        # Use nightly so can have access to unstable options for rustdoc.
+      - run: rustup update nightly && rustup default nightly
+      # Compile with workspace entry with the enable-index-page flag.
+      - name: Compile documentation.
+        run: cd backend && RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo +nightly doc --workspace --no-deps
+      - name: Copy wrangler config
+        run: cp backend/wrangler/rust-book.wrangler.jsonc ./backend/wrangler.jsonc
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          workingDirectory: "backend"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
