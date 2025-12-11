@@ -1,0 +1,17 @@
+{
+  // "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "haste-health-rust-book",
+  "compatibility_date": "2025-06-14",
+  "assets": {
+    "directory": "./target/doc"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    {
+      "pattern": "rust.haste.health",
+      "custom_domain": true
+    }
+  ]
+}
