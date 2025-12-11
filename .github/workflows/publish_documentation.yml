@@ -44,6 +44,9 @@ jobs:
         with:
           node-version: 23.9.0
 
+      - name: Install dependencies
+        run: cd frontend && pnpm install
+
       # Compile with typescript documentation.
       - name: Compile documentation.
         run: cd frontend && pnpm generate-documentation
