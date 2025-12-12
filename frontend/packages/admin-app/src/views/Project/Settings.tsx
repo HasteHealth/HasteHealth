@@ -324,7 +324,6 @@ function FHIRSettings({
 function OpenIDConnectSettings({
   endpointMetadata,
 }: Readonly<{ endpointMetadata: TenantEndpointInformation.Output }>) {
-  const hasteHealth = useHasteHealth();
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold underline">OpenID Connect</h3>

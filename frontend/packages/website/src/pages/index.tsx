@@ -40,7 +40,7 @@ function BorderBlock() {
   );
 }
 
-function BorderVertical({ height }: { height?: number }) {
+function BorderVertical({ height }: Readonly<{ height?: number }>) {
   console.log("height:", height);
   return (
     <div
@@ -52,16 +52,15 @@ function BorderVertical({ height }: { height?: number }) {
 
 export default function Home(): ReactNode {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = React.useState<
-    number | undefined
-  >(undefined);
+  const [_, setContainerHeight] = React.useState<number | undefined>(undefined);
   React.useEffect(() => {
     if (containerRef.current) {
       let style = window.getComputedStyle(containerRef.current);
       console.log("Container height:", containerRef.current.clientHeight);
       console.log("Container margin top:", style.marginTop);
       setContainerHeight(
-        containerRef.current.clientHeight + parseInt(style.marginTop, 10) / 2
+        containerRef.current.clientHeight +
+          Number.parseInt(style.marginTop, 10) / 2
       );
     }
   }, [containerRef]);
