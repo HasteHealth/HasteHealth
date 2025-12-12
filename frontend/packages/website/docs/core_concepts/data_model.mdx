@@ -5,3 +5,187 @@ tags:
     - core concepts
     - data model
 ---
+
+# Data Model
+
+Haste Health implements the **FHIR R4** data model as the foundation for all healthcare data exchange. FHIR (Fast Healthcare Interoperability Resources) provides a modern, RESTful approach to healthcare interoperability with rich, extensible resource types.
+
+## FHIR R4 Foundation
+
+The platform supports all standard FHIR R4 resource types defined by HL7, including:
+
+- **Clinical Resources**: Patient, Observation, Condition, Procedure, MedicationRequest, etc.
+- **Administrative Resources**: Practitioner, Organization, Location, Encounter, etc.
+- **Financial Resources**: Claim, Coverage, ExplanationOfBenefit, etc.
+- **Terminology Resources**: CodeSystem, ValueSet, ConceptMap, etc.
+
+Each resource follows the FHIR specification for structure, data types, and relationships. Resources are stored as JSON documents with full support for:
+
+- **References**: Links between resources (e.g., Observation references Patient)
+- **Extensions**: Custom fields for organization-specific data
+- **Contained resources**: Embedded resources within a parent resource
+- **Meta information**: Version IDs, last updated timestamps, profiles, tags
+
+**[Browse all FHIR resource types →](/docs/category/resources)**
+
+## Custom Haste Health Resources
+
+In addition to standard FHIR resources, Haste Health defines custom resource types for platform-specific functionality. These resources follow FHIR conventions and are stored alongside standard resources.
+
+### AccessPolicyV2
+
+Fine-grained access control policies that define what operations users can perform on resources.
+
+**Purpose**: Implements attribute-based access control (ABAC) for authorization decisions beyond OAuth scopes.
+
+**Key Features**:
+- **Policy rules**: Define conditions for allowing/denying access
+- **User linking**: Associate policies with User or Membership resources
+- **Request evaluation**: Policies evaluate against HTTP request context (method, URL, body)
+- **Version tracking**: Policies are versioned and referenced by version ID in tokens
+
+**Use Cases**:
+- Restrict users to specific Patient resources (e.g., only their assigned patients)
+- Allow read-only access to certain resource types
+- Enforce department-specific data access boundaries
+- Implement custom business rules for data access
+
+**[View AccessPolicyV2 schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)**
+
+### User
+
+User accounts that can authenticate to the platform.
+
+**Purpose**: Represents individual users who log in and access the system. Users exist at the tenant level in the System Project.
+
+**Key Features**:
+- **Email**: Unique identifier for authentication
+- **Role**: Tenant-level role (admin or member)
+- **Federated identity**: Optional link to external identity providers (OIDC, SAML)
+- **Access policies**: Referenced by AccessPolicyV2 for permissions
+
+**Use Cases**:
+- Healthcare provider login accounts
+- Administrative users managing the platform
+- Application service accounts
+- Federated SSO integration
+
+**[View User schema →](/docs/reference/fhir/model/resources/User)**
+
+### Project
+
+Isolated resource containers within a tenant for data segregation.
+
+**Purpose**: Provides resource isolation within a tenant. All FHIR resources belong to exactly one project, and users must have explicit project access via Membership.
+
+**Key Features**:
+- **Name**: Human-readable project identifier
+- **FHIR version**: R4 or R4B support
+- **Identity providers**: Which IdPs users can authenticate with for this project
+- **Resource isolation**: Complete separation of data between projects
+
+**Use Cases**:
+- Environment separation (development, staging, production)
+- Department isolation (cardiology, oncology, emergency)
+- Client isolation in multi-tenant SaaS scenarios
+- Application-specific data boundaries
+
+**[View Project schema →](/docs/reference/fhir/model/resources/Project)**
+
+### Membership
+
+Links users to projects and defines their project-level role and access policies.
+
+**Purpose**: Grants users access to specific projects with defined roles and permissions. Memberships are the bridge between User resources (in System Project) and Project resources.
+
+**Key Features**:
+- **User link**: Reference to User resource
+- **Role**: Project-level role (admin or member)
+- **Email**: User's email address for identification
+- **Access policy references**: Which AccessPolicyV2 resources apply to this user in this project
+- **Federated identity**: Optional external identity provider linkage
+
+**Use Cases**:
+- Grant developer access to development project
+- Assign clinicians to department-specific projects
+- Configure project-specific permissions per user
+- Manage team access across multiple projects
+
+**[View Membership schema →](/docs/reference/fhir/model/resources/Membership)**
+
+### IdentityProvider
+
+External identity provider configurations for federated authentication.
+
+**Purpose**: Defines external authentication systems (OIDC, SAML) that users can authenticate with. IdentityProviders exist in the System Project and enable Single Sign-On (SSO) integration.
+
+**Key Features**:
+- **Access type**: Protocol type (oidc, saml)
+- **Endpoints**: Authorization, token, and JWKS URIs for OIDC
+- **Client credentials**: Client ID and secret for OAuth communication
+- **PKCE support**: Optional Proof Key for Code Exchange for enhanced security
+- **Status**: Active or inactive state for enabling/disabling providers
+
+**Use Cases**:
+- Enterprise SSO integration with corporate identity providers
+- Allow users to sign in with Google, Microsoft, or Okta
+- Federated authentication across healthcare organizations
+- Multi-IdP support for different user populations
+
+
+**[View IdentityProvider schema →](/docs/reference/fhir/model/resources/IdentityProvider)**
+
+**[View integration guides →](/docs/category/identity-providers)**
+
+## Resource Relationships
+
+Custom resources work together with standard FHIR resources:
+
+```
+Tenant (Organization Boundary)
+├── System Project
+│   ├── User (authentication identity)
+│   ├── IdentityProvider (SSO configuration)
+│   └── ClientApplication (OAuth clients)
+│
+└── User Project
+    ├── Membership (links User → Project + role)
+    ├── AccessPolicyV2 (defines permissions for User/Membership)
+    ├── Patient (standard FHIR)
+    ├── Observation (standard FHIR)
+    └── [All other FHIR resources...]
+```
+
+**Authentication Flow**:
+1. User authenticates against tenant (System Project validates credentials)
+2. Membership resources determine which projects user can access
+3. AccessPolicyV2 resources define resource-level permissions within projects
+4. Tokens include project context and access policy version IDs
+
+**[Learn more about multi-tenant architecture →](/docs/core_concepts/platform_architecture)**
+
+## Data Storage
+
+All resources—both standard FHIR and custom—are:
+- Stored in PostgreSQL with full version history
+- Indexed in Elasticsearch for fast searching
+- Validated against FHIR StructureDefinitions
+- Audited with author tracking and timestamps
+
+## Working with Resources
+
+Haste Health provides full CRUD operations for all resource types:
+
+- **Create**: `POST /fhir/r4/{resourceType}`
+- **Read**: `GET /fhir/r4/{resourceType}/{id}`
+- **Update**: `PUT /fhir/r4/{resourceType}/{id}`
+- **Delete**: `DELETE /fhir/r4/{resourceType}/{id}`
+- **Search**: `GET /fhir/r4/{resourceType}?{searchParams}`
+
+**[View REST API documentation →](/docs/api/rest_api/fhir/intro)**
+
+## Reference Documentation
+
+For detailed schemas, search parameters, and examples for each resource type:
+
+- **[All Resources](/docs/category/resources)** - Complete resource catalog
