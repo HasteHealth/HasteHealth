@@ -1,6 +1,6 @@
 {
   "entryPoints": ["packages/*", "artifacts/*"],
-  "name": "IGUHealth",
+  "name": "Haste Health",
   "entryPointStrategy": "packages",
   "includeVersion": false
 
