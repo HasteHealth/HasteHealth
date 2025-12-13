@@ -19,4 +19,5 @@ pub fn create_router<
     Router::new()
         .typed_get(tenant_select::tenant_select_get)
         .typed_post(tenant_select::tenant_select_post)
+        .typed_get(signup::global_signup_get)
 }
