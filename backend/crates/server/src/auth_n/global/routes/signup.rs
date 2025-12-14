@@ -16,7 +16,6 @@ use std::sync::Arc;
 #[typed_path("/signup")]
 pub struct GlobalSignupGet {}
 
-#[allow(dead_code)]
 pub async fn global_signup_get<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -45,23 +44,26 @@ pub async fn global_signup_get<
     }).into_response())
 }
 
+#[allow(unused)]
 #[derive(serde::Deserialize)]
 pub struct GlobalSignupForm {
     pub email: String,
 }
 
+#[allow(unused)]
 #[derive(serde::Deserialize, axum_extra::routing::TypedPath)]
 #[typed_path("/signup")]
 pub struct GlobalSignupPost {}
 
+#[allow(unused)]
 pub async fn global_signup_post<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: GlobalSignupPost,
-    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    Form(form): Form<GlobalSignupForm>,
+    State(_app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Form(_form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
     todo!();
 }

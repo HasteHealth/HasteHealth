@@ -13,7 +13,6 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::ProjectId;
 use haste_repository::{
     Repository,
     admin::{ProjectAuthAdmin, TenantAuthAdmin},
