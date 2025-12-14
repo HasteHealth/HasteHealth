@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{ServerEnvironmentVariables, services::AppState};
+use crate::{ServerEnvironmentVariables, route_path::api_v1_oidc_path, services::AppState};
 use axum::http::Uri;
 use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
@@ -55,6 +55,7 @@ pub async fn send_password_reset_email<
 >(
     state: &AppState<Repo, Search, Terminology>,
     tenant: &TenantId,
+    project: &ProjectId,
     user: &User,
 ) -> Result<(), OperationOutcomeError> {
     let password_reset_code = TenantAuthAdmin::create(
@@ -81,14 +82,14 @@ pub async fn send_password_reset_email<
     })?;
 
     api_url.set_path(
-        format!(
-            "/w/{}/{}/interactions/{}",
-            tenant,
-            ProjectId::System.as_ref(),
-            crate::auth_n::oidc::routes::interactions::password_reset::PasswordResetVerify
-                .to_string()
-        )
-        .as_str(),
+        api_v1_oidc_path(tenant, project)
+            .join(&format!(
+                "interactions/{}",
+                crate::auth_n::oidc::routes::interactions::password_reset::PasswordResetVerify
+                    .to_string()
+            ))
+            .to_str()
+            .unwrap_or_default(),
     );
 
     api_url.set_query(Some(format!("?code={}", password_reset_code.code).as_str()));

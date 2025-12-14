@@ -1,9 +1,10 @@
 use crate::{
     auth_n::oidc::{
         error::{OIDCError, OIDCErrorCode},
-        routes::{AUTH_NESTED_PATH, authorize, jwks, token},
+        routes::{authorize, jwks, token},
     },
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
+    route_path::{api_v1_oidc_auth_path, api_v1_oidc_path, project_path},
     services::AppState,
 };
 use axum::{
@@ -169,15 +170,6 @@ pub struct OAuthProtectedResourceDocument {
     dpop_bound_access_tokens_required: Option<bool>,
 }
 
-fn construct_oidc_route(tenant: &TenantId, project: &ProjectId, path: &str) -> String {
-    format!(
-        "/w/{}/{}/api/v1/oidc{}",
-        tenant.as_ref(),
-        project.as_ref(),
-        path
-    )
-}
-
 #[derive(Deserialize, Clone)]
 pub struct ResourcePath {
     pub resource: String,
@@ -231,19 +223,14 @@ pub async fn oauth_protected_resource<
         Scopes::try_from("openid profile user/*.* offline_access").unwrap_or_default();
 
     let oauth_protected_resource = OAuthProtectedResourceDocument {
-        resource: api_url
-            .join(&format!(
-                "/w/{}/{}/{}",
-                tenant.as_ref(),
-                project.as_ref(),
-                resource
-            ))
-            .unwrap()
+        resource: project_path(&tenant, &project)
+            .join(&resource)
+            .to_str()
+            .unwrap_or_default()
             .to_string(),
-
         authorization_servers: Some(vec![
             api_url
-                .join(&format!("/w/{}/{}", tenant.as_ref(), project.as_ref()))
+                .join(project_path(&tenant, &project).to_str().unwrap())
                 .unwrap()
                 .to_string(),
         ]),
@@ -292,25 +279,33 @@ pub fn create_oidc_discovery_document(
         ));
     };
 
-    let authorize_path = construct_oidc_route(
-        &tenant,
-        &project,
-        &(AUTH_NESTED_PATH.to_string() + authorize::AuthorizePath.to_string().as_str()),
+    let authorize_path = api_v1_oidc_auth_path(tenant, project).join(
+        &authorize::AuthorizePath
+            .to_string()
+            .strip_prefix("/")
+            .unwrap(),
     );
 
-    let token_path = construct_oidc_route(
-        &tenant,
-        &project,
-        &(AUTH_NESTED_PATH.to_string() + token::TokenPath.to_string().as_str()),
-    );
+    let token_path = api_v1_oidc_auth_path(tenant, project)
+        .join(&token::TokenPath.to_string().strip_prefix("/").unwrap());
 
-    let jwks_path = construct_oidc_route(&tenant, &project, &(jwks::JWKSPath.to_string().as_str()));
+    let jwks_path = api_v1_oidc_path(tenant, project)
+        .join(&jwks::JWKSPath.to_string().strip_prefix("/").unwrap());
 
     let oidc_response = WellKnownDiscoveryDocument {
         issuer: api_url.to_string(),
-        authorization_endpoint: api_url.join(&authorize_path).unwrap().to_string(),
-        token_endpoint: api_url.join(&token_path).unwrap().to_string(),
-        jwks_uri: api_url.join(&jwks_path).unwrap().to_string(),
+        authorization_endpoint: api_url
+            .join(authorize_path.to_str().unwrap_or_default())
+            .unwrap()
+            .to_string(),
+        token_endpoint: api_url
+            .join(token_path.to_str().unwrap_or_default())
+            .unwrap()
+            .to_string(),
+        jwks_uri: api_url
+            .join(jwks_path.to_str().unwrap_or_default())
+            .unwrap()
+            .to_string(),
         scopes_supported: vec![
             "openid".to_string(),
             "profile".to_string(),

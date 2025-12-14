@@ -63,4 +63,5 @@ pub async fn global_signup_post<
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Form(form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
+    todo!();
 }

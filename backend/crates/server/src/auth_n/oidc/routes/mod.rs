@@ -21,8 +21,6 @@ pub mod route_string;
 pub mod scope;
 pub mod token;
 
-pub static AUTH_NESTED_PATH: &str = "/auth";
-
 static AUTHORIZE_PARAMETERS: LazyLock<Arc<ParameterConfig>> = LazyLock::new(|| {
     Arc::new(ParameterConfig {
         required_parameters: vec![
@@ -56,7 +54,7 @@ pub fn create_router<
         .merge(Router::new().typed_get(jwks::jwks_get))
         .merge(federated::federated_router())
         .nest(
-            AUTH_NESTED_PATH,
+            "/auth",
             Router::new()
                 .merge(Router::new().typed_post(token::token))
                 .merge(

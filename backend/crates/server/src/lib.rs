@@ -6,6 +6,7 @@ pub mod fhir_client;
 pub mod load_artifacts;
 mod mcp;
 mod middleware;
+mod route_path;
 pub mod server;
 pub mod services;
 mod static_assets;

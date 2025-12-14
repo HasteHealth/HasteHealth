@@ -1,5 +1,6 @@
 use crate::{
     ServerEnvironmentVariables, fhir_client::middleware::operations::ServerOperationContext,
+    route_path::api_v1_oidc_path,
 };
 use haste_fhir_client::request::{FHIRInvokeInstanceRequest, InvocationRequest};
 use haste_fhir_generated_ops::generated::HasteHealthIdpRegistrationInfo;
@@ -70,14 +71,14 @@ pub fn idp_registration_info<
                         )
                     })?;
 
+                    let mut idp_callback_path = api_v1_oidc_path(&tenant, &ProjectId::System);
+                    idp_callback_path.extend(["federated", &id, "callback"]);
+
                     let idp_callback_url = api_url
                         .join(
-                            format!(
-                                "/w/{}/system/api/v1/oidc/federated/{}/callback",
-                                tenant.as_ref(),
-                                id
-                            )
-                            .as_str(),
+                            idp_callback_path
+                                .to_str()
+                                .expect("failed to generate idp callback path"),
                         )
                         .map_err(|e| {
                             tracing::error!("Failed to derive FHIR URL: {:?}", e);

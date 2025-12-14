@@ -4,6 +4,7 @@ use crate::{
         bearer_token::AuthBearer,
         path_tenant::{ProjectIdentifier, TenantIdentifier},
     },
+    route_path::project_path,
     services::AppState,
 };
 use axum::{
@@ -20,7 +21,10 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use haste_repository::Repository;
 use jsonwebtoken::Validation;
-use std::sync::{Arc, LazyLock};
+use std::{
+    path::PathBuf,
+    sync::{Arc, LazyLock},
+};
 use url::Url;
 
 static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {
@@ -45,13 +49,15 @@ pub fn derive_well_known_url(
     tenant: &TenantId,
     project: &ProjectId,
 ) -> Result<Url, OperationOutcomeError> {
+    let path = PathBuf::from("/.well-known/openid-configuration");
+
     if let Ok(api_url) = Url::parse(&api_url) {
         api_url
-            .join(&format!(
-                "/.well-known/openid-configuration/w/{}/{}",
-                tenant.as_ref(),
-                project.as_ref(),
-            ))
+            .join(
+                path.join(project_path(tenant, project).strip_prefix("/").unwrap())
+                    .to_str()
+                    .unwrap_or_default(),
+            )
             .map_err(|e| {
                 tracing::error!("Failed to derive well-known URL: {:?}", e);
                 OperationOutcomeError::error(

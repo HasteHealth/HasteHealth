@@ -5,6 +5,7 @@ use crate::{
         oidc::routes::discovery::create_oidc_discovery_document,
     },
     fhir_client::middleware::operations::ServerOperationContext,
+    route_path::{api_v1_fhir_path, api_v1_mcp_path},
 };
 use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::TenantEndpointInformation;
@@ -62,8 +63,10 @@ pub fn endpoint_metadata<
 
                     let fhir_url = api_url
                         .join(
-                            format!("/w/{}/{}/api/v1/fhir/r4", tenant.as_ref(), project.as_ref())
-                                .as_str(),
+                            api_v1_fhir_path(&tenant, &project)
+                                .join("r4")
+                                .to_str()
+                                .unwrap(),
                         )
                         .map_err(|e| {
                             tracing::error!("Failed to derive FHIR URL: {:?}", e);
@@ -81,13 +84,15 @@ pub fn endpoint_metadata<
                         )
                     })?;
 
-                    let mcp_endpiont = api_url.join("/w/{}/{}/api/v1/mcp").map_err(|e| {
-                        tracing::error!("Failed to derive MCP Endpoint URL: {:?}", e);
-                        OperationOutcomeError::error(
-                            IssueType::Invalid(None),
-                            "Invalid API URL configured".to_string(),
-                        )
-                    })?;
+                    let mcp_endpiont = api_url
+                        .join(api_v1_mcp_path(&tenant, &project).to_str().unwrap())
+                        .map_err(|e| {
+                            tracing::error!("Failed to derive MCP Endpoint URL: {:?}", e);
+                            OperationOutcomeError::error(
+                                IssueType::Invalid(None),
+                                "Invalid API URL configured".to_string(),
+                            )
+                        })?;
 
                     Ok(TenantEndpointInformation::Output {
                         fhir_r4_base_url: FHIRUri {
