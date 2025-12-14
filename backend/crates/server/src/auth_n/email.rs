@@ -62,7 +62,7 @@ pub async fn send_password_reset_email<
         tenant,
         CreateAuthorizationCode {
             membership: None,
-            expires_in: Duration::from_secs(60 * 15), // 15 minutes
+            expires_in: Duration::from_secs(60 * 30), // 30 minutes
             kind: AuthorizationCodeKind::PasswordReset,
             user_id: user.id.to_string(),
             client_id: None,
