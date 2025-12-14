@@ -15,7 +15,7 @@ use tower::ServiceBuilder;
 mod authorize;
 pub mod discovery;
 pub mod federated;
-mod interactions;
+pub mod interactions;
 mod jwks;
 pub mod route_string;
 pub mod scope;

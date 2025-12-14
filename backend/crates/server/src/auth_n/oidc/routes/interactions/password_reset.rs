@@ -64,7 +64,6 @@ pub async fn password_reset_initiate_post<
 >(
     _: PasswordResetInitiate,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     project_resource: Project,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     uri: OriginalUri,
@@ -82,10 +81,9 @@ pub async fn password_reset_initiate_post<
     .await?;
 
     if let Some(user) = user_search_results.into_iter().next() {
-        let password_reset_code = ProjectAuthAdmin::create(
+        let password_reset_code = TenantAuthAdmin::create(
             &*state.repo,
             &tenant,
-            &project,
             CreateAuthorizationCode {
                 membership: None,
                 expires_in: Duration::from_secs(60 * 15), // 15 minutes
