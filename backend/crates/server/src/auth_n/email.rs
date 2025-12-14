@@ -3,7 +3,7 @@ use std::time::Duration;
 use crate::{ServerEnvironmentVariables, services::AppState};
 use axum::http::Uri;
 use haste_config::Config;
-use haste_fhir_model::r4::generated::terminology::{IssueType, SearchComparator};
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -11,7 +11,10 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
     admin::TenantAuthAdmin,
-    types::authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
+    types::{
+        authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
+        user::User,
+    },
 };
 use maud::html;
 use sendgrid::v3::{Content, Email, Message, Personalization, Sender};
@@ -52,7 +55,7 @@ pub async fn send_password_reset_email<
 >(
     state: &AppState<Repo, Search, Terminology>,
     tenant: &TenantId,
-    user_id: &str,
+    user: &User,
 ) -> Result<(), OperationOutcomeError> {
     let password_reset_code = TenantAuthAdmin::create(
         &*state.repo,
@@ -61,7 +64,7 @@ pub async fn send_password_reset_email<
             membership: None,
             expires_in: Duration::from_secs(60 * 15), // 15 minutes
             kind: AuthorizationCodeKind::PasswordReset,
-            user_id: user_id.to_string(),
+            user_id: user.id.to_string(),
             client_id: None,
             pkce_code_challenge: None,
             pkce_code_challenge_method: None,
@@ -77,12 +80,18 @@ pub async fn send_password_reset_email<
         OperationOutcomeError::fatal(IssueType::Exception(None), "API Url is invalid".to_string())
     })?;
 
-    api_url.set_path(&format!(
-        "/w/{}/{}/interactions/{}",
-        tenant,
-        ProjectId::System.as_ref(),
-        crate::auth_n::oidc::routes::interactions::password_reset::PasswordResetVerify.to_string()
-    ));
+    api_url.set_path(
+        format!(
+            "/w/{}/{}/interactions/{}",
+            tenant,
+            ProjectId::System.as_ref(),
+            crate::auth_n::oidc::routes::interactions::password_reset::PasswordResetVerify
+                .to_string()
+        )
+        .as_str(),
+    );
+
+    api_url.set_query(Some(format!("?code={}", password_reset_code.code).as_str()));
 
     let password_reset_html = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
