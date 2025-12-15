@@ -12,7 +12,6 @@ use axum_extra::routing::TypedPath;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::ProjectId;
 use haste_repository::{
     Repository,
     admin::SystemAdmin,
@@ -53,13 +52,11 @@ pub async fn global_signup_get<
     }).into_response())
 }
 
-#[allow(unused)]
 #[derive(serde::Deserialize)]
 pub struct GlobalSignupForm {
     pub email: String,
 }
 
-#[allow(unused)]
 async fn create_or_retrieve_user_tenant<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -95,12 +92,10 @@ async fn create_or_retrieve_user_tenant<
     }
 }
 
-#[allow(unused)]
 #[derive(serde::Deserialize, axum_extra::routing::TypedPath)]
 #[typed_path("/signup")]
 pub struct GlobalSignupPost {}
 
-#[allow(unused)]
 pub async fn global_signup_post<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
