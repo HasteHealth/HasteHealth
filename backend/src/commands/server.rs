@@ -1,21 +1,13 @@
 use clap::Subcommand;
 use haste_config::{Config, get_config};
-use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, User},
-    terminology::UserRole,
-    types::FHIRString,
-};
+use haste_fhir_model::r4::generated::terminology::UserRole;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::TenantId;
 use haste_repository::admin::Migrate;
 use haste_server::{
-    ServerEnvironmentVariables,
-    auth_n::oidc::utilities::set_user_password,
-    fhir_client::ServerCTX,
-    load_artifacts, server, services,
-    tenants::{SubscriptionTier, create_tenant},
+    ServerEnvironmentVariables, load_artifacts, server, services,
+    tenants::{SubscriptionTier, create_tenant, create_user},
 };
 use std::sync::Arc;
 
@@ -58,9 +50,9 @@ pub enum TenantCommands {
         #[arg(short, long)]
         subscription_tier: Option<SubscriptionTier>,
         #[arg(short, long)]
-        owner_email: Option<String>,
+        owner_email: String,
         #[arg(short, long)]
-        owner_password: Option<String>,
+        owner_password: String,
     },
 }
 
@@ -140,7 +132,7 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     id,
                     &subscription_tier.clone().unwrap_or(SubscriptionTier::Free),
                     owner_email,
-                    owner_password,
+                    Some(owner_password),
                 )
                 .await?;
 
@@ -159,7 +151,14 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     .await?;
 
                 let tenant = TenantId::new(tenant.clone());
-                create_user(services, tenant, email, password).await?;
+                create_user(
+                    &services,
+                    &tenant,
+                    email,
+                    Some(password),
+                    UserRole::Admin(None),
+                )
+                .await?;
 
                 services.commit().await?;
 
