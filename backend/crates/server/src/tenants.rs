@@ -47,7 +47,7 @@ pub async fn create_user<
     services: &AppState<Repo, Search, Terminology>,
     tenant: &TenantId,
     email: &str,
-    password: &str,
+    password: Option<&str>,
     user_role: UserRole,
 ) -> Result<User, OperationOutcomeError> {
     let ctx = Arc::new(ServerCTX::system(
@@ -79,7 +79,9 @@ pub async fn create_user<
 
     let user_id = user.id.clone().unwrap();
 
-    set_user_password(&*services.repo, &tenant, email, &user_id, password).await?;
+    if let Some(password) = password {
+        set_user_password(&*services.repo, &tenant, email, &user_id, password).await?;
+    }
 
     Ok(user)
 }
@@ -94,12 +96,12 @@ pub async fn create_tenant<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    services: Arc<AppState<Repo, Search, Terminology>>,
-    id: Option<String>,
+    services: &AppState<Repo, Search, Terminology>,
+    tenant_id: Option<String>,
     _name: &str,
     subscription_tier: &SubscriptionTier,
     owner_email: &str,
-    owner_password: &str,
+    owner_password: Option<&str>,
 ) -> Result<CreateTenantOutput, OperationOutcomeError> {
     let services = services.transaction().await?;
 
@@ -107,7 +109,7 @@ pub async fn create_tenant<
         &*services.repo,
         &TenantId::System,
         CreateTenant {
-            id: Some(TenantId::new(id.unwrap_or(generate_id(Some(16))))),
+            id: Some(TenantId::new(tenant_id.unwrap_or(generate_id(Some(16))))),
             subscription_tier: Some(subscription_tier.clone().into()),
         },
     )
@@ -140,7 +142,7 @@ pub async fn create_tenant<
         &services,
         &new_tenant.id,
         &owner_email,
-        &owner_password,
+        owner_password,
         UserRole::Owner(None),
     )
     .await?;

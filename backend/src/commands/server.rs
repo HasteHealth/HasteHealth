@@ -135,7 +135,7 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
             } => {
                 let services = services::create_services(config).await?;
                 create_tenant(
-                    services,
+                    services.as_ref(),
                     Some(id.clone()),
                     id,
                     &subscription_tier.clone().unwrap_or(SubscriptionTier::Free),

@@ -1,5 +1,6 @@
 use crate::{
     services::AppState,
+    tenants::{SubscriptionTier, create_tenant},
     ui::components::{banner, page_html},
 };
 use axum::{Form, response::IntoResponse};
@@ -63,7 +64,7 @@ async fn create_or_retrieve_user_tenant<
     app_state: &AppState<Repo, Search, Terminology>,
     email: &str,
 ) -> Result<User, OperationOutcomeError> {
-    let result = SystemAdmin::search(
+    let mut result = SystemAdmin::search(
         app_state.repo.as_ref(),
         &UserSearchClauses {
             email: Some(email.to_string()),
@@ -76,6 +77,16 @@ async fn create_or_retrieve_user_tenant<
     if let Some(user) = result.pop() {
         return Ok(user);
     } else {
+        let result = create_tenant(
+            app_state,
+            None,
+            "default".to_string(),
+            SubscriptionTier::Free,
+            email,
+            None,
+        )
+        .await?;
+
         todo!();
     }
 }
