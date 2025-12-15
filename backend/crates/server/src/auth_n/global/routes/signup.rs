@@ -1,4 +1,5 @@
 use crate::{
+    auth_n::email::send_password_reset_email,
     services::AppState,
     tenants::{SubscriptionTier, create_tenant},
     ui::{
@@ -12,6 +13,7 @@ use axum_extra::routing::TypedPath;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::ProjectId;
 use haste_repository::{
     Repository,
     admin::SystemAdmin,
@@ -35,7 +37,7 @@ pub async fn global_signup_get<
     Ok(page_html(html! {
         (banner("Sign Up", None))
         div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
-            form class="space-y-4 md:space-y-6" action=("/global/signup") method="POST" {
+            form class="space-y-4 md:space-y-6" action=("/auth/signup") method="POST" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                     div {
                         label for="email" class="block mb-2 text-sm font-medium text-slate-600 dark:text-white" {
@@ -106,6 +108,8 @@ pub async fn global_signup_post<
     Form(form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
     let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form.email).await?;
+
+    send_password_reset_email(app_state.as_ref(), &user.tenant, &ProjectId::System, &user).await?;
 
     Ok(message_html(
         &user.tenant,

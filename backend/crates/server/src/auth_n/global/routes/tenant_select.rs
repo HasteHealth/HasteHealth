@@ -23,8 +23,8 @@ pub async fn tenant_select_get<
     _: TenantSelectGet,
     State(_app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
-    let signup_url = "/global/signup";
-    let action_url = "/global/tenant-select";
+    let signup_url = "/auth/signup";
+    let action_url = "/auth/tenant-select";
 
     Ok(page_html(html! {
         (banner("Enter your tenant identifier", None))

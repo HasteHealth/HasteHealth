@@ -218,7 +218,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let app = Router::new()
         .nest("/.well-known", discovery_2_0_document_router)
         .nest(
-            "/global",
+            "/auth",
             auth_n::global::routes::create_router(shared_state.clone()),
         )
         .nest("/w/{tenant}", tenant_router)
