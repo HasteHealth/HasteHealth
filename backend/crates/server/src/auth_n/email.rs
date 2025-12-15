@@ -10,7 +10,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
-    admin::TenantAuthAdmin,
+    admin::ProjectAuthAdmin,
     types::{
         authorization_code::{AuthorizationCodeKind, CreateAuthorizationCode},
         user::User,
@@ -58,9 +58,10 @@ pub async fn send_password_reset_email<
     project: &ProjectId,
     user: &User,
 ) -> Result<(), OperationOutcomeError> {
-    let password_reset_code = TenantAuthAdmin::create(
+    let password_reset_code = ProjectAuthAdmin::create(
         &*state.repo,
         tenant,
+        project,
         CreateAuthorizationCode {
             membership: None,
             expires_in: Duration::from_secs(60 * 30), // 30 minutes
@@ -84,7 +85,7 @@ pub async fn send_password_reset_email<
     api_url.set_path(
         api_v1_oidc_path(tenant, project)
             .join(&format!(
-                "interactions/{}",
+                "interactions{}",
                 crate::auth_n::oidc::routes::interactions::password_reset::PasswordResetVerify
                     .to_string()
             ))
@@ -92,7 +93,7 @@ pub async fn send_password_reset_email<
             .unwrap_or_default(),
     );
 
-    api_url.set_query(Some(format!("?code={}", password_reset_code.code).as_str()));
+    api_url.set_query(Some(format!("code={}", password_reset_code.code).as_str()));
 
     let password_reset_html = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
