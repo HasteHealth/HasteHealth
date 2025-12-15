@@ -57,6 +57,10 @@ pub enum TenantCommands {
         id: String,
         #[arg(short, long)]
         subscription_tier: Option<SubscriptionTier>,
+        #[arg(short, long)]
+        owner_email: Option<String>,
+        #[arg(short, long)]
+        owner_password: Option<String>,
     },
 }
 
@@ -126,6 +130,8 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
             TenantCommands::Create {
                 id,
                 subscription_tier,
+                owner_email,
+                owner_password,
             } => {
                 let services = services::create_services(config).await?;
                 create_tenant(
@@ -133,6 +139,8 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     Some(id.clone()),
                     id,
                     &subscription_tier.clone().unwrap_or(SubscriptionTier::Free),
+                    owner_email,
+                    owner_password,
                 )
                 .await?;
 
@@ -151,37 +159,7 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     .await?;
 
                 let tenant = TenantId::new(tenant.clone());
-
-                let ctx = Arc::new(ServerCTX::system(
-                    tenant.clone(),
-                    ProjectId::System,
-                    services.fhir_client.clone(),
-                ));
-
-                let user = services
-                    .fhir_client
-                    .create(
-                        ctx,
-                        ResourceType::User,
-                        Resource::User(User {
-                            role: Box::new(UserRole::Admin(None)),
-                            email: Some(Box::new(FHIRString {
-                                value: Some(email.clone()),
-                                ..Default::default()
-                            })),
-                            ..Default::default()
-                        }),
-                    )
-                    .await?;
-
-                let user = match user {
-                    Resource::User(user) => user,
-                    _ => panic!("Created resource is not a User"),
-                };
-
-                let user_id = user.id.clone().unwrap();
-
-                set_user_password(&*services.repo, &tenant, email, &user_id, password).await?;
+                create_user(services, tenant, email, password).await?;
 
                 services.commit().await?;
 

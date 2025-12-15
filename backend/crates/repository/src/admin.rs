@@ -15,6 +15,13 @@ pub trait Migrate {
     fn migrate(&self) -> impl Future<Output = Result<(), OperationOutcomeError>> + Send;
 }
 
+pub trait SystemAdmin<S, SearchClauses> {
+    fn search(
+        &self,
+        clauses: &SearchClauses,
+    ) -> impl Future<Output = Result<Vec<S>, OperationOutcomeError>> + Send;
+}
+
 pub trait TenantAuthAdmin<CreatedModel, ReadModel, SearchClauses, UpdateModel, Key> {
     fn create(
         &self,

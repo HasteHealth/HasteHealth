@@ -14,6 +14,7 @@ mod membership;
 mod migrate;
 mod project;
 mod scope;
+mod system;
 mod tenant;
 mod user;
 

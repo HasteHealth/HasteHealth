@@ -1,5 +1,5 @@
 use crate::{
-    admin::{Login, Migrate, ProjectAuthAdmin, TenantAuthAdmin},
+    admin::{Login, Migrate, ProjectAuthAdmin, SystemAdmin, TenantAuthAdmin},
     fhir::FHIRRepository,
     types::{
         authorization_code::{
@@ -22,6 +22,7 @@ pub mod utilities;
 /// Repository trait which encompasses all repository operations.
 pub trait Repository:
     FHIRRepository
+    + SystemAdmin<User, UserSearchClauses>
     + TenantAuthAdmin<
         CreateAuthorizationCode,
         AuthorizationCode,

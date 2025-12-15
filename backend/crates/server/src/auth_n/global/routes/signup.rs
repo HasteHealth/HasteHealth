@@ -8,7 +8,11 @@ use axum_extra::routing::TypedPath;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
+use haste_repository::{
+    Repository,
+    admin::{SystemAdmin, TenantAuthAdmin},
+    types::user::{CreateUser, User, UserRole, UserSearchClauses},
+};
 use maud::html;
 use std::sync::Arc;
 
@@ -51,15 +55,29 @@ pub struct GlobalSignupForm {
 }
 
 #[allow(unused)]
-pub fn create_or_retrieve_user<
+async fn create_or_retrieve_user_tenant<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    _app_state: &AppState<Repo, Search, Terminology>,
-    _email: &str,
-) -> Result<(), OperationOutcomeError> {
-    todo!();
+    app_state: &AppState<Repo, Search, Terminology>,
+    email: &str,
+) -> Result<User, OperationOutcomeError> {
+    let result = SystemAdmin::search(
+        app_state.repo.as_ref(),
+        &UserSearchClauses {
+            email: Some(email.to_string()),
+            role: Some(UserRole::Owner),
+            method: None,
+        },
+    )
+    .await?;
+
+    if let Some(user) = result.pop() {
+        return Ok(user);
+    } else {
+        todo!();
+    }
 }
 
 #[allow(unused)]
