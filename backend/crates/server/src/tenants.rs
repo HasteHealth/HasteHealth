@@ -5,7 +5,7 @@ use clap::ValueEnum;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType, User},
-    terminology::UserRole,
+    terminology::{IssueType, UserRole},
     types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -15,7 +15,10 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{
     Repository,
     admin::TenantAuthAdmin,
-    types::tenant::{CreateTenant, Tenant},
+    types::{
+        tenant::{CreateTenant, Tenant},
+        user::CreateUser,
+    },
     utilities::generate_id,
 };
 use std::sync::Arc;
@@ -86,9 +89,9 @@ pub async fn create_user<
     Ok(user)
 }
 
-struct CreateTenantOutput {
+pub struct CreateTenantOutput {
     pub tenant: Tenant,
-    pub owner: User,
+    pub owner: haste_repository::types::user::User,
 }
 
 pub async fn create_tenant<
@@ -146,6 +149,26 @@ pub async fn create_tenant<
         UserRole::Owner(None),
     )
     .await?;
+
+    let Some(user_id) = user.id else {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::Invalid(None),
+            "The user ID is required to complete the tenant creation process.".to_string(),
+        ));
+    };
+
+    let Some(user) = TenantAuthAdmin::<CreateUser, _, _, _, _>::read(
+        services.repo.as_ref(),
+        &new_tenant.id,
+        &user_id,
+    )
+    .await?
+    else {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::Invalid(None),
+            "The user does not exist after creation.".to_string(),
+        ));
+    };
 
     services.commit().await?;
 

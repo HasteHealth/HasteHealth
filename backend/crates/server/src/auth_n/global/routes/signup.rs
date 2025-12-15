@@ -11,8 +11,8 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::{
     Repository,
-    admin::{SystemAdmin, TenantAuthAdmin},
-    types::user::{CreateUser, User, UserRole, UserSearchClauses},
+    admin::SystemAdmin,
+    types::user::{User, UserRole, UserSearchClauses},
 };
 use maud::html;
 use std::sync::Arc;
@@ -80,14 +80,14 @@ async fn create_or_retrieve_user_tenant<
         let result = create_tenant(
             app_state,
             None,
-            "default".to_string(),
-            SubscriptionTier::Free,
+            "default",
+            &SubscriptionTier::Free,
             email,
             None,
         )
         .await?;
 
-        todo!();
+        Ok(result.owner)
     }
 }
 
@@ -103,8 +103,10 @@ pub async fn global_signup_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: GlobalSignupPost,
-    State(_app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    Form(_form): Form<GlobalSignupForm>,
+    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
+    Form(form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    todo!();
+    let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form.email).await?;
+
+    Ok(html! {}.into_response())
 }
