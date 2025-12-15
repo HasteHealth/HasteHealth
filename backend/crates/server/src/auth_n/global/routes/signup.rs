@@ -1,7 +1,10 @@
 use crate::{
     services::AppState,
     tenants::{SubscriptionTier, create_tenant},
-    ui::components::{banner, page_html},
+    ui::{
+        components::{banner, page_html},
+        pages::message::message_html,
+    },
 };
 use axum::{Form, response::IntoResponse};
 use axum::{extract::State, response::Response};
@@ -9,6 +12,7 @@ use axum_extra::routing::TypedPath;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
+use haste_jwt::ProjectId;
 use haste_repository::{
     Repository,
     admin::SystemAdmin,
@@ -108,5 +112,9 @@ pub async fn global_signup_post<
 ) -> Result<Response, OperationOutcomeError> {
     let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form.email).await?;
 
-    Ok(html! {}.into_response())
+    Ok(message_html(
+        &user.tenant,
+        None,
+        html! {"Your user has been created. An email has been sent to you with a link to set your password."},
+    ).into_response())
 }

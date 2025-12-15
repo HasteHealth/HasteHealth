@@ -80,7 +80,7 @@ pub async fn password_reset_initiate_post<
 
         Ok(message_html(
             &tenant,
-            &project_resource.0,
+            Some(&project_resource.0),
             html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
         ))
     } else {
@@ -129,7 +129,7 @@ pub async fn password_reset_verify_get<
         }
         Ok(message_html(
             &tenant,
-            &project_resource,
+            Some(&project_resource),
             html! {
                 div {}
                 h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl "{
@@ -221,7 +221,7 @@ pub async fn password_reset_verify_post<
 
         Ok(message_html(
             &tenant,
-            &project_resource,
+            Some(&project_resource),
             html! {"Password has been reset successfully."},
         ))
     } else {
