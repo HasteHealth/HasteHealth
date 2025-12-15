@@ -50,13 +50,14 @@ pub struct GlobalSignupForm {
     pub email: String,
 }
 
+#[allow(unused)]
 pub fn create_or_retrieve_user<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
 >(
-    app_state: &AppState<Repo, Search, Terminology>,
-    email: &str,
+    _app_state: &AppState<Repo, Search, Terminology>,
+    _email: &str,
 ) -> Result<(), OperationOutcomeError> {
     todo!();
 }
