@@ -49,9 +49,9 @@ pub enum TenantCommands {
         id: String,
         #[arg(short, long)]
         subscription_tier: Option<SubscriptionTier>,
-        #[arg(short, long)]
+        #[arg(long)]
         owner_email: String,
-        #[arg(short, long)]
+        #[arg(long)]
         owner_password: String,
     },
 }
