@@ -1,5 +1,5 @@
 use crate::{
-    auth_n::email::send_password_reset_email,
+    auth_n::{email::send_password_reset_email, oidc::hardcoded_clients::admin_app},
     services::AppState,
     tenants::{SubscriptionTier, create_tenant},
     ui::{
@@ -109,11 +109,27 @@ pub async fn global_signup_post<
 ) -> Result<Response, OperationOutcomeError> {
     let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form.email).await?;
 
+    let admin_app_redirect_url =
+        admin_app::redirect_url(app_state.config.as_ref(), &user.tenant, &ProjectId::System);
+
     send_password_reset_email(app_state.as_ref(), &user.tenant, &ProjectId::System, &user).await?;
 
     Ok(message_html(
-        &user.tenant,
+None,
         None,
-        html! {"Your user has been created. An email has been sent to you with a link to set your password."},
+        html! {
+            div {
+                span {
+                    "Welcome to Haste Health"
+                }
+            }
+            div {
+                span {
+                    r#"An email has been sent to your email address "# 
+                    span class="underline text-orange-600" { (user.email.unwrap_or("unknown".to_string())) } 
+                    r#" to reset your password"#
+                }
+            }
+        }
     ).into_response())
 }

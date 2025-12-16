@@ -103,7 +103,7 @@ pub async fn send_password_reset_email<
             )
         })?,
         html! {
-            a href=(api_url.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#6366f1;display:inline-block;padding:12px 20px;text-decoration:none" target="_blank" {
+            a href=(api_url.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#ff6900;display:inline-block;padding:12px 20px;text-decoration:none" target="_blank" {
                 span { "Reset Password" }
             }
         },

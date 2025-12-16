@@ -79,7 +79,7 @@ pub async fn password_reset_initiate_post<
         send_password_reset_email(state.as_ref(), &tenant, &project, &user).await?;
 
         Ok(message_html(
-            &tenant,
+            Some(&tenant),
             Some(&project_resource.0),
             html! {"An email will arrive in the next few minutes with the next steps to reset your password."},
         ))
@@ -128,7 +128,7 @@ pub async fn password_reset_verify_get<
             ));
         }
         Ok(message_html(
-            &tenant,
+            Some(&tenant),
             Some(&project_resource),
             html! {
                 div {}
@@ -220,7 +220,7 @@ pub async fn password_reset_verify_post<
         set_user_password(&*state.repo, &tenant, &email, &user.id, &body.password).await?;
 
         Ok(message_html(
-            &tenant,
+            Some(&tenant),
             Some(&project_resource),
             html! {"Password has been reset successfully."},
         ))

@@ -39,9 +39,7 @@ fn login<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
             LoginMethod::OIDC {
                 email: _,
                 provider_id: _,
-            } => {
-                todo!();
-            }
+            } => Ok(LoginResult::Failure),
         }
     }
 }
