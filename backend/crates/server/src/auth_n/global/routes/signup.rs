@@ -1,5 +1,5 @@
 use crate::{
-    auth_n::{email::send_password_reset_email, oidc::hardcoded_clients::admin_app},
+    auth_n::email::send_password_reset_email,
     services::AppState,
     tenants::{SubscriptionTier, create_tenant},
     ui::{
