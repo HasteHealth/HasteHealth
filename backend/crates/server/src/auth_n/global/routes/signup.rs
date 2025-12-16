@@ -109,10 +109,20 @@ pub async fn global_signup_post<
 ) -> Result<Response, OperationOutcomeError> {
     let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form.email).await?;
 
-    let admin_app_redirect_url =
-        admin_app::redirect_url(app_state.config.as_ref(), &user.tenant, &ProjectId::System);
-
-    send_password_reset_email(app_state.as_ref(), &user.tenant, &ProjectId::System, &user).await?;
+    send_password_reset_email(
+        app_state.as_ref(),
+        &user.tenant,
+        &ProjectId::System,
+        &user,
+        Some(html! {
+            div {
+                span {
+                    "To set your password and complete your signup, please click the button below. If you did not request this email, please ignore it."
+                }
+            }
+        }),
+    )
+    .await?;
 
     Ok(message_html(
 None,

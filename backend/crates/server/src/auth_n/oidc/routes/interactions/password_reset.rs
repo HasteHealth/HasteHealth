@@ -76,7 +76,7 @@ pub async fn password_reset_initiate_post<
     .await?;
 
     if let Some(user) = user_search_results.into_iter().next() {
-        send_password_reset_email(state.as_ref(), &tenant, &project, &user).await?;
+        send_password_reset_email(state.as_ref(), &tenant, &project, &user, None).await?;
 
         Ok(message_html(
             Some(&tenant),

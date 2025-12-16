@@ -11,16 +11,26 @@ pub fn base(uri: &Uri, children: Markup) -> Markup {
         .build()
         .unwrap();
     html! {
-        div style="background-color:#f2f5f7;color:#242424;font-family:&quot;Helvetica Neue&quot;,&quot;Arial Nova&quot;,&quot;Nimbus Sans&quot;,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:0.15008px;line-height:1.5;margin:0;padding:32px 0;min-height:100%;width:100%" {
+        div style="color: #441306;" {
+            div style="padding:0px 24px 24px"{}
+            table width="100%" style="margin:0 auto;max-width:600px;background-color:#ffffff" role="presentation" cellspacing="0" cellpadding="0" border="0" {
+                tbody {
+                    tr style="width:100%" {
+                        td style="padding: 0px 24px; vertical-align: middle; width: 100px;" {
+                            img alt="Haste Health Logo" src=(img_url) width="100"  {}
+                        }
+                        td style="vertical-align: middle;" {
+                            span style="color: #ff6900; font-weight:bold; font-size:24px;" { "Haste Health"}
+                        }
+                    }
+                }
+            }
+
             table align="center" width="100%" style="margin:0 auto;max-width:600px;background-color:#ffffff" role="presentation" cellspacing="0" cellpadding="0" border="0" {
                 tbody {
                     tr style="width:100%"{
                         td {
-                            div style="padding:24px 24px 24px 24px" {
-                                img alt="Haste Health Logo" src=(img_url) width="100"  {}
-                            }
-                            div style="font-weight:normal;padding:0px 24px 16px 24px" { "To verify your email and set your password click below." }
-                            div style="padding:16px 24px 24px 24px" {
+                            div style="padding:0px 24px" {
                                 (children)
                             }
                         }

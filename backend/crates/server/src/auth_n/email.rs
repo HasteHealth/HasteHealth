@@ -16,7 +16,7 @@ use haste_repository::{
         user::User,
     },
 };
-use maud::html;
+use maud::{Markup, html};
 use sendgrid::v3::{Content, Email, Message, Personalization, Sender};
 use url::Url;
 
@@ -57,6 +57,7 @@ pub async fn send_password_reset_email<
     tenant: &TenantId,
     project: &ProjectId,
     user: &User,
+    message: Option<Markup>,
 ) -> Result<(), OperationOutcomeError> {
     let password_reset_code = ProjectAuthAdmin::create(
         &*state.repo,
@@ -95,7 +96,7 @@ pub async fn send_password_reset_email<
 
     api_url.set_query(Some(format!("code={}", password_reset_code.code).as_str()));
 
-    let password_reset_html = crate::ui::email::base::base(
+    let reset_button = crate::ui::email::base::base(
         &Uri::try_from(api_url.as_str()).map_err(|_| {
             OperationOutcomeError::fatal(
                 IssueType::Exception(None),
@@ -103,7 +104,13 @@ pub async fn send_password_reset_email<
             )
         })?,
         html! {
-            a href=(api_url.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#ff6900;display:inline-block;padding:12px 20px;text-decoration:none" target="_blank" {
+            @if let Some(message) = message {
+                div style="padding-top: 24px;" {
+                    (message)
+                }
+            }
+            div style="font-weight: 600; padding: 24px 0px;" { "To verify your email and set your password click below." }
+            a href=(api_url.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#ff6900;display:inline-block;padding:12px 24px;text-decoration:none" target="_blank" {
                 span { "Reset Password" }
             }
         },
@@ -120,7 +127,7 @@ pub async fn send_password_reset_email<
         &*state.config,
         email,
         "Password Reset",
-        &password_reset_html.into_string(),
+        &reset_button.into_string(),
     )
     .await?;
 
