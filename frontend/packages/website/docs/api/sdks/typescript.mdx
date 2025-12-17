@@ -1,3 +1,136 @@
 ---
-title: Typescript
+title: TypeScript
 ---
+
+# TypeScript SDK
+
+The Haste Health TypeScript SDK provides type-safe libraries for building FHIR applications in JavaScript and TypeScript. All packages are published to [npm](https://www.npmjs.com) under the `@haste-health` scope.
+
+## Core Packages
+
+### @haste-health/client
+
+FHIR client for making API requests to Haste Health servers.
+
+```bash
+npm install @haste-health/client
+```
+
+**Features**:
+- Type-safe FHIR operations (create, read, update, delete, search)
+- Middleware support for request/response customization
+- HTTP client with automatic authentication
+- Operation execution support
+- Transaction and batch request support
+
+**[View API documentation →](https://typescript.haste.health/modules/_haste-health_client)**
+
+### @haste-health/fhir-types
+
+Complete FHIR R4 and R4B TypeScript type definitions.
+
+```bash
+npm install @haste-health/fhir-types
+```
+
+**Features**:
+- All FHIR R4 resource types
+- Full type safety with TypeScript
+- Custom Haste Health resource types (AccessPolicyV2, User, Project, Membership, IdentityProvider)
+- Primitive types (code, uri, id, etc.)
+
+**[View API documentation →](https://typescript.haste.health/modules/_haste-health_fhir-types)**
+
+### @haste-health/fhirpath
+
+FHIRPath expression evaluation for JavaScript/TypeScript.
+
+```bash
+npm install @haste-health/fhirpath
+```
+
+**Features**:
+- FHIRPath expression parsing and evaluation
+- Resource querying and filtering
+
+**[View API documentation →](https://typescript.haste.health/modules/_haste-health_fhirpath)**
+
+### @haste-health/jwt
+
+JWT token handling for OAuth 2.0 authentication.
+
+```bash
+npm install @haste-health/jwt
+```
+
+**Features**:
+- Custom Haste Health claims
+- SMART on FHIR scope support
+- TypeScript types for token payloads
+
+**[View API documentation →](https://typescript.haste.health/modules/_haste-health_jwt)**
+
+## Additional Packages
+
+- **@haste-health/fhir-validation**: FHIR resource validation against StructureDefinitions
+- **@haste-health/operation-execution**: Execute FHIR operations with type safety
+- **@haste-health/generated-ops**: Auto-generated operation definitions
+- **@haste-health/smart-launch**: SMART on FHIR app launch flow
+- **@haste-health/fhir-patch-building**: Build FHIR Patch operations
+- **@haste-health/hl7v2-parsing**: Parse HL7 v2 messages
+- **@haste-health/x-fhir-query**: x-fhir-query support see [here](https://build.fhir.org/fhir-xquery.html)
+
+## Complete Documentation
+
+Full API reference for all packages is available at **[typescript.haste.health](https://typescript.haste.health)**.
+
+## Example Usage
+
+```typescript
+import { FHIRClient } from '@haste-health/client';
+import { Patient } from '@haste-health/fhir-types/r4/types';
+import { R4 } from '@haste-health/fhir-types/versions';
+
+const client = new FHIRClient({
+  baseURL: 'https://api.haste.health/w/my-tenant/my-project',
+  version: R4,
+  auth: {
+    type: 'bearer',
+    token: 'your-access-token'
+  }
+});
+
+// Create a patient
+const patient: Patient = {
+  resourceType: 'Patient',
+  name: [{ family: 'Smith', given: ['John'] }]
+};
+
+const response = await client.create(patient);
+console.log(response);
+
+// Search for patients
+const results = await client.search('Patient', {
+  family: 'Smith'
+});
+```
+
+## Installation
+
+Install packages using npm, yarn, or pnpm:
+
+```bash
+npm install @haste-health/client @haste-health/fhir-types
+```
+
+```bash
+yarn add @haste-health/client @haste-health/fhir-types
+```
+
+```bash
+pnpm add @haste-health/client @haste-health/fhir-types
+```
+
+## Source Code
+
+All packages are open source and available in the [HasteHealth/HasteHealth](https://github.com/HasteHealth/HasteHealth/tree/main/frontend/packages) repository.

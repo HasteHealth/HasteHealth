@@ -1,3 +1,122 @@
 ---
 title: Rust
 ---
+
+# Rust SDK
+
+The Haste Health Rust SDK provides type-safe, high-performance libraries for building FHIR applications in Rust. 
+Our crates are published on the [crates.io](https://crates.io) registry.
+
+Visit **[rust.haste.health](https://rust.haste.health)** for technical documentation.
+
+## Core Crates
+
+### haste-fhir-client
+
+FHIR client for making API requests to Haste Health servers.
+
+```toml
+[dependencies]
+haste-fhir-client = "0.*"
+```
+
+**Features**:
+- Type-safe FHIR operations (create, read, update, delete, search)
+- Middleware support for request/response customization
+- HTTP and Axum integration
+- Operation execution support
+
+**[View API documentation →](https://rust.haste.health/haste_fhir_client)**
+
+### haste-fhir-model
+
+Complete FHIR R4 resource type definitions with serialization support.
+
+```toml
+[dependencies]
+haste-fhir-model = "0.*"
+```
+
+**Features**:
+- All FHIR R4 resource types
+- Serde JSON serialization/deserialization
+- Optional SQLx integration for database storage
+- Custom Haste Health resource types (AccessPolicyV2, User, Project, Membership, IdentityProvider)
+
+**[View API documentation →](https://rust.haste.health/haste_fhir_model)**
+
+### haste-fhirpath
+
+FHIRPath expression evaluation engine.
+
+```toml
+[dependencies]
+haste-fhirpath = "0.*"
+```
+
+**Features**:
+- FHIRPath specification support
+- Expression parsing and evaluation
+
+**[View API documentation →](https://rust.haste.health/haste_fhirpath)**
+
+### haste-jwt
+
+JWT Claims and token handling for OAuth 2.0 authentication.
+
+```toml
+[dependencies]
+haste-jwt = "0.*"
+```
+
+**Features**:
+- SMART on FHIR scope support
+- Custom Haste Health claims
+- Token validation and parsing
+
+**[View API documentation →](https://rust.haste.health/haste_jwt)**
+
+## Additional Crates
+
+- **haste-fhir-terminology**: Terminology services (CodeSystem, ValueSet validation)
+- **haste-fhir-operation-error**: FHIR OperationOutcome error handling
+- **haste-hl7v2**: HL7 v2 message parsing and conversion
+- **haste-config**: Configuration management
+
+## Complete Documentation
+
+Full API reference for all crates is available at **[rust.haste.health](https://rust.haste.health)**.
+
+## Example Usage
+
+```rust
+use haste_fhir_client::{FHIRClient, http::FHIRHttpClient};
+use haste_fhir_model::r4::generated::resources::{Patient, ResourceType, Resource};
+
+#[tokio::main]
+async fn main() {
+    let fhir_client = /* initialize client */;
+    
+    // Create a patient
+    let patient = Resource::Patient(Patient {
+        // ... patient fields
+    });
+
+    let result = fhir_client.create((), ResourceType::Patient, patient).await?;
+}
+```
+
+## Installation
+
+Add dependencies to your `Cargo.toml`:
+
+```toml
+[dependencies]
+haste-fhir-client = "0.*"
+haste-fhir-model = "0.*"
+haste-jwt = "0.*"
+```
+
+## Source Code
+
+All crates are open source and available in the [HasteHealth/HasteHealth](https://github.com/HasteHealth/HasteHealth/tree/main/backend/crates) repository.
