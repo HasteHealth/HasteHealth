@@ -5,4 +5,99 @@ tags:
   - authorization
 ---
 
-# Intro
+# Membership
+
+The **Membership** resource is a custom FHIR resource that connects Users to Projects and defines their access permissions. Memberships are the primary mechanism for project-level access control in Haste Health.
+
+## Purpose
+
+Memberships serve as the bridge between:
+- **User resources** (stored in System Project)
+- **Project resources** (resource containers within a tenant)
+- **AccessPolicyV2 resources** (fine-grained authorization rules)
+
+When a user authenticates to a project, the system queries for their Membership resource to determine access rights and applicable policies.
+
+## Resource Structure
+
+A Membership resource contains:
+
+```json
+{
+  "resourceType": "Membership",
+  "user": {
+    "reference": "User/kyjfry5bzzb76ciu090y8kv9zw"
+  },
+  "link": {
+    "reference": "Patient/4w528i5jtrelzy-k-2vjn6fg43"
+  }
+}
+```
+
+### Key Fields
+
+- **link**: Reference to the Clinical resource this membership represents
+- **user**: Reference to the User resource associated with this membership
+
+## User-to-Project Linking
+
+Memberships establish the connection between Users and Projects:
+
+```
+User (System Project)
+  ↓
+Membership (User Project) 
+  ↓
+Project Access
+```
+
+**Process**:
+1. User exists in System Project (tenant-wide identity)
+2. Membership resource created in target Project
+3. Membership.user references the User resource
+4. User can now access resources in that Project
+
+Without a Membership (unless a user is a super-admin or owner of a tenant), users cannot access any resources in a project, even if they have valid authentication credentials.
+
+
+## AccessPolicyV2 Association
+
+Memberships can be linked to **AccessPolicyV2** which determine what resources a user has access too within a project.
+
+```json
+{
+  "resourceType": "AccessPolicyV2",
+  "name": "Admin",
+  "engine": "full-access",
+  "target": [
+    {
+      "link": {
+        "reference": "Membership/qo4zgl99-eaw4wu17nub1zy79n"
+      }
+    }
+  ]
+}
+```
+
+## Use Cases
+
+**Multi-project access**: User has different roles across projects
+- Member in `development` project
+- Admin in `staging` project
+- No access to `production` project
+
+**Department isolation**: Restrict users to specific projects
+- Cardiology staff only access `cardiology-project`
+- Oncology staff only access `oncology-project`
+
+**Fine-grained permissions**: Combine roles with policies
+- Role: `member` (baseline permissions)
+- Policy: Only read Patient resources for assigned patients
+
+## Related Documentation
+
+- **[Membership](/docs/core_concepts/data_model#membership)**: Membership resource overview
+- **[User](/docs/reference/fhir/model/resources/User)**: User resource schema
+- **[Project](/docs/reference/fhir/model/resources/Project)**: Project resource schema
+- **[AccessPolicyV2](/docs/reference/fhir/model/resources/AccessPolicyV2)**: Access policy resource schema
+- **[Multi-Tenant Architecture](/docs/core_concepts/platform_architecture)**: Tenant and project structure

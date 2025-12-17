@@ -6,4 +6,159 @@ tags:
   - authorization
 ---
 
-# Intro
+# Access Control
+
+Haste Health implements fine-grained access control using **AccessPolicyV2** resources. These policies provide attribute-based access control (ABAC) beyond basic OAuth scopes, enabling complex authorization rules based on user identity, resource properties, and request context.
+
+## AccessPolicyV2 Resource
+
+AccessPolicyV2 resources define authorization policies that evaluate against API requests to determine access permissions.
+
+### Key Fields
+
+- **engine**: Evaluation engine (`full-access`, `rule-engine`)
+- **target.link**: Reference to User or Membership this policy applies to
+- **rule**: Array of authorization rules with actions, resources, and conditions
+- **name**: Human-readable policy description
+
+**[View AccessPolicyV2 schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)**
+
+## Policy Engines
+
+AccessPolicyV2 supports multiple evaluation engines for different authorization models:
+
+### Full Access Engine
+
+**Engine code**: `full-access`
+
+Grants unrestricted access to all resources and operations. The simplest engine—always returns success.
+
+**Use cases**:
+- System administrators with full platform access
+- Automated service accounts needing complete access
+- Development/testing environments
+
+**Example**:
+```json
+{
+  "resourceType": "AccessPolicyV2",
+  "name": "Admin Full Access",
+  "engine": "full-access",
+  "target": {
+    "link": {
+      "reference": "Membership/admin-membership"
+    }
+  }
+}
+```
+
+### Rule Engine
+
+TODO
+
+**Example**:
+```json
+{
+  "resourceType": "AccessPolicyV2",
+  "name": "Access Control",
+  "target": [
+    {
+      "link": {
+        "reference": "Membership/qo4zgl99-eaw4wu17nub1zy79n"
+      }
+    }
+  ],
+  "rule": [
+    {
+      "name": "asdf",
+      "description": "asdf",
+      "combineBehavior": "any",
+      "effect": "permit",
+      "target": {
+        "expression": {
+          "language": "text/fhirpath",
+          "expression": "$this.name.given = 'bob'"
+        }
+      },
+      "condition": {
+        "expression": {
+          "language": "text/fhirpath",
+          "expression": "false"
+        }
+      }
+    }
+  ],
+  "engine": "rule-engine"
+}
+```
+
+
+## Policy Evaluation
+
+When a user makes an API request:
+
+1. **Token validation**: JWT token verified and claims extracted
+2. **Policy loading**: AccessPolicyV2 resources loaded by version IDs in token
+3. **Engine execution**: Each policy evaluated using its specified engine
+4. **Decision**: If **any** policy grants access, request proceeds; otherwise denied
+
+Multiple policies can apply to a single user (via Membership). The system uses an "any allow" model—if any policy permits the action, it's allowed.
+
+## Associating Policies with Users
+
+Policies link to users through Membership resources:
+
+```json
+{
+  "resourceType": "Membership",
+  "link": {
+    "reference": "User/user-789"
+  },
+  "role": "member"
+}
+```
+
+Then reference the Membership in the policy:
+
+```json
+{
+  "resourceType": "AccessPolicyV2",
+  "target": {
+    "link": {
+      "reference": "Membership/membership-id"
+    }
+  }
+}
+```
+
+During authentication, the system:
+1. Finds user's Memberships
+2. Searches for AccessPolicyV2 where `target.link` references those Memberships
+3. Includes policy version IDs in access token
+
+**[Learn more about Membership →](/docs/api/authorization/membership)**
+
+## Best Practices
+
+**Principle of least privilege**: Grant minimum necessary permissions
+- Start with restrictive policies
+- Add specific exceptions as needed
+
+**Layer policies**: Combine multiple policies for flexibility
+- Base policy for common permissions
+- Specific policies for exceptional access
+
+**Test thoroughly**: Validate policies before production
+- Use `$evaluate-policy` operation
+- Test edge cases and negative scenarios
+
+**Document conditions**: Use clear policy names and document complex FHIRPath expressions
+
+**Version carefully**: Policies are versioned—understand token caching implications
+
+## Related Documentation
+
+- **[Membership](/docs/api/authorization/membership)**: Link policies to users
+- **[Scopes](/docs/Authentication/Scopes)**: OAuth scope-based permissions
+- **[AccessPolicyV2](/docs/core_concepts/data_model#accesspolicyv2)**: Resource overview
+- **[AccessPolicyV2 Schema](/docs/reference/fhir/model/resources/AccessPolicyV2)**: Complete resource reference
