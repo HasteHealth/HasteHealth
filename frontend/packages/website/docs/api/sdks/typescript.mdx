@@ -87,17 +87,12 @@ Full API reference for all packages is available at **[typescript.haste.health](
 ## Example Usage
 
 ```typescript
-import { FHIRClient } from '@haste-health/client';
+import createHTTPClient from "@haste-health/client/http";
 import { Patient } from '@haste-health/fhir-types/r4/types';
 import { R4 } from '@haste-health/fhir-types/versions';
 
-const client = new FHIRClient({
-  baseURL: 'https://api.haste.health/w/my-tenant/my-project',
-  version: R4,
-  auth: {
-    type: 'bearer',
-    token: 'your-access-token'
-  }
+const client = createHTTPClient({
+    url: OPEN_URL,
 });
 
 // Create a patient
@@ -106,13 +101,20 @@ const patient: Patient = {
   name: [{ family: 'Smith', given: ['John'] }]
 };
 
-const response = await client.create(patient);
+const resource = await client.create(
+    {},
+    R4,
+    patient as Resource
+);
 console.log(response);
 
 // Search for patients
-const results = await client.search('Patient', {
-  family: 'Smith'
-});
+const searchResponse = await client.search_type(
+    {},
+    R4,
+    "Patient",
+    "name=John" ?? ""
+);
 ```
 
 ## Installation
