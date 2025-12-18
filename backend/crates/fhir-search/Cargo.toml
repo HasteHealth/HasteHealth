@@ -20,7 +20,7 @@ haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-repository = { path = "../repository", version = "0.*" }
-rayon = "1.10.0"
+# rayon = "1.10.0"
 serde = "1.0.219"
 serde_json = "1.0.140"
 tracing = "0.1.41"

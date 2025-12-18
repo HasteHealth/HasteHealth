@@ -22,11 +22,11 @@ fn parse_fhir_data() -> Result<Resource, OperationOutcomeError> {
     Ok(resource)
 }
 
-pub fn fhirpath(fhirpath: &str) -> Result<(), OperationOutcomeError> {
+pub async fn fhirpath(fhirpath: &str) -> Result<(), OperationOutcomeError> {
     let data = parse_fhir_data()?;
     let engine = haste_fhirpath::FPEngine::new();
 
-    let result = engine.evaluate(fhirpath, vec![&data]).map_err(|e| {
+    let result = engine.evaluate(fhirpath, vec![&data]).await.map_err(|e| {
         OperationOutcomeError::error(
             IssueType::Exception(None),
             format!("Failed to evaluate FHIRPath: {}", e),

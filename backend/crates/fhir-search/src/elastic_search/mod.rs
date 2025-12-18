@@ -258,83 +258,80 @@ impl SearchEngine for ElasticSearchEngine {
         &self,
         fhir_version: SupportedFHIRVersions,
         tenant: TenantId,
-
         resources: Vec<IndexResource>,
     ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync
     {
-        // Iterator used to evaluate all of the search expressions for indexing.
+        async move {
+            // Iterator used to evaluate all of the search expressions for indexing.
 
-        let mut tasks = Vec::with_capacity(resources.len());
-        let resources_total = resources.len();
+            let mut tasks = Vec::with_capacity(resources.len());
+            let resources_total = resources.len();
+            let search_index_name = get_index_name(&fhir_version)?;
 
-        for r in resources.into_iter().filter(|r| match r.fhir_method {
-            FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete => true,
-            _ => false,
-        }) {
-            let engine = self.fp_engine.clone();
-            let fhir_version = fhir_version.clone();
-            let tenant = tenant.clone();
+            for r in resources.into_iter().filter(|r| match r.fhir_method {
+                FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete => true,
+                _ => false,
+            }) {
+                let engine = self.fp_engine.clone();
+                let tenant = tenant.clone();
 
-            tasks.push(tokio::spawn(async move {
-                match &r.fhir_method {
-                    FHIRMethod::Create | FHIRMethod::Update => {
-                        // Id is not sufficient because different Resourcetypes may have the same id.
-                        let index_id =
-                            unique_index_id(&tenant, &r.project, &r.resource_type, &r.id);
-                        let params =
+                tasks.push(tokio::spawn(async move {
+                    match &r.fhir_method {
+                        FHIRMethod::Create | FHIRMethod::Update => {
+                            // Id is not sufficient because different Resourcetypes may have the same id.
+                            let index_id =
+                                unique_index_id(&tenant, &r.project, &r.resource_type, &r.id);
+                            let params =
                             haste_artifacts::search_parameters::get_search_parameters_for_resource(
                                 &r.resource_type,
                             );
 
-                        let mut elastic_index =
-                            resource_to_elastic_index(engine.clone(), &params, &r.resource).await?;
+                            let mut elastic_index =
+                                resource_to_elastic_index(engine, &params, &r.resource).await?;
 
-                        elastic_index.insert(
-                            "resource_type".to_string(),
-                            InsertableIndex::Meta(r.resource_type.as_ref().to_string()),
-                        );
+                            elastic_index.insert(
+                                "resource_type".to_string(),
+                                InsertableIndex::Meta(r.resource_type.as_ref().to_string()),
+                            );
 
-                        elastic_index.insert(
-                            "id".to_string(),
-                            InsertableIndex::Meta(r.id.as_ref().to_string()),
-                        );
+                            elastic_index.insert(
+                                "id".to_string(),
+                                InsertableIndex::Meta(r.id.as_ref().to_string()),
+                            );
 
-                        elastic_index.insert(
-                            "version_id".to_string(),
-                            InsertableIndex::Meta(r.version_id.to_string()),
-                        );
-                        elastic_index.insert(
-                            "project".to_string(),
-                            InsertableIndex::Meta(r.project.as_ref().to_string()),
-                        );
-                        elastic_index.insert(
-                            "tenant".to_string(),
-                            InsertableIndex::Meta(tenant.as_ref().to_string()),
-                        );
-                        Ok(BulkOperation::index(elastic_index)
-                            .id(index_id)
-                            .index(
-                                get_index_name(&fhir_version)
-                                    .map_err(OperationOutcomeError::from)?,
-                            )
-                            .into())
+                            elastic_index.insert(
+                                "version_id".to_string(),
+                                InsertableIndex::Meta(r.version_id.to_string()),
+                            );
+                            elastic_index.insert(
+                                "project".to_string(),
+                                InsertableIndex::Meta(r.project.as_ref().to_string()),
+                            );
+                            elastic_index.insert(
+                                "tenant".to_string(),
+                                InsertableIndex::Meta(tenant.as_ref().to_string()),
+                            );
+                            Ok(BulkOperation::index(elastic_index)
+                                .id(index_id)
+                                .index(search_index_name)
+                                .into())
+                        }
+                        FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
+                            &tenant,
+                            &r.project,
+                            &r.resource_type,
+                            &r.id,
+                        ))
+                        .index(search_index_name)
+                        .into()),
+                        method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()))
+                            .map_err(OperationOutcomeError::from),
                     }
-                    FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
-                        &tenant,
-                        &r.project,
-                        &r.resource_type,
-                        &r.id,
-                    ))
-                    .index(get_index_name(&fhir_version).map_err(OperationOutcomeError::from)?)
-                    .into()),
-                    method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()))
-                        .map_err(OperationOutcomeError::from),
-                }
-            }));
-        }
+                }));
+            }
 
-        let client = self.client.clone();
-        async move {
+            let client = self.client.clone();
+
             let mut bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> =
                 Vec::with_capacity(resources_total);
 
@@ -347,7 +344,7 @@ impl SearchEngine for ElasticSearchEngine {
 
             if !bulk_ops.is_empty() {
                 let res = client
-                    .bulk(BulkParts::Index(get_index_name(&fhir_version)?))
+                    .bulk(BulkParts::Index(search_index_name))
                     .body(bulk_ops)
                     .send()
                     .await

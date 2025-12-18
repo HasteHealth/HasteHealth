@@ -84,7 +84,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
     let config = CLI_STATE.clone();
 
     match &cli.command {
-        CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath),
+        CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
         CLICommand::Generate { command } => commands::codegen::codegen(command).await,
         CLICommand::Server { command } => commands::server::server(command).await,
         CLICommand::Worker {} => commands::worker::worker().await,

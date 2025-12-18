@@ -1532,7 +1532,6 @@ dependencies = [
  "haste-jwt",
  "haste-reflect",
  "haste-repository",
- "rayon",
  "serde",
  "serde_json",
  "tokio",
