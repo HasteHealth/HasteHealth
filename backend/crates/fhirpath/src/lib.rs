@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 mod error;
 mod parser;
 use crate::{
@@ -9,20 +7,14 @@ use crate::{
 use dashmap::DashMap;
 pub use error::FHIRPathError;
 use std::{
-    cell::RefCell,
     collections::{HashMap, HashSet},
     marker::PhantomData,
-    rc::Rc,
     sync::{Arc, LazyLock, Mutex},
 };
 // use owning_ref::BoxRef;
 use haste_fhir_model::r4::generated::{
     resources::ResourceType,
-    types::{
-        FHIRBase64Binary, FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDecimal, FHIRInteger, FHIROid,
-        FHIRPositiveInt, FHIRString, FHIRUnsignedInt, FHIRUri, FHIRUrl, FHIRUuid, FHIRXhtml,
-        Reference,
-    },
+    types::{FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt, Reference},
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
@@ -47,6 +39,7 @@ static BOOLEAN_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     m
 });
 
+#[allow(unused)]
 static DATE_TIME_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     let mut m = HashSet::new();
     m.insert("FHIRDate");
@@ -208,7 +201,7 @@ fn operation_1<'a>(
     let right = evaluate_expression(right, context, config)?;
 
     // If one of operands is empty per spec return an empty collection
-    if (left.values.len() == 0 || right.values.len() == 0) {
+    if left.values.len() == 0 || right.values.len() == 0 {
         return Ok(left.new_context_from(vec![]));
     }
 
@@ -481,7 +474,7 @@ fn evaluate_function<'b>(
             let mut end_result = vec![];
             let mut cur = context;
 
-            while (cur.values.len() != 0) {
+            while cur.values.len() != 0 {
                 cur = evaluate_expression(projection, cur, config)?;
                 end_result.extend_from_slice(cur.values.as_slice());
             }
@@ -681,7 +674,6 @@ fn evaluate_operation<'a>(
                 }
             }
         }
-
         Operation::LessThan(_, _) => Err(FHIRPathError::NotImplemented("LessThan".to_string())),
         Operation::GreaterThan(_, _) => {
             Err(FHIRPathError::NotImplemented("GreaterThan".to_string()))
@@ -692,23 +684,17 @@ fn evaluate_operation<'a>(
         Operation::GreaterThanEqual(_, _) => Err(FHIRPathError::NotImplemented(
             "GreaterThanEqual".to_string(),
         )),
-        Operation::LessThan(left, right) => {
-            Err(FHIRPathError::NotImplemented("LessThan".to_string()))
-        }
-        Operation::GreaterThan(left, right) => {
-            Err(FHIRPathError::NotImplemented("GreaterThan".to_string()))
-        }
         Operation::Equivalent(_, _) => Err(FHIRPathError::NotImplemented("Equivalent".to_string())),
 
         Operation::NotEquivalent(_, _) => {
             Err(FHIRPathError::NotImplemented("NotEquivalent".to_string()))
         }
-        Operation::In(left, right) => Err(FHIRPathError::NotImplemented("In".to_string())),
-        Operation::Contains(left, right) => {
+        Operation::In(_left, _right) => Err(FHIRPathError::NotImplemented("In".to_string())),
+        Operation::Contains(_left, _right) => {
             Err(FHIRPathError::NotImplemented("Contains".to_string()))
         }
-        Operation::XOr(left, right) => Err(FHIRPathError::NotImplemented("XOr".to_string())),
-        Operation::Implies(left, right) => {
+        Operation::XOr(_left, _right) => Err(FHIRPathError::NotImplemented("XOr".to_string())),
+        Operation::Implies(_left, _right) => {
             Err(FHIRPathError::NotImplemented("Implies".to_string()))
         }
     }
@@ -753,7 +739,7 @@ pub struct Context<'a> {
     values: Arc<Vec<&'a dyn MetaValue>>,
 }
 
-enum ExternalConstantResolver<'a> {
+pub enum ExternalConstantResolver<'a> {
     Function(Box<dyn Fn(&str) -> Option<Box<dyn MetaValue>>>),
     Variable(HashMap<String, &'a dyn MetaValue>),
 }
@@ -905,7 +891,8 @@ mod tests {
             Bundle, Patient, PatientDeceasedTypeChoice, PatientLink, Resource, SearchParameter,
         },
         types::{
-            Extension, ExtensionValueTypeChoice, FHIRString, HumanName, Identifier, Reference,
+            Extension, ExtensionValueTypeChoice, FHIRString, FHIRUri, HumanName, Identifier,
+            Reference,
         },
     };
     use haste_fhir_serialization_json;
@@ -985,7 +972,7 @@ mod tests {
         let engine = FPEngine::new();
         let mut patient = Patient::default();
         let mut identifier = Identifier::default();
-        let mut extension = Extension {
+        let extension = Extension {
             id: None,
             url: "test-extension".to_string(),
             extension: None,
