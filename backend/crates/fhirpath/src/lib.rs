@@ -19,6 +19,7 @@ use haste_fhir_model::r4::generated::{
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
 use once_cell::sync::Lazy;
+use std::pin::Pin;
 
 /// Number types to use in FHIR evaluation
 static NUMBER_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
@@ -92,7 +93,7 @@ fn evaluate_literal<'b>(
     }
 }
 
-fn evaluate_invocation<'a>(
+async fn evaluate_invocation<'a>(
     invocation: &Invocation,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
@@ -100,7 +101,7 @@ fn evaluate_invocation<'a>(
     match invocation {
         Invocation::This => Ok(context),
         Invocation::Index(index_expression) => {
-            let index = evaluate_expression(index_expression, context.clone(), config)?;
+            let index = evaluate_expression(index_expression, context.clone(), config).await?;
             if index.values.len() != 1 {
                 return Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
@@ -126,11 +127,11 @@ fn evaluate_invocation<'a>(
                 })
                 .collect(),
         )),
-        Invocation::Function(function) => evaluate_function(function, context, config),
+        Invocation::Function(function) => evaluate_function(function, context, config).await,
     }
 }
 
-fn evaluate_term<'a>(
+async fn evaluate_term<'a>(
     term: &Term,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
@@ -142,14 +143,14 @@ fn evaluate_term<'a>(
             config.as_ref().and_then(|c| c.variable_resolver.as_ref()),
             context,
         ),
-        Term::Parenthesized(expression) => evaluate_expression(expression, context, config),
-        Term::Invocation(invocation) => evaluate_invocation(invocation, context, config),
+        Term::Parenthesized(expression) => evaluate_expression(expression, context, config).await,
+        Term::Invocation(invocation) => evaluate_invocation(invocation, context, config).await,
     }
 }
 
 /// Need special handling as the first term could start with a type filter.
 /// for example Patient.name
-fn evaluate_first_term<'a>(
+async fn evaluate_first_term<'a>(
     term: &Term,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
@@ -161,16 +162,16 @@ fn evaluate_first_term<'a>(
                 if !type_filter.values.is_empty() {
                     Ok(type_filter)
                 } else {
-                    evaluate_invocation(invocation, context, config)
+                    evaluate_invocation(invocation, context, config).await
                 }
             }
-            _ => evaluate_invocation(invocation, context, config),
+            _ => evaluate_invocation(invocation, context, config).await,
         },
-        _ => evaluate_term(term, context, config),
+        _ => evaluate_term(term, context, config).await,
     }
 }
 
-fn evaluate_singular<'a>(
+async fn evaluate_singular<'a>(
     expression: &Vec<Term>,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
@@ -180,25 +181,25 @@ fn evaluate_singular<'a>(
     let mut term_iterator = expression.iter();
     let first_term = term_iterator.next();
     if let Some(first_term) = first_term {
-        current_context = evaluate_first_term(first_term, current_context, config)?;
+        current_context = evaluate_first_term(first_term, current_context, config).await?;
     }
 
     for term in term_iterator {
-        current_context = evaluate_term(term, current_context, config)?;
+        current_context = evaluate_term(term, current_context, config).await?;
     }
 
     Ok(current_context)
 }
 
-fn operation_1<'a>(
+async fn operation_1<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
     executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    let left = evaluate_expression(left, context.clone(), config)?;
-    let right = evaluate_expression(right, context, config)?;
+    let left = evaluate_expression(left, context.clone(), config).await?;
+    let right = evaluate_expression(right, context, config).await?;
 
     // If one of operands is empty per spec return an empty collection
     if left.values.len() == 0 || right.values.len() == 0 {
@@ -214,15 +215,15 @@ fn operation_1<'a>(
     executor(left, right)
 }
 
-fn operation_n<'a>(
+async fn operation_n<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
     executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    let left = evaluate_expression(left, context.clone(), config)?;
-    let right = evaluate_expression(right, context, config)?;
+    let left = evaluate_expression(left, context.clone(), config).await?;
+    let right = evaluate_expression(right, context, config).await?;
     executor(left, right)
 }
 
@@ -308,40 +309,34 @@ fn downcast_number(value: &dyn MetaValue) -> Result<f64, FHIRPathError> {
     }
 }
 
-fn fp_func_0<'b>(
-    ast_arguments: &Vec<Expression>,
-    context: Context<'b>,
-    executor: impl Fn(Context<'b>) -> Result<Context<'b>, FHIRPathError>,
-) -> Result<Context<'b>, FHIRPathError> {
-    if ast_arguments.len() != 0 {
-        return Err(FHIRPathError::OperationError(
-            OperationError::InvalidCardinality,
-        ));
-    }
-
-    executor(context)
+enum Cardinality {
+    Zero,
+    One,
+    Many,
 }
 
-fn fp_func_1<'b>(
+fn validate_arguments(
     ast_arguments: &Vec<Expression>,
-    context: Context<'b>,
-    executor: impl Fn(&Vec<Expression>, Context<'b>) -> Result<Context<'b>, FHIRPathError>,
-) -> Result<Context<'b>, FHIRPathError> {
-    if ast_arguments.len() != 1 {
-        return Err(FHIRPathError::OperationError(
-            OperationError::InvalidCardinality,
-        ));
+    cardinality: &Cardinality,
+) -> Result<(), FHIRPathError> {
+    match cardinality {
+        Cardinality::Zero => {
+            if ast_arguments.len() != 0 {
+                return Err(FHIRPathError::OperationError(
+                    OperationError::InvalidCardinality,
+                ));
+            }
+        }
+        Cardinality::One => {
+            if ast_arguments.len() != 1 {
+                return Err(FHIRPathError::OperationError(
+                    OperationError::InvalidCardinality,
+                ));
+            }
+        }
+        Cardinality::Many => {}
     }
-
-    executor(ast_arguments, context)
-}
-
-fn fp_func_n<'b>(
-    ast_arguments: &Vec<Expression>,
-    context: Context<'b>,
-    executor: impl Fn(&Vec<Expression>, Context<'b>) -> Result<Context<'b>, FHIRPathError>,
-) -> Result<Context<'b>, FHIRPathError> {
-    executor(ast_arguments, context)
+    Ok(())
 }
 
 fn derive_typename(expression_ast: &Expression) -> Result<String, FHIRPathError> {
@@ -399,7 +394,7 @@ struct Reflection {
     name: String,
 }
 
-fn evaluate_function<'b>(
+async fn evaluate_function<'b>(
     function: &FunctionInvocation,
     context: Context<'b>,
     config: &'b Option<Config<'b>>,
@@ -407,15 +402,18 @@ fn evaluate_function<'b>(
     match function.name.0.as_str() {
         // Faking resolve to just return current context.
         "resolve" => Ok(context),
-        "where" => fp_func_1(&function.arguments, context, |args, context| {
-            let where_condition = &args[0];
+        "where" => {
+            validate_arguments(&function.arguments, &Cardinality::One)?;
+
+            let where_condition = &function.arguments[0];
             let mut new_context = vec![];
             for value in context.values.iter() {
                 let result = evaluate_expression(
                     where_condition,
                     context.new_context_from(vec![*value]),
                     config,
-                )?;
+                )
+                .await?;
 
                 if result.values.len() > 1 {
                     return Err(FHIRPathError::InternalError(
@@ -427,32 +425,44 @@ fn evaluate_function<'b>(
                 }
             }
             Ok(context.new_context_from(new_context))
-        }),
-        "ofType" => fp_func_1(&function.arguments, context, |args, context| {
-            let type_name = derive_typename(&args[0])?;
+        }
+        "ofType" => {
+            validate_arguments(&function.arguments, &Cardinality::One)?;
+
+            let type_name = derive_typename(&function.arguments[0])?;
             Ok(filter_by_type(&type_name, &context))
-        }),
-        "as" => fp_func_1(&function.arguments, context, |args, context| {
-            let type_name = derive_typename(&args[0])?;
+        }
+        "as" => {
+            validate_arguments(&function.arguments, &Cardinality::One)?;
+
+            let type_name = derive_typename(&function.arguments[0])?;
             Ok(filter_by_type(&type_name, &context))
-        }),
-        "exists" => fp_func_n(&function.arguments, context, |args, context| {
-            if args.len() > 1 {
-                return Err(
-                    FunctionError::InvalidCardinality("exists".to_string(), args.len()).into(),
-                );
+        }
+        "exists" => {
+            validate_arguments(&function.arguments, &Cardinality::Many)?;
+
+            if function.arguments.len() > 1 {
+                return Err(FunctionError::InvalidCardinality(
+                    "exists".to_string(),
+                    function.arguments.len(),
+                )
+                .into());
             }
 
-            let context = if args.len() == 1 {
-                evaluate_expression(&args[0], context, config)?
+            let context = if function.arguments.len() == 1 {
+                evaluate_expression(&function.arguments[0], context, config).await?
             } else {
                 context
             };
 
-            Ok(context
-                .new_context_from(vec![context.allocate(Box::new(!context.values.is_empty()))]))
-        }),
-        "children" => fp_func_0(&function.arguments, context, |context| {
+            let res = Ok(context
+                .new_context_from(vec![context.allocate(Box::new(!context.values.is_empty()))]));
+
+            res
+        }
+        "children" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
             Ok(context.new_context_from(
                 context
                     .values
@@ -468,20 +478,24 @@ fn evaluate_function<'b>(
                     })
                     .collect(),
             ))
-        }),
-        "repeat" => fp_func_1(&function.arguments, context, |args, context| {
-            let projection = &args[0];
+        }
+        "repeat" => {
+            validate_arguments(&function.arguments, &Cardinality::One)?;
+
+            let projection = &function.arguments[0];
             let mut end_result = vec![];
             let mut cur = context;
 
             while cur.values.len() != 0 {
-                cur = evaluate_expression(projection, cur, config)?;
+                cur = evaluate_expression(projection, cur, config).await?;
                 end_result.extend_from_slice(cur.values.as_slice());
             }
 
             Ok(cur.new_context_from(end_result))
-        }),
-        "descendants" => fp_func_0(&function.arguments, context, |context| {
+        }
+        "descendants" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
             // Descendants is shorthand for repeat(children()) see [https://hl7.org/fhirpath/N1/#descendants-collection].
             let result = evaluate_expression(
                 &Expression::Singular(vec![Term::Invocation(Invocation::Function(
@@ -497,11 +511,14 @@ fn evaluate_function<'b>(
                 ))]),
                 context,
                 config,
-            )?;
+            )
+            .await?;
 
             Ok(result)
-        }),
-        "type" => fp_func_0(&function.arguments, context, |context| {
+        }
+        "type" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
             Ok(context.new_context_from(
                 context
                     .values
@@ -514,7 +531,7 @@ fn evaluate_function<'b>(
                     })
                     .collect(),
             ))
-        }),
+        }
         _ => {
             return Err(FHIRPathError::NotImplemented(format!(
                 "Function '{}' is not implemented",
@@ -554,34 +571,39 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
     }
 }
 
-fn evaluate_operation<'a>(
+async fn evaluate_operation<'a>(
     operation: &Operation,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match operation {
-        Operation::Add(left, right) => operation_1(left, right, context, config, |left, right| {
-            if NUMBER_TYPES.contains(left.values[0].typename())
-                && NUMBER_TYPES.contains(right.values[0].typename())
-            {
-                let left_value = downcast_number(left.values[0])?;
-                let right_value = downcast_number(right.values[0])?;
-                Ok(left.new_context_from(vec![left.allocate(Box::new(left_value + right_value))]))
-            } else if STRING_TYPES.contains(left.values[0].typename())
-                && STRING_TYPES.contains(right.values[0].typename())
-            {
-                let left_string = downcast_string(left.values[0])?;
-                let right_string = downcast_string(right.values[0])?;
+        Operation::Add(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                if NUMBER_TYPES.contains(left.values[0].typename())
+                    && NUMBER_TYPES.contains(right.values[0].typename())
+                {
+                    let left_value = downcast_number(left.values[0])?;
+                    let right_value = downcast_number(right.values[0])?;
+                    Ok(left
+                        .new_context_from(vec![left.allocate(Box::new(left_value + right_value))]))
+                } else if STRING_TYPES.contains(left.values[0].typename())
+                    && STRING_TYPES.contains(right.values[0].typename())
+                {
+                    let left_string = downcast_string(left.values[0])?;
+                    let right_string = downcast_string(right.values[0])?;
 
-                Ok(left
-                    .new_context_from(vec![left.allocate(Box::new(left_string + &right_string))]))
-            } else {
-                Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
-                    left.values[0].typename(),
-                    right.values[0].typename(),
-                )))
-            }
-        }),
+                    Ok(left.new_context_from(vec![
+                        left.allocate(Box::new(left_string + &right_string)),
+                    ]))
+                } else {
+                    Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
+                        left.values[0].typename(),
+                        right.values[0].typename(),
+                    )))
+                }
+            })
+            .await
+        }
         Operation::Subtraction(left, right) => {
             operation_1(left, right, context, config, |left, right| {
                 let left_value = downcast_number(left.values[0])?;
@@ -589,6 +611,7 @@ fn evaluate_operation<'a>(
 
                 Ok(left.new_context_from(vec![left.allocate(Box::new(left_value - right_value))]))
             })
+            .await
         }
         Operation::Multiplication(left, right) => {
             operation_1(left, right, context, config, |left, right| {
@@ -597,6 +620,7 @@ fn evaluate_operation<'a>(
 
                 Ok(left.new_context_from(vec![left.allocate(Box::new(left_value * right_value))]))
             })
+            .await
         }
         Operation::Division(left, right) => {
             operation_1(left, right, context, config, |left, right| {
@@ -605,31 +629,40 @@ fn evaluate_operation<'a>(
 
                 Ok(left.new_context_from(vec![left.allocate(Box::new(left_value / right_value))]))
             })
+            .await
         }
         Operation::Equal(left, right) => {
             operation_1(left, right, context, config, |left, right| {
                 let are_equal = equal_check(&left, &right)?;
                 Ok(left.new_context_from(vec![left.allocate(Box::new(are_equal))]))
             })
+            .await
         }
         Operation::NotEqual(left, right) => {
             operation_1(left, right, context, config, |left, right| {
                 let are_equal = equal_check(&left, &right)?;
                 Ok(left.new_context_from(vec![left.allocate(Box::new(!are_equal))]))
             })
+            .await
         }
-        Operation::And(left, right) => operation_1(left, right, context, config, |left, right| {
-            let left_value = downcast_bool(left.values[0])?;
-            let right_value = downcast_bool(right.values[0])?;
+        Operation::And(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let left_value = downcast_bool(left.values[0])?;
+                let right_value = downcast_bool(right.values[0])?;
 
-            Ok(left.new_context_from(vec![left.allocate(Box::new(left_value && right_value))]))
-        }),
-        Operation::Or(left, right) => operation_1(left, right, context, config, |left, right| {
-            let left_value = downcast_bool(left.values[0])?;
-            let right_value = downcast_bool(right.values[0])?;
+                Ok(left.new_context_from(vec![left.allocate(Box::new(left_value && right_value))]))
+            })
+            .await
+        }
+        Operation::Or(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let left_value = downcast_bool(left.values[0])?;
+                let right_value = downcast_bool(right.values[0])?;
 
-            Ok(left.new_context_from(vec![left.allocate(Box::new(left_value || right_value))]))
-        }),
+                Ok(left.new_context_from(vec![left.allocate(Box::new(left_value || right_value))]))
+            })
+            .await
+        }
         Operation::Union(left, right) => {
             operation_n(left, right, context, config, |left, right| {
                 let mut union = vec![];
@@ -637,6 +670,7 @@ fn evaluate_operation<'a>(
                 union.extend(right.values.iter());
                 Ok(left.new_context_from(union))
             })
+            .await
         }
         Operation::Polarity(_, _) => Err(FHIRPathError::NotImplemented("Polarity".to_string())),
         Operation::DivisionTruncated(_, _) => Err(FHIRPathError::NotImplemented(
@@ -644,7 +678,7 @@ fn evaluate_operation<'a>(
         )),
         Operation::Modulo(_, _) => Err(FHIRPathError::NotImplemented("Modulo".to_string())),
         Operation::Is(expression, type_name) => {
-            let left = evaluate_expression(expression, context, config)?;
+            let left = evaluate_expression(expression, context, config).await?;
             if left.values.len() > 1 {
                 Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
@@ -661,7 +695,7 @@ fn evaluate_operation<'a>(
             }
         }
         Operation::As(expression, type_name) => {
-            let left = evaluate_expression(expression, context, config)?;
+            let left = evaluate_expression(expression, context, config).await?;
             if left.values.len() > 1 {
                 Err(FHIRPathError::OperationError(
                     OperationError::InvalidCardinality,
@@ -704,11 +738,17 @@ fn evaluate_expression<'a>(
     ast: &Expression,
     context: Context<'a>,
     config: &'a Option<Config<'a>>,
-) -> Result<Context<'a>, FHIRPathError> {
-    match ast {
-        Expression::Operation(operation) => evaluate_operation(operation, context, config),
-        Expression::Singular(singular_ast) => evaluate_singular(singular_ast, context, config),
-    }
+) -> Pin<Box<impl Future<Output = Result<Context<'a>, FHIRPathError>>>> {
+    Box::pin(async move {
+        match ast {
+            Expression::Operation(operation) => {
+                evaluate_operation(operation, context, config).await
+            }
+            Expression::Singular(singular_ast) => {
+                evaluate_singular(singular_ast, context, config).await
+            }
+        }
+    })
 }
 
 /// Need a means to store objects that are created during evaluation.
@@ -818,7 +858,7 @@ impl FPEngine {
     /// The context is a vector of references to MetaValue objects.
     /// The path is a FHIRPath expression.
     /// The result is a vector of references to MetaValue objects.
-    pub fn evaluate<'a, 'b>(
+    pub async fn evaluate<'a, 'b>(
         &self,
         path: &str,
         values: Vec<&'a dyn MetaValue>,
@@ -842,8 +882,7 @@ impl FPEngine {
 
         let context = Context::new(values, allocator.clone());
 
-        let result = evaluate_expression(&ast, context, &None)?;
-
+        let result = evaluate_expression(&ast, context, &None).await?;
         Ok(result)
     }
 
@@ -852,7 +891,7 @@ impl FPEngine {
     /// The path is a FHIRPath expression.
     /// The result is a vector of references to MetaValue objects.
     ///
-    pub fn evaluate_with_config<'a, 'b>(
+    pub async fn evaluate_with_config<'a, 'b>(
         &self,
         path: &str,
         values: Vec<&'a dyn MetaValue>,
@@ -877,7 +916,7 @@ impl FPEngine {
 
         let context = Context::new(values, allocator.clone());
 
-        let result = evaluate_expression(&ast, context, config)?;
+        let result = evaluate_expression(&ast, context, config).await?;
 
         Ok(result)
     }
@@ -936,8 +975,8 @@ mod tests {
         search_parameters
     }
 
-    #[test]
-    fn test_variable_resolution() {
+    #[tokio::test]
+    async fn test_variable_resolution() {
         let engine = FPEngine::new();
         let patient = Patient {
             id: Some("my-patient".to_string()),
@@ -953,6 +992,7 @@ mod tests {
 
         let result = engine
             .evaluate_with_config("%patient", vec![], &config)
+            .await
             .unwrap();
 
         assert_eq!(result.values.len(), 1);
@@ -962,13 +1002,14 @@ mod tests {
 
         let result_failed = engine
             .evaluate_with_config("%nobody", vec![], &config)
+            .await
             .unwrap();
 
         assert_eq!(result_failed.values.len(), 0);
     }
 
-    #[test]
-    fn test_where_clause() {
+    #[tokio::test]
+    async fn test_where_clause() {
         let engine = FPEngine::new();
         let mut patient = Patient::default();
         let mut identifier = Identifier::default();
@@ -989,27 +1030,33 @@ mod tests {
         }));
         patient.identifier_ = Some(vec![Box::new(identifier)]);
 
-        let context = engine.evaluate(
-            "$this.identifier.value.where($this.extension.value.exists())",
-            vec![&patient],
-        );
+        let context = engine
+            .evaluate(
+                "$this.identifier.value.where($this.extension.value.exists())",
+                vec![&patient],
+            )
+            .await;
 
         assert_eq!(context.unwrap().values.len(), 1);
 
-        let context = engine.evaluate(
-            "$this.identifier.value.where($this.extension.extension.exists())",
-            vec![&patient],
-        );
+        let context = engine
+            .evaluate(
+                "$this.identifier.value.where($this.extension.extension.exists())",
+                vec![&patient],
+            )
+            .await;
         assert_eq!(context.unwrap().values.len(), 0);
     }
 
-    #[test]
-    fn test_all_parameters() {
+    #[tokio::test]
+    async fn test_all_parameters() {
         let search_parameters = load_search_parameters();
         for param in search_parameters.iter() {
             if let Some(expression) = &param.expression {
                 let engine = FPEngine::new();
-                let context = engine.evaluate(expression.value.as_ref().unwrap().as_str(), vec![]);
+                let context = engine
+                    .evaluate(expression.value.as_ref().unwrap().as_str(), vec![])
+                    .await;
 
                 if let Err(err) = context {
                     panic!(
@@ -1066,13 +1113,14 @@ mod tests {
         patient
     }
 
-    #[test]
-    fn indexing_tests() {
+    #[tokio::test]
+    async fn indexing_tests() {
         let engine = FPEngine::new();
         let patient = test_patient();
 
         let given_name = engine
             .evaluate("$this.name.given[0]", vec![&patient])
+            .await
             .unwrap();
 
         assert_eq!(given_name.values.len(), 1);
@@ -1086,6 +1134,7 @@ mod tests {
 
         let ssn_identifier = engine
             .evaluate("$this.identifier[1]", vec![&patient])
+            .await
             .unwrap();
 
         assert_eq!(ssn_identifier.values.len(), 1);
@@ -1100,12 +1149,15 @@ mod tests {
             Some("ssn-12345")
         );
 
-        let all_identifiers = engine.evaluate("$this.identifier", vec![&patient]).unwrap();
+        let all_identifiers = engine
+            .evaluate("$this.identifier", vec![&patient])
+            .await
+            .unwrap();
         assert_eq!(all_identifiers.values.len(), 2);
     }
 
-    #[test]
-    fn where_testing() {
+    #[tokio::test]
+    async fn where_testing() {
         let engine = FPEngine::new();
         let patient = test_patient();
 
@@ -1114,6 +1166,7 @@ mod tests {
                 "$this.name.given.where($this.value = 'Bob')",
                 vec![&patient],
             )
+            .await
             .unwrap();
 
         assert_eq!(name_where_clause.values.len(), 1);
@@ -1130,6 +1183,7 @@ mod tests {
                 "$this.identifier.where($this.system.value = 'ssn')",
                 vec![&patient],
             )
+            .await
             .unwrap();
         assert_eq!(ssn_identifier_clause.values.len(), 1);
 
@@ -1144,70 +1198,70 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_equality() {
+    #[tokio::test]
+    async fn test_equality() {
         let engine = FPEngine::new();
 
         // String tests
-        let string_equal = engine.evaluate("'test' = 'test'", vec![]).unwrap();
+        let string_equal = engine.evaluate("'test' = 'test'", vec![]).await.unwrap();
         for r in string_equal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, true);
         }
-        let string_unequal = engine.evaluate("'invalid' = 'test'", vec![]).unwrap();
+        let string_unequal = engine.evaluate("'invalid' = 'test'", vec![]).await.unwrap();
         for r in string_unequal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, false);
         }
 
         // Number tests
-        let number_equal = engine.evaluate("12 = 12", vec![]).unwrap();
+        let number_equal = engine.evaluate("12 = 12", vec![]).await.unwrap();
         for r in number_equal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, true);
         }
-        let number_unequal = engine.evaluate("13 = 12", vec![]).unwrap();
+        let number_unequal = engine.evaluate("13 = 12", vec![]).await.unwrap();
         for r in number_unequal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, false);
         }
 
         // Boolean tests
-        let bool_equal = engine.evaluate("false = false", vec![]).unwrap();
+        let bool_equal = engine.evaluate("false = false", vec![]).await.unwrap();
         for r in bool_equal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, true);
         }
-        let bool_unequal = engine.evaluate("false = true", vec![]).unwrap();
+        let bool_unequal = engine.evaluate("false = true", vec![]).await.unwrap();
         for r in bool_unequal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, false);
         }
 
         // Nested Equality tests
-        let bool_equal = engine.evaluate("12 = 13 = false", vec![]).unwrap();
+        let bool_equal = engine.evaluate("12 = 13 = false", vec![]).await.unwrap();
         for r in bool_equal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, true);
         }
-        let bool_unequal = engine.evaluate("12 = 13 = true", vec![]).unwrap();
+        let bool_unequal = engine.evaluate("12 = 13 = true", vec![]).await.unwrap();
         for r in bool_unequal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, false);
         }
-        let bool_unequal = engine.evaluate("12 = (13 - 1)", vec![]).unwrap();
+        let bool_unequal = engine.evaluate("12 = (13 - 1)", vec![]).await.unwrap();
         for r in bool_unequal.iter() {
             let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
             assert_eq!(b, true);
         }
     }
 
-    #[test]
-    fn test_string_concat() {
+    #[tokio::test]
+    async fn test_string_concat() {
         let engine = FPEngine::new();
         let patient = test_patient();
 
-        let simple_result = engine.evaluate("'Hello' + ' World'", vec![]).unwrap();
+        let simple_result = engine.evaluate("'Hello' + ' World'", vec![]).await.unwrap();
         for r in simple_result.iter() {
             let s: String = r.as_any().downcast_ref::<String>().unwrap().clone();
             assert_eq!(s, "Hello World".to_string());
@@ -1215,6 +1269,7 @@ mod tests {
 
         let simple_result = engine
             .evaluate("$this.name.given + ' Miller'", vec![&patient])
+            .await
             .unwrap();
         for r in simple_result.iter() {
             let s: String = r.as_any().downcast_ref::<String>().unwrap().clone();
@@ -1222,8 +1277,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_simple() {
+    #[tokio::test]
+    async fn test_simple() {
         let root = A {
             a: vec![Box::new(B {
                 b: vec![Box::new(C {
@@ -1233,7 +1288,7 @@ mod tests {
         };
 
         let engine = FPEngine::new();
-        let result = engine.evaluate("a.b.c", vec![&root]).unwrap();
+        let result = engine.evaluate("a.b.c", vec![&root]).await.unwrap();
 
         let strings: Vec<&String> = result
             .iter()
@@ -1243,10 +1298,10 @@ mod tests {
         assert_eq!(strings, vec!["whatever"]);
     }
 
-    #[test]
-    fn allocation() {
+    #[tokio::test]
+    async fn allocation() {
         let engine = FPEngine::new();
-        let result = engine.evaluate("'asdf'", vec![]).unwrap();
+        let result = engine.evaluate("'asdf'", vec![]).await.unwrap();
 
         for r in result.iter() {
             let s: String = r.as_any().downcast_ref::<String>().unwrap().clone();
@@ -1255,10 +1310,10 @@ mod tests {
         }
     }
 
-    #[test]
-    fn order_operation() {
+    #[tokio::test]
+    async fn order_operation() {
         let engine = FPEngine::new();
-        let result = engine.evaluate("45 + 2  * 3", vec![]).unwrap();
+        let result = engine.evaluate("45 + 2  * 3", vec![]).await.unwrap();
 
         for r in result.iter() {
             let s = r.as_any().downcast_ref::<f64>().unwrap().clone();
@@ -1267,15 +1322,18 @@ mod tests {
         }
     }
 
-    #[test]
-    fn domain_resource_filter() {
+    #[tokio::test]
+    async fn domain_resource_filter() {
         let engine = FPEngine::new();
 
         let patient = haste_fhir_serialization_json::from_str::<Resource>(
             r#"{"id": "patient-id", "resourceType": "Patient"}"#,
         )
         .unwrap();
-        let result = engine.evaluate("Resource.id", vec![&patient]).unwrap();
+        let result = engine
+            .evaluate("Resource.id", vec![&patient])
+            .await
+            .unwrap();
         let ids: Vec<&String> = result
             .iter()
             .map(|r| r.as_any().downcast_ref::<String>().unwrap())
@@ -1286,6 +1344,7 @@ mod tests {
 
         let result2 = engine
             .evaluate("DomainResource.id", vec![&patient])
+            .await
             .unwrap();
         let ids2: Vec<&String> = result2
             .iter()
@@ -1295,13 +1354,14 @@ mod tests {
         assert_eq!(ids2[0], "patient-id");
     }
 
-    #[test]
-    fn type_test() {
+    #[tokio::test]
+    async fn type_test() {
         let engine = FPEngine::new();
         let patient = Patient::default();
 
         let result = engine
             .evaluate("$this.type().name", vec![&patient])
+            .await
             .unwrap();
         let ids: Vec<&String> = result
             .iter()
@@ -1312,8 +1372,8 @@ mod tests {
         assert_eq!(ids[0], "Patient");
     }
 
-    #[test]
-    fn resolve_test() {
+    #[tokio::test]
+    async fn resolve_test() {
         let engine = FPEngine::new();
         let observation = haste_fhir_serialization_json::from_str::<Resource>(r#"
              {
@@ -1395,6 +1455,7 @@ mod tests {
                 "Observation.subject.where(resolve() is Patient)",
                 vec![&observation],
             )
+            .await
             .unwrap();
 
         let references: Vec<&Reference> = result
@@ -1409,8 +1470,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn children_test() {
+    #[tokio::test]
+    async fn children_test() {
         let engine = FPEngine::new();
         let patient = Patient {
             name: Some(vec![Box::new(HumanName {
@@ -1427,7 +1488,10 @@ mod tests {
             ..Default::default()
         };
 
-        let result = engine.evaluate("$this.children()", vec![&patient]).unwrap();
+        let result = engine
+            .evaluate("$this.children()", vec![&patient])
+            .await
+            .unwrap();
 
         assert_eq!(result.values.len(), 2);
         assert_eq!(
@@ -1440,8 +1504,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn repeat_test() {
+    #[tokio::test]
+    async fn repeat_test() {
         let engine = FPEngine::new();
         let patient = Patient {
             name: Some(vec![Box::new(HumanName {
@@ -1458,7 +1522,10 @@ mod tests {
             ..Default::default()
         };
 
-        let result = engine.evaluate("$this.name.given", vec![&patient]).unwrap();
+        let result = engine
+            .evaluate("$this.name.given", vec![&patient])
+            .await
+            .unwrap();
 
         assert_eq!(result.values.len(), 1);
 
@@ -1466,6 +1533,7 @@ mod tests {
 
         let result = engine
             .evaluate("$this.repeat(children())", vec![&patient])
+            .await
             .unwrap();
 
         assert_eq!(
@@ -1483,8 +1551,8 @@ mod tests {
             ]
         );
     }
-    #[test]
-    fn descendants_test() {
+    #[tokio::test]
+    async fn descendants_test() {
         let engine = FPEngine::new();
         let patient = Patient {
             name: Some(vec![Box::new(HumanName {
@@ -1500,7 +1568,10 @@ mod tests {
             }))),
             ..Default::default()
         };
-        let result = engine.evaluate("descendants()", vec![&patient]).unwrap();
+        let result = engine
+            .evaluate("descendants()", vec![&patient])
+            .await
+            .unwrap();
 
         assert_eq!(
             result
@@ -1518,8 +1589,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn descendants_test_filter() {
+    #[tokio::test]
+    async fn descendants_test_filter() {
         let engine = FPEngine::new();
         let patient = Patient {
             link: Some(vec![PatientLink {
@@ -1545,7 +1616,10 @@ mod tests {
             }))),
             ..Default::default()
         };
-        let result = engine.evaluate("descendants()", vec![&patient]).unwrap();
+        let result = engine
+            .evaluate("descendants()", vec![&patient])
+            .await
+            .unwrap();
 
         assert_eq!(
             result
@@ -1568,6 +1642,7 @@ mod tests {
 
         let result = engine
             .evaluate("descendants().ofType(Reference)", vec![&patient])
+            .await
             .unwrap();
 
         assert_eq!(
@@ -1590,8 +1665,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn try_unsafe_set_from_ref() {
+    #[tokio::test]
+    async fn try_unsafe_set_from_ref() {
         let engine = FPEngine::new();
         let patient = Patient {
             link: Some(vec![PatientLink {
@@ -1620,6 +1695,7 @@ mod tests {
 
         let result = engine
             .evaluate("descendants().ofType(Reference)", vec![&patient])
+            .await
             .unwrap();
 
         assert_eq!(

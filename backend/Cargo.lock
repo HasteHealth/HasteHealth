@@ -1585,6 +1585,7 @@ dependencies = [
  "once_cell",
  "peg",
  "thiserror 2.0.17",
+ "tokio",
 ]
 
 [[package]]
