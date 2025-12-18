@@ -6,6 +6,7 @@ use haste_fhir_model::r4::sqlx::FHIRJson;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 
+#[derive(Clone)]
 pub struct ResourcePollingValue {
     pub id: ResourceId,
     pub resource_type: ResourceType,

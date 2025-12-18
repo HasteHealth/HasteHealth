@@ -7,7 +7,7 @@ use sqlx::{
 };
 use std::io::Write;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FHIRJson<T: ?Sized>(pub T);
 
 impl<T> sqlx::Type<Postgres> for FHIRJson<T>

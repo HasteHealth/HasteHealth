@@ -780,7 +780,7 @@ pub struct Context<'a> {
 }
 
 pub enum ExternalConstantResolver<'a> {
-    Function(Box<dyn Fn(&str) -> Option<Box<dyn MetaValue>>>),
+    Function(Box<dyn Fn(&str) -> Option<Box<dyn MetaValue>> + Send + Sync>),
     Variable(HashMap<String, &'a dyn MetaValue>),
 }
 

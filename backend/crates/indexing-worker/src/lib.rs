@@ -88,47 +88,51 @@ async fn index_tenant_next_sequence<
         )
         .await?;
 
+    let resources_total = resources.len();
+    let start_sequence = resources.first().map(|r| r.sequence);
+    let last_value = resources.last().cloned();
+
     // Perform indexing if there are resources to index.
     if !resources.is_empty() {
         let result = search_client
             .index(
-                &SupportedFHIRVersions::R4,
-                &tenant_id,
+                SupportedFHIRVersions::R4,
+                tenant_id.clone(),
                 resources
-                    .iter()
+                    .into_iter()
                     .map(|r| IndexResource {
-                        id: &r.id,
-                        version_id: &r.version_id,
-                        project: &r.project,
-                        fhir_method: &r.fhir_method,
-                        resource_type: &r.resource_type,
-                        resource: &r.resource.0,
+                        id: r.id,
+                        version_id: r.version_id,
+                        project: r.project,
+                        fhir_method: r.fhir_method,
+                        resource_type: r.resource_type,
+                        resource: r.resource.0,
                     })
                     .collect(),
             )
             .await?;
 
-        if result.0 != resources.len() {
+        if result.0 != resources_total {
             tracing::error!(
                 "Indexed resource count '{}' does not match retrieved resource count '{}'",
                 result.0,
-                resources.len()
+                resources_total
             );
             return Err(IndexingWorkerError::Fatal);
         }
 
-        if let Some(resource) = resources.last() {
-            let diff = (resource.sequence + 1) - resources[0].sequence;
-            let total = resources.len();
+        if let Some(resource) = last_value {
+            let diff = (resource.sequence + 1) - start_sequence.unwrap_or(0);
+            let total = resources_total;
 
             if total != diff as usize {
                 tracing::event!(
                     tracing::Level::INFO,
                     // safe_seq = resource.max_safe_seq.unwrap_or(0),
-                    first_seq = resources[0].sequence,
+                    first_seq = start_sequence.unwrap_or(0),
                     last_seq = resource.sequence,
-                    total = resources.len(),
-                    diff = (resource.sequence + 1) - resources[0].sequence
+                    total = resources_total,
+                    diff = (resource.sequence + 1) - start_sequence.unwrap_or(0)
                 );
             }
 

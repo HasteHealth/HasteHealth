@@ -21,7 +21,6 @@ use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcome
 use haste_fhirpath::FPEngine;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
 use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
-use rayon::prelude::*;
 use serde::Deserialize;
 use std::{collections::HashMap, sync::Arc};
 
@@ -84,7 +83,7 @@ pub enum SearchConfigError {
 #[derive(Clone)]
 pub struct ElasticSearchEngine {
     fp_engine: Arc<FPEngine>,
-    client: Elasticsearch,
+    client: Arc<Elasticsearch>,
 }
 
 impl ElasticSearchEngine {
@@ -105,7 +104,7 @@ impl ElasticSearchEngine {
         let elasticsearch_client = Elasticsearch::new(transport);
         Ok(ElasticSearchEngine {
             fp_engine,
-            client: elasticsearch_client,
+            client: Arc::new(elasticsearch_client),
         })
     }
 
@@ -120,7 +119,7 @@ impl ElasticSearchEngine {
     }
 }
 
-fn resource_to_elastic_index(
+async fn resource_to_elastic_index(
     fp_engine: Arc<FPEngine>,
     parameters: &Vec<Arc<SearchParameter>>,
     resource: &Resource,
@@ -132,6 +131,7 @@ fn resource_to_elastic_index(
         {
             let result = fp_engine
                 .evaluate(expression, vec![resource])
+                .await
                 .map_err(SearchError::from);
 
             if let Err(err) = result {
@@ -254,102 +254,126 @@ impl SearchEngine for ElasticSearchEngine {
         })
     }
 
-    async fn index<'a>(
+    fn index(
         &self,
-        _fhir_version: &SupportedFHIRVersions,
-        tenant: &TenantId,
+        fhir_version: SupportedFHIRVersions,
+        tenant: TenantId,
 
-        resources: Vec<IndexResource<'a>>,
-    ) -> Result<SuccessfullyIndexedCount, haste_fhir_operation_error::OperationOutcomeError> {
+        resources: Vec<IndexResource>,
+    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync
+    {
         // Iterator used to evaluate all of the search expressions for indexing.
 
-        let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> = resources
-            .par_iter()
-            .filter(|r| match r.fhir_method {
-                FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete => true,
-                _ => false,
-            })
-            .map(|r| match &r.fhir_method {
-                FHIRMethod::Create | FHIRMethod::Update => {
-                    // Id is not sufficient because different Resourcetypes may have the same id.
-                    let index_id = unique_index_id(tenant, r.project, &r.resource_type, &r.id);
-                    let params =
-                        haste_artifacts::search_parameters::get_search_parameters_for_resource(
-                            &r.resource_type,
+        let mut tasks = Vec::with_capacity(resources.len());
+        let resources_total = resources.len();
+
+        for r in resources.into_iter().filter(|r| match r.fhir_method {
+            FHIRMethod::Create | FHIRMethod::Update | FHIRMethod::Delete => true,
+            _ => false,
+        }) {
+            let engine = self.fp_engine.clone();
+            let fhir_version = fhir_version.clone();
+            let tenant = tenant.clone();
+
+            tasks.push(tokio::spawn(async move {
+                match &r.fhir_method {
+                    FHIRMethod::Create | FHIRMethod::Update => {
+                        // Id is not sufficient because different Resourcetypes may have the same id.
+                        let index_id =
+                            unique_index_id(&tenant, &r.project, &r.resource_type, &r.id);
+                        let params =
+                            haste_artifacts::search_parameters::get_search_parameters_for_resource(
+                                &r.resource_type,
+                            );
+
+                        let mut elastic_index =
+                            resource_to_elastic_index(engine.clone(), &params, &r.resource).await?;
+
+                        elastic_index.insert(
+                            "resource_type".to_string(),
+                            InsertableIndex::Meta(r.resource_type.as_ref().to_string()),
                         );
 
-                    let mut elastic_index =
-                        resource_to_elastic_index(self.fp_engine.clone(), &params, &r.resource)?;
+                        elastic_index.insert(
+                            "id".to_string(),
+                            InsertableIndex::Meta(r.id.as_ref().to_string()),
+                        );
 
-                    elastic_index.insert(
-                        "resource_type".to_string(),
-                        InsertableIndex::Meta(r.resource_type.as_ref().to_string()),
-                    );
-
-                    elastic_index.insert(
-                        "id".to_string(),
-                        InsertableIndex::Meta(r.id.as_ref().to_string()),
-                    );
-
-                    elastic_index.insert(
-                        "version_id".to_string(),
-                        InsertableIndex::Meta(r.version_id.to_string()),
-                    );
-                    elastic_index.insert(
-                        "project".to_string(),
-                        InsertableIndex::Meta(r.project.as_ref().to_string()),
-                    );
-                    elastic_index.insert(
-                        "tenant".to_string(),
-                        InsertableIndex::Meta(tenant.as_ref().to_string()),
-                    );
-
-                    Ok(BulkOperation::index(elastic_index)
-                        .id(index_id)
-                        .index(get_index_name(_fhir_version)?)
-                        .into())
+                        elastic_index.insert(
+                            "version_id".to_string(),
+                            InsertableIndex::Meta(r.version_id.to_string()),
+                        );
+                        elastic_index.insert(
+                            "project".to_string(),
+                            InsertableIndex::Meta(r.project.as_ref().to_string()),
+                        );
+                        elastic_index.insert(
+                            "tenant".to_string(),
+                            InsertableIndex::Meta(tenant.as_ref().to_string()),
+                        );
+                        Ok(BulkOperation::index(elastic_index)
+                            .id(index_id)
+                            .index(
+                                get_index_name(&fhir_version)
+                                    .map_err(OperationOutcomeError::from)?,
+                            )
+                            .into())
+                    }
+                    FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
+                        &tenant,
+                        &r.project,
+                        &r.resource_type,
+                        &r.id,
+                    ))
+                    .index(get_index_name(&fhir_version).map_err(OperationOutcomeError::from)?)
+                    .into()),
+                    method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()))
+                        .map_err(OperationOutcomeError::from),
                 }
-                FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
-                    tenant,
-                    r.project,
-                    &r.resource_type,
-                    &r.id,
-                ))
-                .index(get_index_name(_fhir_version)?)
-                .into()),
-                method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()).into()),
-            })
-            .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
+            }));
+        }
 
-        if !bulk_ops.is_empty() {
-            let res = self
-                .client
-                .bulk(BulkParts::Index(get_index_name(_fhir_version)?))
-                .body(bulk_ops)
-                .send()
-                .await
-                .map_err(SearchError::from)?;
+        let client = self.client.clone();
+        async move {
+            let mut bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> =
+                Vec::with_capacity(resources_total);
 
-            let response_body = res.json::<serde_json::Value>().await.map_err(|_e| {
-                OperationOutcomeError::fatal(
-                    IssueType::Exception(None),
-                    "Failed to parse response body.".to_string(),
-                )
-            })?;
-
-            if response_body["errors"].as_bool().unwrap() == true {
-                tracing::error!(
-                    "Failed to index resources for tenant: '{}'. Response: '{:?}'",
-                    tenant.as_ref(),
-                    response_body
-                );
-                return Err(SearchError::Fatal(500).into());
+            for task in tasks {
+                let res = task.await.map_err(|e| {
+                    OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string())
+                })??;
+                bulk_ops.push(res);
             }
-            Ok(SuccessfullyIndexedCount(
-                response_body["items"].as_array().unwrap().len(),
-            ))
-        } else {
-            Ok(SuccessfullyIndexedCount(0))
+
+            if !bulk_ops.is_empty() {
+                let res = client
+                    .bulk(BulkParts::Index(get_index_name(&fhir_version)?))
+                    .body(bulk_ops)
+                    .send()
+                    .await
+                    .map_err(SearchError::from)?;
+
+                let response_body = res.json::<serde_json::Value>().await.map_err(|_e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::Exception(None),
+                        "Failed to parse response body.".to_string(),
+                    )
+                })?;
+
+                if response_body["errors"].as_bool().unwrap() == true {
+                    tracing::error!(
+                        "Failed to index resources for tenant: '{}'. Response: '{:?}'",
+                        tenant.as_ref(),
+                        response_body
+                    );
+                    return Err(SearchError::Fatal(500).into());
+                }
+                Ok(SuccessfullyIndexedCount(
+                    response_body["items"].as_array().unwrap().len(),
+                ))
+            } else {
+                Ok(SuccessfullyIndexedCount(0))
+            }
         }
     }
 

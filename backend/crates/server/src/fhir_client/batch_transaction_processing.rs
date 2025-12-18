@@ -224,7 +224,7 @@ pub struct SortedTransaction<'a> {
     topo_sort_ordering: Vec<NodeIndex>,
 }
 
-pub fn build_sorted_transaction_graph<'a>(
+pub async fn build_sorted_transaction_graph<'a>(
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
     let fp_engine = haste_fhirpath::FPEngine::new();
@@ -247,20 +247,18 @@ pub fn build_sorted_transaction_graph<'a>(
         }
     });
 
-    // Avoid borrow issue process as tupple collection than add to graph.
-    let edges = graph
-        .node_indices()
-        .flat_map(|cur_index| {
-            let entry = if let Some(bundle_entry) = &graph[cur_index] {
-                vec![bundle_entry as &dyn MetaValue]
-            } else {
-                return vec![];
-            };
+    let mut edges = vec![];
+    for cur_index in graph.node_indices() {
+        if let Some(bundle_entry) = &graph[cur_index] {
             let fp_result = fp_engine
-                .evaluate("$this.descendants().ofType(Reference)", entry)
+                .evaluate(
+                    "$this.descendants().ofType(Reference)",
+                    vec![bundle_entry as &dyn MetaValue],
+                )
+                .await
                 .unwrap();
 
-            fp_result
+            let edge_refs = fp_result
                 .iter()
                 .filter_map(|mv| mv.as_any().downcast_ref::<Reference>())
                 .filter_map(|reference| {
@@ -281,9 +279,10 @@ pub fn build_sorted_transaction_graph<'a>(
                         None
                     }
                 })
-                .collect::<Vec<(NodeIndex, NodeIndex, Option<Pin<&mut Reference>>)>>()
-        })
-        .collect::<Vec<_>>();
+                .collect::<Vec<(NodeIndex, NodeIndex, Option<Pin<&mut Reference>>)>>();
+            edges.extend(edge_refs);
+        }
+    }
 
     for edge in edges {
         graph.add_edge(edge.0, edge.1, edge.2);
