@@ -1,6 +1,6 @@
 use clap::Subcommand;
 use haste_config::{Config, get_config};
-use haste_fhir_model::r4::generated::terminology::UserRole;
+use haste_fhir_model::r4::generated::terminology::{IssueType, UserRole};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_jwt::TenantId;
@@ -126,7 +126,7 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                 owner_password,
             } => {
                 let services = services::create_services(config).await?;
-                create_tenant(
+                let result = create_tenant(
                     services.as_ref(),
                     Some(id.clone()),
                     id,
@@ -134,7 +134,17 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     owner_email,
                     Some(owner_password),
                 )
-                .await?;
+                .await;
+
+                if let Err(operation_outcome_error) = result.as_ref()
+                    && let Some(issue) = operation_outcome_error.outcome().issue.first()
+                    && matches!(issue.code.as_ref(), IssueType::Duplicate(None))
+                {
+                    println!("Tenant with ID '{}' already exists.", id);
+                    return Ok(());
+                }
+
+                result?;
 
                 Ok(())
             }

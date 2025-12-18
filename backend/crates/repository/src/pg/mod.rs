@@ -20,6 +20,10 @@ mod user;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum StoreError {
+    #[error(code = "duplicate", diagnostic = "Resource already exists.")]
+    Duplicate,
+    #[error(code = "not-found", diagnostic = "Resource not found.")]
+    NotFound,
     #[error(code = "invalid", diagnostic = "SQL Error occured.")]
     SQLXError(#[from] sqlx::Error),
     #[error(code = "exception", diagnostic = "Failed to create transaction.")]

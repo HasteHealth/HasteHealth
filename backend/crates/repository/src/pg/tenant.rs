@@ -17,17 +17,24 @@ fn create_tenant<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + '
         let id = tenant.id.unwrap_or(TenantId::new(generate_id(None)));
         validate_id(id.as_ref())?;
 
-        let tenant = sqlx::query_as!(
+        let result = sqlx::query_as!(
             Tenant,
             r#"INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id as "id: TenantId", subscription_tier"#,
             id as TenantId,
             tenant.subscription_tier.unwrap_or("free".to_string())
         )
         .fetch_one(&mut *conn)
-        .await
-        .map_err(StoreError::SQLXError)?;
+        .await;
 
-        Ok(tenant)
+        if let Err(res) = result.as_ref()
+            && let sqlx::Error::Database(db_error) = res
+            && db_error.code().as_deref() == Some("23505")
+        {
+            println!("Duplicate tenant ID detected");
+            Err(StoreError::Duplicate.into())
+        } else {
+            Ok(result.map_err(StoreError::SQLXError)?)
+        }
     }
 }
 
