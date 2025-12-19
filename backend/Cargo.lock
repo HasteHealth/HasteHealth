@@ -1664,6 +1664,7 @@ dependencies = [
 name = "haste-pointer"
 version = "0.5.0"
 dependencies = [
+ "haste-fhir-model",
  "haste-reflect",
 ]
 
