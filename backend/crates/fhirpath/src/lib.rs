@@ -785,7 +785,9 @@ pub struct Context<'a> {
 pub enum ExternalConstantResolver<'a> {
     Function(
         Box<
-            dyn Fn(&str) -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>>>> + Send + Sync,
+            dyn Fn(&str) -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send + Sync>>
+                + Send
+                + Sync,
         >,
     ),
     Variable(HashMap<String, &'a dyn MetaValue>),
