@@ -138,11 +138,14 @@ async fn evaluate_term<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Literal(literal) => evaluate_literal(literal, context),
-        Term::ExternalConstant(constant) => resolve_external_constant(
-            constant,
-            config.as_ref().and_then(|c| c.variable_resolver.as_ref()),
-            context,
-        ),
+        Term::ExternalConstant(constant) => {
+            resolve_external_constant(
+                constant,
+                config.as_ref().and_then(|c| c.variable_resolver.as_ref()),
+                context,
+            )
+            .await
+        }
         Term::Parenthesized(expression) => evaluate_expression(expression, context, config).await,
         Term::Invocation(invocation) => evaluate_invocation(invocation, context, config).await,
     }
@@ -780,7 +783,11 @@ pub struct Context<'a> {
 }
 
 pub enum ExternalConstantResolver<'a> {
-    Function(Box<dyn Fn(&str) -> Option<Box<dyn MetaValue>> + Send + Sync>),
+    Function(
+        Box<
+            dyn Fn(&str) -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>>>> + Send + Sync,
+        >,
+    ),
     Variable(HashMap<String, &'a dyn MetaValue>),
 }
 
@@ -788,14 +795,14 @@ pub struct Config<'a> {
     variable_resolver: Option<ExternalConstantResolver<'a>>,
 }
 
-fn resolve_external_constant<'a>(
+async fn resolve_external_constant<'a>(
     name: &str,
     resolver: Option<&'a ExternalConstantResolver<'a>>,
     context: Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let external_constant = match resolver {
         Some(ExternalConstantResolver::Function(func)) => {
-            let result = func(name);
+            let result = func(name).await;
             if let Some(result) = result {
                 Some(context.allocate(result))
             } else {
