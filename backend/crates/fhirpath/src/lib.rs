@@ -6,12 +6,6 @@ use crate::{
 };
 use dashmap::DashMap;
 pub use error::FHIRPathError;
-use std::{
-    collections::{HashMap, HashSet},
-    marker::PhantomData,
-    sync::{Arc, LazyLock, Mutex},
-};
-// use owning_ref::BoxRef;
 use haste_fhir_model::r4::generated::{
     resources::ResourceType,
     types::{FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt, Reference},
@@ -19,6 +13,11 @@ use haste_fhir_model::r4::generated::{
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
 use std::pin::Pin;
+use std::{
+    collections::{HashMap, HashSet},
+    marker::PhantomData,
+    sync::{Arc, LazyLock, Mutex},
+};
 
 /// Number types to use in FHIR evaluation
 static NUMBER_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
