@@ -785,7 +785,10 @@ pub struct Context<'a> {
 pub enum ExternalConstantResolver<'a> {
     Function(
         Box<
-            dyn Fn(&str) -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send + Sync>>
+            dyn Fn(
+                    String,
+                )
+                    -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send + Sync>>
                 + Send
                 + Sync,
         >,
@@ -804,7 +807,7 @@ async fn resolve_external_constant<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     let external_constant = match resolver {
         Some(ExternalConstantResolver::Function(func)) => {
-            let result = func(name).await;
+            let result = func(name.to_string()).await;
             if let Some(result) = result {
                 Some(context.allocate(result))
             } else {
@@ -1754,5 +1757,44 @@ mod tests {
                 .unwrap(),
             "Patient/456"
         );
+    }
+
+    #[tokio::test]
+    async fn test_external_constant_function() {
+        let engine = FPEngine::new();
+
+        let config = Some(Config {
+            variable_resolver: (Some(ExternalConstantResolver::Function(Box::new(|v| {
+                Box::pin(async move {
+                    match v.as_ref() {
+                        "test_variable" => Some(Box::new(Patient {
+                            name: Some(vec![Box::new(HumanName {
+                                given: Some(vec![Box::new(FHIRString {
+                                    value: Some("Alice".to_string()),
+                                    ..Default::default()
+                                })]),
+                                ..Default::default()
+                            })]),
+                            ..Default::default()
+                        }) as Box<dyn MetaValue>),
+                        _ => None,
+                    }
+                })
+            })))),
+        });
+
+        let result = engine
+            .evaluate_with_config("%test_variable.name.given", vec![], &config)
+            .await
+            .unwrap();
+
+        let value = result.values[0]
+            .as_any()
+            .downcast_ref::<FHIRString>()
+            .unwrap();
+
+        println!("Value: {:?}", value);
+
+        assert_eq!(value.value.as_ref(), Some(&"Alice".to_string()));
     }
 }
