@@ -1,0 +1,10 @@
+[package]
+name = "haste-pointer"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+haste-reflect = { path = "../reflect", version = "0.*" }

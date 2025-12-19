@@ -1,7 +1,9 @@
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
-use once_cell::sync::Lazy;
 use rust_embed::Embed;
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    sync::{Arc, LazyLock},
+};
 
 #[derive(Debug)]
 pub enum ArtifactError {
@@ -92,7 +94,7 @@ fn index_parameter(
 
 struct EmbededSearchParameterAssets;
 
-static R4_SEARCH_PARAMETERS: Lazy<SearchParametersIndex> = Lazy::new(|| {
+static R4_SEARCH_PARAMETERS: LazyLock<SearchParametersIndex> = LazyLock::new(|| {
     let mut index = SearchParametersIndex::default();
 
     for path in EmbededSearchParameterAssets::iter() {

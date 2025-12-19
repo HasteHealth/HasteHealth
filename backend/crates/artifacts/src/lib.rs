@@ -1,6 +1,6 @@
 use haste_fhir_model::r4::generated::resources::Resource;
-use once_cell::sync::Lazy;
 use rust_embed::Embed;
+use std::sync::LazyLock;
 
 pub mod search_parameters;
 
@@ -38,4 +38,4 @@ fn load_resources() -> Vec<Box<Resource>> {
 
 struct EmbededResourceAssets;
 
-pub static ARTIFACT_RESOURCES: Lazy<Vec<Box<Resource>>> = Lazy::new(|| load_resources());
+pub static ARTIFACT_RESOURCES: LazyLock<Vec<Box<Resource>>> = LazyLock::new(|| load_resources());

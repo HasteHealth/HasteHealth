@@ -18,11 +18,10 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
-use once_cell::sync::Lazy;
 use std::pin::Pin;
 
 /// Number types to use in FHIR evaluation
-static NUMBER_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+static NUMBER_TYPES: Lazy<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
     m.insert("FHIRInteger");
     m.insert("FHIRDecimal");
@@ -33,7 +32,7 @@ static NUMBER_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     m
 });
 
-static BOOLEAN_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+static BOOLEAN_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
     m.insert("FHIRBoolean");
     m.insert("http://hl7.org/fhirpath/System.Boolean");
@@ -41,7 +40,7 @@ static BOOLEAN_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
 });
 
 #[allow(unused)]
-static DATE_TIME_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+static DATE_TIME_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
     m.insert("FHIRDate");
     m.insert("FHIRDateTime");
@@ -54,7 +53,7 @@ static DATE_TIME_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     m
 });
 
-static STRING_TYPES: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+static STRING_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
     m.insert("FHIRBase64Binary");
     m.insert("FHIRCanonical");

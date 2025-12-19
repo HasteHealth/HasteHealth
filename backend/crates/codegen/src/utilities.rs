@@ -1,12 +1,13 @@
 #![allow(unused)]
-use std::collections::{HashMap, HashSet};
-
-use once_cell::sync::Lazy;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::LazyLock,
+};
 
 /// Some of these keywords are present as properties in the FHIR spec.
 /// We need to prefix them with an underscore to avoid conflicts.
 /// And use an attribute to rename the field in the generated code.
-pub static RUST_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+pub static RUST_KEYWORDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
     m.insert("self");
     m.insert("Self");
@@ -29,7 +30,7 @@ pub static RUST_KEYWORDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     m
 });
 
-pub static RUST_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
+pub static RUST_PRIMITIVES: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
     let mut m = HashMap::new();
     m.insert(
         "http://hl7.org/fhirpath/System.String".to_string(),
@@ -66,7 +67,7 @@ pub static RUST_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
     m
 });
 
-pub static FHIR_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
+pub static FHIR_PRIMITIVES: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
     let mut m = HashMap::new();
     // bool type
     m.insert("boolean".to_string(), "FHIRBoolean".to_string());
@@ -102,7 +103,7 @@ pub static FHIR_PRIMITIVES: Lazy<HashMap<String, String>> = Lazy::new(|| {
     m
 });
 
-pub static FHIR_PRIMITIVE_VALUE_TYPE: Lazy<HashMap<String, String>> = Lazy::new(|| {
+pub static FHIR_PRIMITIVE_VALUE_TYPE: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
     let mut m = HashMap::new();
     // bool type
     m.insert("boolean".to_string(), "bool".to_string());
