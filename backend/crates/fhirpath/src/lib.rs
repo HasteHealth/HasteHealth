@@ -1770,7 +1770,7 @@ mod tests {
                         "test_variable" => Some(Box::new(Patient {
                             name: Some(vec![Box::new(HumanName {
                                 given: Some(vec![Box::new(FHIRString {
-                                    value: Some("Alice".to_string()),
+                                    value: Some("Paul".to_string()),
                                     ..Default::default()
                                 })]),
                                 ..Default::default()
@@ -1795,6 +1795,6 @@ mod tests {
 
         println!("Value: {:?}", value);
 
-        assert_eq!(value.value.as_ref(), Some(&"Alice".to_string()));
+        assert_eq!(value.value.as_ref(), Some(&"Paul".to_string()));
     }
 }
