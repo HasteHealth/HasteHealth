@@ -21,7 +21,7 @@ use haste_reflect_derive::Reflect;
 use std::pin::Pin;
 
 /// Number types to use in FHIR evaluation
-static NUMBER_TYPES: Lazy<HashSet<&'static str>> = LazyLock::new(|| {
+static NUMBER_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     let mut m = HashSet::new();
     m.insert("FHIRInteger");
     m.insert("FHIRDecimal");

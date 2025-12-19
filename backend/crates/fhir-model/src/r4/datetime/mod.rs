@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::sync::LazyLock;
 
 mod reflect;
 mod serialize;
@@ -78,25 +79,25 @@ pub enum ParseError {
     InvalidFormat,
 }
 
-pub static DATE_REGEX: Lazy<Regex> = Lazy::new(|| {
+pub static DATE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1]))?)?$",
     ).unwrap()
 });
 
-pub static DATETIME_REGEX: Lazy<Regex> = Lazy::new(|| {
+pub static DATETIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"^(?<year>[0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(?<month>0[1-9]|1[0-2])(-(?<day>0[1-9]|[1-2][0-9]|3[0-1])(?<time>T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$",
     ).unwrap()
 });
 
-pub static INSTANT_REGEX: Lazy<Regex> = Lazy::new(|| {
+pub static INSTANT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))$",
     ).unwrap()
 });
 
-pub static TIME_REGEX: Lazy<Regex> = Lazy::new(|| {
+pub static TIME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"^([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?$").unwrap()
 });
 
