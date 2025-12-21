@@ -152,6 +152,8 @@ pub async fn authorize<
 
     let membership = find_membership(&*app_state.repo, &tenant, &project, &user).await?;
 
+    println!("Membership: {:?}", membership);
+
     if membership.is_none() && &user.role == &UserRole::Member {
         session::user::clear_user(&current_session, &tenant)
             .await

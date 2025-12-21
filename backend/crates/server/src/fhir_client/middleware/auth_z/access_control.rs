@@ -5,7 +5,7 @@ use crate::fhir_client::{
         ServerMiddlewareState,
     },
 };
-use haste_access_control::PolicyContext;
+use haste_access_control::context::{PolicyContext, PolicyEnvironment};
 use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
@@ -16,7 +16,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::UserRole;
 use haste_repository::Repository;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 pub struct AccessControlMiddleware {}
 impl AccessControlMiddleware {
@@ -40,7 +40,7 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Repo, Search, Terminology>,
+        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
         next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
     ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
         Box::pin(async move {
@@ -75,15 +75,23 @@ impl<
                         })
                         .collect();
 
-                    haste_access_control::evaluate_policies(
-                        &PolicyContext {
-                            client: context.ctx.client.as_ref(),
+                    let policy_context = haste_access_control::evaluate_policies(
+                        PolicyContext {
+                            client: context.ctx.client.clone(),
                             client_context: context.ctx.clone(),
-                            environment: None,
+                            environment: PolicyEnvironment {
+                                tenant: context.ctx.tenant.clone(),
+                                project: context.ctx.project.clone(),
+                                request: context.request,
+                                user: context.ctx.user.clone(),
+                            },
+                            attributes: HashMap::new(),
                         },
                         &policies,
                     )
                     .await?;
+
+                    context.request = policy_context.environment.request;
 
                     if let Some(next) = next {
                         Ok(next(state, context).await?)

@@ -1,41 +1,25 @@
-use haste_fhir_client::{FHIRClient, request::FHIRRequest};
+use std::sync::Arc;
+
+use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::AccessPolicyV2,
     terminology::{AccessPolicyv2Engine, IssueType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 
+pub mod context;
 mod engine;
 mod utilities;
 
-#[allow(unused)]
-#[derive(Debug)]
-pub struct PolicyEnvironment<'a> {
-    tenant: &'a TenantId,
-    project: &'a ProjectId,
-    request: &'a FHIRRequest,
-    user: &'a UserTokenClaims,
-}
-
-#[derive(Debug)]
-pub struct PolicyContext<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
-    pub client: &'a Client,
-    pub client_context: CTX,
-
-    pub environment: Option<PolicyEnvironment<'a>>,
-}
-
 pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    _context: &PolicyContext<'a, CTX, Client>,
+    context: Arc<context::PolicyContext<CTX, Client>>,
     policy: &AccessPolicyV2,
 ) -> Result<(), OperationOutcomeError> {
     match &*policy.engine {
-        AccessPolicyv2Engine::FullAccess(_) => engine::full_access::evaluate(policy),
-        AccessPolicyv2Engine::RuleEngine(_) => Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
-            "Access policy denies access.".to_string(),
-        )),
+        AccessPolicyv2Engine::FullAccess(_) => engine::full_access::evaluate(policy).await,
+        AccessPolicyv2Engine::RuleEngine(_) => {
+            engine::rule_engine::pdp::evaluate(context, policy).await
+        }
         AccessPolicyv2Engine::Null(_) => Err(OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
             "Access policy denies access.".to_string(),
@@ -43,16 +27,22 @@ pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeEr
     }
 }
 
-pub async fn evaluate_policies<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    _context: &PolicyContext<'a, CTX, Client>,
+pub async fn evaluate_policies<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+    context: context::PolicyContext<CTX, Client>,
     policies: &Vec<AccessPolicyV2>,
-) -> Result<(), OperationOutcomeError> {
+) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
     let mut outcomes = vec![];
+    let context = Arc::new(context);
     for policy in policies {
-        if let Err(e) = evaluate_policy(_context, policy).await {
+        if let Err(e) = evaluate_policy(context.clone(), policy).await {
             outcomes.push(e);
         } else {
-            return Ok(());
+            return Arc::into_inner(context).ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Forbidden(None),
+                    "Failed to retrieve policy context.".to_string(),
+                )
+            });
         }
     }
 
