@@ -9,7 +9,6 @@ use crate::context::PolicyContext;
 
 pub struct PIPResult {}
 
-#[allow(unused)]
 pub async fn pip<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     _policy_context: Arc<PolicyContext<CTX, Client>>,
     _policy: &AccessPolicyV2,

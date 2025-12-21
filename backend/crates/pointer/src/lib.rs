@@ -1,6 +1,7 @@
 use haste_reflect::MetaValue;
-pub struct Pointer<'a> {
-    value: Option<&'a dyn MetaValue>,
+pub struct Pointer<'a, T: MetaValue, U: MetaValue> {
+    root: &'a T,
+    value: &'a U,
     path: String,
 }
 
@@ -13,30 +14,51 @@ fn path_descend(path: &str, key: &str) -> String {
     format!("{}/{}", path, key)
 }
 
-impl<'a> Pointer<'a> {
-    pub fn path(&self) -> &str {
-        self.path.as_str()
+pub fn pointer<'a, T: MetaValue>(value: &'a T) -> Pointer<'a, T, T> {
+    Pointer {
+        root: value,
+        value: value,
+        path: "".to_string(),
     }
-    pub fn value(&self) -> Option<&'a dyn MetaValue> {
-        self.value
-    }
-    pub fn root(value: &'a dyn MetaValue) -> Self {
+}
+
+impl<'a, Root: MetaValue, U: MetaValue> Pointer<'a, Root, U> {
+    pub fn new(value: &'a Root) -> Pointer<'a, Root, Root> {
         Pointer {
-            value: Some(value),
+            root: value,
+            value: value,
             path: "".to_string(),
         }
     }
 
-    pub fn descend(&self, key: &Key) -> Pointer<'a> {
+    pub fn path(&self) -> &str {
+        self.path.as_str()
+    }
+
+    pub fn value(&self) -> Option<&'a U> {
+        self.value.as_any().downcast_ref::<U>()
+    }
+
+    pub fn descend<Child: MetaValue>(&'a self, key: &Key) -> Option<Pointer<'a, Root, Child>> {
         match key {
-            Key::Field(field) => Self {
-                path: path_descend(self.path.as_str(), field),
-                value: self.value.and_then(|v| v.get_field(field)),
-            },
-            Key::Index(index) => Self {
-                path: path_descend(self.path.as_str(), index.to_string().as_str()),
-                value: self.value.and_then(|v| v.get_index(*index)),
-            },
+            Key::Field(field) => self
+                .value
+                .get_field(field)
+                .and_then(|v| v.as_any().downcast_ref::<Child>())
+                .map(|child| Pointer {
+                    root: self.root,
+                    value: child,
+                    path: path_descend(self.path.as_str(), field.as_str()),
+                }),
+            Key::Index(index) => self
+                .value
+                .get_index(*index)
+                .and_then(|v| v.as_any().downcast_ref::<Child>())
+                .map(|child| Pointer {
+                    root: self.root,
+                    value: child,
+                    path: path_descend(self.path.as_str(), index.to_string().as_str()),
+                }),
         }
     }
 }
@@ -62,21 +84,21 @@ mod test {
             ..Default::default()
         };
 
-        let pointer = Pointer::root(&patient);
-        let pointer = pointer.descend(&Key::Field("name".to_string()));
+        let pointer = Pointer::<Patient, Patient>::new(&patient);
+        let pointer = pointer
+            .descend::<Vec<Box<HumanName>>>(&Key::Field("name".to_string()))
+            .unwrap();
         assert_eq!(pointer.path(), "/name");
-        let pointer = pointer.descend(&Key::Index(0));
+        let pointer = pointer.descend::<Box<HumanName>>(&Key::Index(0)).unwrap();
         assert_eq!(pointer.path(), "/name/0");
         let pointer = pointer
-            .descend(&Key::Field("family".to_string()))
-            .descend(&Key::Field("value".to_string()));
+            .descend::<Box<FHIRString>>(&Key::Field("family".to_string()))
+            .unwrap();
+        let pointer = pointer
+            .descend::<String>(&Key::Field("value".to_string()))
+            .unwrap();
 
         assert_eq!(pointer.path(), "/name/0/family/value");
-        assert_eq!(
-            pointer
-                .value()
-                .and_then(|v| v.as_any().downcast_ref::<String>()),
-            Some(&"Doe".to_string())
-        );
+        assert_eq!(pointer.value(), Some(&"Doe".to_string()));
     }
 }
