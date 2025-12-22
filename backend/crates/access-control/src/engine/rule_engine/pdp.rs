@@ -1,12 +1,15 @@
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::resources::{
-    AccessPolicyV2, AccessPolicyV2Rule, AccessPolicyV2RuleTarget, AccessPolicyV2Target,
+    AccessPolicyV2, AccessPolicyV2Rule, AccessPolicyV2RuleTarget,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_pointer::Pointer;
 use std::sync::Arc;
 
-use crate::context::{PermissionLevel, PermissionLevelError, PolicyContext};
+use crate::{
+    context::{PermissionLevel, PermissionLevelError, PolicyContext},
+    engine::rule_engine::expression::evaluate_expression,
+};
 
 #[derive(Debug, OperationOutcomeError)]
 pub enum PDPError {
@@ -32,7 +35,7 @@ fn resolve_variable<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     Ok(())
 }
 
-fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     context: Arc<PolicyContext<CTX, Client>>,
     pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2RuleTarget>,
 ) -> Result<PolicyResult<bool, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
@@ -41,9 +44,12 @@ fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>
         return Ok((true, context));
     };
 
-    context
-        .fp_engine
-        .evaluate_with_config(target.expression, values, config);
+    let _result = evaluate_expression(
+        context.clone(),
+        pointer.root().value().unwrap(),
+        target.expression.as_ref(),
+    )
+    .await?;
 
     Ok((true, context))
 }
@@ -51,10 +57,22 @@ fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>
 async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     policy_context: Arc<PolicyContext<CTX, Client>>,
     rule_pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2Rule>,
-) -> Result<(Arc<PolicyContext<CTX, Client>>, PermissionLevel), PDPError> {
-    let rule = rule_pointer
+) -> Result<(Arc<PolicyContext<CTX, Client>>, PermissionLevel), OperationOutcomeError> {
+    let _rule = rule_pointer
         .value()
         .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
+
+    let (should_evaluate, policy_context) = should_evaluate_rule(
+        policy_context,
+        rule_pointer
+            .descend::<AccessPolicyV2RuleTarget>(&haste_pointer::Key::Field("target".to_string()))
+            .ok_or_else(|| PDPError::PointerError(format!("{}/target", rule_pointer.path())))?,
+    )
+    .await?;
+
+    if !should_evaluate {
+        return Ok((policy_context, PermissionLevel::Undetermined));
+    }
 
     Ok((policy_context, PermissionLevel::Deny))
 }
@@ -63,7 +81,7 @@ async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationO
 pub async fn evaluate<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     mut policy_context: Arc<PolicyContext<CTX, Client>>,
     policy: &AccessPolicyV2,
-) -> Result<PermissionLevel, PDPError> {
+) -> Result<PermissionLevel, OperationOutcomeError> {
     let pointer = Pointer::<AccessPolicyV2, AccessPolicyV2>::new(policy);
     let rules_pointer = pointer
         .descend::<Option<Vec<AccessPolicyV2Rule>>>(&haste_pointer::Key::Field("rule".to_string()))

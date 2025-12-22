@@ -1,19 +1,16 @@
 use crate::context::PolicyContext;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::{AccessPolicyV2, AccessPolicyV2RuleTarget},
-    terminology::IssueType,
-    types::Expression,
+    resources::AccessPolicyV2, terminology::IssueType, types::Expression,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Context, ExternalConstantResolver, FHIRPathError};
-use haste_pointer::Pointer;
 use std::sync::Arc;
 
 pub fn create_config() -> haste_fhirpath::Config<'static> {
     haste_fhirpath::Config {
         variable_resolver: Some(ExternalConstantResolver::Function(Box::new(
-            |variable_id| {
+            |_variable_id| {
                 Box::pin(async move {
                     todo!();
                 })
@@ -42,7 +39,7 @@ pub async fn evaluate_expression<'a, CTX, Client: FHIRClient<CTX, OperationOutco
         (Some("text/fhirpath"), Some(expr)) => {
             let result = context
                 .fp_engine
-                .evaluate_with_config(expr, vec![policy], &create_config())
+                .evaluate_with_config(expr, vec![policy], Arc::new(create_config()))
                 .await
                 .map_err(|e: FHIRPathError| {
                     OperationOutcomeError::fatal(
