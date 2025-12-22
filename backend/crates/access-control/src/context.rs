@@ -52,8 +52,8 @@ pub struct PolicyEnvironment {
     pub user: Arc<UserTokenClaims>,
 }
 
-#[derive(Debug)]
 pub struct PolicyContext<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
+    pub fp_engine: haste_fhirpath::FPEngine,
     pub client: Arc<Client>,
     pub client_context: CTX,
 

@@ -94,7 +94,7 @@ fn evaluate_literal<'b>(
 async fn evaluate_invocation<'a>(
     invocation: &Invocation,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match invocation {
         Invocation::This => Ok(context),
@@ -132,7 +132,7 @@ async fn evaluate_invocation<'a>(
 async fn evaluate_term<'a>(
     term: &Term,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Literal(literal) => evaluate_literal(literal, context),
@@ -154,7 +154,7 @@ async fn evaluate_term<'a>(
 async fn evaluate_first_term<'a>(
     term: &Term,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Invocation(invocation) => match invocation {
@@ -175,7 +175,7 @@ async fn evaluate_first_term<'a>(
 async fn evaluate_singular<'a>(
     expression: &Vec<Term>,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let mut current_context = context;
 
@@ -196,7 +196,7 @@ async fn operation_1<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
     executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let left = evaluate_expression(left, context.clone(), config).await?;
@@ -220,7 +220,7 @@ async fn operation_n<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
     executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let left = evaluate_expression(left, context.clone(), config).await?;
@@ -395,11 +395,11 @@ struct Reflection {
     name: String,
 }
 
-async fn evaluate_function<'b>(
+async fn evaluate_function<'a>(
     function: &FunctionInvocation,
-    context: Context<'b>,
-    config: &'b Option<Config<'b>>,
-) -> Result<Context<'b>, FHIRPathError> {
+    context: Context<'a>,
+    config: Option<&'a Config<'a>>,
+) -> Result<Context<'a>, FHIRPathError> {
     match function.name.0.as_str() {
         // Faking resolve to just return current context.
         "resolve" => Ok(context),
@@ -575,7 +575,7 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
 async fn evaluate_operation<'a>(
     operation: &Operation,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match operation {
         Operation::Add(left, right) => {
@@ -738,7 +738,7 @@ async fn evaluate_operation<'a>(
 fn evaluate_expression<'a>(
     ast: &Expression,
     context: Context<'a>,
-    config: &'a Option<Config<'a>>,
+    config: Option<&'a Config<'a>>,
 ) -> Pin<Box<impl Future<Output = Result<Context<'a>, FHIRPathError>>>> {
     Box::pin(async move {
         match ast {
@@ -795,7 +795,7 @@ pub enum ExternalConstantResolver<'a> {
 }
 
 pub struct Config<'a> {
-    variable_resolver: Option<ExternalConstantResolver<'a>>,
+    pub variable_resolver: Option<ExternalConstantResolver<'a>>,
 }
 
 async fn resolve_external_constant<'a>(
@@ -893,7 +893,7 @@ impl FPEngine {
 
         let context = Context::new(values, allocator.clone());
 
-        let result = evaluate_expression(&ast, context, &None).await?;
+        let result = evaluate_expression(&ast, context, None).await?;
         Ok(result)
     }
 
@@ -906,7 +906,7 @@ impl FPEngine {
         &self,
         path: &str,
         values: Vec<&'a dyn MetaValue>,
-        config: &'b Option<Config<'b>>,
+        config: &'a Config<'b>,
     ) -> Result<Context<'b>, FHIRPathError>
     where
         'a: 'b,
@@ -927,7 +927,7 @@ impl FPEngine {
 
         let context = Context::new(values, allocator.clone());
 
-        let result = evaluate_expression(&ast, context, config).await?;
+        let result = evaluate_expression(&ast, context, Some(config)).await?;
 
         Ok(result)
     }
@@ -993,13 +993,13 @@ mod tests {
             id: Some("my-patient".to_string()),
             ..Default::default()
         };
-        let config = Some(Config {
+        let config = Config {
             variable_resolver: Some(ExternalConstantResolver::Variable(
                 vec![("patient".to_string(), &patient as &dyn MetaValue)]
                     .into_iter()
                     .collect(),
             )),
-        });
+        };
 
         let result = engine
             .evaluate_with_config("%patient", vec![], &config)
@@ -1762,7 +1762,7 @@ mod tests {
     async fn test_external_constant_function() {
         let engine = FPEngine::new();
 
-        let config = Some(Config {
+        let config = Config {
             variable_resolver: (Some(ExternalConstantResolver::Function(Box::new(|v| {
                 Box::pin(async move {
                     match v.as_ref() {
@@ -1780,7 +1780,7 @@ mod tests {
                     }
                 })
             })))),
-        });
+        };
 
         let result = engine
             .evaluate_with_config("%test_variable.name.given", vec![], &config)

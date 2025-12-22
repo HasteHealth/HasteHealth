@@ -1,5 +1,7 @@
 use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::resources::{AccessPolicyV2, AccessPolicyV2Rule};
+use haste_fhir_model::r4::generated::resources::{
+    AccessPolicyV2, AccessPolicyV2Rule, AccessPolicyV2RuleTarget, AccessPolicyV2Target,
+};
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_pointer::Pointer;
 use std::sync::Arc;
@@ -13,6 +15,8 @@ pub enum PDPError {
     #[error(code = "invalid", diagnostic = "{arg0:?}")]
     InvalidPermissionLevel(PermissionLevelError),
 }
+
+type PolicyResult<T, Context> = (T, Context);
 
 fn get_max(p1: &PermissionLevel, p2: &PermissionLevel) -> Result<PermissionLevel, PDPError> {
     let max = std::cmp::max(i8::from(p1), i8::from(p2));
@@ -28,10 +32,30 @@ fn resolve_variable<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     Ok(())
 }
 
+fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+    context: Arc<PolicyContext<CTX, Client>>,
+    pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2RuleTarget>,
+) -> Result<PolicyResult<bool, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
+    let Some(target) = pointer.value() else {
+        // If no target is specified, always evaluate the rule.
+        return Ok((true, context));
+    };
+
+    context
+        .fp_engine
+        .evaluate_with_config(target.expression, values, config);
+
+    Ok((true, context))
+}
+
 async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     policy_context: Arc<PolicyContext<CTX, Client>>,
-    _rule_pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2Rule>,
+    rule_pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2Rule>,
 ) -> Result<(Arc<PolicyContext<CTX, Client>>, PermissionLevel), PDPError> {
+    let rule = rule_pointer
+        .value()
+        .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
+
     Ok((policy_context, PermissionLevel::Deny))
 }
 
