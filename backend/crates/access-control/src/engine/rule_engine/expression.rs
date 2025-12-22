@@ -42,7 +42,7 @@ pub async fn evaluate_expression<'a, CTX, Client: FHIRClient<CTX, OperationOutco
         (Some("text/fhirpath"), Some(expr)) => {
             let result = context
                 .fp_engine
-                .evaluate_with_config(expr, vec![policy], &Some(create_config()))
+                .evaluate_with_config(expr, vec![policy], &create_config())
                 .await
                 .map_err(|e: FHIRPathError| {
                     OperationOutcomeError::fatal(

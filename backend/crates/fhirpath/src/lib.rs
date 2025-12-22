@@ -94,7 +94,7 @@ fn evaluate_literal<'b>(
 async fn evaluate_invocation<'a>(
     invocation: &Invocation,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match invocation {
         Invocation::This => Ok(context),
@@ -132,7 +132,7 @@ async fn evaluate_invocation<'a>(
 async fn evaluate_term<'a>(
     term: &Term,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Literal(literal) => evaluate_literal(literal, context),
@@ -154,7 +154,7 @@ async fn evaluate_term<'a>(
 async fn evaluate_first_term<'a>(
     term: &Term,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
         Term::Invocation(invocation) => match invocation {
@@ -175,18 +175,18 @@ async fn evaluate_first_term<'a>(
 async fn evaluate_singular<'a>(
     expression: &Vec<Term>,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let mut current_context = context;
 
     let mut term_iterator = expression.iter();
     let first_term = term_iterator.next();
     if let Some(first_term) = first_term {
-        current_context = evaluate_first_term(first_term, current_context, config).await?;
+        current_context = evaluate_first_term(first_term, current_context, config.clone()).await?;
     }
 
     for term in term_iterator {
-        current_context = evaluate_term(term, current_context, config).await?;
+        current_context = evaluate_term(term, current_context, config.clone()).await?;
     }
 
     Ok(current_context)
@@ -196,10 +196,10 @@ async fn operation_1<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
     executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    let left = evaluate_expression(left, context.clone(), config).await?;
+    let left = evaluate_expression(left, context.clone(), config.clone()).await?;
     let right = evaluate_expression(right, context, config).await?;
 
     // If one of operands is empty per spec return an empty collection
@@ -220,10 +220,10 @@ async fn operation_n<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
     executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
 ) -> Result<Context<'a>, FHIRPathError> {
-    let left = evaluate_expression(left, context.clone(), config).await?;
+    let left = evaluate_expression(left, context.clone(), config.clone()).await?;
     let right = evaluate_expression(right, context, config).await?;
     executor(left, right)
 }
@@ -398,7 +398,7 @@ struct Reflection {
 async fn evaluate_function<'a>(
     function: &FunctionInvocation,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match function.name.0.as_str() {
         // Faking resolve to just return current context.
@@ -412,7 +412,7 @@ async fn evaluate_function<'a>(
                 let result = evaluate_expression(
                     where_condition,
                     context.new_context_from(vec![*value]),
-                    config,
+                    config.clone(),
                 )
                 .await?;
 
@@ -488,7 +488,7 @@ async fn evaluate_function<'a>(
             let mut cur = context;
 
             while cur.values.len() != 0 {
-                cur = evaluate_expression(projection, cur, config).await?;
+                cur = evaluate_expression(projection, cur, config.clone()).await?;
                 end_result.extend_from_slice(cur.values.as_slice());
             }
 
@@ -575,7 +575,7 @@ fn equal_check<'b>(left: &Context<'b>, right: &Context<'b>) -> Result<bool, FHIR
 async fn evaluate_operation<'a>(
     operation: &Operation,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match operation {
         Operation::Add(left, right) => {
@@ -738,7 +738,7 @@ async fn evaluate_operation<'a>(
 fn evaluate_expression<'a>(
     ast: &Expression,
     context: Context<'a>,
-    config: Option<&'a Config<'a>>,
+    config: Option<Arc<Config<'a>>>,
 ) -> Pin<Box<impl Future<Output = Result<Context<'a>, FHIRPathError>>>> {
     Box::pin(async move {
         match ast {
@@ -800,7 +800,7 @@ pub struct Config<'a> {
 
 async fn resolve_external_constant<'a>(
     name: &str,
-    resolver: Option<&'a ExternalConstantResolver<'a>>,
+    resolver: Option<&ExternalConstantResolver<'a>>,
     context: Context<'a>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let external_constant = match resolver {
@@ -906,7 +906,7 @@ impl FPEngine {
         &self,
         path: &str,
         values: Vec<&'a dyn MetaValue>,
-        config: &'a Config<'b>,
+        config: Arc<Config<'b>>,
     ) -> Result<Context<'b>, FHIRPathError>
     where
         'a: 'b,
@@ -993,16 +993,16 @@ mod tests {
             id: Some("my-patient".to_string()),
             ..Default::default()
         };
-        let config = Config {
+        let config = Arc::new(Config {
             variable_resolver: Some(ExternalConstantResolver::Variable(
                 vec![("patient".to_string(), &patient as &dyn MetaValue)]
                     .into_iter()
                     .collect(),
             )),
-        };
+        });
 
         let result = engine
-            .evaluate_with_config("%patient", vec![], &config)
+            .evaluate_with_config("%patient", vec![], config.clone())
             .await
             .unwrap();
 
@@ -1012,7 +1012,7 @@ mod tests {
         assert_eq!(p.id, patient.id);
 
         let result_failed = engine
-            .evaluate_with_config("%nobody", vec![], &config)
+            .evaluate_with_config("%nobody", vec![], config)
             .await
             .unwrap();
 
@@ -1762,7 +1762,7 @@ mod tests {
     async fn test_external_constant_function() {
         let engine = FPEngine::new();
 
-        let config = Config {
+        let config = Arc::new(Config {
             variable_resolver: (Some(ExternalConstantResolver::Function(Box::new(|v| {
                 Box::pin(async move {
                     match v.as_ref() {
@@ -1780,10 +1780,10 @@ mod tests {
                     }
                 })
             })))),
-        };
+        });
 
         let result = engine
-            .evaluate_with_config("%test_variable.name.given", vec![], &config)
+            .evaluate_with_config("%test_variable.name.given", vec![], config)
             .await
             .unwrap();
 
