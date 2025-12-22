@@ -3,11 +3,13 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 
-pub async fn evaluate(policy: &AccessPolicyV2) -> Result<(), OperationOutcomeError> {
+use crate::context::PermissionLevel;
+
+pub async fn evaluate(policy: &AccessPolicyV2) -> Result<PermissionLevel, OperationOutcomeError> {
     // Sanity check to ensure we are only evaluating FullAccess policies here.
     // Note this is done on root lib.rs evaluation of policy.
     if let AccessPolicyv2Engine::FullAccess(_) = *policy.engine {
-        Ok(())
+        Ok(PermissionLevel::Allow)
     } else {
         Err(OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
