@@ -854,15 +854,30 @@ impl Clone for Context<'_> {
     }
 }
 
-pub struct FPEngine {
-    ast: Arc<DashMap<String, Expression>>,
-}
+pub struct FPEngine {}
 
 static AST: LazyLock<Arc<DashMap<String, Expression>>> = LazyLock::new(|| Arc::new(DashMap::new()));
 
+fn get_ast(
+    path: &str,
+) -> Result<dashmap::mapref::one::Ref<'static, String, Expression>, FHIRPathError> {
+    let ast: dashmap::mapref::one::Ref<'_, String, Expression> =
+        if let Some(expression_ast) = AST.get(path) {
+            expression_ast
+        } else {
+            AST.insert(path.to_string(), parser::parse(path)?);
+            let expression_ast = AST.get(path).ok_or_else(|| {
+                FHIRPathError::InternalError("Failed to find path post insert".to_string())
+            })?;
+            expression_ast
+        };
+
+    Ok(ast)
+}
+
 impl FPEngine {
     pub fn new() -> Self {
-        Self { ast: AST.clone() }
+        Self {}
     }
 
     /// Evaluate a FHIRPath expression against a context.
@@ -877,16 +892,7 @@ impl FPEngine {
     where
         'a: 'b,
     {
-        let ast: dashmap::mapref::one::Ref<'_, String, Expression> =
-            if let Some(ast) = self.ast.get(path) {
-                ast
-            } else {
-                self.ast.insert(path.to_string(), parser::parse(path)?);
-                let ast = self.ast.get(path).ok_or_else(|| {
-                    FHIRPathError::InternalError("Failed to find path post insert".to_string())
-                })?;
-                ast
-            };
+        let ast = get_ast(path)?;
 
         // Store created.
         let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
@@ -911,16 +917,7 @@ impl FPEngine {
     where
         'a: 'b,
     {
-        let ast: dashmap::mapref::one::Ref<'_, String, Expression> =
-            if let Some(ast) = self.ast.get(path) {
-                ast
-            } else {
-                self.ast.insert(path.to_string(), parser::parse(path)?);
-                let ast = self.ast.get(path).ok_or_else(|| {
-                    FHIRPathError::InternalError("Failed to find path post insert".to_string())
-                })?;
-                ast
-            };
+        let ast = get_ast(path)?;
 
         // Store created.
         let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
