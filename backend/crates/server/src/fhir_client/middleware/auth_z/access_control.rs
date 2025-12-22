@@ -77,6 +77,7 @@ impl<
 
                     let policy_context = haste_access_control::evaluate_policies(
                         PolicyContext {
+                            fp_engine: haste_fhirpath::FPEngine::new(),
                             client: context.ctx.client.clone(),
                             client_context: context.ctx.clone(),
                             environment: PolicyEnvironment {
