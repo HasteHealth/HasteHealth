@@ -1,19 +1,30 @@
 use crate::context::PolicyContext;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::AccessPolicyV2, terminology::IssueType, types::Expression,
+    resources::{AccessPolicyV2, Resource, ResourceType},
+    terminology::IssueType,
+    types::Expression,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Context, ExternalConstantResolver, FHIRPathError};
 use haste_pointer::Pointer;
 use std::sync::Arc;
 
-// fn resolve_variable<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-//     _context: Arc<PolicyContext<CTX, Client>>,
-//     pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2>,
-// ) -> Result<(), OperationOutcomeError> {
-//     Ok(())
-// }
+async fn resolve_variable<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+    context: Arc<PolicyContext<CTX, Client>>,
+    _pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
+) -> Result<Option<Resource>, OperationOutcomeError> {
+    let patient = context
+        .client
+        .read(
+            context.client_context,
+            ResourceType::Patient,
+            "asdf".to_string(),
+        )
+        .await?;
+
+    Ok(patient)
+}
 
 pub fn create_config<
     'a,
@@ -21,14 +32,16 @@ pub fn create_config<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    _pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2>,
+    pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
 ) -> haste_fhirpath::Config<'a> {
     haste_fhirpath::Config {
         variable_resolver: Some(ExternalConstantResolver::Function(Box::new(
             move |_variable_id: String| {
+                let pointer = pointer.clone();
                 let context = context.clone();
                 Box::pin(async move {
-                    let _p = context;
+                    let p = resolve_variable(context, pointer).await;
+
                     None
                 })
             },
@@ -42,7 +55,7 @@ pub async fn evaluate_expression<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    policy: &'a AccessPolicyV2,
+    pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
     expression: &Expression,
 ) -> Result<Context<'a>, OperationOutcomeError> {
     match (
@@ -62,11 +75,8 @@ pub async fn evaluate_expression<
                 .fp_engine
                 .evaluate_with_config(
                     expr,
-                    vec![policy],
-                    Arc::new(create_config(
-                        context.clone(),
-                        Pointer::<AccessPolicyV2, AccessPolicyV2>::new(policy),
-                    )),
+                    vec![],
+                    Arc::new(create_config(context.clone(), pointer)),
                 )
                 .await
                 .map_err(|e: FHIRPathError| {

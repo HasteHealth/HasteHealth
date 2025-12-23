@@ -34,19 +34,16 @@ async fn should_evaluate_rule<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2RuleTarget>,
+    pointer: Pointer<AccessPolicyV2, AccessPolicyV2RuleTarget>,
 ) -> Result<PolicyResult<bool, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
     let Some(target) = pointer.value() else {
         // If no target is specified, always evaluate the rule.
         return Ok((true, context));
     };
 
-    let result = evaluate_expression(
-        context.clone(),
-        pointer.root().value().unwrap(),
-        target.expression.as_ref(),
-    )
-    .await?;
+    let root = pointer.root();
+
+    let result = evaluate_expression(context.clone(), root, target.expression.as_ref()).await?;
 
     let values = result.iter().collect::<Vec<_>>();
 
@@ -77,7 +74,7 @@ async fn evaluate_access_policy_rule<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     policy_context: Arc<PolicyContext<CTX, Client>>,
-    rule_pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2Rule>,
+    rule_pointer: Pointer<AccessPolicyV2, AccessPolicyV2Rule>,
 ) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
     let _rule = rule_pointer
         .value()
@@ -103,9 +100,9 @@ pub async fn evaluate<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     mut policy_context: Arc<PolicyContext<CTX, Client>>,
-    policy: &AccessPolicyV2,
+    policy: Arc<AccessPolicyV2>,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
-    let pointer = Pointer::<AccessPolicyV2, AccessPolicyV2>::new(policy);
+    let pointer = Pointer::<AccessPolicyV2, AccessPolicyV2>::new(policy.clone());
     let rules_pointer = pointer
         .descend::<Option<Vec<AccessPolicyV2Rule>>>(&haste_pointer::Key::Field("rule".to_string()))
         .ok_or_else(|| PDPError::PointerError("rule".to_string()))?;

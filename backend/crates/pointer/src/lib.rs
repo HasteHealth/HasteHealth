@@ -1,7 +1,16 @@
 use haste_reflect::MetaValue;
-pub struct Pointer<'a, T: MetaValue, U: MetaValue> {
-    root: &'a T,
-    value: &'a U,
+use std::sync::Arc;
+
+#[derive(Clone)]
+struct ChildPointer<U>(*const U);
+
+unsafe impl<U> Send for ChildPointer<U> {}
+unsafe impl<U> Sync for ChildPointer<U> {}
+
+#[derive(Clone)]
+pub struct Pointer<T: MetaValue, U: MetaValue> {
+    root: Arc<T>,
+    value: ChildPointer<U>,
     path: String,
 }
 
@@ -14,27 +23,19 @@ fn path_descend(path: &str, key: &str) -> String {
     format!("{}/{}", path, key)
 }
 
-pub fn pointer<'a, T: MetaValue>(value: &'a T) -> Pointer<'a, T, T> {
-    Pointer {
-        root: value,
-        value: value,
-        path: "".to_string(),
-    }
-}
-
-impl<'a, Root: MetaValue, U: MetaValue> Pointer<'a, Root, U> {
-    pub fn new(value: &'a Root) -> Pointer<'a, Root, Root> {
+impl<'a, Root: MetaValue, U: MetaValue> Pointer<Root, U> {
+    pub fn new(value: Arc<Root>) -> Pointer<Root, Root> {
         Pointer {
+            value: ChildPointer(&*value.as_ref() as *const Root),
             root: value,
-            value: value,
             path: "".to_string(),
         }
     }
 
-    pub fn root(&self) -> Pointer<'a, Root, Root> {
+    pub fn root(&self) -> Pointer<Root, Root> {
         Pointer {
-            root: self.root,
-            value: self.root,
+            value: ChildPointer(&*self.root.as_ref() as *const Root),
+            root: self.root.clone(),
             path: "".to_string(),
         }
     }
@@ -43,30 +44,32 @@ impl<'a, Root: MetaValue, U: MetaValue> Pointer<'a, Root, U> {
         self.path.as_str()
     }
 
-    pub fn value(&self) -> Option<&'a U> {
-        self.value.as_any().downcast_ref::<U>()
+    pub fn value(&self) -> Option<&U> {
+        let p = unsafe { (*self.value.0).as_any().downcast_ref::<U>() };
+
+        p
     }
 
-    pub fn descend<Child: MetaValue>(&'a self, key: &Key) -> Option<Pointer<'a, Root, Child>> {
+    pub fn descend<Child: MetaValue>(&'a self, key: &Key) -> Option<Pointer<Root, Child>> {
         match key {
-            Key::Field(field) => self
-                .value
-                .get_field(field)
-                .and_then(|v| v.as_any().downcast_ref::<Child>())
-                .map(|child| Pointer {
-                    root: self.root,
-                    value: child,
-                    path: path_descend(self.path.as_str(), field.as_str()),
-                }),
-            Key::Index(index) => self
-                .value
-                .get_index(*index)
-                .and_then(|v| v.as_any().downcast_ref::<Child>())
-                .map(|child| Pointer {
-                    root: self.root,
-                    value: child,
-                    path: path_descend(self.path.as_str(), index.to_string().as_str()),
-                }),
+            Key::Field(field) => self.value().and_then(|v| {
+                v.get_field(field)
+                    .and_then(|v| v.as_any().downcast_ref::<Child>())
+                    .map(|child| Pointer {
+                        root: self.root.clone(),
+                        value: ChildPointer(&*child as *const Child),
+                        path: path_descend(self.path.as_str(), field.as_str()),
+                    })
+            }),
+            Key::Index(index) => self.value().and_then(|v| {
+                v.get_index(*index)
+                    .and_then(|v| v.as_any().downcast_ref::<Child>())
+                    .map(|child| Pointer {
+                        root: self.root.clone(),
+                        value: ChildPointer(&*child as *const Child),
+                        path: path_descend(self.path.as_str(), index.to_string().as_str()),
+                    })
+            }),
         }
     }
 }
