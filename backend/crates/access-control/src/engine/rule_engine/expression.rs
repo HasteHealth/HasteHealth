@@ -1,7 +1,7 @@
 use crate::context::PolicyContext;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::{AccessPolicyV2, Resource, ResourceType},
+    resources::{AccessPolicyV2, Resource},
     terminology::IssueType,
     types::Expression,
 };
@@ -11,19 +11,21 @@ use haste_pointer::Pointer;
 use std::sync::Arc;
 
 async fn resolve_variable<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    context: Arc<PolicyContext<CTX, Client>>,
+    _context: Arc<PolicyContext<CTX, Client>>,
     _pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
 ) -> Result<Option<Resource>, OperationOutcomeError> {
-    let patient = context
-        .client
-        .read(
-            context.client_context,
-            ResourceType::Patient,
-            "asdf".to_string(),
-        )
-        .await?;
+    // let patient = context
+    //     .client
+    //     .read(
+    //         context.client_context,
+    //         ResourceType::Patient,
+    //         "asdf".to_string(),
+    //     )
+    //     .await?;
 
-    Ok(patient)
+    // Ok(patient)
+
+    Ok(None)
 }
 
 pub fn create_config<
@@ -40,7 +42,7 @@ pub fn create_config<
                 let pointer = pointer.clone();
                 let context = context.clone();
                 Box::pin(async move {
-                    let p = resolve_variable(context, pointer).await;
+                    let _p = resolve_variable(context, pointer).await;
 
                     None
                 })

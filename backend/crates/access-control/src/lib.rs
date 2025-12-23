@@ -17,10 +17,10 @@ pub async fn evaluate_policy<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: Arc<context::PolicyContext<CTX, Client>>,
-    policy: &AccessPolicyV2,
+    policy: Arc<AccessPolicyV2>,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
     match &*policy.engine {
-        AccessPolicyv2Engine::FullAccess(_) => engine::full_access::evaluate(policy).await,
+        AccessPolicyv2Engine::FullAccess(_) => engine::full_access::evaluate(policy.as_ref()).await,
         AccessPolicyv2Engine::RuleEngine(_) => {
             Ok(engine::rule_engine::pdp::evaluate(context, policy).await?)
         }
@@ -36,12 +36,12 @@ pub async fn evaluate_policies<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: context::PolicyContext<CTX, Client>,
-    policies: &Vec<AccessPolicyV2>,
+    policies: &Vec<Arc<AccessPolicyV2>>,
 ) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
     let mut outcomes = vec![];
     let context = Arc::new(context);
     for policy in policies {
-        if let Err(e) = evaluate_policy(context.clone(), policy).await {
+        if let Err(e) = evaluate_policy(context.clone(), policy.clone()).await {
             outcomes.push(e);
         } else {
             return Arc::into_inner(context).ok_or_else(|| {

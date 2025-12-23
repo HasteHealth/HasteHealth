@@ -70,7 +70,7 @@ impl<
                         .await?
                         .into_iter()
                         .filter_map(|v| match v {
-                            Resource::AccessPolicyV2(policy) => Some(policy),
+                            Resource::AccessPolicyV2(policy) => Some(Arc::new(policy)),
                             _ => None,
                         })
                         .collect();
