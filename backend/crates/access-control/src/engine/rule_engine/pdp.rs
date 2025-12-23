@@ -28,7 +28,6 @@ fn get_max(p1: &PermissionLevel, p2: &PermissionLevel) -> Result<PermissionLevel
     PermissionLevel::try_from(max).map_err(PDPError::InvalidPermissionLevel)
 }
 
-#[allow(unused)]
 fn resolve_variable<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     _context: Arc<PolicyContext<CTX, Client>>,
     _pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
@@ -78,7 +77,7 @@ async fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeE
 async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     policy_context: Arc<PolicyContext<CTX, Client>>,
     rule_pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2Rule>,
-) -> Result<(Arc<PolicyContext<CTX, Client>>, PermissionLevel), OperationOutcomeError> {
+) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
     let _rule = rule_pointer
         .value()
         .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
@@ -92,13 +91,12 @@ async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationO
     .await?;
 
     if !should_evaluate {
-        return Ok((policy_context, PermissionLevel::Undetermined));
+        return Ok((PermissionLevel::Undetermined, policy_context));
     }
 
-    Ok((policy_context, PermissionLevel::Deny))
+    Ok((PermissionLevel::Deny, policy_context))
 }
 
-#[allow(unused)]
 pub async fn evaluate<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     mut policy_context: Arc<PolicyContext<CTX, Client>>,
     policy: &AccessPolicyV2,
@@ -116,8 +114,8 @@ pub async fn evaluate<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             .ok_or_else(|| PDPError::PointerError(format!("{}/{}", rules_pointer.path(), index)))?;
 
         match evaluate_access_policy_rule(policy_context.clone(), rule_pointer).await? {
-            (_, PermissionLevel::Deny) => return Ok(PermissionLevel::Deny),
-            (context, permission_level) => {
+            (PermissionLevel::Deny, _) => return Ok(PermissionLevel::Deny),
+            (permission_level, context) => {
                 // Continue evaluating other rules
                 policy_context = context;
 
