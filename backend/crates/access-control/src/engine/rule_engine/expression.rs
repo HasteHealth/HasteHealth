@@ -8,12 +8,12 @@ use haste_fhirpath::{Context, ExternalConstantResolver, FHIRPathError};
 use haste_pointer::Pointer;
 use std::sync::Arc;
 
-fn resolve_variable<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    _context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2>,
-) -> Result<(), OperationOutcomeError> {
-    Ok(())
-}
+// fn resolve_variable<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+//     _context: Arc<PolicyContext<CTX, Client>>,
+//     pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2>,
+// ) -> Result<(), OperationOutcomeError> {
+//     Ok(())
+// }
 
 pub fn create_config<
     'a,
@@ -21,14 +21,14 @@ pub fn create_config<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2>,
+    _pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2>,
 ) -> haste_fhirpath::Config<'a> {
     haste_fhirpath::Config {
         variable_resolver: Some(ExternalConstantResolver::Function(Box::new(
             move |_variable_id: String| {
                 let context = context.clone();
                 Box::pin(async move {
-                    let p = context;
+                    let _p = context;
                     None
                 })
             },
