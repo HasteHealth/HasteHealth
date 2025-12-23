@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn test_pointer_descend() {
-        let patient = Patient {
+        let patient = Arc::new(Patient {
             id: Some("patient-1".to_string()),
             name: Some(vec![Box::new(HumanName {
                 family: Some(Box::new(FHIRString {
@@ -93,9 +93,9 @@ mod test {
                 ..Default::default()
             })]),
             ..Default::default()
-        };
+        });
 
-        let pointer = Pointer::<Patient, Patient>::new(&patient);
+        let pointer = Pointer::<Patient, Patient>::new(patient);
         let pointer = pointer
             .descend::<Vec<Box<HumanName>>>(&Key::Field("name".to_string()))
             .unwrap();
