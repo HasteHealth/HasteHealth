@@ -61,12 +61,18 @@ async fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeE
         ));
     }
 
-    let should_evaluate_the_rule = values[0]
+    let Some(should_evaluate_the_rule) = values[0]
         .as_any()
         .downcast_ref::<FHIRBoolean>()
-        .and_then(|b| b.value);
+        .and_then(|b| b.value)
+    else {
+        return Err(OperationOutcomeError::fatal(
+            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            "Target expression did not evaluate to a boolean value.".to_string(),
+        ));
+    };
 
-    Ok((should_evaluate_the_rule.unwrap_or(false), context))
+    Ok((should_evaluate_the_rule, context))
 }
 
 async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
