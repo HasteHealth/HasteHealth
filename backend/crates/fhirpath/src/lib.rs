@@ -801,9 +801,10 @@ pub enum ExternalConstantResolver<'a> {
             dyn Fn(
                     String,
                 )
-                    -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send + Sync>>
+                    -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send + Sync + 'a>>
                 + Send
-                + Sync,
+                + Sync
+                + 'a,
         >,
     ),
     Variable(HashMap<String, &'a dyn MetaValue>),

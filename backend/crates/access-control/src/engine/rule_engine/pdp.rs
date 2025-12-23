@@ -28,14 +28,11 @@ fn get_max(p1: &PermissionLevel, p2: &PermissionLevel) -> Result<PermissionLevel
     PermissionLevel::try_from(max).map_err(PDPError::InvalidPermissionLevel)
 }
 
-fn resolve_variable<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    _context: Arc<PolicyContext<CTX, Client>>,
-    _pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
-) -> Result<(), OperationOutcomeError> {
-    Ok(())
-}
-
-async fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn should_evaluate_rule<
+    'a,
+    CTX: Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
     context: Arc<PolicyContext<CTX, Client>>,
     pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2RuleTarget>,
 ) -> Result<PolicyResult<bool, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
@@ -74,7 +71,11 @@ async fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeE
     Ok((should_evaluate_the_rule, context))
 }
 
-async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+async fn evaluate_access_policy_rule<
+    'a,
+    CTX: Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
     policy_context: Arc<PolicyContext<CTX, Client>>,
     rule_pointer: Pointer<'a, AccessPolicyV2, AccessPolicyV2Rule>,
 ) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
@@ -97,7 +98,10 @@ async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationO
     Ok((PermissionLevel::Deny, policy_context))
 }
 
-pub async fn evaluate<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+pub async fn evaluate<
+    CTX: Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
     mut policy_context: Arc<PolicyContext<CTX, Client>>,
     policy: &AccessPolicyV2,
 ) -> Result<PermissionLevel, OperationOutcomeError> {

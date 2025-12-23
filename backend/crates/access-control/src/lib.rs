@@ -11,7 +11,11 @@ pub mod context;
 mod engine;
 mod utilities;
 
-pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+pub async fn evaluate_policy<
+    'a,
+    CTX: Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
     context: Arc<context::PolicyContext<CTX, Client>>,
     policy: &AccessPolicyV2,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
@@ -27,7 +31,10 @@ pub async fn evaluate_policy<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeEr
     }
 }
 
-pub async fn evaluate_policies<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
+pub async fn evaluate_policies<
+    CTX: Send + Sync + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
+>(
     context: context::PolicyContext<CTX, Client>,
     policies: &Vec<AccessPolicyV2>,
 ) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
