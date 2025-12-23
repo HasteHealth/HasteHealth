@@ -1,6 +1,7 @@
 use haste_fhir_client::FHIRClient;
-use haste_fhir_model::r4::generated::resources::{
-    AccessPolicyV2, AccessPolicyV2Rule, AccessPolicyV2RuleTarget,
+use haste_fhir_model::r4::generated::{
+    resources::{AccessPolicyV2, AccessPolicyV2Rule, AccessPolicyV2RuleTarget},
+    types::FHIRBoolean,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_pointer::Pointer;
@@ -44,14 +45,28 @@ async fn should_evaluate_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeE
         return Ok((true, context));
     };
 
-    let _result = evaluate_expression(
+    let result = evaluate_expression(
         context.clone(),
         pointer.root().value().unwrap(),
         target.expression.as_ref(),
     )
     .await?;
 
-    Ok((true, context))
+    let values = result.iter().collect::<Vec<_>>();
+
+    if values.len() != 1 {
+        return Err(OperationOutcomeError::fatal(
+            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            "Target expression did not evaluate to a single boolean value.".to_string(),
+        ));
+    }
+
+    let should_evaluate_the_rule = values[0]
+        .as_any()
+        .downcast_ref::<FHIRBoolean>()
+        .and_then(|b| b.value);
+
+    Ok((should_evaluate_the_rule.unwrap_or(false), context))
 }
 
 async fn evaluate_access_policy_rule<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(

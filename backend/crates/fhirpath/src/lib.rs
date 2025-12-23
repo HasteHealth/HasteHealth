@@ -8,7 +8,10 @@ use dashmap::DashMap;
 pub use error::FHIRPathError;
 use haste_fhir_model::r4::generated::{
     resources::ResourceType,
-    types::{FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt, Reference},
+    types::{
+        FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt,
+        Reference,
+    },
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
@@ -74,18 +77,30 @@ fn evaluate_literal<'b>(
     context: Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match literal {
-        Literal::String(string) => {
-            Ok(context.new_context_from(vec![context.allocate(Box::new(string.clone()))]))
-        }
-        Literal::Integer(int) => {
-            Ok(context.new_context_from(vec![context.allocate(Box::new(int.clone()))]))
-        }
-        Literal::Float(decimal) => {
-            Ok(context.new_context_from(vec![context.allocate(Box::new(decimal.clone()))]))
-        }
-        Literal::Boolean(bool) => {
-            Ok(context.new_context_from(vec![context.allocate(Box::new(bool.clone()))]))
-        }
+        Literal::String(string) => Ok(context.new_context_from(vec![context.allocate(Box::new(
+            FHIRString {
+                value: Some(string.clone()),
+                ..Default::default()
+            },
+        ))])),
+        Literal::Integer(int) => Ok(context.new_context_from(vec![context.allocate(Box::new(
+            FHIRInteger {
+                value: Some(int.clone()),
+                ..Default::default()
+            },
+        ))])),
+        Literal::Float(decimal) => Ok(context.new_context_from(vec![context.allocate(Box::new(
+            FHIRDecimal {
+                value: Some(decimal.clone()),
+                ..Default::default()
+            },
+        ))])),
+        Literal::Boolean(bool) => Ok(context.new_context_from(vec![context.allocate(Box::new(
+            FHIRBoolean {
+                value: Some(bool.clone()),
+                ..Default::default()
+            },
+        ))])),
         Literal::Null => Ok(context.new_context_from(vec![])),
         _ => Err(FHIRPathError::InvalidLiteral(literal.to_owned())),
     }
@@ -1312,9 +1327,9 @@ mod tests {
         let result = engine.evaluate("'asdf'", vec![]).await.unwrap();
 
         for r in result.iter() {
-            let s: String = r.as_any().downcast_ref::<String>().unwrap().clone();
+            let s = r.as_any().downcast_ref::<FHIRString>().unwrap().clone();
 
-            assert_eq!(s, "asdf".to_string());
+            assert_eq!(s.value, Some("asdf".to_string()));
         }
     }
 
