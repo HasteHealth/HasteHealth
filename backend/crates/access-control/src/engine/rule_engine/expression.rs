@@ -31,7 +31,7 @@ pub fn create_config<
                         return None;
                     };
 
-                    let Some(result) = pip(context, access_policy_v2, &variable_id).await.ok()
+                    let Some(_result) = pip(context, access_policy_v2, &variable_id).await.ok()
                     else {
                         return None;
                     };
