@@ -46,7 +46,7 @@ pub async fn pip<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             println!("asdf");
             Ok(None)
         }
-        AccessPolicyAttributeOperationTypes::SearchSystem(_)) => {
+        AccessPolicyAttributeOperationTypes::SearchSystem(_) => {
             println!("custom operation");
             Ok(None)
         }
@@ -54,14 +54,12 @@ pub async fn pip<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             println!("custom operation");
             Ok(None)
         }
-        AccessPolicyAttributeOperationTypes::Null(_) => {
-            Err(OperationOutcomeError::fatal(
-                haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
-                format!(
-                    "Attribute operation type is not specified for attribute '{}'.",
-                    variable_id
-                ),
-            ))
-        }
+        AccessPolicyAttributeOperationTypes::Null(_) => Err(OperationOutcomeError::fatal(
+            haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+            format!(
+                "Attribute operation type is not specified for attribute '{}'.",
+                variable_id
+            ),
+        )),
     }
 }
