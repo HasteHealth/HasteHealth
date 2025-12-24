@@ -18,12 +18,12 @@ fn find_attribute<'a>(
     access_policy.attribute.as_ref().and_then(|attributes| {
         attributes
             .iter()
-            .find(|a| a.attributeId.value.as_ref().map(|s| s.as_str()) == variable_id)
+            .find(|a| a.attributeId.value.as_ref().map(|s| s.as_str()) == Some(variable_id))
     })
 }
 
 pub async fn pip<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
-    policy_context: Arc<PolicyContext<CTX, Client>>,
+    _policy_context: Arc<PolicyContext<CTX, Client>>,
     access_policy: &AccessPolicyV2,
     variable_id: &str,
 ) -> Result<Option<Box<dyn MetaValue>>, OperationOutcomeError> {
