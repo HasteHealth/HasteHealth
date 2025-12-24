@@ -1,0 +1,12 @@
+[package]
+name = "haste-x-fhir-query"
+description = "x-fhir-query evaluation engine."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-reflect = { path = "../reflect", version = "0.*" }
