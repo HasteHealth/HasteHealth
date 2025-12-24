@@ -13,3 +13,7 @@ haste-reflect = { path = "../reflect", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 regex = "1.11.1"
+
+
+[dev-dependencies]
+tokio = { version = "1.48.0", features = ["rt", "macros"] }

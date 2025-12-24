@@ -1768,6 +1768,7 @@ dependencies = [
  "haste-fhirpath",
  "haste-reflect",
  "regex",
+ "tokio",
 ]
 
 [[package]]
