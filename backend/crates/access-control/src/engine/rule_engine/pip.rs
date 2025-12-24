@@ -42,19 +42,19 @@ pub async fn pip<'a, CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     };
 
     match attribute_operation.type_.as_ref() {
-        Some(AccessPolicyAttributeOperationTypes::Read(_)) => {
+        AccessPolicyAttributeOperationTypes::Read(_) => {
             println!("asdf");
             Ok(None)
         }
-        Some(AccessPolicyAttributeOperationTypes::SearchSystem(_)) => {
+        AccessPolicyAttributeOperationTypes::SearchSystem(_)) => {
             println!("custom operation");
             Ok(None)
         }
-        Some(AccessPolicyAttributeOperationTypes::SearchType(_)) => {
+        AccessPolicyAttributeOperationTypes::SearchType(_) => {
             println!("custom operation");
             Ok(None)
         }
-        Some(AccessPolicyAttributeOperationTypes::Null(_)) | None => {
+        AccessPolicyAttributeOperationTypes::Null(_) => {
             Err(OperationOutcomeError::fatal(
                 haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
                 format!(
