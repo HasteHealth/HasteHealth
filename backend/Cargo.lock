@@ -1763,6 +1763,8 @@ dependencies = [
 name = "haste-x-fhir-query"
 version = "0.5.0"
 dependencies = [
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
  "haste-fhirpath",
  "haste-reflect",
 ]
