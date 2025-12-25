@@ -6,6 +6,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Context, ExternalConstantResolver, FHIRPathError};
 use haste_pointer::Pointer;
+use haste_reflect::MetaValue;
 use std::sync::Arc;
 
 pub fn create_config<
@@ -43,6 +44,20 @@ pub fn create_config<
     }
 }
 
+pub enum ExpressionResult<'a> {
+    FHIRPath(Context<'a>),
+    XFHIRQuery(Vec<String>),
+}
+
+impl<'a> ExpressionResult<'a> {
+    pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
+        match self {
+            ExpressionResult::FHIRPath(ctx) => ctx.iter(),
+            ExpressionResult::XFHIRQuery(res) => Box::new(res.iter().map(|v| v as &dyn MetaValue)),
+        }
+    }
+}
+
 pub async fn evaluate_expression<
     'a,
     CTX: Sync + Send + 'static,
@@ -51,7 +66,7 @@ pub async fn evaluate_expression<
     context: Arc<PolicyContext<CTX, Client>>,
     pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
     expression: &Expression,
-) -> Result<Context<'a>, OperationOutcomeError> {
+) -> Result<ExpressionResult<'a>, OperationOutcomeError> {
     match (
         expression
             .language
@@ -80,7 +95,7 @@ pub async fn evaluate_expression<
                     )
                 })?;
 
-            Ok(result)
+            Ok(ExpressionResult::FHIRPath(result))
         }
         (Some("application/x-fhir-query"), Some(expr)) => {
             let result = haste_x_fhir_query::evaluation(
@@ -90,19 +105,7 @@ pub async fn evaluate_expression<
             )
             .await?;
 
-            // Hack to convert x-fhir-query result to FHIRPath Context
-            let result = context
-                .fp_engine
-                .evaluate("$this", vec![&result])
-                .await
-                .map_err(|e| {
-                    OperationOutcomeError::fatal(
-                        IssueType::NotSupported(None),
-                        format!("FHIRPath evaluation error: {}", e),
-                    )
-                })?;
-
-            Ok(result)
+            Ok(ExpressionResult::XFHIRQuery(vec![result]))
         }
         _ => Err(OperationOutcomeError::fatal(
             IssueType::NotSupported(None),
