@@ -32,7 +32,8 @@ pub async fn pip<
     pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
     variable_id: &str,
 ) -> Result<Option<Box<dyn MetaValue>>, OperationOutcomeError> {
-    let access_policy = pointer.clone().value().ok_or_else(|| {
+    let root = pointer.clone();
+    let access_policy = root.value().ok_or_else(|| {
         OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
             "Pointer root does not contain an AccessPolicyV2 resource.".to_string(),
@@ -65,7 +66,10 @@ pub async fn pip<
                 )
             })?;
 
-            let path = evaluate_expression(policy_context, pointer, &path_expression).await?;
+            let path = evaluate_expression(policy_context, pointer, &path_expression)
+                .await?
+                .iter()
+                .collect::<Vec<_>>();
 
             Ok(None)
         }

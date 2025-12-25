@@ -23,17 +23,7 @@ pub fn create_config<
                 let pointer = pointer.clone();
                 let context = context.clone();
                 Box::pin(async move {
-                    let Ok(access_policy_v2) = pointer.value().ok_or_else(|| {
-                        OperationOutcomeError::fatal(
-                            IssueType::Invalid(None),
-                            "Pointer root does not contain an AccessPolicyV2 resource.".to_string(),
-                        )
-                    }) else {
-                        return None;
-                    };
-
-                    let Some(_result) = pip(context, access_policy_v2, &variable_id).await.ok()
-                    else {
+                    let Some(_result) = pip(context, pointer, &variable_id).await.ok() else {
                         return None;
                     };
 
@@ -112,4 +102,27 @@ pub async fn evaluate_expression<
             "Expression language not supported.".to_string(),
         )),
     }
+}
+
+pub async fn evaluate_to_string<
+    'a,
+    CTX: Sync + Send + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    context: Arc<PolicyContext<CTX, Client>>,
+    pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
+    expression: &Expression,
+) -> Result<String, OperationOutcomeError> {
+    let result = evaluate_expression(context, pointer, expression).await?;
+    let result = result.iter().collect::<Vec<_>>();
+
+    if result.len() != 1 {
+        return Err(OperationOutcomeError::fatal(
+            IssueType::Invalid(None),
+            "Expression did not evaluate to a single value.".to_string(),
+        ));
+    }
+
+    let string = haste_x_fhir_query::conversion::stringify_meta_value(result[0])?;
+    Ok(string)
 }

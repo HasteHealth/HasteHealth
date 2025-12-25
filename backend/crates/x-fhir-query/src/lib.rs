@@ -7,7 +7,7 @@ use std::sync::{Arc, LazyLock};
 
 use crate::conversion::stringify_meta_value;
 
-mod conversion;
+pub mod conversion;
 
 static FP_EXPRESSION_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"\{\{([^}]*)\}\}"#).expect("Failed to compile regex"));
