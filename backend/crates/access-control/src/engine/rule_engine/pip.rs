@@ -10,7 +10,10 @@ use haste_pointer::Pointer;
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
-use crate::{context::PolicyContext, engine::rule_engine::expression::evaluate_expression};
+use crate::{
+    context::PolicyContext,
+    engine::rule_engine::expression::{evaluate_expression, evaluate_to_string},
+};
 
 fn find_attribute<'a>(
     access_policy: &'a AccessPolicyV2,
@@ -66,10 +69,7 @@ pub async fn pip<
                 )
             })?;
 
-            let path = evaluate_expression(policy_context, pointer, &path_expression)
-                .await?
-                .iter()
-                .collect::<Vec<_>>();
+            let path = evaluate_to_string(policy_context, pointer, &path_expression).await?;
 
             Ok(None)
         }
