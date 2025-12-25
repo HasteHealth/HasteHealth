@@ -82,6 +82,28 @@ pub async fn evaluate_expression<
 
             Ok(result)
         }
+        (Some("application/x-fhir-query"), Some(expr)) => {
+            let result = haste_x_fhir_query::evaluation(
+                expr,
+                vec![],
+                Arc::new(create_config(context.clone(), pointer)),
+            )
+            .await?;
+
+            // Hack to convert x-fhir-query result to FHIRPath Context
+            let result = context
+                .fp_engine
+                .evaluate("$this", vec![&result])
+                .await
+                .map_err(|e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::NotSupported(None),
+                        format!("FHIRPath evaluation error: {}", e),
+                    )
+                })?;
+
+            Ok(result)
+        }
         _ => Err(OperationOutcomeError::fatal(
             IssueType::NotSupported(None),
             "Expression language not supported.".to_string(),

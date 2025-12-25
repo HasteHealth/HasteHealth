@@ -1393,6 +1393,7 @@ dependencies = [
  "haste-jwt",
  "haste-pointer",
  "haste-reflect",
+ "haste-x-fhir-query",
 ]
 
 [[package]]
