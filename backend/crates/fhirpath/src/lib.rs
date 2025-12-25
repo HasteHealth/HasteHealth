@@ -798,10 +798,7 @@ pub struct Context<'a> {
 pub enum ExternalConstantResolver<'a> {
     Function(
         Box<
-            dyn Fn(
-                    String,
-                )
-                    -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send + Sync>>
+            dyn Fn(String) -> Pin<Box<dyn Future<Output = Option<Box<dyn MetaValue>>> + Send>>
                 + Send
                 + Sync,
         >,

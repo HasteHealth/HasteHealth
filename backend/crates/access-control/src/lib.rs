@@ -13,7 +13,7 @@ mod utilities;
 
 pub async fn evaluate_policy<
     'a,
-    CTX: Send + Sync + 'static,
+    CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: Arc<context::PolicyContext<CTX, Client>>,
@@ -32,7 +32,7 @@ pub async fn evaluate_policy<
 }
 
 pub async fn evaluate_policies<
-    CTX: Send + Sync + 'static,
+    CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: context::PolicyContext<CTX, Client>,

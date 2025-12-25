@@ -30,7 +30,7 @@ fn get_max(p1: &PermissionLevel, p2: &PermissionLevel) -> Result<PermissionLevel
 
 async fn should_evaluate_rule<
     'a,
-    CTX: Send + Sync + 'static,
+    CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
@@ -70,7 +70,7 @@ async fn should_evaluate_rule<
 
 async fn evaluate_access_policy_rule<
     'a,
-    CTX: Send + Sync + 'static,
+    CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     policy_context: Arc<PolicyContext<CTX, Client>>,
@@ -96,7 +96,7 @@ async fn evaluate_access_policy_rule<
 }
 
 pub async fn evaluate<
-    CTX: Send + Sync + 'static,
+    CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     mut policy_context: Arc<PolicyContext<CTX, Client>>,

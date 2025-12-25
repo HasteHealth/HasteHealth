@@ -25,7 +25,7 @@ fn find_attribute<'a>(
 
 pub async fn pip<
     'a,
-    CTX: Sync + Send + 'static,
+    CTX: Sync + Send + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     policy_context: Arc<PolicyContext<CTX, Client>>,
@@ -66,7 +66,8 @@ pub async fn pip<
                 )
             })?;
 
-            let path = evaluate_to_string(policy_context, pointer, &path_expression).await?;
+            let path =
+                evaluate_to_string(policy_context.clone(), pointer, &path_expression).await?;
             let reference_chunks = path.split("/").collect::<Vec<_>>();
 
             let [resource_type, id] = reference_chunks.as_slice() else {
@@ -92,7 +93,7 @@ pub async fn pip<
             let result = policy_context
                 .client
                 .read(
-                    policy_context.clone().client_context,
+                    policy_context.client_context.clone(),
                     resource_type,
                     id.to_string(),
                 )

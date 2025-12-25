@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 pub fn create_config<
     'a,
-    CTX: Sync + Send + 'static,
+    CTX: Sync + Send + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
@@ -50,7 +50,7 @@ impl<'a> ExpressionResult<'a> {
 
 pub async fn evaluate_expression<
     'a,
-    CTX: Sync + Send + 'static,
+    CTX: Sync + Send + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
@@ -106,7 +106,7 @@ pub async fn evaluate_expression<
 
 pub async fn evaluate_to_string<
     'a,
-    CTX: Sync + Send + 'static,
+    CTX: Sync + Send + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
