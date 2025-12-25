@@ -5,6 +5,10 @@ use haste_reflect::MetaValue;
 use regex::Regex;
 use std::sync::{Arc, LazyLock};
 
+use crate::conversion::stringify_meta_value;
+
+mod conversion;
+
 static FP_EXPRESSION_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"\{\{([^}]*)\}\}"#).expect("Failed to compile regex"));
 
@@ -46,8 +50,8 @@ where
 
         let fp_string_result = fp_result
             .iter()
-            .map(|v| format!("{:?}", v))
-            .collect::<Vec<String>>()
+            .map(|v| stringify_meta_value(v))
+            .collect::<Result<Vec<String>, OperationOutcomeError>>()?
             .join(",");
 
         result = result.replace(full_match, &fp_string_result);
@@ -80,7 +84,7 @@ mod tests {
         .await
         .expect("Evaluation failed");
 
-        assert_eq!(result, "Patient/\"example\"");
+        assert_eq!(result, "Patient/example");
     }
 
     #[tokio::test]
@@ -106,6 +110,6 @@ mod tests {
         .await
         .expect("Evaluation failed");
 
-        assert_eq!(result, "Patient/\"example\"/\"Doe\"");
+        assert_eq!(result, "Patient/example/Doe");
     }
 }
