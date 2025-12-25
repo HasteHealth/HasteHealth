@@ -1,6 +1,6 @@
 //! Policy Information Point (PIP) module for the access control engine.
 //! This module is responsible for retrieving contextual information that can be used during policy evaluation.
-use haste_fhir_client::FHIRClient;
+use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{
     resources::{AccessPolicyV2, AccessPolicyV2Attribute, ResourceType},
     terminology::AccessPolicyAttributeOperationTypes,
@@ -102,12 +102,78 @@ pub async fn pip<
             Ok(result.map(|r| Box::new(r) as Box<dyn MetaValue>))
         }
         AccessPolicyAttributeOperationTypes::SearchSystem(_) => {
-            println!("custom operation");
-            Ok(None)
+            let parameter_expression = attribute_operation.params.as_ref().ok_or_else(|| {
+                OperationOutcomeError::fatal(
+                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    format!(
+                        "Attribute operation path is not specified for attribute '{}'.",
+                        variable_id
+                    ),
+                )
+            })?;
+
+            let parameters =
+                evaluate_to_string(policy_context.clone(), pointer, &parameter_expression).await?;
+
+            let parsed_parameters = ParsedParameters::try_from(parameters.as_str())?;
+
+            let result = policy_context
+                .client
+                .search_system(policy_context.client_context.clone(), parsed_parameters)
+                .await?;
+
+            Ok(Some(Box::new(result) as Box<dyn MetaValue>))
         }
         AccessPolicyAttributeOperationTypes::SearchType(_) => {
-            println!("custom operation");
-            Ok(None)
+            let path_expression = attribute_operation.path.as_ref().ok_or_else(|| {
+                OperationOutcomeError::fatal(
+                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    format!(
+                        "Attribute operation path is not specified for attribute '{}'.",
+                        variable_id
+                    ),
+                )
+            })?;
+
+            let resource_type =
+                evaluate_to_string(policy_context.clone(), pointer.clone(), &path_expression)
+                    .await?;
+
+            let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|_| {
+                OperationOutcomeError::fatal(
+                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    format!(
+                        "Resource type '{}' is not valid for attribute '{}'.",
+                        resource_type, variable_id
+                    ),
+                )
+            })?;
+
+            let parameter_expression = attribute_operation.params.as_ref().ok_or_else(|| {
+                OperationOutcomeError::fatal(
+                    haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
+                    format!(
+                        "Attribute operation path is not specified for attribute '{}'.",
+                        variable_id
+                    ),
+                )
+            })?;
+
+            let parameters =
+                evaluate_to_string(policy_context.clone(), pointer, &parameter_expression).await?;
+
+            let parsed_parameters = ParsedParameters::try_from(parameters.as_str())?;
+
+            let result = policy_context
+                .client
+                .search_type(
+                    policy_context.client_context.clone(),
+                    resource_type,
+                    parsed_parameters,
+                )
+                .await?;
+
+            Ok(Some(Box::new(result) as Box<dyn MetaValue>))
         }
         AccessPolicyAttributeOperationTypes::Null(_) => Err(OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
