@@ -1,6 +1,7 @@
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{AccessPolicyV2, AccessPolicyV2Rule, AccessPolicyV2RuleTarget},
+    terminology::{AccessPolicyv2CombineBehavior, IssueType},
     types::FHIRBoolean,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -76,11 +77,11 @@ async fn evaluate_access_policy_rule<
     policy_context: Arc<PolicyContext<CTX, Client>>,
     rule_pointer: Pointer<AccessPolicyV2, AccessPolicyV2Rule>,
 ) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
-    let _rule = rule_pointer
+    let rule = rule_pointer
         .value()
         .ok_or(PDPError::PointerError(rule_pointer.path().to_string()))?;
 
-    let (should_evaluate, policy_context) = should_evaluate_rule(
+    let (should_evaluate, mut policy_context) = should_evaluate_rule(
         policy_context,
         rule_pointer
             .descend::<AccessPolicyV2RuleTarget>(&haste_pointer::Key::Field("target".to_string()))
@@ -90,6 +91,74 @@ async fn evaluate_access_policy_rule<
 
     if !should_evaluate {
         return Ok((PermissionLevel::Undetermined, policy_context));
+    }
+
+    match rule.combineBehavior.as_ref().map(|s| s.as_ref()) {
+        Some(AccessPolicyv2CombineBehavior::Any(_)) => {
+            if rule.condition.is_some() {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::Invalid(None),
+                    "Condition is not supported when combineBehavior is 'any'.".to_string(),
+                ));
+            }
+
+            for (nested_index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
+                let nested_rule_pointer = rule_pointer
+                    .descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Field("rule".to_string()))
+                    .and_then(|p| {
+                        p.descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(nested_index))
+                    })
+                    .ok_or_else(|| {
+                        PDPError::PointerError(format!(
+                            "{}/rule/{}",
+                            rule_pointer.path(),
+                            nested_index
+                        ))
+                    })?;
+
+                let policy_context = policy_context.clone();
+
+                let result: Result<
+                    (PermissionLevel, Arc<PolicyContext<CTX, Client>>),
+                    OperationOutcomeError,
+                > = Box::pin(async move {
+                    let nested_rule_result =
+                        evaluate_access_policy_rule(policy_context.clone(), nested_rule_pointer)
+                            .await?;
+
+                    match nested_rule_result {
+                        (PermissionLevel::Deny, _) => Ok((PermissionLevel::Deny, policy_context)),
+                        (permission_level, context) => {
+                            // Continue evaluating other nested rules
+
+                            if permission_level == PermissionLevel::Allow {
+                                Ok((PermissionLevel::Allow, context))
+                            } else {
+                                Ok((PermissionLevel::Undetermined, context))
+                            }
+                        }
+                    }
+                })
+                .await;
+            }
+        }
+        Some(AccessPolicyv2CombineBehavior::AllOf(_)) => {
+            if rule.condition.is_some() {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::Invalid(None),
+                    "Condition is not supported when combineBehavior is 'all-of'.".to_string(),
+                ));
+            }
+        }
+        Some(&AccessPolicyv2CombineBehavior::Null(_)) | None => {
+            if rule.rule.is_some() {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::Invalid(None),
+                    "Nested rules are not supported when combineBehavior is 'null' or unspecified."
+                        .to_string(),
+                ));
+            }
+        }
     }
 
     Ok((PermissionLevel::Deny, policy_context))

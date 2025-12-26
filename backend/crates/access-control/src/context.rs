@@ -6,6 +6,7 @@ use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcome
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use std::{collections::HashMap, sync::Arc};
 
+#[derive(PartialEq, Eq, Debug)]
 pub enum PermissionLevel {
     Deny,
     Undetermined,
