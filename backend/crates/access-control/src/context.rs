@@ -3,6 +3,7 @@ use haste_fhir_client::{
     request::{FHIRRequest, FHIRResponse},
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhirpath::FPEngine;
 use haste_jwt::{ProjectId, TenantId};
 use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, sync::Arc};
@@ -64,6 +65,19 @@ pub struct PolicyContext<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
     pub client: Arc<Client>,
     pub client_context: CTX,
 
-    pub attributes: HashMap<String, FHIRResponse>,
+    #[allow(dead_code)]
+    attributes_cache: HashMap<String, FHIRResponse>,
     pub environment: PolicyEnvironment,
+}
+
+impl<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> PolicyContext<CTX, Client> {
+    pub fn new(client: Arc<Client>, client_context: CTX, environment: PolicyEnvironment) -> Self {
+        Self {
+            fp_engine: FPEngine::new(),
+            client,
+            client_context,
+            attributes_cache: HashMap::new(),
+            environment,
+        }
+    }
 }
