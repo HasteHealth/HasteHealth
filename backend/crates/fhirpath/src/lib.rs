@@ -657,7 +657,10 @@ async fn evaluate_operation<'a>(
         }
         Operation::Equal(left, right) => {
             operation_1(left, right, context, config, |left, right| {
-                let are_equal = equal_check(&left, &right)?;
+                let are_equal = FHIRBoolean {
+                    value: Some(equal_check(&left, &right)?),
+                    ..Default::default()
+                };
                 Ok(left
                     .new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(are_equal)))]))
             })
@@ -665,10 +668,12 @@ async fn evaluate_operation<'a>(
         }
         Operation::NotEqual(left, right) => {
             operation_1(left, right, context, config, |left, right| {
-                let are_equal = equal_check(&left, &right)?;
-                Ok(left.new_context_from(vec![
-                    left.allocate(ResolvedValue::Box(Box::new(!are_equal))),
-                ]))
+                let not_equal = FHIRBoolean {
+                    value: Some(!equal_check(&left, &right)?),
+                    ..Default::default()
+                };
+                Ok(left
+                    .new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(not_equal)))]))
             })
             .await
         }
@@ -784,6 +789,7 @@ fn evaluate_expression<'a>(
     })
 }
 
+#[derive(Debug)]
 pub enum ResolvedValue {
     Box(Box<dyn MetaValue>),
     Arc(Arc<dyn MetaValue>),
@@ -1828,8 +1834,6 @@ mod tests {
             .downcast_ref::<FHIRString>()
             .unwrap();
 
-        println!("Value: {:?}", value);
-
         assert_eq!(value.value.as_ref(), Some(&"Paul".to_string()));
     }
 
@@ -1875,8 +1879,6 @@ mod tests {
             .as_any()
             .downcast_ref::<FHIRString>()
             .unwrap();
-
-        println!("Value: {:?}", value);
 
         assert_eq!(value.value.as_ref(), Some(&"Paul".to_string()));
     }

@@ -57,7 +57,10 @@ async fn should_evaluate_rule<
     if values.len() != 1 {
         return Err(OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
-            "Target expression did not evaluate to a single boolean value.".to_string(),
+            format!(
+                "Target expression at '{}' did not evaluate to a single value.",
+                pointer.path()
+            ),
         ));
     }
 
@@ -68,7 +71,10 @@ async fn should_evaluate_rule<
     else {
         return Err(OperationOutcomeError::fatal(
             haste_fhir_model::r4::generated::terminology::IssueType::Invalid(None),
-            "Target expression did not evaluate to a boolean value.".to_string(),
+            format!(
+                "Target expression did not evaluate to a boolean value it resolved to '{}'",
+                values[0].typename()
+            ),
         ));
     };
 
@@ -313,7 +319,7 @@ pub async fn evaluate<
 ) -> Result<PermissionLevel, OperationOutcomeError> {
     let pointer = Pointer::<AccessPolicyV2, AccessPolicyV2>::new(policy.clone());
     let rules_pointer = pointer
-        .descend::<Option<Vec<AccessPolicyV2Rule>>>(&haste_pointer::Key::Field("rule".to_string()))
+        .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field("rule".to_string()))
         .ok_or_else(|| PDPError::PointerError("rule".to_string()))?;
 
     let mut result = PermissionLevel::Deny;

@@ -23,11 +23,11 @@ pub fn create_config<
                 let pointer = pointer.clone();
                 let context = context.clone();
                 Box::pin(async move {
-                    let Some(_result) = pip(context, pointer, &variable_id).await.ok() else {
-                        return None;
-                    };
-
-                    None
+                    if let Some(result) = pip(context, pointer, &variable_id).await.ok() {
+                        result
+                    } else {
+                        None
+                    }
                 })
             },
         ))),
