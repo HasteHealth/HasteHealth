@@ -3,7 +3,8 @@ use haste_fhir_client::{
     request::{FHIRRequest, FHIRResponse},
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
+use haste_jwt::{ProjectId, TenantId};
+use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, sync::Arc};
 
 #[derive(PartialEq, Eq, Debug)]
@@ -45,12 +46,17 @@ impl TryFrom<i8> for PermissionLevel {
     }
 }
 
+#[derive(Debug, Reflect)]
+pub struct UserInfo {
+    pub id: String,
+}
+
 #[derive(Debug)]
 pub struct PolicyEnvironment {
     pub tenant: TenantId,
     pub project: ProjectId,
     pub request: FHIRRequest,
-    pub user: Arc<UserTokenClaims>,
+    pub user: Arc<UserInfo>,
 }
 
 pub struct PolicyContext<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {

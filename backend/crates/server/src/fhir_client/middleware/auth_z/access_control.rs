@@ -5,7 +5,7 @@ use crate::fhir_client::{
         ServerMiddlewareState,
     },
 };
-use haste_access_control::context::{PolicyContext, PolicyEnvironment};
+use haste_access_control::context::{PolicyContext, PolicyEnvironment, UserInfo};
 use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
@@ -84,7 +84,9 @@ impl<
                                 tenant: context.ctx.tenant.clone(),
                                 project: context.ctx.project.clone(),
                                 request: context.request,
-                                user: context.ctx.user.clone(),
+                                user: Arc::new(UserInfo {
+                                    id: context.ctx.user.user_id.as_ref().to_string(),
+                                }),
                             },
                             attributes: HashMap::new(),
                         },
