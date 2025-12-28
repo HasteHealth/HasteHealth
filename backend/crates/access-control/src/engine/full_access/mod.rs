@@ -11,9 +11,6 @@ pub async fn evaluate(policy: &AccessPolicyV2) -> Result<PermissionLevel, Operat
     if let AccessPolicyv2Engine::FullAccess(_) = *policy.engine {
         Ok(PermissionLevel::Allow)
     } else {
-        Err(OperationOutcomeError::fatal(
-            haste_fhir_model::r4::generated::terminology::IssueType::Forbidden(None),
-            "Access policy denies access.".to_string(),
-        ))
+        Ok(PermissionLevel::Deny)
     }
 }

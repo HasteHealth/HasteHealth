@@ -11,6 +11,7 @@ use std::sync::Arc;
 use crate::{
     context::{PermissionLevel, PermissionLevelError, PolicyContext},
     engine::rule_engine::expression::evaluate_expression,
+    utilities::{get_max, get_min},
 };
 
 #[derive(Debug, OperationOutcomeError)]
@@ -22,18 +23,6 @@ pub enum PDPError {
 }
 
 type PolicyResult<T, Context> = (T, Context);
-
-fn get_max(p1: &PermissionLevel, p2: &PermissionLevel) -> Result<PermissionLevel, PDPError> {
-    let max = std::cmp::max(i8::from(p1), i8::from(p2));
-
-    PermissionLevel::try_from(max).map_err(PDPError::InvalidPermissionLevel)
-}
-
-fn get_min(p1: &PermissionLevel, p2: &PermissionLevel) -> Result<PermissionLevel, PDPError> {
-    let min = std::cmp::min(i8::from(p1), i8::from(p2));
-
-    PermissionLevel::try_from(min).map_err(PDPError::InvalidPermissionLevel)
-}
 
 async fn should_evaluate_rule<
     'a,

@@ -40,16 +40,24 @@ pub async fn evaluate_policies<
 ) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
     let mut outcomes = vec![];
     let context = Arc::new(context);
+    let result = PermissionLevel::Deny;
+
     for policy in policies {
-        if let Err(e) = evaluate_policy(context.clone(), policy.clone()).await {
+        let result = evaluate_policy(context.clone(), policy.clone()).await;
+        if let Ok(permission) = result {
+            match permission {
+                PermissionLevel::Allow => {
+                    return Arc::into_inner(context).ok_or_else(|| {
+                        OperationOutcomeError::error(
+                            IssueType::Forbidden(None),
+                            "Failed to retrieve policy context.".to_string(),
+                        )
+                    });
+                }
+                _ => {}
+            }
+        } else if let Err(e) = result {
             outcomes.push(e);
-        } else {
-            return Arc::into_inner(context).ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::Forbidden(None),
-                    "Failed to retrieve policy context.".to_string(),
-                )
-            });
         }
     }
 
