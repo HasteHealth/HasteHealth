@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::fhir_client::{ServerCTX, middleware::operations::ServerOperationContext};
-use haste_access_control::context::{PolicyContext, PolicyEnvironment, UserInfo};
+use haste_access_control::context::{PermissionLevel, PolicyContext, PolicyEnvironment, UserInfo};
 use haste_fhir_client::request::{FHIRRequest, InvocationRequest};
 use haste_fhir_generated_ops::generated::HasteHealthEvaluatePolicy;
 
@@ -100,7 +100,7 @@ pub fn evaluate_policy_op<
                                 ));
                             };
 
-                            haste_access_control::evaluate_policy(
+                            let result = haste_access_control::evaluate_policy(
                                 Arc::new(PolicyContext::new(
                                     context.ctx.client.clone(),
                                     system_ctx,
@@ -119,20 +119,40 @@ pub fn evaluate_policy_op<
                             )
                             .await?;
 
-                            Ok(HasteHealthEvaluatePolicy::Output {
-                                return_: OperationOutcome {
-                                    issue: vec![OperationOutcomeIssue {
-                                        severity: Box::new(IssueSeverity::Information(None)),
-                                        code: Box::new(IssueType::Informational(None)),
-                                        diagnostics: Some(Box::new(FHIRString {
-                                            value: Some("Policy approved user access.".to_string()),
+                            match result {
+                                PermissionLevel::Allow => Ok(HasteHealthEvaluatePolicy::Output {
+                                    return_: OperationOutcome {
+                                        issue: vec![OperationOutcomeIssue {
+                                            severity: Box::new(IssueSeverity::Information(None)),
+                                            code: Box::new(IssueType::Informational(None)),
+                                            diagnostics: Some(Box::new(FHIRString {
+                                                value: Some(
+                                                    "Policy approved user access.".to_string(),
+                                                ),
+                                                ..Default::default()
+                                            })),
                                             ..Default::default()
-                                        })),
+                                        }],
                                         ..Default::default()
-                                    }],
-                                    ..Default::default()
-                                },
-                            })
+                                    },
+                                }),
+                                _ => Ok(HasteHealthEvaluatePolicy::Output {
+                                    return_: OperationOutcome {
+                                        issue: vec![OperationOutcomeIssue {
+                                            severity: Box::new(IssueSeverity::Information(None)),
+                                            code: Box::new(IssueType::Informational(None)),
+                                            diagnostics: Some(Box::new(FHIRString {
+                                                value: Some(
+                                                    "Policy denied user access.".to_string(),
+                                                ),
+                                                ..Default::default()
+                                            })),
+                                            ..Default::default()
+                                        }],
+                                        ..Default::default()
+                                    },
+                                }),
+                            }
                         }
                         _ => Err(OperationOutcomeError::fatal(
                             IssueType::Exception(None),

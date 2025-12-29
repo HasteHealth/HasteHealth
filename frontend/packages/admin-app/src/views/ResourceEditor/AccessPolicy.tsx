@@ -62,7 +62,7 @@ const AccessPolicyInvoke = ({
                   <div>
                     <FHIRReferenceEditable
                       label="User"
-                      resourceTypesAllowed={["Membership"]}
+                      resourceTypesAllowed={["User"]}
                       fhirVersion={R4}
                       client={client}
                       value={userReference}
