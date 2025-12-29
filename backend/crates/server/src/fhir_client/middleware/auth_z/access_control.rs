@@ -75,10 +75,17 @@ impl<
                         })
                         .collect();
 
+                    // Use System context for policy evaluation.
+                    let system_ctx = Arc::new(ServerCTX::system(
+                        context.ctx.tenant.clone(),
+                        context.ctx.project.clone(),
+                        context.ctx.client.clone(),
+                    ));
+
                     let policy_context = haste_access_control::evaluate_policies(
                         PolicyContext::new(
                             context.ctx.client.clone(),
-                            context.ctx.clone(),
+                            system_ctx,
                             PolicyEnvironment {
                                 tenant: context.ctx.tenant.clone(),
                                 project: context.ctx.project.clone(),
