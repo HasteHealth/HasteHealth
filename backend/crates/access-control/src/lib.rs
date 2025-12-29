@@ -40,7 +40,6 @@ pub async fn evaluate_policies<
 ) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
     let mut outcomes = vec![];
     let context = Arc::new(context);
-    let result = PermissionLevel::Deny;
 
     for policy in policies {
         let result = evaluate_policy(context.clone(), policy.clone()).await;
