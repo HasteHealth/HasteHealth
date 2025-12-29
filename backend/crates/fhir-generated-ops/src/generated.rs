@@ -160,6 +160,34 @@ pub mod HasteHealthIdpRegistrationInfo {
         }
     }
 }
+pub mod HasteHealthEvaluatePolicy {
+    use super::*;
+    pub const CODE: &str = "evaluate-policy";
+    #[derive(Debug, FromParameters, ToParameters)]
+    pub struct Input {
+        pub user: Option<Reference>,
+        pub request: Bundle,
+    }
+    impl From<Input> for Resource {
+        fn from(value: Input) -> Self {
+            let parameters: Vec<ParametersParameter> = value.into();
+            Resource::Parameters(Parameters {
+                parameter: Some(parameters),
+                ..Default::default()
+            })
+        }
+    }
+    #[derive(Debug, FromParameters)]
+    pub struct Output {
+        #[parameter_rename = "return"]
+        pub return_: OperationOutcome,
+    }
+    impl From<Output> for Resource {
+        fn from(value: Output) -> Self {
+            Resource::OperationOutcome(value.return_)
+        }
+    }
+}
 pub mod HasteHealthDeleteScope {
     use super::*;
     pub const CODE: &str = "delete-scope";
