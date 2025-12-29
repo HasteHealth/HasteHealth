@@ -19,7 +19,7 @@ use haste_repository::{
     },
 };
 
-pub fn delete_refresh_token<
+pub fn delete_refresh_token_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

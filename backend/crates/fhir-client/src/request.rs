@@ -99,7 +99,7 @@ pub enum OperationParseError {
     Invalid,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Operation(String);
 impl Operation {
     pub fn new(name: &str) -> Result<Self, OperationParseError> {
@@ -111,7 +111,7 @@ impl Operation {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FHIRInvokeInstanceRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
@@ -119,14 +119,14 @@ pub struct FHIRInvokeInstanceRequest {
     pub parameters: Parameters,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FHIRInvokeTypeRequest {
     pub operation: Operation,
     pub resource_type: ResourceType,
     pub parameters: Parameters,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FHIRInvokeSystemRequest {
     pub operation: Operation,
     pub parameters: Parameters,
@@ -142,7 +142,7 @@ pub struct FHIRTransactionRequest {
     pub resource: Bundle,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum InvocationRequest {
     Instance(FHIRInvokeInstanceRequest),
     Type(FHIRInvokeTypeRequest),

@@ -17,7 +17,7 @@ use haste_repository::{
     types::scope::{ClientId, ScopeKey, UserId},
 };
 
-pub fn delete_approved_scope<
+pub fn delete_approved_scope_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

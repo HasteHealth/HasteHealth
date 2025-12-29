@@ -30,7 +30,7 @@ fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
     res
 }
 
-pub fn approved_scopes<
+pub fn approved_scopes_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

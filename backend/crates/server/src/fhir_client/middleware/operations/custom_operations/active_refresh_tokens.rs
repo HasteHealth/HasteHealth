@@ -30,7 +30,7 @@ fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
     res
 }
 
-pub fn active_refresh_tokens<
+pub fn active_refresh_tokens_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

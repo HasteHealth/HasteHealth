@@ -1,16 +1,25 @@
-use crate::fhir_client::middleware::operations::ServerOperationContext;
-use haste_fhir_client::request::InvocationRequest;
+use std::sync::Arc;
+
+use crate::fhir_client::{ServerCTX, middleware::operations::ServerOperationContext};
+use haste_access_control::context::{PolicyContext, PolicyEnvironment, UserInfo};
+use haste_fhir_client::request::{FHIRRequest, InvocationRequest};
 use haste_fhir_generated_ops::generated::HasteHealthEvaluatePolicy;
 
-use haste_fhir_model::r4::generated::{terminology::IssueType, types::Reference};
+use haste_fhir_model::r4::generated::{
+    resources::{OperationOutcome, OperationOutcomeIssue, Resource, ResourceType},
+    terminology::{IssueSeverity, IssueType},
+    types::{FHIRString, Reference},
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_repository::Repository;
 
-fn derive_user(user_reference: Option<Reference>) -> Result<Option<String>, OperationOutcomeError> {
+fn derive_user_id(
+    user_reference: Option<Reference>,
+) -> Result<Option<String>, OperationOutcomeError> {
     if let Some(reference_string) = user_reference
         .and_then(|u| u.reference)
         .and_then(|r| r.value)
@@ -36,7 +45,7 @@ fn derive_user(user_reference: Option<Reference>) -> Result<Option<String>, Oper
     Ok(None)
 }
 
-pub fn evaluate_policy_operation<
+pub fn evaluate_policy_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
@@ -51,10 +60,85 @@ pub fn evaluate_policy_operation<
             |context: ServerOperationContext<Repo, Search, Terminology>,
              tenant: TenantId,
              project: ProjectId,
-             _request: &InvocationRequest,
+             request: &InvocationRequest,
              input: HasteHealthEvaluatePolicy::Input| {
+                let request = request.clone();
                 Box::pin(async move {
-                    todo!();
+                    match &request {
+                        InvocationRequest::Instance(invocation_instance) => {
+                            // Use System context for policy evaluation.
+                            let system_ctx = Arc::new(ServerCTX::system(
+                                tenant.clone(),
+                                project.clone(),
+                                context.ctx.client.clone(),
+                            ));
+
+                            if invocation_instance.resource_type != ResourceType::AccessPolicyV2 {
+                                return Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "EvaluatePolicy operation must be invoked on an AccessPolicyV2 resource".to_string(),
+                                ));
+                            }
+
+                            let Some(Resource::AccessPolicyV2(policy)) = context
+                                .state
+                                .repo
+                                .read_latest(
+                                    &tenant,
+                                    &project,
+                                    &ResourceType::AccessPolicyV2,
+                                    &ResourceId::new(invocation_instance.id.clone()),
+                                )
+                                .await?
+                            else {
+                                return Err(OperationOutcomeError::fatal(
+                                    IssueType::NotFound(None),
+                                    format!(
+                                        "AccessPolicyV2 resource with id '{}' not found",
+                                        invocation_instance.id
+                                    ),
+                                ));
+                            };
+
+                            haste_access_control::evaluate_policy(
+                                Arc::new(PolicyContext::new(
+                                    context.ctx.client.clone(),
+                                    system_ctx,
+                                    PolicyEnvironment {
+                                        tenant: tenant.clone(),
+                                        project: project.clone(),
+                                        request: FHIRRequest::Invocation(request),
+                                        user: Arc::new(UserInfo {
+                                            id: derive_user_id(input.user)?.unwrap_or(
+                                                context.ctx.user.user_id.as_ref().to_string(),
+                                            ),
+                                        }),
+                                    },
+                                )),
+                                Arc::new(policy),
+                            )
+                            .await?;
+
+                            Ok(HasteHealthEvaluatePolicy::Output {
+                                return_: OperationOutcome {
+                                    issue: vec![OperationOutcomeIssue {
+                                        severity: Box::new(IssueSeverity::Information(None)),
+                                        code: Box::new(IssueType::Informational(None)),
+                                        diagnostics: Some(Box::new(FHIRString {
+                                            value: Some("Policy approved user access.".to_string()),
+                                            ..Default::default()
+                                        })),
+                                        ..Default::default()
+                                    }],
+                                    ..Default::default()
+                                },
+                            })
+                        }
+                        _ => Err(OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            "EvaluatePolicy operation only supported at Instance level".to_string(),
+                        )),
+                    }
                 })
             },
         ),

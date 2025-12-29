@@ -12,7 +12,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, ResourceId, TenantId};
 use haste_repository::Repository;
 
-pub fn project_information<
+pub fn project_information_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

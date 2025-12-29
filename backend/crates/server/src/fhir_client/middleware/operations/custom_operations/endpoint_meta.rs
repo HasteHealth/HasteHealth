@@ -18,7 +18,7 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
 use url::Url;
 
-pub fn endpoint_metadata<
+pub fn endpoint_metadata_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

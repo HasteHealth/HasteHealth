@@ -48,14 +48,15 @@ impl<
         let executors: Vec<
             Box<dyn OperationInvocation<ServerOperationContext<Repo, Search, Terminology>>>,
         > = vec![
-            Box::new(custom_operations::valueset_expand()),
-            Box::new(custom_operations::project_information()),
-            Box::new(custom_operations::active_refresh_tokens()),
-            Box::new(custom_operations::approved_scopes()),
-            Box::new(custom_operations::delete_approved_scope()),
-            Box::new(custom_operations::delete_refresh_token()),
-            Box::new(custom_operations::endpoint_metadata()),
-            Box::new(custom_operations::idp_registration_info()),
+            Box::new(custom_operations::valueset_expand_op()),
+            Box::new(custom_operations::project_information_op()),
+            Box::new(custom_operations::active_refresh_tokens_op()),
+            Box::new(custom_operations::approved_scopes_op()),
+            Box::new(custom_operations::delete_approved_scope_op()),
+            Box::new(custom_operations::delete_refresh_token_op()),
+            Box::new(custom_operations::endpoint_metadata_op()),
+            Box::new(custom_operations::idp_registration_info_op()),
+            Box::new(custom_operations::evaluate_policy_op()),
         ];
 
         Self(Arc::new(executors))

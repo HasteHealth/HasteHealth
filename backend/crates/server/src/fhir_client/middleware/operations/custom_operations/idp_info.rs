@@ -15,7 +15,7 @@ use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
 use url::Url;
 
-pub fn idp_registration_info<
+pub fn idp_registration_info_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,

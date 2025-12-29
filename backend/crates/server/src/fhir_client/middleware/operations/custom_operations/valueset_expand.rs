@@ -7,7 +7,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
 
-pub fn valueset_expand<
+pub fn valueset_expand_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
