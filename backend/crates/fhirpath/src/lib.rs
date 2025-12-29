@@ -1257,53 +1257,108 @@ mod tests {
         // String tests
         let string_equal = engine.evaluate("'test' = 'test'", vec![]).await.unwrap();
         for r in string_equal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, true);
         }
         let string_unequal = engine.evaluate("'invalid' = 'test'", vec![]).await.unwrap();
         for r in string_unequal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, false);
         }
 
         // Number tests
         let number_equal = engine.evaluate("12 = 12", vec![]).await.unwrap();
         for r in number_equal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, true);
         }
         let number_unequal = engine.evaluate("13 = 12", vec![]).await.unwrap();
         for r in number_unequal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, false);
         }
 
         // Boolean tests
         let bool_equal = engine.evaluate("false = false", vec![]).await.unwrap();
         for r in bool_equal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, true);
         }
         let bool_unequal = engine.evaluate("false = true", vec![]).await.unwrap();
         for r in bool_unequal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, false);
         }
 
         // Nested Equality tests
         let bool_equal = engine.evaluate("12 = 13 = false", vec![]).await.unwrap();
         for r in bool_equal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, true);
         }
         let bool_unequal = engine.evaluate("12 = 13 = true", vec![]).await.unwrap();
         for r in bool_unequal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
             assert_eq!(b, false);
         }
         let bool_unequal = engine.evaluate("12 = (13 - 1)", vec![]).await.unwrap();
         for r in bool_unequal.iter() {
-            let b: bool = r.as_any().downcast_ref::<bool>().unwrap().clone();
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
+
             assert_eq!(b, true);
         }
     }
