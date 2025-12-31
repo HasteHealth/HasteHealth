@@ -10,6 +10,7 @@ env:
 
 jobs:
   server:
+    environment: production
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -58,6 +59,7 @@ jobs:
            --push
 
   admin-app:
+    environment: production
     runs-on: ubuntu-latest
     permissions:
       packages: write

@@ -5,6 +5,7 @@ on:
 
 jobs:
   rust_book:
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,6 +30,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   typedoc:
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

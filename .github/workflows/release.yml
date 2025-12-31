@@ -1,10 +1,11 @@
-name: Release
+name: Binaries Release
 on:
   release:
     types: [published]
 
 jobs:
   linux:
+    environment: production
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -23,6 +24,7 @@ jobs:
           files: |
             haste-health_linux
   mac:
+    environment: production
     runs-on: macos-latest
     permissions:
       packages: write
