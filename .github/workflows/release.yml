@@ -1,4 +1,4 @@
-name: Binaries Release
+name: Release Binaries
 on:
   release:
     types: [published]
