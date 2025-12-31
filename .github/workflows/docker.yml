@@ -31,7 +31,7 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v3"
       - name: "Docker auth"
         run: |-
-          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+          gcloud auth configure-docker ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
       - name: Build and Publish Image
         run: |
           IMAGE_NAME=$(echo $SERVER_IMAGE_NAME | tr '[A-Z]' '[a-z]')
@@ -47,8 +47,8 @@ jobs:
           docker buildx build . \
            --file=docker/haste-health.dockerfile \
            --platform linux/amd64 \
-           --tag "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/$IMAGE_ID:latest
-           --tag "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/$IMAGE_ID:$GITHUB_REF_NAME
+           --tag "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/$IMAGE_ID:latest
+           --tag "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/$IMAGE_ID:$GITHUB_REF_NAME
            --tag $IMAGE_ID:$GITHUB_REF_NAME \
            --tag $IMAGE_ID:latest \
            --label "runnumber=${GITHUB_RUN_ID}" \
