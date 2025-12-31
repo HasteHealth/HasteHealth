@@ -36,9 +36,11 @@ jobs:
         run: |
           IMAGE_NAME=$(echo $SERVER_IMAGE_NAME | tr '[A-Z]' '[a-z]')
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          GCP_IMAGE_ID=${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{secrets.GAR_REPOSITORY}}/$IMAGE_NAME
+
           # This changes all uppercase characters to lowercase.
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
+          GCP_IMAGE_ID=$(echo $GCP_IMAGE_ID | tr '[A-Z]' '[a-z]')
 
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$GITHUB_REF_NAME
@@ -47,8 +49,8 @@ jobs:
           docker buildx build . \
            --file=docker/haste-health.dockerfile \
            --platform linux/amd64 \
-           --tag "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/$IMAGE_ID:latest
-           --tag "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/$IMAGE_ID:$GITHUB_REF_NAME
+           --tag "$GCP_IMAGE_ID:latest
+           --tag "$GCP_IMAGE_ID:$GITHUB_REF_NAME
            --tag $IMAGE_ID:$GITHUB_REF_NAME \
            --tag $IMAGE_ID:latest \
            --label "runnumber=${GITHUB_RUN_ID}" \
