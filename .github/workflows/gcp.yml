@@ -20,4 +20,4 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v3"
       - name: "Docker auth"
         run: |-
-          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+          gcloud auth configure-docker ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
