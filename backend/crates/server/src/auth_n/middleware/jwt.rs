@@ -36,7 +36,9 @@ static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {
 fn validate_jwt(token: &str) -> Result<UserTokenClaims, StatusCode> {
     let result = jsonwebtoken::decode::<UserTokenClaims>(
         token,
-        certificates::decoding_key(),
+        certificates::get_certification_provider()
+            .decoding_key()
+            .as_ref(),
         &*VALIDATION_CONFIG,
     )
     .map_err(|_| StatusCode::UNAUTHORIZED)?;

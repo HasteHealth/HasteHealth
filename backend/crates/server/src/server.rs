@@ -1,5 +1,5 @@
 use crate::{
-    auth_n,
+    auth_n::{self, certificates::get_certification_provider},
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     mcp,
@@ -150,7 +150,8 @@ async fn fhir_type_handler<
 
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
-    auth_n::certificates::create_certifications(&*config).unwrap();
+    // Varify instantiates.
+    get_certification_provider();
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 

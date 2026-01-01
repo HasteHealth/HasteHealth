@@ -1,6 +1,6 @@
 use crate::{
     auth_n::{
-        certificates::encoding_key,
+        certificates::get_certification_provider,
         oidc::{
             code_verification,
             error::{OIDCError, OIDCErrorCode},
@@ -107,7 +107,7 @@ async fn create_token_response<Repo: Repository>(
             resource_type: args.user_kind,
             access_policy_version_ids: args.access_policy_version_ids,
         },
-        encoding_key(),
+        get_certification_provider().encoding_key().as_ref(),
     )
     .map_err(|_| {
         OIDCError::new(
