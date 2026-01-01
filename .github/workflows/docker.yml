@@ -50,8 +50,8 @@ jobs:
           docker buildx build . \
            --file=docker/haste-health.dockerfile \
            --platform linux/amd64 \
-           --tag "$GCP_IMAGE_ID:latest
-           --tag "$GCP_IMAGE_ID:$GITHUB_REF_NAME
+           --tag "$GCP_IMAGE_ID:latest \
+           --tag "$GCP_IMAGE_ID:$GITHUB_REF_NAME \
            --tag $IMAGE_ID:$GITHUB_REF_NAME \
            --tag $IMAGE_ID:latest \
            --label "runnumber=${GITHUB_RUN_ID}" \
