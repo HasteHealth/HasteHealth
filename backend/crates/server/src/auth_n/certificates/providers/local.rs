@@ -158,16 +158,26 @@ fn create_certifications_if_needed(
     if private_key_files.is_empty() {
         let mut rng = OsRng;
         let bits: usize = 2048;
-        // Use rfc 3339 format for date. Same as time_rotating.id.
-        let date = chrono::Utc::now().to_rfc3339();
 
-        let private_key_file_name = format!("k1.{}.pem", date);
-        let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+        // Use rfc 3339 format for date. Same as time_rotating.id.
+        let date = chrono::Utc::now();
+        let date2 = date + chrono::Days::new(5);
+
+        let private_key_file_name1 = format!("k1.{}.pem", date.to_rfc3339());
+        let private_key_file_name2 = format!("k1.{}.pem", date2.to_rfc3339());
+
+        let priv_key1 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+        let priv_key2 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
 
         std::fs::create_dir_all(cert_dir).unwrap();
         std::fs::write(
-            cert_dir.join(private_key_file_name),
-            priv_key.to_pkcs1_pem(LineEnding::default()).unwrap(),
+            cert_dir.join(private_key_file_name1),
+            priv_key1.to_pkcs1_pem(LineEnding::default()).unwrap(),
+        )
+        .map_err(|e| OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string()))?;
+        std::fs::write(
+            cert_dir.join(private_key_file_name2),
+            priv_key2.to_pkcs1_pem(LineEnding::default()).unwrap(),
         )
         .map_err(|e| OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string()))?;
     }
