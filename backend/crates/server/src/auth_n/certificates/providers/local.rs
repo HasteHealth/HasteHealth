@@ -27,7 +27,7 @@ fn derive_kid(cert_path: &Path) -> String {
         .to_str()
         .unwrap()
         .to_string();
-    let chunks = file_name.split(".").collect::<Vec<&str>>();
+    let chunks = file_name.split("_").collect::<Vec<&str>>();
     chunks.get(0).unwrap().to_string()
 }
 
@@ -44,17 +44,17 @@ fn get_sorted_private_cert_paths(config: &dyn Config<ServerEnvironmentVariables>
         .collect::<Vec<DirEntry>>();
 
     entries.sort_by(|a, b| {
-        let a_chunks = a
-            .file_name()
+        let a_chunks = Path::file_stem(a.path())
+            .unwrap()
             .to_str()
             .unwrap()
-            .split(".")
+            .split("_")
             .collect::<Vec<&str>>();
-        let b_chunks = b
-            .file_name()
+        let b_chunks = Path::file_stem(b.path())
+            .unwrap()
             .to_str()
             .unwrap()
-            .split(".")
+            .split("_")
             .collect::<Vec<&str>>();
 
         let date_a = chrono::DateTime::parse_from_rfc3339(a_chunks.get(1).unwrap()).unwrap();
@@ -68,11 +68,11 @@ fn get_sorted_private_cert_paths(config: &dyn Config<ServerEnvironmentVariables>
 }
 
 fn create_jwk_set(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    certificate_entries: &Vec<DirEntry>,
 ) -> Result<JSONWebKeySet, OperationOutcomeError> {
     let mut jsonweb_key_set = JSONWebKeySet { keys: vec![] };
 
-    for certification_entry in get_sorted_private_cert_paths(config).into_iter() {
+    for certification_entry in certificate_entries.iter() {
         let cert_path = certification_entry.path();
         let rsa_private =
             RsaPrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
@@ -96,11 +96,11 @@ fn create_jwk_set(
 }
 
 fn create_decoding_keys(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    certificate_entries: &Vec<DirEntry>,
 ) -> Result<Vec<DecodingKey>, OperationOutcomeError> {
     let mut decoding_keys = vec![];
 
-    for certification_entry in get_sorted_private_cert_paths(config).into_iter() {
+    for certification_entry in certificate_entries.iter() {
         let cert_path = certification_entry.path();
         let rsa_private =
             RsaPrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
@@ -126,11 +126,11 @@ fn create_decoding_keys(
 
 /// Latest key is first. this is set by date_b.cmp(&date_a) in get_sorted_private_cert_paths
 fn get_encoding_keys(
-    config: &dyn Config<ServerEnvironmentVariables>,
+    certificate_entries: &Vec<DirEntry>,
 ) -> Result<Vec<EncodingKey>, OperationOutcomeError> {
     let mut encoding_keys = vec![];
 
-    for certification_entry in get_sorted_private_cert_paths(config).into_iter() {
+    for certification_entry in certificate_entries.iter() {
         let cert_path = certification_entry.path();
         let encoding_key =
             jsonwebtoken::EncodingKey::from_rsa_pem(&std::fs::read(cert_path).unwrap()).unwrap();
@@ -163,8 +163,8 @@ fn create_certifications_if_needed(
         let date = chrono::Utc::now();
         let date2 = date + chrono::Days::new(5);
 
-        let private_key_file_name1 = format!("k1.{}.pem", date.to_rfc3339());
-        let private_key_file_name2 = format!("k2.{}.pem", date2.to_rfc3339());
+        let private_key_file_name1 = format!("k1_{}.pem", date.to_rfc3339());
+        let private_key_file_name2 = format!("k2_{}.pem", date2.to_rfc3339());
 
         let priv_key1 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
         let priv_key2 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
@@ -197,12 +197,12 @@ impl LocalCertifications {
     ) -> Result<Self, OperationOutcomeError> {
         create_certifications_if_needed(config)?;
 
-        let encoding_keys = Arc::new(get_encoding_keys(config)?);
+        let private_certificate_entries = get_sorted_private_cert_paths(config);
 
         Ok(LocalCertifications {
-            decoding_key: Arc::new(create_decoding_keys(config)?),
-            encoding_keys,
-            jwk_set: Arc::new(create_jwk_set(config)?),
+            decoding_key: Arc::new(create_decoding_keys(&private_certificate_entries)?),
+            encoding_keys: Arc::new(get_encoding_keys(&private_certificate_entries)?),
+            jwk_set: Arc::new(create_jwk_set(&private_certificate_entries)?),
         })
     }
 }
