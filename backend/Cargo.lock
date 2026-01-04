@@ -1757,6 +1757,7 @@ dependencies = [
  "tracing-subscriber",
  "typify",
  "url",
+ "walkdir",
  "zxcvbn",
 ]
 

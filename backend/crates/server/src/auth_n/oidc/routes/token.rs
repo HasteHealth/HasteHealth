@@ -91,8 +91,20 @@ async fn create_token_response<Repo: Repository>(
     grant_type_used: &schemas::token_body::OAuth2TokenBodyGrantType,
     args: TokenResponseArguments,
 ) -> Result<TokenResponse, OIDCError> {
+    let cert_provider = get_certification_provider();
+    let encoding_key = cert_provider.encoding_key().map_err(|_e| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to create access token. No encoding key available.".to_string()),
+            None,
+        )
+    })?;
+
+    let mut header = Header::new(Algorithm::RS256);
+    header.kid = Some(encoding_key.kid.clone());
+
     let token = jsonwebtoken::encode(
-        &Header::new(Algorithm::RS256),
+        &header,
         &UserTokenClaims {
             sub: AuthorId::new(args.user_id.clone()),
             exp: (chrono::Utc::now() + chrono::Duration::seconds(TOKEN_EXPIRATION as i64))
@@ -107,7 +119,7 @@ async fn create_token_response<Repo: Repository>(
             resource_type: args.user_kind,
             access_policy_version_ids: args.access_policy_version_ids,
         },
-        get_certification_provider().encoding_key().as_ref(),
+        &encoding_key.encoding_key,
     )
     .map_err(|_| {
         OIDCError::new(
