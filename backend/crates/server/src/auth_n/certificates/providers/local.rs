@@ -11,7 +11,7 @@ use rsa::{
 };
 use sha1::{Digest, Sha1};
 use std::{path::Path, sync::Arc};
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 use crate::{
     ServerEnvironmentVariables,
@@ -22,30 +22,56 @@ use crate::{
 };
 
 fn derive_kid(cert_path: &Path) -> String {
-    Path::file_stem(cert_path)
+    let file_name = Path::file_stem(cert_path)
         .unwrap()
         .to_str()
         .unwrap()
-        .to_string()
+        .to_string();
+    let chunks = file_name.split(".").collect::<Vec<&str>>();
+    chunks.get(0).unwrap().to_string()
+}
+
+fn get_sorted_private_cert_paths(config: &dyn Config<ServerEnvironmentVariables>) -> Vec<DirEntry> {
+    let certificate_dir = config
+        .get(ServerEnvironmentVariables::CertificationDir)
+        .unwrap();
+    let cert_dir: &Path = Path::new(&certificate_dir);
+    let walker = WalkDir::new(cert_dir).into_iter();
+    let mut entries = walker
+        .filter_map(|e| e.ok())
+        .filter(|e| e.metadata().unwrap().is_file())
+        .filter(|e| e.file_name().to_str().unwrap().ends_with(".pem"))
+        .collect::<Vec<DirEntry>>();
+
+    entries.sort_by(|a, b| {
+        let a_chunks = a
+            .file_name()
+            .to_str()
+            .unwrap()
+            .split(".")
+            .collect::<Vec<&str>>();
+        let b_chunks = b
+            .file_name()
+            .to_str()
+            .unwrap()
+            .split(".")
+            .collect::<Vec<&str>>();
+
+        let date_a = chrono::DateTime::parse_from_rfc3339(a_chunks.get(1).unwrap()).unwrap();
+        let date_b = chrono::DateTime::parse_from_rfc3339(b_chunks.get(1).unwrap()).unwrap();
+
+        date_a.cmp(&date_b)
+    });
+
+    entries
 }
 
 fn create_jwk_set(
     config: &dyn Config<ServerEnvironmentVariables>,
 ) -> Result<JSONWebKeySet, OperationOutcomeError> {
-    let certificate_dir = config
-        .get(ServerEnvironmentVariables::CertificationDir)
-        .unwrap();
-    let cert_dir: &Path = Path::new(&certificate_dir);
-
-    let walker = WalkDir::new(cert_dir).into_iter();
-
     let mut jsonweb_key_set = JSONWebKeySet { keys: vec![] };
 
-    for certification_entry in walker
-        .filter_map(|e| e.ok())
-        .filter(|e| e.metadata().unwrap().is_file())
-        .filter(|e| e.file_name().to_str().unwrap().ends_with(".pem"))
-    {
+    for certification_entry in get_sorted_private_cert_paths(config).into_iter() {
         let cert_path = certification_entry.path();
         let rsa_private =
             RsaPrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
@@ -71,19 +97,9 @@ fn create_jwk_set(
 fn create_decoding_keys(
     config: &dyn Config<ServerEnvironmentVariables>,
 ) -> Result<Vec<DecodingKey>, OperationOutcomeError> {
-    // let key = CERTIFICATES.public_key.clone();
-    let certificate_dir = config
-        .get(ServerEnvironmentVariables::CertificationDir)
-        .unwrap();
-    let cert_dir: &Path = Path::new(&certificate_dir);
-
     let mut decoding_keys = vec![];
-    let walker = WalkDir::new(cert_dir).into_iter();
-    for certification_entry in walker
-        .filter_map(|e| e.ok())
-        .filter(|e| e.metadata().unwrap().is_file())
-        .filter(|e| e.file_name().to_str().unwrap().ends_with(".pem"))
-    {
+
+    for certification_entry in get_sorted_private_cert_paths(config).into_iter() {
         let cert_path = certification_entry.path();
         let rsa_private =
             RsaPrivateKey::from_pkcs1_pem(&std::fs::read_to_string(cert_path).unwrap()).unwrap();
@@ -110,18 +126,9 @@ fn create_decoding_keys(
 fn get_encoding_keys(
     config: &dyn Config<ServerEnvironmentVariables>,
 ) -> Result<Vec<EncodingKey>, OperationOutcomeError> {
-    let certificate_dir = config
-        .get(ServerEnvironmentVariables::CertificationDir)
-        .unwrap();
-    let cert_dir: &Path = Path::new(&certificate_dir);
-
     let mut encoding_keys = vec![];
-    let walker = WalkDir::new(cert_dir).into_iter();
-    for certification_entry in walker
-        .filter_map(|e| e.ok())
-        .filter(|e| e.metadata().unwrap().is_file())
-        .filter(|e| e.file_name().to_str().unwrap().ends_with(".pem"))
-    {
+
+    for certification_entry in get_sorted_private_cert_paths(config).into_iter() {
         let cert_path = certification_entry.path();
         let encoding_key =
             jsonwebtoken::EncodingKey::from_rsa_pem(&std::fs::read(cert_path).unwrap()).unwrap();
@@ -142,19 +149,19 @@ fn create_certifications_if_needed(
         .get(ServerEnvironmentVariables::CertificationDir)
         .unwrap();
     let cert_dir: &Path = Path::new(&certificate_dir);
-    let private_key_files = WalkDir::new(cert_dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| e.metadata().unwrap().is_file())
-        .filter(|e| e.file_name().to_str().unwrap().ends_with(".pem"))
-        .collect::<Vec<_>>();
+
+    let private_key_files = get_sorted_private_cert_paths(config);
 
     // If no private key than write.
     if private_key_files.is_empty() {
         let mut rng = OsRng;
         let bits: usize = 2048;
-        let private_key_file_name = "k1.pem";
+        // Use rfc 3339 format for date. Same as time_rotating.id.
+        let date = chrono::Utc::now().to_rfc3339();
+
+        let private_key_file_name = format!("k1.{}.pem", date);
         let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+
         std::fs::create_dir_all(cert_dir).unwrap();
         std::fs::write(
             cert_dir.join(private_key_file_name),
