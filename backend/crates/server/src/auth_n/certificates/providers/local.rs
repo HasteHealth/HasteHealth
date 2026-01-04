@@ -164,7 +164,7 @@ fn create_certifications_if_needed(
         let date2 = date + chrono::Days::new(5);
 
         let private_key_file_name1 = format!("k1.{}.pem", date.to_rfc3339());
-        let private_key_file_name2 = format!("k1.{}.pem", date2.to_rfc3339());
+        let private_key_file_name2 = format!("k2.{}.pem", date2.to_rfc3339());
 
         let priv_key1 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
         let priv_key2 = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
