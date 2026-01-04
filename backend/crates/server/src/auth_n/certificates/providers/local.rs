@@ -60,7 +60,8 @@ fn get_sorted_private_cert_paths(config: &dyn Config<ServerEnvironmentVariables>
         let date_a = chrono::DateTime::parse_from_rfc3339(a_chunks.get(1).unwrap()).unwrap();
         let date_b = chrono::DateTime::parse_from_rfc3339(b_chunks.get(1).unwrap()).unwrap();
 
-        date_a.cmp(&date_b)
+        // latest first.
+        date_b.cmp(&date_a)
     });
 
     entries
@@ -123,6 +124,7 @@ fn create_decoding_keys(
     Ok(decoding_keys)
 }
 
+/// Latest key is first. this is set by date_b.cmp(&date_a) in get_sorted_private_cert_paths
 fn get_encoding_keys(
     config: &dyn Config<ServerEnvironmentVariables>,
 ) -> Result<Vec<EncodingKey>, OperationOutcomeError> {
