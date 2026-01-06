@@ -38,15 +38,28 @@ pub async fn global_signup_get<
         (banner("Sign Up", None))
         div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
             form class="space-y-4 md:space-y-6" action=("/auth/signup") method="POST" {
-                div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                    div {
-                        label for="email" class="block mb-2 text-sm font-medium text-slate-600 dark:text-white" {
-                            "Enter your email"
+                div class="grid grid-cols-4 gap-1 space-y-4 p-6 sm:p-8" {                
+                    div class="col-span-4" {
+                        label for="email" class="block text-sm font-medium text-slate-600 dark:text-white" {
+                            "Email address"
                         }
                         input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="" name="email" {}
                     }
-                    button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
-                        "Continue"
+
+                    div class="col-span-2" {
+                        label for="first-name" class="block text-sm font-medium text-slate-600" { "First name" }
+                        input id="first-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " required name="tenant" value="" {}
+                    }
+
+                    div class="col-span-2" {
+                        label for="last-name" class="block text-sm font-medium text-slate-600" { "Last name" }
+                        input id="last-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " required name="last-name" {}
+                    }
+
+                    div class="col-span-4" {
+                        button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
+                            "Continue"
+                        }
                     }
                 }
             }
@@ -57,6 +70,10 @@ pub async fn global_signup_get<
 #[derive(serde::Deserialize)]
 pub struct GlobalSignupForm {
     pub email: String,
+    #[serde(rename = "first-name")]
+    pub first_name: String,
+    #[serde(rename = "last-name")]
+    pub last_name: String,
 }
 
 async fn create_or_retrieve_user_tenant<
@@ -65,12 +82,12 @@ async fn create_or_retrieve_user_tenant<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     app_state: &AppState<Repo, Search, Terminology>,
-    email: &str,
+    signup_form: &GlobalSignupForm,
 ) -> Result<User, OperationOutcomeError> {
     let mut result = SystemAdmin::search(
         app_state.repo.as_ref(),
         &UserSearchClauses {
-            email: Some(email.to_string()),
+            email: Some(signup_form.email.to_string()),
             role: Some(UserRole::Owner),
             method: None,
         },
@@ -85,7 +102,7 @@ async fn create_or_retrieve_user_tenant<
             None,
             "default",
             &SubscriptionTier::Free,
-            email,
+            &signup_form.email,
             None,
         )
         .await?;
@@ -107,7 +124,7 @@ pub async fn global_signup_post<
     State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Form(form): Form<GlobalSignupForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form.email).await?;
+    let user = create_or_retrieve_user_tenant(app_state.as_ref(), &form).await?;
 
     send_password_reset_email(
         app_state.as_ref(),
