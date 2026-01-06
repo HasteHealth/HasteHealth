@@ -49,9 +49,8 @@ pub async fn create_user<
 >(
     services: &AppState<Repo, Search, Terminology>,
     tenant: &TenantId,
-    email: &str,
+    user_resource: User,
     password: Option<&str>,
-    user_role: UserRole,
 ) -> Result<User, OperationOutcomeError> {
     let ctx = Arc::new(ServerCTX::system(
         tenant.clone(),
@@ -61,18 +60,7 @@ pub async fn create_user<
 
     let user = services
         .fhir_client
-        .create(
-            ctx,
-            ResourceType::User,
-            Resource::User(User {
-                role: Box::new(user_role),
-                email: Some(Box::new(FHIRString {
-                    value: Some(email.to_string()),
-                    ..Default::default()
-                })),
-                ..Default::default()
-            }),
-        )
+        .create(ctx, ResourceType::User, Resource::User(user_resource))
         .await?;
 
     let user = match user {
@@ -83,7 +71,19 @@ pub async fn create_user<
     let user_id = user.id.clone().unwrap();
 
     if let Some(password) = password {
-        set_user_password(&*services.repo, &tenant, email, &user_id, password).await?;
+        set_user_password(
+            &*services.repo,
+            &tenant,
+            &user
+                .email
+                .as_ref()
+                .and_then(|e| e.value.as_ref())
+                .map(|s| s.to_string())
+                .unwrap_or_default(),
+            &user_id,
+            password,
+        )
+        .await?;
     }
 
     Ok(user)
@@ -103,7 +103,7 @@ pub async fn create_tenant<
     tenant_id: Option<String>,
     _name: &str,
     subscription_tier: &SubscriptionTier,
-    owner_email: &str,
+    owner: haste_fhir_model::r4::generated::resources::User,
     owner_password: Option<&str>,
 ) -> Result<CreateTenantOutput, OperationOutcomeError> {
     let services = services.transaction().await?;
@@ -141,14 +141,7 @@ pub async fn create_tenant<
         )
         .await?;
 
-    let user = create_user(
-        &services,
-        &new_tenant.id,
-        &owner_email,
-        owner_password,
-        UserRole::Owner(None),
-    )
-    .await?;
+    let user = create_user(&services, &new_tenant.id, owner, owner_password).await?;
 
     let Some(user_id) = user.id else {
         return Err(OperationOutcomeError::fatal(

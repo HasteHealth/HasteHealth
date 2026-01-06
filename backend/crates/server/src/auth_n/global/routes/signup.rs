@@ -10,6 +10,10 @@ use crate::{
 use axum::{Form, response::IntoResponse};
 use axum::{extract::State, response::Response};
 use axum_extra::routing::TypedPath;
+use haste_fhir_model::r4::generated::{
+    terminology,
+    types::{FHIRString, HumanName},
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -102,7 +106,25 @@ async fn create_or_retrieve_user_tenant<
             None,
             "default",
             &SubscriptionTier::Free,
-            &signup_form.email,
+            haste_fhir_model::r4::generated::resources::User {
+                role: Box::new(terminology::UserRole::Owner(None)),
+                email: Some(Box::new(FHIRString {
+                    value: Some(signup_form.email.to_string()),
+                    ..Default::default()
+                })),
+                name: Some(Box::new(HumanName {
+                    given: Some(vec![Box::new(FHIRString {
+                        value: Some(signup_form.first_name.to_string()),
+                        ..Default::default()
+                    })]),
+                    family: Some(Box::new(FHIRString {
+                        value: Some(signup_form.last_name.to_string()),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            },
             None,
         )
         .await?;

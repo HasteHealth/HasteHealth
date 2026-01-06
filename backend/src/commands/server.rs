@@ -131,7 +131,16 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     Some(id.clone()),
                     id,
                     &subscription_tier.clone().unwrap_or(SubscriptionTier::Free),
-                    owner_email,
+                    haste_fhir_model::r4::generated::resources::User {
+                        role: Box::new(UserRole::Owner(None)),
+                        email: Some(Box::new(
+                            haste_fhir_model::r4::generated::types::FHIRString {
+                                value: Some(owner_email.clone()),
+                                ..Default::default()
+                            },
+                        )),
+                        ..Default::default()
+                    },
                     Some(owner_password),
                 )
                 .await;
@@ -161,12 +170,21 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     .await?;
 
                 let tenant = TenantId::new(tenant.clone());
+
                 create_user(
                     &services,
                     &tenant,
-                    email,
+                    haste_fhir_model::r4::generated::resources::User {
+                        role: Box::new(UserRole::Admin(None)),
+                        email: Some(Box::new(
+                            haste_fhir_model::r4::generated::types::FHIRString {
+                                value: Some(email.clone()),
+                                ..Default::default()
+                            },
+                        )),
+                        ..Default::default()
+                    },
                     Some(password),
-                    UserRole::Admin(None),
                 )
                 .await?;
 
