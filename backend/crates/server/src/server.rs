@@ -228,6 +228,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 // 4mb by default.
                 .layer(DefaultBodyLimit::max(max_body_size))
                 .layer(CompressionLayer::new())
+                .layer(SecurityHeadersLayer::new())
                 .layer(
                     SessionManagerLayer::new(session_store)
                         .with_secure(true)
