@@ -1,4 +1,5 @@
 use haste_fhir_client::request::FHIRRequest;
+use haste_fhir_model::r4::generated::{resources::Bundle, terminology::HttpVerb};
 use haste_jwt::claims::SubscriptionTier;
 
 static INVOCATION_POINTS: u32 = 100;
@@ -21,23 +22,46 @@ pub fn get_rate_limit_for_tier(tier: &SubscriptionTier) -> u32 {
     }
 }
 
+pub fn score_bundle(bundle: &Bundle) -> u32 {
+    let mut total_points: u32 = 0;
+
+    let default = vec![];
+    for entry in bundle.entry.as_ref().unwrap_or(&default).iter() {
+        let method = entry.request.as_ref().map(|req| req.method.as_ref());
+
+        match method.unwrap_or(&HttpVerb::Null(None)) {
+            HttpVerb::PATCH(_) | HttpVerb::PUT(_) | HttpVerb::POST(_) | HttpVerb::DELETE(_) => {
+                total_points += WRITE_POINTS
+            }
+            HttpVerb::GET(_) => total_points += SEARCH_POINTS,
+            HttpVerb::Null(_) | HttpVerb::HEAD(_) => {
+                // Do nothing for null/head
+            }
+        }
+    }
+
+    total_points
+}
+
 pub fn points_for_operation(request: &FHIRRequest) -> u32 {
     match request {
-        FHIRRequest::Read(fhirread_request) => READ_POINTS,
-        FHIRRequest::VersionRead(fhirversion_read_request) => READ_POINTS,
+        FHIRRequest::Read(_) => READ_POINTS,
+        FHIRRequest::VersionRead(_) => READ_POINTS,
 
-        FHIRRequest::Create(fhircreate_request) => WRITE_POINTS,
-        FHIRRequest::Update(update_request) => WRITE_POINTS,
-        FHIRRequest::Patch(fhirpatch_request) => WRITE_POINTS,
-        FHIRRequest::Delete(delete_request) => WRITE_POINTS,
+        FHIRRequest::Create(_) => WRITE_POINTS,
+        FHIRRequest::Update(_) => WRITE_POINTS,
+        FHIRRequest::Patch(_) => WRITE_POINTS,
+        FHIRRequest::Delete(_) => WRITE_POINTS,
 
         FHIRRequest::Capabilities => 10,
-        FHIRRequest::Search(search_request) => SEARCH_POINTS,
-        FHIRRequest::History(history_request) => SEARCH_POINTS,
+        FHIRRequest::Search(_) => SEARCH_POINTS,
+        FHIRRequest::History(_) => SEARCH_POINTS,
 
-        FHIRRequest::Invocation(invocation_request) => INVOCATION_POINTS,
+        FHIRRequest::Invocation(_) => INVOCATION_POINTS,
 
-        FHIRRequest::Batch(fhirbatch_request) => todo!(),
-        FHIRRequest::Transaction(fhirtransaction_request) => todo!(),
+        FHIRRequest::Batch(fhirbatch_request) => score_bundle(&fhirbatch_request.resource),
+        FHIRRequest::Transaction(fhirtransaction_request) => {
+            score_bundle(&fhirtransaction_request.resource)
+        }
     }
 }
