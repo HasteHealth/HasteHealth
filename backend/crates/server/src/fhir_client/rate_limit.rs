@@ -13,7 +13,7 @@ static PRO_TIER: u32 = 1000000;
 static TEAM_TIER: u32 = 5000000;
 static UNLIMITED_TIER: u32 = u32::MAX;
 
-pub fn get_rate_limit_for_tier(tier: &SubscriptionTier) -> u32 {
+pub fn get_total_rate_limit_for_tier(tier: &SubscriptionTier) -> u32 {
     match tier {
         SubscriptionTier::Free => FREE_TIER,
         SubscriptionTier::Professional => PRO_TIER,
@@ -22,7 +22,7 @@ pub fn get_rate_limit_for_tier(tier: &SubscriptionTier) -> u32 {
     }
 }
 
-pub fn score_bundle(bundle: &Bundle) -> u32 {
+fn score_bundle(bundle: &Bundle) -> u32 {
     let mut total_points: u32 = 0;
 
     let default = vec![];
