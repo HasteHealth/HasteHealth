@@ -1,6 +1,7 @@
 use haste_fhir_client::request::FHIRRequest;
 use haste_jwt::claims::SubscriptionTier;
 
+static INVOCATION_POINTS: u32 = 100;
 static WRITE_POINTS: u32 = 100;
 static SEARCH_POINTS: u32 = 30;
 static READ_POINTS: u32 = 10;
@@ -33,7 +34,8 @@ pub fn points_for_operation(request: &FHIRRequest) -> u32 {
         FHIRRequest::Capabilities => 10,
         FHIRRequest::Search(search_request) => SEARCH_POINTS,
         FHIRRequest::History(history_request) => SEARCH_POINTS,
-        FHIRRequest::Invocation(invocation_request) => SEARCH_POINTS,
+
+        FHIRRequest::Invocation(invocation_request) => INVOCATION_POINTS,
 
         FHIRRequest::Batch(fhirbatch_request) => todo!(),
         FHIRRequest::Transaction(fhirtransaction_request) => todo!(),
