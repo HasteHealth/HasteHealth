@@ -52,7 +52,7 @@ where
             let headers = response.headers_mut();
 
             // Most of these headers are pulled from default helmet in other products.
-            headers.insert("Content-Security-Policy" ,"default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests".parse().unwrap());
+            headers.insert("Content-Security-Policy" ,"default-src 'self';base-uri 'self';font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests".parse().unwrap());
             headers.insert("Cross-Origin-Opener-Policy", "same-origin".parse().unwrap());
             headers.insert(
                 "Cross-Origin-Resource-Policy",
