@@ -5,7 +5,7 @@ use clap::ValueEnum;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType, User},
-    terminology::{IssueType, UserRole},
+    terminology::IssueType,
     types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;

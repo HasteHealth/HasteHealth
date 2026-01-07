@@ -52,7 +52,7 @@ pub async fn global_signup_get<
 
                     div class="col-span-2" {
                         label for="first-name" class="block text-sm font-medium text-slate-600" { "First name" }
-                        input id="first-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " required name="tenant" value="" {}
+                        input id="first-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " required name="first-name" value="" {}
                     }
 
                     div class="col-span-2" {
