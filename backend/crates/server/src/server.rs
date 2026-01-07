@@ -3,7 +3,10 @@ use crate::{
     fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     mcp,
-    middleware::errors::{log_operationoutcome_errors, operation_outcome_error_handle},
+    middleware::{
+        errors::{log_operationoutcome_errors, operation_outcome_error_handle},
+        security_headers::SecurityHeaderLayer,
+    },
     services::{AppState, ConfigError, create_services, get_pool},
     static_assets::{create_static_server, root_asset_route},
 };
@@ -228,7 +231,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
                 // 4mb by default.
                 .layer(DefaultBodyLimit::max(max_body_size))
                 .layer(CompressionLayer::new())
-                .layer(SecurityHeadersLayer::new())
+                .layer(SecurityHeaderLayer::new())
                 .layer(
                     SessionManagerLayer::new(session_store)
                         .with_secure(true)
