@@ -1,7 +1,7 @@
 use crate::{
     auth_n::email::send_password_reset_email,
     services::AppState,
-    tenants::{SubscriptionTier, create_tenant},
+    tenants::create_tenant,
     ui::{
         components::{banner, page_html},
         pages::message::message_html,
@@ -17,7 +17,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::ProjectId;
+use haste_jwt::{ProjectId, claims::SubscriptionTier};
 use haste_repository::{
     Repository,
     admin::SystemAdmin,

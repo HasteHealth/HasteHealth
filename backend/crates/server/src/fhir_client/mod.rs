@@ -27,6 +27,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole,
+    claims::SubscriptionTier,
     scopes::{
         SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
         SmartResourceScopePermissions, SmartResourceScopeUser, SmartScope,
@@ -110,6 +111,7 @@ impl<
                 user_role: UserRole::Owner,
                 project: Some(project),
                 tenant,
+                subscription_tier: SubscriptionTier::Unlimited,
                 scope: Scopes(vec![Scope::SMART(SmartScope::Resource(
                     SMARTResourceScope {
                         user: SmartResourceScopeUser::System,

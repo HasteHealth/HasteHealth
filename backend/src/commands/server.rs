@@ -1,15 +1,34 @@
-use clap::Subcommand;
+use clap::{Subcommand, ValueEnum};
 use haste_config::{Config, get_config};
 use haste_fhir_model::r4::generated::terminology::{IssueType, UserRole};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
-use haste_jwt::TenantId;
+use haste_jwt::{TenantId, claims::SubscriptionTier};
 use haste_repository::admin::Migrate;
 use haste_server::{
     ServerEnvironmentVariables, load_artifacts, server, services,
-    tenants::{SubscriptionTier, create_tenant, create_user},
+    tenants::{create_tenant, create_user},
 };
 use std::sync::Arc;
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum UserSubscriptionChoice {
+    Free,
+    Professional,
+    Team,
+    Unlimited,
+}
+
+impl From<UserSubscriptionChoice> for SubscriptionTier {
+    fn from(choice: UserSubscriptionChoice) -> Self {
+        match choice {
+            UserSubscriptionChoice::Free => SubscriptionTier::Free,
+            UserSubscriptionChoice::Professional => SubscriptionTier::Professional,
+            UserSubscriptionChoice::Team => SubscriptionTier::Team,
+            UserSubscriptionChoice::Unlimited => SubscriptionTier::Unlimited,
+        }
+    }
+}
 
 #[derive(Subcommand, Debug)]
 pub enum ServerCommands {
@@ -48,7 +67,7 @@ pub enum TenantCommands {
         #[arg(short, long)]
         id: String,
         #[arg(short, long)]
-        subscription_tier: Option<SubscriptionTier>,
+        subscription_tier: Option<UserSubscriptionChoice>,
         #[arg(long)]
         owner_email: String,
         #[arg(long)]
@@ -130,7 +149,11 @@ pub async fn server(command: &ServerCommands) -> Result<(), OperationOutcomeErro
                     services.as_ref(),
                     Some(id.clone()),
                     id,
-                    &subscription_tier.clone().unwrap_or(SubscriptionTier::Free),
+                    &SubscriptionTier::from(
+                        subscription_tier
+                            .clone()
+                            .unwrap_or(UserSubscriptionChoice::Free),
+                    ),
                     haste_fhir_model::r4::generated::resources::User {
                         role: Box::new(UserRole::Owner(None)),
                         email: Some(Box::new(

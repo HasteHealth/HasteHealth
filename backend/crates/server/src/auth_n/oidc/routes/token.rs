@@ -30,7 +30,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{
     AuthorId, AuthorKind, ProjectId, TenantId, UserRole, VersionId,
-    claims::UserTokenClaims,
+    claims::{SubscriptionTier, UserTokenClaims},
     scopes::{OIDCScope, Scope, Scopes},
 };
 use haste_repository::{
@@ -42,6 +42,7 @@ use haste_repository::{
             AuthorizationCodeKind, AuthorizationCodeSearchClaims, CreateAuthorizationCode,
         },
         scope::{ClientId, CreateScope, ScopeSearchClaims, UserId},
+        tenant::CreateTenant,
         user::{User, UserRole as RepoUserRole},
     },
 };
@@ -100,6 +101,27 @@ async fn create_token_response<Repo: Repository>(
         )
     })?;
 
+    let tenant = TenantAuthAdmin::<CreateTenant, _, _, _, _>::read(
+        repo,
+        &TenantId::System,
+        &args.tenant.as_ref().to_string(),
+    )
+    .await
+    .map_err(|_e| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Failed to retrieve tenant information.".to_string()),
+            None,
+        )
+    })?
+    .ok_or_else(|| {
+        OIDCError::new(
+            OIDCErrorCode::ServerError,
+            Some("Tenant not found.".to_string()),
+            None,
+        )
+    })?;
+
     let mut header = Header::new(Algorithm::RS256);
     header.kid = Some(encoding_key.kid.clone());
 
@@ -112,6 +134,9 @@ async fn create_token_response<Repo: Repository>(
             aud: args.client_id.clone(),
             scope: args.scopes.clone(),
             tenant: args.tenant.clone(),
+            subscription_tier: SubscriptionTier::try_from(tenant.subscription_tier).map_err(
+                |e| OIDCError::new(OIDCErrorCode::ServerError, Some(e.to_string()), None),
+            )?,
             project: Some(args.project.clone()),
             user_role: args.user_role,
             user_id: AuthorId::new(args.user_id.clone()),

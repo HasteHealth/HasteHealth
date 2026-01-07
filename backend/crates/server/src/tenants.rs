@@ -1,7 +1,6 @@
 use crate::{
     auth_n::oidc::utilities::set_user_password, fhir_client::ServerCTX, services::AppState,
 };
-use clap::ValueEnum;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
     resources::{Project, Resource, ResourceType, User},
@@ -11,7 +10,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::{
     Repository,
     admin::TenantAuthAdmin,
@@ -22,25 +21,6 @@ use haste_repository::{
     utilities::generate_id,
 };
 use std::sync::Arc;
-
-#[derive(Debug, Clone, ValueEnum)]
-pub enum SubscriptionTier {
-    Free,
-    Professional,
-    Team,
-    Unlimited,
-}
-
-impl From<SubscriptionTier> for String {
-    fn from(tier: SubscriptionTier) -> Self {
-        match tier {
-            SubscriptionTier::Free => "free".to_string(),
-            SubscriptionTier::Professional => "professional".to_string(),
-            SubscriptionTier::Team => "team".to_string(),
-            SubscriptionTier::Unlimited => "unlimited".to_string(),
-        }
-    }
-}
 
 pub async fn create_user<
     Repo: Repository + Send + Sync + 'static,
