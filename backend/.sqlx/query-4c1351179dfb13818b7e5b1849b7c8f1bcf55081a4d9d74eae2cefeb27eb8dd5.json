@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO tenants (id, subscription_tier) VALUES ($1, $2) RETURNING id as \"id: TenantId\", subscription_tier",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "subscription_tier",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "4c1351179dfb13818b7e5b1849b7c8f1bcf55081a4d9d74eae2cefeb27eb8dd5"
+}

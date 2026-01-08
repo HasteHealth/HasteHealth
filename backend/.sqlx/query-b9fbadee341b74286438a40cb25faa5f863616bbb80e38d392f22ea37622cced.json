@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO resources (tenant, project, author_id, fhir_version, resource, deleted, request_method, author_type, fhir_method) \n                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) \n                RETURNING resource as \"resource: FHIRJson<Resource>\"",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "resource: FHIRJson<Resource>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "fhir_version",
+            "kind": {
+              "Enum": [
+                "r4",
+                "r4b",
+                "r5"
+              ]
+            }
+          }
+        },
+        "Jsonb",
+        "Bool",
+        "Varchar",
+        "Text",
+        {
+          "Custom": {
+            "name": "fhir_method",
+            "kind": {
+              "Enum": [
+                "update",
+                "patch",
+                "delete",
+                "create"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b9fbadee341b74286438a40cb25faa5f863616bbb80e38d392f22ea37622cced"
+}

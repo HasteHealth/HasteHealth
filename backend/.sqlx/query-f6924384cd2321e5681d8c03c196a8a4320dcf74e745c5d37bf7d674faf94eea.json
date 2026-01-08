@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT tenant as \"tenant: TenantId\", project as \"project: ProjectId\", user_id, role as \"role: MembershipRole\", resource_id\n                FROM memberships\n                WHERE tenant = $1 AND project = $2 AND user_id = $3\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "project: ProjectId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "role: MembershipRole",
+        "type_info": {
+          "Custom": {
+            "name": "membership_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "member"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "resource_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f6924384cd2321e5681d8c03c196a8a4320dcf74e745c5d37bf7d674faf94eea"
+}

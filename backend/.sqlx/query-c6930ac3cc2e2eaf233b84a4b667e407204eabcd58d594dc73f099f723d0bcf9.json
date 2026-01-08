@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id as \"id: ProjectId\", tenant as \"tenant: TenantId\", system_created, fhir_version as \"fhir_version: SupportedFHIRVersions\" FROM projects where tenant = $1 AND id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id: ProjectId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "system_created",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "fhir_version: SupportedFHIRVersions",
+        "type_info": {
+          "Custom": {
+            "name": "fhir_version",
+            "kind": {
+              "Enum": [
+                "r4",
+                "r4b",
+                "r5"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c6930ac3cc2e2eaf233b84a4b667e407204eabcd58d594dc73f099f723d0bcf9"
+}

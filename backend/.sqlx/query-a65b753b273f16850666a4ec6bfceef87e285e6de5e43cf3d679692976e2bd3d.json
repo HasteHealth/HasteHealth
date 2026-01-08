@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM tenants WHERE id = $1 RETURNING id as \"id: TenantId\", subscription_tier",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "subscription_tier",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "a65b753b273f16850666a4ec6bfceef87e285e6de5e43cf3d679692976e2bd3d"
+}

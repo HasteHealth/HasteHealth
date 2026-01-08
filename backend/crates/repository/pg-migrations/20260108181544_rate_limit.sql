@@ -9,7 +9,7 @@ CREATE TABLE
 
 
 CREATE OR REPLACE FUNCTION check_rate_limit(rate_key TEXT, max_points INTEGER, next_points INTEGER, window_seconds INTEGER)
-RETURNS VOID AS $$
+RETURNS INTEGER AS $$
 DECLARE
   now TIMESTAMPTZ := clock_timestamp();
   window_length INTERVAL := make_interval(secs => window_seconds);
@@ -35,5 +35,7 @@ BEGIN
   IF current_points > max_points THEN
     RAISE EXCEPTION 'Rate limit exceeded for %', rate_key;
   END IF;
+
+  RETURN current_points;
 END;
 $$ LANGUAGE plpgsql;

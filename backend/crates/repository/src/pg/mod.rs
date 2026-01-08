@@ -13,7 +13,6 @@ mod fhir;
 mod membership;
 mod migrate;
 mod project;
-#[cfg(feature = "rate-limit")]
 mod rate_limit;
 mod scope;
 mod system;

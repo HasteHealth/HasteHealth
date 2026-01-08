@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                DELETE FROM memberships\n                WHERE tenant = $1 AND project = $2 AND user_id = $3\n                RETURNING user_id, tenant as \"tenant: TenantId\", project as \"project: ProjectId\", role as \"role: MembershipRole\", resource_id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant: TenantId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "project: ProjectId",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "role: MembershipRole",
+        "type_info": {
+          "Custom": {
+            "name": "membership_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "member"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "resource_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "600f73a7eb9dde3fd31d687d76419968205bcbac23a72d971c93380ef2dd85f3"
+}

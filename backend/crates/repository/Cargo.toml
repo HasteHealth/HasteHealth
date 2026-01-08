@@ -7,7 +7,7 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [features]
-rate-limit = ["dep:haste-rate-limit"]
+rate-limit = []
 
 [dependencies]
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
@@ -17,7 +17,7 @@ haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
-haste-rate-limit = { path = "../rate-limit", version = "0.*", optional = true }
+haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*", features = ["sqlx"] }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 moka = { version = "0.12.11", features = ["future"] }

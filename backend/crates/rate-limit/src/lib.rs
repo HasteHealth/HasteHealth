@@ -1,4 +1,5 @@
 pub enum RateLimitError {
+    Error(String),
     Exceeded,
 }
 
@@ -9,5 +10,5 @@ pub trait RateLimit {
         max: i32,
         points: i32,
         window_in_seconds: i32,
-    ) -> impl Future<Output = Result<(), RateLimitError>> + Send;
+    ) -> impl Future<Output = Result<i32, RateLimitError>> + Send;
 }

@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT max_safe_seq('resources_sequence_seq') as max_safe_seq",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "max_safe_seq",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a2efa65c814b84afaffe83660abbc956deaec2a73184f2ddf20fe6a38156afe6"
+}

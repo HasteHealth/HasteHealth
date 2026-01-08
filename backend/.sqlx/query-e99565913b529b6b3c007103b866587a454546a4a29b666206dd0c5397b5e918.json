@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT check_rate_limit($1, $2, $3, $4) as current_limit",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "current_limit",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "e99565913b529b6b3c007103b866587a454546a4a29b666206dd0c5397b5e918"
+}
