@@ -70,15 +70,15 @@ fn points_for_operation(request: &FHIRRequest) -> u32 {
     }
 }
 
-struct FHIRRateLimit<Source> {
-    source: Arc<Source>,
-}
-impl<Source> FHIRRateLimit<Source> {
-    pub fn add(
-        &self,
-        request: &FHIRRequest,
-        tier: &SubscriptionTier,
-    ) -> Result<u32, OperationOutcomeError> {
-        (base_points as f32 * tier_multiplier) as u32
-    }
-}
+// struct FHIRRateLimit<Source> {
+//     source: Arc<Source>,
+// }
+// impl<Source> FHIRRateLimit<Source> {
+//     pub fn add(
+//         &self,
+//         request: &FHIRRequest,
+//         tier: &SubscriptionTier,
+//     ) -> Result<u32, OperationOutcomeError> {
+//         (base_points as f32 * tier_multiplier) as u32
+//     }
+// }
