@@ -2,8 +2,9 @@ use crate::pg::{
     PGConnection,
     utilities::{commit_transaction, create_transaction},
 };
-use haste_rate_limit::RateLimit;
+use haste_rate_limit::{RateLimit, RateLimitError};
 use sqlx::{Acquire, Postgres};
+use sqlx_postgres::PgRow;
 
 async fn check_rate_limit<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
@@ -12,7 +13,17 @@ async fn check_rate_limit<'a, 'c, Connection: Acquire<'c, Database = Postgres> +
     points: i32,
     window_in_seconds: i32,
 ) -> Result<(), haste_rate_limit::RateLimitError> {
-    // Implement your rate limiting logic here, e.g., querying a database table to track usage.
+    let result: PgRow = sqlx::query!(
+        r#"select check_rate_limit($1, $2, $3, $4)"#,
+        rate_key as &str,
+        max as i32,
+        points as i32,
+        window_in_seconds as i32,
+    )
+    .fetch_one(&mut *connection)
+    .await
+    .map_err(|_e| RateLimitError::Exceeded)?;
+
     Ok(())
 }
 
@@ -40,7 +51,7 @@ impl RateLimit for PGConnection {
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res =
-                    check_rate_limit(&mut *conn, rate_key, max, points, window_in_seconds).await?;
+                    check_rate_limit(&mut *tx, rate_key, max, points, window_in_seconds).await?;
                 Ok(res)
             }
         }
