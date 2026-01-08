@@ -1,6 +1,9 @@
 #![allow(dead_code)]
+use std::sync::Arc;
+
 use haste_fhir_client::request::FHIRRequest;
 use haste_fhir_model::r4::generated::{resources::Bundle, terminology::HttpVerb};
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::claims::SubscriptionTier;
 
 static INVOCATION_POINTS: u32 = 100;
@@ -44,7 +47,7 @@ fn score_bundle(bundle: &Bundle) -> u32 {
     total_points
 }
 
-pub fn points_for_operation(request: &FHIRRequest) -> u32 {
+fn points_for_operation(request: &FHIRRequest) -> u32 {
     match request {
         FHIRRequest::Read(_) => READ_POINTS,
         FHIRRequest::VersionRead(_) => READ_POINTS,
@@ -64,5 +67,18 @@ pub fn points_for_operation(request: &FHIRRequest) -> u32 {
         FHIRRequest::Transaction(fhirtransaction_request) => {
             score_bundle(&fhirtransaction_request.resource)
         }
+    }
+}
+
+struct FHIRRateLimit<Source> {
+    source: Arc<Source>,
+}
+impl<Source> FHIRRateLimit<Source> {
+    pub fn add(
+        &self,
+        request: &FHIRRequest,
+        tier: &SubscriptionTier,
+    ) -> Result<u32, OperationOutcomeError> {
+        (base_points as f32 * tier_multiplier) as u32
     }
 }
