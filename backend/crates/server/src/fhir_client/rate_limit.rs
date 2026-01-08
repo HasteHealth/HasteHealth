@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use haste_fhir_client::request::FHIRRequest;
 use haste_fhir_model::r4::generated::{resources::Bundle, terminology::HttpVerb};
 use haste_jwt::claims::SubscriptionTier;
