@@ -44,7 +44,9 @@ haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
-haste-repository = { path = "../repository", version = "0.*" }
+haste-repository = { path = "../repository", version = "0.*", features = [
+    "rate-limit",
+] }
 petgraph = "0.8.3"
 rand = "0.8"
 regex = "1.11.1"

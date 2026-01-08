@@ -1,0 +1,10 @@
+[package]
+name = "haste-rate-limit"
+description = "Rate limiting trait for Haste Health."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]

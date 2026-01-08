@@ -1671,6 +1671,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-rate-limit"
+version = "0.7.0"
+
+[[package]]
 name = "haste-reflect"
 version = "0.7.0"
 dependencies = [
@@ -1693,6 +1697,7 @@ dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-jwt",
+ "haste-rate-limit",
  "haste-reflect",
  "moka",
  "nanoid",

@@ -33,7 +33,7 @@ members = [
     "crates/indexing-worker",
     "crates/jwt",
     "crates/macro-loads",
-    "crates/pointer",
+    "crates/pointer", "crates/rate-limit",
     "crates/reflect",
     "crates/reflect-derive",
     "crates/repository",
