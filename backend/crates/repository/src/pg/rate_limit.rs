@@ -1,3 +1,5 @@
+use std::pin::Pin;
+
 use crate::pg::{
     PGConnection,
     utilities::{commit_transaction, create_transaction},
@@ -37,36 +39,39 @@ fn check_rate_limit<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send 
 
 impl RateLimit for PGConnection {
     // Returns the current points after the operation.
-    async fn check(
-        &self,
-        rate_key: &str,
+    fn check<'a>(
+        &'a self,
+        rate_key: &'a str,
         max: i32,
         points: i32,
         window_in_seconds: i32,
-    ) -> Result<i32, haste_rate_limit::RateLimitError> {
-        match &self {
-            PGConnection::Pool(_pool, _) => {
-                let tx = create_transaction(self, true)
-                    .await
-                    .map_err(|e| RateLimitError::Error(e.to_string()))?;
-                let res = {
-                    let mut conn = tx.lock().await;
-                    let res =
-                        check_rate_limit(&mut *conn, rate_key, max, points, window_in_seconds)
-                            .await?;
-                    res
-                };
-                commit_transaction(tx)
-                    .await
-                    .map_err(|e| RateLimitError::Error(e.to_string()))?;
-                Ok(res)
+    ) -> Pin<Box<dyn Future<Output = Result<i32, haste_rate_limit::RateLimitError>> + Send + 'a>>
+    {
+        Box::pin(async move {
+            match self {
+                PGConnection::Pool(_pool, _) => {
+                    let tx = create_transaction(self, true)
+                        .await
+                        .map_err(|e| RateLimitError::Error(e.to_string()))?;
+                    let res = {
+                        let mut conn = tx.lock().await;
+                        let res =
+                            check_rate_limit(&mut *conn, rate_key, max, points, window_in_seconds)
+                                .await?;
+                        res
+                    };
+                    commit_transaction(tx)
+                        .await
+                        .map_err(|e| RateLimitError::Error(e.to_string()))?;
+                    Ok(res)
+                }
+                PGConnection::Transaction(tx, _) => {
+                    let mut tx = tx.lock().await;
+                    let res = check_rate_limit(&mut *tx, rate_key, max, points, window_in_seconds)
+                        .await?;
+                    Ok(res)
+                }
             }
-            PGConnection::Transaction(tx, _) => {
-                let mut tx = tx.lock().await;
-                let res =
-                    check_rate_limit(&mut *tx, rate_key, max, points, window_in_seconds).await?;
-                Ok(res)
-            }
-        }
+        })
     }
 }

@@ -47,6 +47,7 @@ haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-repository = { path = "../repository", version = "0.*", features = [
     "rate-limit",
 ] }
+haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 petgraph = "0.8.3"
 rand = "0.8"
 regex = "1.11.1"

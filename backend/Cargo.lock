@@ -1733,6 +1733,7 @@ dependencies = [
  "haste-fhir-terminology",
  "haste-fhirpath",
  "haste-jwt",
+ "haste-rate-limit",
  "haste-reflect",
  "haste-repository",
  "json-patch",

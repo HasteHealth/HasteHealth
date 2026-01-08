@@ -72,6 +72,7 @@ pub struct AppState<
     pub terminology: Arc<Terminology>,
     pub search: Arc<Search>,
     pub repo: Arc<Repo>,
+    pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     pub fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
     pub config: Arc<dyn Config<ServerEnvironmentVariables>>,
 }
