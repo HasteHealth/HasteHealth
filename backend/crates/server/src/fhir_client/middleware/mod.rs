@@ -11,6 +11,7 @@ pub mod capabilities;
 pub mod check_project;
 pub mod custom_models;
 pub mod operations;
+pub mod rate_limit;
 pub mod set_artifact_tenant;
 pub mod storage;
 pub mod transaction;

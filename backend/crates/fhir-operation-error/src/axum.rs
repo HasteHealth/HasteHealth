@@ -11,6 +11,7 @@ impl OperationOutcomeError {
                 IssueType::NotFound(_) => axum::http::StatusCode::NOT_FOUND,
                 IssueType::Forbidden(_) => axum::http::StatusCode::FORBIDDEN,
                 IssueType::Conflict(_) => axum::http::StatusCode::CONFLICT,
+                IssueType::Throttled(_) => axum::http::StatusCode::TOO_MANY_REQUESTS,
                 _ => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
             },
             None => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
