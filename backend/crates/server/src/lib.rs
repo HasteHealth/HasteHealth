@@ -32,6 +32,9 @@ pub enum ServerEnvironmentVariables {
     EmailFromAddress,
     // Data Limits
     MaxRequestBodySize,
+    RateLimitSubscriptions,
+    RateLimitWindowInSeconds,
+    RateLimitOperationPoints,
 }
 
 impl From<ServerEnvironmentVariables> for String {
@@ -54,6 +57,17 @@ impl From<ServerEnvironmentVariables> for String {
             ServerEnvironmentVariables::SendGridAPIKey => "SG_API_KEY".to_string(),
             ServerEnvironmentVariables::EmailFromAddress => "EMAIL_FROM".to_string(),
             ServerEnvironmentVariables::MaxRequestBodySize => "MAX_REQUEST_BODY_SIZE".to_string(),
+            ServerEnvironmentVariables::RateLimitSubscriptions => {
+                "RATE_LIMIT_SUBSCRIPTIONS".to_string()
+            }
+
+            ServerEnvironmentVariables::RateLimitWindowInSeconds => {
+                "RATE_LIMIT_WINDOW_IN_SECONDS".to_string()
+            }
+
+            ServerEnvironmentVariables::RateLimitOperationPoints => {
+                "RATE_LIMIT_OPERATION_POINTS".to_string()
+            }
         }
     }
 }

@@ -1,10 +1,14 @@
-use crate::fhir_client::{
-    ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
+use crate::{
+    ServerEnvironmentVariables,
+    fhir_client::{
+        ServerCTX,
+        middleware::{
+            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
+            ServerMiddlewareState,
+        },
     },
 };
+use haste_config::{ConfigType, get_config};
 use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
@@ -17,12 +21,38 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::claims::SubscriptionTier;
 use haste_rate_limit::RateLimitError;
 use haste_repository::Repository;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 
-static INVOCATION_POINTS: u32 = 10;
-static WRITE_POINTS: u32 = 50;
-static SEARCH_POINTS: u32 = 10;
-static READ_POINTS: u32 = 10;
+struct OperationScoringPoints {
+    read: u32,
+    write: u32,
+    search: u32,
+    invocation: u32,
+}
+
+// Format is read,write,search,invocation
+static DEFAULT_POINT_SCORING: &str = "10,50,10,10";
+
+static OPERATION_POINTS: LazyLock<OperationScoringPoints> = LazyLock::new(|| {
+    let config = get_config(ConfigType::Environment);
+    let scoring_points = config
+        .get(ServerEnvironmentVariables::RateLimitOperationPoints)
+        .unwrap_or(DEFAULT_POINT_SCORING.to_string());
+
+    let format_error_message = "FORMAT ERROR: Rate limit operation points must be in the format read,write,search,invocation where each is a positive integer";
+
+    let scoring = scoring_points
+        .split(',')
+        .map(|s| s.trim().parse::<u32>().expect(format_error_message))
+        .collect::<Vec<u32>>();
+
+    OperationScoringPoints {
+        read: scoring.get(0).expect(format_error_message).to_owned(),
+        write: scoring.get(1).expect(format_error_message).to_owned(),
+        search: scoring.get(2).expect(format_error_message).to_owned(),
+        invocation: scoring.get(3).expect(format_error_message).to_owned(),
+    }
+});
 
 static DAY_IN_SECONDS: u32 = 60 * 60 * 24; // 1 day in seconds
 
@@ -50,9 +80,9 @@ fn score_bundle(bundle: &Bundle) -> u32 {
 
         match method.unwrap_or(&HttpVerb::Null(None)) {
             HttpVerb::PATCH(_) | HttpVerb::PUT(_) | HttpVerb::POST(_) | HttpVerb::DELETE(_) => {
-                total_points += WRITE_POINTS
+                total_points += OPERATION_POINTS.write
             }
-            HttpVerb::GET(_) => total_points += SEARCH_POINTS,
+            HttpVerb::GET(_) => total_points += OPERATION_POINTS.search,
             HttpVerb::Null(_) | HttpVerb::HEAD(_) => {
                 // Do nothing for null/head
             }
@@ -64,19 +94,19 @@ fn score_bundle(bundle: &Bundle) -> u32 {
 
 fn points_for_operation(request: &FHIRRequest) -> u32 {
     match request {
-        FHIRRequest::Read(_) => READ_POINTS,
-        FHIRRequest::VersionRead(_) => READ_POINTS,
+        FHIRRequest::Read(_) => OPERATION_POINTS.read,
+        FHIRRequest::VersionRead(_) => OPERATION_POINTS.read,
 
-        FHIRRequest::Create(_) => WRITE_POINTS,
-        FHIRRequest::Update(_) => WRITE_POINTS,
-        FHIRRequest::Patch(_) => WRITE_POINTS,
-        FHIRRequest::Delete(_) => WRITE_POINTS,
+        FHIRRequest::Create(_) => OPERATION_POINTS.write,
+        FHIRRequest::Update(_) => OPERATION_POINTS.write,
+        FHIRRequest::Patch(_) => OPERATION_POINTS.write,
+        FHIRRequest::Delete(_) => OPERATION_POINTS.write,
 
-        FHIRRequest::Capabilities => 10,
-        FHIRRequest::Search(_) => SEARCH_POINTS,
-        FHIRRequest::History(_) => SEARCH_POINTS,
+        FHIRRequest::Capabilities => OPERATION_POINTS.invocation,
+        FHIRRequest::Search(_) => OPERATION_POINTS.search,
+        FHIRRequest::History(_) => OPERATION_POINTS.search,
 
-        FHIRRequest::Invocation(_) => INVOCATION_POINTS,
+        FHIRRequest::Invocation(_) => OPERATION_POINTS.invocation,
 
         FHIRRequest::Batch(fhirbatch_request) => score_bundle(&fhirbatch_request.resource),
         FHIRRequest::Transaction(fhirtransaction_request) => {
