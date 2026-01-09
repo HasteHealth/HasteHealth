@@ -30,14 +30,16 @@ struct OperationScoringPoints {
     invocation: u32,
 }
 
-// Format is read,write,search,invocation
-static DEFAULT_POINT_SCORING: &str = "10,50,10,10";
+static DEFAULT_READ_POINTS: u32 = 10;
+static DEFAULT_WRITE_POINTS: u32 = 50;
+static DEFAULT_SEARCH_POINTS: u32 = 10;
+static DEFAULT_INVOCATION_POINTS: u32 = 10;
 
 static OPERATION_POINTS: LazyLock<OperationScoringPoints> = LazyLock::new(|| {
     let config = get_config(ConfigType::Environment);
     let scoring_points = config
         .get(ServerEnvironmentVariables::RateLimitOperationPoints)
-        .unwrap_or(DEFAULT_POINT_SCORING.to_string());
+        .unwrap_or("".to_string());
 
     let format_error_message = "FORMAT ERROR: Rate limit operation points must be in the format read,write,search,invocation where each is a positive integer";
 
@@ -47,27 +49,76 @@ static OPERATION_POINTS: LazyLock<OperationScoringPoints> = LazyLock::new(|| {
         .collect::<Vec<u32>>();
 
     OperationScoringPoints {
-        read: scoring.get(0).expect(format_error_message).to_owned(),
-        write: scoring.get(1).expect(format_error_message).to_owned(),
-        search: scoring.get(2).expect(format_error_message).to_owned(),
-        invocation: scoring.get(3).expect(format_error_message).to_owned(),
+        read: scoring.get(0).unwrap_or(&DEFAULT_READ_POINTS).to_owned(),
+        write: scoring.get(1).unwrap_or(&DEFAULT_WRITE_POINTS).to_owned(),
+        search: scoring.get(2).unwrap_or(&DEFAULT_SEARCH_POINTS).to_owned(),
+        invocation: scoring
+            .get(3)
+            .unwrap_or(&DEFAULT_INVOCATION_POINTS)
+            .to_owned(),
     }
 });
 
-static DAY_IN_SECONDS: u32 = 60 * 60 * 24; // 1 day in seconds
+static RATE_LIMIT_WINDOW_IN_SECONDS: LazyLock<u32> = LazyLock::new(|| {
+    let config = get_config(ConfigType::Environment);
+    config
+        .get(ServerEnvironmentVariables::RateLimitWindowInSeconds)
+        .ok()
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(DEFAULT_RATE_LIMIT_WINDOW)
+        .to_owned()
+});
+
+static DEFAULT_RATE_LIMIT_WINDOW: u32 = 60 * 60 * 24; // 1 day in seconds
 
 // Per day Limits
-static FREE_TIER: u32 = 25000;
-static PRO_TIER: u32 = 1000000;
-static TEAM_TIER: u32 = 5000000;
-static UNLIMITED_TIER: u32 = u32::MAX;
+static DEFAULT_FREE_TIER: u32 = 25000;
+static DEFAULT_PRO_TIER: u32 = 1000000;
+static DEFAULT_TEAM_TIER: u32 = 5000000;
+
+struct SubscriptionTiers {
+    free: u32,
+    professional: u32,
+    team: u32,
+    unlimited: u32,
+}
+
+static SUBSCRIPTION_TIERS: LazyLock<SubscriptionTiers> = LazyLock::new(|| {
+    let config = get_config(ConfigType::Environment);
+    let subscription_tiers_rate_limit = config
+        .get(ServerEnvironmentVariables::RateLimitSubscriptions)
+        .unwrap_or("".to_string());
+
+    let format_error_message = "FORMAT ERROR: Rate limit subscription tiers must be in the format free,professional,team where each is a positive integer";
+
+    let subscription_tiers = subscription_tiers_rate_limit
+        .split(',')
+        .map(|s| s.trim().parse::<u32>().expect(format_error_message))
+        .collect::<Vec<u32>>();
+
+    SubscriptionTiers {
+        free: subscription_tiers
+            .get(0)
+            .unwrap_or(&DEFAULT_FREE_TIER)
+            .to_owned(),
+        professional: subscription_tiers
+            .get(1)
+            .unwrap_or(&DEFAULT_PRO_TIER)
+            .to_owned(),
+        team: subscription_tiers
+            .get(2)
+            .unwrap_or(&DEFAULT_TEAM_TIER)
+            .to_owned(),
+        unlimited: u32::MAX,
+    }
+});
 
 pub fn get_total_rate_limit_for_tier(tier: &SubscriptionTier) -> u32 {
     match tier {
-        SubscriptionTier::Free => FREE_TIER,
-        SubscriptionTier::Professional => PRO_TIER,
-        SubscriptionTier::Team => TEAM_TIER,
-        SubscriptionTier::Unlimited => UNLIMITED_TIER,
+        SubscriptionTier::Free => SUBSCRIPTION_TIERS.free,
+        SubscriptionTier::Professional => SUBSCRIPTION_TIERS.professional,
+        SubscriptionTier::Team => SUBSCRIPTION_TIERS.team,
+        SubscriptionTier::Unlimited => SUBSCRIPTION_TIERS.unlimited,
     }
 }
 
@@ -157,7 +208,7 @@ impl<
                             context.ctx.tenant.as_ref(),
                             max_score_for_tenant as i32,
                             points as i32,
-                            DAY_IN_SECONDS as i32,
+                            *RATE_LIMIT_WINDOW_IN_SECONDS as i32,
                         )
                         .await
                         .map_err(|e| match e {
