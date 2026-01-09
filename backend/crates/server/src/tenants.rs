@@ -36,6 +36,7 @@ pub async fn create_user<
         tenant.clone(),
         ProjectId::System,
         services.fhir_client.clone(),
+        services.rate_limit.clone(),
     ));
 
     let user = services
@@ -105,6 +106,7 @@ pub async fn create_tenant<
                 new_tenant.id.clone(),
                 ProjectId::System,
                 services.fhir_client.clone(),
+                services.rate_limit.clone(),
             )),
             ResourceType::Project,
             Resource::Project(Project {

@@ -50,6 +50,7 @@ impl<
                 context.ctx.fhir_version.clone(),
                 context.ctx.user.clone(),
                 context.ctx.client.clone(),
+                context.ctx.rate_limit.clone(),
             ));
 
             context.ctx = ctx;

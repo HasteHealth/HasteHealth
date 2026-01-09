@@ -50,6 +50,7 @@ pub async fn find_client_app<
                     tenant,
                     project,
                     state.fhir_client.clone(),
+                    state.rate_limit.clone(),
                 )),
                 ResourceType::ClientApplication,
                 client_id,

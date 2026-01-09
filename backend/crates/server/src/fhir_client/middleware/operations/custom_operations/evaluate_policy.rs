@@ -71,6 +71,7 @@ pub fn evaluate_policy_op<
                                 tenant.clone(),
                                 project.clone(),
                                 context.ctx.client.clone(),
+                                context.ctx.rate_limit.clone(),
                             ));
 
                             if invocation_instance.resource_type != ResourceType::AccessPolicyV2 {

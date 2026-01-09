@@ -49,6 +49,7 @@ pub async fn mcp_handler<
         SupportedFHIRVersions::R4,
         claims.clone(),
         state.fhir_client.clone(),
+        state.rate_limit.clone(),
     ));
 
     match mcp_request {

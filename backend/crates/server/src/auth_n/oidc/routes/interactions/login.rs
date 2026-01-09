@@ -92,6 +92,7 @@ async fn resolve_identity_providers<
                     tenant,
                     ProjectId::System,
                     state.fhir_client.clone(),
+                    state.rate_limit.clone(),
                 )),
                 Bundle {
                     entry: Some(

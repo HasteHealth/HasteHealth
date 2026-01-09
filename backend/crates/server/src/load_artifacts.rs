@@ -104,6 +104,7 @@ pub async fn load_artifacts(
         TenantId::System,
         ProjectId::System,
         services.fhir_client.clone(),
+        services.rate_limit.clone(),
     ));
 
     let mut hashes = HashSet::new();

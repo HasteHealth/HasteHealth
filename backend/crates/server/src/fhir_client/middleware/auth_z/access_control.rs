@@ -80,6 +80,7 @@ impl<
                         context.ctx.tenant.clone(),
                         context.ctx.project.clone(),
                         context.ctx.client.clone(),
+                        context.ctx.rate_limit.clone(),
                     ));
 
                     let policy_context = haste_access_control::evaluate_policies(

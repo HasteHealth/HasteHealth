@@ -25,6 +25,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
+use haste_rate_limit::RateLimit;
 use haste_repository::{
     Repository, types::authorization_code::PKCECodeChallengeMethod, utilities::generate_id,
 };
@@ -65,6 +66,7 @@ pub async fn get_idp<
 >(
     tenant: &TenantId,
     fhir_client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+    rate_limit: Arc<dyn RateLimit>,
     identity_provider_id: String,
 ) -> Result<IdentityProvider, OperationOutcomeError> {
     let identity_provider = fhir_client
@@ -73,6 +75,7 @@ pub async fn get_idp<
                 tenant.clone(),
                 ProjectId::System,
                 fhir_client.clone(),
+                rate_limit.clone(),
             )),
             ResourceType::IdentityProvider,
             identity_provider_id,
@@ -292,8 +295,13 @@ pub async fn federated_initiate<
 ) -> Result<Redirect, OperationOutcomeError> {
     let api_uri = state.config.get(ServerEnvironmentVariables::APIURI)?;
     validate_identity_provider_in_project(&identity_provider_id, &project_resource)?;
-    let identity_provider =
-        get_idp(&tenant, state.fhir_client.clone(), identity_provider_id).await?;
+    let identity_provider = get_idp(
+        &tenant,
+        state.fhir_client.clone(),
+        state.rate_limit.clone(),
+        identity_provider_id,
+    )
+    .await?;
 
     let federated_authorization_url = create_federated_authorization_url(
         &mut current_session,

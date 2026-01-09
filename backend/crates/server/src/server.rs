@@ -95,6 +95,7 @@ async fn fhir_handler<
             path.fhir_version,
             claims.clone(),
             state.fhir_client.clone(),
+            state.rate_limit.clone(),
         ));
 
         let response = state.fhir_client.request(ctx, fhir_request).await?;

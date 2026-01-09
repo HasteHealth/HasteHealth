@@ -72,6 +72,7 @@ pub struct ServerCTX<
     pub fhir_version: SupportedFHIRVersions,
     pub user: Arc<haste_jwt::claims::UserTokenClaims>,
     pub client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+    pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
 }
 
 impl<
@@ -86,6 +87,7 @@ impl<
         fhir_version: SupportedFHIRVersions,
         user: Arc<haste_jwt::claims::UserTokenClaims>,
         client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+        rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     ) -> Self {
         ServerCTX {
             tenant,
@@ -93,6 +95,7 @@ impl<
             fhir_version,
             user,
             client,
+            rate_limit,
         }
     }
 
@@ -100,6 +103,7 @@ impl<
         tenant: TenantId,
         project: ProjectId,
         client: Arc<FHIRServerClient<Repo, Search, Terminology>>,
+        rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
     ) -> Self {
         ServerCTX {
             tenant: tenant.clone(),
@@ -132,6 +136,7 @@ impl<
                 membership: None,
             }),
             client,
+            rate_limit,
         }
     }
 }

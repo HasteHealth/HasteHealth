@@ -180,6 +180,7 @@ async fn create_user_if_not_exists<
                 tenant.clone(),
                 target_project.clone(),
                 app_state.fhir_client.clone(),
+                app_state.rate_limit.clone(),
             )),
             Bundle {
                 type_: Box::new(BundleType::Batch(None)),
@@ -253,6 +254,7 @@ async fn create_user_if_not_exists<
                         tenant.clone(),
                         ProjectId::System,
                         transaction.fhir_client.clone(),
+                        transaction.rate_limit.clone(),
                     )),
                     ResourceType::User,
                     user_id.clone(),
@@ -282,6 +284,7 @@ async fn create_user_if_not_exists<
                         tenant.clone(),
                         target_project.clone(),
                         transaction.fhir_client.clone(),
+                        transaction.rate_limit.clone(),
                     )),
                     ResourceType::Membership,
                     user_id.clone(),
@@ -337,6 +340,7 @@ pub async fn federated_callback<
     let identity_provider = get_idp(
         &tenant,
         app_state.fhir_client.clone(),
+        app_state.rate_limit.clone(),
         identity_provider_id.clone(),
     )
     .await?;
