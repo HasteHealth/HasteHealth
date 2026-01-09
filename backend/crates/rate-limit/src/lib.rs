@@ -5,7 +5,7 @@ pub enum RateLimitError {
     Exceeded,
 }
 
-pub trait RateLimit {
+pub trait RateLimit: Sync + Send {
     fn check<'a>(
         &'a self,
         rate_key: &'a str,

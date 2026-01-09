@@ -90,6 +90,7 @@ impl<
                 terminology: self.terminology.clone(),
                 search: self.search.clone(),
                 repo: tx_repo.clone(),
+                rate_limit: self.rate_limit.clone(),
                 fhir_client: Arc::new(FHIRServerClient::new(ServerClientConfig::new(
                     tx_repo,
                     self.search.clone(),
@@ -156,10 +157,10 @@ pub async fn create_services(
         .expect("Failed to create Elasticsearch client"),
     );
 
-    let repo = Arc::new(PGConnection::pool(pool.clone()));
+    let pool = Arc::new(PGConnection::pool(pool.clone()));
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new(
-        resolvers::remote::LRUCanonicalRemoteResolver::new(repo.clone(), search_engine.clone()),
+        resolvers::remote::LRUCanonicalRemoteResolver::new(pool.clone(), search_engine.clone()),
     ));
 
     let can_mutate: String = config
@@ -168,14 +169,14 @@ pub async fn create_services(
 
     let fhir_client = Arc::new(FHIRServerClient::new(if can_mutate == "true" {
         ServerClientConfig::allow_mutate_artifacts(
-            repo.clone(),
+            pool.clone(),
             search_engine.clone(),
             terminology.clone(),
             config.clone(),
         )
     } else {
         ServerClientConfig::new(
-            repo.clone(),
+            pool.clone(),
             search_engine.clone(),
             terminology.clone(),
             config.clone(),
@@ -184,7 +185,8 @@ pub async fn create_services(
 
     let shared_state = Arc::new(AppState {
         config,
-        repo: repo,
+        rate_limit: pool.clone(),
+        repo: pool,
         terminology: terminology,
         search: search_engine,
         fhir_client,

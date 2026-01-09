@@ -38,7 +38,8 @@ fn check_rate_limit<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send 
 }
 
 impl RateLimit for PGConnection {
-    // Returns the current points after the operation.
+    /// Returns the current points after the operation.
+    /// Note use of box and pin so can satisfy dynamic dispatch requirements.
     fn check<'a>(
         &'a self,
         rate_key: &'a str,
