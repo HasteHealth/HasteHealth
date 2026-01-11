@@ -87,7 +87,8 @@
       flex: 0 0 100%;
     }
    &:hover .group {
-      animation-play-state: paused;
+      animation: scrolling 8s linear infinite;
+      /* animation-play-state: paused; */
     }
 }
 .group {
@@ -97,7 +98,7 @@
   padding-right: 20px;
   /* ... */
     will-change: transform; /* We should be nice to the browser - let it know what we're going to animate. */
-    animation: scrolling 20s linear infinite;
+    /* animation: scrolling 20s linear infinite; */
 }
 
 @keyframes scrolling {
