@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use haste_fhir_client::request::{DeleteRequest, FHIRRequest, InvocationRequest, UpdateRequest};
 use haste_reflect::MetaValue;
 
@@ -16,17 +14,13 @@ struct RequestReflection(FHIRRequest, LocalData);
 
 impl From<FHIRRequest> for RequestReflection {
     fn from(request: FHIRRequest) -> Self {
-        // let request_type = request_type_string(&request).to_string();
-        // let request_level = request_to_level(&request).to_string();
+        let local_data = LocalData {
+            request_level: request_to_level(&request).to_string(),
+            request_type: request_to_request_type(&request).to_string(),
+            resource_type: request_resource_type_string(&request),
+        };
 
-        RequestReflection(
-            request,
-            LocalData {
-                request_level: request_to_level(&request).to_string(),
-                request_type: request_to_request_type(&request).to_string(),
-                resource_type: request_resource_type_string(&request),
-            },
-        )
+        RequestReflection(request, local_data)
     }
 }
 
