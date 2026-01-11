@@ -1,3 +1,4 @@
+import Link from "@docusaurus/Link";
 import { useEffect, useRef } from "react";
 
 export default function HealthcareDataFlow() {
@@ -82,46 +83,75 @@ export default function HealthcareDataFlow() {
         id="center"
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       >
-        <div className="pulse cursor-pointer bg-orange-50 hover:bg-orange-100 rounded-2xl shadow-xl w-40 h-40 flex items-center justify-center border border-orange-200">
-          <img src="/img/logo.svg" alt="Haste Health" className="h-30" />
-        </div>
+        <Link to="/docs/overview/what_is_haste_health">
+          <div className="pulse cursor-pointer bg-orange-50 hover:bg-orange-100 rounded-2xl shadow-xl w-40 h-40 flex items-center justify-center border border-orange-200">
+            <img src="/img/logo.svg" alt="Haste Health" className="h-30" />
+          </div>
+        </Link>
       </div>
 
       {/* Inputs */}
       <div className="left-0 absolute top-[calc(0%-38px)]">
-        <Endpoint id="ehr" icon="🏥" title="EHR System" subtitle="HL7 / FHIR" />
+        <Link to="/docs/category/ehr">
+          <Endpoint
+            id="ehr"
+            icon="🏥"
+            title="EHR System"
+            subtitle="Epic, Cerner etc..."
+          />
+        </Link>
       </div>
       <div className="left-0 absolute top-[calc(50%-38px)]">
-        <Endpoint
-          id="app"
-          icon="📱"
-          title="Healthcare App"
-          subtitle="Patient Data"
-        />
+        <Link to="/docs/category/endpoints">
+          <Endpoint
+            id="app"
+            icon="🔥"
+            title="FHIR Server"
+            subtitle="FHIR compatible servers or apis."
+          />
+        </Link>
       </div>
       <div className="left-0 absolute top-[calc(100%-38px)]">
-        <Endpoint id="cli" icon="💻" title="CLI Tool" subtitle="FHIR Sync" />
+        <Link to="/docs/tutorials/cli">
+          <Endpoint
+            id="cli"
+            icon="💻"
+            title="Developer access"
+            subtitle="Automated scripts and tools."
+          />
+        </Link>
       </div>
 
       {/* Outputs */}
       <div className="absolute  left-[calc(100%-256px)] top-[calc(0%-38px)]">
-        <Endpoint
-          id="web"
-          icon="🌐"
-          title="Web Application"
-          subtitle="Patient Portals, Dashboards, Analytics"
-        />
+        <Link to="/docs/api/authentication/openid_connect/authorization_code">
+          <Endpoint
+            id="web"
+            icon="🌐"
+            title="Web Application"
+            subtitle="Patient Portals, Dashboards, Analytics."
+          />
+        </Link>
       </div>
       <div className="absolute  left-[calc(100%-256px)] top-[calc(50%-38px)]">
-        <Endpoint
-          id="backend"
-          icon="⚙️"
-          title="Backend Services"
-          subtitle="FHIR APIs"
-        />
+        <Link to="/docs/api/authentication/openid_connect/client_credentials">
+          <Endpoint
+            id="backend"
+            icon="⚙️"
+            title="Backend Services"
+            subtitle="External web services/"
+          />
+        </Link>
       </div>
       <div className="absolute  left-[calc(100%-256px)] top-[calc(100%-38px)]">
-        <Endpoint id="ai" icon="🤖" title="AI" subtitle="Feed data into LLMs" />
+        <Link to="/docs/category/ai">
+          <Endpoint
+            id="ai"
+            icon="🤖"
+            title="AI"
+            subtitle="Feed and query data in AI Applications."
+          />
+        </Link>
       </div>
 
       {/* Animations */}
@@ -164,7 +194,7 @@ function Endpoint({
   return (
     <div
       id={id}
-      className="cursor-pointer hover:bg-orange-100 bg-orange-50 rounded-xl shadow-md p-4 w-64 flex items-center gap-4"
+      className="cursor-pointer hover:bg-orange-100 bg-orange-50 rounded-xl shadow-md p-4 w-64 flex items-center gap-4 border border-orange-200"
     >
       <div className="text-4xl">{icon}</div>
       <div>

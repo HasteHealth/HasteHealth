@@ -104,12 +104,12 @@ export default function Home(): ReactNode {
                   Getting Started - 5min ⏱️
                 </Link>
               </div>
-            </header>
-            <div className="hidden md:block">
-              <div className="pb-12">
-                <HealthcareDataFlow />
+              <div className="hidden lg:block">
+                <div className="pb-8">
+                  <HealthcareDataFlow />
+                </div>
               </div>
-            </div>
+            </header>
             <BorderBlock />
             <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
               <div className="space-y-2 p-6">
