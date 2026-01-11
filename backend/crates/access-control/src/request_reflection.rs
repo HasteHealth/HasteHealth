@@ -35,16 +35,38 @@ pub fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String
         FHIRRequest::Create(fhircreate_request) => {
             Some(fhircreate_request.resource_type.as_ref().to_string())
         }
-        // FHIRRequest::Read(fhirread_request) => {
-        //     Some(&fhirread_request.resource_type.as_ref())
-        // }
-        // FHIRRequest::VersionRead(fhirversion_read_request) => {
-        //     Some(&fhirversion_read_request.resource_type.as_ref())
-        // }
-        // FHIRRequest::Update(update_request) => Some(&update_request.resource_type),
-        // FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.resource_type),
-        // FHIRRequest::Delete(delete_request) => Some(&delete_request.resource_type),
-        // FHIRRequest::Search(search_request) => Some(&search_request.resource_type),
+        FHIRRequest::Read(fhirread_request) => {
+            Some(fhirread_request.resource_type.as_ref().to_string())
+        }
+        FHIRRequest::VersionRead(fhirversion_read_request) => {
+            Some(fhirversion_read_request.resource_type.as_ref().to_string())
+        }
+        FHIRRequest::Update(update_request) => match update_request {
+            UpdateRequest::Conditional(conditional_update) => {
+                Some(conditional_update.resource_type.as_ref().to_string())
+            }
+            UpdateRequest::Instance(instance_update) => {
+                Some(instance_update.resource_type.as_ref().to_string())
+            }
+        },
+        FHIRRequest::Patch(fhirpatch_request) => {
+            Some(fhirpatch_request.resource_type.as_ref().to_string())
+        }
+        FHIRRequest::Delete(delete_request) => match delete_request {
+            DeleteRequest::Instance(instance_delete) => {
+                Some(instance_delete.resource_type.as_ref().to_string())
+            }
+            DeleteRequest::Type(type_delete) => {
+                Some(type_delete.resource_type.as_ref().to_string())
+            }
+            DeleteRequest::System(_) => None,
+        },
+        FHIRRequest::Search(search_request) => match search_request {
+            haste_fhir_client::request::SearchRequest::System(_) => None,
+            haste_fhir_client::request::SearchRequest::Type(type_search_request) => {
+                Some(type_search_request.resource_type.as_ref().to_string())
+            }
+        },
         _ => None,
     }
 }
