@@ -5,8 +5,8 @@ use haste_reflect::MetaValue;
 
 #[derive(Debug)]
 struct LocalData {
-    request_type: Option<String>,
-    request_level: Option<String>,
+    request_type: String,
+    request_level: String,
     resource_type: Option<String>,
 }
 
@@ -130,20 +130,8 @@ impl MetaValue for RequestReflection {
 
     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
         match field {
-            "type" => {
-                if let Some(v) = self.1.request_type.as_ref() {
-                    Some(v)
-                } else {
-                    None
-                }
-            }
-            "level" => {
-                if let Some(v) = self.1.request_level.as_ref() {
-                    Some(v)
-                } else {
-                    None
-                }
-            }
+            "type" => Some(&self.1.request_type),
+            "level" => Some(&self.1.request_level),
             "resource_type" => {
                 if let Some(v) = self.1.resource_type.as_ref() {
                     Some(v)
