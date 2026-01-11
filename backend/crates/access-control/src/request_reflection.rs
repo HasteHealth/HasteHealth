@@ -205,6 +205,32 @@ impl MetaValue for RequestReflection {
                 },
                 _ => None,
             },
+            "parameters" => match &self.0 {
+                FHIRRequest::Search(search_request) => match search_request {
+                    SearchRequest::Type(type_search_request) => {
+                        Some(&type_search_request.parameters)
+                    }
+                    SearchRequest::System(system_search_request) => {
+                        Some(&system_search_request.parameters)
+                    }
+                },
+                FHIRRequest::Update(update_request) => match update_request {
+                    UpdateRequest::Conditional(conditional_update) => {
+                        Some(&conditional_update.parameters)
+                    }
+                    _ => None,
+                },
+                FHIRRequest::Delete(delete_request) => match delete_request {
+                    DeleteRequest::Type(type_delete_request) => {
+                        Some(&type_delete_request.parameters)
+                    }
+                    DeleteRequest::System(system_delete_request) => {
+                        Some(&system_delete_request.parameters)
+                    }
+                    _ => None,
+                },
+                _ => None,
+            },
 
             _ => None,
         }
