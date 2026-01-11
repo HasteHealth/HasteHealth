@@ -123,7 +123,7 @@ export default function HealthcareDataFlow() {
       </div>
 
       {/* Outputs */}
-      <div className="absolute  left-[calc(100%-256px)] top-[calc(0%-38px)]">
+      <div className="absolute  left-[calc(100%-220px)] top-[calc(0%-38px)]">
         <Link to="/docs/api/authentication/openid_connect/authorization_code">
           <Endpoint
             id="web"
@@ -133,7 +133,7 @@ export default function HealthcareDataFlow() {
           />
         </Link>
       </div>
-      <div className="absolute  left-[calc(100%-256px)] top-[calc(50%-38px)]">
+      <div className="absolute  left-[calc(100%-220px)] top-[calc(50%-38px)]">
         <Link to="/docs/api/authentication/openid_connect/client_credentials">
           <Endpoint
             id="backend"
@@ -143,7 +143,7 @@ export default function HealthcareDataFlow() {
           />
         </Link>
       </div>
-      <div className="absolute  left-[calc(100%-256px)] top-[calc(100%-38px)]">
+      <div className="absolute  left-[calc(100%-220px)] top-[calc(100%-38px)]">
         <Link to="/docs/category/ai">
           <Endpoint
             id="ai"
