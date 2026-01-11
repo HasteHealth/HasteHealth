@@ -105,7 +105,7 @@ export default function Home(): ReactNode {
                 </Link>
               </div>
               <div className="hidden lg:block">
-                <div className="pb-8">
+                <div className="pb-16 pt-12">
                   <HealthcareDataFlow />
                 </div>
               </div>
