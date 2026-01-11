@@ -165,3 +165,32 @@
 .schema-item__details[data-collapsed=false]>summary:before {
   transform: rotate(180deg) !important;
 }
+
+
+@keyframes move {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+.flow-line {
+  stroke-dasharray: 12 10;
+  animation: move 15s linear infinite;
+  /* marker-end: url(#arrow); */
+}
+
+.pulse {
+  animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
