@@ -176,7 +176,6 @@
 .flow-line {
   stroke-dasharray: 12 10;
   animation: move 15s linear infinite;
-  /* marker-end: url(#arrow); */
 }
 
 .pulse {

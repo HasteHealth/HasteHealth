@@ -185,12 +185,12 @@ function Endpoint({
   icon,
   title,
   subtitle,
-}: {
+}: Readonly<{
   id: string;
   icon: string;
   title: string;
   subtitle: string;
-}) {
+}>) {
   return (
     <div
       id={id}
