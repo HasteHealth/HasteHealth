@@ -1,4 +1,6 @@
-use haste_fhir_client::request::{DeleteRequest, FHIRRequest, InvocationRequest, UpdateRequest};
+use haste_fhir_client::request::{
+    DeleteRequest, FHIRRequest, InvocationRequest, SearchRequest, UpdateRequest,
+};
 use haste_reflect::MetaValue;
 
 #[derive(Debug)]
@@ -62,8 +64,8 @@ pub fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String
             DeleteRequest::System(_) => None,
         },
         FHIRRequest::Search(search_request) => match search_request {
-            haste_fhir_client::request::SearchRequest::System(_) => None,
-            haste_fhir_client::request::SearchRequest::Type(type_search_request) => {
+            SearchRequest::System(_) => None,
+            SearchRequest::Type(type_search_request) => {
                 Some(type_search_request.resource_type.as_ref().to_string())
             }
         },

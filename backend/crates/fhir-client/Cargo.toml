@@ -22,7 +22,7 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-jwt = { path = "../jwt", version = "0.*" }
 reqwest = { version = "0.12", optional = true }
 thiserror = "2.0.12"
-haste-reflect = { path = "../reflect", version = "0.*" }
+haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 serde_json = "1.0.145"
 
 [dev-dependencies]

@@ -1,7 +1,8 @@
 use haste_fhir_operation_error::derive::OperationOutcomeError;
+use haste_reflect::{MetaValue, derive::Reflect};
 use std::{collections::HashMap, fmt::Display};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Reflect)]
 pub struct Parameter {
     pub name: String,
     pub value: Vec<String>,
@@ -15,6 +16,56 @@ pub struct Parameter {
 pub enum ParsedParameter {
     Result(Parameter),
     Resource(Parameter),
+}
+
+impl MetaValue for ParsedParameter {
+    fn fields(&self) -> Vec<&'static str> {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.fields(),
+        }
+    }
+
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.get_field(field),
+        }
+    }
+
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.get_field_mut(field),
+        }
+    }
+
+    fn get_index<'a>(&'a self, index: usize) -> Option<&'a dyn MetaValue> {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.get_index(index),
+        }
+    }
+
+    fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.get_index_mut(index),
+        }
+    }
+
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.flatten(),
+        }
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.as_any(),
+        }
+    }
+
+    fn typename(&self) -> &'static str {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.typename(),
+        }
+    }
 }
 
 #[derive(Debug, OperationOutcomeError)]
@@ -65,6 +116,44 @@ impl ParsedParameters {
         self.0.iter().find(|p| match p {
             ParsedParameter::Resource(param) | ParsedParameter::Result(param) => param.name == name,
         })
+    }
+}
+
+impl MetaValue for ParsedParameters {
+    fn fields(&self) -> Vec<&'static str> {
+        todo!()
+    }
+
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        if let Some(p) = self.get(field) {
+            Some(p)
+        } else {
+            None
+        }
+    }
+
+    fn get_field_mut<'a>(&'a mut self, _field: &str) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![]
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
+    fn typename(&self) -> &'static str {
+        "ParsedParameters"
     }
 }
 
