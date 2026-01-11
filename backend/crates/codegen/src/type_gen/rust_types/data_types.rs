@@ -424,13 +424,6 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
         }
     });
 
-    let to_static_str_variants = resource_types.iter().map(|resource_name| {
-        let resource_type = format_ident!("{}", generate::capitalize(resource_name));
-        quote! {
-            ResourceType::#resource_type => #resource_name,
-        }
-    });
-
     quote! {
         #[derive(Error, Debug)]
         pub enum ResourceTypeError {
@@ -447,14 +440,6 @@ fn generate_resource_type(resource_types: &Vec<String>) -> TokenStream {
             pub fn deserialize(&self, data: &str) -> Result<Resource, haste_fhir_serialization_json::errors::DeserializeError> {
                 match self {
                     #(#deserialize_variants)*
-                }
-            }
-        }
-
-        impl From<ResourceType> for &'static str {
-            fn from(resource_type: ResourceType) -> Self {
-                match resource_type {
-                    #(#to_static_str_variants)*
                 }
             }
         }
