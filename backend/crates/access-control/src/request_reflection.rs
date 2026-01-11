@@ -65,18 +65,25 @@ fn request_to_level(request: &FHIRRequest) -> &'static str {
         FHIRRequest::Read(_)
         | FHIRRequest::VersionRead(_)
         | FHIRRequest::Update(_)
-        | FHIRRequest::Patch(_)
-        | FHIRRequest::Delete(_) => "instance",
+        | FHIRRequest::Patch(_) => "instance",
+        FHIRRequest::Create(_) | FHIRRequest::Search(_) => "type",
+
+        FHIRRequest::Delete(delete_request) => match delete_request {
+            DeleteRequest::Instance(_) => "instance",
+            DeleteRequest::Type(_) => "type",
+            DeleteRequest::System(_) => "system",
+        },
         FHIRRequest::History(hl) => match hl {
             haste_fhir_client::request::HistoryRequest::Instance(_) => "instance",
             haste_fhir_client::request::HistoryRequest::Type(_) => "type",
             haste_fhir_client::request::HistoryRequest::System(_) => "system",
         },
-        FHIRRequest::Create(_) | FHIRRequest::Search(_) => "type",
-        FHIRRequest::Capabilities
-        | FHIRRequest::Batch(_)
-        | FHIRRequest::Transaction(_)
-        | FHIRRequest::Invocation(_) => "system",
+        FHIRRequest::Invocation(invocation_request) => match invocation_request {
+            InvocationRequest::Instance(_) => "instance",
+            InvocationRequest::Type(_) => "type",
+            InvocationRequest::System(_) => "system",
+        },
+        FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => "system",
     }
 }
 
@@ -95,20 +102,12 @@ impl MetaValue for RequestReflection {
                 FHIRRequest::Transaction(fhirtransaction_request) => {
                     Some(&fhirtransaction_request.resource)
                 }
-                FHIRRequest::Read(fhirread_request) => None,
-                FHIRRequest::VersionRead(fhirversion_read_request) => None,
                 FHIRRequest::Update(update_request) => match update_request {
                     UpdateRequest::Conditional(conditional_update) => {
                         Some(&conditional_update.resource)
                     }
                     UpdateRequest::Instance(instance_update) => Some(&instance_update.resource),
                 },
-                FHIRRequest::Patch(fhirpatch_request) => None,
-                FHIRRequest::Delete(delete_request) => None,
-                FHIRRequest::Capabilities => None,
-                FHIRRequest::Search(search_request) => None,
-                FHIRRequest::History(history_request) => None,
-
                 FHIRRequest::Invocation(invocation_request) => match invocation_request {
                     InvocationRequest::Instance(invocation_request) => {
                         Some(&invocation_request.parameters)
@@ -120,6 +119,14 @@ impl MetaValue for RequestReflection {
                         Some(&invocation_request.parameters)
                     }
                 },
+
+                FHIRRequest::Read(_)
+                | FHIRRequest::VersionRead(_)
+                | FHIRRequest::Patch(_)
+                | FHIRRequest::Delete(_)
+                | FHIRRequest::Capabilities
+                | FHIRRequest::Search(_)
+                | FHIRRequest::History(_) => None,
             },
             "id" => match &self.0 {
                 FHIRRequest::Read(fhirread_request) => Some(&fhirread_request.id),
@@ -137,22 +144,22 @@ impl MetaValue for RequestReflection {
                 },
                 _ => None,
             },
-            "resource_type" => match &self.0 {
-                FHIRRequest::Create(fhircreate_request) => Some(
-                    &(<&'static str>::from(fhircreate_request.resource_type)) as &dyn MetaValue,
-                ),
-                // FHIRRequest::Read(fhirread_request) => {
-                //     Some(&fhirread_request.resource_type.as_ref())
-                // }
-                // FHIRRequest::VersionRead(fhirversion_read_request) => {
-                //     Some(&fhirversion_read_request.resource_type.as_ref())
-                // }
-                // FHIRRequest::Update(update_request) => Some(&update_request.resource_type),
-                // FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.resource_type),
-                // FHIRRequest::Delete(delete_request) => Some(&delete_request.resource_type),
-                // FHIRRequest::Search(search_request) => Some(&search_request.resource_type),
-                _ => None,
-            },
+            // "resource_type" => match &self.0 {
+            //     FHIRRequest::Create(fhircreate_request) => Some(
+            //         &(<&'static str>::from(fhircreate_request.resource_type)) as &dyn MetaValue,
+            //     ),
+            //     // FHIRRequest::Read(fhirread_request) => {
+            //     //     Some(&fhirread_request.resource_type.as_ref())
+            //     // }
+            //     // FHIRRequest::VersionRead(fhirversion_read_request) => {
+            //     //     Some(&fhirversion_read_request.resource_type.as_ref())
+            //     // }
+            //     // FHIRRequest::Update(update_request) => Some(&update_request.resource_type),
+            //     // FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.resource_type),
+            //     // FHIRRequest::Delete(delete_request) => Some(&delete_request.resource_type),
+            //     // FHIRRequest::Search(search_request) => Some(&search_request.resource_type),
+            //     _ => None,
+            // },
             _ => None,
         }
     }
