@@ -139,7 +139,7 @@ export default function HealthcareDataFlow() {
             id="backend"
             icon="⚙️"
             title="Backend Services"
-            subtitle="External web services/"
+            subtitle="External web services."
           />
         </Link>
       </div>
