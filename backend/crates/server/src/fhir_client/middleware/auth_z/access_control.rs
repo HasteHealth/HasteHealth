@@ -10,7 +10,7 @@ use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
-use haste_fhir_model::r4::generated::resources::Resource;
+use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -87,20 +87,28 @@ impl<
                         PolicyContext::new(
                             context.ctx.client.clone(),
                             system_ctx,
-                            PolicyEnvironment {
-                                tenant: context.ctx.tenant.clone(),
-                                project: context.ctx.project.clone(),
-                                request: context.request,
-                                user: Arc::new(UserInfo {
+                            PolicyEnvironment::new(
+                                context.ctx.tenant.clone(),
+                                context.ctx.project.clone(),
+                                context.request,
+                                Arc::new(UserInfo {
                                     id: context.ctx.user.user_id.as_ref().to_string(),
                                 }),
-                            },
+                            ),
                         ),
                         &policies,
                     )
                     .await?;
 
-                    context.request = policy_context.environment.request;
+                    let req =
+                        Arc::try_unwrap(policy_context.environment.request).map_err(|_| {
+                            OperationOutcomeError::fatal(
+                                IssueType::Exception(None),
+                                "Internal error during policy evaluation.".to_string(),
+                            )
+                        })?;
+
+                    context.request = FHIRRequest::from(req);
 
                     if let Some(next) = next {
                         Ok(next(state, context).await?)

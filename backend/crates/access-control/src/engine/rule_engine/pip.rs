@@ -36,6 +36,9 @@ pub async fn pip<
     let root = pointer.clone();
 
     match variable_id {
+        "request" => Ok(Some(ResolvedValue::Arc(
+            policy_context.environment.request.clone() as Arc<dyn MetaValue>,
+        ))),
         "user" => Ok(Some(ResolvedValue::Arc(
             policy_context.environment.user.clone() as Arc<dyn MetaValue>,
         ))),

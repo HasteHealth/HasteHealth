@@ -1,3 +1,4 @@
+use crate::request_reflection::RequestReflection;
 use haste_fhir_client::{
     FHIRClient,
     request::{FHIRRequest, FHIRResponse},
@@ -56,8 +57,24 @@ pub struct UserInfo {
 pub struct PolicyEnvironment {
     pub tenant: TenantId,
     pub project: ProjectId,
-    pub request: FHIRRequest,
+    pub request: Arc<RequestReflection>,
     pub user: Arc<UserInfo>,
+}
+
+impl PolicyEnvironment {
+    pub fn new(
+        tenant: TenantId,
+        project: ProjectId,
+        request: FHIRRequest,
+        user: Arc<UserInfo>,
+    ) -> Self {
+        Self {
+            tenant,
+            project,
+            request: Arc::new(RequestReflection::from(request)),
+            user,
+        }
+    }
 }
 
 pub struct PolicyContext<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {

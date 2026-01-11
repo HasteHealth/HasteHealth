@@ -12,7 +12,7 @@ struct LocalData {
 
 // Use Internal Hashmap for storing created Values.
 #[derive(Debug)]
-struct RequestReflection(FHIRRequest, LocalData);
+pub struct RequestReflection(FHIRRequest, LocalData);
 
 impl From<FHIRRequest> for RequestReflection {
     fn from(request: FHIRRequest) -> Self {

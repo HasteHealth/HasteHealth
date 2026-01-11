@@ -105,16 +105,16 @@ pub fn evaluate_policy_op<
                                 Arc::new(PolicyContext::new(
                                     context.ctx.client.clone(),
                                     system_ctx,
-                                    PolicyEnvironment {
-                                        tenant: tenant.clone(),
-                                        project: project.clone(),
-                                        request: FHIRRequest::Invocation(request),
-                                        user: Arc::new(UserInfo {
+                                    PolicyEnvironment::new(
+                                        tenant.clone(),
+                                        project.clone(),
+                                        FHIRRequest::Invocation(request),
+                                        Arc::new(UserInfo {
                                             id: derive_user_id(input.user)?.unwrap_or(
                                                 context.ctx.user.user_id.as_ref().to_string(),
                                             ),
                                         }),
-                                    },
+                                    ),
                                 )),
                                 Arc::new(policy),
                             )
