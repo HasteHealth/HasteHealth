@@ -1,21 +1,57 @@
+use std::sync::{Arc, Mutex};
+
 use haste_fhir_client::request::{DeleteRequest, FHIRRequest, InvocationRequest, UpdateRequest};
 use haste_reflect::MetaValue;
 
+#[derive(Debug)]
+struct LocalData {
+    request_type: Option<String>,
+    request_level: Option<String>,
+    resource_type: Option<String>,
+}
+
 // Use Internal Hashmap for storing created Values.
 #[derive(Debug)]
-struct RequestReflection(FHIRRequest, String, String);
+struct RequestReflection(FHIRRequest, LocalData);
 
 impl From<FHIRRequest> for RequestReflection {
     fn from(request: FHIRRequest) -> Self {
-        let request_type = request_type_string(&request).to_string();
-        let request_level = request_to_level(&request).to_string();
-        RequestReflection(request, request_type, request_level)
+        // let request_type = request_type_string(&request).to_string();
+        // let request_level = request_to_level(&request).to_string();
+
+        RequestReflection(
+            request,
+            LocalData {
+                request_level: request_to_level(&request).to_string(),
+                request_type: request_to_request_type(&request).to_string(),
+                resource_type: request_resource_type_string(&request),
+            },
+        )
     }
 }
 
 impl From<RequestReflection> for FHIRRequest {
     fn from(reflection: RequestReflection) -> Self {
         reflection.0
+    }
+}
+
+pub fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String> {
+    match fhir_request {
+        FHIRRequest::Create(fhircreate_request) => {
+            Some(fhircreate_request.resource_type.as_ref().to_string())
+        }
+        // FHIRRequest::Read(fhirread_request) => {
+        //     Some(&fhirread_request.resource_type.as_ref())
+        // }
+        // FHIRRequest::VersionRead(fhirversion_read_request) => {
+        //     Some(&fhirversion_read_request.resource_type.as_ref())
+        // }
+        // FHIRRequest::Update(update_request) => Some(&update_request.resource_type),
+        // FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.resource_type),
+        // FHIRRequest::Delete(delete_request) => Some(&delete_request.resource_type),
+        // FHIRRequest::Search(search_request) => Some(&search_request.resource_type),
+        _ => None,
     }
 }
 
@@ -40,7 +76,7 @@ static SHARED_FIELDS: &[&str] = &["type", "level"];
 // history	Retrieve the change history for all resources
 // search	Search across all resource types based on some filter criteria
 
-fn request_type_string(request: &FHIRRequest) -> &'static str {
+fn request_to_request_type(request: &FHIRRequest) -> &'static str {
     match request {
         FHIRRequest::Create(_) => "create",
         FHIRRequest::Read(_) => "read",
@@ -94,8 +130,27 @@ impl MetaValue for RequestReflection {
 
     fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
         match field {
-            "type" => Some(&self.1),
-            "level" => Some(&self.2),
+            "type" => {
+                if let Some(v) = self.1.request_type.as_ref() {
+                    Some(v)
+                } else {
+                    None
+                }
+            }
+            "level" => {
+                if let Some(v) = self.1.request_level.as_ref() {
+                    Some(v)
+                } else {
+                    None
+                }
+            }
+            "resource_type" => {
+                if let Some(v) = self.1.resource_type.as_ref() {
+                    Some(v)
+                } else {
+                    None
+                }
+            }
             "resource" => match &self.0 {
                 FHIRRequest::Create(fhircreate_request) => Some(&fhircreate_request.resource),
                 FHIRRequest::Batch(fhirbatch_request) => Some(&fhirbatch_request.resource),
@@ -144,22 +199,7 @@ impl MetaValue for RequestReflection {
                 },
                 _ => None,
             },
-            // "resource_type" => match &self.0 {
-            //     FHIRRequest::Create(fhircreate_request) => Some(
-            //         &(<&'static str>::from(fhircreate_request.resource_type)) as &dyn MetaValue,
-            //     ),
-            //     // FHIRRequest::Read(fhirread_request) => {
-            //     //     Some(&fhirread_request.resource_type.as_ref())
-            //     // }
-            //     // FHIRRequest::VersionRead(fhirversion_read_request) => {
-            //     //     Some(&fhirversion_read_request.resource_type.as_ref())
-            //     // }
-            //     // FHIRRequest::Update(update_request) => Some(&update_request.resource_type),
-            //     // FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.resource_type),
-            //     // FHIRRequest::Delete(delete_request) => Some(&delete_request.resource_type),
-            //     // FHIRRequest::Search(search_request) => Some(&search_request.resource_type),
-            //     _ => None,
-            // },
+
             _ => None,
         }
     }
