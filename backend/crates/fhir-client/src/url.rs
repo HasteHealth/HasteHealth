@@ -58,10 +58,10 @@ impl ParsedParameters {
     pub fn new(params: Vec<ParsedParameter>) -> Self {
         Self(params)
     }
-    pub fn parameters(&self) -> &Vec<ParsedParameter> {
+    pub fn parameters<'a>(&'a self) -> &'a Vec<ParsedParameter> {
         &self.0
     }
-    pub fn get(&self, name: &str) -> Option<&ParsedParameter> {
+    pub fn get<'a>(&'a self, name: &str) -> Option<&'a ParsedParameter> {
         self.0.iter().find(|p| match p {
             ParsedParameter::Resource(param) | ParsedParameter::Result(param) => param.name == name,
         })

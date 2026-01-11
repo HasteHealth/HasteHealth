@@ -26,4 +26,4 @@ haste-reflect = { path = "../reflect", version = "0.*" }
 serde_json = "1.0.145"
 
 [dev-dependencies]
-tokio = { version = "1.46.1", features = ["rt", "macros"] }
+tokio = { version = "1.49.0", features = ["rt", "macros"] }

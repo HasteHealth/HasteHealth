@@ -27,6 +27,6 @@ sqlx = { version = "0.8", features = [
     "time",
 ] }
 sqlx-postgres = "0.8.6"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.49.0", features = ["full"] }
 tracing = "0.1.41"
 tracing-subscriber = "0.3.20"

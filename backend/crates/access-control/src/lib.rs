@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 pub mod context;
 mod engine;
+mod request_reflection;
 mod utilities;
 
 pub async fn evaluate_policy<
@@ -31,37 +32,39 @@ pub async fn evaluate_policy<
     }
 }
 
-pub async fn evaluate_policies<
+pub fn evaluate_policies<
     CTX: Send + Sync + Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: context::PolicyContext<CTX, Client>,
     policies: &Vec<Arc<AccessPolicyV2>>,
-) -> Result<context::PolicyContext<CTX, Client>, OperationOutcomeError> {
-    let mut outcomes = vec![];
-    let context = Arc::new(context);
+) -> impl Future<Output = Result<context::PolicyContext<CTX, Client>, OperationOutcomeError>> {
+    async move {
+        let mut outcomes = vec![];
+        let context = Arc::new(context);
 
-    for policy in policies {
-        let result = evaluate_policy(context.clone(), policy.clone()).await;
-        if let Ok(permission) = result {
-            match permission {
-                PermissionLevel::Allow => {
-                    return Arc::into_inner(context).ok_or_else(|| {
-                        OperationOutcomeError::error(
-                            IssueType::Forbidden(None),
-                            "Failed to retrieve policy context.".to_string(),
-                        )
-                    });
+        for policy in policies {
+            let result = evaluate_policy(context.clone(), policy.clone()).await;
+            if let Ok(permission) = result {
+                match permission {
+                    PermissionLevel::Allow => {
+                        return Arc::into_inner(context).ok_or_else(|| {
+                            OperationOutcomeError::error(
+                                IssueType::Forbidden(None),
+                                "Failed to retrieve policy context.".to_string(),
+                            )
+                        });
+                    }
+                    _ => {}
                 }
-                _ => {}
+            } else if let Err(e) = result {
+                outcomes.push(e);
             }
-        } else if let Err(e) = result {
-            outcomes.push(e);
         }
-    }
 
-    Err(OperationOutcomeError::error(
-        IssueType::Forbidden(None),
-        format!("No policy has granted access to your request."),
-    ))
+        Err(OperationOutcomeError::error(
+            IssueType::Forbidden(None),
+            format!("No policy has granted access to your request."),
+        ))
+    }
 }

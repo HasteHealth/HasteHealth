@@ -16,4 +16,4 @@ regex = "1.11.1"
 
 
 [dev-dependencies]
-tokio = { version = "1.48.0", features = ["rt", "macros"] }
+tokio = { version = "1.49.0", features = ["rt", "macros"] }
