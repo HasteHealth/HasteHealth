@@ -682,9 +682,14 @@ async fn evaluate_operation<'a>(
                 let left_value = downcast_bool(left.values[0])?;
                 let right_value = downcast_bool(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate(ResolvedValue::Box(Box::new(left_value && right_value))),
-                ]))
+                Ok(
+                    left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
+                        FHIRBoolean {
+                            value: Some(left_value && right_value),
+                            ..Default::default()
+                        },
+                    )))]),
+                )
             })
             .await
         }
@@ -693,9 +698,14 @@ async fn evaluate_operation<'a>(
                 let left_value = downcast_bool(left.values[0])?;
                 let right_value = downcast_bool(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate(ResolvedValue::Box(Box::new(left_value || right_value))),
-                ]))
+                Ok(
+                    left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
+                        FHIRBoolean {
+                            value: Some(left_value || right_value),
+                            ..Default::default()
+                        },
+                    )))]),
+                )
             })
             .await
         }

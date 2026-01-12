@@ -81,7 +81,7 @@ pub async fn evaluate_expression<
                 .map_err(|e: FHIRPathError| {
                     OperationOutcomeError::fatal(
                         IssueType::NotSupported(None),
-                        format!("FHIRPath evaluation error: {}", e),
+                        format!("FHIRPath evaluation error: '{}'", e),
                     )
                 })?;
 

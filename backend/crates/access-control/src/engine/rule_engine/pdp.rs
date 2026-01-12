@@ -40,7 +40,6 @@ async fn should_evaluate_rule<
     let root = pointer.root();
 
     let result = evaluate_expression(context.clone(), root, target.expression.as_ref()).await?;
-
     let values = result.iter().collect::<Vec<_>>();
 
     if values.len() != 1 {
