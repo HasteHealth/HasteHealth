@@ -27,6 +27,10 @@ pub fn request_to_resource_type<'a>(request: &'a FHIRRequest) -> Option<&'a Reso
 
         FHIRRequest::Search(SearchRequest::Type(req)) => Some(&req.resource_type),
 
+        FHIRRequest::Compartment(compartment_request) => {
+            request_to_resource_type(&compartment_request.request)
+        }
+
         // System operations
         FHIRRequest::History(HistoryRequest::System(_))
         | FHIRRequest::Delete(DeleteRequest::System(_))

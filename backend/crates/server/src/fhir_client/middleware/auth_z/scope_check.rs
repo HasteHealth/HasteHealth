@@ -46,6 +46,10 @@ fn request_type_to_permission(
         FHIRRequest::Search(_) | FHIRRequest::History(_) => {
             Ok(SmartResourceScopePermission::Search)
         }
+
+        FHIRRequest::Compartment(compartment_request) => {
+            request_type_to_permission(&compartment_request.request)
+        }
     }
 }
 
@@ -141,7 +145,8 @@ impl<
                         Ok(context)
                     }
                 }
-                FHIRRequest::Create(_)
+                FHIRRequest::Compartment(_)
+                | FHIRRequest::Create(_)
                 | FHIRRequest::Read(_)
                 | FHIRRequest::VersionRead(_)
                 | FHIRRequest::Update(_)

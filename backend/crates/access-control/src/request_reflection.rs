@@ -32,7 +32,7 @@ impl From<RequestReflection> for FHIRRequest {
     }
 }
 
-pub fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String> {
+fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String> {
     match fhir_request {
         FHIRRequest::Create(fhircreate_request) => {
             Some(fhircreate_request.resource_type.as_ref().to_string())
@@ -69,6 +69,9 @@ pub fn request_resource_type_string(fhir_request: &FHIRRequest) -> Option<String
                 Some(type_search_request.resource_type.as_ref().to_string())
             }
         },
+        FHIRRequest::Compartment(compartment_request) => {
+            request_resource_type_string(&compartment_request.request)
+        }
         _ => None,
     }
 }
@@ -105,10 +108,10 @@ fn request_to_request_type(request: &FHIRRequest) -> &'static str {
         FHIRRequest::Capabilities => "capabilities",
         FHIRRequest::Search(_) => "search",
         FHIRRequest::History(_) => "history",
-        // Not on the main http going to set as "invoke".
         FHIRRequest::Invocation(_) => "invoke",
         FHIRRequest::Batch(_) => "batch",
         FHIRRequest::Transaction(_) => "transaction",
+        FHIRRequest::Compartment(_) => "compartment",
     }
 }
 
@@ -121,7 +124,6 @@ fn request_to_level(request: &FHIRRequest) -> &'static str {
         | FHIRRequest::Update(_)
         | FHIRRequest::Patch(_) => "instance",
         FHIRRequest::Create(_) | FHIRRequest::Search(_) => "type",
-
         FHIRRequest::Delete(delete_request) => match delete_request {
             DeleteRequest::Instance(_) => "instance",
             DeleteRequest::Type(_) => "type",
@@ -138,6 +140,27 @@ fn request_to_level(request: &FHIRRequest) -> &'static str {
             InvocationRequest::System(_) => "system",
         },
         FHIRRequest::Capabilities | FHIRRequest::Batch(_) | FHIRRequest::Transaction(_) => "system",
+        FHIRRequest::Compartment(compartment_request) => {
+            request_to_level(&compartment_request.request)
+        }
+    }
+}
+
+fn get_request_id(fhir_request: &FHIRRequest) -> Option<&String> {
+    match fhir_request {
+        FHIRRequest::Read(fhirread_request) => Some(&fhirread_request.id),
+        FHIRRequest::VersionRead(fhirversion_read_request) => Some(&fhirversion_read_request.id),
+        FHIRRequest::Update(update_request) => match update_request {
+            UpdateRequest::Instance(instance) => Some(&instance.id),
+            _ => None,
+        },
+        FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.id),
+        FHIRRequest::Delete(delete_request) => match delete_request {
+            DeleteRequest::Instance(instance) => Some(&instance.id),
+            _ => None,
+        },
+        FHIRRequest::Compartment(comp) => get_request_id(&comp.request),
+        _ => None,
     }
 }
 
@@ -180,8 +203,8 @@ impl MetaValue for RequestReflection {
                         Some(&invocation_request.parameters)
                     }
                 },
-
-                FHIRRequest::Read(_)
+                FHIRRequest::Compartment(_)
+                | FHIRRequest::Read(_)
                 | FHIRRequest::VersionRead(_)
                 | FHIRRequest::Patch(_)
                 | FHIRRequest::Delete(_)
@@ -189,22 +212,13 @@ impl MetaValue for RequestReflection {
                 | FHIRRequest::Search(_)
                 | FHIRRequest::History(_) => None,
             },
-            "id" => match &self.0 {
-                FHIRRequest::Read(fhirread_request) => Some(&fhirread_request.id),
-                FHIRRequest::VersionRead(fhirversion_read_request) => {
-                    Some(&fhirversion_read_request.id)
+            "id" => {
+                if let Some(id) = get_request_id(&self.0) {
+                    Some(id)
+                } else {
+                    None
                 }
-                FHIRRequest::Update(update_request) => match update_request {
-                    UpdateRequest::Instance(instance) => Some(&instance.id),
-                    _ => None,
-                },
-                FHIRRequest::Patch(fhirpatch_request) => Some(&fhirpatch_request.id),
-                FHIRRequest::Delete(delete_request) => match delete_request {
-                    DeleteRequest::Instance(instance) => Some(&instance.id),
-                    _ => None,
-                },
-                _ => None,
-            },
+            }
             "parameters" => match &self.0 {
                 FHIRRequest::Search(search_request) => match search_request {
                     SearchRequest::Type(type_search_request) => {

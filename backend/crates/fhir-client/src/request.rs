@@ -176,6 +176,13 @@ pub enum UpdateRequest {
 }
 
 #[derive(Debug)]
+pub struct CompartmentRequest {
+    pub resource_type: ResourceType,
+    pub id: String,
+    pub request: Box<FHIRRequest>,
+}
+
+#[derive(Debug)]
 pub enum FHIRRequest {
     Create(FHIRCreateRequest),
 
@@ -198,6 +205,8 @@ pub enum FHIRRequest {
 
     Batch(FHIRBatchRequest),
     Transaction(FHIRTransactionRequest),
+
+    Compartment(CompartmentRequest),
 }
 #[derive(Debug)]
 pub struct FHIRCreateResponse {

@@ -176,6 +176,9 @@ fn points_for_operation(request: &FHIRRequest) -> u32 {
         FHIRRequest::Transaction(fhirtransaction_request) => {
             score_bundle(&fhirtransaction_request.resource)
         }
+        FHIRRequest::Compartment(compartment_request) => {
+            points_for_operation(&compartment_request.request)
+        }
     }
 }
 

@@ -147,7 +147,6 @@ impl<
                         ))
                     }
                 }
-
                 FHIRRequest::VersionRead(vread_request) => {
                     let mut vread_resources = state
                         .repo
@@ -167,7 +166,6 @@ impl<
                         Ok(None)
                     }
                 }
-
                 FHIRRequest::History(history_request) => match history_request {
                     HistoryRequest::Instance(_) => {
                         let history_resources = state
@@ -404,7 +402,6 @@ impl<
                         }
                     }
                 },
-
                 FHIRRequest::Search(search_request) => match search_request {
                     SearchRequest::Type(_) => {
                         let search_results = state
@@ -481,7 +478,6 @@ impl<
                         ))))
                     }
                 },
-
                 FHIRRequest::Transaction(transaction_request) => {
                     let mut transaction_entries: Option<Vec<BundleEntry>> = None;
                     // Memswap so I can avoid cloning.
@@ -679,6 +675,12 @@ impl<
                     IssueType::NotSupported(None),
                     "Unsupported FHIR operation".to_string(),
                 )),
+                FHIRRequest::Compartment(_compartment_request) => {
+                    Err(OperationOutcomeError::error(
+                        IssueType::NotSupported(None),
+                        "Compartment operations are not supported in this middleware".to_string(),
+                    ))
+                }
             }?;
 
             let mut next_context = if let Some(next_) = next {
