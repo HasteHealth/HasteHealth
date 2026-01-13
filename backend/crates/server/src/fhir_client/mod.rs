@@ -37,6 +37,7 @@ use haste_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::{Arc, LazyLock};
 
 mod batch_transaction_processing;
+mod compartment;
 mod middleware;
 mod utilities;
 
