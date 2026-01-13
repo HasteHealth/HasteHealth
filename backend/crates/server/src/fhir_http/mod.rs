@@ -398,10 +398,11 @@ fn parse_request_2(
 }
 
 /*
-(operation)         /[type]/[id]/$[name]                POST	R	Parameters	N/A	N/A
+(operation)            /[type]/[id]/$[name]             POST R Parameters N/A N/A
                                                         GET	N/A	N/A	N/A	N/A
-                                                        POST	application/x-www-form-urlencoded	form data	N/A	N/A
-history-instance	  /[type]/[id]/_history	              GET	N/A	N/A	N/A	N/A
+                                                        POST application/x-www-form-urlencoded	form data	N/A	N/A
+history-instance	  /[type]/[id]/_history	            GET	N/A	N/A	N/A	N/A
+compartment-request   /[type]/[id]/[compartment-type]   GET N/A N/A N/A N/A
 */
 fn parse_request_3(
     _fhir_version: SupportedFHIRVersions,
@@ -444,6 +445,9 @@ fn parse_request_3(
                             parameters: ParsedParameters::try_from(&req.query)?,
                         },
                     )))
+                }
+                // Process Compartment request
+                else if url_chunks[2] == "Resource" {
                 } else {
                     // Handle read request
                     Err(FHIRRequestParsingError::Unsupported(
