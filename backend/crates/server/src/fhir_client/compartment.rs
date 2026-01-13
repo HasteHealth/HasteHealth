@@ -40,7 +40,11 @@ fn compartment_type_to_resource_type(compartment_type: &CompartmentType) -> Opti
     }
 }
 
-pub async fn compartment_process<
+/// See https://build.fhir.org/compartmentdefinition.html
+/// Use CompartmentDefinition resource (only hl7 provided ones) to process compartment requests.
+/// An example of a compartment request is /Patient/123/Observation which utilizes patient compartmentdefinition
+/// To determine query parameters for pulling observations for patient 123.
+pub async fn process_compartment_request<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
