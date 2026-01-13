@@ -1769,6 +1769,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-testscript-runner"
+version = "0.8.0"
+dependencies = [
+ "haste-fhir-client",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhirpath",
+ "haste-pointer",
+ "haste-reflect",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "haste-x-fhir-query"
 version = "0.8.0"
 dependencies = [

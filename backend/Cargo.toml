@@ -38,7 +38,7 @@ members = [
     "crates/reflect",
     "crates/reflect-derive",
     "crates/repository",
-    "crates/server",
+    "crates/server", "crates/testscript-runner",
     "crates/x-fhir-query",
 ]
 
