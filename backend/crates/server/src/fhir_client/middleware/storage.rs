@@ -3,6 +3,7 @@ use crate::fhir_client::{
     batch_transaction_processing::{
         build_sorted_transaction_graph, process_batch_bundle, process_transaction_bundle,
     },
+    compartment::compartment_process,
     middleware::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
@@ -675,11 +676,15 @@ impl<
                     IssueType::NotSupported(None),
                     "Unsupported FHIR operation".to_string(),
                 )),
-                FHIRRequest::Compartment(_compartment_request) => {
-                    Err(OperationOutcomeError::error(
-                        IssueType::NotSupported(None),
-                        "Compartment operations are not supported in this middleware".to_string(),
-                    ))
+                FHIRRequest::Compartment(compartment_request) => {
+                    let response = compartment_process(
+                        context.ctx.client.as_ref(),
+                        context.ctx.clone(),
+                        &compartment_request,
+                    )
+                    .await?;
+
+                    Ok(Some(response))
                 }
             }?;
 
