@@ -1,7 +1,7 @@
 use axum::http::Method;
 use haste_fhir_client::request::{
-    DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest,
-    FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
+    CompartmentRequest, DeleteRequest, FHIRBatchRequest, FHIRConditionalUpdateRequest,
+    FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest, FHIRDeleteTypeRequest,
     FHIRHistoryInstanceRequest, FHIRHistorySystemRequest, FHIRHistoryTypeRequest,
     FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest, FHIRInvokeTypeRequest, FHIRPatchRequest,
     FHIRReadRequest, FHIRRequest, FHIRSearchSystemRequest, FHIRSearchTypeRequest,
@@ -447,13 +447,17 @@ fn parse_request_3(
                     )))
                 }
                 // Process Compartment request
-                else if url_chunks[2] == "Resource" {
-                } else {
-                    // Handle read request
-                    Err(FHIRRequestParsingError::Unsupported(
-                        "Unsupported GET request.".to_string(),
-                    )
-                    .into())
+                else {
+                    Ok(FHIRRequest::Compartment(CompartmentRequest {
+                        resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+                        id: url_chunks[1].to_string(),
+                        request: Box::new(FHIRRequest::Search(SearchRequest::Type(
+                            FHIRSearchTypeRequest {
+                                resource_type: ResourceType::try_from(url_chunks[2].as_str())?,
+                                parameters: ParsedParameters::try_from(&req.query)?,
+                            },
+                        ))),
+                    }))
                 }
             }
             _ => Err(FHIRRequestParsingError::Unsupported(
@@ -479,10 +483,14 @@ fn parse_request_4(
             version_id: VersionId::new(url_chunks[3].to_string()),
         }))
     } else {
-        Err(FHIRRequestParsingError::Unsupported(
-            "Unsupported method for FHIR request.".to_string(),
-        )
-        .into())
+        Ok(FHIRRequest::Compartment(CompartmentRequest {
+            resource_type: ResourceType::try_from(url_chunks[0].as_str())?,
+            id: url_chunks[1].to_string(),
+            request: Box::new(FHIRRequest::Read(FHIRReadRequest {
+                resource_type: ResourceType::try_from(url_chunks[2].as_str())?,
+                id: url_chunks[3].to_string(),
+            })),
+        }))
     }
 }
 
