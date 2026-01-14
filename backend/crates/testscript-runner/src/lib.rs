@@ -973,6 +973,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 state = res.state;
                 test_report.test = Some(res.value);
             }
+
             Err(e) => {
                 running_state = Err(e);
             }
