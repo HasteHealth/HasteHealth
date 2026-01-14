@@ -123,11 +123,48 @@ pub enum ApiCommands {
     },
 }
 
+async fn read_from_file_or_stin<Type: FHIRJSONDeserializer>(
+    file_path: &Option<String>,
+) -> Result<Type, OperationOutcomeError> {
+    if let Some(file_path) = file_path {
+        let file_content = std::fs::read_to_string(file_path).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Failed to read transaction file: {}", e),
+            )
+        })?;
+
+        haste_fhir_serialization_json::from_str::<Type>(&file_content).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Failed to parse transaction file: {}", e),
+            )
+        })
+    } else {
+        // Read from stdin
+        let mut buffer = String::new();
+
+        std::io::stdin().read_line(&mut buffer).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Failed to read from stdin: {}", e),
+            )
+        })?;
+
+        haste_fhir_serialization_json::from_str::<Type>(&buffer).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Failed to parse transaction from stdin: {}", e),
+            )
+        })
+    }
+}
+
 pub async fn api_commands(
     state: Arc<Mutex<CLIState>>,
     command: &ApiCommands,
 ) -> Result<(), OperationOutcomeError> {
-    let fhir_client = crate::client::fhir_client().await?;
+    let fhir_client = crate::client::fhir_client(state).await?;
 
     match command {
         ApiCommands::Create {

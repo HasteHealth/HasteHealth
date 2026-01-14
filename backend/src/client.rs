@@ -1,3 +1,11 @@
+use crate::CLIState;
+use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
+use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_operation_error::OperationOutcomeError;
+use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
 async fn config_to_fhir_http_state(
     state: Arc<Mutex<CLIState>>,
 ) -> Result<FHIRHttpState, OperationOutcomeError> {
@@ -137,44 +145,9 @@ async fn config_to_fhir_http_state(
     Ok(http_state)
 }
 
-async fn read_from_file_or_stin<Type: FHIRJSONDeserializer>(
-    file_path: &Option<String>,
-) -> Result<Type, OperationOutcomeError> {
-    if let Some(file_path) = file_path {
-        let file_content = std::fs::read_to_string(file_path).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!("Failed to read transaction file: {}", e),
-            )
-        })?;
-
-        haste_fhir_serialization_json::from_str::<Type>(&file_content).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!("Failed to parse transaction file: {}", e),
-            )
-        })
-    } else {
-        // Read from stdin
-        let mut buffer = String::new();
-
-        std::io::stdin().read_line(&mut buffer).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!("Failed to read from stdin: {}", e),
-            )
-        })?;
-
-        haste_fhir_serialization_json::from_str::<Type>(&buffer).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!("Failed to parse transaction from stdin: {}", e),
-            )
-        })
-    }
-}
-
-pub async fn fhir_client() -> Result<FHIRHttpClient, OperationOutcomeError> {
+pub async fn fhir_client(
+    state: Arc<Mutex<CLIState>>,
+) -> Result<Arc<FHIRHttpClient<()>>, OperationOutcomeError> {
     let http_state = config_to_fhir_http_state(state).await?;
     let fhir_client = Arc::new(FHIRHttpClient::<()>::new(http_state));
 
