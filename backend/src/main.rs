@@ -10,6 +10,7 @@ use tokio::sync::Mutex;
 
 use crate::commands::config::{CLIConfiguration, load_config};
 
+mod client;
 mod commands;
 
 #[derive(Parser)]
