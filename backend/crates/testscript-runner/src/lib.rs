@@ -187,15 +187,25 @@ fn testscript_operation_to_fhir_request(
 
         let target = state.resolve_fixture(target_id)?;
 
-        let target_resource_type = ResourceType::try_from(target.typename()).map_err(|_| {
-            TestScriptError::ExecutionError(format!(
-                "Unsupported resource type '{}' for Read operation.",
-                target.typename()
-            ))
-        })?;
-
         Ok(FHIRRequest::Read(FHIRReadRequest {
-            resource_type: target_resource_type,
+            resource_type: if let Some(operation_resource_type) = operation.resource.as_ref() {
+                let string_type: Option<String> = operation_resource_type.as_ref().into();
+                ResourceType::try_from(string_type.unwrap_or_default()).map_err(|_| {
+                    TestScriptError::ExecutionError(format!(
+                        "Unsupported resource type '{:?}' for Read operation.",
+                        operation_resource_type.as_ref()
+                    ))
+                })?
+            } else {
+                let target_resource_type =
+                    ResourceType::try_from(target.typename()).map_err(|_| {
+                        TestScriptError::ExecutionError(format!(
+                            "Unsupported resource type '{}' for Read operation.",
+                            target.typename()
+                        ))
+                    })?;
+                target_resource_type
+            },
             id: target
                 .get_field("id")
                 .ok_or_else(|| {
