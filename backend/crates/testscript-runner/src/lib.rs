@@ -1,7 +1,8 @@
 use haste_fhir_client::{
     FHIRClient,
     request::{
-        FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse, UpdateRequest,
+        FHIRReadRequest, FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse,
+        SearchResponse, UpdateRequest,
     },
 };
 use haste_fhir_model::r4::generated::{
@@ -184,25 +185,30 @@ fn testscript_operation_to_fhir_request(
             ));
         };
 
-        let _target = state.resolve_fixture(target_id)?;
+        let target = state.resolve_fixture(target_id)?;
 
-        todo!();
+        let target_resource_type = ResourceType::try_from(target.typename()).map_err(|_| {
+            TestScriptError::ExecutionError(format!(
+                "Unsupported resource type '{}' for Read operation.",
+                target.typename()
+            ))
+        })?;
 
-        // Ok(FHIRRequest::Read(FHIRReadRequest {
-        //     id: target
-        //         .get_field("id")
-        //         .ok_or_else(|| {
-        //             TestScriptError::ExecutionError(format!(
-        //                 "Target fixture '{}' does not have an 'id' field.",
-        //                 target_id
-        //             ))
-        //         })?
-        //         .as_any()
-        //         .downcast_ref::<String>()
-        //         .cloned()
-        //         .unwrap_or_default(),
-        //     resource_type: todo!(), //operation.resource.unwrap_or_default(),
-        // }))
+        Ok(FHIRRequest::Read(FHIRReadRequest {
+            resource_type: target_resource_type,
+            id: target
+                .get_field("id")
+                .ok_or_else(|| {
+                    TestScriptError::ExecutionError(format!(
+                        "Target fixture '{}' does not have an 'id' field.",
+                        target_id
+                    ))
+                })?
+                .as_any()
+                .downcast_ref::<String>()
+                .cloned()
+                .unwrap_or_default(),
+        }))
     } else if operation_type == (&TestscriptOperationCodes::Create(None)).into() {
         // Handle Create operation
         todo!("Handle Create operation");
