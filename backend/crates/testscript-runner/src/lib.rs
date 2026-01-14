@@ -7,20 +7,28 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{
     resources::{
-        Resource, ResourceType, TestReport, TestReportSetup, TestReportSetupAction, TestReportTest,
-        TestReportTestAction, TestScript, TestScriptFixture, TestScriptSetup,
-        TestScriptSetupActionAssert, TestScriptSetupActionOperation, TestScriptTest,
-        TestScriptTestAction,
+        Resource, ResourceType, TestReport, TestReportSetup, TestReportSetupAction,
+        TestReportSetupActionAssert, TestReportTest, TestReportTestAction, TestScript,
+        TestScriptFixture, TestScriptSetup, TestScriptSetupActionAssert,
+        TestScriptSetupActionOperation, TestScriptTest, TestScriptTestAction,
     },
-    terminology::{IssueType, ReportResultCodes, TestscriptOperationCodes},
+    terminology::{
+        AssertOperatorCodes, IssueType, ReportActionResultCodes, ReportResultCodes,
+        TestscriptOperationCodes,
+    },
     types::{FHIRString, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Pointer};
 use haste_reflect::MetaValue;
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    sync::{Arc, LazyLock},
+};
 use tokio::sync::Mutex;
-use tracing::info;
+use tracing::{info, warn};
+
+mod conversion;
 
 pub enum TestScriptError {
     ExecutionError(String),
@@ -295,10 +303,37 @@ async fn get_source<'a>(
     }
 }
 
+fn evaluate_operator(
+    operator: &Box<AssertOperatorCodes>,
+    a: &Vec<conversion::ConvertedValue>,
+    b: &Vec<conversion::ConvertedValue>,
+) -> bool {
+    match operator.as_ref() {
+        AssertOperatorCodes::Equals(_) | AssertOperatorCodes::Null(_) => a == b,
+
+        AssertOperatorCodes::Contains(_) => todo!(),
+        AssertOperatorCodes::Empty(_) => todo!(),
+        AssertOperatorCodes::Eval(_) => todo!(),
+        AssertOperatorCodes::GreaterThan(_) => todo!(),
+        AssertOperatorCodes::In(_) => todo!(),
+        AssertOperatorCodes::LessThan(_) => todo!(),
+        AssertOperatorCodes::NotContains(_) => todo!(),
+        AssertOperatorCodes::NotEmpty(_) => todo!(),
+        AssertOperatorCodes::NotEquals(_) => todo!(),
+        AssertOperatorCodes::NotIn(_) => todo!(),
+    }
+    // a == b
+}
+
+static DEFAULT_EQUAL_OPERATOR: LazyLock<Box<AssertOperatorCodes>> =
+    LazyLock::new(|| Box::new(AssertOperatorCodes::Equals(None)));
+
+async fn derive_comparison_to(assertion: &TestScriptSetupActionAssert) {}
+
 async fn run_assertion(
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptSetupActionAssert>,
-) -> Result<Arc<Mutex<TestState>>, TestScriptError> {
+) -> Result<TestResult<TestReportSetupActionAssert>, TestScriptError> {
     let assertion = pointer.value().ok_or_else(|| {
         TestScriptError::ExecutionError(format!(
             "Failed to retrieve TestScript assertion at '{}'.",
@@ -314,13 +349,68 @@ async fn run_assertion(
         ));
     };
 
-    let _engine = haste_fhirpath::FPEngine::new();
-    state_guard.fp_engine.evaluate("$this", vec![source]).await;
+    let operator = assertion
+        .operator
+        .as_ref()
+        .unwrap_or(&*DEFAULT_EQUAL_OPERATOR);
 
-    if assertion.resource.is_some() {}
-    if assertion.expression.is_some() {}
+    if assertion.resource.is_some() {
+        let resource_string = assertion
+            .resource
+            .as_ref()
+            .and_then(|r| {
+                let string_type: Option<String> = r.as_ref().into();
+                string_type
+            })
+            .unwrap_or("".to_string());
 
-    todo!();
+        let operation_evaluation_result = evaluate_operator(
+            operator,
+            &vec![conversion::ConvertedValue::String(resource_string)],
+            &vec![conversion::ConvertedValue::String(
+                source.typename().to_string(),
+            )],
+        );
+        if !operation_evaluation_result {
+            warn!(
+                "Assertion at '{}' failed: resource type does not match.",
+                pointer.path()
+            );
+            return Ok(TestResult {
+                state: state.clone(),
+                value: TestReportSetupActionAssert {
+                    result: Box::new(ReportActionResultCodes::Fail(None)),
+                    ..Default::default()
+                },
+            });
+        }
+    }
+    if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
+        let comparison_to = derive_comparison_to(assertion).await;
+
+        let Ok(result) = state_guard
+            .fp_engine
+            .evaluate(expression, vec![source])
+            .await
+        else {
+            warn!(
+                "Assertion at '{}' failed: FHIRPath evaluation error.",
+                pointer.path()
+            );
+            return Err(TestScriptError::ExecutionError(format!(
+                "FHIRPath failed to evaluate at '{}' error.",
+                pointer.path()
+            )));
+        };
+    }
+
+    return Ok(TestResult {
+        state: state.clone(),
+        value: TestReportSetupActionAssert {
+            result: Box::new(ReportActionResultCodes::Pass(None)),
+            ..Default::default()
+        },
+    });
 }
 
 async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
@@ -368,11 +458,12 @@ async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             )));
         };
 
-        let state = run_assertion(state, assertion_pointer).await?;
+        let assertion = run_assertion(state, assertion_pointer).await?;
 
         Ok(TestResult {
-            state,
+            state: assertion.state,
             value: TestReportSetupAction {
+                assert: Some(assertion.value),
                 ..Default::default()
             },
         })
