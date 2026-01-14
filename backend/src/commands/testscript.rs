@@ -4,6 +4,7 @@ use haste_fhir_model::r4::generated::resources::{Resource, TestScript};
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::{path::Path, sync::Arc};
 use tokio::sync::Mutex;
+use tracing::info;
 
 #[derive(Subcommand)]
 pub enum TestScriptCommands {
