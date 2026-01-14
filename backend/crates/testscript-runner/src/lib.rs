@@ -34,6 +34,7 @@ use crate::conversion::ConvertedValue;
 
 mod conversion;
 
+#[derive(Debug)]
 pub enum TestScriptError {
     ExecutionError(String),
     ValidationError(String),

@@ -45,6 +45,10 @@ enum CLICommand {
         command: commands::config::ConfigCommands,
     },
     Worker {},
+    Testscript {
+        #[command(subcommand)]
+        command: commands::testscript::TestScriptCommands,
+    },
 }
 
 static CONFIG_LOCATION: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -91,5 +95,8 @@ async fn main() -> Result<(), OperationOutcomeError> {
         CLICommand::Worker {} => commands::worker::worker().await,
         CLICommand::Config { command } => commands::config::config(&config, command).await,
         CLICommand::Api { command } => commands::api::api_commands(config, command).await,
+        CLICommand::Testscript { command } => {
+            commands::testscript::testscript_commands(config, command).await
+        }
     }
 }

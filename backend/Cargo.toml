@@ -38,7 +38,8 @@ members = [
     "crates/reflect",
     "crates/reflect-derive",
     "crates/repository",
-    "crates/server", "crates/testscript-runner",
+    "crates/server",
+    "crates/testscript-runner",
     "crates/x-fhir-query",
 ]
 
@@ -65,6 +66,7 @@ haste-indexing-worker = { path = "./crates/indexing-worker" }
 haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
+haste-testscript-runner = { path = "./crates/testscript-runner" }
 quote = "1.0.40"
 reqwest = { version = "0.12" }
 serde = "1.0.228"
@@ -73,3 +75,4 @@ thiserror = "2.0.12"
 tokio = { version = "1.49.0", features = ["full"] }
 toml = "0.9.8"
 json-patch = "4.1.0"
+walkdir = "2.5.0"

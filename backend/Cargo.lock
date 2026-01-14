@@ -1605,6 +1605,7 @@ dependencies = [
  "haste-jwt",
  "haste-repository",
  "haste-server",
+ "haste-testscript-runner",
  "json-patch",
  "jsonwebtoken 10.2.0",
  "quote",
@@ -1614,6 +1615,7 @@ dependencies = [
  "thiserror 2.0.17",
  "tokio",
  "toml",
+ "walkdir",
 ]
 
 [[package]]
