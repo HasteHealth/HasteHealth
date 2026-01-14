@@ -80,7 +80,7 @@ pub fn convert_meta_value(value: &dyn MetaValue) -> Option<ConvertedValue> {
     None
 }
 
-pub fn convert_operator_value(value: &str) -> Option<ConvertedValue> {
+pub fn convert_string_value(value: &str) -> Option<ConvertedValue> {
     if value == "true" || value == "false" {
         if let Ok(b) = value.parse::<bool>() {
             return Some(ConvertedValue::Boolean(b));

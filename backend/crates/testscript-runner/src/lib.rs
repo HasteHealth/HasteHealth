@@ -28,6 +28,8 @@ use std::{
 use tokio::sync::Mutex;
 use tracing::{info, warn};
 
+use crate::conversion::ConvertedValue;
+
 mod conversion;
 
 pub enum TestScriptError {
@@ -328,7 +330,59 @@ fn evaluate_operator(
 static DEFAULT_EQUAL_OPERATOR: LazyLock<Box<AssertOperatorCodes>> =
     LazyLock::new(|| Box::new(AssertOperatorCodes::Equals(None)));
 
-async fn derive_comparison_to(assertion: &TestScriptSetupActionAssert) {}
+async fn derive_comparison_to(
+    state: &TestState,
+    assertion: &TestScriptSetupActionAssert,
+) -> Result<Vec<ConvertedValue>, TestScriptError> {
+    if let Some(comparision_fixture_id) = assertion
+        .compareToSourceId
+        .as_ref()
+        .and_then(|c| c.value.as_ref())
+    {
+        let comparison_fixture = state.resolve_fixture(comparision_fixture_id)?;
+
+        let Some(comparison_expression) = assertion
+            .compareToSourceExpression
+            .as_ref()
+            .and_then(|exp| exp.value.as_ref())
+        else {
+            return Err(TestScriptError::ExecutionError(
+                "compareToSourceExpression is required when compareToSourceId is provided."
+                    .to_string(),
+            ));
+        };
+
+        let result = state
+            .fp_engine
+            .evaluate(comparison_expression, vec![comparison_fixture])
+            .await
+            .map_err(|e| {
+                TestScriptError::ExecutionError(format!(
+                    "FHIRPath evaluation error for comparison fixture '{}': {}",
+                    comparision_fixture_id, e
+                ))
+            })?;
+
+        result
+            .iter()
+            .map(|d| {
+                conversion::convert_meta_value(d).ok_or_else(|| {
+                    TestScriptError::ExecutionError(
+                        "Failed to convert comparison fixture value.".to_string(),
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>, TestScriptError>>()
+    } else if let Some(value) = assertion.value.as_ref().and_then(|v| v.value.as_ref())
+        && let Some(converted_value) = conversion::convert_string_value(value.as_ref())
+    {
+        Ok(vec![converted_value])
+    } else {
+        Err(TestScriptError::ExecutionError(
+            "Failed to derive comparison value for assertion.".to_string(),
+        ))
+    }
+}
 
 async fn run_assertion(
     state: Arc<Mutex<TestState>>,
@@ -386,7 +440,7 @@ async fn run_assertion(
         }
     }
     if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
-        let comparison_to = derive_comparison_to(assertion).await;
+        let comparison_to = derive_comparison_to(&state_guard, assertion).await;
 
         let Ok(result) = state_guard
             .fp_engine
@@ -402,6 +456,28 @@ async fn run_assertion(
                 pointer.path()
             )));
         };
+
+        let converted_values = result
+            .iter()
+            .filter_map(|v| conversion::convert_meta_value(v))
+            .collect::<Vec<_>>();
+
+        let operation_evaluation_result =
+            evaluate_operator(operator, &converted_values, &comparison_to?);
+
+        if !operation_evaluation_result {
+            warn!(
+                "Assertion at '{}' failed: operator evaluation failed.",
+                pointer.path()
+            );
+            return Ok(TestResult {
+                state: state.clone(),
+                value: TestReportSetupActionAssert {
+                    result: Box::new(ReportActionResultCodes::Fail(None)),
+                    ..Default::default()
+                },
+            });
+        }
     }
 
     return Ok(TestResult {
@@ -739,8 +815,6 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
         state = test_result.state;
         test_report.test = Some(test_result.value);
     }
-
-    // println!("State {:?}", state);
 
     Ok(test_report)
 }
