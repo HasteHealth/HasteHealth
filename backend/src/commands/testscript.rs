@@ -21,10 +21,16 @@ fn load_testscript_files(path: &Path) -> Vec<TestScript> {
         return vec![];
     };
 
-    let Ok(resource) = haste_fhir_serialization_json::from_str::<Resource>(&data)
-        .map_err(|e| format!("Failed to parse JSON: {}", e))
-    else {
-        return vec![];
+    let resource = match haste_fhir_serialization_json::from_str::<Resource>(&data) {
+        Ok(resource) => resource,
+        Err(e) => {
+            println!(
+                "Failed to parse FHIR resource from file {}: {}",
+                path.display(),
+                e
+            );
+            return vec![];
+        }
     };
 
     match resource {
