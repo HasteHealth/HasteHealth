@@ -521,6 +521,7 @@ async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptTestAction>,
 ) -> Result<TestResult<TestReportSetupAction>, TestScriptError> {
+    info!("Running TestScript action at path: {}", pointer.path());
     let action = pointer.value().ok_or_else(|| {
         TestScriptError::ExecutionError(format!(
             "Failed to retrieve TestScript action at '{}'.",
@@ -921,7 +922,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     test_script: Arc<TestScript>,
 ) -> Result<TestReport, TestScriptError> {
     // Placeholder implementation
-    println!("Running TestScript Runner with FHIR Client");
+    info!("Running TestScript Runner with FHIR Client");
 
     let mut test_report = TestReport {
         testScript: Box::new(Reference {

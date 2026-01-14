@@ -85,6 +85,8 @@ static CLI_STATE: LazyLock<Arc<Mutex<CLIState>>> = LazyLock::new(|| {
 
 #[tokio::main]
 async fn main() -> Result<(), OperationOutcomeError> {
+    let subscriber = tracing_subscriber::FmtSubscriber::new();
+    tracing::subscriber::set_global_default(subscriber).unwrap();
     let cli = Cli::parse();
     let config = CLI_STATE.clone();
 

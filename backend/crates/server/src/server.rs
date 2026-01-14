@@ -156,8 +156,6 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
     // Varify instantiates.
     get_certification_provider();
-    let subscriber = tracing_subscriber::FmtSubscriber::new();
-    tracing::subscriber::set_global_default(subscriber).unwrap();
 
     let pool = get_pool(config.as_ref()).await;
     let session_store = PostgresStore::new(pool.clone());

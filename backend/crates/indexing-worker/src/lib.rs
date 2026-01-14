@@ -202,8 +202,6 @@ impl From<IndexingWorkerEnvironmentVariables> for String {
 
 pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
-    let subscriber = tracing_subscriber::FmtSubscriber::new();
-    tracing::subscriber::set_global_default(subscriber).unwrap();
     let fp_engine = Arc::new(haste_fhirpath::FPEngine::new());
 
     let search_engine = Arc::new(

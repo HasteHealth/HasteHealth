@@ -75,7 +75,7 @@ pub async fn testscript_commands(
                 {
                     let testscripts = load_testscript_files(&entry.path());
                     for testscript in testscripts.into_iter() {
-                        println!(
+                        info!(
                             "Running TestScript '{}' from file: {}",
                             testscript
                                 .name
@@ -93,10 +93,10 @@ pub async fn testscript_commands(
                         .await
                         {
                             Ok(result) => {
-                                println!("{:#?}", result);
+                                info!("{:#?}", result);
                             }
                             Err(e) => {
-                                println!("Error running TestScript '{:?}'", e);
+                                info!("Error running TestScript '{:?}'", e);
                             }
                         }
                     }
