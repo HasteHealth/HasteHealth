@@ -38,13 +38,44 @@ enum Fixtures {
 }
 
 // Internal structure to hold current test result and testing fixtures.
-#[derive(Debug)]
 struct TestState {
+    fp_engine: haste_fhirpath::FPEngine,
     #[allow(dead_code)]
     result: ReportResultCodes,
     fixtures: HashMap<String, Fixtures>,
     latest_request: Option<FHIRRequest>,
     latest_response: Option<FHIRResponse>,
+}
+
+impl TestState {
+    fn new() -> Self {
+        TestState {
+            fp_engine: haste_fhirpath::FPEngine::new(),
+            result: ReportResultCodes::Pending(None),
+            fixtures: HashMap::new(),
+            latest_request: None,
+            latest_response: None,
+        }
+    }
+    fn resolve_fixture<'a>(
+        &'a self,
+        fixture_id: &str,
+    ) -> Result<&'a dyn MetaValue, TestScriptError> {
+        let fixture = self
+            .fixtures
+            .get(fixture_id)
+            .ok_or(TestScriptError::FixtureNotFound)?;
+
+        match fixture {
+            Fixtures::Resource(res) => Ok(res),
+            Fixtures::Request(req) => {
+                request_to_meta_value(req).ok_or_else(|| TestScriptError::InvalidFixture)
+            }
+            Fixtures::Response(response) => {
+                response_to_meta_value(response).ok_or_else(|| TestScriptError::InvalidFixture)
+            }
+        }
+    }
 }
 
 struct TestResult<T> {
@@ -106,36 +137,6 @@ fn request_to_meta_value<'a>(request: &'a FHIRRequest) -> Option<&'a dyn MetaVal
         | FHIRRequest::Capabilities
         | FHIRRequest::Search(_)
         | FHIRRequest::History(_) => None,
-    }
-}
-
-impl TestState {
-    fn new() -> Self {
-        TestState {
-            result: ReportResultCodes::Pending(None),
-            fixtures: HashMap::new(),
-            latest_request: None,
-            latest_response: None,
-        }
-    }
-    fn resolve_fixture<'a>(
-        &'a self,
-        fixture_id: &str,
-    ) -> Result<&'a dyn MetaValue, TestScriptError> {
-        let fixture = self
-            .fixtures
-            .get(fixture_id)
-            .ok_or(TestScriptError::FixtureNotFound)?;
-
-        match fixture {
-            Fixtures::Resource(res) => Ok(res),
-            Fixtures::Request(req) => {
-                request_to_meta_value(req).ok_or_else(|| TestScriptError::InvalidFixture)
-            }
-            Fixtures::Response(response) => {
-                response_to_meta_value(response).ok_or_else(|| TestScriptError::InvalidFixture)
-            }
-        }
     }
 }
 
@@ -307,14 +308,14 @@ async fn run_assertion(
 
     let state_guard = state.lock().await;
 
-    let Some(_source) = get_source(&*state_guard, assertion).await? else {
+    let Some(source) = get_source(&*state_guard, assertion).await? else {
         return Err(TestScriptError::ExecutionError(
             "Failed to resolve source for assertion.".to_string(),
         ));
     };
 
     let _engine = haste_fhirpath::FPEngine::new();
-    // let result = engine.evaluate("$this", vec![source]).await;
+    state_guard.fp_engine.evaluate("$this", vec![source]).await;
 
     if assertion.resource.is_some() {}
     if assertion.expression.is_some() {}
@@ -648,7 +649,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
         test_report.test = Some(test_result.value);
     }
 
-    println!("State {:?}", state);
+    // println!("State {:?}", state);
 
     Ok(test_report)
 }
