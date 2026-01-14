@@ -751,16 +751,16 @@ async fn run_setup<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
         ..Default::default()
     };
 
-    let Some(actions) = pointer.value() else {
+    let Some(setup) = pointer.value() else {
         return Ok(TestResult {
             state: cur_state,
             value: setup_results,
         });
     };
 
-    for action in actions.action.iter().enumerate() {
+    for action in setup.action.iter().enumerate() {
         let action_pointer = pointer
-            .descend::<TestScriptTestAction>(&Key::Field("action".to_string()))
+            .descend::<Vec<TestScriptSetupAction>>(&Key::Field("action".to_string()))
             .and_then(|p| p.descend::<TestScriptSetupAction>(&Key::Index(action.0)));
 
         let action_pointer = action_pointer.ok_or_else(|| {
@@ -951,6 +951,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     if let Some(setup_pointer) =
         pointer.descend::<TestScriptSetup>(&Key::Field("setup".to_string()))
     {
+        info!("Running TestScript setup...");
         let setup_result = run_setup(client, ctx.clone(), state.clone(), setup_pointer).await;
         match setup_result {
             Ok(res) => {
@@ -968,6 +969,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
         && let Some(test_pointer) =
             pointer.descend::<Vec<TestScriptTest>>(&Key::Field("test".to_string()))
     {
+        info!("Running TestScript tests...");
         let test_result = run_tests(client, ctx.clone(), state.clone(), test_pointer).await;
 
         match test_result {
@@ -985,6 +987,8 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     if let Some(teardown_pointer) =
         pointer.descend::<TestScriptTeardown>(&Key::Field("teardown".to_string()))
     {
+        info!("Running TestScript teardown...");
+        info!("{:?}", running_state);
         let result = run_teardown(client, ctx.clone(), state, teardown_pointer).await?;
 
         // state = result.state;
