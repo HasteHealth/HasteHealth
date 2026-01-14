@@ -985,7 +985,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     {
         let result = run_teardown(client, ctx.clone(), state, teardown_pointer).await?;
 
-        state = result.state;
+        // state = result.state;
         test_report.teardown = Some(result.value);
     }
 
