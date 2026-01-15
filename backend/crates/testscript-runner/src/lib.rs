@@ -478,7 +478,6 @@ async fn derive_comparison_to(
         result
             .iter()
             .map(|d| {
-                println!("{:?}", d);
                 conversion::convert_meta_value(d).ok_or_else(|| {
                     TestScriptError::ExecutionError(
                         "Failed to convert comparison fixture value.".to_string(),
@@ -1084,7 +1083,6 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
         pointer.descend::<TestScriptTeardown>(&Key::Field("teardown".to_string()))
     {
         info!("Running TestScript teardown...");
-        info!("{:?}", running_state);
 
         let result = run_teardown(client, ctx.clone(), state.clone(), teardown_pointer).await?;
 

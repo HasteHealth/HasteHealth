@@ -94,7 +94,13 @@ pub async fn testscript_commands(
                         .await
                         {
                             Ok(result) => {
-                                info!("{:#?}", result);
+                                println!(
+                                    "{}",
+                                    haste_fhir_serialization_json::to_string(&result)
+                                        .unwrap_or_else(
+                                            |_| "<Failed to serialize result>".to_string()
+                                        )
+                                );
                             }
                             Err(e) => {
                                 info!("Error running TestScript '{:?}'", e);
