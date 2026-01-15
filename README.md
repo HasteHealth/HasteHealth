@@ -10,8 +10,8 @@ FHIR development platform built for speed.
 
 ```bash
 cd backend
-cargo run server migrate all
-cargo run server migrate artifacts
+cargo run admin migrate all
+cargo run admin migrate artifacts
 cargo run server start && cargo run worker
 ```
 

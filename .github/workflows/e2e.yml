@@ -64,7 +64,7 @@ jobs:
         working-directory: ./backend
 
       - name: Run migrations
-        run: ./target/debug/haste-health server migrate search && ./target/debug/haste-health server migrate repo
+        run: ./target/debug/haste-health admin migrate search && ./target/debug/haste-health admin migrate repo
         working-directory: ./backend
 
       - name: Start Server
@@ -76,12 +76,12 @@ jobs:
         working-directory: ./backend
 
       - name: Migrate artifacts
-        run: ./target/debug/haste-health server migrate artifacts
+        run: ./target/debug/haste-health admin migrate artifacts
         working-directory: ./backend
 
       - name: Setup Tenant
         run: |
-          ./target/debug/haste-health server tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
+          ./target/debug/haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
         working-directory: ./backend
 
     #   - name: End-to-end tests
