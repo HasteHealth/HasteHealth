@@ -79,6 +79,11 @@ jobs:
         run: ./target/debug/haste-health server migrate artifacts
         working-directory: ./backend
 
+      - name: Setup Tenant
+        run: |
+          ./target/debug/haste-health server tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited
+        working-directory: ./backend
+
     #   - name: End-to-end tests
     #     run: ./target/debug/haste-health testscript run -i testscripts
     #     working-directory: ./backend

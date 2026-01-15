@@ -53,7 +53,18 @@ pub enum ProfileAuth {
 #[derive(Subcommand, Debug)]
 pub enum ConfigCommands {
     ShowProfile,
-    CreateProfile {},
+    CreateProfile {
+        #[arg(short, long)]
+        name: Option<String>,
+        #[arg(short, long)]
+        r4_url: Option<String>,
+        #[arg(short, long)]
+        discovery_uri: Option<String>,
+        #[arg(short, long)]
+        id: Option<String>,
+        #[arg(short, long)]
+        secret: Option<String>,
+    },
     DeleteProfile {},
     SetActiveProfile,
 }
@@ -127,28 +138,57 @@ pub async fn config(
 
             Ok(())
         }
-        ConfigCommands::CreateProfile {} => {
-            let name: String = Input::with_theme(&ColorfulTheme::default())
-                .with_prompt("Profile Name")
-                .interact_text()
-                .unwrap();
+        ConfigCommands::CreateProfile {
+            name,
+            r4_url,
+            discovery_uri,
+            id,
+            secret,
+        } => {
+            let name: String = if let Some(name) = name {
+                name.clone()
+            } else {
+                Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt("Profile Name")
+                    .interact_text()
+                    .unwrap()
+            };
 
-            let r4_url: String = Input::with_theme(&ColorfulTheme::default())
-                .with_prompt("FHIR R4 Server URL")
-                .interact_text()
-                .unwrap();
-            let oidc_discovery_uri: String = Input::with_theme(&ColorfulTheme::default())
-                .with_prompt("OIDC Discovery URI")
-                .interact_text()
-                .unwrap();
-            let client_id: String = Input::with_theme(&ColorfulTheme::default())
-                .with_prompt("OIDC Client ID")
-                .interact_text()
-                .unwrap();
-            let client_secret: String = Password::with_theme(&ColorfulTheme::default())
-                .with_prompt("OIDC Client Secret")
-                .interact()
-                .unwrap();
+            let r4_url: String = if let Some(r4_url) = r4_url {
+                r4_url.clone()
+            } else {
+                Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt("FHIR R4 Server URL")
+                    .interact_text()
+                    .unwrap()
+            };
+
+            let oidc_discovery_uri: String = if let Some(discovery_uri) = discovery_uri {
+                discovery_uri.clone()
+            } else {
+                Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt("OIDC Discovery URI")
+                    .interact_text()
+                    .unwrap()
+            };
+
+            let client_id: String = if let Some(id) = id {
+                id.clone()
+            } else {
+                Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt("OIDC Client ID")
+                    .interact_text()
+                    .unwrap()
+            };
+
+            let client_secret: String = if let Some(secret) = secret {
+                secret.clone()
+            } else {
+                Password::with_theme(&ColorfulTheme::default())
+                    .with_prompt("OIDC Client Secret")
+                    .interact()
+                    .unwrap()
+            };
 
             let mut state = state.lock().await;
             if state
