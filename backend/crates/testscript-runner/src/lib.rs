@@ -18,7 +18,7 @@ use haste_fhir_model::r4::generated::{
     },
     terminology::{
         AssertDirectionCodes, AssertOperatorCodes, IssueType, ReportActionResultCodes,
-        ReportResultCodes, TestscriptOperationCodes,
+        ReportResultCodes, ReportStatusCodes, TestscriptOperationCodes,
     },
     types::{FHIRMarkdown, FHIRString, Reference},
 };
@@ -1020,6 +1020,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     info!("Running TestScript Runner with FHIR Client");
 
     let mut test_report = TestReport {
+        status: Box::new(ReportStatusCodes::Completed(None)),
         testScript: Box::new(Reference {
             reference: Some(Box::new(FHIRString {
                 value: Some(format!(

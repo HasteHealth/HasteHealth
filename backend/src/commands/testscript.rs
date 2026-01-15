@@ -1,6 +1,10 @@
 use crate::CLIState;
 use clap::Subcommand;
-use haste_fhir_model::r4::generated::resources::{Resource, TestScript};
+use haste_fhir_model::r4::generated::{
+    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestScript},
+    terminology::{BundleType, HttpVerb, IssueType},
+    types::FHIRUri,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::{path::Path, sync::Arc};
 use tokio::sync::Mutex;
@@ -11,6 +15,8 @@ pub enum TestScriptCommands {
     Run {
         #[arg(short, long)]
         input: Vec<String>,
+        #[arg(short, long)]
+        output: Option<String>,
     },
 }
 
@@ -63,8 +69,13 @@ pub async fn testscript_commands(
     command: &TestScriptCommands,
 ) -> Result<(), OperationOutcomeError> {
     match command {
-        TestScriptCommands::Run { input: inputs } => {
+        TestScriptCommands::Run {
+            output,
+            input: inputs,
+        } => {
             let fhir_client = crate::client::fhir_client(state).await?;
+
+            let mut testreport_entries = vec![];
 
             for input in inputs {
                 let walker = walkdir::WalkDir::new(&input).into_iter();
@@ -76,6 +87,16 @@ pub async fn testscript_commands(
                 {
                     let testscripts = load_testscript_files(&entry.path());
                     for testscript in testscripts.into_iter() {
+                        let testscript = Arc::new(testscript);
+
+                        let Some(testscript_id) = testscript.id.as_ref() else {
+                            info!(
+                                "Skipping TestScript without ID from file: {}",
+                                entry.path().to_string_lossy()
+                            );
+                            continue;
+                        };
+
                         info!(
                             "Running TestScript '{}' from file: {}",
                             testscript
@@ -89,18 +110,25 @@ pub async fn testscript_commands(
                         match haste_testscript_runner::run(
                             fhir_client.as_ref(),
                             (),
-                            Arc::new(testscript),
+                            testscript.clone(),
                         )
                         .await
                         {
-                            Ok(result) => {
-                                println!(
-                                    "{}",
-                                    haste_fhir_serialization_json::to_string(&result)
-                                        .unwrap_or_else(
-                                            |_| "<Failed to serialize result>".to_string()
-                                        )
-                                );
+                            Ok(mut test_report) => {
+                                test_report.id = Some(format!("report-{}", testscript_id));
+
+                                testreport_entries.push(BundleEntry {
+                                    request: Some(BundleEntryRequest {
+                                        method: Box::new(HttpVerb::PUT(None)),
+                                        url: Box::new(FHIRUri {
+                                            value: Some(format!("TestReport/{}", testscript_id)),
+                                            ..Default::default()
+                                        }),
+                                        ..Default::default()
+                                    }),
+                                    resource: Some(Box::new(Resource::TestReport(test_report))),
+                                    ..Default::default()
+                                });
                             }
                             Err(e) => {
                                 info!("Error running TestScript '{:?}'", e);
@@ -108,6 +136,35 @@ pub async fn testscript_commands(
                         }
                     }
                 }
+            }
+
+            let testreport_bundle = Bundle {
+                type_: Box::new(BundleType::Transaction(None)),
+                entry: Some(testreport_entries),
+                ..Default::default()
+            };
+
+            if let Some(output) = output {
+                std::fs::write(
+                    output,
+                    haste_fhir_serialization_json::to_string(&testreport_bundle).map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            format!("Failed to serialize TestReport bundle: {}", e),
+                        )
+                    })?,
+                )
+                .expect("Failed to write TestReport bundle to file");
+            } else {
+                println!(
+                    "{}",
+                    haste_fhir_serialization_json::to_string(&testreport_bundle).map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            format!("Failed to serialize TestReport bundle: {}", e),
+                        )
+                    })?
+                );
             }
 
             Ok(())
