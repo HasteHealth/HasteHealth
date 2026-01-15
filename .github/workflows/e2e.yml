@@ -63,7 +63,7 @@ jobs:
         working-directory: ./backend
 
       - name: Run migrations
-        run: ./target/debug/haste-health server migrate all
+        run: ./target/debug/haste-health server migrate search && ./target/debug/haste-health server migrate repo
         working-directory: ./backend
 
       - name: Start Server
@@ -72,6 +72,10 @@ jobs:
 
       - name: Start Worker
         run: ./target/debug/haste-health worker &
+        working-directory: ./backend
+
+      - name: Migrate artifacts
+        run: ./target/debug/haste-health server migrate artifacts
         working-directory: ./backend
 
       - name: End-to-end tests
