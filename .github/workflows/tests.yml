@@ -20,6 +20,6 @@ jobs:
       - name: Build
         run: cargo build --verbose --workspace
         working-directory: ./backend
-      - name: Run tests
+      - name: Unit tests
         run: cargo test --verbose --workspace
         working-directory: ./backend
