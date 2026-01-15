@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CERTIFICATION_DIR: certifications
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/haste_health
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/haste_health
       API_URI: http://localhost:3000
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_URL: http://localhost:9200
       ELASTICSEARCH_USERNAME: elastic
       ELASTICSEARCH_PASSWORD: elastic
       ADMIN_APP_REDIRECT_URI: http://*.localhost:3001
@@ -25,8 +25,8 @@ jobs:
     services:
       elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:9.2.4
-        # ports:
-        #   - 9200:9200
+        ports:
+          - 9200:9200
         env:
           ELASTIC_PASSWORD: elastic
           discovery.type: single-node
@@ -41,6 +41,8 @@ jobs:
 
       postgres:
         image: postgres:18.1
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
