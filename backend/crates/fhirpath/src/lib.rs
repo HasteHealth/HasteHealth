@@ -454,6 +454,14 @@ async fn evaluate_function<'a>(
             let type_name = derive_typename(&function.arguments[0])?;
             Ok(filter_by_type(&type_name, &context))
         }
+        "empty" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+            let res = Ok(context.new_context_from(vec![
+                context.allocate(ResolvedValue::Box(Box::new(context.values.is_empty()))),
+            ]));
+
+            res
+        }
         "exists" => {
             validate_arguments(&function.arguments, &Cardinality::Many)?;
 

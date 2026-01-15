@@ -813,14 +813,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resources =
-                        haste_fhir_serialization_json::from_bytes::<Vec<Resource>>(&body)
-                            .map_err(FHIRHTTPError::from)?;
-
                     Ok(FHIRResponse::Delete(DeleteResponse::Type(
-                        request::FHIRDeleteTypeResponse {
-                            resource: resources,
-                        },
+                        request::FHIRDeleteTypeResponse {},
                     )))
                 }
                 DeleteRequest::System(_) => {
@@ -832,14 +826,8 @@ fn http_response_to_fhir_response<'a>(
 
                     check_for_errors(&status, Some(&body)).await?;
 
-                    let resources =
-                        haste_fhir_serialization_json::from_bytes::<Vec<Resource>>(&body)
-                            .map_err(FHIRHTTPError::from)?;
-
                     Ok(FHIRResponse::Delete(DeleteResponse::System(
-                        request::FHIRDeleteSystemResponse {
-                            resource: resources,
-                        },
+                        request::FHIRDeleteSystemResponse {},
                     )))
                 }
             },

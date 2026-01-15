@@ -233,13 +233,9 @@ pub struct FHIRDeleteInstanceResponse {
     pub resource: Resource,
 }
 #[derive(Debug, Clone)]
-pub struct FHIRDeleteTypeResponse {
-    pub resource: Vec<Resource>,
-}
+pub struct FHIRDeleteTypeResponse {}
 #[derive(Debug, Clone)]
-pub struct FHIRDeleteSystemResponse {
-    pub resource: Vec<Resource>,
-}
+pub struct FHIRDeleteSystemResponse {}
 #[derive(Debug, Clone)]
 pub struct FHIRCapabilitiesResponse {
     pub capabilities: CapabilityStatement,

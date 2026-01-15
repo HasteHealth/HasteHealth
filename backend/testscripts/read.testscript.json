@@ -97,7 +97,15 @@
                 },
                 {
                     "assert": {
-                        "expression": "$this.meta.versionId",
+                        "expression": "Patient.meta.versionId.empty()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId",
                         "operator": "equals",
                         "compareToSourceId": "create-response",
                         "compareToSourceExpression": "$this.meta.versionId",

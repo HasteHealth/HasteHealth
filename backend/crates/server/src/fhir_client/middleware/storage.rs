@@ -219,9 +219,7 @@ impl<
                     }
 
                     Ok(Some(FHIRResponse::Delete(DeleteResponse::Type(
-                        FHIRDeleteTypeResponse {
-                            resource: resources,
-                        },
+                        FHIRDeleteTypeResponse {},
                     ))))
                 }
                 FHIRRequest::VersionRead(vread_request) => {
