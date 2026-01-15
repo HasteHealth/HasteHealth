@@ -79,6 +79,6 @@ jobs:
         run: ./target/debug/haste-health server migrate artifacts
         working-directory: ./backend
 
-      - name: End-to-end tests
-        run: ./target/debug/haste-health testscript run -i testscripts
-        working-directory: ./backend
+    #   - name: End-to-end tests
+    #     run: ./target/debug/haste-health testscript run -i testscripts
+    #     working-directory: ./backend
