@@ -29,6 +29,7 @@ use std::{
     any::Any,
     collections::HashMap,
     sync::{Arc, LazyLock},
+    time::Duration,
 };
 use tokio::sync::Mutex;
 use tracing::{info, warn};
@@ -330,6 +331,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptSetupActionOperation>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<TestReportSetupActionOperation>, TestScriptError> {
     let operation = pointer.value().ok_or_else(|| {
         TestScriptError::ExecutionError(format!(
@@ -341,6 +343,9 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     let mut state_guard = state.lock().await;
     let fhir_request = testscript_operation_to_fhir_request(&state_guard, operation)?;
     let fhir_response = client.request(ctx, fhir_request.clone()).await;
+    if let Some(wait_duration) = options.wait_between_operations {
+        tokio::time::sleep(wait_duration).await;
+    }
 
     match fhir_response {
         Ok(fhir_response) => {
@@ -615,6 +620,7 @@ async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptTestAction>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<TestReportSetupAction>, TestScriptError> {
     info!("Running TestScript action at path: {}", pointer.path());
     let action = pointer.value().ok_or_else(|| {
@@ -638,7 +644,7 @@ async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             )));
         };
 
-        let result = run_operation(client, ctx, state, operation_pointer).await?;
+        let result = run_operation(client, ctx, state, operation_pointer, options).await?;
 
         Ok(TestResult {
             state: result.state,
@@ -679,6 +685,7 @@ async fn run_setup_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptSetupAction>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<TestReportSetupAction>, TestScriptError> {
     let action = pointer.value().ok_or_else(|| {
         TestScriptError::ExecutionError(format!(
@@ -701,7 +708,7 @@ async fn run_setup_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             )));
         };
 
-        let result = run_operation(client, ctx, state, operation_pointer).await?;
+        let result = run_operation(client, ctx, state, operation_pointer, options).await?;
 
         Ok(TestResult {
             state: result.state,
@@ -742,6 +749,7 @@ async fn setup_fixtures<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeErro
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScript>,
+    _options: Arc<TestRunnerOptions>,
 ) -> Result<Arc<Mutex<TestState>>, OperationOutcomeError> {
     let mut state_lock = state.lock().await;
 
@@ -838,6 +846,7 @@ async fn run_setup<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptSetup>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<TestReportSetup>, TestScriptError> {
     let mut cur_state = state;
 
@@ -865,7 +874,14 @@ async fn run_setup<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
             ))
         })?;
 
-        let result = run_setup_action(client, ctx.clone(), cur_state, action_pointer).await?;
+        let result = run_setup_action(
+            client,
+            ctx.clone(),
+            cur_state,
+            action_pointer,
+            options.clone(),
+        )
+        .await?;
         cur_state = result.state;
 
         setup_results.action.push(result.value);
@@ -882,6 +898,7 @@ async fn run_teardown<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptTeardown>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<TestReportTeardown>, TestScriptError> {
     let mut cur_state = state;
 
@@ -918,7 +935,14 @@ async fn run_teardown<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>
                 ))
             })?;
 
-        let result = run_operation(client, ctx.clone(), cur_state, operation_pointer).await?;
+        let result = run_operation(
+            client,
+            ctx.clone(),
+            cur_state,
+            operation_pointer,
+            options.clone(),
+        )
+        .await?;
         cur_state = result.state;
 
         teardown_results.action.push(TestReportTeardownAction {
@@ -938,6 +962,7 @@ async fn run_test<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptTest>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<TestReportTest>, TestScriptError> {
     let mut cur_state = state;
     let mut test_report_test = TestReportTest {
@@ -962,7 +987,14 @@ async fn run_test<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 action.0
             )));
         };
-        let result = run_action(client, ctx.clone(), cur_state, action_pointer).await?;
+        let result = run_action(
+            client,
+            ctx.clone(),
+            cur_state,
+            action_pointer,
+            options.clone(),
+        )
+        .await?;
         cur_state = result.state;
         test_report_test.action.push(TestReportTestAction {
             operation: result.value.operation,
@@ -982,6 +1014,7 @@ async fn run_tests<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     ctx: CTX,
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, Vec<TestScriptTest>>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestResult<Vec<TestReportTest>>, TestScriptError> {
     let mut test_results = vec![];
     let mut cur_state = state;
@@ -1000,7 +1033,14 @@ async fn run_tests<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 test.0
             )));
         };
-        let test_result = run_test(client, ctx.clone(), cur_state, test_pointer).await?;
+        let test_result = run_test(
+            client,
+            ctx.clone(),
+            cur_state,
+            test_pointer,
+            options.clone(),
+        )
+        .await?;
         cur_state = test_result.state;
         test_results.push(test_result.value);
     }
@@ -1011,10 +1051,15 @@ async fn run_tests<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     })
 }
 
+pub struct TestRunnerOptions {
+    pub wait_between_operations: Option<Duration>,
+}
+
 pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     client: &Client,
     ctx: CTX,
     test_script: Arc<TestScript>,
+    options: Arc<TestRunnerOptions>,
 ) -> Result<TestReport, TestScriptError> {
     // Placeholder implementation
     info!("Running TestScript Runner with FHIR Client");
@@ -1037,7 +1082,7 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     let mut state = Arc::new(Mutex::new(TestState::new()));
     let pointer = Pointer::<TestScript, TestScript>::new(test_script);
 
-    state = setup_fixtures(client, ctx.clone(), state, pointer.clone())
+    state = setup_fixtures(client, ctx.clone(), state, pointer.clone(), options.clone())
         .await
         .map_err(|e| TestScriptError::OperationError(e))?;
 
@@ -1048,7 +1093,14 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
         pointer.descend::<TestScriptSetup>(&Key::Field("setup".to_string()))
     {
         info!("Running TestScript setup...");
-        let setup_result = run_setup(client, ctx.clone(), state.clone(), setup_pointer).await;
+        let setup_result = run_setup(
+            client,
+            ctx.clone(),
+            state.clone(),
+            setup_pointer,
+            options.clone(),
+        )
+        .await;
         match setup_result {
             Ok(res) => {
                 state = res.state;
@@ -1066,7 +1118,14 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
             pointer.descend::<Vec<TestScriptTest>>(&Key::Field("test".to_string()))
     {
         info!("Running TestScript tests...");
-        let test_result = run_tests(client, ctx.clone(), state.clone(), test_pointer).await;
+        let test_result = run_tests(
+            client,
+            ctx.clone(),
+            state.clone(),
+            test_pointer,
+            options.clone(),
+        )
+        .await;
 
         match test_result {
             Ok(res) => {
@@ -1085,7 +1144,14 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     {
         info!("Running TestScript teardown...");
 
-        let result = run_teardown(client, ctx.clone(), state.clone(), teardown_pointer).await?;
+        let result = run_teardown(
+            client,
+            ctx.clone(),
+            state.clone(),
+            teardown_pointer,
+            options.clone(),
+        )
+        .await?;
 
         // state = result.state;
         test_report.teardown = Some(result.value);

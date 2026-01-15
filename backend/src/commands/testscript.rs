@@ -6,6 +6,7 @@ use haste_fhir_model::r4::generated::{
     types::FHIRUri,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_testscript_runner::TestRunnerOptions;
 use std::{path::Path, sync::Arc};
 use tokio::sync::Mutex;
 use tracing::info;
@@ -17,6 +18,8 @@ pub enum TestScriptCommands {
         input: Vec<String>,
         #[arg(short, long)]
         output: Option<String>,
+        #[arg(short, long)]
+        wait_between_operations_ms: Option<u64>,
     },
 }
 
@@ -72,10 +75,15 @@ pub async fn testscript_commands(
         TestScriptCommands::Run {
             output,
             input: inputs,
+            wait_between_operations_ms,
         } => {
             let fhir_client = crate::client::fhir_client(state).await?;
 
             let mut testreport_entries = vec![];
+            let testrunner_options = Arc::new(TestRunnerOptions {
+                wait_between_operations: wait_between_operations_ms
+                    .map(|ms| std::time::Duration::from_millis(ms)),
+            });
 
             for input in inputs {
                 let walker = walkdir::WalkDir::new(&input).into_iter();
@@ -111,6 +119,7 @@ pub async fn testscript_commands(
                             fhir_client.as_ref(),
                             (),
                             testscript.clone(),
+                            testrunner_options.clone(),
                         )
                         .await
                         {
