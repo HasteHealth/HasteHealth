@@ -1,9 +1,11 @@
 use haste_fhir_client::{
     FHIRClient,
     request::{
-        DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRReadRequest, FHIRRequest,
-        FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse, UpdateRequest,
+        DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteTypeRequest,
+        FHIRReadRequest, FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse,
+        SearchResponse, UpdateRequest,
     },
+    url::ParsedParameters,
 };
 use haste_fhir_model::r4::generated::{
     resources::{
@@ -15,8 +17,8 @@ use haste_fhir_model::r4::generated::{
         TestScriptTest, TestScriptTestAction,
     },
     terminology::{
-        AssertOperatorCodes, IssueType, ReportActionResultCodes, ReportResultCodes,
-        TestscriptOperationCodes,
+        AssertDirectionCodes, AssertOperatorCodes, IssueType, ReportActionResultCodes,
+        ReportResultCodes, TestscriptOperationCodes,
     },
     types::{FHIRMarkdown, FHIRString, Reference},
 };
@@ -168,7 +170,7 @@ fn associate_request_response_variables(
         // Associate request variable in state
         state
             .fixtures
-            .insert(request_var.clone(), Fixtures::Request(request));
+            .insert(request_var.clone(), Fixtures::Request(request.clone()));
     }
 
     if let Some(response_var) = operation
@@ -179,14 +181,17 @@ fn associate_request_response_variables(
         // Associate response variable in state
         state
             .fixtures
-            .insert(response_var.clone(), Fixtures::Response(response));
+            .insert(response_var.clone(), Fixtures::Response(response.clone()));
     }
+
+    state.latest_request = Some(request);
+    state.latest_response = Some(response);
 }
 
 /// Derive the resource type from operation or from the metavalue if not present on operation.
 fn derive_resource_type(
     operation: &TestScriptSetupActionOperation,
-    target: &dyn MetaValue,
+    target: Option<&dyn MetaValue>,
 ) -> Result<ResourceType, TestScriptError> {
     if let Some(operation_resource_type) = operation.resource.as_ref() {
         let string_type: Option<String> = operation_resource_type.as_ref().into();
@@ -196,13 +201,17 @@ fn derive_resource_type(
                 operation_resource_type.as_ref()
             ))
         })
-    } else {
+    } else if let Some(target) = target {
         ResourceType::try_from(target.typename()).map_err(|_| {
             TestScriptError::ExecutionError(format!(
                 "Unsupported resource type '{}' for Read operation.",
                 target.typename()
             ))
         })
+    } else {
+        Err(TestScriptError::ExecutionError(
+            "Failed to derive resource type for Read operation.".to_string(),
+        ))
     }
 }
 
@@ -226,7 +235,7 @@ fn testscript_operation_to_fhir_request(
         let target = state.resolve_fixture(target_id)?;
 
         Ok(FHIRRequest::Read(FHIRReadRequest {
-            resource_type: derive_resource_type(operation, target)?,
+            resource_type: derive_resource_type(operation, Some(target))?,
             id: target
                 .get_field("id")
                 .ok_or_else(|| {
@@ -259,7 +268,7 @@ fn testscript_operation_to_fhir_request(
             })?;
 
         Ok(FHIRRequest::Create(FHIRCreateRequest {
-            resource_type: derive_resource_type(operation, source)?,
+            resource_type: derive_resource_type(operation, Some(source))?,
             resource: resource,
         }))
     } else if operation_type == (&TestscriptOperationCodes::Delete(None)).into() {
@@ -273,7 +282,7 @@ fn testscript_operation_to_fhir_request(
 
         Ok(FHIRRequest::Delete(DeleteRequest::Instance(
             FHIRDeleteInstanceRequest {
-                resource_type: derive_resource_type(operation, target)?,
+                resource_type: derive_resource_type(operation, Some(target))?,
                 id: target
                     .get_field("id")
                     .ok_or_else(|| {
@@ -286,6 +295,27 @@ fn testscript_operation_to_fhir_request(
                     .downcast_ref::<String>()
                     .cloned()
                     .unwrap_or_default(),
+            },
+        )))
+    } else if operation_type == (&TestscriptOperationCodes::DeleteCondMultiple(None)).into() {
+        Ok(FHIRRequest::Delete(DeleteRequest::Type(
+            FHIRDeleteTypeRequest {
+                resource_type: derive_resource_type(operation, None)?,
+                parameters: ParsedParameters::try_from(
+                    operation
+                        .params
+                        .as_ref()
+                        .and_then(|p| p.value.as_ref())
+                        .cloned()
+                        .unwrap_or("".to_string())
+                        .as_str(),
+                )
+                .map_err(|e| {
+                    TestScriptError::ExecutionError(format!(
+                        "Failed to parse parameters for DeleteCondMultiple operation: {}",
+                        e
+                    ))
+                })?,
             },
         )))
     } else {
@@ -311,7 +341,6 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
 
     let mut state_guard = state.lock().await;
     let fhir_request = testscript_operation_to_fhir_request(&state_guard, operation)?;
-
     let fhir_response = client.request(ctx, fhir_request.clone()).await;
 
     match fhir_response {
@@ -347,6 +376,9 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
     }
 }
 
+static DEFAULT_DIRECTION: LazyLock<Box<AssertDirectionCodes>> =
+    LazyLock::new(|| Box::new(AssertDirectionCodes::Response(None)));
+
 async fn get_source<'a>(
     state: &'a TestState,
     assertion: &TestScriptSetupActionAssert,
@@ -354,9 +386,14 @@ async fn get_source<'a>(
     if let Some(source_id) = assertion.sourceId.as_ref().and_then(|id| id.value.as_ref()) {
         let source = state.resolve_fixture(source_id)?;
         Ok(Some(source))
-    } else if let Some(direction) = assertion.direction.as_ref() {
-        match direction.as_ref() {
-            haste_fhir_model::r4::generated::terminology::AssertDirectionCodes::Request(_) => {
+    } else {
+        match assertion
+            .direction
+            .as_ref()
+            .unwrap_or(&DEFAULT_DIRECTION)
+            .as_ref()
+        {
+            AssertDirectionCodes::Request(_) => {
                 if let Some(request) = state.latest_request.as_ref() {
                     request_to_meta_value(request)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
@@ -365,21 +402,19 @@ async fn get_source<'a>(
                     Ok(None)
                 }
             }
-            haste_fhir_model::r4::generated::terminology::AssertDirectionCodes::Response(_) => {
-                if let Some(request) = state.latest_response.as_ref() {
-                    response_to_meta_value(request)
+            AssertDirectionCodes::Response(_) => {
+                if let Some(response) = state.latest_response.as_ref() {
+                    response_to_meta_value(response)
                         .ok_or_else(|| TestScriptError::InvalidFixture)
                         .map(Some)
                 } else {
                     Ok(None)
                 }
             }
-            haste_fhir_model::r4::generated::terminology::AssertDirectionCodes::Null(_) => {
-                todo!()
-            }
+            AssertDirectionCodes::Null(_) => Err(TestScriptError::ExecutionError(
+                "Assert direction cannot be 'null' when sourceId is not provided.".to_string(),
+            )),
         }
-    } else {
-        todo!();
     }
 }
 
@@ -444,6 +479,7 @@ async fn derive_comparison_to(
         result
             .iter()
             .map(|d| {
+                println!("{:?}", d);
                 conversion::convert_meta_value(d).ok_or_else(|| {
                     TestScriptError::ExecutionError(
                         "Failed to convert comparison fixture value.".to_string(),
@@ -476,9 +512,10 @@ async fn run_assertion(
     let state_guard = state.lock().await;
 
     let Some(source) = get_source(&*state_guard, assertion).await? else {
-        return Err(TestScriptError::ExecutionError(
-            "Failed to resolve source for assertion.".to_string(),
-        ));
+        return Err(TestScriptError::ExecutionError(format!(
+            "Failed to resolve source for assertion at '{}'.",
+            pointer.path()
+        )));
     };
 
     let operator = assertion
@@ -861,7 +898,7 @@ async fn run_teardown<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>
 
         let action_pointer = action_pointer.ok_or_else(|| {
             TestScriptError::ExecutionError(format!(
-                "Failed to retrieve TestScript action at index {}.",
+                "Failed to retrieve TestScript teardown action at index {}.",
                 action.0
             ))
         })?;
@@ -870,7 +907,7 @@ async fn run_teardown<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>
             .descend::<TestScriptSetupActionOperation>(&Key::Field("operation".to_string()))
             .ok_or_else(|| {
                 TestScriptError::ExecutionError(format!(
-                    "Failed to retrieve TestScript operation at index {}.",
+                    "Failed to retrieve TestScript teardown operation at index {}.",
                     action.0
                 ))
             })?;
@@ -911,11 +948,11 @@ async fn run_test<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
 
     for action in test.action.iter().enumerate() {
         let Some(action_pointer) = pointer
-            .descend::<TestScriptTestAction>(&Key::Field("action".to_string()))
+            .descend::<Vec<TestScriptTestAction>>(&Key::Field("action".to_string()))
             .and_then(|p| p.descend(&Key::Index(action.0)))
         else {
             return Err(TestScriptError::ExecutionError(format!(
-                "Failed to retrieve TestScript action at index {}.",
+                "Failed to retrieve TestScript test action at index {}.",
                 action.0
             )));
         };

@@ -97,10 +97,10 @@
                 },
                 {
                     "assert": {
-                        "expression": "Patient.meta.versionId",
+                        "expression": "$this.meta.versionId",
                         "operator": "equals",
                         "compareToSourceId": "create-response",
-                        "compareToSourceExpression": "Patient.meta.versionId",
+                        "compareToSourceExpression": "$this.meta.versionId",
                         "warningOnly": false
                     }
                 }
@@ -113,7 +113,7 @@
                 "operation": {
                     "type": {
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                        "code": "delete"
+                        "code": "deleteCondMultiple"
                     },
                     "resource": "Patient",
                     "params": "_tag=read-test",

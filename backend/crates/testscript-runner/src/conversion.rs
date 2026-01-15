@@ -12,7 +12,7 @@ pub enum ConvertedValue {
 
 fn downcast_string(value: &dyn MetaValue) -> Option<String> {
     match value.typename() {
-        "FHIRCanonical" | "FHIRBase64Binary" | "FHIRCode" | "FHIRString" | "FHIROid"
+        "FHIRCanonical" | "FHIRBase64Binary" | "FHIRCode" | "FHIRString" | "FHIROid" | "FHIRId"
         | "FHIRUri" | "FHIRUrl" | "FHIRUuid" | "FHIRXhtml" => {
             downcast_string(value.get_field("value").unwrap_or(&"".to_string()))
         }
