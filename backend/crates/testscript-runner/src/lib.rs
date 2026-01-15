@@ -56,21 +56,20 @@ enum Fixtures {
 // Internal structure to hold current test result and testing fixtures.
 struct TestState {
     fp_engine: haste_fhirpath::FPEngine,
-    #[allow(dead_code)]
-    result: ReportResultCodes,
     fixtures: HashMap<String, Fixtures>,
     latest_request: Option<FHIRRequest>,
     latest_response: Option<FHIRResponse>,
+    result: ReportResultCodes,
 }
 
 impl TestState {
     fn new() -> Self {
         TestState {
             fp_engine: haste_fhirpath::FPEngine::new(),
-            result: ReportResultCodes::Pending(None),
             fixtures: HashMap::new(),
             latest_request: None,
             latest_response: None,
+            result: ReportResultCodes::Pending(None),
         }
     }
     fn resolve_fixture<'a>(
@@ -498,6 +497,8 @@ async fn derive_comparison_to(
     }
 }
 
+/// Assertions are what determine the testreports ultimate pass/fail status.
+/// So set that within state here depending on assertion success/failure.
 async fn run_assertion(
     state: Arc<Mutex<TestState>>,
     pointer: Pointer<TestScript, TestScriptSetupActionAssert>,
@@ -509,7 +510,7 @@ async fn run_assertion(
         ))
     })?;
 
-    let state_guard = state.lock().await;
+    let mut state_guard = state.lock().await;
 
     let Some(source) = get_source(&*state_guard, assertion).await? else {
         return Err(TestScriptError::ExecutionError(format!(
@@ -545,6 +546,8 @@ async fn run_assertion(
                 "Assertion at '{}' failed: resource type does not match.",
                 pointer.path()
             );
+
+            state_guard.result = ReportResultCodes::Fail(None);
             return Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
@@ -566,6 +569,8 @@ async fn run_assertion(
                 "Assertion at '{}' failed: FHIRPath evaluation error.",
                 pointer.path()
             );
+
+            state_guard.result = ReportResultCodes::Fail(None);
             return Err(TestScriptError::ExecutionError(format!(
                 "FHIRPath failed to evaluate at '{}' error.",
                 pointer.path()
@@ -585,6 +590,8 @@ async fn run_assertion(
                 "Assertion at '{}' failed: operator evaluation failed.",
                 pointer.path()
             );
+
+            state_guard.result = ReportResultCodes::Fail(None);
             return Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionAssert {
@@ -1078,13 +1085,24 @@ pub async fn run<CTX: Clone, Client: FHIRClient<CTX, OperationOutcomeError>>(
     {
         info!("Running TestScript teardown...");
         info!("{:?}", running_state);
-        let result = run_teardown(client, ctx.clone(), state, teardown_pointer).await?;
+
+        let result = run_teardown(client, ctx.clone(), state.clone(), teardown_pointer).await?;
 
         // state = result.state;
         test_report.teardown = Some(result.value);
     }
 
     running_state?;
+
+    let state_guard = state.lock().await;
+    // Only set result to fail so if still pending can assume pass.
+    // Flip to fail in assertion tests if any fail.
+    match &state_guard.result {
+        ReportResultCodes::Pending(_) => {
+            test_report.result = Box::new(ReportResultCodes::Pass(None))
+        }
+        status => test_report.result = Box::new(status.clone()),
+    }
 
     Ok(test_report)
 }
