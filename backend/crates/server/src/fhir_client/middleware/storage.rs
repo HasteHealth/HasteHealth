@@ -13,11 +13,12 @@ use haste_fhir_client::{
     middleware::MiddlewareChain,
     request::{
         DeleteRequest, DeleteResponse, FHIRBatchResponse, FHIRCreateResponse,
-        FHIRDeleteInstanceResponse, FHIRHistoryInstanceResponse, FHIRHistorySystemResponse,
-        FHIRHistoryTypeResponse, FHIRPatchResponse, FHIRReadResponse, FHIRRequest, FHIRResponse,
-        FHIRSearchSystemResponse, FHIRSearchTypeRequest, FHIRSearchTypeResponse,
-        FHIRTransactionResponse, FHIRUpdateResponse, FHIRVersionReadResponse, HistoryRequest,
-        HistoryResponse, SearchRequest, SearchResponse, UpdateRequest,
+        FHIRDeleteInstanceResponse, FHIRDeleteTypeResponse, FHIRHistoryInstanceResponse,
+        FHIRHistorySystemResponse, FHIRHistoryTypeResponse, FHIRPatchResponse, FHIRReadResponse,
+        FHIRRequest, FHIRResponse, FHIRSearchSystemResponse, FHIRSearchTypeRequest,
+        FHIRSearchTypeResponse, FHIRTransactionResponse, FHIRUpdateResponse,
+        FHIRVersionReadResponse, HistoryRequest, HistoryResponse, SearchRequest, SearchResponse,
+        UpdateRequest,
     },
     url::{ParsedParameter, ParsedParameters},
 };
@@ -147,6 +148,81 @@ impl<
                             format!("Resource with id '{}' not found", delete_request.id),
                         ))
                     }
+                }
+                FHIRRequest::Delete(DeleteRequest::Type(delete_request)) => {
+                    let search_results = state
+                        .search
+                        .search(
+                            &context.ctx.fhir_version,
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &SearchRequest::Type(FHIRSearchTypeRequest {
+                                resource_type: delete_request.resource_type.clone(),
+                                parameters: delete_request.parameters.clone(),
+                            }),
+                            None,
+                        )
+                        .await?;
+
+                    if search_results.entries.len() > 20 {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::Invalid(None),
+                            "Too many resources to delete at once. Limit to 20.".to_string(),
+                        ));
+                    }
+
+                    let version_ids = search_results
+                        .entries
+                        .iter()
+                        .map(|v| &v.version_id)
+                        .collect::<Vec<_>>();
+
+                    let mut resources = state
+                        .repo
+                        .read_by_version_ids(
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            version_ids.as_slice(),
+                            haste_repository::fhir::CachePolicy::NoCache,
+                        )
+                        .await?;
+
+                    for resource in resources.iter_mut() {
+                        let id = resource
+                            .get_field("id")
+                            .ok_or_else(|| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Resource missing id field during deletion.".to_string(),
+                                )
+                            })?
+                            .as_any()
+                            .downcast_ref::<String>()
+                            .ok_or_else(|| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "Resource missing id field during deletion.".to_string(),
+                                )
+                            })?
+                            .clone();
+
+                        FHIRRepository::delete(
+                            state.repo.as_ref(),
+                            &context.ctx.tenant,
+                            &context.ctx.project,
+                            &context.ctx.user,
+                            &context.ctx.fhir_version,
+                            resource,
+                            &id,
+                        )
+                        .await?;
+                    }
+
+                    Ok(Some(FHIRResponse::Delete(DeleteResponse::Type(
+                        FHIRDeleteTypeResponse {
+                            resource: resources,
+                        },
+                    ))))
                 }
                 FHIRRequest::VersionRead(vread_request) => {
                     let mut vread_resources = state
@@ -669,8 +745,7 @@ impl<
                         .await?,
                     })))
                 }
-                FHIRRequest::Delete(DeleteRequest::Type(_))
-                | FHIRRequest::Delete(DeleteRequest::System(_))
+                FHIRRequest::Delete(DeleteRequest::System(_))
                 | FHIRRequest::Capabilities
                 | FHIRRequest::Invocation(_) => Err(OperationOutcomeError::error(
                     IssueType::NotSupported(None),
