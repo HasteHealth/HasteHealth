@@ -65,8 +65,16 @@ pub enum ConfigCommands {
         #[arg(short, long)]
         secret: Option<String>,
     },
-    DeleteProfile {},
-    SetActiveProfile,
+    DeleteProfile {
+        #[arg(short, long)]
+        name: Option<String>,
+        #[arg(short, long)]
+        confirm: Option<bool>,
+    },
+    SetActiveProfile {
+        #[arg(short, long)]
+        name: Option<String>,
+    },
 }
 
 fn read_existing_config(location: &PathBuf) -> Result<CLIConfiguration, OperationOutcomeError> {
@@ -230,19 +238,27 @@ pub async fn config(
 
             Ok(())
         }
-        ConfigCommands::DeleteProfile {} => {
-            let name: String = Input::with_theme(&ColorfulTheme::default())
-                .with_prompt("Enter the profile name you wish to delete")
-                .interact_text()
-                .unwrap();
+        ConfigCommands::DeleteProfile { name, confirm } => {
+            let name: String = if let Some(name) = name {
+                name.clone()
+            } else {
+                Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt("Enter the profile name you wish to delete")
+                    .interact_text()
+                    .unwrap()
+            };
 
-            let confirmed = Confirm::with_theme(&ColorfulTheme::default())
-                .with_prompt(format!(
-                    "Are you sure you want to delete the profile '{}'? ",
-                    name
-                ))
-                .interact()
-                .unwrap_or(false);
+            let confirmed = if let Some(confirm) = confirm {
+                confirm.clone()
+            } else {
+                Confirm::with_theme(&ColorfulTheme::default())
+                    .with_prompt(format!(
+                        "Are you sure you want to delete the profile '{}'? ",
+                        name
+                    ))
+                    .interact()
+                    .unwrap_or(false)
+            };
 
             if !confirmed {
                 println!("Profile deletion cancelled.");
@@ -269,7 +285,7 @@ pub async fn config(
 
             Ok(())
         }
-        ConfigCommands::SetActiveProfile => {
+        ConfigCommands::SetActiveProfile { name } => {
             let mut state = state.lock().await;
             let user_profile_names = state
                 .config
@@ -296,20 +312,23 @@ pub async fn config(
                 })
                 .unwrap_or(0);
 
-            let selection = Select::new()
-                .with_prompt("Choose a profile to set as active.")
-                .items(&user_profile_names)
-                .default(active_profile_index)
-                .interact()
-                .unwrap();
-
-            let name = user_profile_names[selection];
+            let name: String = if let Some(name) = name {
+                name.clone()
+            } else {
+                let selection = Select::new()
+                    .with_prompt("Choose a profile to set as active.")
+                    .items(&user_profile_names)
+                    .default(active_profile_index)
+                    .interact()
+                    .unwrap();
+                user_profile_names[selection].to_string()
+            };
 
             if !state
                 .config
                 .profiles
                 .iter()
-                .any(|profile| profile.name == *name)
+                .any(|profile| profile.name == name)
             {
                 return Err(OperationOutcomeError::error(
                     IssueType::Exception(None),
