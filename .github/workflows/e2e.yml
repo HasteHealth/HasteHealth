@@ -1,0 +1,53 @@
+name: End-to-end testing
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:9.1.2-arm64
+        ports:
+          - 9200:9200
+        env:
+          discovery.type: single-node
+          ELASTIC_PASSWORD: elastic
+          xpack.security.enabled: true
+          xpack.security.http.ssl.enabled: false
+          xpack.license.self_generated.type: trial
+          xpack.ml.use_auto_machine_memory_percent: true
+          ES_JAVA_OPTS: -Xms128m -Xmx2g
+          cluster.routing.allocation.disk.watermark.low: 1gb
+          cluster.routing.allocation.disk.watermark.high: 1gb
+          cluster.routing.allocation.disk.watermark.flood_stage: 1gb
+
+      postgres:
+        image: postgres:18.1
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: haste_health
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build
+        run: cargo build --verbose --workspace
+        working-directory: ./backend
+
+      - name: End-to-end tests
+        run: cargo test --verbose --workspace
+        working-directory: ./backend
