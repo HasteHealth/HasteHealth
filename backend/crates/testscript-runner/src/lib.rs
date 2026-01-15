@@ -1,8 +1,8 @@
 use haste_fhir_client::{
     FHIRClient,
     request::{
-        FHIRReadRequest, FHIRRequest, FHIRResponse, HistoryResponse, InvokeResponse,
-        SearchResponse, UpdateRequest,
+        DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRReadRequest, FHIRRequest,
+        FHIRResponse, HistoryResponse, InvokeResponse, SearchResponse, UpdateRequest,
     },
 };
 use haste_fhir_model::r4::generated::{
@@ -24,6 +24,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Pointer};
 use haste_reflect::MetaValue;
 use std::{
+    any::Any,
     collections::HashMap,
     sync::{Arc, LazyLock},
 };
@@ -240,8 +241,53 @@ fn testscript_operation_to_fhir_request(
                 .unwrap_or_default(),
         }))
     } else if operation_type == (&TestscriptOperationCodes::Create(None)).into() {
-        // Handle Create operation
-        todo!("Handle Create operation");
+        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(
+                "Create operation requires targetId at.".to_string(),
+            ));
+        };
+
+        let source = state.resolve_fixture(source_id)?;
+        let resource = (source as &dyn Any)
+            .downcast_ref::<Resource>()
+            .cloned()
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Target fixture '{}' is not a Resource.",
+                    source_id
+                ))
+            })?;
+
+        Ok(FHIRRequest::Create(FHIRCreateRequest {
+            resource_type: derive_resource_type(operation, source)?,
+            resource: resource,
+        }))
+    } else if operation_type == (&TestscriptOperationCodes::Delete(None)).into() {
+        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(
+                "Delete operation requires targetId at.".to_string(),
+            ));
+        };
+
+        let target = state.resolve_fixture(target_id)?;
+
+        Ok(FHIRRequest::Delete(DeleteRequest::Instance(
+            FHIRDeleteInstanceRequest {
+                resource_type: derive_resource_type(operation, target)?,
+                id: target
+                    .get_field("id")
+                    .ok_or_else(|| {
+                        TestScriptError::ExecutionError(format!(
+                            "Target fixture '{}' does not have an 'id' field.",
+                            target_id
+                        ))
+                    })?
+                    .as_any()
+                    .downcast_ref::<String>()
+                    .cloned()
+                    .unwrap_or_default(),
+            },
+        )))
     } else {
         Err(TestScriptError::ExecutionError(format!(
             "Unsupported TestScript operation type: {:?}",
