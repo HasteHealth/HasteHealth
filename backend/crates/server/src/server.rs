@@ -27,20 +27,21 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use haste_repository::{Repository, types::SupportedFHIRVersions};
 use serde::Deserialize;
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{collections::HashMap, sync::Arc};
 use tower::{Layer, ServiceBuilder};
 use tower_http::normalize_path::NormalizePath;
 use tower_http::{
     compression::CompressionLayer,
     cors::{Any, CorsLayer},
     normalize_path::NormalizePathLayer,
+    trace::TraceLayer,
 };
 use tower_sessions::{
     Expiry, SessionManagerLayer,
     cookie::{SameSite, time::Duration},
 };
 use tower_sessions_sqlx_store::PostgresStore;
-use tracing::{Instrument, Level, info, span};
+use tracing::{Instrument, Level, span};
 
 #[derive(Deserialize)]
 struct FHIRHandlerPath {
@@ -69,7 +70,6 @@ async fn fhir_handler<
     state: Arc<AppState<Repo, Search, Terminology>>,
     body: String,
 ) -> Result<Response, OperationOutcomeError> {
-    let start = Instant::now();
     let fhir_location = path.fhir_location.unwrap_or_default();
     let method_str = method.to_string();
     let span = span!(Level::ERROR, "FHIR-HTTP", method_str, fhir_location);
@@ -99,8 +99,6 @@ async fn fhir_handler<
         ));
 
         let response = state.fhir_client.request(ctx, fhir_request).await?;
-
-        info!("Request processed in {:?}", start.elapsed());
 
         let http_response = response.into_response();
         Ok(http_response)
@@ -228,6 +226,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .layer(
             ServiceBuilder::new()
                 // 4mb by default.
+                .layer(TraceLayer::new_for_http())
                 .layer(DefaultBodyLimit::max(max_body_size))
                 .layer(CompressionLayer::new())
                 .layer(SecurityHeaderLayer::new())

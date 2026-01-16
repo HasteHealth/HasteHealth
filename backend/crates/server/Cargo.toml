@@ -74,6 +74,7 @@ tower-http = { version = "0.6.6", features = [
     "cors",
     "normalize-path",
     "compression-gzip",
+    "trace",
 ] }
 tower-sessions = "0.14.0"
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
