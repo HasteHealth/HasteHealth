@@ -325,7 +325,10 @@ pub async fn process_transaction_bundle<
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     mut sorted_transaction: SortedTransaction<'a>,
 ) -> Result<Bundle, OperationOutcomeError> {
-    let mut response_entries = vec![None; sorted_transaction.topo_sort_ordering.len()];
+    // Performance improvement over .push as we know exact size of vector based on transaction request bundle.
+    // Use spare_capacity_mut to get mutable access to uninitialized memory.
+    let mut response_entries = Vec::with_capacity(sorted_transaction.topo_sort_ordering.len());
+    let mutable_access = response_entries.spare_capacity_mut();
 
     for index in sorted_transaction.topo_sort_ordering.iter() {
         let targets = sorted_transaction
@@ -391,13 +394,17 @@ pub async fn process_transaction_bundle<
             }
         }
 
-        response_entries[sorted_transaction_entry.idx] =
-            Some(convert_bundle_entry(Ok(fhir_response)));
+        mutable_access[sorted_transaction_entry.idx].write(convert_bundle_entry(Ok(fhir_response)));
     }
+
+    // Should be safe as we set length to exact number of entries we wrote to.
+    unsafe {
+        response_entries.set_len(sorted_transaction.topo_sort_ordering.len());
+    };
 
     Ok(Bundle {
         type_: Box::new(BundleType::TransactionResponse(None)),
-        entry: Some(response_entries.into_iter().filter_map(|x| x).collect()),
+        entry: Some(response_entries),
         ..Default::default()
     })
 }
