@@ -219,8 +219,13 @@ fn get_resource_from_response<'a>(response: &'a FHIRResponse) -> Option<&'a Reso
     }
 }
 
+struct SortedTransactionEntry {
+    entry: BundleEntry,
+    idx: usize,
+}
+
 pub struct SortedTransaction<'a> {
-    graph: DiGraph<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>,
+    graph: DiGraph<Option<SortedTransactionEntry>, Option<Pin<&'a mut Reference>>>,
     topo_sort_ordering: Vec<NodeIndex>,
 }
 
@@ -229,31 +234,35 @@ pub async fn build_sorted_transaction_graph<'a>(
 ) -> Result<SortedTransaction<'a>, OperationOutcomeError> {
     let fp_engine = haste_fhirpath::FPEngine::new();
 
-    let mut graph = DiGraph::<Option<BundleEntry>, Option<Pin<&'a mut Reference>>>::new();
+    let mut graph =
+        DiGraph::<Option<SortedTransactionEntry>, Option<Pin<&'a mut Reference>>>::new();
     // Used for index lookup when mutating.
     let mut indices_map = std::collections::HashMap::<String, NodeIndex>::new();
 
     // Instantiate the nodes. See [https://hl7.org/fhir/R4/bundle.html#references] for handling of refernces in bundle.
     // Currently we will resolve only internal references (i.e. those that reference other entries in the bundle via fullUrl).
-    request_bundle_entries.into_iter().for_each(|entry| {
-        let full_url = entry
-            .fullUrl
-            .as_ref()
-            .and_then(|fu| fu.value.as_ref())
-            .map(|s| s.to_string());
-        let node_index = graph.add_node(Some(entry));
-        if let Some(full_url) = full_url {
-            indices_map.insert(full_url, node_index);
-        }
-    });
+    request_bundle_entries
+        .into_iter()
+        .enumerate()
+        .for_each(|(idx, entry)| {
+            let full_url = entry
+                .fullUrl
+                .as_ref()
+                .and_then(|fu| fu.value.as_ref())
+                .map(|s| s.to_string());
+            let node_index = graph.add_node(Some(SortedTransactionEntry { entry, idx }));
+            if let Some(full_url) = full_url {
+                indices_map.insert(full_url, node_index);
+            }
+        });
 
     let mut edges = vec![];
     for cur_index in graph.node_indices() {
-        if let Some(bundle_entry) = &graph[cur_index] {
+        if let Some(sorted_transaction_entry) = &graph[cur_index] {
             let fp_result = fp_engine
                 .evaluate(
                     "$this.descendants().ofType(Reference)",
-                    vec![bundle_entry as &dyn MetaValue],
+                    vec![&sorted_transaction_entry.entry as &dyn MetaValue],
                 )
                 .await
                 .unwrap();
@@ -316,7 +325,7 @@ pub async fn process_transaction_bundle<
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     mut sorted_transaction: SortedTransaction<'a>,
 ) -> Result<Bundle, OperationOutcomeError> {
-    let mut response_entries = vec![];
+    let mut response_entries = vec![None; sorted_transaction.topo_sort_ordering.len()];
 
     for index in sorted_transaction.topo_sort_ordering.iter() {
         let targets = sorted_transaction
@@ -343,14 +352,14 @@ pub async fn process_transaction_bundle<
         let mut entry = None;
         std::mem::swap(&mut sorted_transaction.graph[*index], &mut entry);
 
-        let entry = entry.ok_or_else(|| {
+        let sorted_transaction_entry = entry.ok_or_else(|| {
             OperationOutcomeError::fatal(
                 IssueType::Exception(None),
                 "Failed to get node from graph".to_string(),
             )
         })?;
 
-        let fhir_request = bundle_entry_to_fhir_request(entry)?;
+        let fhir_request = bundle_entry_to_fhir_request(sorted_transaction_entry.entry)?;
         let resource_type = request_to_resource_type(&fhir_request).cloned();
 
         let fhir_response = fhir_client.request(ctx.clone(), fhir_request).await?;
@@ -382,12 +391,13 @@ pub async fn process_transaction_bundle<
             }
         }
 
-        response_entries.push(convert_bundle_entry(Ok(fhir_response)));
+        response_entries[sorted_transaction_entry.idx] =
+            Some(convert_bundle_entry(Ok(fhir_response)));
     }
 
     Ok(Bundle {
         type_: Box::new(BundleType::TransactionResponse(None)),
-        entry: Some(response_entries),
+        entry: Some(response_entries.into_iter().filter_map(|x| x).collect()),
         ..Default::default()
     })
 }

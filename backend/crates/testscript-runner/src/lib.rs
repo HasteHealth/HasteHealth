@@ -490,19 +490,12 @@ fn evaluate_operator(
         AssertOperatorCodes::Equals(_) | AssertOperatorCodes::Null(_) => a == b,
 
         AssertOperatorCodes::Contains(_) => {
-            println!("{:?}, {:?}", a, b);
             if a.len() != 1 || b.len() != 1 {
                 return false;
             }
 
             match (&a[0], &b[0]) {
                 (ConvertedValue::String(a_str), ConvertedValue::String(b_str)) => {
-                    println!(
-                        "Checking if '{}' contains '{}' '{}'",
-                        a_str,
-                        b_str,
-                        a_str.contains(b_str)
-                    );
                     a_str.contains(b_str)
                 }
                 _ => false,
