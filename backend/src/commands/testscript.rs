@@ -2,7 +2,7 @@ use crate::CLIState;
 use clap::Subcommand;
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, TestScript},
-    terminology::{BundleType, HttpVerb, IssueType},
+    terminology::{BundleType, HttpVerb, IssueType, ReportResultCodes},
     types::FHIRUri,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -85,6 +85,8 @@ pub async fn testscript_commands(
                     .map(|ms| std::time::Duration::from_millis(ms)),
             });
 
+            let mut status_code = 0;
+
             for input in inputs {
                 let walker = walkdir::WalkDir::new(&input).into_iter();
 
@@ -125,6 +127,14 @@ pub async fn testscript_commands(
                         {
                             Ok(mut test_report) => {
                                 test_report.id = Some(format!("report-{}", testscript_id));
+
+                                match test_report.result.as_ref() {
+                                    ReportResultCodes::Fail(_) => status_code = 1,
+                                    // Ignore for rest.
+                                    ReportResultCodes::Pass(_)
+                                    | ReportResultCodes::Pending(_)
+                                    | ReportResultCodes::Null(_) => {}
+                                }
 
                                 testreport_entries.push(BundleEntry {
                                     request: Some(BundleEntryRequest {
@@ -174,6 +184,10 @@ pub async fn testscript_commands(
                         )
                     })?
                 );
+            }
+
+            if status_code != 0 {
+                std::process::exit(status_code);
             }
 
             Ok(())

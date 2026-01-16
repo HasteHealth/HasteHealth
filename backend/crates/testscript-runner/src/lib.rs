@@ -366,17 +366,21 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 },
             })
         }
-        Err(op_error) => Ok(TestResult {
-            state: state.clone(),
-            value: TestReportSetupActionOperation {
-                result: Box::new(ReportActionResultCodes::Fail(None)),
-                message: Some(Box::new(FHIRMarkdown {
-                    value: Some(format!("Operation failed: {}", op_error)),
+        Err(op_error) => {
+            tracing::error!("Operation at '{}' failed: {}", pointer.path(), op_error);
+
+            Ok(TestResult {
+                state: state.clone(),
+                value: TestReportSetupActionOperation {
+                    result: Box::new(ReportActionResultCodes::Fail(None)),
+                    message: Some(Box::new(FHIRMarkdown {
+                        value: Some(format!("Operation failed: {}", op_error)),
+                        ..Default::default()
+                    })),
                     ..Default::default()
-                })),
-                ..Default::default()
-            },
-        }),
+                },
+            })
+        }
     }
 }
 
