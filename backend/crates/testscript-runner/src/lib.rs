@@ -2,8 +2,8 @@ use haste_fhir_client::{
     FHIRClient,
     request::{
         DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
-        FHIRDeleteTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, HistoryResponse,
-        InvokeResponse, SearchResponse, UpdateRequest,
+        FHIRDeleteTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
+        HistoryResponse, InvokeResponse, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -17,7 +17,7 @@ use haste_fhir_model::r4::generated::{
         TestScriptTest, TestScriptTestAction,
     },
     terminology::{
-        AssertDirectionCodes, AssertOperatorCodes, IssueType, ReportActionResultCodes,
+        AssertDirectionCodes, AssertOperatorCodes, BundleType, IssueType, ReportActionResultCodes,
         ReportResultCodes, ReportStatusCodes, TestscriptOperationCodes,
     },
     types::{FHIRMarkdown, FHIRString, Reference},
@@ -254,10 +254,48 @@ fn testscript_operation_to_fhir_request(
                 .cloned()
                 .unwrap_or_default(),
         }))
+    } else if operation_type == (&TestscriptOperationCodes::Transaction(None)).into() {
+        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Transaction operation requires sourceId at '{}'.",
+                path
+            )));
+        };
+
+        let source = state.resolve_fixture(source_id)?;
+        let resource = (source as &dyn Any)
+            .downcast_ref::<Resource>()
+            .cloned()
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Target fixture '{}' is not a Resource.",
+                    source_id
+                ))
+            })?;
+
+        match resource {
+            Resource::Bundle(bundle) => {
+                if !matches!(bundle.type_.as_ref(), BundleType::Transaction(_)) {
+                    return Err(TestScriptError::ExecutionError(format!(
+                        "Fixture must be a transaction bundle for transaction operations for sourceId '{}'.",
+                        source_id
+                    )));
+                }
+
+                Ok(FHIRRequest::Transaction(FHIRTransactionRequest {
+                    resource: bundle,
+                }))
+            }
+
+            _ => Err(TestScriptError::ExecutionError(format!(
+                "Fixture '{}' is not a transaction Bundle resource.",
+                source_id
+            ))),
+        }
     } else if operation_type == (&TestscriptOperationCodes::Create(None)).into() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
-                "Create operation requires targetId at '{}'.",
+                "Create operation requires sourceId at '{}'.",
                 path
             )));
         };
@@ -451,16 +489,34 @@ fn evaluate_operator(
     match operator.as_ref() {
         AssertOperatorCodes::Equals(_) | AssertOperatorCodes::Null(_) => a == b,
 
-        AssertOperatorCodes::Contains(_) => todo!(),
-        AssertOperatorCodes::Empty(_) => todo!(),
-        AssertOperatorCodes::Eval(_) => todo!(),
-        AssertOperatorCodes::GreaterThan(_) => todo!(),
-        AssertOperatorCodes::In(_) => todo!(),
-        AssertOperatorCodes::LessThan(_) => todo!(),
-        AssertOperatorCodes::NotContains(_) => todo!(),
-        AssertOperatorCodes::NotEmpty(_) => todo!(),
-        AssertOperatorCodes::NotEquals(_) => todo!(),
-        AssertOperatorCodes::NotIn(_) => todo!(),
+        AssertOperatorCodes::Contains(_) => {
+            println!("{:?}, {:?}", a, b);
+            if a.len() != 1 || b.len() != 1 {
+                return false;
+            }
+
+            match (&a[0], &b[0]) {
+                (ConvertedValue::String(a_str), ConvertedValue::String(b_str)) => {
+                    println!(
+                        "Checking if '{}' contains '{}' '{}'",
+                        a_str,
+                        b_str,
+                        a_str.contains(b_str)
+                    );
+                    a_str.contains(b_str)
+                }
+                _ => false,
+            }
+        }
+        AssertOperatorCodes::Empty(_) => todo!("Empty operator not implemented"),
+        AssertOperatorCodes::Eval(_) => todo!("Eval operator not implemented"),
+        AssertOperatorCodes::GreaterThan(_) => todo!("GreaterThan operator not implemented"),
+        AssertOperatorCodes::In(_) => todo!("In operator not implemented"),
+        AssertOperatorCodes::LessThan(_) => todo!("LessThan operator not implemented"),
+        AssertOperatorCodes::NotContains(_) => todo!("NotContains operator not implemented"),
+        AssertOperatorCodes::NotEmpty(_) => todo!("NotEmpty operator not implemented"),
+        AssertOperatorCodes::NotEquals(_) => todo!("NotEquals operator not implemented"),
+        AssertOperatorCodes::NotIn(_) => todo!("NotIn operator not implemented"),
     }
     // a == b
 }
