@@ -1,12 +1,25 @@
 use clap::{Subcommand, ValueEnum};
 use haste_config::{Config, get_config};
-use haste_fhir_model::r4::generated::terminology::{IssueType, UserRole};
+use haste_fhir_client::FHIRClient;
+use haste_fhir_model::r4::generated::{
+    resources::{
+        AccessPolicyV2, AccessPolicyV2Target, Bundle, BundleEntry, BundleEntryRequest,
+        ClientApplication, Resource,
+    },
+    terminology::{
+        AccessPolicyv2Engine, BundleType, ClientapplicationGrantType,
+        ClientapplicationResponseTypes, HttpVerb, IssueType, UserRole,
+    },
+    types::{FHIRString, FHIRUri, Reference},
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
-use haste_jwt::{TenantId, claims::SubscriptionTier};
+use haste_jwt::{ProjectId, TenantId, claims::SubscriptionTier};
 use haste_repository::admin::Migrate;
 use haste_server::{
-    ServerEnvironmentVariables, load_artifacts, services,
+    ServerEnvironmentVariables,
+    fhir_client::ServerCTX,
+    load_artifacts, services,
     tenants::{create_tenant, create_user},
 };
 use std::sync::Arc;
@@ -31,6 +44,20 @@ impl From<UserSubscriptionChoice> for SubscriptionTier {
 }
 
 #[derive(Subcommand, Debug)]
+pub enum ClientCommands {
+    Create {
+        #[arg(short, long)]
+        id: String,
+        #[arg(short, long)]
+        secret: String,
+        #[arg(short, long)]
+        tenant: String,
+        #[arg(short, long)]
+        project: String,
+    },
+}
+
+#[derive(Subcommand, Debug)]
 pub enum AdminCommands {
     Tenant {
         #[command(subcommand)]
@@ -40,6 +67,11 @@ pub enum AdminCommands {
     User {
         #[command(subcommand)]
         command: UserCommands,
+    },
+
+    Client {
+        #[command(subcommand)]
+        command: ClientCommands,
     },
 
     Migrate {
@@ -206,6 +238,113 @@ pub async fn admin(command: &AdminCommands) -> Result<(), OperationOutcomeError>
                 .await?;
 
                 services.commit().await?;
+
+                Ok(())
+            }
+        },
+        AdminCommands::Client { command } => match command {
+            ClientCommands::Create {
+                tenant,
+                project,
+                id,
+                secret,
+            } => {
+                let services = services::create_services(config).await?;
+
+                let ctx = Arc::new(ServerCTX::system(
+                    TenantId::new(tenant.clone()),
+                    ProjectId::new(project.clone()),
+                    services.fhir_client.clone(),
+                    services.rate_limit.clone(),
+                ));
+
+                let transaction_bundle = Bundle {
+                    type_: Box::new(BundleType::Transaction(None)),
+                    entry: Some(vec![
+                        BundleEntry {
+                            fullUrl: Some(Box::new(FHIRUri {
+                                value: Some("access-policy".to_string()),
+                                ..Default::default()
+                            })),
+                            request: Some(BundleEntryRequest {
+                                method: Box::new(HttpVerb::POST(None)),
+                                url: Box::new(FHIRUri {
+                                    value: Some("AccessPolicyV2".to_string()),
+                                    ..Default::default()
+                                }),
+                                ..Default::default()
+                            }),
+                            resource: Some(Box::new(Resource::AccessPolicyV2(AccessPolicyV2 {
+                                name: Box::new(FHIRString {
+                                    value: Some("ADMIN".to_string()),
+                                    ..Default::default()
+                                }),
+                                engine: Box::new(AccessPolicyv2Engine::FullAccess(None)),
+                                target: Some(vec![AccessPolicyV2Target {
+                                    link: Box::new(Reference {
+                                        reference: Some(Box::new(FHIRString {
+                                            value: Some("client-app".to_string()),
+                                            ..Default::default()
+                                        })),
+                                        ..Default::default()
+                                    }),
+                                }]),
+                                ..Default::default()
+                            }))),
+                            ..Default::default()
+                        },
+                        BundleEntry {
+                            fullUrl: Some(Box::new(FHIRUri {
+                                value: Some("client-app".to_string()),
+                                ..Default::default()
+                            })),
+                            request: Some(BundleEntryRequest {
+                                method: Box::new(HttpVerb::PUT(None)),
+                                url: Box::new(FHIRUri {
+                                    value: Some(format!("ClientApplication/{}", id)),
+                                    ..Default::default()
+                                }),
+                                ..Default::default()
+                            }),
+                            resource: Some(Box::new(Resource::ClientApplication(
+                                ClientApplication {
+                                    id: Some(id.clone()),
+                                    secret: Some(Box::new(FHIRString {
+                                        value: Some(secret.clone()),
+                                        ..Default::default()
+                                    })),
+
+                                    scope: Some(Box::new(FHIRString {
+                                        value: Some("openid system/*.*".to_string()),
+                                        ..Default::default()
+                                    })),
+
+                                    name: Box::new(FHIRString {
+                                        value: Some("CLI".to_string()),
+                                        ..Default::default()
+                                    }),
+
+                                    grantType: vec![Box::new(
+                                        ClientapplicationGrantType::Client_credentials(None),
+                                    )],
+
+                                    responseTypes: Box::new(ClientapplicationResponseTypes::Token(
+                                        None,
+                                    )),
+
+                                    ..Default::default()
+                                },
+                            ))),
+                            ..Default::default()
+                        },
+                    ]),
+                    ..Default::default()
+                };
+
+                services
+                    .fhir_client
+                    .transaction(ctx, transaction_bundle)
+                    .await?;
 
                 Ok(())
             }
