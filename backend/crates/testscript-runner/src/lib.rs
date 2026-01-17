@@ -3,7 +3,8 @@ use haste_fhir_client::{
     request::{
         DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
         FHIRDeleteTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
-        HistoryResponse, InvokeResponse, SearchResponse, UpdateRequest,
+        FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryResponse, InvokeResponse,
+        SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -20,7 +21,7 @@ use haste_fhir_model::r4::generated::{
         AssertDirectionCodes, AssertOperatorCodes, BundleType, IssueType, ReportActionResultCodes,
         ReportResultCodes, ReportStatusCodes, TestscriptOperationCodes,
     },
-    types::{FHIRMarkdown, FHIRString, Reference},
+    types::{FHIRId, FHIRMarkdown, FHIRString, Reference},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Pointer};
@@ -266,6 +267,58 @@ fn testscript_operation_to_fhir_request(
                 .cloned()
                 .unwrap_or_default(),
         }))
+    } else if operation_type == (&TestscriptOperationCodes::Vread(None)).into() {
+        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Version Read operation requires targetId at '{}'.",
+                path
+            )));
+        };
+        let target = state.resolve_fixture(target_id)?;
+
+        let id = target
+            .get_field("id")
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Target fixture '{}' does not have an 'id' field.",
+                    target_id
+                ))
+            })?
+            .as_any()
+            .downcast_ref::<String>()
+            .cloned()
+            .unwrap_or_default();
+        let version_id = target
+            .get_field("meta")
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Target fixture '{}' does not have an 'meta' field.",
+                    target_id
+                ))
+            })?
+            .get_field("versionId")
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Target fixture '{}' does not have an 'versionId' field.",
+                    target_id
+                ))
+            })?
+            .as_any()
+            .downcast_ref::<Box<FHIRId>>()
+            .cloned()
+            .and_then(|v| v.value)
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Target fixture '{}' does not have an 'versionId' field.",
+                    target_id
+                ))
+            })?;
+
+        Ok(FHIRRequest::VersionRead(FHIRVersionReadRequest {
+            resource_type: derive_resource_type(operation, Some(target), path)?,
+            id: id,
+            version_id: version_id.into(),
+        }))
     } else if operation_type == (&TestscriptOperationCodes::Transaction(None)).into() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
@@ -327,6 +380,41 @@ fn testscript_operation_to_fhir_request(
             resource_type: derive_resource_type(operation, Some(source), path)?,
             resource: resource,
         }))
+    } else if operation_type == (&TestscriptOperationCodes::Update(None)).into() {
+        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Create operation requires sourceId at '{}'.",
+                path
+            )));
+        };
+        let source = state.resolve_fixture(source_id)?;
+        let resource = (source as &dyn Any)
+            .downcast_ref::<Resource>()
+            .cloned()
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Source fixture '{}' is not a Resource.",
+                    source_id
+                ))
+            })?;
+        Ok(FHIRRequest::Update(UpdateRequest::Instance(
+            FHIRUpdateInstanceRequest {
+                resource_type: derive_resource_type(operation, Some(source), path)?,
+                id: source
+                    .get_field("id")
+                    .ok_or_else(|| {
+                        TestScriptError::ExecutionError(format!(
+                            "Source fixture '{}' does not have an 'id' field.",
+                            source_id
+                        ))
+                    })?
+                    .as_any()
+                    .downcast_ref::<String>()
+                    .cloned()
+                    .unwrap_or_default(),
+                resource: resource,
+            },
+        )))
     } else if operation_type == (&TestscriptOperationCodes::Delete(None)).into() {
         let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
@@ -507,6 +595,7 @@ fn evaluate_operator(
 ) -> bool {
     match operator.as_ref() {
         AssertOperatorCodes::Equals(_) | AssertOperatorCodes::Null(_) => a == b,
+        AssertOperatorCodes::NotEquals(_) => !(a == b),
 
         AssertOperatorCodes::Contains(_) => {
             if a.len() != 1 || b.len() != 1 {
@@ -527,7 +616,6 @@ fn evaluate_operator(
         AssertOperatorCodes::LessThan(_) => todo!("LessThan operator not implemented"),
         AssertOperatorCodes::NotContains(_) => todo!("NotContains operator not implemented"),
         AssertOperatorCodes::NotEmpty(_) => todo!("NotEmpty operator not implemented"),
-        AssertOperatorCodes::NotEquals(_) => todo!("NotEquals operator not implemented"),
         AssertOperatorCodes::NotIn(_) => todo!("NotIn operator not implemented"),
     }
     // a == b

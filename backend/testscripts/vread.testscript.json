@@ -1,0 +1,176 @@
+{
+    "id": "vread-patient",
+    "name": "VRead tests",
+    "title": "VRead tests",
+    "status": "active",
+    "url": "https://haste.health/fhir/TestScript/vread-patient",
+    "description": "Creates a patient and validate vread response.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "patient-chalmers",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "vread-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Chalmers",
+                    "given": [
+                        "Peter"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient-create",
+            "resource": {
+                "reference": "#patient-chalmers"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "fixture-patient-create",
+                    "responseId": "create-response",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "assert": {
+                    "label": "01-ReadPatientOK",
+                    "description": "Confirm patient created.",
+                    "direction": "response",
+                    "resource": "Patient",
+                    "warningOnly": false
+                }
+            },
+            {
+                "assert": {
+                    "label": "Confirm first name is Peter",
+                    "expression": "Patient.name.given[0]",
+                    "value": "Peter",
+                    "warningOnly": false
+                }
+            },
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "update"
+                    },
+                    "resource": "Patient",
+                    "targetId": "create-response",
+                    "sourceId": "fixture-patient-create",
+                    "responseId": "update-response",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "VRead Patient",
+            "name": "VRead Patient",
+            "description": "VRead a Patient and validate response against both updated and created patient.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "vread"
+                        },
+                        "targetId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.id",
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Patient.id",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId",
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Patient.meta.versionId",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "vread"
+                        },
+                        "targetId": "update-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.id",
+                        "operator": "equals",
+                        "compareToSourceId": "update-response",
+                        "compareToSourceExpression": "Patient.id",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId",
+                        "operator": "equals",
+                        "compareToSourceId": "update-response",
+                        "compareToSourceExpression": "Patient.meta.versionId",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId",
+                        "operator": "notEquals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Patient.meta.versionId",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=vread-test",
+                    "description": "Delete Patients created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
