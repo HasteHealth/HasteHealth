@@ -290,13 +290,7 @@ fn testscript_operation_to_fhir_request(
             .unwrap_or_default();
         let version_id = target
             .get_field("meta")
-            .ok_or_else(|| {
-                TestScriptError::ExecutionError(format!(
-                    "Target fixture '{}' does not have an 'meta' field.",
-                    target_id
-                ))
-            })?
-            .get_field("versionId")
+            .and_then(|meta| meta.get_field("versionId"))
             .ok_or_else(|| {
                 TestScriptError::ExecutionError(format!(
                     "Target fixture '{}' does not have an 'versionId' field.",
