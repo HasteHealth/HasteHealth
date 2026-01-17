@@ -46,11 +46,17 @@ pub enum TestScriptError {
     OperationError(OperationOutcomeError),
 }
 
+#[derive(Debug, Clone)]
+enum Response {
+    FHIRResponse(FHIRResponse),
+    OperationError(Arc<OperationOutcomeError>),
+}
+
 #[derive(Debug)]
 enum Fixtures {
     Resource(Resource),
     Request(FHIRRequest),
-    Response(FHIRResponse),
+    Response(Response),
 }
 
 // Internal structure to hold current test result and testing fixtures.
@@ -58,7 +64,7 @@ struct TestState {
     fp_engine: haste_fhirpath::FPEngine,
     fixtures: HashMap<String, Fixtures>,
     latest_request: Option<FHIRRequest>,
-    latest_response: Option<FHIRResponse>,
+    latest_response: Option<Response>,
     result: ReportResultCodes,
 }
 
@@ -98,33 +104,39 @@ struct TestResult<T> {
     pub value: T,
 }
 
-fn response_to_meta_value<'a>(response: &'a FHIRResponse) -> Option<&'a dyn MetaValue> {
+fn response_to_meta_value<'a>(response: &'a Response) -> Option<&'a dyn MetaValue> {
     match response {
-        FHIRResponse::Create(res) => Some(&res.resource),
-        FHIRResponse::Read(res) => Some(&res.resource),
-        FHIRResponse::VersionRead(res) => Some(&res.resource),
-        FHIRResponse::Update(res) => Some(&res.resource),
-        FHIRResponse::Patch(res) => Some(&res.resource),
-        FHIRResponse::Batch(res) => Some(&res.resource),
-        FHIRResponse::Transaction(res) => Some(&res.resource),
+        Response::FHIRResponse(fhir_response) => match fhir_response {
+            FHIRResponse::Create(res) => Some(&res.resource),
+            FHIRResponse::Read(res) => Some(&res.resource),
+            FHIRResponse::VersionRead(res) => Some(&res.resource),
+            FHIRResponse::Update(res) => Some(&res.resource),
+            FHIRResponse::Patch(res) => Some(&res.resource),
+            FHIRResponse::Batch(res) => Some(&res.resource),
+            FHIRResponse::Transaction(res) => Some(&res.resource),
 
-        FHIRResponse::Capabilities(res) => Some(&res.capabilities),
-        FHIRResponse::Search(res) => match res {
-            SearchResponse::Type(res) => Some(&res.bundle),
-            SearchResponse::System(res) => Some(&res.bundle),
-        },
-        FHIRResponse::History(res) => match res {
-            HistoryResponse::Instance(res) => Some(&res.bundle),
-            HistoryResponse::Type(res) => Some(&res.bundle),
-            HistoryResponse::System(res) => Some(&res.bundle),
-        },
-        FHIRResponse::Invoke(res) => match res {
-            InvokeResponse::Instance(res) => Some(&res.resource),
-            InvokeResponse::Type(res) => Some(&res.resource),
-            InvokeResponse::System(res) => Some(&res.resource),
-        },
+            FHIRResponse::Capabilities(res) => Some(&res.capabilities),
+            FHIRResponse::Search(res) => match res {
+                SearchResponse::Type(res) => Some(&res.bundle),
+                SearchResponse::System(res) => Some(&res.bundle),
+            },
+            FHIRResponse::History(res) => match res {
+                HistoryResponse::Instance(res) => Some(&res.bundle),
+                HistoryResponse::Type(res) => Some(&res.bundle),
+                HistoryResponse::System(res) => Some(&res.bundle),
+            },
+            FHIRResponse::Invoke(res) => match res {
+                InvokeResponse::Instance(res) => Some(&res.resource),
+                InvokeResponse::Type(res) => Some(&res.resource),
+                InvokeResponse::System(res) => Some(&res.resource),
+            },
 
-        FHIRResponse::Delete(_) => None,
+            FHIRResponse::Delete(_) => None,
+        },
+        Response::OperationError(op_error) => {
+            let outcome = op_error.outcome();
+            Some(outcome)
+        }
     }
 }
 
@@ -159,7 +171,7 @@ fn associate_request_response_variables(
     state: &mut TestState,
     operation: &TestScriptSetupActionOperation,
     request: FHIRRequest,
-    response: FHIRResponse,
+    response: Response,
 ) {
     if let Some(request_var) = operation
         .requestId
@@ -408,7 +420,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
                 &mut state_guard,
                 operation,
                 fhir_request,
-                fhir_response,
+                Response::FHIRResponse(fhir_response),
             );
 
             drop(state_guard);
@@ -422,7 +434,14 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             })
         }
         Err(op_error) => {
+            let op_error = Arc::new(op_error);
             tracing::error!("Operation at '{}' failed: {}", pointer.path(), op_error);
+            associate_request_response_variables(
+                &mut state_guard,
+                operation,
+                fhir_request,
+                Response::OperationError(op_error.clone()),
+            );
 
             Ok(TestResult {
                 state: state.clone(),
