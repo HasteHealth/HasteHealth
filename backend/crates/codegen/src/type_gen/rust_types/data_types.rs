@@ -544,12 +544,39 @@ pub fn generate(
             }
         });
 
+    let resource_to_resource_type_match_arms = resource_types.iter().map(|resource_name| {
+        let resource_type_ident = format_ident!("{}", resource_name);
+        quote! {
+            Resource::#resource_type_ident(_) => ResourceType::#resource_type_ident
+        }
+    });
+
+    let resource_to_id_match_arms = resource_types.iter().map(|resource_name| {
+        let resource_type_ident = format_ident!("{}", resource_name);
+        quote! {
+            Resource::#resource_type_ident(r) => &r.id
+        }
+    });
+
     let resource_enum = quote! {
         #[derive(Clone, Reflect, Debug, haste_fhir_serialization_json::derive::FHIRJSONSerialize, haste_fhir_serialization_json::derive::FHIRJSONDeserialize)]
         #[fhir_serialize_type = "enum-variant"]
         #[determine_by = "resourceType"]
         pub enum Resource {
             #(#resource_type_enum_variant_idents),*
+        }
+
+        impl Resource {
+            pub fn resource_type(&self) -> ResourceType {
+                match self {
+              #(#resource_to_resource_type_match_arms),*
+                }
+            }
+            pub fn id<'a>(&'a self) -> &'a Option<String> {
+                match self {
+                #(#resource_to_id_match_arms),*
+                }
+            }
         }
     };
 

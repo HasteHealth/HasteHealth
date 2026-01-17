@@ -25,7 +25,7 @@ use haste_fhir_client::{
 use haste_fhir_model::r4::generated::{
     resources::{Bundle, BundleEntry, Resource},
     terminology::{BundleType, IssueType},
-    types::FHIRUnsignedInt,
+    types::{FHIRUnsignedInt, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -60,6 +60,14 @@ pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, resources: Vec<Res
             resources
                 .into_iter()
                 .map(|r| BundleEntry {
+                    fullUrl: Some(Box::new(FHIRUri {
+                        value: Some(format!(
+                            "{}/{}",
+                            r.resource_type().as_ref(),
+                            r.id().as_ref().map(|s| s.as_str()).unwrap_or("")
+                        )),
+                        ..Default::default()
+                    })),
                     resource: Some(Box::new(r)),
                     ..Default::default()
                 })

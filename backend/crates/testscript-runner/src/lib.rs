@@ -308,21 +308,15 @@ async fn evaluate_variable(
     value: &str,
 ) -> Result<String, TestScriptError> {
     let mut result = value.to_string();
-    let variable_pointer = pointer
-        .descend::<Vec<TestScriptVariable>>(&Key::Field("variable".to_string()))
-        .ok_or_else(|| {
-            TestScriptError::ExecutionError(format!(
-                "Failed to retrieve variables from TestScript at '{}'.",
-                pointer.path()
-            ))
-        })?;
+    let variable_pointer =
+        pointer.descend::<Vec<TestScriptVariable>>(&Key::Field("variable".to_string()));
+    let default_variables = vec![];
 
-    let variables = variable_pointer.value().ok_or_else(|| {
-        TestScriptError::ExecutionError(format!(
-            "Failed to retrieve variables from TestScript at '{}'.",
-            pointer.path()
-        ))
-    })?;
+    let variables = if let Some(pointer) = variable_pointer.as_ref() {
+        pointer.value().unwrap_or(&default_variables)
+    } else {
+        &default_variables
+    };
 
     for reg_match in EXPRESSION_REGEX.captures_iter(value) {
         let full_match = reg_match.get(0).map(|m| m.as_str()).unwrap_or("");
@@ -428,6 +422,45 @@ async fn testscript_operation_to_fhir_request(
             id: id,
             version_id: version_id.into(),
         }))
+    } else if operation_type == (&TestscriptOperationCodes::Search(None)).into() {
+        let query_string = operation
+            .params
+            .as_ref()
+            .and_then(|p| p.value.as_ref())
+            .cloned()
+            .unwrap_or_default();
+
+        let processed_query = ParsedParameters::try_from(
+            evaluate_variable(state, pointer.root(), &query_string)
+                .await?
+                .as_str(),
+        )
+        .map_err(|e| {
+            TestScriptError::ExecutionError(format!(
+                "Failed to parse parameters for History operation at '{}': {}",
+                pointer.path(),
+                e
+            ))
+        })?;
+
+        if let Ok(resource_type) = derive_resource_type(operation, None, pointer.path()) {
+            Ok(FHIRRequest::Search(
+                haste_fhir_client::request::SearchRequest::Type(
+                    haste_fhir_client::request::FHIRSearchTypeRequest {
+                        resource_type,
+                        parameters: processed_query,
+                    },
+                ),
+            ))
+        } else {
+            Ok(FHIRRequest::Search(
+                haste_fhir_client::request::SearchRequest::System(
+                    haste_fhir_client::request::FHIRSearchSystemRequest {
+                        parameters: processed_query,
+                    },
+                ),
+            ))
+        }
     } else if operation_type == (&TestscriptOperationCodes::History(None)).into() {
         let query_string = operation
             .params
