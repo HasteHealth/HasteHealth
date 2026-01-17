@@ -617,8 +617,6 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
 
         let query = query_builder.build_query_as();
 
-        println!("History Query: {}", query.sql());
-
         let result: Vec<ReturnSingularResource> = query
             .fetch_all(&mut *conn)
             .await
