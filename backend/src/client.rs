@@ -40,9 +40,8 @@ async fn config_to_fhir_http_state(
                             else {
                                 return Err(OperationOutcomeError::error(
                             IssueType::Invalid(None),
-                            "No active profile set. Please set an active profile using the config command."
-                                .to_string(),
-                        ));
+                            "No active profile set. Please set an active profile using the config command.".to_string(),
+                                ));
                             };
 
                             let well_known_document: Cow<WellKnownDiscoveryDocument> =
@@ -86,6 +85,7 @@ async fn config_to_fhir_http_state(
 
                                     current_state.well_known_document =
                                         Some(well_known_document.clone());
+
                                     Cow::Owned(well_known_document)
                                 };
 
