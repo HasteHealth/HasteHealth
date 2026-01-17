@@ -278,9 +278,10 @@ async fn get_variable(
             .iter()
             .map(|d| {
                 conversion::convert_meta_value(d).ok_or_else(|| {
-                    TestScriptError::ExecutionError(
-                        "Failed to convert comparison fixture value.".to_string(),
-                    )
+                    TestScriptError::ExecutionError(format!(
+                        "Failed to convert comparison fixture value '{}'.",
+                        d.typename()
+                    ))
                 })
             })
             .collect::<Result<Vec<_>, TestScriptError>>()?;
@@ -548,7 +549,7 @@ async fn testscript_operation_to_fhir_request(
     } else if operation_type == (&TestscriptOperationCodes::Update(None)).into() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
-                "Create operation requires sourceId at '{}'.",
+                "Update operation requires sourceId at '{}'.",
                 pointer.path()
             )));
         };
@@ -562,10 +563,29 @@ async fn testscript_operation_to_fhir_request(
                     source_id
                 ))
             })?;
+
+        let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Update operation requires targetId at '{}'.",
+                pointer.path()
+            )));
+        };
+
+        let target = state.resolve_fixture(target_id)?;
+        let target_resource = (target as &dyn Any)
+            .downcast_ref::<Resource>()
+            .cloned()
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Source fixture '{}' is not a Resource.",
+                    source_id
+                ))
+            })?;
+
         Ok(FHIRRequest::Update(UpdateRequest::Instance(
             FHIRUpdateInstanceRequest {
-                resource_type: derive_resource_type(operation, Some(source), pointer.path())?,
-                id: source
+                resource_type: derive_resource_type(operation, Some(target), pointer.path())?,
+                id: target_resource
                     .get_field("id")
                     .ok_or_else(|| {
                         TestScriptError::ExecutionError(format!(
@@ -827,9 +847,10 @@ async fn derive_comparison_to(
             .iter()
             .map(|d| {
                 conversion::convert_meta_value(d).ok_or_else(|| {
-                    TestScriptError::ExecutionError(
-                        "Failed to convert comparison fixture value.".to_string(),
-                    )
+                    TestScriptError::ExecutionError(format!(
+                        "Failed to convert comparison fixture value '{}'.",
+                        d.typename()
+                    ))
                 })
             })
             .collect::<Result<Vec<_>, TestScriptError>>()
@@ -883,15 +904,17 @@ async fn run_assertion(
 
         let operation_evaluation_result = evaluate_operator(
             operator,
-            &vec![conversion::ConvertedValue::String(resource_string)],
+            &vec![conversion::ConvertedValue::String(resource_string.clone())],
             &vec![conversion::ConvertedValue::String(
                 source.typename().to_string(),
             )],
         );
         if !operation_evaluation_result {
             tracing::error!(
-                "Assertion at '{}' failed: resource type does not match.",
-                pointer.path()
+                "Assertion at '{}' failed: resource type '{}' does not match '{}'.",
+                pointer.path(),
+                resource_string,
+                source.typename()
             );
 
             state_guard.result = ReportResultCodes::Fail(None);
@@ -905,7 +928,7 @@ async fn run_assertion(
         }
     }
     if let Some(expression) = assertion.expression.as_ref().and_then(|e| e.value.as_ref()) {
-        let comparison_to = derive_comparison_to(&state_guard, assertion).await;
+        let comparison_to = derive_comparison_to(&state_guard, assertion).await?;
 
         let Ok(result) = state_guard
             .fp_engine
@@ -913,7 +936,8 @@ async fn run_assertion(
             .await
         else {
             tracing::error!(
-                "Assertion at '{}' failed: FHIRPath evaluation error.",
+                "Assertion at '{}' failed: FHIRPath expression '{}' failed to evaluate.",
+                expression,
                 pointer.path()
             );
 
@@ -930,12 +954,15 @@ async fn run_assertion(
             .collect::<Vec<_>>();
 
         let operation_evaluation_result =
-            evaluate_operator(operator, &converted_values, &comparison_to?);
+            evaluate_operator(operator, &converted_values, &comparison_to);
 
         if !operation_evaluation_result {
             tracing::error!(
-                "Assertion at '{}' failed: operator evaluation failed.",
-                pointer.path()
+                "Assertion at '{}' failed: '{:?}' {:?} '{:?}'.",
+                pointer.path(),
+                converted_values,
+                operator,
+                comparison_to
             );
 
             state_guard.result = ReportResultCodes::Fail(None);

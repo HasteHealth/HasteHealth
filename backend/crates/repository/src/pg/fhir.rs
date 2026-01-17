@@ -520,44 +520,49 @@ fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
 
 fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
-    tenant_id: &'a TenantId,
-    project_id: &'a ProjectId,
+    tenant: &'a TenantId,
+    project: &'a ProjectId,
     history_request: &'a HistoryRequest,
 ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
+
+        let mut query_builder: QueryBuilder<Postgres> =
+            QueryBuilder::new(r#"SELECT resource FROM resources WHERE  "#);
+
+        let mut clauses = query_builder.separated(" AND ");
+        clauses
+            .push(" tenant = ")
+            .push_bind_unseparated(tenant.as_ref())
+            .push(" project = ")
+            .push_bind_unseparated(project.as_ref());
+
         match history_request {
             HistoryRequest::Instance(history_instance_request) => {
-                let response = sqlx::query_as!(ReturnSingularResource,
-                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 100"#,
-                        tenant_id.as_ref()  as &str,
-                        project_id.as_ref() as &str,
-                        history_instance_request.id.as_ref() as &str,
-                        history_instance_request.resource_type.as_ref() as &str
-                    ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
-
-                Ok(response.into_iter().map(|r| r.resource.0).collect())
+                clauses
+                    .push(" resource_type = ")
+                    .push_bind_unseparated(history_instance_request.resource_type.as_ref())
+                    .push(" id = ")
+                    .push_bind_unseparated(&history_instance_request.id);
             }
             HistoryRequest::Type(history_type_request) => {
-                let response = sqlx::query_as!(ReturnSingularResource,
-                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 AND resource_type = $3 ORDER BY sequence DESC LIMIT 100"#,
-                        tenant_id.as_ref()  as &str,
-                        project_id.as_ref() as &str,
-                        history_type_request.resource_type.as_ref() as &str
-                    ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
-
-                Ok(response.into_iter().map(|r| r.resource.0).collect())
+                clauses
+                    .push(" resource_type = ")
+                    .push_bind_unseparated(history_type_request.resource_type.as_ref());
             }
-            HistoryRequest::System(_request) => {
-                let response = sqlx::query_as!(ReturnSingularResource,
-                    r#"SELECT resource as "resource: FHIRJson<Resource>" FROM resources WHERE tenant = $1 AND project = $2 ORDER BY sequence DESC LIMIT 100"#,
-                        tenant_id.as_ref()  as &str,
-                        project_id.as_ref() as &str
-                    ).fetch_all(&mut *conn).await.map_err(StoreError::from)?;
+            HistoryRequest::System(_request) => {}
+        };
 
-                Ok(response.into_iter().map(|r| r.resource.0).collect())
-            }
-        }
+        query_builder.push(" ORDER BY sequence DESC LIMIT 100");
+
+        let query = query_builder.build_query_as();
+
+        let result: Vec<ReturnSingularResource> = query
+            .fetch_all(&mut *conn)
+            .await
+            .map_err(StoreError::from)?;
+
+        Ok(result.into_iter().map(|r| r.resource.0).collect::<Vec<_>>())
     }
 }
 

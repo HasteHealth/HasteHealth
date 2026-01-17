@@ -448,6 +448,19 @@ async fn evaluate_function<'a>(
             let type_name = derive_typename(&function.arguments[0])?;
             Ok(filter_by_type(&type_name, &context))
         }
+        "count" => {
+            validate_arguments(&function.arguments, &Cardinality::Zero)?;
+
+            let count = context.values.len() as i64;
+            Ok(
+                context.new_context_from(vec![context.allocate(ResolvedValue::Box(Box::new(
+                    FHIRInteger {
+                        value: Some(count),
+                        ..Default::default()
+                    },
+                )))]),
+            )
+        }
         "as" => {
             validate_arguments(&function.arguments, &Cardinality::One)?;
 

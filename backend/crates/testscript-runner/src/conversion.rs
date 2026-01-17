@@ -27,6 +27,24 @@ fn downcast_string(value: &dyn MetaValue) -> Option<String> {
             downcast_string(value.get_field("value").unwrap_or(&"".to_string()))
         }
 
+        "FHIRDate" => value
+            .as_any()
+            .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRDate>()
+            .and_then(|dt| dt.value.as_ref())
+            .map(|d| d.to_string()),
+
+        "FHIRDateTime" => value
+            .as_any()
+            .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRDateTime>()
+            .and_then(|dt| dt.value.as_ref())
+            .map(|d| d.to_string()),
+
+        "FHIRInstant" => value
+            .as_any()
+            .downcast_ref::<haste_fhir_model::r4::generated::types::FHIRInstant>()
+            .and_then(|dt| dt.value.as_ref())
+            .map(|d| d.to_string()),
+
         "http://hl7.org/fhirpath/System.String" => {
             value.as_any().downcast_ref::<String>().map(|v| v.clone())
         }

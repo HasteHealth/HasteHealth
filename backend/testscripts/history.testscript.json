@@ -1,7 +1,10 @@
 {
     "id": "history-tests",
     "resourceType": "TestScript",
+    "url": "https://haste.health/fhir/TestScript/history-tests",
     "title": "History tests",
+    "name": "History Test",
+    "status": "active",
     "description": "This test script tests the history operation.",
     "contained": [
         {
@@ -131,7 +134,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.id",
+                        "expression": "Bundle.entry[0].resource.id",
                         "compareToSourceExpression": "Patient.id",
                         "compareToSourceId": "update-response",
                         "warningOnly": false
@@ -139,7 +142,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.meta.versionId",
+                        "expression": "Bundle.entry[0].resource.meta.versionId",
                         "compareToSourceExpression": "Patient.meta.versionId",
                         "compareToSourceId": "update-response",
                         "warningOnly": false
@@ -147,7 +150,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.id",
+                        "expression": "Bundle.entry[0].resource.id",
                         "compareToSourceExpression": "Patient.id",
                         "compareToSourceId": "update-response",
                         "operator": "equals",
@@ -245,9 +248,10 @@
                 "operation": {
                     "type": {
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                        "code": "delete"
+                        "code": "deleteCondMultiple"
                     },
-                    "params": "_tag=history-test"
+                    "params": "_tag=history-test",
+                    "encodeRequestUrl": false
                 }
             }
         ]
