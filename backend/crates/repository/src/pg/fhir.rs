@@ -22,7 +22,7 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 use moka::future::Cache;
-use sqlx::{Acquire, Execute, Postgres, QueryBuilder, query_builder::Separated};
+use sqlx::{Acquire, Postgres, QueryBuilder, query_builder::Separated};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
