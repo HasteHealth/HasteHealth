@@ -1780,6 +1780,7 @@ dependencies = [
  "haste-fhirpath",
  "haste-pointer",
  "haste-reflect",
+ "regex",
  "tokio",
  "tracing",
 ]

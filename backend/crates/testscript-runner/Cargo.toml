@@ -20,3 +20,4 @@ haste-pointer = { path = "../pointer", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 tokio = { version = "1.49.0", features = ["sync"] }
 tracing = "0.1.41"
+regex = "1.12.2"

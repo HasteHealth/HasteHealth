@@ -16,6 +16,6 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
-regex = "1.11.1"
+regex = "1.12.2"
 serde_json = "1.0.140"
 walkdir = "2.5.0"

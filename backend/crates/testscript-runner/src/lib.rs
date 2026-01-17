@@ -15,7 +15,7 @@ use haste_fhir_model::r4::generated::{
         TestReportTeardownAction, TestReportTest, TestReportTestAction, TestScript,
         TestScriptFixture, TestScriptSetup, TestScriptSetupAction, TestScriptSetupActionAssert,
         TestScriptSetupActionOperation, TestScriptTeardown, TestScriptTeardownAction,
-        TestScriptTest, TestScriptTestAction,
+        TestScriptTest, TestScriptTestAction, TestScriptVariable,
     },
     terminology::{
         AssertDirectionCodes, AssertOperatorCodes, BundleType, IssueType, ReportActionResultCodes,
@@ -26,6 +26,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Pointer};
 use haste_reflect::MetaValue;
+use regex::Regex;
 use std::{
     any::Any,
     collections::HashMap,
@@ -230,6 +231,126 @@ fn derive_resource_type(
         )))
     }
 }
+
+static EXPRESSION_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\$\{([^}]*)\}").unwrap());
+
+async fn get_variable(
+    state: Arc<Mutex<TestState>>,
+    variables: &Vec<TestScriptVariable>,
+    variable_id: &str,
+) -> Result<Option<ConvertedValue>, TestScriptError> {
+    let Some(variable) = variables
+        .iter()
+        .find(|v| v.name.value.as_ref().map(|s| s.as_str()) == Some(variable_id))
+    else {
+        return Err(TestScriptError::ExecutionError(format!(
+            "Variable with id '{}' not found.",
+            variable_id
+        )));
+    };
+
+    if let Some(expression) = variable
+        .expression
+        .as_ref()
+        .and_then(|exp| exp.value.as_ref())
+    {
+        let state_guard = state.lock().await;
+
+        let values =
+            if let Some(source_id) = variable.sourceId.as_ref().and_then(|id| id.value.as_ref()) {
+                let source = state_guard.resolve_fixture(source_id)?;
+                vec![source]
+            } else {
+                vec![]
+            };
+
+        let eval_result = state_guard
+            .fp_engine
+            .evaluate(expression, values)
+            .await
+            .map_err(|e| {
+                TestScriptError::ExecutionError(format!(
+                    "Failed to evaluate FHIRPath expression for variable '{}': {}",
+                    variable_id, e
+                ))
+            })?;
+
+        todo!();
+    } else {
+        return Err(TestScriptError::ExecutionError(format!(
+            "Only support variable with expression for variable id '{}'.",
+            variable_id
+        )));
+    }
+}
+
+async fn evaluate_variable(
+    state: Arc<Mutex<TestState>>,
+    pointer: Pointer<TestScript, TestScript>,
+    value: &str,
+) -> Result<String, TestScriptError> {
+    let variable_pointer = pointer
+        .descend::<Vec<TestScriptVariable>>(&Key::Field("variable".to_string()))
+        .ok_or_else(|| {
+            TestScriptError::ExecutionError(format!(
+                "Failed to retrieve variables from TestScript at '{}'.",
+                pointer.path()
+            ))
+        })?;
+
+    let variables = variable_pointer.value().ok_or_else(|| {
+        TestScriptError::ExecutionError(format!(
+            "Failed to retrieve variables from TestScript at '{}'.",
+            pointer.path()
+        ))
+    })?;
+
+    for reg_match in EXPRESSION_REGEX.captures_iter(value) {
+        let Some(variable_id) = reg_match.get(1).map(|m| m.as_str()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Invalid variable expression in '{}'.",
+                value
+            )));
+        };
+    }
+
+    todo!();
+}
+
+// async function evaluateVariables<Version extends FHIR_VERSION>(
+//   state: TestScriptState<Version>,
+//   pointer: Loc<Resource<Version, "TestScript">, any, any>,
+//   value: string,
+// ): Promise<string> {
+//   let output = value;
+//   const variables =
+//     get(descend(root(pointer), "variable"), state.testScript) ?? [];
+
+//   while (EXPRESSION_REGEX.test(output)) {
+//     const result = EXPRESSION_REGEX.exec(output);
+//     const variableName = result?.[1];
+//     const match = result?.[0];
+
+//     if (!match || !variableName) {
+//       throw new Error("Invalid expression");
+//     }
+
+//     const variableValue = (
+//       await getVariable(state, variables, variableName)
+//     )?.toString();
+//     if (!variableValue)
+//       throw new OperationError(
+//         outcomeError(
+//           "invalid",
+//           `Variable with id '${variableName}' not found.`,
+//         ),
+//       );
+
+//     output = output.replace(match, variableValue);
+//   }
+
+//   return output;
+// }
 
 fn testscript_operation_to_fhir_request(
     state: &TestState,
