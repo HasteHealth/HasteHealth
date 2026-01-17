@@ -25,6 +25,41 @@ impl ToString for DateTime {
     }
 }
 
+impl TryFrom<DateTime> for chrono::DateTime<chrono::Utc> {
+    type Error = ParseError;
+
+    fn try_from(value: DateTime) -> Result<Self, Self::Error> {
+        match value {
+            // "1996-12-19T16:39:57-08:00"
+            DateTime::Year(year) => {
+                let datetime = chrono::DateTime::parse_from_rfc3339(
+                    format!("{}-01-01T00:00:00Z", year).as_str(),
+                )
+                .map_err(|_| ParseError::InvalidFormat)?;
+
+                Ok(datetime.with_timezone(&chrono::Utc))
+            }
+            DateTime::YearMonth(year, month) => {
+                let datetime = chrono::DateTime::parse_from_rfc3339(
+                    format!("{}-{:02}-01T00:00:00Z", year, month).as_str(),
+                )
+                .map_err(|_| ParseError::InvalidFormat)?;
+
+                Ok(datetime.with_timezone(&chrono::Utc))
+            }
+            DateTime::YearMonthDay(year, month, day) => {
+                let datetime = chrono::DateTime::parse_from_rfc3339(
+                    format!("{}-{:02}-{:02}T00:00:00Z", year, month, day).as_str(),
+                )
+                .map_err(|_| ParseError::InvalidFormat)?;
+
+                Ok(datetime.with_timezone(&chrono::Utc))
+            }
+            DateTime::Iso8601(dt) => Ok(dt),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Date {
     Year(u16),

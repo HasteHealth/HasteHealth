@@ -215,7 +215,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[1].response.etag",
+                        "expression": "Bundle.entry[1].resource.meta.versionId",
                         "compareToSourceExpression": "Patient.meta.versionId",
                         "compareToSourceId": "create-response",
                         "operator": "equals",

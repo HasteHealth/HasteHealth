@@ -7,15 +7,22 @@ use crate::{
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
 };
-use haste_fhir_client::request::HistoryRequest;
+use haste_fhir_client::{
+    request::HistoryRequest,
+    url::{ParsedParameter, ParsedParameters},
+};
 use haste_fhir_model::r4::{
-    generated::resources::{Resource, ResourceType},
+    datetime::parse_datetime,
+    generated::{
+        resources::{Resource, ResourceType},
+        terminology::IssueType,
+    },
     sqlx::{FHIRJson, FHIRJsonRef},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId, claims::UserTokenClaims};
 use moka::future::Cache;
-use sqlx::{Acquire, Postgres, QueryBuilder};
+use sqlx::{Acquire, Execute, Postgres, QueryBuilder, query_builder::Separated};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -518,6 +525,49 @@ fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     }
 }
 
+fn process_history_parameters<'a>(
+    parameters: &'a ParsedParameters,
+    clauses: &mut Separated<'_, 'a, Postgres, &str>,
+) -> Result<(), OperationOutcomeError> {
+    for parameter in parameters.parameters() {
+        match parameter {
+            ParsedParameter::Result(result_param) => match result_param.name.as_str() {
+                "_since" => {
+                    if let Some(value) = &result_param.value.get(0) {
+                        let date_time = parse_datetime(value.as_str()).map_err(|e| {
+                            OperationOutcomeError::fatal(
+                                IssueType::Invalid(None),
+                                format!("Invalid _since parameter datetime: {:?}", e),
+                            )
+                        })?;
+
+                        clauses.push(" created_at >= ").push_bind_unseparated(
+                            chrono::DateTime::try_from(date_time).map_err(|e| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    format!("Invalid _since parameter datetime: {:?}", e),
+                                )
+                            })?,
+                        );
+                    }
+                }
+                _ => {}
+            },
+            _ => {
+                return Err(OperationOutcomeError::fatal(
+                    IssueType::NotSupported(None),
+                    format!(
+                        "Parameter '{}' is not supported for history requests.",
+                        parameter.name()
+                    ),
+                ));
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     connection: Connection,
     tenant: &'a TenantId,
@@ -536,6 +586,16 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
             .push_bind_unseparated(tenant.as_ref())
             .push(" project = ")
             .push_bind_unseparated(project.as_ref());
+
+        let history_parameters = match history_request {
+            HistoryRequest::Instance(history_instance_request) => {
+                &history_instance_request.parameters
+            }
+            HistoryRequest::Type(history_type_request) => &history_type_request.parameters,
+            HistoryRequest::System(system_request) => &system_request.parameters,
+        };
+
+        process_history_parameters(&history_parameters, &mut clauses)?;
 
         match history_request {
             HistoryRequest::Instance(history_instance_request) => {
@@ -556,6 +616,8 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         query_builder.push(" ORDER BY sequence DESC LIMIT 100");
 
         let query = query_builder.build_query_as();
+
+        println!("History Query: {}", query.sql());
 
         let result: Vec<ReturnSingularResource> = query
             .fetch_all(&mut *conn)

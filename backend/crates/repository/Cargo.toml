@@ -30,7 +30,9 @@ sqlx = { version = "0.8", features = [
     "tls-native-tls",
     "postgres",
     "time",
+    "chrono",
 ] }
 sqlx-postgres = "0.8.6"
 tokio = { version = "1.49.0", features = ["sync"] }
 tracing = "0.1.41"
+chrono = "0.4.41"

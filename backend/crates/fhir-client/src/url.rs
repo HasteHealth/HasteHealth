@@ -18,6 +18,14 @@ pub enum ParsedParameter {
     Resource(Parameter),
 }
 
+impl ParsedParameter {
+    pub fn name(&self) -> &str {
+        match self {
+            ParsedParameter::Result(p) | ParsedParameter::Resource(p) => &p.name,
+        }
+    }
+}
+
 impl MetaValue for ParsedParameter {
     fn fields(&self) -> Vec<&'static str> {
         match self {
@@ -100,6 +108,7 @@ static RESULT_PARAMETERS: &[&str] = &[
     "_elements",
     "_contained",
     "_containedType",
+    "_since",
 ];
 
 #[derive(Debug, Clone)]
