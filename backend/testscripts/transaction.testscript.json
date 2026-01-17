@@ -172,6 +172,41 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "02-Circular Transaction",
+            "name": "Circular Transaction test",
+            "description": "Submit a Circular transaction resource.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "transaction"
+                        },
+                        "sourceId": "fixture-circular-transaction",
+                        "responseId": "transaction-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "verify resource type",
+                        "description": "verify the resource type is OperationOutcome",
+                        "resource": "OperationOutcome",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "label": "verify failure",
+                        "description": "Verify exception",
+                        "expression": "OperationOutcome.issue[0].code",
+                        "value": "exception",
+                        "warningOnly": false
+                    }
+                }
+            ]
         }
     ],
     "teardown": {

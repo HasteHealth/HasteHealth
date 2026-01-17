@@ -435,7 +435,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
         }
         Err(op_error) => {
             let op_error = Arc::new(op_error);
-            tracing::error!("Operation at '{}' failed: {}", pointer.path(), op_error);
+            tracing::warn!("Operation at '{}' failed: {}", pointer.path(), op_error);
             associate_request_response_variables(
                 &mut state_guard,
                 operation,
@@ -718,8 +718,6 @@ async fn run_action<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             pointer.path()
         ))
     })?;
-
-    tracing::info!("Running TestScript action at path: {}", pointer.path());
 
     // Should be either an operation or an assert.
     // Both should not exist at the same time.
