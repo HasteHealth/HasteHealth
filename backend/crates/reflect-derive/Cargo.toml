@@ -10,5 +10,5 @@ homepage = { workspace = true }
 proc-macro = true
 
 [dependencies]
-quote = "1.0.40"
+quote = { workspace = true }
 syn = "2.0.104"

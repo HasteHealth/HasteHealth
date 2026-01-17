@@ -20,12 +20,12 @@ haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-repository = { path = "../repository", version = "0.*" }
-sqlx = { version = "0.8", features = [
+sqlx = { workspace = true, features = [
     "runtime-tokio",
     "tls-native-tls",
     "postgres",
     "time",
 ] }
 sqlx-postgres = "0.8.6"
-tokio = { version = "1.49.0", features = ["full"] }
-tracing = "0.1.41"
+tokio = { workspace = true, features = ["full"] }
+tracing = { workspace = true }

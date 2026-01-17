@@ -15,7 +15,7 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 proc-macro2 = "1.0.95"
-quote = "1.0.40"
-regex = "1.12.2"
-serde_json = "1.0.140"
-walkdir = "2.5.0"
+quote = { workspace = true }
+regex = { workspace = true }
+serde_json = { workspace = true }
+walkdir = { workspace = true }

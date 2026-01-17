@@ -50,10 +50,34 @@ license = "BSD-3-Clause"
 homepage = "https://haste.health"
 edition = "2024"
 
+
+[workspace.dependencies]
+tokio = { version = "1.49.0" }
+tracing = "0.1.41"
+serde = "1.0.228"
+serde_json = "1.0.145"
+sqlx = "0.8"
+sqlx-postgres = "0.8.6"
+dotenvy = "0.15.7"
+regex = "1.12.2"
+jsonwebtoken = "10.2.0"
+axum = "0.8.4"
+chrono = "0.4.41"
+reqwest = "0.12"
+walkdir = "2.5.0"
+quote = "1.0.40"
+
 [dependencies]
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
+tokio = { workspace = true, features = ["full"] }
+walkdir = { workspace = true }
+quote = { workspace = true }
 clap = { version = "4.5.40", features = ["derive"] }
 dialoguer = "0.12.0"
-jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
 haste-codegen = { path = "./crates/codegen" }
 haste-config = { path = "./crates/config" }
 haste-fhir-client = { path = "./crates/fhir-client", features = ["http"] }
@@ -67,14 +91,7 @@ haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
-quote = "1.0.40"
-reqwest = { version = "0.12" }
-serde = "1.0.228"
-serde_json = "1.0"
 thiserror = "2.0.12"
-tracing = "0.1.41"
 tracing-subscriber = "0.3.20"
-tokio = { version = "1.49.0", features = ["full"] }
 toml = "0.9.8"
 json-patch = "4.1.0"
-walkdir = "2.5.0"

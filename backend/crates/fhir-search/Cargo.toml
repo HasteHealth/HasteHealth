@@ -8,7 +8,7 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-chrono = "0.4.41"
+chrono = { workspace = true }
 elasticsearch = "9.0.0-alpha.1"
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
@@ -21,7 +21,7 @@ haste-jwt = { path = "../jwt", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-repository = { path = "../repository", version = "0.*" }
 # rayon = "1.10.0"
-serde = "1.0.219"
-serde_json = "1.0.140"
-tracing = "0.1.41"
-tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

@@ -9,17 +9,30 @@ homepage = { workspace = true }
 
 
 [dependencies]
+dotenvy = { workspace = true }
+sqlx-postgres = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+serde_json = { workspace = true }
+serde = { workspace = true }
+sqlx = { workspace = true, features = [
+    "runtime-tokio",
+    "tls-native-tls",
+    "postgres",
+    "time",
+] }
+jsonwebtoken = { workspace = true }
+regex = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+reqwest = { workspace = true }
+walkdir = { workspace = true }
 axum = { version = "0.8.4", features = ["macros"] }
 axum-extra = { version = "0.10.1", features = [
     "typed-routing",
     "typed-header",
 ] }
 base64 = "0.22.1"
-chrono = "0.4.41"
-clap = { version = "4.5.45", features = ["derive"] }
-dotenvy = "0.15.7"
 json-patch = "4.0.0"
-jsonwebtoken = "9.3.1"
 maud = { version = "0.27.0", features = ["axum"] }
 mime_guess = "2.0.5"
 haste-access-control = { path = "../access-control", version = "0.*" }
@@ -50,24 +63,12 @@ haste-repository = { path = "../repository", version = "0.*", features = [
 haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 petgraph = "0.8.3"
 rand = "0.8"
-regex = "1.12.2"
-reqwest = { version = "0.12" }
 rsa = "0.9.10"
 rust-embed = { version = "8.9.0", features = ["axum-ex"] }
 sendgrid = "0.24.1"
-serde = "1.0.219"
 serde_html_form = "0.2.8"
-serde_json = "1.0.140"
 sha1 = "0.10.6"
 sha2 = "0.10.9"
-sqlx = { version = "0.8", features = [
-    "runtime-tokio",
-    "tls-native-tls",
-    "postgres",
-    "time",
-] }
-sqlx-postgres = "0.8.6"
-tokio = { version = "1.49.0", features = ["full"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.6", features = [
     "fs",
@@ -78,8 +79,6 @@ tower-http = { version = "0.6.6", features = [
 ] }
 tower-sessions = "0.14.0"
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
-tracing = "0.1.41"
 typify = "0.5.0"
 url = "2.5.4"
 zxcvbn = "3.1.0"
-walkdir = "2.5.0"

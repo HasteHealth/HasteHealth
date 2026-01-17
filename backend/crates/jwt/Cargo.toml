@@ -14,5 +14,5 @@ reflect = ["dep:haste-reflect"]
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", optional = true }
-serde = "1.0.228"
-sqlx = { version = "0.8", optional = true }
+serde = { workspace = true }
+sqlx = { workspace = true, optional = true }

@@ -7,9 +7,9 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-dotenvy = "0.15.7"
+tracing = { workspace = true }
+dotenvy = { workspace = true }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
 ] }
-tracing = "0.1.41"

@@ -12,8 +12,8 @@ haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
-regex = "1.12.2"
+regex = { workspace = true }
 
 
 [dev-dependencies]
-tokio = { version = "1.49.0", features = ["rt", "macros"] }
+tokio = { workspace = true, features = ["rt", "macros"] }
