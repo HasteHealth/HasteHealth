@@ -10,6 +10,16 @@ pub enum ConvertedValue {
     Number(f64),
 }
 
+impl ToString for ConvertedValue {
+    fn to_string(&self) -> String {
+        match self {
+            ConvertedValue::String(s) => s.clone(),
+            ConvertedValue::Boolean(b) => b.to_string(),
+            ConvertedValue::Number(n) => n.to_string(),
+        }
+    }
+}
+
 fn downcast_string(value: &dyn MetaValue) -> Option<String> {
     match value.typename() {
         "FHIRCanonical" | "FHIRBase64Binary" | "FHIRCode" | "FHIRString" | "FHIROid" | "FHIRId"

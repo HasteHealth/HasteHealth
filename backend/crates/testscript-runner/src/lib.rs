@@ -238,7 +238,7 @@ async fn get_variable(
     state: Arc<Mutex<TestState>>,
     variables: &Vec<TestScriptVariable>,
     variable_id: &str,
-) -> Result<Option<ConvertedValue>, TestScriptError> {
+) -> Result<ConvertedValue, TestScriptError> {
     let Some(variable) = variables
         .iter()
         .find(|v| v.name.value.as_ref().map(|s| s.as_str()) == Some(variable_id))
@@ -275,7 +275,25 @@ async fn get_variable(
                 ))
             })?;
 
-        todo!();
+        let converted_values = eval_result
+            .iter()
+            .map(|d| {
+                conversion::convert_meta_value(d).ok_or_else(|| {
+                    TestScriptError::ExecutionError(
+                        "Failed to convert comparison fixture value.".to_string(),
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>, TestScriptError>>()?;
+
+        if converted_values.len() == 1 {
+            Ok(converted_values.into_iter().next().unwrap())
+        } else {
+            Err(TestScriptError::ExecutionError(format!(
+                "Variable '{}' evaluation returned multiple values; only single value supported.",
+                variable_id
+            )))
+        }
     } else {
         return Err(TestScriptError::ExecutionError(format!(
             "Only support variable with expression for variable id '{}'.",
@@ -289,6 +307,7 @@ async fn evaluate_variable(
     pointer: Pointer<TestScript, TestScript>,
     value: &str,
 ) -> Result<String, TestScriptError> {
+    let mut result = value.to_string();
     let variable_pointer = pointer
         .descend::<Vec<TestScriptVariable>>(&Key::Field("variable".to_string()))
         .ok_or_else(|| {
@@ -306,51 +325,20 @@ async fn evaluate_variable(
     })?;
 
     for reg_match in EXPRESSION_REGEX.captures_iter(value) {
+        let full_match = reg_match.get(0).map(|m| m.as_str()).unwrap_or("");
         let Some(variable_id) = reg_match.get(1).map(|m| m.as_str()) else {
             return Err(TestScriptError::ExecutionError(format!(
                 "Invalid variable expression in '{}'.",
                 value
             )));
         };
+
+        let variable = get_variable(state.clone(), variables, variable_id).await?;
+        result = result.replace(full_match, variable.to_string().as_str());
     }
 
-    todo!();
+    Ok(result)
 }
-
-// async function evaluateVariables<Version extends FHIR_VERSION>(
-//   state: TestScriptState<Version>,
-//   pointer: Loc<Resource<Version, "TestScript">, any, any>,
-//   value: string,
-// ): Promise<string> {
-//   let output = value;
-//   const variables =
-//     get(descend(root(pointer), "variable"), state.testScript) ?? [];
-
-//   while (EXPRESSION_REGEX.test(output)) {
-//     const result = EXPRESSION_REGEX.exec(output);
-//     const variableName = result?.[1];
-//     const match = result?.[0];
-
-//     if (!match || !variableName) {
-//       throw new Error("Invalid expression");
-//     }
-
-//     const variableValue = (
-//       await getVariable(state, variables, variableName)
-//     )?.toString();
-//     if (!variableValue)
-//       throw new OperationError(
-//         outcomeError(
-//           "invalid",
-//           `Variable with id '${variableName}' not found.`,
-//         ),
-//       );
-
-//     output = output.replace(match, variableValue);
-//   }
-
-//   return output;
-// }
 
 fn testscript_operation_to_fhir_request(
     state: &TestState,
@@ -434,6 +422,19 @@ fn testscript_operation_to_fhir_request(
             id: id,
             version_id: version_id.into(),
         }))
+    } else if operation_type == (&TestscriptOperationCodes::History(None)).into() {
+        let query = ParsedParameters::try_from(
+            operation
+                .params
+                .as_ref()
+                .and_then(|p| p.value.as_ref())
+                .map(|v| evaluate_variable(state.clone(), pointer, v))
+                .cloned()
+                .unwrap_or("".to_string())
+                .as_str(),
+        );
+
+        todo!();
     } else if operation_type == (&TestscriptOperationCodes::Transaction(None)).into() {
         let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
             return Err(TestScriptError::ExecutionError(format!(
