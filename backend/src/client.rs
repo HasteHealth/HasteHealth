@@ -3,7 +3,7 @@ use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 use tokio::sync::Mutex;
 
 async fn config_to_fhir_http_state(
@@ -45,43 +45,49 @@ async fn config_to_fhir_http_state(
                         ));
                             };
 
-                            let well_known_document = if let Some(well_known_doc) =
-                                &current_state.well_known_document
-                            {
-                                well_known_doc.clone()
-                            } else {
-                                let res = reqwest::get(&active_profile.oidc_discovery_uri).await;
-                                let res = res.map_err(|e| {
-                                    OperationOutcomeError::error(
-                                        IssueType::Exception(None),
-                                        format!("Failed to fetch OIDC discovery document: {}", e),
-                                    )
-                                })?;
-
-                                let well_known_document = serde_json::from_slice::<
-                                    WellKnownDiscoveryDocument,
-                                >(
-                                    &res.bytes().await.map_err(|e| {
+                            let well_known_document: Cow<WellKnownDiscoveryDocument> =
+                                if let Some(well_known_doc) = &current_state.well_known_document {
+                                    Cow::Borrowed(well_known_doc)
+                                } else {
+                                    let res =
+                                        reqwest::get(&active_profile.oidc_discovery_uri).await;
+                                    let res = res.map_err(|e| {
                                         OperationOutcomeError::error(
                                             IssueType::Exception(None),
                                             format!(
-                                                "Failed to read OIDC discovery document: {}",
+                                                "Failed to fetch OIDC discovery document: {}",
                                                 e
                                             ),
                                         )
-                                    })?,
-                                )
-                                .map_err(|e| {
-                                    OperationOutcomeError::error(
-                                        IssueType::Exception(None),
-                                        format!("Failed to parse OIDC discovery document: {}", e),
-                                    )
-                                })?;
+                                    })?;
 
-                                current_state.well_known_document =
-                                    Some(well_known_document.clone());
-                                well_known_document
-                            };
+                                    let well_known_document = serde_json::from_slice::<
+                                        WellKnownDiscoveryDocument,
+                                    >(
+                                        &res.bytes().await.map_err(|e| {
+                                            OperationOutcomeError::error(
+                                                IssueType::Exception(None),
+                                                format!(
+                                                    "Failed to read OIDC discovery document: {}",
+                                                    e
+                                                ),
+                                            )
+                                        })?,
+                                    )
+                                    .map_err(|e| {
+                                        OperationOutcomeError::error(
+                                            IssueType::Exception(None),
+                                            format!(
+                                                "Failed to parse OIDC discovery document: {}",
+                                                e
+                                            ),
+                                        )
+                                    })?;
+
+                                    current_state.well_known_document =
+                                        Some(well_known_document.clone());
+                                    Cow::Owned(well_known_document)
+                                };
 
                             // Post for JWT Token
                             let params = [
@@ -91,7 +97,7 @@ async fn config_to_fhir_http_state(
                                 ("scope", "openid system/*.*"),
                             ];
 
-                            let res = reqwest::Client::new()
+                            let res: reqwest::Response = reqwest::Client::new()
                                 .post(&well_known_document.token_endpoint)
                                 .form(&params)
                                 .send()
