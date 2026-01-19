@@ -37,7 +37,7 @@ pub async fn send_email(
 ) -> Result<(), OperationOutcomeError> {
     let from_address = config.get(ServerEnvironmentVariables::EmailFromAddress)?;
     let api_key = config.get(ServerEnvironmentVariables::SendGridAPIKey)?;
-    let sender = Sender::new(api_key, None);
+    let sender = Sender::new(&api_key, None);
 
     let m = Message::new(Email::new(&from_address))
         .set_subject(subject)
