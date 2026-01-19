@@ -12,17 +12,21 @@ use haste_fhir_client::{
     },
     url::{Parameter, ParsedParameter, ParsedParameters},
 };
-use haste_fhir_model::r4::generated::{
-    resources::{
-        CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
-        CapabilityStatementRestResourceInteraction, CapabilityStatementRestResourceSearchParam,
-        CapabilityStatementRestSecurity, Resource, ResourceType, SearchParameter,
-        StructureDefinition,
+use haste_fhir_model::r4::{
+    datetime::DateTime,
+    generated::{
+        resources::{
+            CapabilityStatement, CapabilityStatementRest, CapabilityStatementRestResource,
+            CapabilityStatementRestResourceInteraction, CapabilityStatementRestResourceSearchParam,
+            CapabilityStatementRestSecurity, Resource, ResourceType, SearchParameter,
+            StructureDefinition,
+        },
+        terminology::{
+            CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus, ResourceTypes,
+            RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
+        },
+        types::{FHIRBoolean, FHIRCode, FHIRDateTime, FHIRString},
     },
-    terminology::{
-        IssueType, ResourceTypes, RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
-    },
-    types::{FHIRBoolean, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::{SearchEngine, SearchOptions};
@@ -240,6 +244,17 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     let sps = sps?;
 
     Ok(CapabilityStatement {
+        status: Box::new(PublicationStatus::Active(None)),
+        kind: Box::new(CapabilityStatementKind::Capability(None)),
+        date: Box::new(FHIRDateTime {
+            value: Some(DateTime::Year(2025)),
+            ..Default::default()
+        }),
+        format: vec![Box::new(FHIRCode {
+            value: Some("application/fhir+json".to_string()),
+            ..Default::default()
+        })],
+        fhirVersion: Box::new(FHIRVersion::V401(None)),
         rest: Some(vec![CapabilityStatementRest {
             mode: Box::new(RestfulCapabilityMode::Server(None)),
             security: Some(CapabilityStatementRestSecurity {

@@ -86,6 +86,20 @@ jobs:
           ./target/debug/haste-health config create-profile -n testing --r4-url http://localhost:3000/w/my-health/system/api/v1/fhir/r4 --discovery-uri http://localhost:3000/.well-known/openid-configuration/w/my-health/system --id testing --secret testing
         working-directory: ./backend
 
+      - name: Confirm Client App
+        run: |
+          for i in {1..10}; do
+              ./target/debug/haste-health api capabilities
+              if [ "$?" -eq 0 ]; then
+                  echo "Condition met. Breaking loop."
+                  exit 0;
+              fi
+              sleep 2s;
+          done
+          exit 1;
+
+        working-directory: ./backend
+
       - name: Run Testscripts
         run: ./target/debug/haste-health testscript run -i testscripts -w 1000
         working-directory: ./backend
