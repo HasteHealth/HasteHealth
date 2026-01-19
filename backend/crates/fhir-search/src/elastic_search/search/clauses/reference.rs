@@ -33,7 +33,7 @@ pub fn reference(
                             "path": search_param.url.value.as_ref().unwrap(),
                             "query": {
                                 "bool": {
-                                    "must": [
+                                    "filter": [
                                         {
                                             "match": {
                                                 search_param.url.value.as_ref().unwrap().to_string() + ".resource_type": {

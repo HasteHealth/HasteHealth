@@ -47,7 +47,7 @@ pub fn token(
                                 "bool": {
                                     matching_type.clone(): [{
                                         "bool": {
-                                            "must": [
+                                            "filter": [
                                                 {
                                                     "match": {
                                                         search_param.url.value.as_ref().unwrap().to_string() + ".code": {

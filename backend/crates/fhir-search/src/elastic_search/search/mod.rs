@@ -316,7 +316,7 @@ pub fn build_elastic_search_query(
         "from": offset,
         "query": {
             "bool": {
-                "must": clauses
+                "filter": clauses
             }
         },
         "sort": sort,

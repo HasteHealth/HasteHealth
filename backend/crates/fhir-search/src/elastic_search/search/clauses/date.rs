@@ -24,7 +24,7 @@ pub fn date(
                     "path": search_param.url.value.as_ref().unwrap(),
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
                                     "range": {
                                         search_param.url.value.as_ref().unwrap().to_string() + ".start": {
