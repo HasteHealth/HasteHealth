@@ -1472,7 +1472,7 @@ dependencies = [
 
 [[package]]
 name = "haste-access-control"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "dashmap",
  "haste-fhir-client",
@@ -1487,7 +1487,7 @@ dependencies = [
 
 [[package]]
 name = "haste-artifacts"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-serialization-json",
@@ -1496,7 +1496,7 @@ dependencies = [
 
 [[package]]
 name = "haste-codegen"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-generated-ops",
  "haste-fhir-model",
@@ -1513,7 +1513,7 @@ dependencies = [
 
 [[package]]
 name = "haste-config"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "dotenvy",
  "haste-fhir-model",
@@ -1523,7 +1523,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-client"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "axum",
  "haste-fhir-model",
@@ -1541,7 +1541,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-generated-ops"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -1550,7 +1550,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-model"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "chrono",
  "criterion",
@@ -1565,7 +1565,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-operation-error"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "anyhow",
  "axum",
@@ -1577,7 +1577,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-operation-error-derive"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "proc-macro2",
@@ -1587,7 +1587,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-ops"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-client",
  "haste-fhir-model",
@@ -1598,7 +1598,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-ops-derive"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "proc-macro2",
@@ -1608,7 +1608,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-search"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "chrono",
  "elasticsearch",
@@ -1628,7 +1628,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-serialization-json"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-serialization-json-derive",
  "serde_json",
@@ -1637,7 +1637,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-serialization-json-derive"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1646,7 +1646,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhir-terminology"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "dashmap",
  "haste-fhir-client",
@@ -1660,7 +1660,7 @@ dependencies = [
 
 [[package]]
 name = "haste-fhirpath"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "criterion",
  "dashmap",
@@ -1710,7 +1710,7 @@ dependencies = [
 
 [[package]]
 name = "haste-hl7v2"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -1718,7 +1718,7 @@ dependencies = [
 
 [[package]]
 name = "haste-indexing-worker"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "elasticsearch",
  "haste-config",
@@ -1736,7 +1736,7 @@ dependencies = [
 
 [[package]]
 name = "haste-jwt"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -1747,7 +1747,7 @@ dependencies = [
 
 [[package]]
 name = "haste-macro-loads"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "quote",
  "syn 2.0.114",
@@ -1756,7 +1756,7 @@ dependencies = [
 
 [[package]]
 name = "haste-pointer"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "haste-reflect",
@@ -1764,18 +1764,18 @@ dependencies = [
 
 [[package]]
 name = "haste-rate-limit"
-version = "0.10.1"
+version = "0.10.2"
 
 [[package]]
 name = "haste-reflect"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-reflect-derive",
 ]
 
 [[package]]
 name = "haste-reflect-derive"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "quote",
  "syn 2.0.114",
@@ -1783,7 +1783,7 @@ dependencies = [
 
 [[package]]
 name = "haste-repository"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "chrono",
  "haste-fhir-client",
@@ -1805,7 +1805,7 @@ dependencies = [
 
 [[package]]
 name = "haste-server"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "axum",
  "axum-extra",
@@ -1860,7 +1860,7 @@ dependencies = [
 
 [[package]]
 name = "haste-testscript-runner"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-client",
  "haste-fhir-model",
@@ -1875,7 +1875,7 @@ dependencies = [
 
 [[package]]
 name = "haste-x-fhir-query"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
