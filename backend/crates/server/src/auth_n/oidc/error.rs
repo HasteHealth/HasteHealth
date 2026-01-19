@@ -127,7 +127,30 @@ impl IntoResponse for OIDCError {
             Redirect::to(&redirect_uri).into_response()
         } else {
             let json_body = serde_json::to_string(&self).unwrap_or_default();
-            (axum::http::StatusCode::BAD_REQUEST, json_body).into_response()
+
+            match self.code {
+                OIDCErrorCode::InvalidRequest
+                | OIDCErrorCode::InvalidGrant
+                | OIDCErrorCode::InvalidClient
+                | OIDCErrorCode::InvalidScope => {
+                    (axum::http::StatusCode::BAD_REQUEST, json_body).into_response()
+                }
+                OIDCErrorCode::UnauthorizedClient => {
+                    (axum::http::StatusCode::UNAUTHORIZED, json_body).into_response()
+                }
+                OIDCErrorCode::UnsupportedResponseType => {
+                    (axum::http::StatusCode::UNPROCESSABLE_ENTITY, json_body).into_response()
+                }
+                OIDCErrorCode::ServerError => {
+                    (axum::http::StatusCode::INTERNAL_SERVER_ERROR, json_body).into_response()
+                }
+                OIDCErrorCode::TemporarilyUnavailable => {
+                    (axum::http::StatusCode::SERVICE_UNAVAILABLE, json_body).into_response()
+                }
+                OIDCErrorCode::AccessDenied => {
+                    (axum::http::StatusCode::FORBIDDEN, json_body).into_response()
+                }
+            }
         }
     }
 }
