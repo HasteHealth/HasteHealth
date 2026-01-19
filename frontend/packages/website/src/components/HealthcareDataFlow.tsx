@@ -46,7 +46,7 @@ export default function HealthcareDataFlow() {
 
       const line = document.createElementNS(
         "http://www.w3.org/2000/svg",
-        "line"
+        "line",
       );
       line.setAttribute("x1", String(p1.x));
       line.setAttribute("y1", String(p1.y));
@@ -92,7 +92,7 @@ export default function HealthcareDataFlow() {
 
       {/* Inputs */}
       <div className="left-0 absolute top-[calc(0%-38px)]">
-        <Link to="/docs/category/ehr">
+        <Link to="/docs/integration/healthcare_systems/ehr">
           <Endpoint
             id="ehr"
             icon="🏥"
@@ -102,11 +102,11 @@ export default function HealthcareDataFlow() {
         </Link>
       </div>
       <div className="left-0 absolute top-[calc(50%-38px)]">
-        <Link to="/docs/category/endpoints">
+        <Link to="/docs/category/fhir-compatibility">
           <Endpoint
             id="app"
             icon="🔥"
-            title="FHIR Server"
+            title="FHIR"
             subtitle="FHIR compatible servers or apis."
           />
         </Link>

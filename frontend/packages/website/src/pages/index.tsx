@@ -13,7 +13,7 @@ function DescriptionColumn(
 ) {
   return (
     <div className="space-y-1">
-      <div className="text-2xl font-semibold underline ">{props.title}</div>
+      <div className="text-2xl font-bold underline ">{props.title}</div>
       <span className="text-sm">{props.description}</span>
     </div>
   );
@@ -71,7 +71,7 @@ export default function Home(): ReactNode {
     <Layout
       wrapperClassName="bg-orange-50"
       title={`Haste Health`}
-      description="Description will go into a meta tag in <head />"
+      description="Modern healthcare clinical data repository. Built for performance and scale."
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
       <div
@@ -81,48 +81,54 @@ export default function Home(): ReactNode {
         <main ref={containerRef} className=" z-1 text-orange-950">
           {/* <BorderVertical height={containerHeight} /> */}
           <div className="space-y-16">
-            <header className="space-y-6 pt-16">
+            <header className="space-y-6 pt-16 p-8">
               <Heading
                 as="h1"
-                className="text-6xl md:text-7xl font-bold text-orange-950 text-center"
+                className="text-6xl md:text-7xl font-bold text-orange-950 "
               >
                 {siteConfig.title}
               </Heading>
-              <div className="text-center">
+              <div className="">
                 <span className="text-2xl text-orange-950 font-semibold">
-                  Modern healthcare clinical data repository. Built for{" "}
+                  Is an open source clinical data repository. Built for{" "}
                   <span className="text-orange-600 ">performance</span> and{" "}
                   <span className="text-orange-600 ">scale</span>.
                 </span>
               </div>
-              {/* <p className="hero__subtitle text--secondary">{siteConfig.tagline}</p> */}
-              <div className="flex justify-center items-center">
+              <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
                 <Link
-                  className="text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-orange-600 hover:bg-orange-500"
+                  className="block text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-orange-600 hover:bg-orange-500"
                   to="/docs/getting_started/quick_start"
                 >
                   Getting Started - 5min ⏱️
                 </Link>
-              </div>
-              <div className="hidden lg:block">
-                <div className="pb-16 pt-12">
-                  <HealthcareDataFlow />
-                </div>
+
+                <Link
+                  className="block text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-gray-600 hover:bg-gray-500"
+                  to="/docs/overview/what_is_haste_health"
+                >
+                  Documentation 📚
+                </Link>
               </div>
             </header>
+
             <BorderBlock />
-            <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-              <div className="space-y-2 p-6">
-                <h3 className="text-5xl font-bold">
-                  Easily{" "}
-                  <Link to="/docs/category/ehr">
-                    <span className="text-orange-600 underline hover:text-orange-500">
-                      interoperate
-                    </span>
-                  </Link>{" "}
-                  with other healthcare systems
-                </h3>
-                <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-4 py-4">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-5xl font-bold">
+                    Easily store and retrieve healthcare data
+                  </h3>
+                </div>
+                <div>
+                  Haste Health acts as a central clinical data repository. It
+                  ingests healthcare data from many sources and exposes it
+                  through standard APIs that modern healthcare systems
+                  understand.
+                </div>
+              </div>
+              <div className="space-y-8">
+                <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
                   <DescriptionColumn
                     title={
                       <Link to="/docs/category/fhir">
@@ -139,321 +145,265 @@ export default function Home(): ReactNode {
                   />
                 </div>
               </div>
-              <div className="p-6 flex justify-center items-center  rounded-lg min-h-72">
-                <div className="carousel basic">
-                  <div className="group font-bold text-3xl">
-                    <Link to="/docs/integration/ehr/epic">
-                      <CarouselCard>
-                        <span className="text-rose-700 hover:underline ">
-                          Epic Systems
-                        </span>
-                      </CarouselCard>
-                    </Link>
-                    <Link to="/docs/integration/ehr/cerner">
-                      <CarouselCard>
-                        <span className="text-sky-600  hover:underline ">
-                          Cerner
-                        </span>
-                      </CarouselCard>
-                    </Link>
-                    <Link to="/docs/integration/ehr/athena_health">
-                      <CarouselCard>
-                        <span className="text-slate-700 hover:underline ">
-                          Athenahealth
-                        </span>
-                      </CarouselCard>
-                    </Link>
-                    <Link to="/docs/integration/ehr/meditech">
-                      <CarouselCard>
-                        <span className="text-emerald-600 hover:underline ">
-                          Meditech
-                        </span>
-                      </CarouselCard>
-                    </Link>
+            </div>
+            <BorderBlock />
+            <div className="grid grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-5xl font-bold">How it works</h3>
+                </div>
+                <div className="grid md:grid-cols-3 grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
+                  <div className="border rounded-md border-orange-200 p-6 space-y-2">
+                    <div>
+                      <h4 className="text-3xl font-semibold">1. Ingest</h4>
+                    </div>
+                    <div>
+                      Connect healthcare systems using FHIR APIs, HL7v2
+                      messages, and bulk data exports.
+                    </div>
                   </div>
-                  <div className="group  font-bold text-3xl">
-                    <Link to="/docs/integration/ehr/epic">
-                      <CarouselCard>
-                        <span className="text-rose-700 hover:underline ">
-                          Epic Systems
-                        </span>
-                      </CarouselCard>
-                    </Link>
-                    <Link to="/docs/integration/ehr/cerner">
-                      <CarouselCard>
-                        <span className="text-sky-600  hover:underline ">
-                          Cerner
-                        </span>
-                      </CarouselCard>
-                    </Link>
-                    <Link to="/docs/integration/ehr/athena_health">
-                      <CarouselCard>
-                        <span className="text-slate-700 hover:underline ">
-                          Athenahealth
-                        </span>
-                      </CarouselCard>
-                    </Link>
-                    <Link to="/docs/integration/ehr/meditech">
-                      <CarouselCard>
-                        <span className="text-emerald-600 hover:underline ">
-                          Meditech
-                        </span>
-                      </CarouselCard>
-                    </Link>
+                  <div className="border rounded-md border-orange-200 p-6 space-y-2">
+                    <div>
+                      <h4 className="text-3xl font-semibold">2. Store</h4>
+                    </div>
+                    <div>
+                      Data is stored in a unified clinical data model optimized
+                      for performance and scale.
+                    </div>
+                  </div>
+                  <div className="border rounded-md border-orange-200 p-6 space-y-2">
+                    <div>
+                      <h4 className="text-3xl font-semibold">3. Access</h4>
+                    </div>
+                    <div>
+                      Your apps access data using FHIR APIs, OAuth & OIDC, and
+                      other modern api standards.
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-
             <BorderBlock />
-            <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-              <div className="order-2 md:order-1 p-6 justify-center rounded-lg min-h-72 grid grid-cols-2 gap-4">
-                <div className="flex flex-col space-y-1">
-                  <h3 className="text-4xl font-bold">
-                    {"<10"}
-                    <span className="text-sm">ms</span>
+
+            <div className="grid md:grid-cols-2  grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
+              <div className="order-1 md:order-2 space-y-8">
+                <div>
+                  <h3 className="text-5xl font-bold">
+                    <span class="text-orange-600 underline">
+                      Interoperability
+                    </span>{" "}
+                    with the healthcare systems you already use
                   </h3>
-                  <span>Average latency for updating/creating resources.</span>
                 </div>
+              </div>
+              <div className="order-2 md:order-1 justify-center rounded-lg min-h-72 grid grid-cols-2 gap-4">
                 <div className="flex flex-col space-y-1">
-                  <h3 className="text-4xl font-bold">
-                    {"20k"} <span className="text-sm">resources/second</span>
+                  <h3 className="text-xl font-bold underline">
+                    Labs and Diagnostics
                   </h3>
                   <span>
-                    Throughput per instance in our load tests running on 10
-                    threads.
+                    <span>
+                      Exchange results, orders, and clinical observations with
+                      lab systems using{" "}
+                      <Link
+                        to="/docs/integration/healthcare_systems/lab_diagnostics"
+                        className="underline text-orange-900 hover:text-orange-800"
+                      >
+                        standardized FHIR and HL7v2 interfaces
+                      </Link>
+                      .
+                    </span>
                   </span>
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <h3 className="text-4xl font-bold">
-                    {"<50"}
-                    <span className="text-sm">ms</span>
+                  <h3 className="text-xl font-bold underline">
+                    Health Information Exchanges
                   </h3>
-                  <span>For most parameter/value search requests.</span>
+                  <span>
+                    <span>
+                      Connect to regional and national health information
+                      exchanges to share patient data across healthcare
+                      organizations using{" "}
+                      <Link
+                        to="/docs/integration/healthcare_systems/health_information_exchange"
+                        className="underline text-orange-900 hover:text-orange-800"
+                      >
+                        FHIR-based exchange protocols
+                      </Link>
+                      .
+                    </span>
+                  </span>
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <h3 className="text-4xl font-bold">
-                    {"<100"}
-                    <span className="text-sm">mb</span>
-                  </h3>
-                  <span>Memory usage for a single instance.</span>
+                  <h3 className="text-xl font-bold underline">EHR Systems</h3>
+                  <span>
+                    <span>
+                      Integrate with major EHR systems like Epic, Cerner, and
+                      Meditech using{" "}
+                      <Link
+                        to="/docs/integration/healthcare_systems/ehr"
+                        className="underline text-orange-900 hover:text-orange-800"
+                      >
+                        FHIR APIs and HL7v2 messaging
+                      </Link>
+                      .
+                    </span>
+                  </span>
                 </div>
-              </div>
-              <div className="order-1 md:order-2 space-y-2 p-6">
-                <h3 className="text-5xl font-bold">
-                  High performance with{" "}
-                  <span className="text-green-600">low latency</span> that can
-                  scale to millions of patients.
-                </h3>
+                <div className="flex flex-col space-y-1">
+                  <h3 className="text-xl font-bold underline">
+                    Payer and Insurance Systems
+                  </h3>
+                  <span>
+                    <span>
+                      Exchange eligibility, claims, and prior authorization data
+                      with payer systems using{" "}
+                      <Link
+                        to="/docs/integration/healthcare_systems/payers_insurance"
+                        className="underline text-orange-900 hover:text-orange-800"
+                      >
+                        FHIR
+                      </Link>
+                      .
+                    </span>
+                  </span>
+                </div>
               </div>
             </div>
             <BorderBlock />
-            <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-              <div className="space-y-2 p-6">
+            <div className="grid md:grid-cols-1 grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
+              <div className="space-y-8">
                 <h3 className="text-5xl font-bold">
-                  Built in support for connecting to{" "}
-                  <Link to="/docs/category/ai">
-                    <span className="text-purple-600 hover:text-purple-500 underline">
-                      AI Applications
-                    </span>{" "}
-                  </Link>
+                  Built for real-world healthcare workloads
                 </h3>
-                <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-4 py-4">
-                  <DescriptionColumn
-                    title={
-                      <Link
-                        className="hover:text-purple-500"
-                        to="/docs/api/rest_api/model_context_protocol/endpoint"
+
+                <div className="justify-center rounded-lg grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-3xl font-bold">
+                      {"<10"}
+                      <span className="text-sm">ms</span>
+                    </h3>
+                    <span>
+                      Response time for updating and creating resources.
+                    </span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-3xl font-bold">
+                      {"20k"} <span className="text-sm">resources/second</span>
+                    </h3>
+                    <span>
+                      Total throughput running on 10 threads using the{" "}
+                      <a
+                        className="underline text-orange-900 hover:text-orange-800"
+                        href="https://synthea.mitre.org/downloads"
                       >
-                        Model Context Protocol
-                      </Link>
-                    }
+                        synthia data set
+                      </a>
+                      .
+                    </span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-3xl font-bold">
+                      {"<50"}
+                      <span className="text-sm">ms</span>
+                    </h3>
+                    <span>For most parameter/value search requests.</span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <h3 className="text-3xl font-bold">
+                      {"<100"}
+                      <span className="text-sm">mb</span>
+                    </h3>
+                    <span>Memory usage for a single instance.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <BorderBlock />
+            <div className="grid md:grid-cols-1  grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
+              <div className=" rounded-lg space-y-8">
+                <div>
+                  <h3 className="text-5xl font-bold">
+                    <span className="text-orange-600 underline">Secure</span> by
+                    design
+                  </h3>
+                </div>
+                <div>
+                  <span>
+                    Haste Health is built from the ground up with security best
+                    practices to help you protect sensitive healthcare data and
+                    maintain compliance with healthcare regulations like HIPAA
+                    and HITECH.
+                  </span>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+                <DescriptionColumn
+                  title={"Compliance"}
+                  description="Haste Health is designed to help you meet HIPAA and HITECH requirements for protecting electronic protected health information (ePHI)."
+                />
+                <DescriptionColumn
+                  title={"Best Practices"}
+                  description="Built-in support for encryption, access controls, and audit logging to help you secure healthcare data."
+                />
+
+                <DescriptionColumn
+                  title={
+                    <Link
+                      className="hover:text-orange-500"
+                      to="/docs/api/authentication/intro"
+                    >
+                      OIDC & SMART on FHIR
+                    </Link>
+                  }
+                  description="Industry-standard authentication using OpenID Connect and SMART on FHIR for secure healthcare application integration."
+                />
+                <DescriptionColumn
+                  title={
+                    <Link
+                      className="hover:text-orange-500"
+                      to="/docs/api/authorization/access_control"
+                    >
+                      Access Policies
+                    </Link>
+                  }
+                  description="Fine-grained authorization controls using AccessPolicy resources to define who can access what healthcare data."
+                />
+              </div>
+            </div>
+            <BorderBlock />
+
+            <div className="grid md:grid-cols-2  grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
+              <div className="order-1 md:order-2 rounded-lg space-y-8">
+                <div>
+                  <h3 className="text-5xl font-bold">
+                    Integration with{" "}
+                    <span class="text-orange-600 underline">AI</span>{" "}
+                    applications
+                  </h3>
+                </div>
+                <div>
+                  <span>
+                    Haste Health enables secure real-time clinical context for
+                    AI applications.
+                  </span>
+                </div>
+              </div>
+              <div className="order-2 md:order-1">
+                <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+                  <DescriptionColumn
+                    title={"Model Context Protocl"}
                     description="Easily provide LLMs with secure, real-time access to patient data using Haste's Model Context Protocol (MCP) implementation."
                   />
                   <DescriptionColumn
-                    title={
-                      <Link
-                        className="hover:text-purple-500"
-                        to="/docs/api/authorization/scopes"
-                      >
-                        Control data access
-                      </Link>
-                    }
+                    title={"Control Data Access"}
                     description="Support for detailed scopes to control exactly what data AI applications can access."
                   />
                 </div>
               </div>
-              <div className="p-6 rounded-lg ">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/ai/openai">
-                      <img
-                        src="/img/openai_logo.svg"
-                        alt="OpenAI Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/ai/claude">
-                      <img
-                        src="/img/claude_logo.svg"
-                        alt="Claude Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/ai/gemini">
-                      <img
-                        src="/img/gemini_logo.svg"
-                        alt="Gemini Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/ai/mistral">
-                      <img
-                        src="/img/mistral_logo.svg"
-                        alt="Mistral Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/ai/github-copilot">
-                      <img
-                        src="/img/copilot_logo.svg"
-                        alt="CoPilot Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4 shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/ai/deepseek">
-                      <img
-                        src="/img/deepseek_logo.svg"
-                        alt="DeepSeek Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                </div>
-              </div>
             </div>
             <BorderBlock />
-            <div className="grid md:grid-cols-2  grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-              <div className="order-2 md:order-1 p-6 rounded-lg ">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/identity_providers/okta">
-                      <img
-                        src="/img/okta.svg"
-                        alt="Okta Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/identity_providers/azure">
-                      <img
-                        src="/img/azure.svg"
-                        alt="Azure Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/identity_providers/auth0">
-                      <img
-                        src="/img/auth0.svg"
-                        alt="Auth0 Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/identity_providers/haste-health">
-                      <img
-                        src="/img/logo.svg"
-                        alt="Haste Health Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4 shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/identity_providers/keycloak">
-                      <img
-                        src="/img/keycloak.png"
-                        alt="Keycloak Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                  <div className="flex justify-center items-center w-full p-4  shadow-orange-200 border border-orange-100 hover:bg-orange-100">
-                    <Link to="/docs/integration/identity_providers/gcp">
-                      <img
-                        src="/img/gcp.png"
-                        alt="GCP Logo"
-                        className="h-32 object-contain"
-                      />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              <div className="order-1 md:order-2 space-y-2 p-6">
-                <h3 className="text-5xl font-bold">
-                  Support for authentication with{" "}
-                  <Link to="/docs/api/authentication/intro">
-                    <span className="text-blue-600 hover:text-blue-500 underline">
-                      OIDC
-                    </span>{" "}
-                    and{" "}
-                  </Link>
-                  <Link to="/docs/api/authentication/smart_on_fhir">
-                    <span className="text-blue-600 hover:text-blue-500  underline">
-                      SMART on FHIR
-                    </span>
-                  </Link>
-                </h3>
-                <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 py-4">
-                  <DescriptionColumn
-                    title={
-                      <Link
-                        className="hover:text-blue-500"
-                        to="/docs/category/openid-connect"
-                      >
-                        Grants
-                      </Link>
-                    }
-                    description="Support for Authorization Code, Client Credentials, and Refresh Token grants."
-                  />
-                  <DescriptionColumn
-                    title={
-                      <Link
-                        className="hover:text-blue-500"
-                        to="/docs/api/authentication/federated_login"
-                      >
-                        Federated login
-                      </Link>
-                    }
-                    description="Login with any identity provider that supports OIDC."
-                  />
-                  <DescriptionColumn
-                    title={
-                      <Link
-                        className="hover:text-blue-500"
-                        to="/docs/api/authorization/scopes"
-                      >
-                        Scopes
-                      </Link>
-                    }
-                    description="Request only the FHIR resource access you need with fine-grained scopes."
-                  />
-                </div>
-              </div>
-            </div>
+            <div className="mt-36" />
           </div>
         </main>
       </div>
