@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
+  "description": "Haste Health FHIR Validation library for TypeScript.",
   "type": "module",
   "main": "lib/structural/index.js",
   "types": "lib/structural/index.d.ts",

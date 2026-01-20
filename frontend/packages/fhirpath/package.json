@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "",
+  "description": "Haste fhirpath implementation in TypeScript.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "type": "module",

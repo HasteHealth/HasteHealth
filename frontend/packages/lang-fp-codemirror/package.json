@@ -1,7 +1,7 @@
 {
   "name": "@haste-health/lang-fp",
   "version": "0.2.3",
-  "description": "FHIRPath language support for CodeMirror",
+  "description": "FHIRPath language support for CodeMirror. Includes syntax highlighting and parsing.",
   "scripts": {
     "lezer": "lezer-generator src/syntax.grammar -o src/syntax.grammar.js",
     "prepare": "pnpm lezer && rollup -c",

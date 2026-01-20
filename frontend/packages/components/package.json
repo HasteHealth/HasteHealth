@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
+  "description": "Haste Health React component library",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types.d.ts",

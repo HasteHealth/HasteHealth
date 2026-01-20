@@ -9,6 +9,7 @@
     "@types/multer": "^1.4.12",
     "typescript": "5.9.2"
   },
+  "description": "Koa middleware for handling multipart/form-data, primarily used for file uploads.",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "scripts": {

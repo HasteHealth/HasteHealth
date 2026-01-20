@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
+  "description": "Haste FHIR Generated Operations package.",
   "main": "./lib/index.js",
   "type": "module",
   "types": "./lib/index.d.ts",

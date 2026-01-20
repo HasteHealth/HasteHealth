@@ -6,8 +6,8 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
+  "description": "Haste Health Operation Outcomes library for TypeScript. Creates custom error type with FHIR OperationOutcome resource.",
   "type": "module",
-  "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {

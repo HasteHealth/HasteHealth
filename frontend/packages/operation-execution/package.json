@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "Package to create operation definition executables.",
+  "description": "Package to create operation definition executables. Wraps operation logic with validation, typesafety, input/output handling, and error handling.",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

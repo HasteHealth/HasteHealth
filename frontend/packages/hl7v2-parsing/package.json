@@ -8,6 +8,7 @@
     "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
     "prepublishOnly": "pnpm build"
   },
+  "description": "Haste Health Hl7V2 Parsing library.",
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "jest": "^29.7.0",

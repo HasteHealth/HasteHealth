@@ -9,6 +9,7 @@
   "bin": {
     "haste-health": "lib/hastehealth.js"
   },
+  "description": "HasteHealth Frontend CLI tools.",
   "types": "lib/haste-health.d.ts",
   "target": "node",
   "type": "module",

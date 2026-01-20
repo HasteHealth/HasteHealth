@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "",
+  "description": "Haste FHIR Code Generation tools for typescript.",
   "type": "module",
   "scripts": {
     "build": "tsc",

@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "",
+  "description": "Haste Health Meta Value library for TypeScript. Wraps values in FHIR metadata.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "type": "module",

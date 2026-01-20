@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "FHIR Pointer allows creation and manipulation of pointers to fhir-types.",
+  "description": "FHIR Pointer allows creation and manipulation of typesafe pointers to fhir-types.",
   "type": "module",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",

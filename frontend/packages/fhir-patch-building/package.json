@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "JSON Patch building with typesafe fhir pointers.",
+  "description": "JSON Patch building using typesafe FHIR pointers.",
   "type": "module",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",

@@ -13,6 +13,7 @@
     "@haste-health/x-fhir-query": "workspace:^",
     "pino": "^9.6.0"
   },
+  "description": "Haste Health TestScript Runner library for TypeScript. Provides functionality to run FHIR TestScripts.",
   "devDependencies": {
     "@haste-health/fhir-types": "workspace:^",
     "typescript": "5.9.2"

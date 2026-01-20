@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/HasteHealth/HasteHealth.git"
   },
-  "description": "",
+  "description": "Haste Health FHIR Types for TypeScript.",
   "type": "module",
   "scripts": {
     "generate-r4": "pnpm node ../cli/lib/hastehealth.js generate types-artifacts --version=4.0 --output=./src/generated/r4 && pnpm build",

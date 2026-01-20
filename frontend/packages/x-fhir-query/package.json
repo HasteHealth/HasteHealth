@@ -12,6 +12,7 @@
   "dependencies": {
     "@haste-health/fhirpath": "workspace:^"
   },
+  "description": "Haste Health X-FHIR-Query library for TypeScript. Provides an implementation of the X-FHIR-Query specification.",
   "devDependencies": {
     "@babel/plugin-syntax-import-attributes": "^7.26.0",
     "@babel/preset-env": "^7.26.9",
