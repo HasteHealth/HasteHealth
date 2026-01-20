@@ -10,6 +10,7 @@
     "ci:publish": "pnpm publish -r"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "typedoc": "^0.28.15",
     "typescript": "^5.9.2"
   }
