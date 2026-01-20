@@ -6,7 +6,8 @@
     "artifacts/**/*"
   ],
   "scripts": {
-    "generate-documentation": "pnpm typedoc"
+    "generate-documentation": "pnpm typedoc",
+    "ci:publish": "pnpm publish -r"
   },
   "devDependencies": {
     "typedoc": "^0.28.15",
