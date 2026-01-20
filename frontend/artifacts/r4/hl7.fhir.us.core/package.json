@@ -19,9 +19,6 @@
       "url": "http://www.hl7.org/Special/committees/usrealm/index.cfm"
     }
   ],
-  "scripts": {
-    "publish": "pnpm npm publish --access public --tolerate-republish"
-  },
   "directories": {
     "lib": "package",
     "example": "example"

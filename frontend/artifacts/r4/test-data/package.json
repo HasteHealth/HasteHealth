@@ -10,8 +10,7 @@
     "4.0.1"
   ],
   "scripts": {
-    "generate-index-file": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r examples-json",
-    "publish": "pnpm npm publish --access public --tolerate-republish"
+    "generate-index-file": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r examples-json"
   },
   "files": [
     ".index.json",

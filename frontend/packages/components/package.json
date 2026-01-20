@@ -17,7 +17,7 @@
     "build-storybook": "storybook build",
     "watch-js": "rollup --watch -c --bundleConfigAsCjs",
     "watch-css": "postcss --watch --config postcss.config.js -o dist/index.css src/index.css",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
     "@codemirror/state": ">=6.0.0",

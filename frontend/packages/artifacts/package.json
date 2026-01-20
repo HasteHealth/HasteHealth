@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\"",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "fhirVersion": [
     "r4"

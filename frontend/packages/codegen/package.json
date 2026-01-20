@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [],
   "author": "",

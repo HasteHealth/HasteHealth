@@ -23,8 +23,7 @@
   ],
   "scripts": {
     "remove-duplicates": "pnpm node remove_duplicates.js examples-json",
-    "generate-index-file": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r examples-json",
-    "publish": "pnpm npm publish --access public --tolerate-republish"
+    "generate-index-file": "pnpm node ../../../packages/cli/lib/hastehealth.js generate index-file -p . -r examples-json"
   },
   "files": [
     ".index.json",

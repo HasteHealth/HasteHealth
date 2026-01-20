@@ -16,7 +16,7 @@
     "generate": "pnpm _generate_meta && pnpm _generate_type_canonical",
     "build": "tsc",
     "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [],
   "author": "haste-health",

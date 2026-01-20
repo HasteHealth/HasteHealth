@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "pnpm node --experimental-vm-modules $(pnpm bin jest)",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

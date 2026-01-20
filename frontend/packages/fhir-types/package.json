@@ -13,7 +13,7 @@
     "generate-r4b": "pnpm node ../cli/lib/hastehealth.js generate types-artifacts --version=4.3 --output=./src/generated/r4b && pnpm build",
     "generate": "pnpm generate-r4 && pnpm generate-r4b",
     "build": "tsc",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "types": "lib/r4/types.d.ts",
   "keywords": [],

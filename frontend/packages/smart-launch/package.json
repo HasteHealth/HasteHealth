@@ -4,7 +4,7 @@
   "scripts": {
     "build-css": "pnpm postcss -o dist/css/index.css index.css",
     "build": "pnpm rollup -c -i src/launch.tsx -o dist/launch.js & pnpm build-css",
-    "publish": "pnpm build && pnpm npm publish --access public --tolerate-republish"
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "@haste-health/client": "workspace:^",
