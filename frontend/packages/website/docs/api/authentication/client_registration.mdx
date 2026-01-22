@@ -71,12 +71,6 @@ Create a ClientApplication using the Haste Health CLI:
 haste-health api create ClientApplication --data '{"resourceType": "ClientApplication", "id": "cli", "name": "CLI", "grantType": ["client_credentials"], "responseTypes": "token", "secret": "my-super-secret", "scope": "openid system/*.*"}'
 ```
 
-```bash
-haste-health api read ClientApplication my-backend-service
-```
-
-**Save the `secret` value immediately** - it may be hashed and cannot be retrieved later.
-
 </TabItem>
 <TabItem value="typescript" label="TypeScript">
 
