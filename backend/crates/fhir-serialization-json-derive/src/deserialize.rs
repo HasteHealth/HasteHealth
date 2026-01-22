@@ -553,9 +553,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                     }
                 }
             };
-            if deserialize_complex_type == DeserializeComplexType::Complex {
-               // println!("{}", expanded.to_string());
-            }
+
             expanded.into()
         }
         _ => panic!("Only enums can be deserialized for typechoice serializer."),
