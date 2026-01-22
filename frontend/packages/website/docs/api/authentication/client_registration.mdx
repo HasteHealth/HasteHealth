@@ -51,7 +51,6 @@ Public clients cannot securely store credentials. They include:
 Public clients must use:
 - `authorization_code` with PKCE (Proof Key for Code Exchange)
 - `refresh_token` - Token refresh capability
-- No client secret
 
 ## ClientApplication Resource Structure
 
@@ -69,21 +68,11 @@ Register a client by creating a `ClientApplication` resource through the FHIR AP
 Create a ClientApplication using the Haste Health CLI:
 
 ```bash
-haste-health api create r4 --data '{
-  "resourceType": "ClientApplication",
-  "id": "cli",
-  "name": "CLI",
-  "grantType": [
-    "client_credentials"
-  ],
-  "responseTypes": "token",
-  "secret": "my-super-secret",
-  "scope": "openid system/*.*"
-}'
+haste-health api create ClientApplication --data '{"resourceType": "ClientApplication", "id": "cli", "name": "CLI", "grantType": ["client_credentials"], "responseTypes": "token", "secret": "my-super-secret", "scope": "openid system/*.*"}'
 ```
 
 ```bash
-haste-health api read r4 ClientApplication my-backend-service
+haste-health api read ClientApplication my-backend-service
 ```
 
 **Save the `secret` value immediately** - it may be hashed and cannot be retrieved later.
@@ -247,7 +236,7 @@ A command-line tool for developers:
 
 ## Grant Types
 
-For grant types we support see the following [documentation](/docs/category/openid-connect).
+For grant types we support see the following [documentation](/docs/category/oauth-grant-types).
 
 ## Scope Format
 
@@ -303,8 +292,8 @@ Public clients requires user consent for requested scopes. The access policy use
 
 - [ClientApplication Resource Reference](/docs/reference/fhir/model/resources/ClientApplication) - Complete field definitions
 - [Scopes Documentation](/docs/api/authorization/scopes) - OAuth scope syntax and usage
-- [Client Credentials Grant](/docs/api/authentication/openid_connect/client_credentials) - Machine-to-machine authentication
-- [Authorization Code Flow](/docs/api/authentication/openid_connect/authorization_code) - User authentication flow
+- [Client Credentials Grant](/docs/api/authentication/grant_types/client_credentials) - Machine-to-machine authentication
+- [Authorization Code Flow](/docs/api/authentication/grant_types/authorization_code) - User authentication flow
 - [SMART on FHIR](/docs/api/authentication/smart_on_fhir) - Healthcare-specific authorization
 - [Access Control](/docs/api/authorization/intro) - Configuring client permissions
 

@@ -7,25 +7,21 @@ tags:
   - oauth2
 ---
 
-# Authorization Code Grant
+# Authorization code grant with PKCE (Proof Key for Code Exchange)
 
-For the authorization code grant flow we require PKCE (Proof Key for Code Exchange). 
-
-## Overview with of Authorization code grant with PKCE (Proof Key for Code Exchange)
-
-A highly secure flow in the OAuth 2.0 framework. It enhances the standard Authorization Code flow, primarily to protect public clients (like mobile and single-page applications) that cannot securely store a client_secret
+This flow is good for applications that cannot securely store a client_secret, such as single-page applications (SPAs), mobile apps, and desktop applications.
+We require PKCE to enhance the security of the authorization code flow by adding an additional verification step during the token exchange process.
 
 **Use Cases:**
-- Native Mobile Applications: Clients (iOS, Android apps) that cannot securely store a traditional, static client_secret within their distributed code.
-- Single-Page Applications (SPAs): Client-side JavaScript applications running in a browser that are vulnerable to code inspection, making them unable to secure a static client_secret.
-- Desktop Applications: Applications running on an end-user's machine, which are also considered public clients for security purposes.
-- Confidential Clients (Web Apps with a Backend): Although they can use a client_secret, PKCE is still recommended as an extra layer of defense against certain types of code injection and CSRF attacks.
+- **Native Mobile Applications**: Clients (iOS, Android apps) that cannot securely store a traditional, static client_secret within their distributed code.
+- **Single-Page Applications (SPAs)**: Client-side JavaScript applications running in a browser that are vulnerable to code inspection, making them unable to secure a static client_secret.
+- **Desktop Applications**: Applications running on an end-user's machine, which are also considered public clients for security purposes.
+- **Confidential Clients (Web Apps with a Backend)**: Although they can use a client_secret, PKCE is still recommended as an extra layer of defense against certain types of code injection and CSRF attacks.
 
 **Key Benefits:**
-- Prevents Code Interception Attacks	An attacker who intercepts the authorization_code from the redirect URI cannot exchange it for an access token because they do not possess the secret code_verifier. This is the primary security benefit.
-- Eliminates Client Secret for Public Clients	PKCE removes the need for public clients (like SPAs and Mobile apps) to register or use a static client_secret, solving the problem of insecure secret storage.
-- Mitigates Cross-Site Request Forgery (CSRF)	By dynamically linking the initial authorization request to the final token exchange, PKCE provides strong protection against CSRF, often making the use of the state parameter redundant for this specific purpose.
-- Default Security Standard	PKCE is now mandated in the OAuth 2.0 Security Best Current Practice and the upcoming OAuth 2.1 specification, making it the required flow for modern application development.
+- **Eliminates Client Secret for Public Clients**:	Authorization code flow with PKCE allows public clients (like SPAs and mobile apps) to securely use the authorization code grant without needing to store a client_secret, which they cannot do safely.
+- **Mitigates Cross-Site Request Forgery (CSRF)**:	By dynamically linking the initial authorization request to the final token exchange, PKCE provides strong protection against CSRF, often making the use of the state parameter redundant for this specific purpose.
+- **Default Security Standard**:	PKCE is now mandated in the OAuth 2.0 Security Best Current Practice and the upcoming OAuth 2.1 specification, making it the required flow for modern application development.
 
 ## Authorization Code Flow with PKCE
 

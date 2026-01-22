@@ -351,7 +351,7 @@ export default function Home(): ReactNode {
                   title={
                     <Link
                       className="hover:text-orange-500"
-                      to="/docs/api/authentication/intro"
+                      to="/docs/category/oauth-grant-types"
                     >
                       OIDC & SMART on FHIR
                     </Link>

@@ -18,7 +18,7 @@ import TabItem from '@theme/TabItem';
 Invoke the `$validate` operation on the Patient resource type using the Haste Health CLI:
 
 ```bash
-haste-health api invoke-type Patient validate --file params.json
+haste-health api invoke-type ValueSet expand --file ~/Desktop/valueset-expand.json
 ```
 
 Where `params.json` contains:
@@ -28,14 +28,12 @@ Where `params.json` contains:
   "resourceType": "Parameters",
   "parameter": [
     {
-      "name": "resource",
-      "resource": {
-        "resourceType": "Patient",
-        "name": [{"family": "Doe", "given": ["John"]}]
-      }
+      "name": "url",
+      "valueUri": "http://hl7.org/fhir/ValueSet/network-type|4.0.1"
     }
   ]
 }
+
 ```
 
 </TabItem>
@@ -46,22 +44,17 @@ Invoke a type-level operation using the TypeScript client:
 ```typescript
 import { AsynchronousClient } from '@haste-health/client';
 import { R4 } from '@haste-health/fhir-types/versions';
-import { Parameters, Patient } from '@haste-health/fhir-types/r4/types';
+import { Parameters, ValueSet } from '@haste-health/fhir-types/r4/types';
 
 // Assuming you have a configured client
 const client: AsynchronousClient<{}> = /* ... */;
-
-const patientToValidate: Patient = {
-  resourceType: "Patient",
-  name: [{family: "Doe", given: ["John"]}]
-};
 
 const params: Parameters = {
   resourceType: "Parameters",
   parameter: [
     {
-      name: "resource",
-      resource: patientToValidate
+      name: "url",
+      valueUri: "http://hl7.org/fhir/ValueSet/network-type|4.0.1"
     }
   ]
 };
@@ -69,8 +62,8 @@ const params: Parameters = {
 const result = await client.invoke_type(
   {},
   R4,
-  'Patient',
-  'validate',
+  'ValueSet',
+  'expand',
   params
 );
 
@@ -80,24 +73,21 @@ console.log('Validation result:', result);
 </TabItem>
 <TabItem value="curl" label="cURL">
 
-Invoke the `$validate` operation on the Patient resource type using cURL:
+Invoke the `$expand` operation on the ValueSet resource type using cURL:
 
 ```bash
-curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/Patient/\$validate" \
+curl -X POST "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4/ValueSet/\$expand" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
      -d '{
-           "resourceType": "Parameters",
-           "parameter": [
-             {
-               "name": "resource",
-               "resource": {
-                 "resourceType": "Patient",
-                 "name": [{"family": "Doe", "given": ["John"]}]
-               }
-             }
-           ]
-         }'
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "url",
+      "valueUri": "http://hl7.org/fhir/ValueSet/network-type|4.0.1"
+    }
+  ]
+}'
 ```
 
 </TabItem>

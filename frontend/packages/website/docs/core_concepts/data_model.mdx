@@ -61,7 +61,7 @@ User accounts that can authenticate to the platform.
 **Key Features**:
 - **Email**: Unique identifier for authentication
 - **Role**: Tenant-level role (admin or member)
-- **Federated identity**: Optional link to external identity providers (OIDC, SAML)
+- **Federated identity**: Optional link to external identity providers (OIDC)
 - **Access policies**: Referenced by AccessPolicyV2 for permissions
 
 **Use Cases**:
@@ -117,10 +117,10 @@ Links users to projects and defines their project-level role and access policies
 
 External identity provider configurations for federated authentication.
 
-**Purpose**: Defines external authentication systems (OIDC, SAML) that users can authenticate with. IdentityProviders exist in the System Project and enable Single Sign-On (SSO) integration.
+**Purpose**: Defines external authentication systems (OIDC) that users can authenticate with. IdentityProviders exist in the System Project and enable Single Sign-On (SSO) integration.
 
 **Key Features**:
-- **Access type**: Protocol type (oidc, saml)
+- **Access type**: Protocol type (oidc)
 - **Endpoints**: Authorization, token, and JWKS URIs for OIDC
 - **Client credentials**: Client ID and secret for OAuth communication
 - **PKCE support**: Optional Proof Key for Code Exchange for enhanced security

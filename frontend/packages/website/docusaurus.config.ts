@@ -127,6 +127,12 @@ const config: Config = {
         },
         { to: "/blog", label: "Blog", position: "left" },
         {
+          to: "https://calendly.com/rp-haste/book-a-demo",
+          position: "right",
+          label: "Book a Demo",
+          className: "signup-link",
+        },
+        {
           type: "search",
           position: "right",
         },

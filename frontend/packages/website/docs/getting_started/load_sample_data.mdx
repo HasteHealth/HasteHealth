@@ -12,13 +12,13 @@ Before loading sample data, ensure you have the following:
 - `haste-health` CLI tool installed. You can find installation instructions in the [setting up cli tutorial](/docs/tutorials/cli).
 
 ## Download Sample FHIR Data
-You can download sample FHIR data files from the Synthia project.
+You can download sample FHIR data files from the Synthea project.
 Download R4 data files from [here](https://synthea.mitre.org/downloads).
 
 
 ## Load Sample Data into Haste Health
 ```bash
-for file in ~/my-synthia-data-fhir/*
+for file in ~/my-synthea-data-fhir/*
 do
   haste-health api transaction --file $file
 done

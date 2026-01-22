@@ -124,7 +124,7 @@ export default function HealthcareDataFlow() {
 
       {/* Outputs */}
       <div className="absolute  left-[calc(100%-220px)] top-[calc(0%-38px)]">
-        <Link to="/docs/api/authentication/openid_connect/authorization_code">
+        <Link to="/docs/api/authentication/grant_types/authorization_code">
           <Endpoint
             id="web"
             icon="🌐"
@@ -134,7 +134,7 @@ export default function HealthcareDataFlow() {
         </Link>
       </div>
       <div className="absolute  left-[calc(100%-220px)] top-[calc(50%-38px)]">
-        <Link to="/docs/api/authentication/openid_connect/client_credentials">
+        <Link to="/docs/api/authentication/grant_types/client_credentials">
           <Endpoint
             id="backend"
             icon="⚙️"

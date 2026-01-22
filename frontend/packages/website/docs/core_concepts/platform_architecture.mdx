@@ -48,24 +48,6 @@ Tenants provide complete data isolation:
 - Each tenant has independent configuration
 - API endpoints are tenant-specific
 
-### Tenant URL Structure
-
-All API requests are scoped to a tenant:
-
-```
-https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{version}
-```
-
-**Example:**
-```
-https://api.haste.health/w/acme-health/production/api/v1/fhir/r4
-```
-
-Where:
-- `acme-health` is the tenant identifier
-- `production` is the project identifier
-- `r4` is the FHIR version
-
 ## Projects
 
 A **Project** is a FHIR resource that provides resource isolation within a tenant. 
@@ -115,7 +97,7 @@ The **System Project** is a special, reserved project that exists in every tenan
 
 The System Project contains resources that manage the tenant itself:
 
-- **IdentityProvider**: External authentication provider configurations (OIDC, SAML)
+- **IdentityProvider**: External authentication provider configurations (OIDC)
 - **User**: User accounts and profiles
 - **ClientApplication**: OAuth clients for authentication
 - **AccessPolicyV2**: Authorization policies
@@ -243,13 +225,11 @@ DELETE /w/{tenant}/system/api/v1/fhir/r4/Project/cardiology
 
 ## URL Structure Explained
 
-### Complete URL Anatomy
-
 ```
 https://api.haste.health/w/{tenant}/{project}/api/v1/fhir/{version}/{resourceType}/{id}
-                              ↓              ↓                ↓           ↓          ↓         
-                            Tenant         Project      FHIR Version  Resource    Resource ID
-                           Isolation      Isolation                      Type
+                              ↓          ↓                   ↓           ↓          ↓         
+                            Tenant     Project           FHIR Version  Resource    Resource ID
+                           Isolation  Isolation                         Type
 ```
 
 ### Examples
@@ -289,8 +269,8 @@ Authentication tokens are scoped to:
   "https://haste.health/user_role": "admin",
   "https://haste.health/user_id": "user-id",
   "https://haste.health/resource_type": "Membership",
-  "https://haste.health/access_policies": [],
-  "https://haste.health/membership": null
+  "https://haste.health/access_policies": ["policy-1-versionid", "policy-2-versionid"],
+  "https://haste.health/membership": "membership-id"
 }
 ```
 
