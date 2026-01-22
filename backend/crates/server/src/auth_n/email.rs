@@ -17,7 +17,7 @@ use haste_repository::{
     },
 };
 use maud::{Markup, html};
-use sendgrid::v3::{Content, Email, Message, Personalization, Sender};
+use sendgrid::v3::{Content, Email, Personalization, Sender};
 use url::Url;
 
 fn report(mut err: &dyn std::error::Error) -> String {
@@ -39,7 +39,7 @@ pub async fn send_email(
     let api_key = config.get(ServerEnvironmentVariables::SendGridAPIKey)?;
     let sender = Sender::new(&api_key, None);
 
-    let m = Message::new(Email::new(&from_address))
+    let m = sendgrid::v3::Message::new(Email::new(&from_address))
         .set_subject(subject)
         .add_content(Content::new().set_content_type("text/html").set_value(body))
         .add_personalization(Personalization::new(Email::new(to)));
@@ -58,6 +58,20 @@ pub async fn send_email(
     Ok(())
 }
 
+pub struct Message {
+    pub subject: Option<String>,
+    pub body: Option<Markup>,
+}
+
+impl Default for Message {
+    fn default() -> Self {
+        Self {
+            subject: None,
+            body: None,
+        }
+    }
+}
+
 pub async fn send_password_reset_email<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
@@ -67,7 +81,7 @@ pub async fn send_password_reset_email<
     tenant: &TenantId,
     project: &ProjectId,
     user: &User,
-    message: Option<Markup>,
+    message: Message,
 ) -> Result<(), OperationOutcomeError> {
     let password_reset_code = ProjectAuthAdmin::create(
         &*state.repo,
@@ -114,7 +128,7 @@ pub async fn send_password_reset_email<
             )
         })?,
         html! {
-            @if let Some(message) = message {
+            @if let Some(message) = message.body {
                 div style="padding-top: 24px;" {
                     (message)
                 }
@@ -136,7 +150,7 @@ pub async fn send_password_reset_email<
     send_email(
         &*state.config,
         email,
-        "Password Reset",
+        message.subject.as_deref().unwrap_or("Password Reset"),
         &reset_button.into_string(),
     )
     .await?;

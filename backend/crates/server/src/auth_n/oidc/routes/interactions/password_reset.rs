@@ -1,6 +1,6 @@
 use crate::{
     auth_n::{
-        email::send_password_reset_email,
+        email::{Message, send_password_reset_email},
         oidc::{hardcoded_clients::admin_app, utilities::set_user_password},
     },
     extract::path_tenant::{Project, ProjectIdentifier, TenantIdentifier},
@@ -79,7 +79,8 @@ pub async fn password_reset_initiate_post<
     .await?;
 
     if let Some(user) = user_search_results.into_iter().next() {
-        send_password_reset_email(state.as_ref(), &tenant, &project, &user, None).await?;
+        send_password_reset_email(state.as_ref(), &tenant, &project, &user, Message::default())
+            .await?;
 
         Ok(message_html(
             Some(&tenant),
