@@ -105,6 +105,7 @@ static R4_SEARCH_PARAMETERS: LazyLock<SearchParametersIndex> = LazyLock::new(|| 
         .expect("Failed to parse search parameters JSON");
         index_parameter(&mut index, bundle).expect("Failed to extract search parameters");
     }
+
     index
 });
 

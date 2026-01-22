@@ -66,6 +66,7 @@ pub fn serialize(input: TokenStream) -> TokenStream {
     result
 }
 
+#[derive(PartialEq)]
 enum DeserializeComplexType {
     Complex,
     Resource,
@@ -99,7 +100,7 @@ pub fn deserialize(input: TokenStream) -> TokenStream {
     let serialize_type = get_attribute_serialization_type(&input.attrs);
 
     let result = match serialize_type.unwrap().as_str() {
-        "primitive" => deserialize::primitive_deserialization(input),
+        "primitive" => deserialize::fhir_primitive_deserialization(input),
         "typechoice" => deserialize_typechoice(input),
         "resource" => deserialize_complex(input, DeserializeComplexType::Resource),
         "complex" => deserialize_complex(input, DeserializeComplexType::Complex),

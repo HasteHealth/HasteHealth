@@ -43,9 +43,7 @@ fn unwrap_and_validate_cardinality_field(
     }
 }
 
-
-
-pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
+pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
     let name = input.ident;
 
     match input.data {
@@ -63,22 +61,24 @@ pub fn primitive_deserialization(input: DeriveInput) -> TokenStream {
             let expanded = quote! {
                 impl FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, haste_fhir_serialization_json::Context::AsValue)
+                        let mut json = serde_json::from_str(s)?;
+                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         match context {
                             haste_fhir_serialization_json::Context::AsField(context) => {
                                 let mut value = None;
                                 let mut extensions = None;
                                 let mut id = None;
 
-                                if let Some(json_value) = json.get(context.field){
+                                let json = unsafe { &mut *(json as *mut serde_json::Value) };
+
+                                if let Some(json_value) = json.get_mut(context.field){
                                     value = Some(#value_type::from_serde_value(json_value, haste_fhir_serialization_json::Context::AsValue)?);
                                 }
 
-                                if let Some(json_element_fields) = json.get(&("_".to_string() + context.field)) {
+                                if let Some(json_element_fields) = json.get_mut(&("_".to_string() + context.field)) {
                                     if !json_element_fields.is_object() {
                                         return Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                             "Expected an object for element fields".to_string(),
@@ -144,16 +144,17 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
             let expanded: TokenStream = quote! {
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, haste_fhir_serialization_json::Context::AsValue)
+                        let mut json = serde_json::from_str(s)?;
+                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                        let json = unsafe { &mut *(json as *mut serde_json::Value) };
                         match context {
                             haste_fhir_serialization_json::Context::AsField(context) => {
                                 let mut element = None;
 
-                                if let Some(json_element_fields) = json.get(&("_".to_string() + context.field)) {
+                                if let Some(json_element_fields) = json.get_mut(&("_".to_string() + context.field)) {
                                     if !json_element_fields.is_object() {
                                         return Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                             "Expected an object for element fields".to_string(),
@@ -267,7 +268,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                         Err(haste_fhir_serialization_json::errors::DeserializeError::CannotDeserializeTypeChoiceAsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         match context {
                             haste_fhir_serialization_json::Context::AsField(context) => {
                                 // Handle deserialization for each variant
@@ -370,7 +371,8 @@ fn create_complex_struct_handler(
     quote! {
         if #field_variable == #field_str {
           #found_fields_variable.insert(#field_str);
-          #field_ident = Some(#field_type::from_serde_value(#obj_variable.get(#field_str).unwrap(), haste_fhir_serialization_json::Context::AsValue)?);
+          let field_value =  unsafe { (*#obj_variable).get_mut(#field_str).unwrap() };
+          #field_ident = Some(#field_type::from_serde_value(field_value, haste_fhir_serialization_json::Context::AsValue)?);
         }
     }
 }
@@ -469,7 +471,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
             let check_resource_type = match deserialize_complex_type {
                 DeserializeComplexType::Resource => {
                     quote! {
-                        if let Some(resource_type_json) = #obj_variable.get("resourceType") && let Some(resource_type) = resource_type_json.as_str() {
+                        if let Some(resource_type_json) = unsafe{(*#obj_variable).get("resourceType")} && let Some(resource_type) = resource_type_json.as_str() {
                                 if resource_type == #name_string {
                                     #found_fields_ident.insert("resourceType");
                                 } else {
@@ -482,8 +484,6 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                         else {
                             return Err(haste_fhir_serialization_json::errors::DeserializeError::MissingRequiredField("resourceType".to_string()));
                         }
-
-
                     }
                 },
                 DeserializeComplexType::Complex => {
@@ -501,48 +501,61 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
             let expanded = quote! {
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, haste_fhir_serialization_json::Context::AsValue)
+                        let mut json = serde_json::from_str(s)?;
+                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(#obj_variable: &serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let #obj_variable = {
+                    fn from_serde_value(#obj_variable: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                        let mut #obj_variable = {
                             match context {
                                 haste_fhir_serialization_json::Context::AsValue => {
                                    Ok(#obj_variable)
                                 }
                                 haste_fhir_serialization_json::Context::AsField(context) => {
-                                    #obj_variable.get(context.field)
-                                        .ok_or_else(|| haste_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()))
+                                    unsafe {
+                                        let k = (*#obj_variable).get_mut(context.field).map(|v| v as *mut serde_json::Value)
+                                            .ok_or_else(|| haste_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()));
+                                        k as Result<*mut serde_json::Value, haste_fhir_serialization_json::errors::DeserializeError>
+                                    }
                                 }
                             }
                         }?;
 
+
+
                         let mut #found_fields_ident = std::collections::HashSet::new();
-                        if let Some(json_obj) = #obj_variable.as_object() {
-                            #check_resource_type
-                            #(#declare_fields)*
-                            for #field_variable in json_obj.keys() {
-                                if !#found_fields_ident.contains(#field_variable.as_str()){
-                                  #(#set_value)else *
-                                  else {
-                                    return Err(haste_fhir_serialization_json::errors::DeserializeError::UnknownField(
-                                        format!("{}: '{}'", #name_string, #field_variable.to_string())
-                                    ));
-                                  }
-                                }
+
+                        let keys = unsafe {
+                            let Some(json_obj) = (*#obj_variable).as_object() else {
+                                return Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
+                                    "Expected an object".to_string(),
+                                ));
+                            };
+
+                            json_obj.keys()
+                        };
+
+
+                        #check_resource_type
+                        #(#declare_fields)*
+                        for #field_variable in keys {
+                            if !#found_fields_ident.contains(#field_variable.as_str()){
+                            #(#set_value)else *
+                            else {
+                                return Err(haste_fhir_serialization_json::errors::DeserializeError::UnknownField(
+                                    format!("{}: '{}'", #name_string, #field_variable.to_string())
+                                ));
                             }
-                            #return_val
-                        } else {
-                            Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
-                                "Expected an object".to_string(),
-                            ))
+                            }
                         }
+                        #return_val
+
                     }
                 }
             };
-
-            // println!("{}", expanded.to_string());
+            if deserialize_complex_type == DeserializeComplexType::Complex {
+               // println!("{}", expanded.to_string());
+            }
             expanded.into()
         }
         _ => panic!("Only enums can be deserialized for typechoice serializer."),
@@ -575,18 +588,19 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
             let expanded = quote!{
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&json, haste_fhir_serialization_json::Context::AsValue)
+                        let mut json = serde_json::from_str(s)?;
+                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: &serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let json = {
+                            let json = unsafe { &mut *(json as *mut serde_json::Value) };
                             match &context {
                                 haste_fhir_serialization_json::Context::AsValue => {
                                    Ok(json)
                                 }
                                 haste_fhir_serialization_json::Context::AsField(context) => {
-                                    json.get(context.field)
+                                    json.get_mut(context.field)
                                         .ok_or_else(|| haste_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()))
                                 }
                             }

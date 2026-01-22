@@ -17,15 +17,16 @@ impl FHIRJSONDeserializer for DateTime {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let json_value: Value = serde_json::from_str(s)?;
-        DateTime::from_serde_value(&json_value, Context::AsValue)
+        let mut json_value: Value = serde_json::from_str(s)?;
+        DateTime::from_serde_value(&mut json_value, Context::AsValue)
     }
 
     fn from_serde_value(
-        value: &Value,
+        value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let k = get_value(value, &context)
+        let value = unsafe { &mut *(value as *mut Value) };
+        let k = get_value(&value, &context)
             .and_then(|v| v.as_str().and_then(|v| parse_datetime(v).ok()));
         k.ok_or_else(|| DeserializeError::FailedToConvertType("DateTime".to_string()))
     }
@@ -69,16 +70,17 @@ impl FHIRJSONDeserializer for Date {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let json_value: Value = serde_json::from_str(s)?;
-        Date::from_serde_value(&json_value, Context::AsValue)
+        let mut json_value: Value = serde_json::from_str(s)?;
+        Date::from_serde_value(&mut json_value, Context::AsValue)
     }
 
     fn from_serde_value(
-        value: &Value,
+        value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+        let value = unsafe { &mut *(value as *mut Value) };
         let k =
-            get_value(value, &context).and_then(|v| v.as_str().and_then(|v| parse_date(v).ok()));
+            get_value(&value, &context).and_then(|v| v.as_str().and_then(|v| parse_date(v).ok()));
         k.ok_or_else(|| DeserializeError::FailedToConvertType("Date".to_string()))
     }
 }
@@ -121,16 +123,17 @@ impl FHIRJSONDeserializer for Time {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let json_value: Value = serde_json::from_str(s)?;
-        Time::from_serde_value(&json_value, Context::AsValue)
+        let mut json_value: Value = serde_json::from_str(s)?;
+        Time::from_serde_value(&mut json_value, Context::AsValue)
     }
 
     fn from_serde_value(
-        value: &Value,
+        value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+        let value = unsafe { &mut *(value as *mut Value) };
         let k =
-            get_value(value, &context).and_then(|v| v.as_str().and_then(|v| parse_time(v).ok()));
+            get_value(&value, &context).and_then(|v| v.as_str().and_then(|v| parse_time(v).ok()));
         k.ok_or_else(|| DeserializeError::FailedToConvertType("Time".to_string()))
     }
 }
@@ -173,16 +176,17 @@ impl FHIRJSONDeserializer for Instant {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let json_value: Value = serde_json::from_str(s)?;
-        Instant::from_serde_value(&json_value, Context::AsValue)
+        let mut json_value: Value = serde_json::from_str(s)?;
+        Instant::from_serde_value(&mut json_value, Context::AsValue)
     }
 
     fn from_serde_value(
-        value: &Value,
+        value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let k =
-            get_value(value, &context).and_then(|v| v.as_str().and_then(|v| parse_instant(v).ok()));
+        let value = unsafe { &mut *(value as *mut Value) };
+        let k = get_value(&value, &context)
+            .and_then(|v| v.as_str().and_then(|v| parse_instant(v).ok()));
         k.ok_or_else(|| DeserializeError::FailedToConvertType("Instant".to_string()))
     }
 }

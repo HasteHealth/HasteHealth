@@ -726,14 +726,15 @@ impl<
                         )
                     })?;
 
-                    let mut patched_resource =
-                        haste_fhir_serialization_json::from_serde_value::<Resource>(&json)
-                            .map_err(|e| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::Exception(None),
-                                    format!("Failed to deserialize patched resource '{}'.", e),
-                                )
-                            })?;
+                    let mut patched_resource = haste_fhir_serialization_json::from_serde_value::<
+                        Resource,
+                    >(json)
+                    .map_err(|e| {
+                        OperationOutcomeError::fatal(
+                            IssueType::Exception(None),
+                            format!("Failed to deserialize patched resource '{}'.", e),
+                        )
+                    })?;
 
                     if std::mem::discriminant(&resource)
                         != std::mem::discriminant(&patched_resource)
