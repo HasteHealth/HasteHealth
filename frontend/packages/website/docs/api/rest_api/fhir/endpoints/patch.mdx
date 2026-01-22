@@ -23,18 +23,7 @@ haste-health api patch Patient 12345 --file patch.json
 Where `patch.json` contains JSON Patch operations:
 
 ```json
-[
-  {
-    "op": "add",
-    "path": "/telecom",
-    "value": [
-      {
-        "system": "phone",
-        "value": "555-1234"
-      }
-    ]
-  }
-]
+[{"op": "add", "path": "/telecom", "value": [{"system": "phone", "value": "555-1234" }]}]
 ```
 
 </TabItem>

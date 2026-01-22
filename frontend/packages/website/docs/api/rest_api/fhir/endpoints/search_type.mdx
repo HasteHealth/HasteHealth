@@ -17,7 +17,7 @@ import TabItem from '@theme/TabItem';
 Search for Patient resources using the Haste Health CLI:
 
 ```bash
-haste-health api search-type Patient "name=Smith&birthdate=ge1980-01-01"
+haste-health api search-type Patient "name=Smith"
 ```
 
 This command searches for Patient resources with family name "Smith" born on or after January 1, 1980.
@@ -45,7 +45,7 @@ const searchResults = await client.search_type<typeof R4, 'Patient'>(
   {},
   R4,
   'Patient',
-  'name=Smith&birthdate=ge1980-01-01'
+  'name=Smith'
 );
 
 console.log('Total matches:', searchResults.total);
@@ -58,7 +58,7 @@ const searchWithParsed = await client.search_type<typeof R4, 'Patient'>(
   {},
   R4,
   'Patient',
-  parseQuery('name=Smith&birthdate=ge1980-01-01')
+  parseQuery('name=Smith')
 );
 ```
 

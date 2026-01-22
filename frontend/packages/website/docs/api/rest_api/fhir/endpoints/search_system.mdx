@@ -17,7 +17,7 @@ import TabItem from '@theme/TabItem';
 Search across all resource types using the Haste Health CLI:
 
 ```bash
-haste-health api search-system "_type=Patient,Observation&_lastUpdated=ge2025-01-01"
+haste-health api search-system "_sort=_lastUpdated"
 ```
 
 This command searches for Patient and Observation resources updated on or after January 1, 2025.
@@ -43,7 +43,7 @@ const client: AsynchronousClient<{}> = /* ... */;
 const searchResults = await client.search_system(
   {},
   R4,
-  '_type=Patient,Observation&_lastUpdated=ge2025-01-01'
+  '_type=Patient,Observation'
 );
 
 console.log('Total matches:', searchResults.total);
@@ -55,7 +55,7 @@ import { parseQuery } from '@haste-health/client/url';
 const searchWithParsed = await client.search_system(
   {},
   R4,
-  parseQuery('_type=Patient,Observation&_lastUpdated=ge2025-01-01')
+  parseQuery('_sort=_lastUpdated')
 );
 ```
 
@@ -65,7 +65,7 @@ const searchWithParsed = await client.search_system(
 Search across all resource types using cURL:
 
 ```bash
-curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4?_type=Patient,Observation&_lastUpdated=ge2025-01-01" \
+curl -X GET "https://api.haste.health/w/[tenant]/[project]/api/v1/fhir/r4?_sort=_lastUpdated" \
      -H "Content-Type: application/fhir+json" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
