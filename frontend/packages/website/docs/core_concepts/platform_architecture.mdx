@@ -251,29 +251,6 @@ https://api.haste.health/w/acme-health/cardiology/api/v1/fhir/r4/Observation?pat
 
 ## Authentication Context
 
-### Token Scoping
-
-Authentication tokens are scoped to:
-1. **https://haste.health/tenant**: Which organization
-2. **https://haste.health/project**: Which project within the tenant
-
-**JWT Token Claims:**
-```json
-{
-  "sub": "xltz0pcjiekiseeai2deaht4dy",
-  "exp": 1764630902,
-  "aud": "admin-app",
-  "scope": "offline_access openid email profile fhirUser system/*.cruds",
-  "https://haste.health/tenant": "ohio-health",
-  "https://haste.health/project": "my-project",
-  "https://haste.health/user_role": "admin",
-  "https://haste.health/user_id": "user-id",
-  "https://haste.health/resource_type": "Membership",
-  "https://haste.health/access_policies": ["policy-1-versionid", "policy-2-versionid"],
-  "https://haste.health/membership": "membership-id"
-}
-```
-
 ### Project Access Control
 
 Users must have explicit access to projects:
