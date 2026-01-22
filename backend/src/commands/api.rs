@@ -20,6 +20,8 @@ use tokio::sync::Mutex;
 pub enum ApiCommands {
     Create {
         #[arg(short, long)]
+        data: Option<String>,
+        #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
     },
@@ -36,17 +38,23 @@ pub enum ApiCommands {
 
     Patch {
         #[arg(short, long)]
-        file: String,
+        data: Option<String>,
+        #[arg(short, long)]
+        file: Option<String>,
         resource_type: String,
         id: String,
     },
     Update {
+        #[arg(short, long)]
+        data: Option<String>,
         #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
         id: String,
     },
     Transaction {
+        #[arg(short, long)]
+        data: Option<String>,
         #[arg(short, long)]
         parallel: Option<usize>,
         #[arg(short, long)]
@@ -55,6 +63,8 @@ pub enum ApiCommands {
         output: Option<bool>,
     },
     Batch {
+        #[arg(short, long)]
+        data: Option<String>,
         #[arg(short, long)]
         file: Option<String>,
         #[arg(short, long)]
@@ -87,11 +97,15 @@ pub enum ApiCommands {
 
     InvokeSystem {
         #[arg(short, long)]
+        data: Option<String>,
+        #[arg(short, long)]
         file: Option<String>,
         operation_name: String,
     },
 
     InvokeType {
+        #[arg(short, long)]
+        data: Option<String>,
         #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
@@ -116,6 +130,8 @@ pub enum ApiCommands {
 
     InvokeInstance {
         #[arg(short, long)]
+        data: Option<String>,
+        #[arg(short, long)]
         file: Option<String>,
         resource_type: String,
         id: String,
@@ -123,10 +139,18 @@ pub enum ApiCommands {
     },
 }
 
-async fn read_from_file_or_stin<Type: FHIRJSONDeserializer>(
+async fn derive_resource_data_arg_file_arg_or_stdin<Type: FHIRJSONDeserializer>(
+    data_arg: &Option<String>,
     file_path: &Option<String>,
 ) -> Result<Type, OperationOutcomeError> {
-    if let Some(file_path) = file_path {
+    if let Some(data) = data_arg {
+        haste_fhir_serialization_json::from_str::<Type>(data).map_err(|e| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Failed to parse transaction data: {}", e),
+            )
+        })
+    } else if let Some(file_path) = file_path {
         let file_content = std::fs::read_to_string(file_path).map_err(|e| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
@@ -168,6 +192,7 @@ pub async fn api_commands(
 
     match command {
         ApiCommands::Create {
+            data,
             resource_type,
             file,
         } => {
@@ -181,7 +206,8 @@ pub async fn api_commands(
                 )
             })?;
 
-            let resource = read_from_file_or_stin::<Resource>(file).await?;
+            let resource =
+                derive_resource_data_arg_file_arg_or_stdin::<Resource>(data, file).await?;
 
             let result = fhir_client.create((), resource_type, resource).await?;
 
@@ -200,21 +226,36 @@ pub async fn api_commands(
         ApiCommands::Patch {
             resource_type,
             id,
+            data,
             file,
         } => {
-            let file_content = std::fs::read_to_string(file).map_err(|e| {
-                OperationOutcomeError::error(
-                    IssueType::Exception(None),
-                    format!("Failed to read transaction file: {}", e),
-                )
-            })?;
+            let patches = if let Some(file) = file {
+                let file_content = std::fs::read_to_string(file).map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::Exception(None),
+                        format!("Failed to read transaction file: {}", e),
+                    )
+                })?;
 
-            let patch = serde_json::from_str::<json_patch::Patch>(&file_content).map_err(|e| {
-                OperationOutcomeError::error(
+                serde_json::from_str::<json_patch::Patch>(&file_content).map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::Invalid(None),
+                        format!("Failed to parse patch JSON: {}", e),
+                    )
+                })?
+            } else if let Some(data) = data {
+                serde_json::from_str::<json_patch::Patch>(&data).map_err(|e| {
+                    OperationOutcomeError::error(
+                        IssueType::Invalid(None),
+                        format!("Failed to parse patch JSON: {}", e),
+                    )
+                })?
+            } else {
+                return Err(OperationOutcomeError::error(
                     IssueType::Invalid(None),
-                    format!("Failed to parse patch JSON: {}", e),
-                )
-            })?;
+                    "Either --data or --file must be provided for patch operation.".to_string(),
+                ));
+            };
 
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -227,7 +268,7 @@ pub async fn api_commands(
             })?;
 
             let result = fhir_client
-                .patch((), resource_type, id.clone(), patch)
+                .patch((), resource_type, id.clone(), patches)
                 .await?;
 
             println!(
@@ -241,6 +282,7 @@ pub async fn api_commands(
         ApiCommands::Update {
             resource_type,
             id,
+            data,
             file,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
@@ -253,7 +295,8 @@ pub async fn api_commands(
                 )
             })?;
 
-            let resource = read_from_file_or_stin::<Resource>(file).await?;
+            let resource =
+                derive_resource_data_arg_file_arg_or_stdin::<Resource>(data, file).await?;
 
             let result = fhir_client
                 .update((), resource_type, id.clone(), resource)
@@ -267,11 +310,12 @@ pub async fn api_commands(
             Ok(())
         }
         ApiCommands::Transaction {
+            data,
             file,
             output,
             parallel,
         } => {
-            let bundle = read_from_file_or_stin::<Bundle>(file).await?;
+            let bundle = derive_resource_data_arg_file_arg_or_stdin::<Bundle>(data, file).await?;
 
             let parallel = parallel.unwrap_or(1);
 
@@ -326,8 +370,8 @@ pub async fn api_commands(
 
             Ok(())
         }
-        ApiCommands::Batch { file, output } => {
-            let bundle = read_from_file_or_stin::<Bundle>(file).await?;
+        ApiCommands::Batch { data, file, output } => {
+            let bundle = derive_resource_data_arg_file_arg_or_stdin::<Bundle>(data, file).await?;
 
             let result = fhir_client.batch((), bundle).await?;
 
@@ -468,10 +512,11 @@ pub async fn api_commands(
         ApiCommands::InvokeSystem {
             operation_name,
             file,
+            data,
         } => {
-            let parameters = read_from_file_or_stin::<
+            let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
-            >(file)
+            >(data, file)
             .await?;
 
             let result = fhir_client
@@ -490,6 +535,7 @@ pub async fn api_commands(
             resource_type,
             operation_name,
             file,
+            data,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -501,9 +547,9 @@ pub async fn api_commands(
                 )
             })?;
 
-            let parameters = read_from_file_or_stin::<
+            let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
-            >(file)
+            >(data, file)
             .await?;
 
             let result = fhir_client
@@ -523,6 +569,7 @@ pub async fn api_commands(
             id,
             operation_name,
             file,
+            data,
         } => {
             let resource_type = ResourceType::try_from(resource_type.as_str()).map_err(|e| {
                 OperationOutcomeError::error(
@@ -534,9 +581,9 @@ pub async fn api_commands(
                 )
             })?;
 
-            let parameters = read_from_file_or_stin::<
+            let parameters = derive_resource_data_arg_file_arg_or_stdin::<
                 haste_fhir_model::r4::generated::resources::Parameters,
-            >(file)
+            >(data, file)
             .await?;
 
             let result = fhir_client
