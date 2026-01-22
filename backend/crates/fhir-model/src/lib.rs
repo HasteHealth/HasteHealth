@@ -131,8 +131,6 @@ mod tests {
 }"#,
         );
 
-        println!("{:?}", resource);
-
         assert!(matches!(
             resource,
             Ok(Resource::Practitioner(Practitioner { .. }))
