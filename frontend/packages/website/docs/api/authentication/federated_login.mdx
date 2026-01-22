@@ -71,44 +71,15 @@ sequenceDiagram
     Browser->>User: Display authenticated app
 ```
 
-## Configuration
-### Google
+## Setup Guides
+- [Okta Integration Guide](/docs/integration/identity_providers/okta)
+- [Azure AD Integration Guide](/docs/integration/identity_providers/azure)
+- [GCP Integration Guide](/docs/integration/identity_providers/gcp-identity)
+- [Auth0 Integration Guide](/docs/integration/identity_providers/auth0)
+- [Keycloak Integration Guide](/docs/integration/identity_providers/keycloak)
+- [Haste Health Integration Guide](/docs/integration/identity_providers/haste-health)
 
-```javascript
-{
-  "issuer": "https://accounts.google.com",
-  "authorizationEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
-  "tokenEndpoint": "https://oauth2.googleapis.com/token",
-  "userInfoEndpoint": "https://openidconnect.googleapis.com/v1/userinfo",
-  "jwksUri": "https://www.googleapis.com/oauth2/v3/certs",
-  "scopes": ["openid", "profile", "email"]
-}
-```
 
-### Microsoft Azure AD
-
-```javascript
-{
-  "issuer": "https://login.microsoftonline.com/{tenant}/v2.0",
-  "authorizationEndpoint": "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize",
-  "tokenEndpoint": "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token",
-  "jwksUri": "https://login.microsoftonline.com/{tenant}/discovery/v2.0/keys",
-  "scopes": ["openid", "profile", "email"]
-}
-```
-
-### Okta
-
-```javascript
-{
-  "issuer": "https://{domain}.okta.com",
-  "authorizationEndpoint": "https://{domain}.okta.com/oauth2/v1/authorize",
-  "tokenEndpoint": "https://{domain}.okta.com/oauth2/v1/token",
-  "userInfoEndpoint": "https://{domain}.okta.com/oauth2/v1/userinfo",
-  "jwksUri": "https://{domain}.okta.com/oauth2/v1/keys",
-  "scopes": ["openid", "profile", "email"]
-}
-```
 
 ## Troubleshooting
 
