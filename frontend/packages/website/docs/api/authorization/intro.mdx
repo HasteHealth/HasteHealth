@@ -9,47 +9,6 @@ tags:
 
 Haste Health implements a layered authorization model that combines OAuth 2.0 scopes, role-based access control (RBAC), and attribute-based access control (ABAC) to provide flexible, fine-grained permissions for healthcare applications.
 
-## Authorization Layers
-
-Authorization in Haste Health operates at three levels:
-
-### 1. SMART Scopes
-
-OAuth scopes provide coarse-grained permissions at the token level. Scopes determine what types of resources and operations a token can access.
-
-**Examples**:
-- `user/Patient.read` - Read patient resources user has access to
-- `patient/*.cruds` - Full CRUD access to all resources for a specific patient
-- `system/Observation.rs` - System-level read and search for observations
-
-Scopes are requested during authentication and included in the access token.
-
-**[Learn more about scopes →](/docs/api/authorization/scopes)**
-
-### 2. User Roles
-
-User define roles that determine baseline permissions within a tenant.
-
-**Roles**:
-- **Owner**: Full access to all resources and project management
-- **Admin**: Full access to all resources and project management
-- **Member**: Standard access subject to scopes and policies
-
-Memberships connect Users to Projects and serve as the foundation for policy-based authorization.
-
-**[Learn more about Membership →](/docs/api/authorization/membership)**
-
-### 3. Access Policies
-
-AccessPolicyV2 resources provide fine-grained, conditional access control beyond scopes and roles. Policies evaluate request context to make authorization decisions.
-
-**Capabilities**:
-- Resource-level filtering (e.g., only specific patients)
-- Condition-based access (e.g., only during business hours)
-- Context-aware permissions (e.g., only resources user created)
-
-**[Learn more about Access Control →](/docs/api/authorization/access_control)**
-
 ## Authorization Flow
 
 When a user makes an API request:
@@ -57,7 +16,7 @@ When a user makes an API request:
 1. **Token validation**: JWT verified, scopes extracted
 2. **Scope check**: Request validated against token scopes (e.g., `user/Patient.read`)
 3. **Role check**: User's role verified for project access
-4. **Policy evaluation**: AccessPolicyV2 resources evaluated using FHIRPath conditions
+4. **Policy evaluation**: AccessPolicyV2 resources associated with user evaluated
 5. **Decision**: Request allowed only if all checks pass
 
 ## Authorization Model
@@ -97,24 +56,6 @@ When a user makes an API request:
          │   Allow/Deny Access    │
          └────────────────────────┘
 ```
-
-## Use Cases
-
-**Basic application access**:
-- Use **Smart scopes** to define what resource types the app can access
-- Example: Patient portal app with `patient/*.read` scope
-
-**Multi-tenant organization**:
-- Use **Memberships** to grant users access to specific projects
-- Use user **roles** (admin/member)
-
-**Department-specific data**:
-- Use **AccessPolicyV2** with rule engine to restrict access by organization
-- Example: Cardiology staff only see cardiology patients
-
-**Complex conditional access**:
-- Use **AccessPolicyV2** with FHIRPath conditions
-- Example: Users only access resources they created or are assigned to
 
 ## Related Documentation
 
