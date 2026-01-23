@@ -6,3 +6,89 @@ tags:
     - identity
     - access
 ---
+
+# Identity & Access Control
+
+Haste Health's access control system uses three core resources to manage user identity and authorization across projects.
+
+## User
+
+The **User** resource represents an authenticated identity at the tenant level.
+
+**Purpose**: Stores authentication credentials and tenant-level role for individuals accessing the platform. Users exist in the System Project and can access multiple user projects through Memberships.
+
+**Key Properties**:
+- **Email**: Unique identifier for authentication
+- **Role**: Tenant-level role (`admin` or `member`)
+- **Federated Identity**: Optional link to external identity providers (SSO/OIDC)
+
+**Related Documentation**:
+- **[View Schema →](/docs/reference/fhir/model/resources/User)** 
+
+---
+
+## Membership
+
+The **Membership** resource connects Users to Projects and establishes project-level access.
+
+**Purpose**: Links a User to a specific Project, granting project-level access. Without a Membership, users cannot access resources in a project (unless they are tenant owners or super-admins).
+
+**Key Properties**:
+- **user**: Reference to the User resource
+- **link**: Reference to the clinical resource this membership represents (e.g., Patient, Practitioner)
+- **role**: Project-level role (`admin` or `member`)
+
+**Access Flow**:
+1. User authenticates (System Project validates credentials)
+2. System queries for Memberships in target Project
+3. If Membership exists, access is granted to the project
+4. AccessPolicyV2 resources determine resource-level permissions
+
+**Related Documentation**:
+- **[View Membership details →](/docs/api/authorization/membership)** 
+- **[View Schema →](/docs/reference/fhir/model/resources/Membership)**
+
+---
+
+## AccessPolicyV2
+
+The **AccessPolicyV2** resource defines fine-grained authorization rules for what resources a Member can access within a Project.
+
+**Purpose**: Establishes attribute-based access control (ABAC) rules that determine which FHIR resources and operations a user can perform. Policies are associated with Users or Memberships.
+
+**Key Properties**:
+- **engine**: Policy evaluation engine (`full-access`, `rule-engine`)
+- **target**: Reference to User or Membership this policy applies to
+- **rule**: Array of authorization rules defining allowed actions, resources, and conditions
+- **name**: Human-readable policy description
+
+**Policy Evaluation**:
+During authentication, the system:
+1. Identifies user's Memberships in the target project
+2. Finds AccessPolicyV2 resources where `target.link` references those Memberships
+3. Includes policy version IDs in the access token
+4. Evaluates policies on each API request to determine permissions
+
+**Related Documentation**:
+- **[View AccessPolicyV2 details →](/docs/api/authorization/access_control)**
+- **[View Schema →](/docs/reference/fhir/model/resources/AccessPolicyV2)** 
+
+---
+
+## How They Work Together
+
+```
+User (System Project)
+  ↓
+Membership (User Project) ← links User to Project
+  ↓
+AccessPolicyV2 (User Project) ← defines permissions
+  ↓
+FHIR Resources (User Project) ← authorized access
+```
+
+**Related Documentation**:
+- **[Authorization Overview](/docs/api/authorization/intro)**: Complete authorization system
+- **[Multi-Tenant Architecture](/docs/core_concepts/platform_architecture)**: Tenant and project structure
+- **[Authentication](/docs/category/oauth-grant-types)**: OAuth 2.0 and OIDC flows
+
