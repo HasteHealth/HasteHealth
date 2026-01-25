@@ -244,6 +244,8 @@ where
         // Last one don't want trailing comma.
         if self[self.len() - 1].serialize_value(&mut tmp_buffer)? {
             total += 1;
+        } else {
+            tmp_buffer.write_all("null".as_bytes())?;
         }
 
         tmp_buffer.write_all(&[b']'])?;
