@@ -15,14 +15,12 @@ pub enum EnvironmentConfigError {
 }
 
 impl EnvironmentConfig {
-    pub fn new() -> Result<Self, OperationOutcomeError> {
-        let result = dotenvy::dotenv().map_err(EnvironmentConfigError::from);
-
-        if let Err(e) = result {
-            tracing::warn!(
-                "Failed to load .env file: '{:?}' will use strictly environment variables,",
-                e
-            )
+    pub fn new(config_files: &[&str]) -> Result<Self, OperationOutcomeError> {
+        for file in config_files {
+            let file_result = dotenvy::from_filename(file).map_err(EnvironmentConfigError::from);
+            if let Err(e) = file_result {
+                tracing::warn!("Failed to load environment file '{}' '{:?}'", file, e)
+            }
         }
 
         Ok(EnvironmentConfig())

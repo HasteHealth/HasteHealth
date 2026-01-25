@@ -55,10 +55,9 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
-    command:
-      - admin
-      - migrate
-      - all
+    entrypoint: ["/bin/bash"]
+    command: >
+      -c "/haste-health admin migrate all && /haste-health admin tenant create --id=my-health '--owner-email=myuser@health.org' --owner-password=testing_password --subscription-tier=unlimited"
 
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/haste_health

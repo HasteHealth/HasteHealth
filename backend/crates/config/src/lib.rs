@@ -24,6 +24,8 @@ impl From<&str> for ConfigType {
 
 pub fn get_config<Key: Into<String>>(config_type: ConfigType) -> Arc<dyn Config<Key>> {
     match config_type {
-        ConfigType::Environment => Arc::new(EnvironmentConfig::new().unwrap()),
+        ConfigType::Environment => {
+            Arc::new(EnvironmentConfig::new(&[".env", ".env.development"]).unwrap())
+        }
     }
 }

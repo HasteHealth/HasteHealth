@@ -9,11 +9,15 @@ FHIR clinical data repository built for speed.
 ## Running for Development
 
 ```bash
+docker-compose -f docker-services-compose.yml up
 cd backend
-cargo run admin migrate all
-cargo run admin migrate artifacts
 cargo run server start && cargo run worker
 ```
+
+go to http://my-health_system.localhost:3001
+and fill in the following credentails
+username: `myuser@health.org`
+password: `testing_password`
 
 ## Binaries
 
