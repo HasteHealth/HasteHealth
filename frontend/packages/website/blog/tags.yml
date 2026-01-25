@@ -7,3 +7,7 @@ hello:
   label: Getting Started
   permalink: /docs/Getting Started
   description: Getting started
+
+performance:
+  label: Performance
+  description: Performance related posts
