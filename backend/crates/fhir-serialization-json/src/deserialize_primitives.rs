@@ -163,10 +163,14 @@ where
                         let value = values.as_mut().and_then(|v| v.get_mut(i));
                         let element = elements.as_mut().and_then(|v| v.get_mut(i));
 
-                        if let Some(value) = value {
+                        if let Some(value) = value
+                            && !value.is_null()
+                        {
                             json_v.insert("fake_v".to_string(), value.take());
                         }
-                        if let Some(element) = element {
+                        if let Some(element) = element
+                            && !element.is_null()
+                        {
                             json_v.insert("_fake_v".to_string(), element.take());
                         }
                         let res = T::from_serde_value(
