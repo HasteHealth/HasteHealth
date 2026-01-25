@@ -1,0 +1,912 @@
+---
+slug: writing-rust
+title: Writing a High-Performance Clinical Data Repository in Rust
+authors: [ralph-parkison]
+tags: [hastehealth, rust, performance]
+---
+
+## Background information
+
+[Rust](https://www.rust-lang.org/) is a systems programming language focused on safety, speed, and concurrency. 
+We use Rust as the primary language for our backend at Haste Health.
+
+- [FHIR](https://www.hl7.org/fhir/) - Modern standard for storing/retrieving healthcare data.
+- [Hl7V2](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185) - Legacy healthcare standard for messaging healthcare data.
+
+## Why Rust
+
+### Performance matters in healthcare
+
+Healthcare systems process massive amounts of data. Most healthcare systems broadcast their data and events using a legacy standard called Hl7V2. To have a real time clinical data repository a neccessary requirement is to be able to injest these Hl7V2 messages.
+
+Hl7V2 messages can be published for a variety of events within a healthcare system including patient admission, patient discharge, medication orders as a few examples.
+For most large healthcare systems this ends up being millions of Hl7V2 messages being sent daily.
+
+Compounding on top of this is that the translation from Hl7V2 to other standards often requires mutating or creating multiple resources.
+As an example an ADT (Admit, Discharge, Transfer) Hl7V2 Message can provide information for a Patient, details about their Hospital visit, observations and clinical information
+recorded during their visit. A single message may require your system to perform multiple operations at once [see below for an example](#hl7v2-example).
+
+#### The following are a few real world examples:
+
+- Healthcare System A
+  - ~8 million HL7v2 messages a day
+  - ~15 FHIR resources created per message for their implementation
+  - ~1,500 FHIR resources/second being streamed out of their EHR.
+
+- Healthcare System B
+  - ~15 million Hl7V2 message accross their organization
+  - ~8,000 FHIR resources/second being streamed out of their EHR
+
+#### Processing healthcare data can be compute intensive:
+
+For our CDR we natively store data as [FHIR](https://www.hl7.org/fhir/) resources. This requires a significant amount of data processing in the application.
+For each Resource created we must index it according to [SearchParameter](https://hl7.org/fhir/R4/searchparameter.html) resources. 
+These are FHIR resources that define what parameters are available to search for a given resource.
+And how to index resources by extracting values from the resource using [FHIRPath](https://hl7.org/fhirpath/) which is a query language similiar to JSONPath.
+
+
+For example the [Patient](https://hl7.org/fhir/R4/patient.html) resource contains the following parameters (+ a few of our custom parameters for our system):
+
+<div className="max-h-128 overflow-scroll my-8">
+| Parameter                                | FHIRPath Expression                                                                                                                                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| \_haste-health-author (reference)        | `Resource.meta.extension.where(url='https://haste.health/author').value                                                                                                                                                   `|
+| \_type (token)                           | `$this.type().name`                                                                                                                                                                                                        |
+| \_id (token)                             | `Resource.id`                                                                                                                                                                                                              |
+| \_lastUpdated (date)                     | `Resource.meta.lastUpdated`                                                                                                                                                                                                |
+| \_profile (uri)                          | `Resource.meta.profile`                                                                                                                                                                                                    |
+| \_security (token)                       | `Resource.meta.security`                                                                                                                                                                                                   |
+| \_source (uri)                           | `Resource.meta.source`                                                                                                                                                                                                     |
+| \_tag (token)                            | `Resource.meta.tag`                                                                                                                                                                                                        |
+| active (token)                           | `Patient.active`                                                                                                                                                                                                           |
+| address (string)                         | `Patient.address / Person.address / Practitioner.address / RelatedPerson.address`                                                                                                                                          |
+| address-city (string)                    | `Patient.address.city / Person.address.city / Practitioner.address.city / RelatedPerson.address.city`                                                                                                                      |
+| address-country (string)                 | `Patient.address.country / Person.address.country / Practitioner.address.country / RelatedPerson.address.country`                                                                                                          |
+| address-postalcode (string)              | `Patient.address.postalCode / Person.address.postalCode / Practitioner.address.postalCode / RelatedPerson.address.postalCode`                                                                                              |
+| address-state (string)                   | `Patient.address.state / Person.address.state / Practitioner.address.state / RelatedPerson.address.state`                                                                                                                  |
+| address-use (token)                      | `Patient.address.use / Person.address.use / Practitioner.address.use / RelatedPerson.address.use`                                                                                                                          |
+| birthdate (date)                         | `Patient.birthDate / Person.birthDate / RelatedPerson.birthDate`                                                                                                                                                           |
+| death-date (date)                        | `(Patient.deceased.ofType(dateTime))`                                                                                                                                                          |
+| deceased (token)                         | `Patient.deceased.exists() and Patient.deceased != false`                                                                                                                                                                 |
+| email (token)                            | `Patient.telecom.where(system='email') / Person.telecom.where(system='email') / Practitioner.telecom.where(system='email') / PractitionerRole.telecom.where(system='email') / RelatedPerson.telecom.where(system='email')` |
+| family (string)                          | `Patient.name.family / Practitioner.name.family`                                                                                                                                                                           |
+| gender (token)                           | `Patient.gender / Person.gender / Practitioner.gender / RelatedPerson.gender`                                                                                                                                              |
+| general-practitioner (reference)         | `Patient.generalPractitioner`                                                                                                                                                                                              |
+| given (string)                           | `Patient.name.given / Practitioner.name.given`                                                                                                                                                                             |
+| identifier (token)                       | `Patient.identifier`                                                                                                                                                                                                       |
+| language (token)                         | `Patient.communication.language`                                                                                                                                                                                           |
+| link (reference)                         | `Patient.link.other`                                                                                                                                                                                                       |
+| name (string)                            | `Patient.name`                                                                                                                                                                                                             |
+| organization (reference)                 | `Patient.managingOrganization`                                                                                                                                                                                             |
+| phone (token)                            | `Patient.telecom.where(system='phone') / Person.telecom.where(system='phone') / Practitioner.telecom.where(system='phone') / PractitionerRole.telecom.where(system='phone') / RelatedPerson.telecom.where(system='phone')` |
+| phonetic                                 | `Patient.name / Person.name / Practitioner.name / RelatedPerson.name`                                                                                                                                                      |
+| telecom (token)                          | `Patient.telecom / Person.telecom / Practitioner.telecom / PractitionerRole.telecom / RelatedPerson.telecom`                                                                                                               |
+</div>
+
+When a Patient resource is created we evaluate all of these parameters with fhirpath in the application and then index the extracted values to our search store.
+
+Here is an example of indexing the `name` Parameter for a Patient resource:
+
+Given the following Patient resource:
+```json
+{
+  "resourceType": "Patient",
+  "id": "example",
+  "name": [
+    {
+      "use": "official",
+      "family": "Chalmers",
+      "given": ["Peter", "James"]
+    },
+    {
+      "use": "usual",
+      "given": ["Jim"]
+    }
+  ]
+}
+```
+
+The `name` parameter uses the FHIRPath expression `Patient.name` which extracts all name elements from the Patient resource.
+In this case 
+* `{ "use": "official", "family": "Chalmers", "given": ["Peter", "James"] }` 
+* `{ "use": "usual", "given": ["Jim"] }`.
+
+We then run a conversion on these name elements to extract string tokens for indexing.
+From the first name element we extract the following tokens: `Chalmers`, `Peter`, `James`.
+From the second name element we extract the token: `Jim`.
+
+##### Processing FHIR Transactions:
+In FHIR a transaction is a bundle of multiple operations that must be processed atomically.
+This can require significant processing to ensure all operations are performed correctly.
+Each operation within the transaction may have inter-dependencies on other operations within the transaction.
+
+For example an operation may create a Patient resource and a subsequent operation within the same transaction may create an Observation resource that references the newly created Patient.
+**The following bundle creates a Patient, Encounter and an Observation within a single transaction and links them together via references**.
+
+<div className="max-h-128 overflow-scroll my-4">
+```json
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "observation",
+      "resource": {
+        "resourceType": "Observation",
+        "identifier": [
+          {
+            "use": "official",
+            "system": "http://www.bmc.nl/zorgportal/identifiers/observations",
+            "value": "6326"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "789-8",
+              "display": "Erythrocytes [#/volume] in Blood by Automated count"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "patient"
+        },
+        "encounter": {
+          "reference": "encounter"
+        },
+        "effectivePeriod": {
+          "start": "2013-04-02T10:30:10+01:00",
+          "end": "2013-04-05T10:30:10+01:00"
+        },
+        "issued": "2013-04-03T15:30:10+01:00",
+        "performer": [
+          {
+            "reference": "Practitioner/f005",
+            "display": "A. Langeveld"
+          }
+        ],
+        "valueQuantity": {
+          "value": 4.12,
+          "unit": "10^12/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*12/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                "code": "L",
+                "display": "Low"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": " 12-14 y Male: 4.4 - 5.2  x  10^12/L ; 12-14 y Female: 4.2 - 4.8  x  10^12/L ; 15-17 y Male: 4.6 - 5.4  x  10^12/L ; 15-17 y Female: 4.2 - 4.8  x  10^12/L ; 18-64 y Male: 4.6 - 5.4  x  10^12/L ; 18-64 y Female: 4.0 - 4.8  x  10^12/L ; 65-74 y Male: 4.3 - 5.3  x  10^12/L ; 65-74 y Female: 4.1 - 4.9  x  10^12/L       "
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      }
+    },
+    {
+      "fullUrl": "patient",
+      "resource": {
+        "resourceType": "Patient",
+        "name": [{ "given": ["Bob"], "family": "Peter" }]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Patient"
+      }
+    },
+    {
+      "fullUrl": "encounter",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "example",
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Encounter with patient @example</div>"
+        },
+        "status": "in-progress",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "IMP",
+          "display": "inpatient encounter"
+        },
+        "subject": {
+          "reference": "patient"
+        }
+      },
+
+      "request": {
+        "method": "POST",
+        "url": "Encounter"
+      }
+    }
+  ]
+}
+```
+</div>
+
+This requires the application to process each operation in correct order. In our case we go through a resources fields and check for links. 
+Afterwards we build a dependency graph of all operations within the transaction and perform a topological sort to determine the correct order to process each operation.
+
+
+**All of this processing requires significant CPU resources. Using Rust allows us to maximize performance in these hot paths of the application.**
+
+Here are a few benchmarks we have collected comparing our Rust implementation to our Typescript implementation.
+
+### Benchmarking Rust vs Typescript implementations.
+
+**FHIRPath Benchmarks:**
+| Rust | Typescript |  Description | 
+|------|------------|--------------|
+|11.673 µs| 51.49 µs | Evaluate all patient search parameters against a [synthea generated patient](/test_data/synthea_patient.json) |
+
+**Transaction Processing Benchmarks:**
+
+| Rust | Typescript |  Description |
+|------|------------|--------------|
+| 39ms | 110 ms | Using a [synthea](https://synthea.mitre.org/) [transaction bundle](/test_data/synthea_test_bundle.json) with ~700 resources. |
+
+## Challenges in Rust
+
+The following are a few challenges encountered when building a large-scale clinical data repository in Rust. 
+Broadly speaking, as someone with mostly a Clojure and TypeScript background, it was a pretty easy shift to Rust.
+
+### Rust does not have a reflection built in
+
+Rust does not have a native reflection system like Java, which makes it difficult to build generic systems that can operate on arbitrary FHIR resources.
+In our case we needed some form of reflection for our [FHIRPath engine](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/fhirpath/src/lib.rs) to be able to evaluate FHIRPath expressions on arbitrary FHIR resources and for pieces down the road like [FHIR Profiling](https://build.fhir.org/profiling.html).
+
+We ended up building a simple custom derive [macro](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/reflect-derive/src/lib.rs) that generates code to allow us to introspect FHIR resources at runtime.
+
+### Occasionally hitting a roadblock with the borrow checker
+Broadly speaking Rust's borrow checker errors were relatively straightforward to solve.  However, we ran into a few specific scenarios that were tricky.
+
+**One example**:
+
+In our FP implementation we generally want to return references to data within the resource being queried. 
+And these references need to have the same lifetime as the resource being queried. However, it is also possible to return owned data from FP expressions; for example, the following FHIRPath `'my-string'` would create a new string.
+This made it tricky to define the correct lifetimes for our evaluation context and return types.
+
+What ultimately worked for us was to use an internal data structure to allocate owned data into a vector and then return references to that vector.
+At the end of the evaluation we return a wrapped value with the data allocated in the vector and references to either the data owned in the vector or to the resource passed in.
+
+### Custom Serialization/Deserialization
+FHIR is a very complex standard with many nuances. We had to implement custom serialization/deserialization for FHIR.
+The default serde_json implementation does not cover several edge cases within FHIR. Although not specific to Rust, this required building custom serialization/deserialization.
+
+We ended up building a custom derive macro [here](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/fhir-serialization-json-derive/src/lib.rs).
+Here's a few examples of edge cases unique to FHIR Json serialization/deserialization.
+
+* **Primitive types with extensions**
+  In FHIR primitive types can have extensions. These are represented in JSON by having a field with the same name as the primitive prefixed with an underscore.
+  For example Patient.name.family is a FHIR string primitive. If it has extensions it would be represented in JSON as both `Patient.name.family` and for extension `Patient.name._family`.
+* **Type choices**
+  In FHIR certain fields can be one of multiple types. These are represented in JSON by having the field name suffixed with the type name.
+  For Example Patient.deceased can be a boolean or a dateTime. In JSON these would be represented as either `deceasedBoolean` or `deceasedDateTime`.
+
+The following example shows "Patient.name.family" which is a FHIR string primitive with an extension, "Patient.name.given" primitve array with extensions.
+Finally "deceased" which is primitive with an extension and is a typechoice.
+
+<div className="max-h-128 overflow-scroll my-4">
+```json
+{
+  "resourceType": "Patient",
+  "id": "pw7n1cwjla0vek6vg0u3bjm9r3",
+  "meta": {
+    "extension": [
+      {
+        "url": "https://haste.health/author",
+        "valueReference": {
+          "reference": "Membership/tfjpl0ob8rpvthppkk0uxks-gf"
+        }
+      }
+    ],
+    "versionId": "g43wfhebt6frvk1men5b6i0t42",
+    "lastUpdated": "2026-01-24T03:19:46.542+00:00"
+  },
+  "name": [
+    {
+      "family": "example",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://example.org/fhir/StructureDefinition/custom-extension",
+            "valueString": "custom value"
+          }
+        ]
+      },
+      "_given": [
+        {
+          "extension": [
+            {
+              "url": "http://example.org/fhir/StructureDefinition/extension-1",
+              "valueString": "value-1"
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://example.org/fhir/StructureDefinition/extension-2",
+              "valueString": "value-2"
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://example.org/fhir/StructureDefinition/extension-3",
+              "valueString": "value-3"
+            }
+          ]
+        }
+      ],
+      "given": [
+        "Bob",
+        "Peter",
+        "James"
+      ]
+    }
+  ],
+  "deceasedDateTime": "1974-12-25",
+  "_deceasedDateTime": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/birthdate-ext",
+        "valueCode": "estimated"
+      }
+    ]
+  }
+}
+```
+</div>
+
+
+This would deserialize into the following Rust structure:
+
+<div className="max-h-128 overflow-scroll my-4">
+```rust
+Patient {
+    id: Some(
+        "pw7n1cwjla0vek6vg0u3bjm9r3",
+    ),
+    meta: Some(
+        Meta {
+            id: None,
+            extension: Some(
+                [
+                    Extension {
+                        id: None,
+                        extension: None,
+                        url: "https://haste.health/author",
+                        value: Some(
+                            Reference(
+                                Reference {
+                                    id: None,
+                                    extension: None,
+                                    reference: Some(
+                                        FHIRString {
+                                            id: None,
+                                            extension: None,
+                                            value: Some(
+                                                "Membership/tfjpl0ob8rpvthppkk0uxks-gf",
+                                            ),
+                                        },
+                                    ),
+                                    type_: None,
+                                    identifier_: None,
+                                    display: None,
+                                },
+                            ),
+                        ),
+                    },
+                ],
+            ),
+            versionId: Some(
+                FHIRId {
+                    id: None,
+                    extension: None,
+                    value: Some(
+                        "bnim6uouyqzeajzp2gbxad4nla",
+                    ),
+                },
+            ),
+            lastUpdated: Some(
+                FHIRInstant {
+                    id: None,
+                    extension: None,
+                    value: Some(
+                        Iso8601(
+                            2026-01-24T03:24:17.805Z,
+                        ),
+                    ),
+                },
+            ),
+            source: None,
+            profile: None,
+            security: None,
+            tag: None,
+        },
+    ),
+    implicitRules: None,
+    language: None,
+    text: None,
+    contained: None,
+    extension: None,
+    modifierExtension: None,
+    identifier_: None,
+    active: None,
+    name: Some(
+        [
+            HumanName {
+                id: None,
+                extension: None,
+                use_: None,
+                text: None,
+                family: Some(
+                    FHIRString {
+                        id: None,
+                        extension: Some(
+                            [
+                                Extension {
+                                    id: None,
+                                    extension: None,
+                                    url: "http://example.org/fhir/StructureDefinition/custom-extension",
+                                    value: Some(
+                                        String(
+                                            FHIRString {
+                                                id: None,
+                                                extension: None,
+                                                value: Some(
+                                                    "custom value",
+                                                ),
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ],
+                        ),
+                        value: Some(
+                            "example",
+                        ),
+                    },
+                ),
+                given: Some(
+                    [
+                        FHIRString {
+                            id: None,
+                            extension: Some(
+                                [
+                                    Extension {
+                                        id: None,
+                                        extension: None,
+                                        url: "http://example.org/fhir/StructureDefinition/extension-1",
+                                        value: Some(
+                                            String(
+                                                FHIRString {
+                                                    id: None,
+                                                    extension: None,
+                                                    value: Some(
+                                                        "value-1",
+                                                    ),
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                            ),
+                            value: Some(
+                                "Bob",
+                            ),
+                        },
+                        FHIRString {
+                            id: None,
+                            extension: Some(
+                                [
+                                    Extension {
+                                        id: None,
+                                        extension: None,
+                                        url: "http://example.org/fhir/StructureDefinition/extension-2",
+                                        value: Some(
+                                            String(
+                                                FHIRString {
+                                                    id: None,
+                                                    extension: None,
+                                                    value: Some(
+                                                        "value-2",
+                                                    ),
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                            ),
+                            value: Some(
+                                "Peter",
+                            ),
+                        },
+                        FHIRString {
+                            id: None,
+                            extension: Some(
+                                [
+                                    Extension {
+                                        id: None,
+                                        extension: None,
+                                        url: "http://example.org/fhir/StructureDefinition/extension-3",
+                                        value: Some(
+                                            String(
+                                                FHIRString {
+                                                    id: None,
+                                                    extension: None,
+                                                    value: Some(
+                                                        "value-3",
+                                                    ),
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                            ),
+                            value: Some(
+                                "James",
+                            ),
+                        },
+                    ],
+                ),
+                prefix: None,
+                suffix: None,
+                period: None,
+            },
+        ],
+    ),
+    telecom: None,
+    gender: None,
+    birthDate: None,
+    deceased: Some(
+        DateTime(
+            FHIRDateTime {
+                id: None,
+                extension: Some(
+                    [
+                        Extension {
+                            id: None,
+                            extension: None,
+                            url: "http://hl7.org/fhir/StructureDefinition/birthdate-ext",
+                            value: Some(
+                                Code(
+                                    FHIRCode {
+                                        id: None,
+                                        extension: None,
+                                        value: Some(
+                                            "estimated",
+                                        ),
+                                    },
+                                ),
+                            ),
+                        },
+                    ],
+                ),
+                value: Some(
+                    YearMonthDay(
+                        1974,
+                        12,
+                        25,
+                    ),
+                ),
+            },
+        ),
+    ),
+    address: None,
+    maritalStatus: None,
+    multipleBirth: None,
+    photo: None,
+    contact: None,
+    communication: None,
+    generalPractitioner: None,
+    managingOrganization: None,
+    link: None,
+}
+```
+</div>
+
+
+## Hl7V2 Example
+
+Using FHIR-Converter for an ADT A01 hl7v2 message we get corresponding FHIR transaction bundle.
+Each entry within the FHIR Bundle corresponds to an individual operation (PUT Patient, Put Practitioner etc...).
+When the system receives this bundle it processes all of these operations at once.
+
+**ADT A01 Raw Message**
+
+```
+MSH|^~\\&|SIMHOSP|SFAC|RAPP|RFAC|20200508131015||ADT^A01|517|T|2.3|||AL||44|ASCII\nEVN|A01|20200508131015|||C005^Whittingham^Sylvia^^^Dr^^^DRNBR^PRSNL^^^ORGDR|\nPID|1|3735064194^^^SIMULATOR MRN^MRN|3735064194^^^SIMULATOR MRN^MRN~2021051528^^^NHSNBR^NHSNMBR||
+```
+
+Converts to the following:
+
+**FHIR Bundle**
+<div className="max-h-128 overflow-scroll my-4">
+
+```json
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "timestamp": "2020-05-08T13:10:15Z",
+    "identifier": {
+      "value": "517"
+    },
+    "id": "7dcb7d92-7a75-3d65-42f9-0f790afac4db",
+    "entry": [
+      {
+        "fullUrl": "urn:uuid:aa521dd9-b613-0210-a661-82ce17e38fb3",
+        "resource": {
+          "resourceType": "MessageHeader",
+          "id": "aa521dd9-b613-0210-a661-82ce17e38fb3",
+          "source": {
+            "name": "SIMHOSP",
+            "_endpoint": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                  "valueCode": "unknown"
+                }
+              ]
+            }
+          },
+          "destination": [
+            {
+              "name": "RAPP",
+              "_endpoint": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                    "valueCode": "unknown"
+                  }
+                ]
+              },
+              "receiver": {
+                "reference": "Organization/ab0676d9-fa24-ffd3-327d-f5b4c26ae628"
+              }
+            }
+          ],
+          "meta": {
+            "tag": [
+              {
+                "code": "T",
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0103"
+              }
+            ]
+          },
+          "eventCoding": {
+            "code": "A01",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+            "display": "ADT^A01"
+          },
+          "sender": {
+            "reference": "Organization/33e23f3e-47b2-9c1b-c1f0-f964c2d28946"
+          }
+        },
+        "request": {
+          "method": "PUT",
+          "url": "MessageHeader/aa521dd9-b613-0210-a661-82ce17e38fb3"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:428efe87-9b32-2610-d2d2-0edfdc356ebe",
+        "resource": {
+          "resourceType": "Provenance",
+          "id": "428efe87-9b32-2610-d2d2-0edfdc356ebe",
+          "occurredDateTime": "2020-05-08T13:10:15Z",
+          "recorded": "2020-05-08T13:10:15Z",
+          "agent": [
+            {
+              "type": {
+                "coding": [
+                  {
+                    "code": "author",
+                    "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
+                  }
+                ]
+              },
+              "who": {
+                "reference": "Organization/33e23f3e-47b2-9c1b-c1f0-f964c2d28946"
+              }
+            }
+          ],
+          "activity": {
+            "coding": [
+              {
+                "display": "ADT^A01^"
+              }
+            ]
+          },
+          "target": [
+            {
+              "reference": "Bundle/7dcb7d92-7a75-3d65-42f9-0f790afac4db"
+            }
+          ]
+        },
+        "request": {
+          "method": "PUT",
+          "url": "Provenance/428efe87-9b32-2610-d2d2-0edfdc356ebe"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:33e23f3e-47b2-9c1b-c1f0-f964c2d28946",
+        "resource": {
+          "resourceType": "Organization",
+          "id": "33e23f3e-47b2-9c1b-c1f0-f964c2d28946",
+          "identifier": [
+            {
+              "value": "SFAC",
+              "system": "http://example.com/v2-to-fhir-converter/Identifier/SFAC"
+            }
+          ],
+          "address": [
+            {
+              "country": "44"
+            }
+          ]
+        },
+        "request": {
+          "method": "PUT",
+          "url": "Organization/33e23f3e-47b2-9c1b-c1f0-f964c2d28946"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:ab0676d9-fa24-ffd3-327d-f5b4c26ae628",
+        "resource": {
+          "resourceType": "Organization",
+          "id": "ab0676d9-fa24-ffd3-327d-f5b4c26ae628",
+          "identifier": [
+            {
+              "value": "RFAC",
+              "system": "http://example.com/v2-to-fhir-converter/Identifier/RFAC"
+            }
+          ],
+          "address": [
+            {
+              "country": "44"
+            }
+          ]
+        },
+        "request": {
+          "method": "PUT",
+          "url": "Organization/ab0676d9-fa24-ffd3-327d-f5b4c26ae628"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:9d697ec3-48c3-3e17-db6a-29a1765e22c6",
+        "resource": {
+          "resourceType": "Patient",
+          "id": "9d697ec3-48c3-3e17-db6a-29a1765e22c6",
+          "identifier": [
+            {
+              "value": "3735064194",
+              "type": {
+                "coding": [
+                  {
+                    "code": "MRN",
+                    "display": "MRN"
+                  }
+                ]
+              },
+              "system": "http://example.com/v2-to-fhir-converter/Identifier/SIMULATOR-MRN"
+            },
+            {
+              "value": "3735064194",
+              "type": {
+                "coding": [
+                  {
+                    "code": "MRN",
+                    "display": "MRN"
+                  }
+                ]
+              },
+              "system": "http://example.com/v2-to-fhir-converter/Identifier/SIMULATOR-MRN"
+            },
+            {
+              "value": "2021051528",
+              "type": {
+                "coding": [
+                  {
+                    "code": "NHSNMBR",
+                    "display": "NHSNMBR"
+                  }
+                ]
+              },
+              "system": "http://example.com/v2-to-fhir-converter/Identifier/NHSNBR"
+            }
+          ]
+        },
+        "request": {
+          "method": "PUT",
+          "url": "Patient/9d697ec3-48c3-3e17-db6a-29a1765e22c6"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:4f1394cd-4fdc-2671-f985-0ef923c48c5c",
+        "resource": {
+          "resourceType": "Provenance",
+          "id": "4f1394cd-4fdc-2671-f985-0ef923c48c5c",
+          "recorded": "2020-05-08T13:10:15Z",
+          "agent": [
+            {
+              "who": {
+                "reference": "Practitioner/07cb183d-bae8-cbc9-56cc-764ecfa02850"
+              }
+            }
+          ],
+          "activity": {
+            "text": "ADT^A01"
+          },
+          "target": [
+            {
+              "reference": "Bundle/7dcb7d92-7a75-3d65-42f9-0f790afac4db"
+            }
+          ]
+        },
+        "request": {
+          "method": "PUT",
+          "url": "Provenance/4f1394cd-4fdc-2671-f985-0ef923c48c5c"
+        }
+      },
+      {
+        "fullUrl": "urn:uuid:07cb183d-bae8-cbc9-56cc-764ecfa02850",
+        "resource": {
+          "resourceType": "Practitioner",
+          "id": "07cb183d-bae8-cbc9-56cc-764ecfa02850",
+          "identifier": [
+            {
+              "value": "C005",
+              "system": "http://example.com/v2-to-fhir-converter/Identifier/DRNBR",
+              "type": {
+                "coding": [
+                  {
+                    "code": "ORGDR",
+                    "display": "ORGDR"
+                  }
+                ]
+              }
+            }
+          ],
+          "name": [
+            {
+              "family": "Whittingham",
+              "given": [
+                "Sylvia"
+              ],
+              "prefix": [
+                "Dr"
+              ],
+              "use": "PRSNL"
+            }
+          ]
+        },
+        "request": {
+          "method": "PUT",
+          "url": "Practitioner/07cb183d-bae8-cbc9-56cc-764ecfa02850"
+        }
+      }
+    ]
+  }
+```
+</div>
+
+## Conclusion
+
+Using Rust for processing FHIR resources in our clinical data repository has provided significant performance improvements in critical areas such as FHIRPath evaluation, 
+search parameter indexing, and FHIR transaction processing. 
+
+Coming from a background in higher-level languages like TypeScript and Clojure, Rust was easy to build performant and reliable systems for handling complex healthcare data.
