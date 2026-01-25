@@ -433,5 +433,10 @@ mod tests {
                 .unwrap(),
             "given-2",
         );
+
+        assert_eq!(
+            haste_fhir_serialization_json::to_string(&patient).unwrap(),
+            "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",\"A.\"],\"prefix\":[\"Mr.\"]}]}"
+        );
     }
 }
