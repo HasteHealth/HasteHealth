@@ -115,10 +115,13 @@ We then run a conversion on these name elements to extract string tokens for ind
 From the first name element we extract the following tokens: `Chalmers`, `Peter`, `James`.
 From the second name element we extract the token: `Jim`.
 
+For processing a single Patient resource you end up running ~25 FHIRPath expressions. Converting the results to indexable tokens and then writing those to your search index.
+
+Compounding on top of this FHIR has a concept of transaction/batch processing where multiple resources can be created/updated/deleted in a single request.
+
 ##### Processing FHIR Transactions:
 In FHIR a transaction is a bundle of multiple operations that must be processed atomically.
-This can require significant processing to ensure all operations are performed correctly.
-Each operation within the transaction may have inter-dependencies on other operations within the transaction.
+Each operation within the transaction may have inter-dependencies between operations within the transaction.
 
 For example an operation may create a Patient resource and a subsequent operation within the same transaction may create an Observation resource that references the newly created Patient.
 **The following bundle creates a Patient, Encounter and an Observation within a single transaction and links them together via references**.
@@ -236,13 +239,12 @@ For example an operation may create a Patient resource and a subsequent operatio
 ```
 </div>
 
-This requires the application to process each operation in correct order. In our case we go through a resources fields and check for links. 
+This requires the application to process each operation in correct order. In our case we go through a resources fields and check for links between them. 
 Afterwards we build a dependency graph of all operations within the transaction and perform a topological sort to determine the correct order to process each operation.
-
 
 **All of this processing requires significant CPU resources. Using Rust allows us to maximize performance in these hot paths of the application.**
 
-Here are a few benchmarks we have collected comparing our Rust implementation to our Typescript implementation.
+Here are a few benchmarks we have collected comparing our Rust implementation vs our Typescript implementation.
 
 ### Benchmarking Rust vs Typescript implementations.
 
@@ -259,20 +261,19 @@ Here are a few benchmarks we have collected comparing our Rust implementation to
 
 ## Challenges in Rust
 
-The following are a few challenges encountered when building a large-scale clinical data repository in Rust. 
-Broadly speaking, as someone with mostly a Clojure and TypeScript background, it was a pretty easy shift to Rust.
+The following are a few challenges encountered when building a large-scale clinical data repository in Rust.
 
 ### Rust does not have a reflection built in
 
-Rust does not have a native reflection system like Java, which makes it difficult to build generic systems that can operate on arbitrary FHIR resources.
-In our case we needed some form of reflection for our [FHIRPath engine](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/fhirpath/src/lib.rs) to be able to evaluate FHIRPath expressions on arbitrary FHIR resources and for pieces down the road like [FHIR Profiling](https://build.fhir.org/profiling.html).
+Rust does not have a native reflection system like Java, We needed this for our [FHIRPath engine](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/fhirpath/src/lib.rs) 
+to be able to evaluate FHIRPath expressions on arbitrary FHIR resources and for pieces down the road like [FHIR Profiling](https://build.fhir.org/profiling.html).
 
 We ended up building a simple custom derive [macro](https://github.com/HasteHealth/HasteHealth/blob/main/backend/crates/reflect-derive/src/lib.rs) that generates code to allow us to introspect FHIR resources at runtime.
 
 ### Occasionally hitting a roadblock with the borrow checker
 Broadly speaking Rust's borrow checker errors were relatively straightforward to solve.  However, we ran into a few specific scenarios that were tricky.
 
-**One example**:
+**For example**:
 
 In our FP implementation we generally want to return references to data within the resource being queried. 
 And these references need to have the same lifetime as the resource being queried. However, it is also possible to return owned data from FP expressions; for example, the following FHIRPath `'my-string'` would create a new string.
@@ -280,6 +281,8 @@ This made it tricky to define the correct lifetimes for our evaluation context a
 
 What ultimately worked for us was to use an internal data structure to allocate owned data into a vector and then return references to that vector.
 At the end of the evaluation we return a wrapped value with the data allocated in the vector and references to either the data owned in the vector or to the resource passed in.
+
+** We weren't able to use Cow here because the returned value was a trait not compatible with Cow **
 
 ### Custom Serialization/Deserialization
 FHIR is a very complex standard with many nuances. We had to implement custom serialization/deserialization for FHIR.
