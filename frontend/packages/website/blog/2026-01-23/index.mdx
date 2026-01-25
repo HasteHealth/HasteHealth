@@ -623,6 +623,110 @@ Patient {
 ```
 </div>
 
+## Where Rust *shines*
+
+### Data Modeling and validation
+The FHIR standard defines it's data model with a metadata resource called [StructureDefinition](https://hl7.org/fhir/R4/structuredefinition.html).
+This resource behaves similiarly to a JSON Schema or Protobuf definition. It defines the fields, types and constraints for each FHIR resource.
+We use these StructureDefinitions to generate Rust types for each FHIR resource.
+A nice aspect of our generated rust types is how much we are able to represent as enums in rust.
+For example Patient.gender is a code [string value with a fixed set of allowed values].
+What values are allowed are defined [here](https://build.fhir.org/valueset-administrative-gender.html). 
+
+**We were able to represent these various terminologies in rust as follows:**:
+```rust
+#[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
+#[fhir_serialize_type = "valueset"]
+pub enum AdministrativeGender {
+    #[doc = "Female"]
+    #[code = "female"]
+    Female(Option<Element>),
+    #[doc = "Male"]
+    #[code = "male"]
+    Male(Option<Element>),
+    #[doc = "Other"]
+    #[code = "other"]
+    Other(Option<Element>),
+    #[doc = "Unknown"]
+    #[code = "unknown"]
+    Unknown(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
+}
+```
+
+Because rust enums support nesting structs we can also represent FHIR extensions on these code values.
+For example 
+```json
+{
+  "resourceType": "Patient",
+  "_gender": {
+    "extension": [
+      {
+        "url": "https://haste.health/custom-extension",
+        "valueCode": "my-value"
+    }
+    ]
+  },
+  "gender": "male"
+}
+```
+
+gets deserialized into:
+
+```rust
+Patient {
+    ...
+    gender: Some(
+        AdministrativeGender::Male (
+            Some(
+                Element {
+                    ...,
+                    extension: Some(
+                        [
+                            Extension {
+                              ...
+                                url: "https://haste.health/custom-extension",
+                                value: Some(
+                                    Code(
+                                        FHIRCode {
+                                            id: None,
+                                            extension: None,
+                                            value: Some(
+                                                "my-value",
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            },
+                        ],
+                    ),
+                },
+            ),
+        ),
+    ),
+    ...
+}
+```
+
+Because validation of these code values is enforced at the type level we get a lot of safety when working with FHIR data.
+For example you cannot accidentally assign an invalid value to Patient.gender.
+
+Because we deserialize directly into these types we get very fast validation of FHIR data.
+
+### Ecosystem and Cargo
+Similiar to Clojure ecosystem the Rust libraries are generally very high quality and well maintained.  
+We ended up using axum for a backend and have found it to be flexible and easy to integrate with other libraries.
+
+Cargo the Rust package manager is also fantastic. We setup our repository as a monorepo which cargo supports natively via workspaces.
+
+
+## Conclusion
+
+Using Rust for processing FHIR resources in our clinical data repository has provided significant performance improvements in critical areas such as FHIRPath evaluation, 
+search parameter indexing, and FHIR transaction processing. 
+
+Coming from a background in higher-level languages like TypeScript and Clojure, Rust was easy to build performant and reliable systems for handling complex healthcare data.
 
 ## Hl7V2 Example
 
@@ -906,10 +1010,3 @@ Converts to the following:
   }
 ```
 </div>
-
-## Conclusion
-
-Using Rust for processing FHIR resources in our clinical data repository has provided significant performance improvements in critical areas such as FHIRPath evaluation, 
-search parameter indexing, and FHIR transaction processing. 
-
-Coming from a background in higher-level languages like TypeScript and Clojure, Rust was easy to build performant and reliable systems for handling complex healthcare data.
