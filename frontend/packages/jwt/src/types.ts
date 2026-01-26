@@ -54,6 +54,7 @@ export interface HasteHealthCustomClaims<role> {
    * The tenant the token is associated with.
    */
   [CUSTOM_CLAIMS.TENANT]: TenantId;
+  [CUSTOM_CLAIMS.PROJECT]: ProjectId;
 }
 
 export interface SMARTPayload {
@@ -64,9 +65,7 @@ export interface SMARTPayload {
 }
 
 export interface AccessTokenPayload<role>
-  extends HasteHealthCustomClaims<role>,
-    SMARTPayload,
-    jose.JWTPayload {
+  extends HasteHealthCustomClaims<role>, SMARTPayload, jose.JWTPayload {
   /**
    * REQUIRED. Issuer Identifier for the Issuer of the response.
    * The iss value is a case-sensitive URL using the https scheme that contains scheme, host, and optionally,

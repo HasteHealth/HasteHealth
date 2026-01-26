@@ -5,6 +5,7 @@ export const CUSTOM_CLAIMS = {
     "https://haste.health/accessPolicyVersionIds"
   ),
   TENANT: <const>"https://haste.health/tenant",
+  PROJECT: <const>"https://haste.health/project",
   ROLE: <const>"https://haste.health/user_role",
 };
 

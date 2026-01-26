@@ -237,7 +237,7 @@ function RefreshTokens() {
                     onClick={() => {
                       deleteRefreshToken(
                         refreshToken.client_id,
-                        refreshToken.user_agent
+                        refreshToken.user_agent,
                       );
                     }}
                     className="cursor-pointer font-semibold text-red-600 hover:text-red-700"
@@ -281,6 +281,12 @@ function UserData({ user }: Readonly<SettingProps>) {
           <Copyable
             label="Tenant"
             value={user?.["https://haste.health/tenant"]}
+          />
+        </div>
+        <div>
+          <Copyable
+            label="Project"
+            value={user?.["https://haste.health/project"]}
           />
         </div>
         <div>

@@ -11,3 +11,45 @@ tags:
 
 This tutorial will guide you through building a simple web application that interacts with the Haste Health FHIR server using our TypeScript SDK.
 By the end of this tutorial, you'll have a basic web app that can read and display patient data.
+
+## Setup the server
+1. Open the haste health admin application
+2. Go to your project (or create a project).
+3. Click ClientApplication from the left menu.
+4. Click Create Client Application with the following data:
+  ```json
+  {
+    "resourceType": "ClientApplication",
+    "name": "Web App",
+    "grantType": [
+      "refresh_token",
+      "authorization_code"
+    ],
+    "responseTypes": "token",
+    "redirectUri": [
+      "http://localhost:5173"
+    ],
+    "scope": "offline_access openid email profile fhirUser user/*.*"
+  }
+  ```
+5. After saving the Client Application, copy the Client ID for later use.
+6. Go to Settings
+   Copy the FHIR Base URL for later use.
+7. Copy your Tenant ID and Project ID.
+
+## Setup the web application
+1. Clone the following [repository](https://github.com/HasteHealth/Web-Template).
+2. Create a .env file with the following content (filled with values copied from the server setup):
+```
+VITE_TENANT_ID=your-tenant-id
+VITE_PROJECT_ID=your-project-id
+VITE_FHIR_BASE_URL=your-fhir-base-url
+VITE_CLIENT_ID=your-client-id
+```
+3. Run the following commands:
+```bash
+npm install
+npm run dev
+```
+4. Open your browser and navigate to `http://localhost:5173`.
+5. You should see a simple web application that allows you to authenticate and view patient data.
