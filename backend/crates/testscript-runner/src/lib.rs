@@ -3,9 +3,10 @@ use haste_fhir_client::{
     request::{
         DeleteRequest, FHIRCreateRequest, FHIRDeleteInstanceRequest, FHIRDeleteSystemRequest,
         FHIRDeleteTypeRequest, FHIRHistoryInstanceRequest, FHIRHistorySystemRequest,
-        FHIRHistoryTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
+        FHIRHistoryTypeRequest, FHIRInvokeInstanceRequest, FHIRInvokeSystemRequest,
+        FHIRInvokeTypeRequest, FHIRReadRequest, FHIRRequest, FHIRResponse, FHIRTransactionRequest,
         FHIRUpdateInstanceRequest, FHIRVersionReadRequest, HistoryRequest, HistoryResponse,
-        InvokeResponse, SearchResponse, UpdateRequest,
+        InvocationRequest, InvokeResponse, Operation, SearchResponse, UpdateRequest,
     },
     url::ParsedParameters,
 };
@@ -688,6 +689,93 @@ async fn testscript_operation_to_fhir_request(
             Ok(FHIRRequest::Delete(DeleteRequest::System(
                 FHIRDeleteSystemRequest {
                     parameters: delete_parameters,
+                },
+            )))
+        }
+    } else if operation_type == Some("invoke".to_string()) {
+        let Some(op_code) = operation.url.as_ref().and_then(|u| u.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Invoke operation requires url at '{}' which is used for the operation code.",
+                pointer.path()
+            )));
+        };
+
+        let op_code = Operation::new(op_code).map_err(|_e| {
+            TestScriptError::ExecutionError(format!(
+                "Invalid operation code for invoke operation '{}'",
+                op_code
+            ))
+        })?;
+
+        let Some(source_id) = operation.sourceId.as_ref().and_then(|id| id.value.as_ref()) else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Invoke operation requires sourceId at '{}'.",
+                pointer.path()
+            )));
+        };
+        let source = state.resolve_fixture(source_id)?;
+        let Resource::Parameters(parameters) = (source as &dyn Any)
+            .downcast_ref::<Resource>()
+            .cloned()
+            .ok_or_else(|| {
+                TestScriptError::ExecutionError(format!(
+                    "Source fixture '{}' is not a Resource.",
+                    source_id
+                ))
+            })?
+        else {
+            return Err(TestScriptError::ExecutionError(format!(
+                "Source fixture '{}' is not a Parameters resource.",
+                source_id
+            )));
+        };
+
+        if let Some(target_id) = operation.targetId.as_ref().and_then(|id| id.value.as_ref()) {
+            let target = state.resolve_fixture(target_id)?;
+            let target_resource = (target as &dyn Any)
+                .downcast_ref::<Resource>()
+                .cloned()
+                .ok_or_else(|| {
+                    TestScriptError::ExecutionError(format!(
+                        "Source fixture '{}' is not a Resource.",
+                        source_id
+                    ))
+                })?;
+            let target_id = target_resource
+                .get_field("id")
+                .ok_or_else(|| {
+                    TestScriptError::ExecutionError(format!(
+                        "Source fixture '{}' does not have an 'id' field.",
+                        source_id
+                    ))
+                })?
+                .as_any()
+                .downcast_ref::<String>()
+                .cloned()
+                .unwrap_or_default();
+            let resource_type = derive_resource_type(operation, Some(target), pointer.path())?;
+
+            Ok(FHIRRequest::Invocation(InvocationRequest::Instance(
+                FHIRInvokeInstanceRequest {
+                    operation: op_code,
+                    resource_type,
+                    id: target_id,
+                    parameters,
+                },
+            )))
+        } else if let Ok(resource_type) = derive_resource_type(operation, None, pointer.path()) {
+            Ok(FHIRRequest::Invocation(InvocationRequest::Type(
+                FHIRInvokeTypeRequest {
+                    operation: op_code,
+                    resource_type,
+                    parameters,
+                },
+            )))
+        } else {
+            Ok(FHIRRequest::Invocation(InvocationRequest::System(
+                FHIRInvokeSystemRequest {
+                    operation: op_code,
+                    parameters,
                 },
             )))
         }
