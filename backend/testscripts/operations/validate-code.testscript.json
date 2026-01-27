@@ -1,0 +1,103 @@
+{
+    "id": "valueset-validate-code-test",
+    "url": "https://haste.health/fhir/valueset-validate-code-test",
+    "name": "Valueset validate-code Test",
+    "title": "Valueset validate-code Test",
+    "status": "active",
+    "description": "Tests the $validate-code operation on ValueSet.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "valueset-validate-code-parameters-success",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "url",
+                    "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1"
+                },
+                {
+                    "name": "code",
+                    "valueCode": "male"
+                }
+            ]
+        },
+        {
+            "id": "valueset-validate-code-parameters-failure",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "url",
+                    "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1"
+                },
+                {
+                    "name": "code",
+                    "valueCode": "invalid"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-validate-code-success",
+            "resource": {
+                "reference": "#valueset-validate-code-parameters-success"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "fixture-validate-code-failure",
+            "resource": {
+                "reference": "#valueset-validate-code-parameters-failure"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "update-client-supplied",
+            "name": "Update Patient with client supplied id",
+            "action": [
+                {
+                    "operation": {
+                        "url": "validate-code",
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-validate-code-success",
+                        "responseId": "validate-code-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name='result').value = true",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "url": "validate-code",
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-validate-code-failure",
+                        "responseId": "validate-code-response-failure",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Parameters.parameter.where(name='result').value = false",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
