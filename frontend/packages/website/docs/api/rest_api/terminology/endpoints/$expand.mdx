@@ -11,34 +11,10 @@ The FHIR [$expand operation](https://www.hl7.org/fhir/valueset-operation-expand.
 ## Endpoint
 
 ```
-GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand
 POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand
-GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/{id}/$expand
-POST /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/{id}/$expand
 ```
 
 Where `{id}` is the logical ID of a specific ValueSet resource (optional for type-level operations).
-
-## Query Parameters (GET)
-
-For GET requests, parameters are passed as query parameters:
-
-- `url` - The canonical URL of the value set to expand (required if not using instance-level operation)
-- `valueSetVersion` - The version of the value set (optional)
-- `filter` - Filter text to apply to the expansion (optional)
-- `count` - Maximum number of codes to return (optional, default: server-defined)
-- `offset` - Offset for paging (optional, default: 0)
-- `includeDesignations` - Whether to include designations (optional, default: false)
-- `designation` - Specific designations to include (optional, can be repeated)
-- `includeDefinition` - Whether to include code definitions (optional, default: false)
-- `activeOnly` - Whether to exclude inactive codes (optional, default: false)
-- `excludeNested` - Exclude nested codes (optional, default: false)
-- `excludeNotForUI` - Exclude codes not suitable for UI (optional, default: false)
-- `excludePostCoordinated` - Exclude post-coordinated codes (optional, default: false)
-- `displayLanguage` - The preferred display language (optional)
-- `system-version` - Version of specific code system (optional, format: system|version)
-
-Example: `GET /w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&count=10`
 
 ## Request Body (POST)
 
@@ -50,19 +26,7 @@ For POST requests, the request body should contain a Parameters resource with th
   "parameter": [
     {
       "name": "url",
-      "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
-    },
-    {
-      "name": "count",
-      "valueInteger": 10
-    },
-    {
-      "name": "includeDesignations",
-      "valueBoolean": true
-    },
-    {
-      "name": "displayLanguage",
-      "valueCode": "en"
+      "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1"
     }
   ]
 }
@@ -138,58 +102,6 @@ Content-Type: application/fhir+json
 }
 ```
 
-Key response fields in the expansion:
-
-- `identifier` - A unique identifier for this expansion
-- `timestamp` - When the expansion was created
-- `total` - Total number of codes in the expansion
-- `offset` - Offset used for paging
-- `contains` - Array of codes included in the expansion
-  - `system` - The code system URI
-  - `code` - The code value
-  - `display` - The display text for the code
-  - `abstract` - Whether the code is abstract (optional)
-  - `inactive` - Whether the code is inactive (optional)
-  - `designation` - Additional designations (if requested)
-
-## Filtered Expansion
-
-You can filter the expansion using the `filter` parameter:
-
-```json
-{
-  "resourceType": "Parameters",
-  "parameter": [
-    {
-      "name": "url",
-      "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
-    },
-    {
-      "name": "filter",
-      "valueString": "mal"
-    }
-  ]
-}
-```
-
-Response will include only codes matching the filter:
-
-```json
-{
-  "resourceType": "ValueSet",
-  "expansion": {
-    "total": 1,
-    "contains": [
-      {
-        "system": "http://hl7.org/fhir/administrative-gender",
-        "code": "male",
-        "display": "Male"
-      }
-    ]
-  }
-}
-```
-
 ## Error Handling
 
 If there are any issues with the request (e.g., missing required parameters, invalid value set), the server will respond with an appropriate error status code and include an `OperationOutcome` resource in the response body.
@@ -210,71 +122,4 @@ Content-Type: application/fhir+json
     }
   ]
 }
-```
-
-## Example using cURL
-
-### Basic GET Request
-
-```bash
-curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-### GET Request with Filter and Count
-
-```bash
-curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender&filter=mal&count=10" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-### POST Request with Parameters
-
-```bash
-curl -X POST "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -d '{
-           "resourceType": "Parameters",
-           "parameter": [
-             {
-               "name": "url",
-               "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender"
-             },
-             {
-               "name": "count",
-               "valueInteger": 10
-             },
-             {
-               "name": "includeDesignations",
-               "valueBoolean": true
-             }
-           ]
-         }'
-```
-
-### Instance-Level Expansion
-
-```bash
-curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/administrative-gender/\$expand?count=10" \
-     -H "Content-Type: application/fhir+json" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-This command expands the administrative-gender ValueSet instance and returns up to 10 codes.
-
-## Paging Large Expansions
-
-For large value sets, use the `count` and `offset` parameters to page through results:
-
-```bash
-# First page (codes 0-99)
-curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=0" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Second page (codes 100-199)
-curl -X GET "http://api.haste.health/w/{tenant}/{project}/api/v1/fhir/r4/ValueSet/\$expand?url=http://example.org/large-valueset&count=100&offset=100" \
-     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
