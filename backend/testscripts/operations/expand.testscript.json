@@ -1,0 +1,57 @@
+{
+    "id": "valueset-expand-test",
+    "url": "https://haste.health/fhir/valueset-expand-test",
+    "name": "Valueset Expand Test",
+    "title": "Valueset Expand Test",
+    "status": "active",
+    "description": "Tests the $expand operation on ValueSet.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "valueset-expand-parameters",
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                    "name": "url",
+                    "valueUri": "http://hl7.org/fhir/ValueSet/administrative-gender|4.0.1"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-expand",
+            "resource": {
+                "reference": "#valueset-expand-parameters"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "update-client-supplied",
+            "name": "Update Patient with client supplied id",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "code": "invoke"
+                        },
+                        "resource": "ValueSet",
+                        "sourceId": "fixture-expand",
+                        "responseId": "expand-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "ValueSet.expansion.contains[0].code = 'male'",
+                        "value": "true",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ]
+}
