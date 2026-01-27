@@ -9,7 +9,7 @@ use haste_fhir_model::r4::{
             ValueSetExpansionContains,
         },
         terminology::{CodesystemContentMode, IssueType},
-        types::{FHIRDateTime, FHIRString, FHIRUri},
+        types::{FHIRBoolean, FHIRDateTime, FHIRString, FHIRUri},
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -272,10 +272,80 @@ impl<Resolver: CanonicalResolver + Send + Sync + 'static> FHIRTerminology
     }
     async fn validate(
         &self,
-        _input: ValueSetValidateCode::Input,
+        input: ValueSetValidateCode::Input,
     ) -> Result<ValueSetValidateCode::Output, OperationOutcomeError> {
+        let Some(code) = input.code else {
+            return Err(OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "No code provided for validation only support 'code' field validation".to_string(),
+            ));
+        };
+
         // Implementation would go here
-        unimplemented!()
+        let expansion = self
+            .expand(ValueSetExpand::Input {
+                url: input.url,
+                valueSet: input.valueSet,
+                valueSetVersion: input.valueSetVersion,
+                context: input.context,
+                contextDirection: None,
+                filter: None,
+                date: None,
+                offset: None,
+                count: None,
+                includeDesignations: None,
+                designation: None,
+                includeDefinition: None,
+                activeOnly: None,
+                excludeNested: None,
+                excludeNotForUI: None,
+                excludePostCoordinated: None,
+                displayLanguage: None,
+                exclude_system: None,
+                system_version: None,
+                check_system_version: None,
+                force_system_version: None,
+            })
+            .await?;
+
+        let valueset = expansion.return_;
+
+        if let Some(expansion) = valueset.expansion
+            && let Some(contains) = expansion.contains
+        {
+            for contain in contains {
+                if contain
+                    .code
+                    .as_ref()
+                    .map(|c| &c.value == &code.value)
+                    .unwrap_or(false)
+                {
+                    return Ok(ValueSetValidateCode::Output {
+                        result: FHIRBoolean {
+                            value: Some(true),
+                            ..Default::default()
+                        },
+                        display: None,
+                        message: Some(FHIRString {
+                            value: Some("Code is valid in the ValueSet".to_string()),
+                            ..Default::default()
+                        }),
+                    });
+                }
+            }
+        }
+
+        Ok(ValueSetValidateCode::Output {
+            result: FHIRBoolean {
+                value: Some(false),
+                ..Default::default()
+            },
+            display: None,
+            message: Some(FHIRString {
+                value: Some("Code is valid in the ValueSet".to_string()),
+                ..Default::default()
+            }),
+        })
     }
     async fn lookup(
         &self,

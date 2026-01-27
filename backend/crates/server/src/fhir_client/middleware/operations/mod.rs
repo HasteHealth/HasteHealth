@@ -57,6 +57,7 @@ impl<
             Box::new(custom_operations::endpoint_metadata_op()),
             Box::new(custom_operations::idp_registration_info_op()),
             Box::new(custom_operations::evaluate_policy_op()),
+            Box::new(custom_operations::valueset_validate_code_op()),
         ];
 
         Self(Arc::new(executors))

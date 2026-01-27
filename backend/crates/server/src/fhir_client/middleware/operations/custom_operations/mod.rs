@@ -6,7 +6,7 @@ mod endpoint_meta;
 mod evaluate_policy;
 mod idp_info;
 mod project_information;
-mod valueset_expand;
+mod terminology;
 
 pub use active_refresh_tokens::*;
 pub use approved_scopes::*;
@@ -16,4 +16,4 @@ pub use endpoint_meta::*;
 pub use evaluate_policy::*;
 pub use idp_info::*;
 pub use project_information::*;
-pub use valueset_expand::*;
+pub use terminology::*;
