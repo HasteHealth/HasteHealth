@@ -92,45 +92,46 @@ For example
 
 This operation will read the Patient with ID 123 and make it available in FHIRPath expressions as `%patient`.
 
+#### Rules
 
+Rules define whether or not to permit or deny access based on conditions. Each rule includes:
+- **effect**: `permit` or `deny`
+- **combineBehavior**: `all` (AND) or `any` (OR)
+- **target.expression**: FHIRPath expression to determine whether or not to evaluate this rule
+- **condition.expression**: FHIRPath expression evaluated if target matches
 
 
 **Example**:
 ```json
 {
   "resourceType": "AccessPolicyV2",
-  "name": "Access Control",
-  "target": [
-    {
-      "link": {
-        "reference": "Membership/qo4zgl99-eaw4wu17nub1zy79n"
-      }
-    }
-  ],
+  "name": "Rule Engine",
+  "engine": "rule-engine",
   "rule": [
     {
-      "name": "asdf",
-      "description": "asdf",
+      "name": "Access Control",
       "combineBehavior": "any",
-      "effect": "permit",
-      "target": {
-        "expression": {
-          "language": "text/fhirpath",
-          "expression": "$this.name.given = 'bob'"
+      "rule": [
+        {
+          "name": "Is Read request",
+          "target": {
+            "expression": {
+              "language": "text/fhirpath",
+              "expression": "true"
+            }
+          },
+          "condition": {
+            "expression": {
+              "language": "text/fhirpath",
+              "expression": "%request.type = 'read'"
+            }
+          }
         }
-      },
-      "condition": {
-        "expression": {
-          "language": "text/fhirpath",
-          "expression": "false"
-        }
-      }
+      ]
     }
-  ],
-  "engine": "rule-engine"
+  ]
 }
 ```
-
 
 ## Policy Evaluation
 
@@ -145,7 +146,7 @@ Multiple policies can apply to a single user (via Membership). The system uses a
 
 ## Associating Policies with Users
 
-Policies link to users through Membership resources:
+Policies link to resources via the `target.link` field.
 
 ```json
 {
