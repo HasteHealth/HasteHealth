@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use haste_codegen::{
     traversal,
-    utilities::{self, extract::Max},
+    utilities::{self, conditionals::is_typechoice, extract::Max},
 };
 use haste_fhir_model::r4::generated::{
     resources::StructureDefinition, terminology::IssueType, types::ElementDefinition,
@@ -10,6 +10,8 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::json;
 
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 enum JSONSchemaType {
     Object,
     Boolean,
@@ -26,18 +28,78 @@ struct Processed {
     schema: serde_json::Value,
 }
 
+static PRIMITIVE_TYPES: &[&str] = &[
+    "boolean", "string", "code", "id", "uri", "dateTime", "date", "instant", "markdown", "oid",
+    "uuid", "xhtml", "integer", "decimal",
+];
+
+fn fhir_primitive_type_to_json_schema_type(fhir_type: &str) -> JSONSchemaType {
+    match fhir_type {
+        "boolean" => JSONSchemaType::Boolean,
+        "string" | "code" | "id" | "uri" | "dateTime" | "date" | "instant" | "markdown" | "oid"
+        | "uuid" | "xhtml" => JSONSchemaType::String,
+        "integer" | "decimal" => JSONSchemaType::Number,
+        _ => JSONSchemaType::String,
+    }
+}
+
+fn is_fhir_primitive_type(fhir_type: &str) -> bool {
+    PRIMITIVE_TYPES.contains(&fhir_type)
+}
+
 fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Processed {
-    Processed {
-        cardinality: utilities::extract::cardinality(element),
-        field: utilities::extract::field_name(
-            element
-                .path
-                .value
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or(""),
-        ),
-        schema: json!({}),
+    if is_typechoice(element) {
+        Processed {
+            cardinality: utilities::extract::cardinality(element),
+            field: utilities::extract::field_name(
+                element
+                    .path
+                    .value
+                    .as_ref()
+                    .map(|s| s.as_str())
+                    .unwrap_or(""),
+            ),
+            schema: json!({}),
+        }
+    } else {
+        let type_ = element
+            .type_
+            .as_ref()
+            .and_then(|t| t.first())
+            .map(|t| t.code.as_ref())
+            .and_then(|c| c.value.as_ref())
+            .map(|s| s.as_str())
+            .unwrap_or_default();
+
+        if is_fhir_primitive_type(type_) {
+            Processed {
+                cardinality: utilities::extract::cardinality(element),
+                field: utilities::extract::field_name(
+                    element
+                        .path
+                        .value
+                        .as_ref()
+                        .map(|s| s.as_str())
+                        .unwrap_or(""),
+                ),
+                schema: json!({
+                    "type": fhir_primitive_type_to_json_schema_type(type_)
+                }),
+            }
+        } else {
+            Processed {
+                cardinality: utilities::extract::cardinality(element),
+                field: utilities::extract::field_name(
+                    element
+                        .path
+                        .value
+                        .as_ref()
+                        .map(|s| s.as_str())
+                        .unwrap_or(""),
+                ),
+                schema: json!({"type": "object"}),
+            }
+        }
     }
 }
 
