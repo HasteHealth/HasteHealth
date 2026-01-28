@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use haste_codegen::{traversal, utilities};
+use haste_codegen::{
+    traversal,
+    utilities::{self, extract::Max},
+};
 use haste_fhir_model::r4::generated::{
     resources::StructureDefinition, terminology::IssueType, types::ElementDefinition,
 };
@@ -18,12 +21,14 @@ enum JSONSchemaType {
 struct JSONSchema {}
 
 struct Processed {
+    cardinality: (usize, Max),
     field: String,
     schema: serde_json::Value,
 }
 
 fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Processed {
     Processed {
+        cardinality: utilities::extract::cardinality(element),
         field: utilities::extract::field_name(
             element
                 .path
@@ -57,10 +62,14 @@ fn process_complex(
     };
 
     for child in children.into_iter() {
+        if child.cardinality.0 > 0 {
+            required_properties.push(child.field.clone());
+        }
         properties.insert(child.field, child.schema);
     }
 
     Processed {
+        cardinality: utilities::extract::cardinality(element),
         field: utilities::extract::field_name(
             element
                 .path
