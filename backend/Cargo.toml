@@ -41,7 +41,7 @@ members = [
     "crates/rate-limit",
     "crates/reflect",
     "crates/reflect-derive",
-    "crates/repository",
+    "crates/repository", "crates/sd-to-json-schema",
     "crates/server",
     "crates/testscript-runner",
     "crates/x-fhir-query",

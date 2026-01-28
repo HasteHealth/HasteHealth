@@ -1806,6 +1806,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-sd-to-json-schema"
+version = "0.10.6"
+dependencies = [
+ "haste-codegen",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "haste-server"
 version = "0.10.6"
 dependencies = [
