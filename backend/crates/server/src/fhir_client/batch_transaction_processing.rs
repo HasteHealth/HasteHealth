@@ -135,7 +135,9 @@ fn convert_bundle_entry(fhir_response: Result<FHIRResponse, OperationOutcomeErro
     }
 }
 
-fn bundle_entry_to_fhir_request(entry: BundleEntry) -> Result<FHIRRequest, OperationOutcomeError> {
+pub fn bundle_entry_to_fhir_request(
+    entry: BundleEntry,
+) -> Result<FHIRRequest, OperationOutcomeError> {
     if let Some(request) = entry.request.as_ref() {
         let url = request
             .url

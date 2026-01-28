@@ -30,8 +30,13 @@ async fn should_evaluate_rule<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<AccessPolicyV2, AccessPolicyV2RuleTarget>,
+    pointer: Option<Pointer<AccessPolicyV2, AccessPolicyV2RuleTarget>>,
 ) -> Result<PolicyResult<bool, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
+    let Some(pointer) = pointer else {
+        // If no target is specified, always evaluate the rule.
+        return Ok((true, context));
+    };
+
     let Some(target) = pointer.value() else {
         // If no target is specified, always evaluate the rule.
         return Ok((true, context));
@@ -180,8 +185,7 @@ async fn evaluate_access_policy_rule<
     let (should_evaluate, mut policy_context) = should_evaluate_rule(
         policy_context,
         rule_pointer
-            .descend::<AccessPolicyV2RuleTarget>(&haste_pointer::Key::Field("target".to_string()))
-            .ok_or_else(|| PDPError::PointerError(format!("{}/target", rule_pointer.path())))?,
+            .descend::<AccessPolicyV2RuleTarget>(&haste_pointer::Key::Field("target".to_string())),
     )
     .await?;
 
@@ -191,7 +195,7 @@ async fn evaluate_access_policy_rule<
 
     match rule.combineBehavior.as_ref().map(|s| s.as_ref()) {
         Some(AccessPolicyv2CombineBehavior::Any(_)) => {
-            let mut result = PermissionLevel::Undetermined;
+            let mut result = PermissionLevel::Deny;
             if rule.condition.is_some() {
                 return Err(OperationOutcomeError::fatal(
                     IssueType::Invalid(None),
@@ -201,7 +205,9 @@ async fn evaluate_access_policy_rule<
 
             for (nested_index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
                 let nested_rule_pointer = rule_pointer
-                    .descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Field("rule".to_string()))
+                    .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field(
+                        "rule".to_string(),
+                    ))
                     .and_then(|p| {
                         p.descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(nested_index))
                     })
@@ -229,7 +235,7 @@ async fn evaluate_access_policy_rule<
                 let (rule_result, next_context) = rule_result?;
 
                 // Any logic means if any rule grants access, access is granted. So we can just take the max permission allowed.
-                result = get_min(&result, &rule_result)?;
+                result = get_max(&result, &rule_result)?;
 
                 policy_context = next_context;
             }
@@ -248,7 +254,9 @@ async fn evaluate_access_policy_rule<
 
             for (nested_index, _) in rule.rule.as_ref().unwrap_or(&vec![]).iter().enumerate() {
                 let nested_rule_pointer = rule_pointer
-                    .descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Field("rule".to_string()))
+                    .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field(
+                        "rule".to_string(),
+                    ))
                     .and_then(|p| {
                         p.descend::<AccessPolicyV2Rule>(&haste_pointer::Key::Index(nested_index))
                     })
@@ -273,6 +281,12 @@ async fn evaluate_access_policy_rule<
                 .await;
 
                 let (rule_result, next_context) = rule_result?;
+
+                // Shortcircuit deny.
+                if rule_result == PermissionLevel::Deny {
+                    // Short-circuit deny.
+                    return Ok((PermissionLevel::Deny, next_context));
+                }
 
                 // And logic means minimum permission level is taken.
                 result = get_min(&result, &rule_result)?;

@@ -1,8 +1,11 @@
 use std::sync::Arc;
 
-use crate::fhir_client::{ServerCTX, middleware::operations::ServerOperationContext};
+use crate::fhir_client::{
+    ServerCTX, batch_transaction_processing::bundle_entry_to_fhir_request,
+    middleware::operations::ServerOperationContext,
+};
 use haste_access_control::context::{PermissionLevel, PolicyContext, PolicyEnvironment, UserInfo};
-use haste_fhir_client::request::{FHIRRequest, InvocationRequest};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_generated_ops::generated::HasteHealthEvaluatePolicy;
 
 use haste_fhir_model::r4::generated::{
@@ -63,6 +66,7 @@ pub fn evaluate_policy_op<
              request: &InvocationRequest,
              input: HasteHealthEvaluatePolicy::Input| {
                 let request = request.clone();
+
                 Box::pin(async move {
                     match &request {
                         InvocationRequest::Instance(invocation_instance) => {
@@ -101,6 +105,15 @@ pub fn evaluate_policy_op<
                                 ));
                             };
 
+                            let Some(entry) = input.request.entry.as_ref().and_then(|e| e.get(0))
+                            else {
+                                return Err(OperationOutcomeError::fatal(
+                                    IssueType::Invalid(None),
+                                    "EvaluatePolicy operation requires a request entry".to_string(),
+                                ));
+                            };
+                            let fhir_request = bundle_entry_to_fhir_request(entry.clone())?;
+
                             let result = haste_access_control::evaluate_policy(
                                 Arc::new(PolicyContext::new(
                                     context.ctx.client.clone(),
@@ -108,7 +121,7 @@ pub fn evaluate_policy_op<
                                     PolicyEnvironment::new(
                                         tenant.clone(),
                                         project.clone(),
-                                        FHIRRequest::Invocation(request),
+                                        fhir_request,
                                         Arc::new(UserInfo {
                                             id: derive_user_id(input.user)?.unwrap_or(
                                                 context.ctx.user.user_id.as_ref().to_string(),

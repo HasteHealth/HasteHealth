@@ -59,6 +59,42 @@ Grants unrestricted access to all resources and operations. The simplest engineâ
 Enables fine-grained, attribute-based access control using FHIRPath expressions to define rules and conditions.
 
 
+#### Special Variables:
+The following special variables are available within FHIRPath expressions for rules and conditions:
+- `user`: The authenticated user this includes the user's id.
+- `request`: The incoming API request details, including method and resource type.
+    - `level`: Whether request is at 'instance', 'type' or 'system' level.
+    - `type`:  One of "create"|"read"|"vread"|"update"|"patch"|"delete"|"capabilities"|"search"|"history"|"invoke"|"batch"|"transaction"|"compartment"
+    - `resourceType`: The FHIR resource type being accessed (if applicable).
+    - `resource`: The FHIR resource if present in the request IE (create).
+    - `id`: The resource ID if applicable.
+    - `parameters`: The search parameters if applicable.
+
+#### Attributes
+Attributes are how you can make pull in external data during a policy evaluation.
+We support 'read', and 'search' operations.
+
+For example
+```json
+  "attribute": [
+    {
+      "operation": {
+        "type": "read",
+        "path": {
+          "language": "text/fhirpath",
+          "expression": "Patient/123"
+        }
+      },
+      "attributeId": "patient"
+    }
+  ]
+```
+
+This operation will read the Patient with ID 123 and make it available in FHIRPath expressions as `%patient`.
+
+
+
+
 **Example**:
 ```json
 {
