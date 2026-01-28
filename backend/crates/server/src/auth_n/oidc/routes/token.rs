@@ -540,7 +540,7 @@ pub async fn token<
                 None,
             )
             .await
-            .map_err(|e| {
+            .map_err(|_e| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidGrant,
                     Some("Invalid refresh token.".to_string()),
