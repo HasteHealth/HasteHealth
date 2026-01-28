@@ -22,16 +22,26 @@ struct Processed {
     schema: serde_json::Value,
 }
 
-fn process_leaf(_sd: &StructureDefinition, _element: &ElementDefinition) -> serde_json::Value {
-    json!({})
+fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Processed {
+    Processed {
+        field: utilities::extract::field_name(
+            element
+                .path
+                .value
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or(""),
+        ),
+        schema: json!({}),
+    }
 }
 
 fn process_complex(
     sd: &StructureDefinition,
     element: &ElementDefinition,
-    _children: Vec<serde_json::Value>,
+    children: Vec<Processed>,
     // nested_types: &mut Vec<StructureDefinition>,
-) -> serde_json::Value {
+) -> Processed {
     let mut required_properties = vec![];
     let mut properties: HashMap<String, serde_json::Value> = HashMap::new();
     if utilities::conditionals::is_root(sd, element) && utilities::conditionals::is_resource_sd(sd)
@@ -46,33 +56,95 @@ fn process_complex(
         required_properties.push("resourceType".to_string());
     };
 
-    json!({
-        "type": "object",
-        "properties": properties,
-        "required": required_properties,
-        "additionalProperties": true,
-    })
+    for child in children.into_iter() {
+        properties.insert(child.field, child.schema);
+    }
+
+    Processed {
+        field: utilities::extract::field_name(
+            element
+                .path
+                .value
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or(""),
+        ),
+        schema: json!({
+            "type": "object",
+            "properties": properties,
+            "required": required_properties,
+            "additionalProperties": true,
+        }),
+    }
 }
 
 pub fn sd_to_json_schema(
     primitive_sds: &Vec<StructureDefinition>,
     sd: &StructureDefinition,
-) -> Result<JSONSchema, OperationOutcomeError> {
-    let mut visitor = |element: &ElementDefinition,
-                       children: Vec<serde_json::Value>,
-                       _index: usize|
-     -> serde_json::Value {
-        if children.len() == 0 {
-            process_leaf(&sd, element)
-        } else {
-            process_complex(&sd, element, children)
-        }
-    };
+) -> Result<serde_json::Value, OperationOutcomeError> {
+    let mut visitor =
+        |element: &ElementDefinition, children: Vec<Processed>, _index: usize| -> Processed {
+            if children.len() == 0 {
+                process_leaf(&sd, element)
+            } else {
+                process_complex(&sd, element, children)
+            }
+        };
 
-    let result = traversal::traversal(sd, &mut visitor);
+    let result = traversal::traversal(sd, &mut visitor).map_err(|e| {
+        OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!("Error traversing StructureDefinition: {}", e),
+        )
+    })?;
 
-    Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            "StructureDefinition does not have a snapshot. This is required for conversion to JSON Schema.".to_string(),
-        ))
+    Ok(result.schema)
+}
+
+#[cfg(test)]
+mod test {
+    use std::sync::LazyLock;
+
+    use haste_fhir_model::r4::generated::resources::Bundle;
+
+    use super::*;
+
+    static RESOURCE_SDS: LazyLock<Vec<StructureDefinition>> = LazyLock::new(|| {
+        let sd_str =
+            include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-resources.min.json");
+
+        let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
+            .expect("Failed to parse StructureDefinitions");
+
+        bundle
+            .entry
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|entry| entry.resource)
+            .filter_map(|resource| {
+                if let haste_fhir_model::r4::generated::resources::Resource::StructureDefinition(
+                    sd,
+                ) = *resource
+                {
+                    Some(sd)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    });
+
+    #[test]
+    fn test_sd_to_json_schema() {
+        let patient_sd = RESOURCE_SDS
+            .iter()
+            .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
+            .unwrap();
+
+        let schema = sd_to_json_schema(&vec![], patient_sd).unwrap();
+
+        println!("{:#?}", schema);
+
+        assert_eq!(json!({}), schema);
+    }
 }
