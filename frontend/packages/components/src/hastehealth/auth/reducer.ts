@@ -52,7 +52,7 @@ type ACTION = SUCCESS_ACTION | ERROR_ACTION | LOADING_ACTION | REFRESH_ACTION;
 
 export function HasteHealthReducer(
   state: HasteHealthContextState,
-  action: ACTION
+  action: ACTION,
 ): HasteHealthContextState {
   switch (action.type) {
     case "SET_LOADING": {
@@ -84,7 +84,7 @@ export function HasteHealthReducer(
         `/w/${action.tenant ? action.tenant : user[CUSTOM_CLAIMS.TENANT]}/${
           action.project
         }/api/v1/fhir`,
-        action.domain
+        action.domain,
       ).toString();
 
       return {
@@ -101,9 +101,9 @@ export function HasteHealthReducer(
           const url = new URL(
             conditionalAddTenant(
               `/${action.project}/api/v1/oidc/interactions/logout?client_id=${action.clientId}&redirect_uri=${redirect}`,
-              action.tenant
+              action.tenant,
             ),
-            action.domain
+            action.domain,
           );
 
           window.location.replace(url);

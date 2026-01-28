@@ -39,10 +39,10 @@ async function exchangeAuthCodeForToken({
   clientId: string;
 }): Promise<AccessTokenResponse> {
   const code_verifier = window.sessionStorage.getItem(
-    pkce_code_verifier_key(clientId)
+    pkce_code_verifier_key(clientId),
   );
   const localStateParameter = window.sessionStorage.getItem(
-    state_key(clientId)
+    state_key(clientId),
   );
 
   if (!parameters.state) throw new Error();
@@ -94,7 +94,7 @@ export async function authorize({
   const code_challenge = await sha256(code_verifier);
   window.sessionStorage.setItem(
     pkce_code_verifier_key(clientId),
-    code_verifier
+    code_verifier,
   );
   window.sessionStorage.setItem(state_key(clientId), state);
 
@@ -169,9 +169,15 @@ export async function refreshToken({
     body: Object.keys(parameters)
       .map((key) => `${key}=${parameters[key]}`)
       .join("&"),
-  }).then((v) => v.json());
+  });
 
-  return response as AccessTokenResponse;
+  if (!response.ok) {
+    throw new Error("Failed to refresh token");
+  }
+
+  const responseData = await response.json();
+
+  return responseData as AccessTokenResponse;
 }
 
 export function HasteHealthProvider({
@@ -243,11 +249,11 @@ export function HasteHealthProvider({
       try {
         const well_known_uri = new URL(
           `/.well-known/openid-configuration/w/${tenant}/${project}`,
-          domain
+          domain,
         ).toString();
 
         const well_known: OIDC_WELL_KNOWN = await fetch(well_known_uri).then(
-          (v) => v.json()
+          (v) => v.json(),
         );
 
         if (hasAuthQueryParams()) {
@@ -334,7 +340,7 @@ export function HasteHealthProvider({
         } else {
           window.sessionStorage.setItem(
             "path",
-            window.location.href.replace(window.location.origin, "")
+            window.location.href.replace(window.location.origin, ""),
           );
           authorize({
             refresh,

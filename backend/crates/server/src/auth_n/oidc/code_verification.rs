@@ -70,6 +70,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
     tenant: &TenantId,
     project: &ProjectId,
     client: &ClientApplication,
+    kind: AuthorizationCodeKind,
     code: &str,
     redirect_uri: Option<&str>,
     code_verifier: Option<&str>,
@@ -81,7 +82,7 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
         &AuthorizationCodeSearchClaims {
             client_id: client.id.clone(),
             code: Some(code.to_string()),
-            kind: Some(AuthorizationCodeKind::OAuth2CodeGrant),
+            kind: Some(kind),
             user_id: None,
             user_agent: None,
             is_expired: None,
@@ -93,21 +94,21 @@ pub async fn retrieve_and_verify_code<Repo: Repository>(
         if code.project.as_ref() != Some(project) {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Invalid(None),
-                "Authorization code does not belong to the specified project.".to_string(),
+                "Code does not belong to the specified project.".to_string(),
             ));
         }
 
         if code.tenant != *tenant {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Invalid(None),
-                "Authorization code does not belong to the specified tenant.".to_string(),
+                "Code does not belong to the specified tenant.".to_string(),
             ));
         }
 
         if code.is_expired.unwrap_or(true) {
             return Err(OperationOutcomeError::fatal(
                 IssueType::Security(None),
-                "Authorization code has expired.".to_string(),
+                "Code has expired.".to_string(),
             ));
         }
 

@@ -60,7 +60,8 @@ pub enum TokenType {
     Bearer,
 }
 
-pub static TOKEN_EXPIRATION: usize = 7200; // 2 hours 
+pub static TOKEN_EXPIRATION: usize = 7200; // 2 hours
+pub static REFRESH_TOKEN_EXPIRATION: usize = 43200; // 12 hours
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
@@ -232,7 +233,7 @@ async fn create_token_response<Repo: Repository>(
             CreateAuthorizationCode {
                 membership: args.membership,
                 user_id: args.user_id,
-                expires_in: Duration::from_secs(60 * 60 * 12), // 12 hours.
+                expires_in: Duration::from_secs(REFRESH_TOKEN_EXPIRATION as u64),
                 kind: AuthorizationCodeKind::RefreshToken,
                 client_id: Some(args.client_id),
                 pkce_code_challenge: None,
@@ -533,12 +534,13 @@ pub async fn token<
                 &tenant,
                 &project,
                 &client_app,
+                AuthorizationCodeKind::RefreshToken,
                 &refresh_token,
                 None,
                 None,
             )
             .await
-            .map_err(|_| {
+            .map_err(|e| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidGrant,
                     Some("Invalid refresh token.".to_string()),
@@ -671,6 +673,7 @@ pub async fn token<
                 &tenant,
                 &project,
                 &client_app,
+                AuthorizationCodeKind::OAuth2CodeGrant,
                 &code,
                 Some(&redirect_uri),
                 Some(&code_verifier),
