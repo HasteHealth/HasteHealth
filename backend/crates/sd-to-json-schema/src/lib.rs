@@ -29,6 +29,11 @@ struct Processed {
 }
 
 static PRIMITIVE_TYPES: &[&str] = &[
+    "http://hl7.org/fhirpath/System.String",
+    "http://hl7.org/fhirpath/System.Time",
+    "http://hl7.org/fhirpath/System.Date",
+    "http://hl7.org/fhirpath/System.DateTime",
+    "http://hl7.org/fhirpath/System.Instant",
     "markdown",
     "url",
     "canonical",
@@ -42,7 +47,10 @@ static PRIMITIVE_TYPES: &[&str] = &[
     "time",
     "date",
     "dateTime",
+    "http://hl7.org/fhirpath/System.Boolean",
     "boolean",
+    "http://hl7.org/fhirpath/System.Integer",
+    "http://hl7.org/fhirpath/System.Decimal",
     "decimal",
     "integer",
     "unsignedInt",
@@ -51,10 +59,31 @@ static PRIMITIVE_TYPES: &[&str] = &[
 
 fn fhir_primitive_type_to_json_schema_type(fhir_type: &str) -> JSONSchemaType {
     match fhir_type {
-        "markdown" | "url" | "canonical" | "uuid" | "string" | "uri" | "code" | "id" | "oid"
-        | "base64Binary" | "time" | "date" | "dateTime" => JSONSchemaType::String,
-        "boolean" => JSONSchemaType::Boolean,
-        "decimal" | "integer" | "unsignedInt" | "positiveInt" => JSONSchemaType::Number,
+        "http://hl7.org/fhirpath/System.String"
+        | "http://hl7.org/fhirpath/System.Time"
+        | "http://hl7.org/fhirpath/System.Date"
+        | "http://hl7.org/fhirpath/System.DateTime"
+        | "http://hl7.org/fhirpath/System.Instant"
+        | "markdown"
+        | "url"
+        | "canonical"
+        | "uuid"
+        | "string"
+        | "uri"
+        | "code"
+        | "id"
+        | "oid"
+        | "base64Binary"
+        | "time"
+        | "date"
+        | "dateTime" => JSONSchemaType::String,
+        "http://hl7.org/fhirpath/System.Boolean" | "boolean" => JSONSchemaType::Boolean,
+        "http://hl7.org/fhirpath/System.Integer"
+        | "http://hl7.org/fhirpath/System.Decimal"
+        | "decimal"
+        | "integer"
+        | "unsignedInt"
+        | "positiveInt" => JSONSchemaType::Number,
         _ => JSONSchemaType::String,
     }
 }
