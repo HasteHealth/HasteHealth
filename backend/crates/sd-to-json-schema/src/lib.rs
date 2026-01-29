@@ -20,6 +20,7 @@ enum JSONSchemaType {
     Array,
 }
 
+#[allow(dead_code)]
 struct JSONSchema {}
 
 struct Processed {
@@ -251,7 +252,7 @@ fn process_complex(
 }
 
 pub fn sd_to_json_schema(
-    primitive_sds: &Vec<StructureDefinition>,
+    _primitive_sds: &Vec<StructureDefinition>,
     sd: &StructureDefinition,
 ) -> Result<serde_json::Value, OperationOutcomeError> {
     let mut visitor = |element: &ElementDefinition,
@@ -328,8 +329,9 @@ mod test {
 
         let schema = sd_to_json_schema(&vec![], patient_sd).unwrap();
 
-        println!("{}", serde_json::to_string_pretty(&schema).unwrap());
-
-        assert_eq!("", serde_json::to_string(&schema).unwrap());
+        assert_eq!(
+            "{\"additionalProperties\":true,\"properties\":{\"active\":{\"type\":\"boolean\"},\"address\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"birthDate\":{\"type\":\"string\"},\"communication\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"language\":{\"type\":\"object\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"preferred\":{\"type\":\"boolean\"}},\"required\":[\"language\"],\"type\":\"object\"},\"type\":\"array\"},\"contact\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"address\":{\"type\":\"object\"},\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"gender\":{\"type\":\"string\"},\"id\":{\"type\":\"string\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"name\":{\"type\":\"object\"},\"organization\":{\"type\":\"object\"},\"period\":{\"type\":\"object\"},\"relationship\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"telecom\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"}},\"required\":[],\"type\":\"object\"},\"type\":\"array\"},\"contained\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"deceasedBoolean\":{\"type\":\"boolean\"},\"deceasedDateTime\":{\"type\":\"string\"},\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"gender\":{\"type\":\"string\"},\"generalPractitioner\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"identifier\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"implicitRules\":{\"type\":\"string\"},\"language\":{\"type\":\"string\"},\"link\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"other\":{\"type\":\"object\"},\"type\":{\"type\":\"string\"}},\"required\":[\"other\",\"type\"],\"type\":\"object\"},\"type\":\"array\"},\"managingOrganization\":{\"type\":\"object\"},\"maritalStatus\":{\"type\":\"object\"},\"meta\":{\"type\":\"object\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"multipleBirthBoolean\":{\"type\":\"boolean\"},\"multipleBirthInteger\":{\"type\":\"number\"},\"name\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"photo\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"resourceType\":{\"const\":\"Patient\",\"type\":\"string\"},\"telecom\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"text\":{\"type\":\"object\"}},\"required\":[\"resourceType\"],\"type\":\"object\"}",
+            serde_json::to_string(&schema).unwrap()
+        );
     }
 }
