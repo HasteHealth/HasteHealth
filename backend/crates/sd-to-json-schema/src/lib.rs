@@ -158,11 +158,6 @@ fn wrap_if_array(
     }
 }
 
-// pub fn def_reference_type(type_name: &str) -> serde_json::Value {
-//     if
-//     json!({ "$ref": format!("#/$defs/{}", type_name) })
-// }
-
 fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Processed> {
     let cardinality = utilities::extract::cardinality(element);
     let base_schema = if is_typechoice(element) {
@@ -423,7 +418,7 @@ mod test {
     #[test]
     fn test_complex_types() {
         for sd in COMPLEX_SDS.iter() {
-            let schema = sd_to_json_schema(None, sd).unwrap();
+            sd_to_json_schema(None, sd).unwrap();
         }
     }
 }
