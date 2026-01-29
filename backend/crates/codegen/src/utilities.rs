@@ -274,6 +274,7 @@ pub mod extract {
             .unwrap_or_else(|| "".to_string())
     }
 
+    #[derive(Clone)]
     pub enum Max {
         Unlimited,
         Fixed(usize),
