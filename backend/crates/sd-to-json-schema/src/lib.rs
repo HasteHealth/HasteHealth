@@ -47,10 +47,33 @@ fn is_fhir_primitive_type(fhir_type: &str) -> bool {
     PRIMITIVE_TYPES.contains(&fhir_type)
 }
 
+fn wrap_if_array(base: Processed) -> Processed {
+    match base.cardinality.1 {
+        Max::Unlimited => Processed {
+            cardinality: base.cardinality,
+            field: base.field,
+            schema: json!({
+                "type": "array",
+                "items": base.schema,
+            }),
+        },
+        Max::Fixed(n) if n > 1 => Processed {
+            cardinality: base.cardinality,
+            field: base.field,
+            schema: json!({
+                "type": "array",
+                "items": base.schema,
+            }),
+        },
+        _ => base,
+    }
+}
+
 fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Processed {
-    if is_typechoice(element) {
+    let cardinality = utilities::extract::cardinality(element);
+    let base_schema = if is_typechoice(element) {
         Processed {
-            cardinality: utilities::extract::cardinality(element),
+            cardinality,
             field: utilities::extract::field_name(
                 element
                     .path
@@ -73,7 +96,7 @@ fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Proce
 
         if is_fhir_primitive_type(type_) {
             Processed {
-                cardinality: utilities::extract::cardinality(element),
+                cardinality,
                 field: utilities::extract::field_name(
                     element
                         .path
@@ -88,7 +111,7 @@ fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Proce
             }
         } else {
             Processed {
-                cardinality: utilities::extract::cardinality(element),
+                cardinality,
                 field: utilities::extract::field_name(
                     element
                         .path
@@ -100,7 +123,9 @@ fn process_leaf(_sd: &StructureDefinition, element: &ElementDefinition) -> Proce
                 schema: json!({"type": "object"}),
             }
         }
-    }
+    };
+
+    wrap_if_array(base_schema)
 }
 
 fn process_complex(
