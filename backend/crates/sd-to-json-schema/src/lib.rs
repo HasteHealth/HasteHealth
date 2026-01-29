@@ -1,14 +1,49 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 use haste_codegen::{
     traversal,
     utilities::{self, conditionals::is_typechoice, extract::Max},
 };
 use haste_fhir_model::r4::generated::{
-    resources::StructureDefinition, terminology::IssueType, types::ElementDefinition,
+    resources::{Bundle, StructureDefinition},
+    terminology::{IssueType, StructureDefinitionKind},
+    types::ElementDefinition,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::json;
+
+static COMPLEX_DEFINITIONS: LazyLock<HashMap<String, serde_json::Value>> = LazyLock::new(|| {
+    let sd_str = include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
+
+    let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
+        .expect("Failed to parse StructureDefinitions");
+
+    bundle
+        .entry
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|entry| entry.resource)
+        .filter_map(|resource| {
+            if let haste_fhir_model::r4::generated::resources::Resource::StructureDefinition(sd) =
+                *resource
+            {
+                Some(sd)
+            } else {
+                None
+            }
+        })
+        .filter(|sd| match sd.kind.as_ref() {
+            StructureDefinitionKind::ComplexType(None) => true,
+            _ => false,
+        })
+        .map(|sd| {
+            (
+                sd.type_.value.clone().unwrap(),
+                sd_to_json_schema(None, &sd).unwrap(),
+            )
+        })
+        .collect::<HashMap<String, _>>()
+});
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
@@ -35,6 +70,7 @@ static PRIMITIVE_TYPES: &[&str] = &[
     "http://hl7.org/fhirpath/System.Date",
     "http://hl7.org/fhirpath/System.DateTime",
     "http://hl7.org/fhirpath/System.Instant",
+    "xhtml",
     "markdown",
     "url",
     "canonical",
@@ -48,6 +84,7 @@ static PRIMITIVE_TYPES: &[&str] = &[
     "time",
     "date",
     "dateTime",
+    "instant",
     "http://hl7.org/fhirpath/System.Boolean",
     "boolean",
     "http://hl7.org/fhirpath/System.Integer",
@@ -75,6 +112,8 @@ fn fhir_primitive_type_to_json_schema_type(fhir_type: &str) -> JSONSchemaType {
         | "id"
         | "oid"
         | "base64Binary"
+        | "xhtml"
+        | "instant"
         | "time"
         | "date"
         | "dateTime" => JSONSchemaType::String,
@@ -119,6 +158,11 @@ fn wrap_if_array(
     }
 }
 
+// pub fn def_reference_type(type_name: &str) -> serde_json::Value {
+//     if
+//     json!({ "$ref": format!("#/$defs/{}", type_name) })
+// }
+
 fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Processed> {
     let cardinality = utilities::extract::cardinality(element);
     let base_schema = if is_typechoice(element) {
@@ -149,13 +193,13 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                     Processed {
                         cardinality: (0, cardinality.1.clone()),
                         field: field_name,
-                        schema: json!({"type": "object"}),
+                        schema: json!({ "$ref": format!("#/$defs/{}", type_code) }),
                     }
                 }
             })
             .collect()
     } else {
-        let type_ = element
+        let type_code = element
             .type_
             .as_ref()
             .and_then(|t| t.first())
@@ -164,7 +208,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
             .map(|s| s.as_str())
             .unwrap_or_default();
 
-        if is_fhir_primitive_type(type_) {
+        if is_fhir_primitive_type(type_code) {
             vec![Processed {
                 cardinality,
                 field: utilities::extract::field_name(
@@ -176,7 +220,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                         .unwrap_or(""),
                 ),
                 schema: json!({
-                    "type": fhir_primitive_type_to_json_schema_type(type_)
+                    "type": fhir_primitive_type_to_json_schema_type(type_code)
                 }),
             }]
         } else {
@@ -190,7 +234,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                         .map(|s| s.as_str())
                         .unwrap_or(""),
                 ),
-                schema: json!({"type": "object"}),
+                schema: json!({ "$ref": format!("#/$defs/{}", type_code) }),
             }]
         }
     };
@@ -251,8 +295,8 @@ fn process_complex(
     )
 }
 
-pub fn sd_to_json_schema(
-    _primitive_sds: &Vec<StructureDefinition>,
+fn sd_to_json_schema(
+    defs: Option<&HashMap<String, serde_json::Value>>,
     sd: &StructureDefinition,
 ) -> Result<serde_json::Value, OperationOutcomeError> {
     let mut visitor = |element: &ElementDefinition,
@@ -277,7 +321,10 @@ pub fn sd_to_json_schema(
         )
     })?;
 
-    if let Some(result) = result.pop() {
+    if let Some(mut result) = result.pop() {
+        if let Some(defs) = defs {
+            result.schema["$defs"] = json!(defs);
+        }
         Ok(result.schema)
     } else {
         Err(OperationOutcomeError::error(
@@ -287,11 +334,21 @@ pub fn sd_to_json_schema(
     }
 }
 
+pub fn resource_to_json_schema(
+    sd: &StructureDefinition,
+) -> Result<serde_json::Value, OperationOutcomeError> {
+    let defs = &*COMPLEX_DEFINITIONS;
+
+    sd_to_json_schema(Some(defs), sd)
+}
+
 #[cfg(test)]
 mod test {
     use std::sync::LazyLock;
 
-    use haste_fhir_model::r4::generated::resources::Bundle;
+    use haste_fhir_model::r4::generated::{
+        resources::Bundle, terminology::StructureDefinitionKind,
+    };
 
     use super::*;
 
@@ -320,6 +377,35 @@ mod test {
             .collect()
     });
 
+    static COMPLEX_SDS: LazyLock<Vec<StructureDefinition>> = LazyLock::new(|| {
+        let sd_str =
+            include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
+
+        let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
+            .expect("Failed to parse StructureDefinitions");
+
+        bundle
+            .entry
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|entry| entry.resource)
+            .filter_map(|resource| {
+                if let haste_fhir_model::r4::generated::resources::Resource::StructureDefinition(
+                    sd,
+                ) = *resource
+                {
+                    Some(sd)
+                } else {
+                    None
+                }
+            })
+            .filter(|sd| match sd.kind.as_ref() {
+                StructureDefinitionKind::ComplexType(None) => true,
+                _ => false,
+            })
+            .collect()
+    });
+
     #[test]
     fn test_sd_to_json_schema() {
         let patient_sd = RESOURCE_SDS
@@ -327,11 +413,25 @@ mod test {
             .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
             .unwrap();
 
-        let schema = sd_to_json_schema(&vec![], patient_sd).unwrap();
+        let schema = resource_to_json_schema(patient_sd).unwrap();
+
+        println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
         assert_eq!(
-            "{\"additionalProperties\":true,\"properties\":{\"active\":{\"type\":\"boolean\"},\"address\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"birthDate\":{\"type\":\"string\"},\"communication\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"language\":{\"type\":\"object\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"preferred\":{\"type\":\"boolean\"}},\"required\":[\"language\"],\"type\":\"object\"},\"type\":\"array\"},\"contact\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"address\":{\"type\":\"object\"},\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"gender\":{\"type\":\"string\"},\"id\":{\"type\":\"string\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"name\":{\"type\":\"object\"},\"organization\":{\"type\":\"object\"},\"period\":{\"type\":\"object\"},\"relationship\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"telecom\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"}},\"required\":[],\"type\":\"object\"},\"type\":\"array\"},\"contained\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"deceasedBoolean\":{\"type\":\"boolean\"},\"deceasedDateTime\":{\"type\":\"string\"},\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"gender\":{\"type\":\"string\"},\"generalPractitioner\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"identifier\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"implicitRules\":{\"type\":\"string\"},\"language\":{\"type\":\"string\"},\"link\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"extension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"other\":{\"type\":\"object\"},\"type\":{\"type\":\"string\"}},\"required\":[\"other\",\"type\"],\"type\":\"object\"},\"type\":\"array\"},\"managingOrganization\":{\"type\":\"object\"},\"maritalStatus\":{\"type\":\"object\"},\"meta\":{\"type\":\"object\"},\"modifierExtension\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"multipleBirthBoolean\":{\"type\":\"boolean\"},\"multipleBirthInteger\":{\"type\":\"number\"},\"name\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"photo\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"resourceType\":{\"const\":\"Patient\",\"type\":\"string\"},\"telecom\":{\"items\":{\"type\":\"object\"},\"type\":\"array\"},\"text\":{\"type\":\"object\"}},\"required\":[\"resourceType\"],\"type\":\"object\"}",
+            "{\"additionalProperties\":true,\"properties\":{\"active\":{\"type\":\"boolean\"},\"address\":{\"items\":{\"$ref\":\"#/$defs/Address\"},\"type\":\"array\"},\"birthDate\":{\"type\":\"string\"},\"communication\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"extension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"language\":{\"$ref\":\"#/$defs/CodeableConcept\"},\"modifierExtension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"preferred\":{\"type\":\"boolean\"}},\"required\":[\"language\"],\"type\":\"object\"},\"type\":\"array\"},\"contact\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"address\":{\"$ref\":\"#/$defs/Address\"},\"extension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"gender\":{\"type\":\"string\"},\"id\":{\"type\":\"string\"},\"modifierExtension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"name\":{\"$ref\":\"#/$defs/HumanName\"},\"organization\":{\"$ref\":\"#/$defs/Reference\"},\"period\":{\"$ref\":\"#/$defs/Period\"},\"relationship\":{\"items\":{\"$ref\":\"#/$defs/CodeableConcept\"},\"type\":\"array\"},\"telecom\":{\"items\":{\"$ref\":\"#/$defs/ContactPoint\"},\"type\":\"array\"}},\"required\":[],\"type\":\"object\"},\"type\":\"array\"},\"contained\":{\"items\":{\"$ref\":\"#/$defs/Resource\"},\"type\":\"array\"},\"deceasedBoolean\":{\"type\":\"boolean\"},\"deceasedDateTime\":{\"type\":\"string\"},\"extension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"gender\":{\"type\":\"string\"},\"generalPractitioner\":{\"items\":{\"$ref\":\"#/$defs/Reference\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"identifier\":{\"items\":{\"$ref\":\"#/$defs/Identifier\"},\"type\":\"array\"},\"implicitRules\":{\"type\":\"string\"},\"language\":{\"type\":\"string\"},\"link\":{\"items\":{\"additionalProperties\":true,\"properties\":{\"extension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"id\":{\"type\":\"string\"},\"modifierExtension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"other\":{\"$ref\":\"#/$defs/Reference\"},\"type\":{\"type\":\"string\"}},\"required\":[\"other\",\"type\"],\"type\":\"object\"},\"type\":\"array\"},\"managingOrganization\":{\"$ref\":\"#/$defs/Reference\"},\"maritalStatus\":{\"$ref\":\"#/$defs/CodeableConcept\"},\"meta\":{\"$ref\":\"#/$defs/Meta\"},\"modifierExtension\":{\"items\":{\"$ref\":\"#/$defs/Extension\"},\"type\":\"array\"},\"multipleBirthBoolean\":{\"type\":\"boolean\"},\"multipleBirthInteger\":{\"type\":\"number\"},\"name\":{\"items\":{\"$ref\":\"#/$defs/HumanName\"},\"type\":\"array\"},\"photo\":{\"items\":{\"$ref\":\"#/$defs/Attachment\"},\"type\":\"array\"},\"resourceType\":{\"const\":\"Patient\",\"type\":\"string\"},\"telecom\":{\"items\":{\"$ref\":\"#/$defs/ContactPoint\"},\"type\":\"array\"},\"text\":{\"$ref\":\"#/$defs/Narrative\"}},\"required\":[\"resourceType\"],\"type\":\"object\"}",
             serde_json::to_string(&schema).unwrap()
         );
+    }
+
+    #[test]
+    fn test_complex_types() {
+        for sd in COMPLEX_SDS.iter() {
+            let schema = sd_to_json_schema(None, sd).unwrap();
+            println!(
+                "Generated JSON Schema for ComplexType {}: {}",
+                sd.type_.value.as_ref().unwrap_or(&"Unknown".to_string()),
+                serde_json::to_string_pretty(&schema).unwrap()
+            );
+        }
     }
 }
