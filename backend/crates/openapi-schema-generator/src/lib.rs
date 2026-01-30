@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use haste_fhir_model::r4::generated::resources::{SearchParameter, StructureDefinition};
+use haste_fhir_model::r4::generated::{
+    resources::{SearchParameter, StructureDefinition},
+    terminology::IssueType,
+};
+use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -64,7 +68,7 @@ fn open_api_schema_generator(
     api_version: &str,
     resource_sds: &Vec<StructureDefinition>,
     search_parameters: &Vec<SearchParameter>,
-) {
+) -> Result<OpenAPISchema, OperationOutcomeError> {
     let mut fhir_server_variables = HashMap::new();
     fhir_server_variables.insert(
         "tenant".to_string(),
@@ -108,5 +112,53 @@ fn open_api_schema_generator(
         paths: HashMap::new(),
     };
 
-    generate_openapi_resource_operations(resource_sd, search_parameters);
+    for sd in resource_sds {
+        let json_schema = haste_sd_to_json_schema::resource_to_json_schema(sd)?;
+        let resource_name = sd.type_.value.ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Structure(None),
+                format!(
+                    "StructureDefinition missing type for id {}",
+                    sd.id.unwrap_or("unknown".to_string())
+                ),
+            )
+        })?;
+        // Read Operation
+        openapi_schema.paths.insert(
+            format!("/{}/{{id}}", resource_name),
+            OpenAPIPathItem {
+                get: Some(OpenAPIOperation {
+                    responses: HashMap::new(
+                        "200".to_string(),
+                        OpenAPIOperationResponse {
+                            description: todo!(),
+                            content: HashMap::new(
+                                "application/fhir+json".to_string(),
+                                json_schema.clone(),
+                            ),
+                        },
+                    ),
+                    parameters: json!({
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": format!("The ID of the {} resource", resource_name)
+                    }),
+                }),
+                post: None,
+                put: None,
+                delete: None,
+            },
+        );
+
+        openapi_schema
+            .components
+            .schemas
+            .insert(resource_name, json_schema);
+    }
+
+    todo!();
 }

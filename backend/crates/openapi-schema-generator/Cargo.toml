@@ -13,3 +13,4 @@ serde_json = { workspace = true }
 serde = { workspace = true }
 haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }

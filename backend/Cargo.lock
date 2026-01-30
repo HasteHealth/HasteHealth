@@ -1843,6 +1843,7 @@ name = "haste-openapi-schema-generator"
 version = "0.10.6"
 dependencies = [
  "haste-fhir-model",
+ "haste-fhir-operation-error",
  "haste-sd-to-json-schema",
  "serde",
  "serde_json",
