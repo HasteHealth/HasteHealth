@@ -158,6 +158,20 @@ fn wrap_if_array(
     }
 }
 
+// Generate a JSON Schema reference for a FHIR type
+// If it's a Resource or DomainResource, we return a generic object schema.
+fn datatype_reference_schema(fhir_type: &str) -> serde_json::Value {
+    match fhir_type {
+        "DomainResource" | "Resource" => json!({
+            "type": "object",
+             "additionalProperties": true,
+        }),
+        _ => json!({
+            "$ref": format!("#/$defs/{}", fhir_type)
+        }),
+    }
+}
+
 fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Processed> {
     let cardinality = utilities::extract::cardinality(element);
     let base_schema = if is_typechoice(element) {
@@ -188,7 +202,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                     Processed {
                         cardinality: (0, cardinality.1.clone()),
                         field: field_name,
-                        schema: json!({ "$ref": format!("#/$defs/{}", type_code) }),
+                        schema: datatype_reference_schema(type_code),
                     }
                 }
             })
@@ -229,7 +243,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                         .map(|s| s.as_str())
                         .unwrap_or(""),
                 ),
-                schema: json!({ "$ref": format!("#/$defs/{}", type_code) }),
+                schema: datatype_reference_schema(type_code),
             }]
         }
     };
