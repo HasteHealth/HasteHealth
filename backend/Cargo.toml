@@ -36,7 +36,7 @@ members = [
     "crates/hl7v2",
     "crates/indexing-worker",
     "crates/jwt",
-    "crates/macro-loads",
+    "crates/macro-loads", "crates/openapi-schema-generator",
     "crates/pointer",
     "crates/rate-limit",
     "crates/reflect",

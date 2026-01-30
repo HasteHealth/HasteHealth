@@ -1,0 +1,15 @@
+[package]
+name = "haste-openapi-schema-generator"
+description = "Generate OpenAPI schemas from FHIR StructureDefinitions and Search Parameters."
+publish = false
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde_json = { workspace = true }
+serde = { workspace = true }
+haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }

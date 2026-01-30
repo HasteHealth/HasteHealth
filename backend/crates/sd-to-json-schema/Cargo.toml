@@ -1,7 +1,7 @@
 [package]
 name = "haste-sd-to-json-schema"
-publish = false
 description = "Convert FHIR StructureDefinitions to JSON Schema."
+publish = false
 version.workspace = true
 authors.workspace = true
 license.workspace = true
