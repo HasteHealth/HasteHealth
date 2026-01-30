@@ -191,21 +191,29 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                 let field_name = utilities::generate::type_choice_variant_name(element, type_code);
 
                 if is_fhir_primitive_type(type_code) {
-                    Processed {
-                        cardinality: (0, cardinality.1.clone()),
-                        field: field_name,
-                        schema: json!({
-                            "type": fhir_primitive_type_to_json_schema_type(type_code)
-                        }),
-                    }
+                    vec![
+                        Processed {
+                            cardinality: (0, cardinality.1.clone()),
+                            field: format!("_{}", field_name),
+                            schema: datatype_reference_schema("Element"),
+                        },
+                        Processed {
+                            cardinality: (0, cardinality.1.clone()),
+                            field: field_name,
+                            schema: json!({
+                                "type": fhir_primitive_type_to_json_schema_type(type_code)
+                            }),
+                        },
+                    ]
                 } else {
-                    Processed {
+                    vec![Processed {
                         cardinality: (0, cardinality.1.clone()),
                         field: field_name,
                         schema: datatype_reference_schema(type_code),
-                    }
+                    }]
                 }
             })
+            .flatten()
             .collect()
     } else {
         let type_code = element
@@ -216,33 +224,34 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
             .and_then(|c| c.value.as_ref())
             .map(|s| s.as_str())
             .unwrap_or_default();
+        let field_name = utilities::extract::field_name(
+            element
+                .path
+                .value
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or(""),
+        );
 
         if is_fhir_primitive_type(type_code) {
-            vec![Processed {
-                cardinality,
-                field: utilities::extract::field_name(
-                    element
-                        .path
-                        .value
-                        .as_ref()
-                        .map(|s| s.as_str())
-                        .unwrap_or(""),
-                ),
-                schema: json!({
-                    "type": fhir_primitive_type_to_json_schema_type(type_code)
-                }),
-            }]
+            vec![
+                Processed {
+                    cardinality: cardinality.clone(),
+                    field: format!("_{}", field_name),
+                    schema: datatype_reference_schema("Element"),
+                },
+                Processed {
+                    cardinality,
+                    field: field_name,
+                    schema: json!({
+                        "type": fhir_primitive_type_to_json_schema_type(type_code)
+                    }),
+                },
+            ]
         } else {
             vec![Processed {
                 cardinality,
-                field: utilities::extract::field_name(
-                    element
-                        .path
-                        .value
-                        .as_ref()
-                        .map(|s| s.as_str())
-                        .unwrap_or(""),
-                ),
+                field: field_name,
                 schema: datatype_reference_schema(type_code),
             }]
         }
@@ -298,7 +307,7 @@ fn process_complex(
                 "type": "object",
                 "properties": properties,
                 "required": required_properties,
-                "additionalProperties": true,
+                "additionalProperties": false,
             }),
         },
     )
@@ -356,7 +365,9 @@ mod test {
     use std::sync::LazyLock;
 
     use haste_fhir_model::r4::generated::{
-        resources::Bundle, terminology::StructureDefinitionKind,
+        resources::{Bundle, Patient},
+        terminology::StructureDefinitionKind,
+        types::{FHIRString, HumanName},
     };
 
     use super::*;
@@ -434,5 +445,51 @@ mod test {
         for sd in COMPLEX_SDS.iter() {
             sd_to_json_schema(None, sd).unwrap();
         }
+    }
+
+    #[test]
+    fn patient_sd_test() {
+        let patient_sd = RESOURCE_SDS
+            .iter()
+            .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
+            .unwrap();
+
+        let schema = resource_to_json_schema(patient_sd).unwrap();
+
+        // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
+
+        let patient_data = haste_fhir_serialization_json::to_string(&Patient {
+            name: Some(vec![Box::new(HumanName {
+                family: Some(Box::new(FHIRString {
+                    value: Some("Doe".to_string()),
+                    ..Default::default()
+                })),
+                given: Some(vec![Box::new(FHIRString {
+                    value: Some("John".to_string()),
+                    ..Default::default()
+                })]),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        })
+        .unwrap();
+
+        let mut patient_json = serde_json::from_str(&patient_data).unwrap();
+        let result = jsonschema::validate(&schema, &patient_json);
+        assert_eq!(result.is_ok(), true);
+
+        patient_json["name"][0]["_given"] = json!("This is not a valid value");
+        let result = jsonschema::validate(&schema, &patient_json);
+        assert_eq!(result.is_err(), true);
+
+        patient_json["name"][0]["_given"] = json!([{"id": "1"}]);
+        let result = jsonschema::validate(&schema, &patient_json);
+        println!("{:?}", result);
+        assert_eq!(result.is_ok(), true);
+
+        patient_json["name"] = json!("This is not a valid value");
+        let result = jsonschema::validate(&schema, &patient_json);
+
+        assert_eq!(result.is_err(), true);
     }
 }

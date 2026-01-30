@@ -15,3 +15,6 @@ haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-codegen = { path = "../codegen", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+
+[dev-dependencies]
+jsonschema = "0.40.2"
