@@ -344,7 +344,7 @@ fn search_resource_operation(
                     description: "Successful search operation".to_string(),
                     content: Some(HashMap::from([(
                         "application/json".to_string(),
-                        json!({ "schema": bundle_of_resource("#/components/schemas/", resource_name) }),
+                        json!({ "schema": bundle_of_resource("#/components/schemas", resource_name) }),
                     )])),
                 },
             ),
