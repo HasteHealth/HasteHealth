@@ -318,6 +318,37 @@ pub fn isolated_schema(
     }
 }
 
+// Creates a type schema for a bundle of resources
+pub fn bundle_of_resource(schema_loc: &str, resource: &str) -> serde_json::Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "resourceType": {
+                "type": "string",
+                "const": "Bundle"
+            },
+            "type": {
+                "enum": ["collection", "searchset", "history"]
+            },
+            "entry": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "resource": {
+                            "$ref": format!("{}/{}", schema_loc, resource)
+                        }
+                    },
+                    "required": ["resource"],
+                    "additionalProperties": true
+                }
+            }
+        },
+        "required": ["resourceType", "type", "entry"],
+        "additionalProperties": false
+    })
+}
+
 pub fn self_contained_schema(
     defs: &HashMap<String, serde_json::Value>,
     sd: &StructureDefinition,

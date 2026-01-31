@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use haste_fhir_model::r4::generated::{
     resources::{SearchParameter, StructureDefinition},
-    terminology::{IssueType, StructureDefinitionKind},
+    terminology::{IssueType, SearchParamType, StructureDefinitionKind},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_sd_to_json_schema::bundle_of_resource;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -252,11 +253,147 @@ fn patch_resource_operation(resource_name: &str) -> OpenAPIOperation {
     }
 }
 
+fn resource_search_parameters_schema(
+    resource_name: &str,
+    search_parameters: &Vec<SearchParameter>,
+) -> Vec<serde_json::Value> {
+    let mut params = vec![];
+
+    for sp in search_parameters.iter().filter(|sp| {
+        sp.base.iter().any(|b| {
+            let base: Option<String> = b.as_ref().into();
+            let base = base.as_ref().map(|s| s.as_str());
+            base == Some(resource_name)
+                || base == Some("Resource")
+                || base == Some("DomainResource")
+        }) && !matches!(sp.type_.as_ref(), &SearchParamType::Composite(_))
+    }) {
+        let search_type = match sp.type_.as_ref() {
+            SearchParamType::Quantity(_)
+            | SearchParamType::Special(_)
+            | SearchParamType::Token(_)
+            | SearchParamType::Uri(_)
+            | SearchParamType::Null(_)
+            | SearchParamType::Reference(_)
+            | SearchParamType::Composite(_)
+            | SearchParamType::Date(_)
+            | SearchParamType::String(_) => "string",
+
+            SearchParamType::Number(_) => "number",
+        };
+
+        params.push(json!({
+            "name": sp.code.value,
+            "in": "query",
+            "required": false,
+            "schema": {
+                "type": search_type
+            },
+            "description": sp.description.value.as_ref().map(|s| s.as_str()).unwrap_or("")
+        }));
+    }
+
+    params
+}
+
+fn create_resource_operation(resource_name: &str) -> OpenAPIOperation {
+    OpenAPIOperation {
+        request_body: Some(OpenAPIOperationContent {
+            description: format!("The {} resource to create", resource_name),
+            content: Some(HashMap::from([(
+                "application/json".to_string(),
+                json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
+            )])),
+        }),
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: format!("Successful creation of {} resource", resource_name),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
+                    )])),
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
+        parameters: vec![],
+    }
+}
+
+fn search_resource_operation(
+    resource_name: &str,
+    parameters: Vec<serde_json::Value>,
+) -> OpenAPIOperation {
+    OpenAPIOperation {
+        request_body: None,
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: "Successful search operation".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": bundle_of_resource("#/components/schemas/", resource_name) }),
+                    )])),
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
+        parameters,
+    }
+}
+
+fn delete_resource_operation(parameters: Vec<serde_json::Value>) -> OpenAPIOperation {
+    OpenAPIOperation {
+        request_body: None,
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: "Successful delete operation".to_string(),
+                    content: None,
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
+        parameters,
+    }
+}
+
 pub fn open_api_schema_generator(
     server_root: &str,
     api_version: &str,
     sds: &Vec<StructureDefinition>,
-    _search_parameters: &Vec<SearchParameter>,
+    search_parameters: &Vec<SearchParameter>,
 ) -> Result<OpenAPI, OperationOutcomeError> {
     let mut fhir_server_variables = HashMap::new();
     fhir_server_variables.insert(
@@ -349,6 +486,23 @@ pub fn open_api_schema_generator(
                 patch: Some(patch_resource_operation(&resource_name)),
                 put: Some(put_resource_operation(&resource_name)),
                 delete: Some(delete_instance_operation(&resource_name)),
+            },
+        );
+
+        let resource_search_parameters =
+            resource_search_parameters_schema(&resource_name, search_parameters);
+
+        openapi_schema.paths.insert(
+            format!("/{}", resource_name),
+            OpenAPIPathItem {
+                get: Some(search_resource_operation(
+                    &resource_name,
+                    resource_search_parameters.clone(),
+                )),
+                patch: None,
+                put: None,
+                post: Some(create_resource_operation(&resource_name)),
+                delete: Some(delete_resource_operation(resource_search_parameters)),
             },
         );
 
