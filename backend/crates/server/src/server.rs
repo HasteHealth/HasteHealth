@@ -7,6 +7,7 @@ use crate::{
         errors::{log_operationoutcome_errors, operation_outcome_error_handle},
         security_headers::SecurityHeaderLayer,
     },
+    openapi,
     services::{AppState, ConfigError, create_services, get_pool},
     static_assets::{create_static_server, root_asset_route},
 };
@@ -225,6 +226,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
             "/auth",
             auth_n::global::routes::create_router(shared_state.clone()),
         )
+        .route("/openapi.json", get(openapi::openapi_document_handler))
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()

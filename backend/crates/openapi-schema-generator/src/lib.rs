@@ -6,56 +6,63 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIComponents {
+pub struct OpenAPIComponents {
     schemas: std::collections::HashMap<String, serde_json::Value>,
 }
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIOperationResponse {
+pub struct OpenAPIOperationResponse {
     description: String,
     // Content Type to Schema mapping
     content: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIOperation {
+pub struct OpenAPIOperation {
     responses: HashMap<String, OpenAPIOperationResponse>,
     parameters: Vec<serde_json::Value>,
 }
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIPathItem {
+pub struct OpenAPIPathItem {
+    #[serde(skip_serializing_if = "Option::is_none")]
     get: Option<OpenAPIOperation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     post: Option<OpenAPIOperation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     put: Option<OpenAPIOperation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     delete: Option<OpenAPIOperation>,
 }
 
-type OpenAPIPaths = HashMap<String, OpenAPIPathItem>;
+pub type OpenAPIPaths = HashMap<String, OpenAPIPathItem>;
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIInfo {
+pub struct OpenAPIInfo {
     title: String,
     version: String,
 }
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIServerVariable {
+pub struct OpenAPIServerVariable {
     default: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
 }
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPIServer {
+pub struct OpenAPIServer {
     url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     variables: HashMap<String, OpenAPIServerVariable>,
 }
 
 #[derive(Deserialize, Serialize)]
-struct OpenAPISchema {
+pub struct OpenAPI {
     servers: Vec<OpenAPIServer>,
     openapi: String,
     info: OpenAPIInfo,
@@ -63,12 +70,36 @@ struct OpenAPISchema {
     paths: OpenAPIPaths,
 }
 
-fn open_api_schema_generator(
+fn read_resource_operation(resource_name: &str) -> OpenAPIOperation {
+    OpenAPIOperation {
+        responses: HashMap::from([(
+            "200".to_string(),
+            OpenAPIOperationResponse {
+                description: format!("Successful read of {} resource", resource_name),
+                content: HashMap::from([(
+                    "application/fhir+json".to_string(),
+                    json!({ "$ref": format!("#/components/schemas/{}", resource_name) }),
+                )]),
+            },
+        )]),
+        parameters: vec![json!({
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+                "type": "string"
+            },
+            "description": format!("The ID of the {} resource", resource_name)
+        })],
+    }
+}
+
+pub fn open_api_schema_generator(
     server_root: &str,
     api_version: &str,
     resource_sds: &Vec<StructureDefinition>,
-    search_parameters: &Vec<SearchParameter>,
-) -> Result<OpenAPISchema, OperationOutcomeError> {
+    _search_parameters: &Vec<SearchParameter>,
+) -> Result<OpenAPI, OperationOutcomeError> {
     let mut fhir_server_variables = HashMap::new();
     fhir_server_variables.insert(
         "tenant".to_string(),
@@ -91,7 +122,7 @@ fn open_api_schema_generator(
             description: Some("FHIR version".to_string()),
         },
     );
-    let mut openapi_schema = OpenAPISchema {
+    let mut openapi_schema = OpenAPI {
         openapi: "3.0.1".to_string(),
         servers: vec![OpenAPIServer {
             url: format!(
@@ -114,12 +145,12 @@ fn open_api_schema_generator(
 
     for sd in resource_sds {
         let json_schema = haste_sd_to_json_schema::resource_to_json_schema(sd)?;
-        let resource_name = sd.type_.value.ok_or_else(|| {
+        let resource_name = sd.type_.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Structure(None),
                 format!(
                     "StructureDefinition missing type for id {}",
-                    sd.id.unwrap_or("unknown".to_string())
+                    sd.id.as_ref().unwrap_or(&"unknown".to_string())
                 ),
             )
         })?;
@@ -127,27 +158,7 @@ fn open_api_schema_generator(
         openapi_schema.paths.insert(
             format!("/{}/{{id}}", resource_name),
             OpenAPIPathItem {
-                get: Some(OpenAPIOperation {
-                    responses: HashMap::new(
-                        "200".to_string(),
-                        OpenAPIOperationResponse {
-                            description: todo!(),
-                            content: HashMap::new(
-                                "application/fhir+json".to_string(),
-                                json_schema.clone(),
-                            ),
-                        },
-                    ),
-                    parameters: json!({
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": format!("The ID of the {} resource", resource_name)
-                    }),
-                }),
+                get: Some(read_resource_operation(&resource_name)),
                 post: None,
                 put: None,
                 delete: None,
@@ -157,8 +168,8 @@ fn open_api_schema_generator(
         openapi_schema
             .components
             .schemas
-            .insert(resource_name, json_schema);
+            .insert(resource_name.clone(), json_schema);
     }
 
-    todo!();
+    Ok(openapi_schema)
 }

@@ -1,11 +1,11 @@
-mod extract;
-mod fhir_http;
-
 pub mod auth_n;
+mod extract;
 pub mod fhir_client;
+mod fhir_http;
 pub mod load_artifacts;
 mod mcp;
 mod middleware;
+mod openapi;
 mod route_path;
 pub mod server;
 pub mod services;

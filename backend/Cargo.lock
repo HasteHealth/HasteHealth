@@ -1933,6 +1933,7 @@ dependencies = [
  "haste-fhir-terminology",
  "haste-fhirpath",
  "haste-jwt",
+ "haste-openapi-schema-generator",
  "haste-rate-limit",
  "haste-reflect",
  "haste-repository",

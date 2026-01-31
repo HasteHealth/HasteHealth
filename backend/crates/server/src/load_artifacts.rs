@@ -6,16 +6,19 @@ use haste_artifacts::ARTIFACT_RESOURCES;
 use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
+    request::{FHIRSearchTypeRequest, SearchRequest},
     url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType},
+    resources::{Resource, ResourceType, SearchParameter, StructureDefinition},
     terminology::IssueType,
     types::{Coding, FHIRCode, FHIRUri, Meta},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_search::{SearchEngine, SearchOptions};
 use haste_jwt::{ProjectId, TenantId};
 
+use haste_repository::{Repository, fhir::CachePolicy, types::SupportedFHIRVersions};
 use sha1::{Digest, Sha1};
 
 fn generate_sha256_hash(value: &Resource) -> String {
@@ -170,4 +173,111 @@ pub async fn load_artifacts(
     );
 
     Ok(())
+}
+
+pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+) -> Result<Vec<StructureDefinition>, OperationOutcomeError> {
+    let sd_search = FHIRSearchTypeRequest {
+        resource_type: ResourceType::StructureDefinition,
+        parameters: ParsedParameters::new(vec![
+            ParsedParameter::Resource(Parameter {
+                name: "kind".to_string(),
+                value: vec!["resource".to_string()],
+                modifier: None,
+                chains: None,
+            }),
+            ParsedParameter::Resource(Parameter {
+                name: "abstract".to_string(),
+                value: vec!["false".to_string()],
+                modifier: None,
+                chains: None,
+            }),
+            ParsedParameter::Resource(Parameter {
+                name: "derivation".to_string(),
+                value: vec!["specialization".to_string()],
+                modifier: None,
+                chains: None,
+            }),
+            // ParsedParameter::Result(Parameter {
+            //     name: "_sort".to_string(),
+            //     value: vec!["url".to_string()],
+            //     modifier: None,
+            //     chains: None,
+            // }),
+        ]),
+    };
+    let sd_results = search_engine
+        .search(
+            &SupportedFHIRVersions::R4,
+            &TenantId::System,
+            &ProjectId::System,
+            &SearchRequest::Type(sd_search),
+            Some(SearchOptions { count_limit: false }),
+        )
+        .await?;
+
+    let version_ids = sd_results
+        .entries
+        .iter()
+        .map(|v| &v.version_id)
+        .collect::<Vec<_>>();
+
+    let sds = repo
+        .read_by_version_ids(
+            &TenantId::System,
+            &ProjectId::System,
+            version_ids.as_slice(),
+            CachePolicy::NoCache,
+        )
+        .await?
+        .into_iter()
+        .filter_map(|r| match r {
+            Resource::StructureDefinition(sd) => Some(sd),
+            _ => None,
+        });
+
+    Ok(sds.collect())
+}
+
+pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
+    repo: &Repo,
+    search_engine: &Search,
+) -> Result<Vec<SearchParameter>, OperationOutcomeError> {
+    let sp_search = FHIRSearchTypeRequest {
+        resource_type: ResourceType::SearchParameter,
+        parameters: ParsedParameters::new(vec![]),
+    };
+    let sp_results = search_engine
+        .search(
+            &SupportedFHIRVersions::R4,
+            &TenantId::System,
+            &ProjectId::System,
+            &SearchRequest::Type(sp_search),
+            Some(SearchOptions { count_limit: false }),
+        )
+        .await?;
+
+    let version_ids = sp_results
+        .entries
+        .iter()
+        .map(|v| &v.version_id)
+        .collect::<Vec<_>>();
+
+    let sps = repo
+        .read_by_version_ids(
+            &TenantId::System,
+            &ProjectId::System,
+            version_ids.as_slice(),
+            CachePolicy::NoCache,
+        )
+        .await?
+        .into_iter()
+        .filter_map(|r| match r {
+            Resource::SearchParameter(sp) => Some(sp),
+            _ => None,
+        });
+
+    Ok(sps.collect())
 }
