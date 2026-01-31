@@ -23,8 +23,8 @@ pub struct OpenAPIOperationContent {
 
 #[derive(Deserialize, Serialize)]
 pub struct OpenAPIOperation {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    requestBody: Option<OpenAPIOperationContent>,
+    #[serde(rename = "requestBody", skip_serializing_if = "Option::is_none")]
+    request_body: Option<OpenAPIOperationContent>,
     responses: HashMap<String, OpenAPIOperationContent>,
     parameters: Vec<serde_json::Value>,
 }
@@ -77,7 +77,7 @@ pub struct OpenAPI {
 
 fn read_resource_operation(resource_name: &str) -> OpenAPIOperation {
     OpenAPIOperation {
-        requestBody: None,
+        request_body: None,
         responses: HashMap::from([
             (
                 "200".to_string(),
@@ -124,7 +124,7 @@ fn read_resource_operation(resource_name: &str) -> OpenAPIOperation {
 
 fn put_resource_operation(resource_name: &str) -> OpenAPIOperation {
     OpenAPIOperation {
-        requestBody: Some(OpenAPIOperationContent {
+        request_body: Some(OpenAPIOperationContent {
             description: format!("The {} resource to create or update", resource_name),
             content: Some(HashMap::from([(
                 "application/json".to_string(),
@@ -177,7 +177,7 @@ fn put_resource_operation(resource_name: &str) -> OpenAPIOperation {
 
 fn delete_instance_operation(resource_name: &str) -> OpenAPIOperation {
     OpenAPIOperation {
-        requestBody: None,
+        request_body: None,
         responses: HashMap::from([
             (
                 "200".to_string(),
@@ -211,7 +211,7 @@ fn delete_instance_operation(resource_name: &str) -> OpenAPIOperation {
 
 fn patch_resource_operation(resource_name: &str) -> OpenAPIOperation {
     OpenAPIOperation {
-        requestBody: Some(OpenAPIOperationContent {
+        request_body: Some(OpenAPIOperationContent {
             description: format!("JSON Patch operation for {} resource.", resource_name),
             content: Some(HashMap::from([(
                 "application/json".to_string(),
