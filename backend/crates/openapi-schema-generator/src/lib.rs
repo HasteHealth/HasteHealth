@@ -14,15 +14,18 @@ pub struct OpenAPIComponents {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct OpenAPIOperationResponse {
+pub struct OpenAPIOperationContent {
     description: String,
     // Content Type to Schema mapping
-    content: HashMap<String, serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    content: Option<HashMap<String, serde_json::Value>>,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct OpenAPIOperation {
-    responses: HashMap<String, OpenAPIOperationResponse>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    requestBody: Option<OpenAPIOperationContent>,
+    responses: HashMap<String, OpenAPIOperationContent>,
     parameters: Vec<serde_json::Value>,
 }
 
@@ -36,6 +39,8 @@ pub struct OpenAPIPathItem {
     put: Option<OpenAPIOperation>,
     #[serde(skip_serializing_if = "Option::is_none")]
     delete: Option<OpenAPIOperation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    patch: Option<OpenAPIOperation>,
 }
 
 pub type OpenAPIPaths = HashMap<String, OpenAPIPathItem>;
@@ -72,16 +77,169 @@ pub struct OpenAPI {
 
 fn read_resource_operation(resource_name: &str) -> OpenAPIOperation {
     OpenAPIOperation {
-        responses: HashMap::from([(
-            "200".to_string(),
-            OpenAPIOperationResponse {
-                description: format!("Successful read of {} resource", resource_name),
-                content: HashMap::from([(
-                    "application/json".to_string(),
-                    json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
-                )]),
+        requestBody: None,
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: format!("Successful read of {} resource", resource_name),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
+                    )])),
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+            (
+                "500".to_string(),
+                OpenAPIOperationContent {
+                    description: "Server error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
+        parameters: vec![json!({
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+                "type": "string"
             },
-        )]),
+            "description": format!("The ID of the {} resource", resource_name)
+        })],
+    }
+}
+
+fn put_resource_operation(resource_name: &str) -> OpenAPIOperation {
+    OpenAPIOperation {
+        requestBody: Some(OpenAPIOperationContent {
+            description: format!("The {} resource to create or update", resource_name),
+            content: Some(HashMap::from([(
+                "application/json".to_string(),
+                json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
+            )])),
+        }),
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: format!("Successful put/creation of {} resource", resource_name),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
+                    )])),
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+            (
+                "500".to_string(),
+                OpenAPIOperationContent {
+                    description: "Server error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
+        parameters: vec![json!({
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+                "type": "string"
+            },
+            "description": format!("The ID of the {} resource", resource_name)
+        })],
+    }
+}
+
+fn delete_instance_operation(resource_name: &str) -> OpenAPIOperation {
+    OpenAPIOperation {
+        requestBody: None,
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: format!("Successful deletion of {} resource", resource_name),
+                    content: None,
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
+        parameters: vec![json!({
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+                "type": "string"
+            },
+            "description": format!("The ID of the {} resource", resource_name)
+        })],
+    }
+}
+
+fn patch_resource_operation(resource_name: &str) -> OpenAPIOperation {
+    OpenAPIOperation {
+        requestBody: Some(OpenAPIOperationContent {
+            description: format!("JSON Patch operation for {} resource.", resource_name),
+            content: Some(HashMap::from([(
+                "application/json".to_string(),
+                json!({ "schema": {"type": "array" }}),
+            )])),
+        }),
+        responses: HashMap::from([
+            (
+                "200".to_string(),
+                OpenAPIOperationContent {
+                    description: format!("Successful patch of {} resource", resource_name),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": format!("#/components/schemas/{}", resource_name) }}),
+                    )])),
+                },
+            ),
+            (
+                "400".to_string(),
+                OpenAPIOperationContent {
+                    description: "Client error".to_string(),
+                    content: Some(HashMap::from([(
+                        "application/json".to_string(),
+                        json!({ "schema": {"$ref": "#/components/schemas/OperationOutcome" }}),
+                    )])),
+                },
+            ),
+        ]),
         parameters: vec![json!({
             "name": "id",
             "in": "path",
@@ -181,14 +339,16 @@ pub fn open_api_schema_generator(
                 ),
             )
         })?;
+
         // Read Operation
         openapi_schema.paths.insert(
             format!("/{}/{{id}}", resource_name),
             OpenAPIPathItem {
                 get: Some(read_resource_operation(&resource_name)),
                 post: None,
-                put: None,
-                delete: None,
+                patch: Some(patch_resource_operation(&resource_name)),
+                put: Some(put_resource_operation(&resource_name)),
+                delete: Some(delete_instance_operation(&resource_name)),
             },
         );
 
