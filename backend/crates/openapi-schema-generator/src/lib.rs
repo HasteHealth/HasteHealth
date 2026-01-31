@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use haste_fhir_model::r4::generated::{
     resources::{SearchParameter, StructureDefinition},
-    terminology::IssueType,
+    terminology::{IssueType, StructureDefinitionKind},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde::{Deserialize, Serialize};
@@ -97,7 +97,7 @@ fn read_resource_operation(resource_name: &str) -> OpenAPIOperation {
 pub fn open_api_schema_generator(
     server_root: &str,
     api_version: &str,
-    resource_sds: &Vec<StructureDefinition>,
+    sds: &Vec<StructureDefinition>,
     _search_parameters: &Vec<SearchParameter>,
 ) -> Result<OpenAPI, OperationOutcomeError> {
     let mut fhir_server_variables = HashMap::new();
@@ -123,7 +123,7 @@ pub fn open_api_schema_generator(
         },
     );
     let mut openapi_schema = OpenAPI {
-        openapi: "3.0.1".to_string(),
+        openapi: "3.1.1".to_string(),
         servers: vec![OpenAPIServer {
             url: format!(
                 "{}/w/{}/{}/api/v1/fhir/{}",
@@ -143,8 +143,35 @@ pub fn open_api_schema_generator(
         paths: HashMap::new(),
     };
 
+    let complex_sds = sds.iter().filter(|sd| match sd.kind.as_ref() {
+        StructureDefinitionKind::ComplexType(_) => true,
+        _ => false,
+    });
+
+    for sd in complex_sds {
+        let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
+        let type_name = sd.type_.value.as_ref().ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Structure(None),
+                format!(
+                    "StructureDefinition missing type for id {}",
+                    sd.id.as_ref().unwrap_or(&"unknown".to_string())
+                ),
+            )
+        })?;
+        openapi_schema
+            .components
+            .schemas
+            .insert(type_name.clone(), json_schema);
+    }
+
+    let resource_sds = sds.iter().filter(|sd| match sd.kind.as_ref() {
+        StructureDefinitionKind::Resource(_) => true,
+        _ => false,
+    });
+
     for sd in resource_sds {
-        let json_schema = haste_sd_to_json_schema::resource_to_json_schema(sd)?;
+        let json_schema = haste_sd_to_json_schema::isolated_schema("#/components/schemas", sd)?;
         let resource_name = sd.type_.value.as_ref().ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Structure(None),

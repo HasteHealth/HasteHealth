@@ -38,7 +38,12 @@ pub async fn openapi_document_handler<
             .into_response())
     } else {
         let sps = get_all_sps(state.repo.as_ref(), state.search.as_ref()).await?;
-        let sds = get_all_sds(state.repo.as_ref(), state.search.as_ref()).await?;
+        let sds = get_all_sds(
+            &["resource", "complex-type"],
+            state.repo.as_ref(),
+            state.search.as_ref(),
+        )
+        .await?;
 
         let api_url = state
             .config

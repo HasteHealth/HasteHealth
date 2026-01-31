@@ -127,7 +127,7 @@ async fn generate_capabilities<Repo: Repository, Search: SearchEngine>(
     search_engine: &Search,
 ) -> Result<CapabilityStatement, OperationOutcomeError> {
     let (sds, sps) = tokio::join!(
-        get_all_sds(repo, search_engine),
+        get_all_sds(&["resource"], repo, search_engine),
         get_all_sps(repo, search_engine)
     );
 

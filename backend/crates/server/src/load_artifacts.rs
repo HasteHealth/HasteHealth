@@ -176,6 +176,7 @@ pub async fn load_artifacts(
 }
 
 pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
+    kinds: &[&str],
     repo: &Repo,
     search_engine: &Search,
 ) -> Result<Vec<StructureDefinition>, OperationOutcomeError> {
@@ -184,7 +185,7 @@ pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
         parameters: ParsedParameters::new(vec![
             ParsedParameter::Resource(Parameter {
                 name: "kind".to_string(),
-                value: vec!["resource".to_string()],
+                value: kinds.iter().map(|s| s.to_string()).collect(),
                 modifier: None,
                 chains: None,
             }),

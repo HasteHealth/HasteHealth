@@ -1,49 +1,14 @@
-use std::{collections::HashMap, sync::LazyLock};
+use std::collections::HashMap;
 
 use haste_codegen::{
     traversal,
     utilities::{self, conditionals::is_typechoice, extract::Max},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, StructureDefinition},
-    terminology::{IssueType, StructureDefinitionKind},
-    types::ElementDefinition,
+    resources::StructureDefinition, terminology::IssueType, types::ElementDefinition,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::json;
-
-static COMPLEX_DEFINITIONS: LazyLock<HashMap<String, serde_json::Value>> = LazyLock::new(|| {
-    let sd_str = include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
-
-    let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
-        .expect("Failed to parse StructureDefinitions");
-
-    bundle
-        .entry
-        .unwrap_or_default()
-        .into_iter()
-        .filter_map(|entry| entry.resource)
-        .filter_map(|resource| {
-            if let haste_fhir_model::r4::generated::resources::Resource::StructureDefinition(sd) =
-                *resource
-            {
-                Some(sd)
-            } else {
-                None
-            }
-        })
-        .filter(|sd| match sd.kind.as_ref() {
-            StructureDefinitionKind::ComplexType(None) => true,
-            _ => false,
-        })
-        .map(|sd| {
-            (
-                sd.type_.value.clone().unwrap(),
-                sd_to_json_schema(None, &sd).unwrap(),
-            )
-        })
-        .collect::<HashMap<String, _>>()
-});
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
@@ -160,19 +125,23 @@ fn wrap_if_array(
 
 // Generate a JSON Schema reference for a FHIR type
 // If it's a Resource or DomainResource, we return a generic object schema.
-fn datatype_reference_schema(fhir_type: &str) -> serde_json::Value {
+fn datatype_reference_schema(schema_loc: &str, fhir_type: &str) -> serde_json::Value {
     match fhir_type {
         "DomainResource" | "Resource" => json!({
             "type": "object",
              "additionalProperties": true,
         }),
         _ => json!({
-            "$ref": format!("#/$defs/{}", fhir_type)
+            "$ref": format!("{}/{}", schema_loc, fhir_type)
         }),
     }
 }
 
-fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Processed> {
+fn process_leaf(
+    schema_loc: &str,
+    sd: &StructureDefinition,
+    element: &ElementDefinition,
+) -> Vec<Processed> {
     let cardinality = utilities::extract::cardinality(element);
     let base_schema = if is_typechoice(element) {
         element
@@ -195,7 +164,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                         Processed {
                             cardinality: (0, cardinality.1.clone()),
                             field: format!("_{}", field_name),
-                            schema: datatype_reference_schema("Element"),
+                            schema: datatype_reference_schema(schema_loc, "Element"),
                         },
                         Processed {
                             cardinality: (0, cardinality.1.clone()),
@@ -209,7 +178,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                     vec![Processed {
                         cardinality: (0, cardinality.1.clone()),
                         field: field_name,
-                        schema: datatype_reference_schema(type_code),
+                        schema: datatype_reference_schema(schema_loc, type_code),
                     }]
                 }
             })
@@ -238,7 +207,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
                 Processed {
                     cardinality: (0, cardinality.1.clone()),
                     field: format!("_{}", field_name),
-                    schema: datatype_reference_schema("Element"),
+                    schema: datatype_reference_schema(schema_loc, "Element"),
                 },
                 Processed {
                     cardinality,
@@ -252,7 +221,7 @@ fn process_leaf(sd: &StructureDefinition, element: &ElementDefinition) -> Vec<Pr
             vec![Processed {
                 cardinality,
                 field: field_name,
-                schema: datatype_reference_schema(type_code),
+                schema: datatype_reference_schema(schema_loc, type_code),
             }]
         }
     };
@@ -313,8 +282,8 @@ fn process_complex(
     )
 }
 
-fn sd_to_json_schema(
-    defs: Option<&HashMap<String, serde_json::Value>>,
+pub fn isolated_schema(
+    schema_loc: &str,
     sd: &StructureDefinition,
 ) -> Result<serde_json::Value, OperationOutcomeError> {
     let mut visitor = |element: &ElementDefinition,
@@ -322,7 +291,7 @@ fn sd_to_json_schema(
                        _index: usize|
      -> Vec<Processed> {
         if children.len() == 0 {
-            process_leaf(&sd, element)
+            process_leaf(schema_loc, &sd, element)
         } else {
             vec![process_complex(
                 &sd,
@@ -339,10 +308,7 @@ fn sd_to_json_schema(
         )
     })?;
 
-    if let Some(mut result) = result.pop() {
-        if let Some(defs) = defs {
-            result.schema["$defs"] = json!(defs);
-        }
+    if let Some(result) = result.pop() {
         Ok(result.schema)
     } else {
         Err(OperationOutcomeError::error(
@@ -352,12 +318,14 @@ fn sd_to_json_schema(
     }
 }
 
-pub fn resource_to_json_schema(
+pub fn self_contained_schema(
+    defs: &HashMap<String, serde_json::Value>,
     sd: &StructureDefinition,
 ) -> Result<serde_json::Value, OperationOutcomeError> {
-    let defs = &*COMPLEX_DEFINITIONS;
+    let mut schema = isolated_schema("#/$defs", sd)?;
+    schema["$defs"] = json!(defs);
 
-    sd_to_json_schema(Some(defs), sd)
+    Ok(schema)
 }
 
 #[cfg(test)]
@@ -397,14 +365,15 @@ mod test {
             .collect()
     });
 
-    static COMPLEX_SDS: LazyLock<Vec<StructureDefinition>> = LazyLock::new(|| {
-        let sd_str =
-            include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
+    pub static FHIR_COMPLEX_TYPE_DEFINITIONS: LazyLock<HashMap<String, serde_json::Value>> =
+        LazyLock::new(|| {
+            let sd_str =
+                include_str!("../../artifacts/artifacts/r4/hl7/minified/profiles-types.min.json");
 
-        let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
-            .expect("Failed to parse StructureDefinitions");
+            let bundle: Bundle = haste_fhir_serialization_json::from_str(sd_str)
+                .expect("Failed to parse StructureDefinitions");
 
-        bundle
+            bundle
             .entry
             .unwrap_or_default()
             .into_iter()
@@ -423,8 +392,14 @@ mod test {
                 StructureDefinitionKind::ComplexType(None) => true,
                 _ => false,
             })
-            .collect()
-    });
+            .map(|sd| {
+                (
+                    sd.type_.value.clone().unwrap(),
+                    isolated_schema("#/$defs", &sd).unwrap(),
+                )
+            })
+            .collect::<HashMap<String, _>>()
+        });
 
     #[test]
     fn test_sd_to_json_schema() {
@@ -433,18 +408,11 @@ mod test {
             .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
             .unwrap();
 
-        let schema = resource_to_json_schema(patient_sd).unwrap();
+        let schema = self_contained_schema(&*FHIR_COMPLEX_TYPE_DEFINITIONS, patient_sd).unwrap();
 
         println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
         assert_eq!(true, !serde_json::to_string(&schema).unwrap().is_empty());
-    }
-
-    #[test]
-    fn test_complex_types() {
-        for sd in COMPLEX_SDS.iter() {
-            sd_to_json_schema(None, sd).unwrap();
-        }
     }
 
     #[test]
@@ -454,7 +422,7 @@ mod test {
             .find(|v| v.type_.value.as_ref().map(|s| s.as_str()) == Some("Patient"))
             .unwrap();
 
-        let schema = resource_to_json_schema(patient_sd).unwrap();
+        let schema = self_contained_schema(&*FHIR_COMPLEX_TYPE_DEFINITIONS, patient_sd).unwrap();
 
         // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
