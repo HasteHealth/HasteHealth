@@ -17,8 +17,9 @@ use std::{collections::HashMap, sync::Arc};
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 #[serde(tag = "operation")]
 enum Arguments {
-    #[serde(rename = "search-type")]
+    #[serde(rename = "search")]
     FHIRSearch {
+        resource_type: String,
         search_parameters: Option<HashMap<String, String>>,
     },
 }
@@ -31,7 +32,7 @@ pub async fn tools_call<
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     request: CallToolRequest,
 ) -> Result<CallToolResult, MCPError<serde_json::Value>> {
-    let arguments = serde_json::from_value::<Arguments>(
+    let operation = serde_json::from_value::<Arguments>(
         request.params.arguments.unwrap_or_default(),
     )
     .map_err(|e| {
@@ -41,10 +42,13 @@ pub async fn tools_call<
         )
     })?;
 
-    let content: String = match arguments {
-        Arguments::FHIRSearch { search_parameters } => {
+    let content: String = match operation {
+        Arguments::FHIRSearch {
+            resource_type,
+            search_parameters,
+        } => {
             let resource_type =
-                ResourceType::try_from(request.params.name.as_str()).map_err(|_| MCPError {
+                ResourceType::try_from(resource_type.as_str()).map_err(|_| MCPError {
                     id: request.id.clone(),
                     jsonrpc: "2.0".to_string(),
                     error: MCPErrorDetail {

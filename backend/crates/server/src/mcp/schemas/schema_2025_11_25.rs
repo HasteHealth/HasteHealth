@@ -12414,7 +12414,7 @@ pub struct Tool {
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
-    pub output_schema: ::std::option::Option<ToolOutputSchema>,
+    pub output_schema: Option<serde_json::Value>,
     #[doc = "Intended for UI and end-user contexts — optimized to be human-readable and easily understood,\neven by those unfamiliar with domain-specific terminology.\n\nIf not provided, the name should be used for display (except for Tool,\nwhere `annotations.title` should be given precedence over using `name`,\nif present)."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub title: ::std::option::Option<::std::string::String>,
@@ -26421,10 +26421,8 @@ pub mod builder {
         input_schema: ::std::result::Result<serde_json::Value, ::std::string::String>,
         meta: ::std::result::Result<::std::option::Option<super::ToolMeta>, ::std::string::String>,
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
-        output_schema: ::std::result::Result<
-            ::std::option::Option<super::ToolOutputSchema>,
-            ::std::string::String,
-        >,
+        output_schema:
+            ::std::result::Result<::std::option::Option<serde_json::Value>, ::std::string::String>,
         title: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
@@ -26518,7 +26516,7 @@ pub mod builder {
         }
         pub fn output_schema<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::ToolOutputSchema>>,
+            T: ::std::convert::TryInto<Option<serde_json::Value>>,
             T::Error: ::std::fmt::Display,
         {
             self.output_schema = value

@@ -5,7 +5,6 @@ use haste_fhir_model::r4::generated::{
     terminology::{IssueType, SearchParamType, StructureDefinitionKind},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_sd_to_json_schema::bundle_of_resource;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -344,7 +343,9 @@ fn search_resource_operation(
                     description: "Successful search operation".to_string(),
                     content: Some(HashMap::from([(
                         "application/json".to_string(),
-                        json!({ "schema": bundle_of_resource("#/components/schemas", resource_name) }),
+                        json!({ "schema": haste_sd_to_json_schema::bundle_of_resource(json!({
+                            "$ref": format!("#/components/schemas/{}", resource_name)
+                        })) }),
                     )])),
                 },
             ),

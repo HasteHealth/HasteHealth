@@ -63,6 +63,7 @@ haste-repository = { path = "../repository", version = "0.*", features = [
 ] }
 haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 haste-openapi-schema-generator = { path = "../openapi-schema-generator", version = "0.*" }
+haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
 petgraph = "0.8.3"
 rand = "0.8"
 rsa = "0.9.10"

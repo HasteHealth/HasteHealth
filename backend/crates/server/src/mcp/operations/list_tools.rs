@@ -2,14 +2,15 @@ use crate::{
     fhir_client::ServerCTX,
     mcp::{
         error::MCPError,
+        operations::ToolOperations,
         request::ListToolsRequest,
         schemas::schema_2025_11_25::{ListToolsResult, Tool},
     },
 };
 use haste_fhir_client::FHIRClient;
 use haste_fhir_model::r4::generated::{
-    resources::{CapabilityStatementRestResource, CapabilityStatementRestResourceSearchParam},
-    terminology::{SearchParamType, TypeRestfulInteraction},
+    resources::{CapabilityStatement, CapabilityStatementRestResourceSearchParam},
+    terminology::SearchParamType,
 };
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -55,52 +56,67 @@ pub fn search_tool_parameters(
     serde_json::Value::Object(properties)
 }
 
-fn generate_resource_schema(
-    capability_search_params: &CapabilityStatementRestResource,
-) -> serde_json::Value {
-    let operations_supported = capability_search_params
-        .interaction
+fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
+    let default_ = vec![];
+    let resource_capabilities = capabilities
+        .rest
         .as_ref()
-        .map(|interactions| {
-            interactions
-                .iter()
-                .map(|interaction| interaction.code.as_ref())
-                .collect::<Vec<_>>()
-        })
-        .unwrap_or_default();
+        .unwrap_or(&default_)
+        .into_iter()
+        .filter_map(|r| r.resource.as_ref())
+        .flatten()
+        .collect::<Vec<_>>();
 
-    let mut schema = json!({
-        "properties": {
-            "operation": {
-                "type": "string",
-                "enum": operations_supported.iter().filter_map(|op| {
-                    (*op).into()
-                }).collect::<Vec<String>>(),
-            }
-        },
-        "required": ["operation"],
-        "type": "object"
+    let input_schema = json!({
+      "properties": {
+        "operation": { "const": ToolOperations::Search },
+        "resourceType": {
+          "type": "string",
+          "enum": resource_capabilities.iter().map(|rc| {
+              let resource_type: Option<String> = rc.type_.as_ref().into();
+              resource_type.unwrap_or_default()
+          }).collect::<Vec<String>>(),
+        }
+      },
+      "required": ["resourceType"],
+      "oneOf" : resource_capabilities.iter().map(|rc| {
+          let resource_type: Option<String> = rc.type_.as_ref().into();
+          let resource_type = resource_type.unwrap_or_default();
+          json!({
+              "if": {
+                  "properties": {
+                      "resourceType": { "const": resource_type }
+                  }
+              },
+              "then": {
+                  "properties": {
+                      "search_parameters": {
+                          "type": "object",
+                          "properties": search_tool_parameters(
+                              rc.searchParam.as_ref().unwrap_or(&vec![])
+                          ),
+                      }
+                  }
+              }
+          })
+      }).collect::<Vec<serde_json::Value>>()
     });
 
-    if operations_supported
-        .iter()
-        .find(|code| matches!(code, TypeRestfulInteraction::SearchType(_)))
-        .is_some()
-    {
-        let search_properties = search_tool_parameters(
-            capability_search_params
-                .searchParam
-                .as_ref()
-                .unwrap_or(&vec![]),
-        );
-
-        schema["properties"]["search_parameters"] = json!({
-            "type": "object",
-            "properties": search_properties,
-        });
+    Tool {
+        annotations: None,
+        description: Some(format!(
+            "Tool for FHIR Resource Search across supported types",
+        )),
+        execution: None,
+        icons: vec![],
+        input_schema,
+        meta: None,
+        name: "FHIR Resource Search Tool".to_string(),
+        output_schema: Some(haste_sd_to_json_schema::bundle_of_resource(json!({
+            "type": "object"
+        }))),
+        title: Some("FHIR Resource Search Tool".to_string()),
     }
-
-    schema
 }
 
 pub async fn list_tools<
@@ -112,36 +128,10 @@ pub async fn list_tools<
     _request: &ListToolsRequest,
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
     let capabilities = ctx.client.capabilities(ctx.clone()).await?;
-
-    let tools = capabilities
-        .rest
-        .unwrap_or_default()
-        .into_iter()
-        .map(|r| r.resource.unwrap_or_default())
-        .flatten()
-        .map(|resource_rest_capability| {
-            let resource_name: Option<String> = resource_rest_capability.type_.as_ref().into();
-            let resource_name = resource_name.unwrap_or_default();
-
-            Tool {
-                annotations: None,
-                description: Some(format!(
-                    "Tool operation for FHIR Resource '{}'",
-                    resource_name
-                )),
-                execution: None,
-                icons: vec![],
-                input_schema: generate_resource_schema(&resource_rest_capability),
-                meta: None,
-                name: resource_name.clone(),
-                output_schema: None,
-                title: Some(format!("FHIR {} Operations Tool", resource_name)),
-            }
-        })
-        .collect::<Vec<_>>();
+    let search_tool = generate_search_schema(&capabilities);
 
     Ok(ListToolsResult {
-        tools: tools,
+        tools: vec![search_tool],
         meta: None,
         next_cursor: None,
     })

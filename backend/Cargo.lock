@@ -1931,6 +1931,7 @@ dependencies = [
  "haste-rate-limit",
  "haste-reflect",
  "haste-repository",
+ "haste-sd-to-json-schema",
  "json-patch",
  "jsonwebtoken",
  "maud",
