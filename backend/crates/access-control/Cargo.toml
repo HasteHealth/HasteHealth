@@ -1,8 +1,8 @@
 [package]
 name = "haste-access-control"
+description = "Access control utilities for Haste Health FHIR server and clients."
 version = { workspace = true }
 edition = { workspace = true }
-description = "Access control utilities for Haste Health FHIR server and clients."
 license = { workspace = true }
 homepage = { workspace = true }
 
@@ -19,4 +19,3 @@ haste-jwt = { path = "../jwt", version = "0.*", features = ["reflect"] }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-pointer = { path = "../pointer", version = "0.*" }
 haste-x-fhir-query = { path = "../x-fhir-query", version = "0.*" }
-dashmap = { version = "6.1.0" }

@@ -16,4 +16,3 @@ axum = { workspace = true, optional = true }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error-derive = { path = "../fhir-operation-error-derive", version = "0.*", optional = true }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*", optional = true }
-tracing = { workspace = true }

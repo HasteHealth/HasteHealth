@@ -26,6 +26,5 @@ sqlx = { workspace = true, features = [
     "postgres",
     "time",
 ] }
-sqlx-postgres = "0.8.6"
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
