@@ -1,10 +1,5 @@
 use crate::{
-    auth_n::certificates,
-    extract::{
-        bearer_token::AuthBearer,
-        path_tenant::{ProjectIdentifier, TenantIdentifier},
-    },
-    route_path::project_path,
+    auth_n::certificates, extract::bearer_token::AuthBearer, route_path::project_path,
     services::AppState,
 };
 use axum::{
@@ -13,7 +8,6 @@ use axum::{
     middleware::Next,
     response::{IntoResponse as _, Response},
 };
-use axum_extra::extract::Cached;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
