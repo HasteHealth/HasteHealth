@@ -1,7 +1,7 @@
 use crate::{
     ServerEnvironmentVariables,
     auth_n::{
-        middleware::jwt::derive_well_known_url,
+        middleware::jwt::derive_well_known_openid_configuration_url,
         oidc::routes::discovery::create_oidc_discovery_document,
     },
     fhir_client::middleware::operations::ServerOperationContext,
@@ -105,8 +105,12 @@ pub fn endpoint_metadata_op<
                         },
                         oidc_discovery_url: FHIRUri {
                             value: Some(
-                                derive_well_known_url(&api_url_string, &tenant, &project)?
-                                    .to_string(),
+                                derive_well_known_openid_configuration_url(
+                                    &api_url_string,
+                                    &tenant,
+                                    &project,
+                                )?
+                                .to_string(),
                             ),
                             ..Default::default()
                         },

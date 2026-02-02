@@ -52,13 +52,41 @@ fn validate_jwt(token: &str) -> Result<UserTokenClaims, StatusCode> {
     Ok(result.claims)
 }
 
-pub fn derive_well_known_url(
+pub fn derive_well_known_openid_configuration_url(
     api_url: &str,
     tenant: &TenantId,
     project: &ProjectId,
 ) -> Result<Url, OperationOutcomeError> {
     let path = PathBuf::from("/.well-known/openid-configuration");
 
+    if let Ok(api_url) = Url::parse(&api_url) {
+        api_url
+            .join(
+                path.join(project_path(tenant, project).strip_prefix("/").unwrap())
+                    .to_str()
+                    .unwrap_or_default(),
+            )
+            .map_err(|e| {
+                tracing::error!("Failed to derive well-known URL: {:?}", e);
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Invalid API URL configured".to_string(),
+                )
+            })
+    } else {
+        Err(OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Invalid API URL configured".to_string(),
+        ))
+    }
+}
+
+pub fn derive_protected_resource_metadata_url(
+    api_url: &str,
+    tenant: &TenantId,
+    project: &ProjectId,
+) -> Result<Url, OperationOutcomeError> {
+    let path = PathBuf::from("/.well-known/oauth-protected-resource");
     if let Ok(api_url) = Url::parse(&api_url) {
         api_url
             .join(
@@ -92,7 +120,8 @@ fn invalid_jwt_response(
         status_code
     );
 
-    let Ok(well_known_url) = derive_well_known_url(api_url, tenant, project) else {
+    let Ok(well_known_url) = derive_protected_resource_metadata_url(api_url, tenant, project)
+    else {
         return (status_code).into_response();
     };
 

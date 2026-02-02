@@ -223,10 +223,15 @@ pub async fn oauth_protected_resource<
         Scopes::try_from("openid profile user/*.* offline_access").unwrap_or_default();
 
     let oauth_protected_resource = OAuthProtectedResourceDocument {
-        resource: project_path(&tenant, &project)
-            .join(&resource)
-            .to_str()
-            .unwrap_or_default()
+        resource: api_url
+            .join(
+                &project_path(&tenant, &project)
+                    .join(&resource)
+                    .to_str()
+                    .unwrap_or_default()
+                    .to_string(),
+            )
+            .unwrap()
             .to_string(),
         authorization_servers: Some(vec![
             api_url
