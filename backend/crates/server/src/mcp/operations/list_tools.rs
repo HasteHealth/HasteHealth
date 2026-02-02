@@ -2,7 +2,6 @@ use crate::{
     fhir_client::ServerCTX,
     mcp::{
         error::MCPError,
-        operations::ToolOperations,
         request::ListToolsRequest,
         schemas::schema_2025_11_25::{ListToolsResult, Tool},
     },
@@ -70,7 +69,6 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
     let input_schema = json!({
       "type": "object",
       "properties": {
-        "operation": { "const": ToolOperations::Search },
         "resourceType": {
           "type": "string",
           "enum": resource_capabilities.iter().map(|rc| {
@@ -112,11 +110,11 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
         icons: vec![],
         input_schema,
         meta: None,
-        name: "FHIR Resource Search Tool".to_string(),
+        name: "fhir_r4_search".to_string(),
         output_schema: Some(haste_sd_to_json_schema::bundle_of_resource(json!({
             "type": "object"
         }))),
-        title: Some("FHIR Resource Search Tool".to_string()),
+        title: Some("fhir_r4_search".to_string()),
     }
 }
 

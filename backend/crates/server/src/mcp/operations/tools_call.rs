@@ -15,14 +15,10 @@ use haste_repository::Repository;
 use std::{collections::HashMap, sync::Arc};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-#[serde(tag = "operation")]
-enum Arguments {
-    #[serde(rename = "search")]
-    FHIRSearch {
-        #[serde(rename = "resourceType")]
-        resource_type: String,
-        search_parameters: Option<HashMap<String, String>>,
-    },
+struct FHIRSearchArguments {
+    #[serde(rename = "resourceType")]
+    resource_type: String,
+    search_parameters: Option<HashMap<String, String>>,
 }
 
 pub async fn tools_call<
@@ -33,21 +29,21 @@ pub async fn tools_call<
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     request: CallToolRequest,
 ) -> Result<CallToolResult, MCPError<serde_json::Value>> {
-    let operation = serde_json::from_value::<Arguments>(
-        request.params.arguments.unwrap_or_default(),
-    )
-    .map_err(|e| {
-        OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            format!("Failed to parse tool arguments: '{}'", e.to_string()),
-        )
-    })?;
+    let content: String = match request.params.name.as_str() {
+        "fhir_r4_search" => {
+            let FHIRSearchArguments {
+                resource_type,
+                search_parameters,
+            } = serde_json::from_value::<FHIRSearchArguments>(
+                request.params.arguments.unwrap_or_default(),
+            )
+            .map_err(|e| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!("Failed to parse tool arguments: '{}'", e.to_string()),
+                )
+            })?;
 
-    let content: String = match operation {
-        Arguments::FHIRSearch {
-            resource_type,
-            search_parameters,
-        } => {
             let resource_type =
                 ResourceType::try_from(resource_type.as_str()).map_err(|_| MCPError {
                     id: request.id.clone(),
@@ -85,6 +81,17 @@ pub async fn tools_call<
             })?;
 
             result
+        }
+        _ => {
+            return Err(MCPError {
+                id: request.id.clone(),
+                jsonrpc: "2.0".to_string(),
+                error: MCPErrorDetail {
+                    code: 400,
+                    message: "Unknown tool name".to_string(),
+                    data: None,
+                },
+            });
         }
     };
 
