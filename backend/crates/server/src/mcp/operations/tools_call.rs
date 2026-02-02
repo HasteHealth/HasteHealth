@@ -2,6 +2,9 @@ use crate::{
     fhir_client::ServerCTX,
     mcp::{
         error::{MCPError, MCPErrorDetail},
+        operations::{
+            GET_SEARCH_PARAMETERS_TOOL_NAME, R4_SEARCH_TOOL_NAME, search_tool_parameters,
+        },
         request::CallToolRequest,
         schemas::schema_2025_11_25::{CallToolResult, ContentBlock, TextContent, TextContentMeta},
     },
@@ -29,8 +32,8 @@ pub async fn tools_call<
     ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
     request: CallToolRequest,
 ) -> Result<CallToolResult, MCPError<serde_json::Value>> {
-    let content: String = match request.params.name.as_str() {
-        "fhir_r4_search" => {
+    match request.params.name.as_str() {
+        R4_SEARCH_TOOL_NAME => {
             let FHIRSearchArguments {
                 resource_type,
                 search_parameters,
@@ -80,37 +83,84 @@ pub async fn tools_call<
                 )
             })?;
 
-            result
+            Ok(CallToolResult {
+                structured_content: Some(
+                    serde_json::from_str::<serde_json::Value>(&result).map_err(|e| {
+                        OperationOutcomeError::error(
+                            IssueType::Processing(None),
+                            format!("Failed to parse search result JSON: '{}'", e.to_string()),
+                        )
+                    })?,
+                ),
+                content: vec![ContentBlock::TextContent(TextContent {
+                    annotations: None,
+                    meta: Some(TextContentMeta {}),
+                    text: result,
+                    type_: "text".to_string(),
+                })],
+                is_error: Some(false),
+                meta: None,
+            })
         }
-        _ => {
-            return Err(MCPError {
-                id: request.id.clone(),
-                jsonrpc: "2.0".to_string(),
-                error: MCPErrorDetail {
-                    code: 400,
-                    message: "Unknown tool name".to_string(),
-                    data: None,
-                },
-            });
-        }
-    };
 
-    Ok(CallToolResult {
-        structured_content: Some(serde_json::from_str::<serde_json::Value>(&content).map_err(
-            |e| {
-                OperationOutcomeError::error(
-                    IssueType::Processing(None),
-                    format!("Failed to parse search result JSON: '{}'", e.to_string()),
-                )
+        GET_SEARCH_PARAMETERS_TOOL_NAME => {
+            let capabilities = ctx.client.capabilities(ctx.clone()).await?;
+            let resource_capability_statment = capabilities
+                .rest
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|rest| rest.resource)
+                .flatten()
+                .find(|r| {
+                    let rc_type: Option<String> = r.type_.as_ref().into();
+                    rc_type.unwrap_or_default()
+                        == request
+                            .params
+                            .arguments
+                            .as_ref()
+                            .and_then(|args| args.get("resourceType"))
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_default()
+                });
+
+            let Some(resource_capability_statment_params) = resource_capability_statment
+                .as_ref()
+                .and_then(|rc| rc.searchParam.as_ref())
+            else {
+                return Err(MCPError {
+                    id: request.id.clone(),
+                    jsonrpc: "2.0".to_string(),
+                    error: MCPErrorDetail {
+                        code: 400,
+                        message: "Invalid resourceType could not find search parameters"
+                            .to_string(),
+                        data: None,
+                    },
+                });
+            };
+
+            let parameters = search_tool_parameters(resource_capability_statment_params);
+
+            Ok(CallToolResult {
+                content: vec![ContentBlock::TextContent(TextContent {
+                    annotations: None,
+                    meta: Some(TextContentMeta {}),
+                    text: serde_json::to_string(&parameters).unwrap_or_default(),
+                    type_: "text".to_string(),
+                })],
+                structured_content: Some(parameters),
+                is_error: Some(false),
+                meta: None,
+            })
+        }
+        _ => Err(MCPError {
+            id: request.id.clone(),
+            jsonrpc: "2.0".to_string(),
+            error: MCPErrorDetail {
+                code: 400,
+                message: "Unknown tool name".to_string(),
+                data: None,
             },
-        )?),
-        content: vec![ContentBlock::TextContent(TextContent {
-            annotations: None,
-            meta: Some(TextContentMeta {}),
-            text: content,
-            type_: "text".to_string(),
-        })],
-        is_error: Some(false),
-        meta: None,
-    })
+        }),
+    }
 }

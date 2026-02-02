@@ -17,6 +17,9 @@ use haste_repository::Repository;
 use serde_json::json;
 use std::sync::Arc;
 
+pub const R4_SEARCH_TOOL_NAME: &str = "fhir_r4_search";
+pub const GET_SEARCH_PARAMETERS_TOOL_NAME: &str = "fhir_r4_get_search_parameters";
+
 pub fn search_tool_parameters(
     capability_search_params: &Vec<CapabilityStatementRestResourceSearchParam>,
 ) -> serde_json::Value {
@@ -52,7 +55,10 @@ pub fn search_tool_parameters(
         }
     }
 
-    serde_json::Value::Object(properties)
+    json!({
+        "type": "object",
+        "properties": serde_json::Value::Object(properties),
+    })
 }
 
 fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
@@ -75,30 +81,16 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
               let resource_type: Option<String> = rc.type_.as_ref().into();
               resource_type.unwrap_or_default()
           }).collect::<Vec<String>>(),
-        }
+        },
+        "search_parameters": {
+          "type": "object",
+          "description": format!(
+            "Search parameters for the FHIR resource type being queried. Use the '{}' tool to discover available search parameters for each resource type.",
+           GET_SEARCH_PARAMETERS_TOOL_NAME),
+        },
       },
-      "required": ["resourceType"],
-      "oneOf" : resource_capabilities.iter().map(|rc| {
-          let resource_type: Option<String> = rc.type_.as_ref().into();
-          let resource_type = resource_type.unwrap_or_default();
-          json!({
-              "if": {
-                  "properties": {
-                      "resourceType": { "const": resource_type }
-                  }
-              },
-              "then": {
-                  "properties": {
-                      "search_parameters": {
-                          "type": "object",
-                          "properties": search_tool_parameters(
-                              rc.searchParam.as_ref().unwrap_or(&vec![])
-                          ),
-                      }
-                  }
-              }
-          })
-      }).collect::<Vec<serde_json::Value>>()
+      "required": ["resourceType"]
+
     });
 
     Tool {
@@ -110,11 +102,54 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
         icons: vec![],
         input_schema,
         meta: None,
-        name: "fhir_r4_search".to_string(),
+        name: R4_SEARCH_TOOL_NAME.to_string(),
         output_schema: Some(haste_sd_to_json_schema::bundle_of_resource(json!({
             "type": "object"
         }))),
-        title: Some("fhir_r4_search".to_string()),
+        title: Some(R4_SEARCH_TOOL_NAME.to_string()),
+    }
+}
+
+fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> Tool {
+    let default_ = vec![];
+    let resource_capabilities = capabilities
+        .rest
+        .as_ref()
+        .unwrap_or(&default_)
+        .into_iter()
+        .filter_map(|r| r.resource.as_ref())
+        .flatten()
+        .collect::<Vec<_>>();
+
+    let input_schema = json!({
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "type": "string",
+          "enum": resource_capabilities.iter().map(|rc| {
+              let resource_type: Option<String> = rc.type_.as_ref().into();
+              resource_type.unwrap_or_default()
+          }).collect::<Vec<String>>(),
+        },
+      },
+      "required": ["resourceType"]
+    });
+
+    Tool {
+        annotations: None,
+        description: Some(format!(
+            "Tool to get available search parameters for a given FHIR Resource Type",
+        )),
+        execution: None,
+        icons: vec![],
+        input_schema,
+        meta: None,
+        name: GET_SEARCH_PARAMETERS_TOOL_NAME.to_string(),
+        output_schema: Some(json!({
+            "type": "object",
+            "description": "JSON Schema describing the available search parameters for the specified FHIR Resource Type",
+        })),
+        title: Some(GET_SEARCH_PARAMETERS_TOOL_NAME.to_string()),
     }
 }
 
@@ -128,9 +163,10 @@ pub async fn list_tools<
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
     let capabilities = ctx.client.capabilities(ctx.clone()).await?;
     let search_tool = generate_search_schema(&capabilities);
+    let get_search_parameters_tool = generate_get_search_parameters_tool(&capabilities);
 
     Ok(ListToolsResult {
-        tools: vec![search_tool],
+        tools: vec![search_tool, get_search_parameters_tool],
         meta: None,
         next_cursor: None,
     })
