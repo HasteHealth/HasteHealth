@@ -8,8 +8,8 @@ use crate::{
     services::AppState,
 };
 use axum::{
-    extract::{Request, State},
-    http::{HeaderMap, StatusCode},
+    extract::{OriginalUri, Request, State},
+    http::{HeaderMap, StatusCode, Uri},
     middleware::Next,
     response::{IntoResponse as _, Response},
 };
@@ -82,15 +82,14 @@ pub fn derive_well_known_openid_configuration_url(
 }
 
 pub fn derive_protected_resource_metadata_url(
+    resource_uri: &Uri,
     api_url: &str,
-    tenant: &TenantId,
-    project: &ProjectId,
 ) -> Result<Url, OperationOutcomeError> {
     let path = PathBuf::from("/.well-known/oauth-protected-resource");
     if let Ok(api_url) = Url::parse(&api_url) {
-        api_url
+        let tenant_url = api_url
             .join(
-                path.join(project_path(tenant, project).strip_prefix("/").unwrap())
+                path.join(resource_uri.path().strip_prefix("/").unwrap_or_default())
                     .to_str()
                     .unwrap_or_default(),
             )
@@ -100,7 +99,9 @@ pub fn derive_protected_resource_metadata_url(
                     IssueType::Invalid(None),
                     "Invalid API URL configured".to_string(),
                 )
-            })
+            })?;
+
+        Ok(tenant_url)
     } else {
         Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
@@ -109,18 +110,13 @@ pub fn derive_protected_resource_metadata_url(
     }
 }
 
-fn invalid_jwt_response(
-    api_url: &str,
-    tenant: &TenantId,
-    project: &ProjectId,
-    status_code: StatusCode,
-) -> Response {
+fn invalid_jwt_response(uri: &Uri, api_url: &str, status_code: StatusCode) -> Response {
     tracing::warn!(
         "Invalid JWT token provided in request sending '{}'",
         status_code
     );
 
-    let Ok(well_known_url) = derive_protected_resource_metadata_url(api_url, tenant, project)
+    let Ok(protected_resource_metadata_url) = derive_protected_resource_metadata_url(uri, api_url)
     else {
         return (status_code).into_response();
     };
@@ -130,7 +126,7 @@ fn invalid_jwt_response(
         axum::http::header::WWW_AUTHENTICATE,
         format!(
             r#"Bearer resource_metadata="{}""#,
-            well_known_url.to_string()
+            protected_resource_metadata_url.to_string()
         )
         .parse()
         .unwrap(),
@@ -143,25 +139,23 @@ pub async fn token_verifcation<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     // run the `HeaderMap` extractor
     AuthBearer(token): AuthBearer,
     // you can also add more extractors here but the last
     // extractor must implement `FromRequest` which
     // `Request` does
+    OriginalUri(uri): OriginalUri,
     mut request: Request,
     next: Next,
 ) -> Result<Response, Response> {
     let Some(token) = token else {
         return Err(invalid_jwt_response(
+            &uri,
             &state
                 .config
                 .get(crate::ServerEnvironmentVariables::APIURI)
                 .unwrap_or_default(),
-            &tenant,
-            &project,
             StatusCode::UNAUTHORIZED,
         ));
     };
@@ -173,12 +167,11 @@ pub async fn token_verifcation<
         }
         Err(status_code) => match status_code {
             StatusCode::UNAUTHORIZED => Err(invalid_jwt_response(
+                &uri,
                 &state
                     .config
                     .get(crate::ServerEnvironmentVariables::APIURI)
                     .unwrap_or_default(),
-                &tenant,
-                &project,
                 status_code,
             )),
             _ => Err((status_code).into_response()),
