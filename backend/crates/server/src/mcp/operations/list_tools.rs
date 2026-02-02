@@ -68,6 +68,7 @@ fn generate_search_schema(capabilities: &CapabilityStatement) -> Tool {
         .collect::<Vec<_>>();
 
     let input_schema = json!({
+      "type": "object",
       "properties": {
         "operation": { "const": ToolOperations::Search },
         "resourceType": {

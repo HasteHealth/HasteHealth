@@ -19,6 +19,7 @@ use std::{collections::HashMap, sync::Arc};
 enum Arguments {
     #[serde(rename = "search")]
     FHIRSearch {
+        #[serde(rename = "resourceType")]
         resource_type: String,
         search_parameters: Option<HashMap<String, String>>,
     },
