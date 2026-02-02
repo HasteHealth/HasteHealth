@@ -108,6 +108,16 @@ password: `testing_password`
     └── yarn.lock
 ```
 
+## RFCs (Request for Comments)
+
+For large feature requests submit RFCS the following is a guide for viewing/submitting RFCs:
+
+RFCs can be written [here](https://github.com/HasteHealth/HasteHealth/tree/main/frontend/packages/website/docs/rfc/proposals).
+
+They should follow the format specified [here](https://github.com/HasteHealth/HasteHealth/blob/main/frontend/packages/website/docs/rfc/format.mdx).
+
+RFCs can be read [here](https://haste.health/docs/category/rfcs)
+
 ## Performance
 
 Using `wrk` for performance testing.

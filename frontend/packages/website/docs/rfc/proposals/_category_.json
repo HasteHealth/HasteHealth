@@ -1,0 +1,7 @@
+{
+    "label": "RFCs",
+    "link": {
+        "type": "generated-index",
+        "description": "Request for Comments (RFC) proposals for Haste Health."
+    }
+}
