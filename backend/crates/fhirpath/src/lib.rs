@@ -796,7 +796,22 @@ async fn evaluate_operation<'a>(
         Operation::Contains(_left, _right) => {
             Err(FHIRPathError::NotImplemented("Contains".to_string()))
         }
-        Operation::XOr(_left, _right) => Err(FHIRPathError::NotImplemented("XOr".to_string())),
+        Operation::XOr(left, right) => {
+            operation_1(left, right, context, config, |left, right| {
+                let left_value = downcast_bool(left.values[0])?;
+                let right_value = downcast_bool(right.values[0])?;
+
+                Ok(
+                    left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
+                        FHIRBoolean {
+                            value: Some(left_value ^ right_value),
+                            ..Default::default()
+                        },
+                    )))]),
+                )
+            })
+            .await
+        }
         Operation::Implies(_left, _right) => {
             Err(FHIRPathError::NotImplemented("Implies".to_string()))
         }
