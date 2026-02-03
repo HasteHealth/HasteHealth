@@ -30,6 +30,11 @@ pub enum QueryBuildError {
     UnsupportedSortParameter(String),
     #[error(
         code = "not-supported",
+        diagnostic = "Unsupported modifier parameter: '{arg0}'"
+    )]
+    UnsupportedModifier(String),
+    #[error(
+        code = "not-supported",
         diagnostic = "Parameter value '{arg0}' is not supported for this search type."
     )]
     UnsupportedParameterValue(String),

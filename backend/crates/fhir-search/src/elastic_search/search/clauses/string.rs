@@ -7,24 +7,51 @@ pub fn string(
     parsed_parameter: &Parameter,
     search_param: &SearchParameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    let string_params = parsed_parameter
-        .value
-        .iter()
-        .map(|value| {
+    match parsed_parameter.modifier.as_ref().map(|m| m.as_str()) {
+        Some("exact") => {
+            let string_params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    Ok(json!({
+                        "match_phrase":{
+                            search_param.url.value.as_ref().unwrap(): {
+                                "query": value,
+                                "analyzer": "keyword"
+                            }
+                        }
+                    }))
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
             Ok(json!({
-                "prefix":{
-                    search_param.url.value.as_ref().unwrap(): {
-                        "value": value,
-                        "case_insensitive": true
-                    }
+                "bool": {
+                    "should": string_params
                 }
             }))
-        })
-        .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
-
-    Ok(json!({
-        "bool": {
-            "should": string_params
         }
-    }))
+        Some(modifier) => Err(QueryBuildError::UnsupportedModifier(modifier.to_string())),
+        None => {
+            let string_params = parsed_parameter
+                .value
+                .iter()
+                .map(|value| {
+                    Ok(json!({
+                        "prefix":{
+                            search_param.url.value.as_ref().unwrap(): {
+                                "value": value,
+                                "case_insensitive": true
+                            }
+                        }
+                    }))
+                })
+                .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
+
+            Ok(json!({
+                "bool": {
+                    "should": string_params
+                }
+            }))
+        }
+    }
 }
