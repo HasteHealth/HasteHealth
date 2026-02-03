@@ -175,6 +175,10 @@ const config: Config = {
               label: "Report an Issue",
               href: "https://github.com/hastehealth/hastehealth/issues",
             },
+            {
+              label: "Request a Feature",
+              href: "/docs/rfc/how_to_submit",
+            },
             // {
             //   label: "Stack Overflow",
             //   href: "https://stackoverflow.com/questions/tagged/docusaurus",
