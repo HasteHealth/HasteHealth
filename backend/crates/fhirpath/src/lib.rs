@@ -1476,6 +1476,24 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn xor_operation() {
+        let engine = FPEngine::new();
+        let result = engine.evaluate("true xor true", vec![]).await.unwrap();
+
+        for r in result.iter() {
+            let b: bool = r
+                .as_any()
+                .downcast_ref::<FHIRBoolean>()
+                .unwrap()
+                .value
+                .unwrap()
+                .clone();
+
+            assert_eq!(b, false);
+        }
+    }
+
+    #[tokio::test]
     async fn domain_resource_filter() {
         let engine = FPEngine::new();
 
