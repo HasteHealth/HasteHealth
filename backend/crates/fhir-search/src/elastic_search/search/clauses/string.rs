@@ -37,7 +37,10 @@ pub fn string(
                 .map(|value| {
                     Ok(json!({
                         "wildcard":{
-                            search_param.url.value.as_ref().unwrap(): format!("*{}*", value),
+                            search_param.url.value.as_ref().unwrap(): {
+                                "value": format!("*{}*", value),
+                                "case_insensitive": true
+                            }
                         }
                     }))
                 })

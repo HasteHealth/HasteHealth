@@ -1,0 +1,191 @@
+{
+    "id": "contains-modifier-patient",
+    "url": "https://haste.health/fhir/TestScript/bundle-contains-modifier",
+    "title": "Full url checks",
+    "name": "Bundle contains-modifier tests",
+    "status": "active",
+    "description": "Validate full url is present on search and hist requests.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "patient-chalmers",
+            "resourceType": "Patient",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "contains-modifier-test"
+                    }
+                ]
+            },
+            "name": [
+                {
+                    "family": "Chalmers",
+                    "given": [
+                        "Michael",
+                        "Peter"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-patient-create",
+            "resource": {
+                "reference": "#patient-chalmers",
+                "display": "Peter Chalmers"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-contains-modifier-checks",
+            "name": "Full url check.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "fixture-patient-create",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name=Peter&_tag=contains-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=et&_tag=contains-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=eit&_tag=contains-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=chae&_tag=contains-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=mic&_tag=contains-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "Patient",
+                        "params": "name:contains=pet&_tag=contains-modifier-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=contains-modifier-test",
+                    "resource": "Patient",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
