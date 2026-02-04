@@ -139,7 +139,7 @@ fn sort_build(
     }
 }
 
-// Handles :missing modifier for string + . For other modifiers, they are handled in their respective clause functions.
+// Handles :missing modifier for string,number,uri which have no nesting. For other modifiers, they are handled in their respective clause functions.
 fn simple_missing_modifier(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
