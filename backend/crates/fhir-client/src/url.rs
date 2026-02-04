@@ -250,9 +250,47 @@ impl TryFrom<&HashMap<String, String>> for ParsedParameters {
     }
 }
 
+pub fn parse_prefix<'a>(v: &'a str) -> (Option<&'a str>, &'a str) {
+    if v.len() < 3 {
+        return (None, v);
+    }
+
+    let sub_str = &v[..2];
+    let remainder = &v[2..];
+
+    match sub_str {
+        "lt" => (Some(sub_str), remainder),
+        "le" => (Some(sub_str), remainder),
+        "gt" => (Some(sub_str), remainder),
+        "ge" => (Some(sub_str), remainder),
+        "eq" => (Some(sub_str), remainder),
+        "ne" => (Some(sub_str), remainder),
+        _ => (None, v),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_parse_prefix() {
+        let cases = vec![
+            ("lt5.0", (Some("lt"), "5.0")),
+            ("le10", (Some("le"), "10")),
+            ("gt3.14", (Some("gt"), "3.14")),
+            ("ge2.71", (Some("ge"), "2.71")),
+            ("eq42", (Some("eq"), "42")),
+            ("ne0", (Some("ne"), "0")),
+            ("5.0", (None, "5.0")),
+            ("10", (None, "10")),
+        ];
+
+        for (input, expected) in cases {
+            let result = parse_prefix(input);
+            assert_eq!(result, expected, "Failed for input: {}", input);
+        }
+    }
 
     #[test]
     fn test_parse_parameters() {
