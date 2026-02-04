@@ -139,9 +139,8 @@ fn sort_build(
     }
 }
 
-// Handles :missing modifier. For other modifiers, they are handled in their respective clause functions.
-
-fn handle_missing_modifier(
+// Handles :missing modifier for string + . For other modifiers, they are handled in their respective clause functions.
+fn simple_missing_modifier(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
@@ -151,18 +150,33 @@ fn handle_missing_modifier(
     ) {
         return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
     }
+
+    let url = search_param
+        .url
+        .value
+        .as_ref()
+        .map(|v| v.as_str())
+        .unwrap_or_default();
+
+    let field_name = match search_param.type_.as_ref() {
+        SearchParamType::Uri(_) | SearchParamType::String(_) | SearchParamType::Number(_) => url,
+        _ => {
+            return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
+        }
+    };
+
     match parsed_parameter.value.as_slice() {
         [v] => match v.as_str() {
             "false" => Ok(json!({
                 "exists": {
-                    "field": search_param.url.value.as_ref().unwrap()
+                    "field": field_name
                 }
             })),
             "true" => Ok(json!({
                 "bool": {
                     "must_not": {
                         "exists": {
-                            "field": search_param.url.value.as_ref().unwrap()
+                            "field": field_name
                         }
                     }
                 }
@@ -183,10 +197,6 @@ fn parameter_to_elasticsearch_clauses(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
-    if parsed_parameter.modifier.as_deref() == Some("missing") {
-        return handle_missing_modifier(search_param, parsed_parameter);
-    }
-
     match search_param.type_.as_ref() {
         SearchParamType::Uri(_) => clauses::uri(parsed_parameter, search_param),
         SearchParamType::Quantity(_) => clauses::quantity(parsed_parameter, search_param),

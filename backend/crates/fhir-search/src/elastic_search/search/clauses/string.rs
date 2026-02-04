@@ -1,4 +1,4 @@
-use crate::elastic_search::search::QueryBuildError;
+use crate::elastic_search::search::{QueryBuildError, simple_missing_modifier};
 use haste_fhir_client::url::Parameter;
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
@@ -8,6 +8,7 @@ pub fn string(
     search_param: &SearchParameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
     match parsed_parameter.modifier.as_ref().map(|m| m.as_str()) {
+        Some("missing") => simple_missing_modifier(search_param, parsed_parameter),
         Some("exact") => {
             let string_params = parsed_parameter
                 .value
