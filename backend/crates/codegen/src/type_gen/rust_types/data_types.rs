@@ -86,7 +86,7 @@ fn get_reference_target_attribute(element: &ElementDefinition) -> TokenStream {
         let profiles = targets
             .iter()
             .filter_map(
-                |tp: &Box<haste_fhir_model::r4::generated::types::FHIRString>| tp.value.as_ref(),
+                |tp: &Box<haste_fhir_model::r4::generated::types::FHIRCanonical>| tp.value.as_ref(),
             )
             .filter_map(|tp| tp.split("/").last())
             .collect::<Vec<_>>();

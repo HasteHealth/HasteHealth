@@ -83,7 +83,7 @@ pub static FHIR_PRIMITIVES: LazyLock<HashMap<String, String>> = LazyLock::new(||
 
     // String type
     m.insert("base64Binary".to_string(), "FHIRBase64Binary".to_string());
-    m.insert("canonical".to_string(), "FHIRString".to_string());
+    m.insert("canonical".to_string(), "FHIRCanonical".to_string());
     m.insert("code".to_string(), "FHIRCode".to_string());
     m.insert("id".to_string(), "FHIRId".to_string());
     m.insert("markdown".to_string(), "FHIRMarkdown".to_string());

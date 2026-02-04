@@ -24,7 +24,7 @@ use haste_fhir_model::r4::{
             CapabilityStatementKind, FHIRVersion, IssueType, PublicationStatus, ResourceTypes,
             RestfulCapabilityMode, TypeRestfulInteraction, VersioningPolicy,
         },
-        types::{FHIRBoolean, FHIRCode, FHIRDateTime, FHIRString},
+        types::{FHIRBoolean, FHIRCanonical, FHIRCode, FHIRDateTime, FHIRString},
     },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -75,7 +75,7 @@ fn create_capability_rest_statement(
                 ),
             )
         })?),
-        profile: Some(Box::new(FHIRString {
+        profile: Some(Box::new(FHIRCanonical {
             value: sd.url.value,
             ..Default::default()
         })),
@@ -88,7 +88,7 @@ fn create_capability_rest_statement(
                         ..Default::default()
                     }),
                     definition: sp.url.value.clone().map(|v| {
-                        Box::new(FHIRString {
+                        Box::new(FHIRCanonical {
                             value: Some(v),
                             ..Default::default()
                         })

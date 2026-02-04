@@ -765,7 +765,7 @@ pub struct DataRequirementCodeFilter {
     pub searchParam: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The valueset for the code filter. The valueSet and code elements are additive. If valueSet is specified, the filter will return only those data items for which the value of the code-valued element specified in the path is a member of the specified valueset."]
-    pub valueSet: Option<Box<FHIRString>>,
+    pub valueSet: Option<Box<FHIRCanonical>>,
     #[doc = "The codes for the code filter. If values are given, the filter will return only those data items for which the code-valued attribute specified by the path has a value that is one of the specified codes. If codes are specified in addition to a value set, the filter returns items matching a code in the value set or one of the specified codes."]
     pub code: Option<Vec<Box<Coding>>>,
 }
@@ -856,7 +856,7 @@ pub struct DataRequirement {
     pub type_: Box<terminology::AllTypes>,
     #[primitive]
     #[doc = "The profile of the required data, specified as the uri of the profile definition."]
-    pub profile: Option<Vec<Box<FHIRString>>>,
+    pub profile: Option<Vec<Box<FHIRCanonical>>>,
     # [type_choice_variants (complex = ["subjectCodeableConcept" , "subjectReference"] , primitive = [])]
     #[doc = "The intended subjects of the data requirement. If this element is not provided, a Patient subject is assumed."]
     pub subject: Option<DataRequirementSubjectTypeChoice>,
@@ -1158,10 +1158,10 @@ pub struct ElementDefinitionType {
     pub code: Box<FHIRUri>,
     #[primitive]
     #[doc = "Identifies a profile structure or implementation Guide that applies to the datatype this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the type SHALL conform to at least one profile defined in the implementation guide."]
-    pub profile: Option<Vec<Box<FHIRString>>>,
+    pub profile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide."]
-    pub targetProfile: Option<Vec<Box<FHIRString>>>,
+    pub targetProfile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "If the type is a reference to another resource, how the resource is or can be aggregated - is it a contained resource, or a reference, and if the context is a bundle, is it included in the bundle."]
     pub aggregation: Option<Vec<Box<terminology::ResourceAggregationMode>>>,
@@ -1181,7 +1181,7 @@ pub struct ElementDefinitionType {
 pub enum ElementDefinitionDefaultValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -1247,7 +1247,7 @@ impl Default for ElementDefinitionDefaultValueTypeChoice {
 pub enum ElementDefinitionFixedTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -1313,7 +1313,7 @@ impl Default for ElementDefinitionFixedTypeChoice {
 pub enum ElementDefinitionPatternTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -1379,7 +1379,7 @@ impl Default for ElementDefinitionPatternTypeChoice {
 pub enum ElementDefinitionExampleValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -1540,7 +1540,7 @@ pub struct ElementDefinitionConstraint {
     pub xpath: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "A reference to the original source of the constraint, for traceability purposes."]
-    pub source: Option<Box<FHIRString>>,
+    pub source: Option<Box<FHIRCanonical>>,
 }
 #[derive(
     Clone,
@@ -1565,7 +1565,7 @@ pub struct ElementDefinitionBinding {
     pub description: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Refers to the value set that identifies the set of codes the binding refers to."]
-    pub valueSet: Option<Box<FHIRString>>,
+    pub valueSet: Option<Box<FHIRCanonical>>,
 }
 #[derive(
     Clone,
@@ -1751,7 +1751,7 @@ pub struct Expression {
 pub enum ExtensionValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -1952,7 +1952,7 @@ pub struct Meta {
     pub source: Option<Box<FHIRUri>>,
     #[primitive]
     #[doc = "A list of profiles (references to [StructureDefinition](structuredefinition.html#) resources) that this resource claims to conform to. The URL is a reference to [StructureDefinition.url](structuredefinition-definitions.html#StructureDefinition.url)."]
-    pub profile: Option<Vec<Box<FHIRString>>>,
+    pub profile: Option<Vec<Box<FHIRCanonical>>>,
     #[doc = "Security labels applied to this resource. These tags connect specific resources to the overall security policy and infrastructure."]
     pub security: Option<Vec<Box<Coding>>>,
     #[doc = "Tags applied to this resource. Tags are intended to be used to identify and relate resources to process and workflow, and applications are not required to consider the tags when interpreting the meaning of a resource."]
@@ -2039,7 +2039,7 @@ pub struct ParameterDefinition {
     pub type_: Box<terminology::AllTypes>,
     #[primitive]
     #[doc = "If specified, this indicates a profile that the input data must conform to, or that the output data will conform to."]
-    pub profile: Option<Box<FHIRString>>,
+    pub profile: Option<Box<FHIRCanonical>>,
 }
 #[derive(
     Clone,
@@ -2314,7 +2314,7 @@ pub struct RelatedArtifact {
     pub document: Option<Box<Attachment>>,
     #[primitive]
     #[doc = "The related resource, such as a library, value set, profile, or other knowledge resource."]
-    pub resource: Option<Box<FHIRString>>,
+    pub resource: Option<Box<FHIRCanonical>>,
 }
 #[derive(
     Clone,

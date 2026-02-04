@@ -692,13 +692,13 @@ pub struct ActivityDefinition {
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
     #[primitive]
     #[doc = "A reference to a Library resource containing any formal logic used by the activity definition."]
-    pub library: Option<Vec<Box<FHIRString>>>,
+    pub library: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "A description of the kind of resource the activity definition is representing. For example, a MedicationRequest, a ServiceRequest, or a CommunicationRequest. Typically, but not always, this is a Request resource."]
     pub kind: Option<Box<terminology::RequestResourceTypes>>,
     #[primitive]
     #[doc = "A profile to which the target of the activity definition is expected to conform."]
-    pub profile: Option<Box<FHIRString>>,
+    pub profile: Option<Box<FHIRCanonical>>,
     #[doc = "Detailed description of the type of activity; e.g. What lab test, what procedure, what kind of encounter."]
     pub code: Option<Box<CodeableConcept>>,
     #[primitive]
@@ -738,7 +738,7 @@ pub struct ActivityDefinition {
     pub observationResultRequirement: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "A reference to a StructureMap resource that defines a transform that can be executed to produce the intent resource using the ActivityDefinition instance as the input."]
-    pub transform: Option<Box<FHIRString>>,
+    pub transform: Option<Box<FHIRCanonical>>,
     #[doc = "Dynamic values that will be evaluated to produce values for elements of the resulting resource. For example, if the dosage of a medication must be computed based on the patient's weight, a dynamic value would be used to specify an expression that calculated the weight, and the path on the request resource that would contain the result."]
     pub dynamicValue: Option<Vec<ActivityDefinitionDynamicValue>>,
 }
@@ -2085,7 +2085,7 @@ pub struct CapabilityStatementRestResourceSearchParam {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "An absolute URI that is a formal reference to where this parameter was first defined, so that a client can be confident of the meaning of the search parameter (a reference to [SearchParameter.url](searchparameter-definitions.html#SearchParameter.url)). This element SHALL be populated if the search parameter refers to a SearchParameter defined by the FHIR core specification or externally defined IGs."]
-    pub definition: Option<Box<FHIRString>>,
+    pub definition: Option<Box<FHIRCanonical>>,
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of value a search parameter refers to, and how the content is interpreted."]
@@ -2116,7 +2116,7 @@ pub struct CapabilityStatementRestResourceOperation {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "Where the formal definition can be found. If a server references the base definition of an Operation (i.e. from the specification itself such as ```http://hl7.org/fhir/OperationDefinition/ValueSet-expand```), that means it supports the full capabilities of the operation - e.g. both GET and POST invocation.  If it only supports a subset, it must define its own custom [OperationDefinition](operationdefinition.html#) with a 'base' of the original OperationDefinition.  The custom definition would describe the specific subset of functionality supported."]
-    pub definition: Box<FHIRString>,
+    pub definition: Box<FHIRCanonical>,
     #[primitive]
     #[doc = "Documentation that describes anything special about the operation behavior, possibly detailing different behavior for system, type and instance-level invocation of the operation."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2144,10 +2144,10 @@ pub struct CapabilityStatementRestResource {
     pub type_: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A specification of the profile that describes the solution's overall support for the resource, including any constraints on cardinality, bindings, lengths or other limitations. See further discussion in [Using Profiles](profiling.html#profile-uses)."]
-    pub profile: Option<Box<FHIRString>>,
+    pub profile: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "A list of profiles that represent different use cases supported by the system. For a server, \"supported by the system\" means the system hosts/produces a set of resources that are conformant to a particular profile, and allows clients that use its services to search using this profile and to find appropriate data. For a client, it means the system will search by this profile and process data according to the guidance implicit in the profile. See further discussion in [Using Profiles](profiling.html#profile-uses)."]
-    pub supportedProfile: Option<Vec<Box<FHIRString>>>,
+    pub supportedProfile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "Additional information about the resource type used by the system."]
     pub documentation: Option<Box<FHIRMarkdown>>,
@@ -2247,7 +2247,7 @@ pub struct CapabilityStatementRest {
     pub operation: Option<Vec<CapabilityStatementRestResourceOperation>>,
     #[primitive]
     #[doc = "An absolute URI which is a reference to the definition of a compartment that the system supports. The reference is to a CompartmentDefinition resource by its canonical URL ."]
-    pub compartment: Option<Vec<Box<FHIRString>>>,
+    pub compartment: Option<Vec<Box<FHIRCanonical>>>,
 }
 #[derive(
     Clone,
@@ -2294,7 +2294,7 @@ pub struct CapabilityStatementMessagingSupportedMessage {
     pub mode: Box<terminology::EventCapabilityMode>,
     #[primitive]
     #[doc = "Points to a message definition that identifies the messaging event, message structure, allowed responses, etc."]
-    pub definition: Box<FHIRString>,
+    pub definition: Box<FHIRCanonical>,
 }
 #[derive(
     Clone,
@@ -2349,7 +2349,7 @@ pub struct CapabilityStatementDocument {
     pub documentation: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "A profile on the document Bundle that constrains which resources are present, and their contents."]
-    pub profile: Box<FHIRString>,
+    pub profile: Box<FHIRCanonical>,
 }
 #[derive(
     Clone,
@@ -2424,10 +2424,10 @@ pub struct CapabilityStatement {
     pub kind: Box<terminology::CapabilityStatementKind>,
     #[primitive]
     #[doc = "Reference to a canonical URL of another CapabilityStatement that this software implements. This capability statement is a published API description that corresponds to a business service. The server may actually implement a subset of the capability statement it claims to implement, so the capability statement must specify the full capability details."]
-    pub instantiates: Option<Vec<Box<FHIRString>>>,
+    pub instantiates: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "Reference to a canonical URL of another CapabilityStatement that this software adds to. The capability statement automatically includes everything in the other statement, and it is not duplicated, though the server may repeat the same resources, interactions and operations to add additional details to them."]
-    pub imports: Option<Vec<Box<FHIRString>>>,
+    pub imports: Option<Vec<Box<FHIRCanonical>>>,
     #[doc = "Software that is covered by this capability statement.  It is used when the capability statement describes the capabilities of a particular software version, independent of an installation."]
     pub software: Option<CapabilityStatementSoftware>,
     #[doc = "Identifies a specific implementation instance that is described by the capability statement - i.e. a particular installation, rather than the capabilities of a software program."]
@@ -2444,7 +2444,7 @@ pub struct CapabilityStatement {
     pub patchFormat: Option<Vec<Box<FHIRCode>>>,
     #[primitive]
     #[doc = "A list of implementation guides that the server does (or should) support in their entirety."]
-    pub implementationGuide: Option<Vec<Box<FHIRString>>>,
+    pub implementationGuide: Option<Vec<Box<FHIRCanonical>>>,
     #[doc = "A definition of the restful capabilities of the solution, if any."]
     pub rest: Option<Vec<CapabilityStatementRest>>,
     #[doc = "A description of the messaging capabilities of the solution."]
@@ -2512,7 +2512,7 @@ pub struct CarePlanActivityDetail {
     pub kind: Option<Box<terminology::CarePlanActivityKind>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan activity."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan activity."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -2618,7 +2618,7 @@ pub struct CarePlan {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, questionnaire or other definition that is adhered to in whole or in part by this CarePlan."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -2955,7 +2955,7 @@ pub struct ChargeItem {
     pub definitionUri: Option<Vec<Box<FHIRUri>>>,
     #[primitive]
     #[doc = "References the source of pricing information, rules of application for the code this ChargeItem uses."]
-    pub definitionCanonical: Option<Vec<Box<FHIRString>>>,
+    pub definitionCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The current state of the ChargeItem."]
     pub status: Box<terminology::ChargeitemStatus>,
@@ -3143,10 +3143,10 @@ pub struct ChargeItemDefinition {
     pub derivedFromUri: Option<Vec<Box<FHIRUri>>>,
     #[primitive]
     #[doc = "A larger definition of which this particular definition is a component or step."]
-    pub partOf: Option<Vec<Box<FHIRString>>>,
+    pub partOf: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "As new versions of a protocol or guideline are defined, allows identification of what versions are replaced by a new instance."]
-    pub replaces: Option<Vec<Box<FHIRString>>>,
+    pub replaces: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The current state of the ChargeItemDefinition."]
     pub status: Box<terminology::PublicationStatus>,
@@ -4753,7 +4753,7 @@ pub struct CodeSystem {
     pub caseSensitive: Option<Box<FHIRBoolean>>,
     #[primitive]
     #[doc = "Canonical reference to the value set that contains the entire code system."]
-    pub valueSet: Option<Box<FHIRString>>,
+    pub valueSet: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The meaning of the hierarchy of concepts as represented in this resource."]
     pub hierarchyMeaning: Option<Box<terminology::CodesystemHierarchyMeaning>>,
@@ -4768,7 +4768,7 @@ pub struct CodeSystem {
     pub content: Box<terminology::CodesystemContentMode>,
     #[primitive]
     #[doc = "The canonical URL of the code system that this code system supplement is adding designations and properties to."]
-    pub supplements: Option<Box<FHIRString>>,
+    pub supplements: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The total number of concepts defined by the code system. Where the code system has a compositional grammar, the basis of this count is defined by the system steward."]
     pub count: Option<Box<FHIRUnsignedInt>>,
@@ -4854,7 +4854,7 @@ pub struct Communication {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Communication."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Communication."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -5376,7 +5376,7 @@ pub struct Composition {
 #[type_choice_field_name = "source"]
 pub enum ConceptMapSourceTypeChoice {
     Uri(Box<FHIRUri>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
 }
 impl Default for ConceptMapSourceTypeChoice {
     fn default() -> Self {
@@ -5394,7 +5394,7 @@ impl Default for ConceptMapSourceTypeChoice {
 #[type_choice_field_name = "target"]
 pub enum ConceptMapTargetTypeChoice {
     Uri(Box<FHIRUri>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
 }
 impl Default for ConceptMapTargetTypeChoice {
     fn default() -> Self {
@@ -5423,7 +5423,7 @@ pub struct ConceptMapGroupElementTargetDependsOn {
     pub property: Box<FHIRUri>,
     #[primitive]
     #[doc = "An absolute URI that identifies the code system of the dependency code (if the source/dependency is a value set that crosses code systems)."]
-    pub system: Option<Box<FHIRString>>,
+    pub system: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "Identity (code or path) or the element/item/ValueSet/text that the map depends on / refers to."]
     pub value: Box<FHIRString>,
@@ -5519,7 +5519,7 @@ pub struct ConceptMapGroupUnmapped {
     pub display: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The canonical reference to an additional ConceptMap resource instance to use for mapping if this ConceptMap resource contains no matching mapping for the source concept."]
-    pub url: Option<Box<FHIRString>>,
+    pub url: Option<Box<FHIRCanonical>>,
 }
 #[derive(
     Clone,
@@ -8316,7 +8316,7 @@ pub struct DeviceRequest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this DeviceRequest."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this DeviceRequest."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -9875,7 +9875,7 @@ pub struct Evidence {
 pub enum EvidenceVariableCharacteristicDefinitionTypeChoice {
     # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     CodeableConcept(Box<CodeableConcept>),
     Expression(Box<Expression>),
     DataRequirement(Box<DataRequirement>),
@@ -10364,7 +10364,7 @@ pub struct ExampleScenario {
     pub process: Option<Vec<ExampleScenarioProcess>>,
     #[primitive]
     #[doc = "Another nested workflow."]
-    pub workflow: Option<Vec<Box<FHIRString>>>,
+    pub workflow: Option<Vec<Box<FHIRCanonical>>>,
 }
 #[derive(
     Clone,
@@ -11580,7 +11580,7 @@ pub struct FamilyMemberHistory {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this FamilyMemberHistory."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this FamilyMemberHistory."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -11891,7 +11891,7 @@ pub struct GraphDefinitionLinkTarget {
     pub params: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "Profile for the target resource."]
-    pub profile: Option<Box<FHIRString>>,
+    pub profile: Option<Box<FHIRCanonical>>,
     #[doc = "Compartment Consistency Rules."]
     pub compartment: Option<Vec<GraphDefinitionLinkTargetCompartment>>,
     #[doc = "Additional links from target resource."]
@@ -11999,7 +11999,7 @@ pub struct GraphDefinition {
     pub start: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "The profile that describes the use of the base resource."]
-    pub profile: Option<Box<FHIRString>>,
+    pub profile: Option<Box<FHIRCanonical>>,
     #[doc = "Links this graph makes rules about."]
     pub link: Option<Vec<GraphDefinitionLink>>,
 }
@@ -12147,7 +12147,7 @@ pub struct Group {
 #[type_choice_field_name = "module"]
 pub enum GuidanceResponseModuleTypeChoice {
     Uri(Box<FHIRUri>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     CodeableConcept(Box<CodeableConcept>),
 }
 impl Default for GuidanceResponseModuleTypeChoice {
@@ -13120,7 +13120,7 @@ pub struct ImplementationGuideDependsOn {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "A canonical reference to the Implementation guide for the dependency."]
-    pub uri: Box<FHIRString>,
+    pub uri: Box<FHIRCanonical>,
     #[primitive]
     #[doc = "The NPM package name for the Implementation Guide that this IG depends on."]
     pub packageId: Option<Box<FHIRId>>,
@@ -13151,7 +13151,7 @@ pub struct ImplementationGuideGlobal {
     pub type_: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A reference to the profile that all instances must conform to."]
-    pub profile: Box<FHIRString>,
+    pub profile: Box<FHIRCanonical>,
 }
 #[derive(
     Clone,
@@ -13188,7 +13188,7 @@ pub struct ImplementationGuideDefinitionGrouping {
 #[type_choice_field_name = "example"]
 pub enum ImplementationGuideDefinitionResourceExampleTypeChoice {
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
 }
 impl Default for ImplementationGuideDefinitionResourceExampleTypeChoice {
     fn default() -> Self {
@@ -13372,7 +13372,7 @@ pub struct ImplementationGuideDefinition {
 #[type_choice_field_name = "example"]
 pub enum ImplementationGuideManifestResourceExampleTypeChoice {
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
 }
 impl Default for ImplementationGuideManifestResourceExampleTypeChoice {
     fn default() -> Self {
@@ -14692,7 +14692,7 @@ pub struct Measure {
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
     #[primitive]
     #[doc = "A reference to a Library resource containing the formal logic used by the measure."]
-    pub library: Option<Vec<Box<FHIRString>>>,
+    pub library: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "Notices and disclaimers regarding the use of the measure or related to intellectual property (such as code systems) referenced by the measure."]
     pub disclaimer: Option<Box<FHIRMarkdown>>,
@@ -14917,7 +14917,7 @@ pub struct MeasureReport {
     pub type_: Box<terminology::MeasureReportType>,
     #[primitive]
     #[doc = "A reference to the Measure that was calculated to produce this report."]
-    pub measure: Box<FHIRString>,
+    pub measure: Box<FHIRCanonical>,
     # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "Location" , "Device" , "RelatedPerson" , "Group"])]
     #[doc = "Optional subject identifying the individual or individuals the report is for."]
     pub subject: Option<Box<Reference>>,
@@ -16307,7 +16307,7 @@ pub struct MedicationRequest {
     pub reasonReference: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The URL pointing to a protocol, guideline, orderset, or other definition that is adhered to in whole or in part by this MedicationRequest."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this MedicationRequest."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -17673,7 +17673,7 @@ pub struct MessageDefinitionFocus {
     pub code: Box<terminology::ResourceTypes>,
     #[primitive]
     #[doc = "A profile that reflects constraints for the focal resource (and potentially for related resources)."]
-    pub profile: Option<Box<FHIRString>>,
+    pub profile: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "Identifies the minimum number of resources of this type that must be pointed to by a message in order for it to be valid against this MessageDefinition."]
     pub min: Box<FHIRUnsignedInt>,
@@ -17700,7 +17700,7 @@ pub struct MessageDefinitionAllowedResponse {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "A reference to the message definition that must be adhered to by this supported response."]
-    pub message: Box<FHIRString>,
+    pub message: Box<FHIRCanonical>,
     #[primitive]
     #[doc = "Provides a description of the circumstances in which this response should be used (as opposed to one of the alternative responses)."]
     pub situation: Option<Box<FHIRMarkdown>>,
@@ -17751,7 +17751,7 @@ pub struct MessageDefinition {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "A MessageDefinition that is superseded by this definition."]
-    pub replaces: Option<Vec<Box<FHIRString>>>,
+    pub replaces: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The status of this message definition. Enables tracking the life-cycle of the content."]
     pub status: Box<terminology::PublicationStatus>,
@@ -17781,10 +17781,10 @@ pub struct MessageDefinition {
     pub copyright: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "The MessageDefinition that is the basis for the contents of this resource."]
-    pub base: Option<Box<FHIRString>>,
+    pub base: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "Identifies a protocol or workflow that this MessageDefinition represents a step in."]
-    pub parent: Option<Vec<Box<FHIRString>>>,
+    pub parent: Option<Vec<Box<FHIRCanonical>>>,
     # [type_choice_variants (complex = ["eventCoding"] , primitive = ["eventUri"])]
     #[doc = "Event code or link to the EventDefinition."]
     pub event: MessageDefinitionEventTypeChoice,
@@ -17800,7 +17800,7 @@ pub struct MessageDefinition {
     pub allowedResponse: Option<Vec<MessageDefinitionAllowedResponse>>,
     #[primitive]
     #[doc = "Canonical reference to a GraphDefinition. If a URL is provided, it is the canonical reference to a [GraphDefinition](graphdefinition.html) that it controls what resources are to be added to the bundle when building the document. The GraphDefinition can also specify profiles that apply to the various resources."]
-    pub graph: Option<Vec<Box<FHIRString>>>,
+    pub graph: Option<Vec<Box<FHIRCanonical>>>,
 }
 #[derive(
     Clone,
@@ -17967,7 +17967,7 @@ pub struct MessageHeader {
     pub focus: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "Permanent link to the MessageDefinition for this message."]
-    pub definition: Option<Box<FHIRString>>,
+    pub definition: Option<Box<FHIRCanonical>>,
 }
 #[derive(
     Clone,
@@ -18659,7 +18659,7 @@ pub struct NutritionOrder {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this NutritionOrder."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this NutritionOrder."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -19079,7 +19079,7 @@ pub struct OperationDefinitionParameterBinding {
     pub strength: Box<terminology::BindingStrength>,
     #[primitive]
     #[doc = "Points to the value set or external definition (e.g. implicit value set) that identifies the set of codes to be used."]
-    pub valueSet: Box<FHIRString>,
+    pub valueSet: Box<FHIRCanonical>,
 }
 #[derive(
     Clone,
@@ -19144,7 +19144,7 @@ pub struct OperationDefinitionParameter {
     pub type_: Option<Box<terminology::AllTypes>>,
     #[primitive]
     #[doc = "Used when the type is \"Reference\" or \"canonical\", and identifies a profile structure or implementation Guide that applies to the target of the reference this parameter refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide."]
-    pub targetProfile: Option<Vec<Box<FHIRString>>>,
+    pub targetProfile: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "How the parameter is understood as a search parameter. This is only used if the parameter type is 'string'."]
     pub searchType: Option<Box<terminology::SearchParamType>>,
@@ -19258,7 +19258,7 @@ pub struct OperationDefinition {
     pub comment: Option<Box<FHIRMarkdown>>,
     #[primitive]
     #[doc = "Indicates that this operation definition is a constraining profile on the base."]
-    pub base: Option<Box<FHIRString>>,
+    pub base: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The types on which this operation can be executed."]
     pub resource: Option<Vec<Box<terminology::ResourceTypes>>>,
@@ -19274,10 +19274,10 @@ pub struct OperationDefinition {
     pub instance: Box<FHIRBoolean>,
     #[primitive]
     #[doc = "Additional validation information for the in parameters - a single profile that covers all the parameters. The profile is a constraint on the parameters resource as a whole."]
-    pub inputProfile: Option<Box<FHIRString>>,
+    pub inputProfile: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "Additional validation information for the out parameters - a single profile that covers all the parameters. The profile is a constraint on the parameters resource."]
-    pub outputProfile: Option<Box<FHIRString>>,
+    pub outputProfile: Option<Box<FHIRCanonical>>,
     #[doc = "The parameters for the operation/query."]
     pub parameter: Option<Vec<OperationDefinitionParameter>>,
     #[doc = "Defines an appropriate combination of parameters to use when invoking this operation, to help code generators when generating overloaded parameter sets for this operation."]
@@ -19508,7 +19508,7 @@ pub struct OrganizationAffiliation {
 pub enum ParametersParameterValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -20323,7 +20323,7 @@ pub struct PlanDefinitionActionParticipant {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
 pub enum PlanDefinitionActionDefinitionTypeChoice {
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Uri(Box<FHIRUri>),
 }
 impl Default for PlanDefinitionActionDefinitionTypeChoice {
@@ -20436,7 +20436,7 @@ pub struct PlanDefinitionAction {
     pub definition: Option<PlanDefinitionActionDefinitionTypeChoice>,
     #[primitive]
     #[doc = "A reference to a StructureMap resource that defines a transform that can be executed to produce the intent resource using the ActivityDefinition instance as the input."]
-    pub transform: Option<Box<FHIRString>>,
+    pub transform: Option<Box<FHIRCanonical>>,
     #[doc = "Customizations that should be applied to the statically defined resource. For example, if the dosage of a medication must be computed based on the patient's weight, a customization would be used to specify an expression that calculated the weight, and the path on the resource that would contain the result."]
     pub dynamicValue: Option<Vec<PlanDefinitionActionDynamicValue>>,
     #[doc = "Sub actions that are contained within the action. The behavior of this action determines the functionality of the sub-actions. For example, a selection behavior of at-most-one indicates that of the sub-actions, at most one may be chosen as part of realizing the action definition."]
@@ -20547,7 +20547,7 @@ pub struct PlanDefinition {
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
     #[primitive]
     #[doc = "A reference to a Library resource containing any formal logic used by the plan definition."]
-    pub library: Option<Vec<Box<FHIRString>>>,
+    pub library: Option<Vec<Box<FHIRCanonical>>>,
     #[doc = "Goals that describe what the activities within the plan are intended to achieve. For example, weight loss, restoring an activity of daily living, obtaining herd immunity via immunization, meeting a process improvement objective, etc."]
     pub goal: Option<Vec<PlanDefinitionGoal>>,
     #[doc = "An action or group of actions to be taken as part of the plan."]
@@ -20858,7 +20858,7 @@ pub struct Procedure {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, order set or other definition that is adhered to in whole or in part by this Procedure."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, order set or other definition that is adhered to in whole or in part by this Procedure."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -21261,7 +21261,7 @@ pub struct QuestionnaireItem {
     pub maxLength: Option<Box<FHIRInteger>>,
     #[primitive]
     #[doc = "A reference to a value set containing a list of codes representing permitted answers for a \"choice\" or \"open-choice\" question."]
-    pub answerValueSet: Option<Box<FHIRString>>,
+    pub answerValueSet: Option<Box<FHIRCanonical>>,
     #[doc = "One of the permitted answers for a \"choice\" or \"open-choice\" question."]
     pub answerOption: Option<Vec<QuestionnaireItemAnswerOption>>,
     #[doc = "One or more values that should be pre-populated in the answer when initially rendering the questionnaire for user input."]
@@ -21315,7 +21315,7 @@ pub struct Questionnaire {
     pub title: Option<Box<FHIRString>>,
     #[primitive]
     #[doc = "The URL of a Questionnaire that this Questionnaire is based on."]
-    pub derivedFrom: Option<Vec<Box<FHIRString>>>,
+    pub derivedFrom: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The status of this questionnaire. Enables tracking the life-cycle of the content."]
     pub status: Box<terminology::PublicationStatus>,
@@ -21482,7 +21482,7 @@ pub struct QuestionnaireResponse {
     pub partOf: Option<Vec<Box<Reference>>>,
     #[primitive]
     #[doc = "The Questionnaire that defines and organizes the questions for which answers are being provided."]
-    pub questionnaire: Option<Box<FHIRString>>,
+    pub questionnaire: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The position of the questionnaire response within its overall lifecycle."]
     pub status: Box<terminology::QuestionnaireAnswersStatus>,
@@ -21780,7 +21780,7 @@ pub struct RequestGroup {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "A canonical URL referencing a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this request."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "A URL referencing an externally defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this request."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -21952,7 +21952,7 @@ pub struct ResearchDefinition {
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
     #[primitive]
     #[doc = "A reference to a Library resource containing the formal logic used by the ResearchDefinition."]
-    pub library: Option<Vec<Box<FHIRString>>>,
+    pub library: Option<Vec<Box<FHIRCanonical>>>,
     # [reference (targets = ["ResearchElementDefinition"])]
     #[doc = "A reference to a ResearchElementDefinition resource that defines the population for the research."]
     pub population: Box<Reference>,
@@ -21996,7 +21996,7 @@ impl Default for ResearchElementDefinitionSubjectTypeChoice {
 #[type_choice_field_name = "definition"]
 pub enum ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Expression(Box<Expression>),
     DataRequirement(Box<DataRequirement>),
 }
@@ -22210,7 +22210,7 @@ pub struct ResearchElementDefinition {
     pub relatedArtifact: Option<Vec<Box<RelatedArtifact>>>,
     #[primitive]
     #[doc = "A reference to a Library resource containing the formal logic used by the ResearchElementDefinition."]
-    pub library: Option<Vec<Box<FHIRString>>>,
+    pub library: Option<Vec<Box<FHIRCanonical>>>,
     #[rename_field = "type"]
     #[primitive]
     #[doc = "The type of research element, a population, an exposure, or an outcome."]
@@ -22898,7 +22898,7 @@ pub struct SearchParameterComponent {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The definition of the search parameter that describes this part."]
-    pub definition: Box<FHIRString>,
+    pub definition: Box<FHIRCanonical>,
     #[primitive]
     #[doc = "A sub-expression that defines how to extract values for this component from the output of the main SearchParameter.expression."]
     pub expression: Box<FHIRString>,
@@ -22943,7 +22943,7 @@ pub struct SearchParameter {
     pub name: Box<FHIRString>,
     #[primitive]
     #[doc = "Where this search parameter is originally defined. If a derivedFrom is provided, then the details in the search parameter must be consistent with the definition from which it is defined. i.e. the parameter should have the same meaning, and (usually) the functionality should be a proper subset of the underlying search parameter."]
-    pub derivedFrom: Option<Box<FHIRString>>,
+    pub derivedFrom: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The status of this search parameter. Enables tracking the life-cycle of the content."]
     pub status: Box<terminology::PublicationStatus>,
@@ -23099,7 +23099,7 @@ pub struct ServiceRequest {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this ServiceRequest."]
-    pub instantiatesCanonical: Option<Vec<Box<FHIRString>>>,
+    pub instantiatesCanonical: Option<Vec<Box<FHIRCanonical>>>,
     #[primitive]
     #[doc = "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this ServiceRequest."]
     pub instantiatesUri: Option<Vec<Box<FHIRUri>>>,
@@ -23880,7 +23880,7 @@ pub struct StructureDefinition {
     pub type_: Box<FHIRUri>,
     #[primitive]
     #[doc = "An absolute URI that is the base structure from which this type is derived, either by specialization or constraint."]
-    pub baseDefinition: Option<Box<FHIRString>>,
+    pub baseDefinition: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "How the type relates to the baseDefinition."]
     pub derivation: Option<Box<terminology::TypeDerivationRule>>,
@@ -23908,7 +23908,7 @@ pub struct StructureMapStructure {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "The canonical reference to the structure."]
-    pub url: Box<FHIRString>,
+    pub url: Box<FHIRCanonical>,
     #[primitive]
     #[doc = "How the referenced structure is used in this mapping."]
     pub mode: Box<terminology::MapModelMode>,
@@ -23962,7 +23962,7 @@ pub struct StructureMapGroupInput {
 pub enum StructureMapGroupRuleSourceDefaultValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -24322,7 +24322,7 @@ pub struct StructureMap {
     pub structure: Option<Vec<StructureMapStructure>>,
     #[primitive]
     #[doc = "Other maps used by this map (canonical URLs)."]
-    pub import: Option<Vec<Box<FHIRString>>>,
+    pub import: Option<Vec<Box<FHIRCanonical>>>,
     #[cardinality(min = 1usize)]
     #[doc = "Organizes the mapping into manageable chunks for human review/ease of maintenance."]
     pub group: Vec<StructureMapGroup>,
@@ -26140,7 +26140,7 @@ pub struct TaskRestriction {
 pub enum TaskInputValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -26230,7 +26230,7 @@ pub struct TaskInput {
 pub enum TaskOutputValueTypeChoice {
     Base64Binary(Box<FHIRBase64Binary>),
     Boolean(Box<FHIRBoolean>),
-    Canonical(Box<FHIRString>),
+    Canonical(Box<FHIRCanonical>),
     Code(Box<FHIRCode>),
     Date(Box<FHIRDate>),
     DateTime(Box<FHIRDateTime>),
@@ -26342,7 +26342,7 @@ pub struct Task {
     pub identifier_: Option<Vec<Box<Identifier>>>,
     #[primitive]
     #[doc = "The URL pointing to a *FHIR*-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Task."]
-    pub instantiatesCanonical: Option<Box<FHIRString>>,
+    pub instantiatesCanonical: Option<Box<FHIRCanonical>>,
     #[primitive]
     #[doc = "The URL pointing to an *externally* maintained  protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Task."]
     pub instantiatesUri: Option<Box<FHIRUri>>,
@@ -26548,7 +26548,7 @@ pub struct TerminologyCapabilitiesCodeSystem {
     pub modifierExtension: Option<Vec<Box<Extension>>>,
     #[primitive]
     #[doc = "URI for the Code System."]
-    pub uri: Option<Box<FHIRString>>,
+    pub uri: Option<Box<FHIRCanonical>>,
     #[doc = "For the code system, a list of versions that are supported by the server."]
     pub version: Option<Vec<TerminologyCapabilitiesCodeSystemVersion>>,
     #[primitive]
@@ -27150,7 +27150,7 @@ pub struct TestScriptMetadataCapability {
     pub link: Option<Vec<Box<FHIRUri>>>,
     #[primitive]
     #[doc = "Minimum capabilities required of server for test script to execute successfully.   If server does not meet at a minimum the referenced capability statement, then all tests in this script are skipped."]
-    pub capabilities: Box<FHIRString>,
+    pub capabilities: Box<FHIRCanonical>,
 }
 #[derive(
     Clone,
@@ -27753,7 +27753,7 @@ pub struct ValueSetComposeInclude {
     pub filter: Option<Vec<ValueSetComposeIncludeFilter>>,
     #[primitive]
     #[doc = "Selects the concepts found in this value set (based on its value set definition). This is an absolute URI that is a reference to ValueSet.url.  If multiple value sets are specified this includes the union of the contents of all of the referenced value sets."]
-    pub valueSet: Option<Vec<Box<FHIRString>>>,
+    pub valueSet: Option<Vec<Box<FHIRCanonical>>>,
 }
 #[derive(
     Clone,
