@@ -11,8 +11,6 @@ export default function DocItemWrapper(props: Props): ReactNode {
   // @ts-ignore
   const { enable_comments } = frontMatter;
 
-  console.log("enableComments:", enable_comments, frontMatter);
-
   return (
     <>
       <DocItem {...props} />
