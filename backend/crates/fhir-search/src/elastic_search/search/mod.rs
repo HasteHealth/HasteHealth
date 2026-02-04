@@ -139,10 +139,54 @@ fn sort_build(
     }
 }
 
+// Handles :missing modifier. For other modifiers, they are handled in their respective clause functions.
+
+fn handle_missing_modifier(
+    search_param: &SearchParameter,
+    parsed_parameter: &Parameter,
+) -> Result<serde_json::Value, QueryBuildError> {
+    if matches!(
+        search_param.type_.as_ref(),
+        SearchParamType::Composite(None)
+    ) {
+        return Err(QueryBuildError::UnsupportedModifier("missing".to_string()));
+    }
+    match parsed_parameter.value.as_slice() {
+        [v] => match v.as_str() {
+            "false" => Ok(json!({
+                "exists": {
+                    "field": search_param.url.value.as_ref().unwrap()
+                }
+            })),
+            "true" => Ok(json!({
+                "bool": {
+                    "must_not": {
+                        "exists": {
+                            "field": search_param.url.value.as_ref().unwrap()
+                        }
+                    }
+                }
+            })),
+            _ => Err(QueryBuildError::InvalidParameterValue(
+                parsed_parameter.name.clone(),
+            )),
+        },
+        _ => {
+            return Err(QueryBuildError::InvalidParameterValue(
+                parsed_parameter.name.clone(),
+            ));
+        }
+    }
+}
+
 fn parameter_to_elasticsearch_clauses(
     search_param: &SearchParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
+    if parsed_parameter.modifier.as_deref() == Some("missing") {
+        return handle_missing_modifier(search_param, parsed_parameter);
+    }
+
     match search_param.type_.as_ref() {
         SearchParamType::Uri(_) => clauses::uri(parsed_parameter, search_param),
         SearchParamType::Quantity(_) => clauses::quantity(parsed_parameter, search_param),
@@ -151,7 +195,9 @@ fn parameter_to_elasticsearch_clauses(
         SearchParamType::Token(_) => clauses::token(parsed_parameter, search_param),
         SearchParamType::Number(_) => clauses::number(parsed_parameter, search_param),
         SearchParamType::String(_) => clauses::string(parsed_parameter, search_param),
-        _ => todo!(),
+        _ => Err(QueryBuildError::UnsupportedParameter(
+            search_param.name.value.clone().unwrap_or_default(),
+        )),
     }
 }
 
