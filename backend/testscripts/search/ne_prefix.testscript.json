@@ -1,0 +1,130 @@
+{
+    "id": "ne-prefix-patient",
+    "url": "https://haste.health/fhir/TestScript/bundle-ne-prefix",
+    "title": "Full url checks",
+    "name": "Bundle ne-prefix tests",
+    "status": "active",
+    "description": "Validate full url is present on search and hist requests.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "id": "riskassessment-1",
+            "resourceType": "RiskAssessment",
+            "status": "final",
+            "subject": {
+                "reference": "Patient/patient-1"
+            },
+            "meta": {
+                "tag": [
+                    {
+                        "code": "ne-prefix-test"
+                    }
+                ]
+            },
+            "prediction": [
+                {
+                    "outcome": {
+                        "text": "Breast Cancer"
+                    },
+                    "probabilityDecimal": 85,
+                    "whenRange": {
+                        "low": {
+                            "value": 83,
+                            "unit": "years",
+                            "system": "http://unitsofmeasure.org",
+                            "code": "a"
+                        },
+                        "high": {
+                            "value": 88,
+                            "unit": "years",
+                            "system": "http://unitsofmeasure.org",
+                            "code": "a"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "fixture-riskassessment-1",
+            "resource": {
+                "reference": "#riskassessment-1"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "test": [
+        {
+            "id": "01-ne-prefix-checks",
+            "name": "Full url check.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "RiskAssessment",
+                        "sourceId": "fixture-riskassessment-1",
+                        "responseId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=85&_tag=ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "1",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=ne85&_tag=ne-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "params": "_tag=ne-prefix-test",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}
