@@ -129,11 +129,6 @@ async fn resource_to_elastic_index(
         if let Some(expression) = param.expression.as_ref().and_then(|e| e.value.as_ref())
             && let Some(url) = param.url.value.as_ref()
         {
-            println!(
-                "Evaluating FHIRPath expression: '{}' for resource.",
-                expression,
-            );
-
             let result = fp_engine
                 .evaluate(expression, vec![resource])
                 .await
@@ -152,11 +147,6 @@ async fn resource_to_elastic_index(
                 param,
                 result?.iter().collect::<Vec<_>>(),
             )?;
-
-            println!(
-                "Finished evaluating FHIRPath expression: '{}' for resource. Result: '{:?}'",
-                expression, result_vec
-            );
 
             map.insert(url.clone(), result_vec);
         }
