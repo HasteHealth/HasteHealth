@@ -2,7 +2,7 @@ use crate::{
     elastic_search::search::{QueryBuildError, simple_missing_modifier},
     indexing_conversion::get_decimal_range,
 };
-use haste_fhir_client::url::Parameter;
+use haste_fhir_client::url::{Parameter, parse_prefix};
 use haste_fhir_model::r4::generated::resources::SearchParameter;
 use serde_json::json;
 
@@ -22,22 +22,44 @@ pub fn number(
                 .value
                 .iter()
                 .map(|value| {
-                    let v = value
-                        .parse::<f64>()
-                        .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+                    let (prefix, value) = parse_prefix(value);
 
-                    let range = get_decimal_range(v);
-
-                    let k = json!({
-                        "range": {
-                            search_param.url.value.as_ref().unwrap(): {
-                                "gte": range.start,
-                                "lte": range.end
-                            }
+                    match prefix {
+                        Some("ne") => {
+                            let v = value.parse::<f64>().map_err(|_e| {
+                                QueryBuildError::InvalidParameterValue(value.to_string())
+                            })?;
+                            let range = get_decimal_range(v);
+                            Ok(json!({
+                                "bool": {
+                                    "must_not": {
+                                        "range": {
+                                            search_param.url.value.as_ref().unwrap(): {
+                                                "gte": range.start,
+                                                "lte": range.end
+                                            }
+                                        }
+                                    }
+                                }
+                            }))
                         }
-                    });
+                        Some("eq") | None => {
+                            let v = value.parse::<f64>().map_err(|_e| {
+                                QueryBuildError::InvalidParameterValue(value.to_string())
+                            })?;
 
-                    Ok(k)
+                            let range = get_decimal_range(v);
+
+                            Ok(json!({
+                                "range": {
+                                    search_param.url.value.as_ref().unwrap(): {
+                                        "gte": range.start,
+                                        "lte": range.end
+                                    }
+                                }
+                            }))
+                        }
+                    }
                 })
                 .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
 
