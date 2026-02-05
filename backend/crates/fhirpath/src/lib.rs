@@ -395,6 +395,7 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
 }
 
 fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
+    println!("Filtering by type: {}", type_name);
     context.new_context_from(
         context
             .values
@@ -1071,6 +1072,33 @@ mod tests {
             .collect();
 
         search_parameters
+    }
+
+    #[tokio::test]
+    async fn filter_typechoice_test() {
+        let patient = Patient {
+            id: Some("patient-id".to_string()),
+            deceased: Some(PatientDeceasedTypeChoice::Boolean(Box::new(FHIRBoolean {
+                value: Some(true),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        };
+
+        let engine = FPEngine::new();
+        let result = engine
+            .evaluate("(Patient.deceased.ofType(dateTime))", vec![&patient])
+            .await
+            .unwrap();
+
+        assert_eq!(result.values.len(), 1);
+        let value = result.values[0];
+        let boolean_value: &FHIRBoolean = value
+            .as_any()
+            .downcast_ref::<FHIRBoolean>()
+            .expect("Failed to downcast to FHIRBoolean");
+
+        assert_eq!(boolean_value.value, Some(true));
     }
 
     #[tokio::test]

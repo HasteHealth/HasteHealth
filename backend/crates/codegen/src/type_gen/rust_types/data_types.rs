@@ -279,7 +279,7 @@ fn process_leaf(
     }
 }
 
-fn process_complex(
+fn create_complex_struct(
     sd: &StructureDefinition,
     element: &ElementDefinition,
     children: Vec<TokenStream>,
@@ -331,7 +331,7 @@ fn generate_from_structure_definition(
             if children.len() == 0 {
                 process_leaf(&sd, element, &mut nested_types, inlined_terminology)
             } else {
-                process_complex(&sd, element, children, &mut nested_types)
+                create_complex_struct(&sd, element, children, &mut nested_types)
             }
         };
 
