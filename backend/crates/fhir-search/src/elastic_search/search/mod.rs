@@ -35,6 +35,12 @@ pub enum QueryBuildError {
     UnsupportedModifier(String),
     #[error(
         code = "not-supported",
+        diagnostic = "Prefix '{arg0}' is not supported for this search type."
+    )]
+    UnsupportedPrefix(String),
+
+    #[error(
+        code = "not-supported",
         diagnostic = "Parameter value '{arg0}' is not supported for this search type."
     )]
     UnsupportedParameterValue(String),

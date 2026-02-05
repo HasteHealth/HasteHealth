@@ -59,6 +59,7 @@ pub fn number(
                                 }
                             }))
                         }
+                        Some(prefix) => Err(QueryBuildError::UnsupportedPrefix(prefix.to_string())),
                     }
                 })
                 .collect::<Result<Vec<serde_json::Value>, QueryBuildError>>()?;
