@@ -7,7 +7,7 @@ use crate::{
 use dashmap::DashMap;
 pub use error::FHIRPathError;
 use haste_fhir_model::r4::generated::{
-    resources::ResourceType,
+    resources::{RUST_TO_FHIR_TYPE_MAP, ResourceType},
     types::{
         FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt,
         Reference,
@@ -373,9 +373,13 @@ fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
 }
 
 fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
-    match value.typename() {
+    let fhir_type_name = RUST_TO_FHIR_TYPE_MAP.get(value.typename());
+
+    println!("{} {:?}", value.typename(), fhir_type_name);
+
+    match fhir_type_name.map(|s| *s) {
         // Special handling for reference which is to check the reference type.
-        "Reference" => {
+        Some("Reference") => {
             if type_to_check == "Reference" {
                 return true;
             } else if let Some(reference) = value.as_any().downcast_ref::<Reference>() {
@@ -390,12 +394,12 @@ fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
             }
             false
         }
-        _ => check_type_name(value.typename(), type_to_check),
+        Some(fhir_type_name) => check_type_name(fhir_type_name, type_to_check),
+        None => false,
     }
 }
 
 fn filter_by_type<'a>(type_name: &str, context: &Context<'a>) -> Context<'a> {
-    println!("Filtering by type: {}", type_name);
     context.new_context_from(
         context
             .values
@@ -1024,13 +1028,16 @@ impl FPEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use haste_fhir_model::r4::generated::{
-        resources::{
-            Bundle, Patient, PatientDeceasedTypeChoice, PatientLink, Resource, SearchParameter,
-        },
-        types::{
-            Extension, ExtensionValueTypeChoice, FHIRString, FHIRUri, HumanName, Identifier,
-            Reference,
+    use haste_fhir_model::r4::{
+        datetime::DateTime,
+        generated::{
+            resources::{
+                Bundle, Patient, PatientDeceasedTypeChoice, PatientLink, Resource, SearchParameter,
+            },
+            types::{
+                Extension, ExtensionValueTypeChoice, FHIRDateTime, FHIRString, FHIRUri, HumanName,
+                Identifier, Reference,
+            },
         },
     };
     use haste_fhir_serialization_json;
@@ -1091,7 +1098,13 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(result.values.len(), 1);
+        assert_eq!(result.values.len(), 0);
+
+        let result = engine
+            .evaluate("(Patient.deceased.ofType(boolean))", vec![&patient])
+            .await
+            .unwrap();
+
         let value = result.values[0];
         let boolean_value: &FHIRBoolean = value
             .as_any()
@@ -1099,6 +1112,39 @@ mod tests {
             .expect("Failed to downcast to FHIRBoolean");
 
         assert_eq!(boolean_value.value, Some(true));
+
+        let patient = Patient {
+            id: Some("patient-id".to_string()),
+            deceased: Some(PatientDeceasedTypeChoice::DateTime(Box::new(
+                FHIRDateTime {
+                    value: Some(DateTime::Year(1980)),
+                    ..Default::default()
+                },
+            ))),
+            ..Default::default()
+        };
+
+        let result = engine
+            .evaluate("(Patient.deceased.ofType(boolean))", vec![&patient])
+            .await
+            .unwrap();
+
+        assert_eq!(result.values.len(), 0);
+
+        let result = engine
+            .evaluate("(Patient.deceased.ofType(dateTime))", vec![&patient])
+            .await
+            .unwrap();
+
+        assert_eq!(result.values.len(), 1);
+
+        let value = result.values[0];
+        let datetime_value: &FHIRDateTime = value
+            .as_any()
+            .downcast_ref::<FHIRDateTime>()
+            .expect("Failed to downcast to FHIRDateTime");
+
+        assert_eq!(datetime_value.value, Some(DateTime::Year(1980)));
     }
 
     #[tokio::test]
