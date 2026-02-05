@@ -284,8 +284,13 @@ fn create_complex_struct(
     element: &ElementDefinition,
     children: Vec<TokenStream>,
     types: &mut NestedTypes,
+    rust_type_name_to_fhir_type: &mut HashMap<String, String>,
 ) -> TokenStream {
     let interface_name = generate::struct_name(sd, element);
+    let fhir_type = extract::fhir_type(sd, element);
+
+    rust_type_name_to_fhir_type.insert(interface_name.clone(), fhir_type.clone());
+
     let i = format_ident!("{}", interface_name.clone());
     let description = extract::element_description(element);
 
@@ -323,6 +328,7 @@ fn create_complex_struct(
 fn generate_from_structure_definition(
     sd: &StructureDefinition,
     inlined_terminology: &HashMap<String, String>,
+    rust_type_name_to_fhir_type: &mut HashMap<String, String>,
 ) -> Result<TokenStream, String> {
     let mut nested_types = IndexMap::<String, TokenStream>::new();
 
@@ -331,7 +337,13 @@ fn generate_from_structure_definition(
             if children.len() == 0 {
                 process_leaf(&sd, element, &mut nested_types, inlined_terminology)
             } else {
-                create_complex_struct(&sd, element, children, &mut nested_types)
+                create_complex_struct(
+                    &sd,
+                    element,
+                    children,
+                    &mut nested_types,
+                    rust_type_name_to_fhir_type,
+                )
             }
         };
 
@@ -345,13 +357,14 @@ fn generate_from_structure_definition(
     Ok(generated_code)
 }
 
-pub struct GeneratedTypes {
+struct GeneratedTypes {
     resources: Vec<TokenStream>,
     types: Vec<TokenStream>,
     resource_types: Vec<String>,
+    rust_type_name_to_fhir_type: HashMap<String, String>,
 }
 
-pub fn generate_fhir_types_from_file(
+fn generate_fhir_types_from_file(
     file_path: &Path,
     level: Option<&'static str>,
     inlined_terminology: &HashMap<String, String>,
@@ -365,6 +378,7 @@ pub fn generate_fhir_types_from_file(
     let mut types = vec![];
     // let mut generated_code = vec![];
     let mut resource_types: Vec<String> = vec![];
+    let mut rust_type_name_to_fhir_type: HashMap<String, String> = HashMap::new();
 
     for sd in
         structure_definitions
@@ -379,9 +393,17 @@ pub fn generate_fhir_types_from_file(
     {
         if conditionals::is_resource_sd(&sd) {
             resource_types.push(sd.id.as_ref().unwrap().to_string());
-            resources.push(generate_from_structure_definition(sd, inlined_terminology)?);
+            resources.push(generate_from_structure_definition(
+                sd,
+                inlined_terminology,
+                &mut rust_type_name_to_fhir_type,
+            )?);
         } else {
-            types.push(generate_from_structure_definition(sd, inlined_terminology)?);
+            types.push(generate_from_structure_definition(
+                sd,
+                inlined_terminology,
+                &mut rust_type_name_to_fhir_type,
+            )?);
         }
     }
 
@@ -389,6 +411,7 @@ pub fn generate_fhir_types_from_file(
         resources,
         types,
         resource_types: resource_types,
+        rust_type_name_to_fhir_type,
     })
 }
 
@@ -509,6 +532,7 @@ pub fn generate(
         use std::io::Write;
     };
 
+    let mut rust_type_name_to_fhir_type: HashMap<String, String> = HashMap::new();
     let mut resource_types: Vec<String> = vec![];
 
     for dir_path in file_paths {
@@ -520,6 +544,7 @@ pub fn generate(
             let generated_types =
                 generate_fhir_types_from_file(entry.path(), level, inlined_terminology)?;
             let code = generated_types.resources;
+            rust_type_name_to_fhir_type.extend(generated_types.rust_type_name_to_fhir_type);
             resource_types.extend(generated_types.resource_types);
             resource_code = quote! {
                 #resource_code
@@ -532,6 +557,24 @@ pub fn generate(
                 #(#code)*
             };
         }
+    }
+
+    let rust_type_map_ident = format_ident!("rust_to_fhir_type_map");
+
+    let rust_types_to_fhir_types =
+        rust_type_name_to_fhir_type
+            .iter()
+            .map(|(rust_type, fhir_type)| {
+                quote! {
+                    #rust_type_map_ident.insert(#rust_type, #fhir_type);
+                }
+            });
+    let rust_type_map_generated = quote!{
+        pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<std::collections::HashMap<&'static str, &'static str>> = LazyLock::new(|| {
+            let mut #rust_type_map_ident = std::collections::HashMap::new();
+            #(#rust_types_to_fhir_types)*
+            #rust_type_map_ident
+        });
     }
 
     let resource_type_enum_variant_idents = resource_types
@@ -586,6 +629,7 @@ pub fn generate(
         #resource_code
         #resource_enum
         #resource_type_type
+        #rust_type_map_generated
     };
 
     Ok(GeneratedCode {

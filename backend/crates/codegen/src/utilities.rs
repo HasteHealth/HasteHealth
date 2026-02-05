@@ -274,6 +274,29 @@ pub mod extract {
             .unwrap_or_else(|| "".to_string())
     }
 
+    pub fn fhir_type(sd: &StructureDefinition, element: &ElementDefinition) -> String {
+        if crate::utilities::conditionals::is_root(sd, element) {
+            sd.type_
+                .value
+                .as_ref()
+                .expect("Root element must have a type")
+                .clone()
+        } else {
+            let default_types = vec![];
+            let fhir_types = element.type_.as_ref().unwrap_or(&default_types);
+            if fhir_types.len() == 1 {
+                fhir_types[0]
+                    .code
+                    .value
+                    .as_ref()
+                    .expect("Type must have a code")
+                    .clone()
+            } else {
+                panic!("Element has multiple types, cannot determine FHIR type");
+            }
+        }
+    }
+
     #[derive(Clone)]
     pub enum Max {
         Unlimited,
