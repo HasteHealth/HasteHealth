@@ -23,42 +23,46 @@ pub fn number(
                 .iter()
                 .map(|value| {
                     let (prefix, value) = parse_prefix(value);
+                    let v = value
+                        .parse::<f64>()
+                        .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
+                    let range = get_decimal_range(v);
 
                     match prefix {
-                        Some("ne") => {
-                            let v = value.parse::<f64>().map_err(|_e| {
-                                QueryBuildError::InvalidParameterValue(value.to_string())
-                            })?;
-                            let range = get_decimal_range(v);
-                            Ok(json!({
-                                "bool": {
-                                    "must_not": {
-                                        "range": {
-                                            search_param.url.value.as_ref().unwrap(): {
-                                                "gte": range.start,
-                                                "lte": range.end
-                                            }
+                        Some("ne") => Ok(json!({
+                            "bool": {
+                                "must_not": {
+                                    "range": {
+                                        search_param.url.value.as_ref().unwrap(): {
+                                            "gte": range.start,
+                                            "lte": range.end
                                         }
                                     }
                                 }
-                            }))
-                        }
-                        Some("eq") | None => {
-                            let v = value.parse::<f64>().map_err(|_e| {
-                                QueryBuildError::InvalidParameterValue(value.to_string())
-                            })?;
-
-                            let range = get_decimal_range(v);
-
-                            Ok(json!({
-                                "range": {
-                                    search_param.url.value.as_ref().unwrap(): {
-                                        "gte": range.start,
-                                        "lte": range.end
-                                    }
+                            }
+                        })),
+                        Some("ge") => Ok(json!({
+                            "range": {
+                                search_param.url.value.as_ref().unwrap(): {
+                                    "gte": range.start
                                 }
-                            }))
-                        }
+                            }
+                        })),
+                        Some("le") => Ok(json!({
+                            "range": {
+                                search_param.url.value.as_ref().unwrap(): {
+                                    "lte": range.end
+                                }
+                            }
+                        })),
+                        Some("eq") | None => Ok(json!({
+                            "range": {
+                                search_param.url.value.as_ref().unwrap(): {
+                                    "gte": range.start,
+                                    "lte": range.end
+                                }
+                            }
+                        })),
                         Some(prefix) => Err(QueryBuildError::UnsupportedPrefix(prefix.to_string())),
                     }
                 })
