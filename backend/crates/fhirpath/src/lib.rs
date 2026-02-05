@@ -375,8 +375,6 @@ fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
 fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
     let fhir_type_name = RUST_TO_FHIR_TYPE_MAP.get(value.typename());
 
-    println!("{} {:?}", value.typename(), fhir_type_name);
-
     match fhir_type_name.map(|s| *s) {
         // Special handling for reference which is to check the reference type.
         Some("Reference") => {
