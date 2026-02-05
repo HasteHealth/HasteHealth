@@ -311,7 +311,6 @@ impl SearchEngine for ElasticSearchEngine {
                                 "tenant".to_string(),
                                 InsertableIndex::Meta(tenant.as_ref().to_string()),
                             );
-
                             Ok(BulkOperation::index(elastic_index)
                                 .id(index_id)
                                 .index(search_index_name)
