@@ -23,10 +23,8 @@ pub fn number(
                 .iter()
                 .map(|value| {
                     let (prefix, value) = parse_prefix(value);
-                    let v = value
-                        .parse::<f64>()
+                    let range = get_decimal_range(value)
                         .map_err(|_e| QueryBuildError::InvalidParameterValue(value.to_string()))?;
-                    let range = get_decimal_range(v);
 
                     match prefix {
                         Some("ne") => Ok(json!({

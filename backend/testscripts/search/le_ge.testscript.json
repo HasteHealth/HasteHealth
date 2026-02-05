@@ -136,7 +136,7 @@
                             "code": "search"
                         },
                         "resource": "RiskAssessment",
-                        "params": "probability=ge86&_tag=le-ge-prefix-test",
+                        "params": "probability=ge86.1&_tag=le-ge-prefix-test",
                         "encodeRequestUrl": false
                     }
                 },

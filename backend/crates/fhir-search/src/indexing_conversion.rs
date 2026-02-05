@@ -407,7 +407,7 @@ fn index_token(value: &dyn MetaValue) -> Result<Vec<TokenIndex>, InsertableIndex
     }
 }
 
-fn get_decimal_precision(value: f64) -> u32 {
+fn get_decimal_precision(value: &str) -> u32 {
     let value = value.to_string();
     let decimal_characters = value.split('.').nth(1);
     let mut digits = 0;
@@ -418,24 +418,31 @@ fn get_decimal_precision(value: f64) -> u32 {
     digits
 }
 
+#[derive(Debug)]
 pub struct DecimalRange {
     pub start: f64,
     pub end: f64,
 }
 
 // Number and quantity dependent on the precision for indexing.
-pub fn get_decimal_range(value: f64) -> DecimalRange {
+pub fn get_decimal_range(value: &str) -> Result<DecimalRange, InsertableIndexError> {
     let decimal_precision = get_decimal_precision(value);
-    return DecimalRange {
-        start: value - 0.5 * 10f64.powi(-(decimal_precision as i32)),
-        end: value + 0.5 * 10f64.powi(-(decimal_precision as i32)),
-    };
+    let parsed_v = value
+        .parse::<f64>()
+        .map_err(|_e| InsertableIndexError::FailedDowncast(value.to_string()))?;
+
+    return Ok(DecimalRange {
+        start: parsed_v - 0.5 * 10f64.powi(-(decimal_precision as i32)),
+        end: parsed_v + 0.5 * 10f64.powi(-(decimal_precision as i32)),
+    });
 }
 
 fn fhirdecimal_to_quantity_range(value: &Option<Box<FHIRDecimal>>) -> Option<DecimalRange> {
-    let decimal_range = value
-        .as_ref()
-        .and_then(|v| v.value.as_ref().map(|v| get_decimal_range(*v)));
+    let decimal_range = value.as_ref().and_then(|v| {
+        v.value
+            .as_ref()
+            .and_then(|v| get_decimal_range(&v.to_string()).ok())
+    });
 
     decimal_range
 }
