@@ -569,13 +569,13 @@ pub fn generate(
                     #rust_type_map_ident.insert(#rust_type, #fhir_type);
                 }
             });
-    let rust_type_map_generated = quote!{
+    let rust_type_map_generated = quote! {
         pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<std::collections::HashMap<&'static str, &'static str>> = LazyLock::new(|| {
             let mut #rust_type_map_ident = std::collections::HashMap::new();
             #(#rust_types_to_fhir_types)*
             #rust_type_map_ident
         });
-    }
+    };
 
     let resource_type_enum_variant_idents = resource_types
         .iter()
