@@ -1,8 +1,8 @@
 {
-    "id": "le-ge-prefix-patient",
-    "url": "https://haste.health/fhir/TestScript/bundle-le-ge-prefix",
+    "id": "lt-gt-prefix-patient",
+    "url": "https://haste.health/fhir/TestScript/bundle-lt-gt-prefix",
     "title": "Full url checks",
-    "name": "Bundle le-ge-prefix tests",
+    "name": "Bundle lt-gt-prefix tests",
     "status": "active",
     "description": "Validate full url is present on search and hist requests.",
     "resourceType": "TestScript",
@@ -17,7 +17,7 @@
             "meta": {
                 "tag": [
                     {
-                        "code": "le-ge-prefix-test"
+                        "code": "lt-gt-prefix-test"
                     }
                 ]
             },
@@ -57,7 +57,7 @@
     ],
     "test": [
         {
-            "id": "01-le-ge-prefix-checks",
+            "id": "01-lt-gt-prefix-checks",
             "name": "Full url check.",
             "action": [
                 {
@@ -79,45 +79,7 @@
                             "code": "search"
                         },
                         "resource": "RiskAssessment",
-                        "params": "probability=le85&_tag=le-ge-prefix-test",
-                        "encodeRequestUrl": false
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Bundle.entry.count()",
-                        "operator": "equals",
-                        "value": "1",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "operation": {
-                        "type": {
-                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "search"
-                        },
-                        "resource": "RiskAssessment",
-                        "params": "probability=le200&_tag=le-ge-prefix-test",
-                        "encodeRequestUrl": false
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Bundle.entry.count()",
-                        "operator": "equals",
-                        "value": "1",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "operation": {
-                        "type": {
-                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "search"
-                        },
-                        "resource": "RiskAssessment",
-                        "params": "probability=le84&_tag=le-ge-prefix-test",
+                        "params": "probability=lt85&_tag=lt-gt-prefix-test",
                         "encodeRequestUrl": false
                     }
                 },
@@ -136,26 +98,7 @@
                             "code": "search"
                         },
                         "resource": "RiskAssessment",
-                        "params": "probability=ge86&_tag=le-ge-prefix-test",
-                        "encodeRequestUrl": false
-                    }
-                },
-                {
-                    "assert": {
-                        "expression": "Bundle.entry.count()",
-                        "operator": "equals",
-                        "value": "0",
-                        "warningOnly": false
-                    }
-                },
-                {
-                    "operation": {
-                        "type": {
-                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
-                            "code": "search"
-                        },
-                        "resource": "RiskAssessment",
-                        "params": "probability=ge85&_tag=le-ge-prefix-test",
+                        "params": "probability=lt86&_tag=lt-gt-prefix-test",
                         "encodeRequestUrl": false
                     }
                 },
@@ -174,7 +117,64 @@
                             "code": "search"
                         },
                         "resource": "RiskAssessment",
-                        "params": "probability=ge0&_tag=le-ge-prefix-test",
+                        "params": "probability=lt84&_tag=lt-gt-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=gt86&_tag=lt-gt-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=gt85&_tag=lt-gt-prefix-test",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Bundle.entry.count()",
+                        "operator": "equals",
+                        "value": "0",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "search"
+                        },
+                        "resource": "RiskAssessment",
+                        "params": "probability=gt84&_tag=lt-gt-prefix-test",
                         "encodeRequestUrl": false
                     }
                 },
@@ -197,7 +197,7 @@
                         "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
                         "code": "deleteCondMultiple"
                     },
-                    "params": "_tag=le-ge-prefix-test",
+                    "params": "_tag=lt-gt-prefix-test",
                     "encodeRequestUrl": false
                 }
             }
