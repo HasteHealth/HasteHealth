@@ -41,6 +41,20 @@ pub fn number(
                                 }
                             }
                         })),
+                        Some("gt") => Ok(json!({
+                            "range": {
+                                search_param.url.value.as_ref().unwrap(): {
+                                    "gt": range.end
+                                }
+                            }
+                        })),
+                        Some("lt") => Ok(json!({
+                            "range": {
+                                search_param.url.value.as_ref().unwrap(): {
+                                    "lt": range.start
+                                }
+                            }
+                        })),
                         Some("ge") => Ok(json!({
                             "range": {
                                 search_param.url.value.as_ref().unwrap(): {
