@@ -44,7 +44,10 @@ enum CLICommand {
         #[command(subcommand)]
         command: commands::config::ConfigCommands,
     },
-    Worker {},
+    Worker {
+        #[command(subcommand)]
+        command: Option<commands::worker::WorkerCommands>,
+    },
     Testscript {
         #[command(subcommand)]
         command: commands::testscript::TestScriptCommands,
@@ -100,7 +103,7 @@ async fn main() -> Result<(), OperationOutcomeError> {
         CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
         CLICommand::Generate { command } => commands::codegen::codegen(command).await,
         CLICommand::Server { command } => commands::server::server(command).await,
-        CLICommand::Worker {} => commands::worker::worker().await,
+        CLICommand::Worker { command } => commands::worker::worker(command).await,
         CLICommand::Config { command } => commands::config::config(&config, command).await,
         CLICommand::Api { command } => commands::api::api_commands(config, command).await,
         CLICommand::Testscript { command } => {

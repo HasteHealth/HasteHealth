@@ -38,3 +38,17 @@ pub async fn commit_transaction(
     let res = conn.commit().await.map_err(StoreError::from)?;
     Ok(res)
 }
+
+#[allow(dead_code)]
+pub async fn rollback_transaction(
+    tx: Arc<Mutex<Transaction<'static, Postgres>>>,
+) -> Result<(), OperationOutcomeError> {
+    let conn = Mutex::into_inner(Arc::try_unwrap(tx).map_err(|e| {
+        println!("Error during rollback: {:?}", e);
+        StoreError::FailedCommitTransaction
+    })?);
+
+    // Handle PgConnection connection
+    let res = conn.rollback().await.map_err(StoreError::from)?;
+    Ok(res)
+}

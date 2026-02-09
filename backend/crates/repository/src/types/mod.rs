@@ -33,6 +33,20 @@ pub enum FHIRMethod {
     Delete,
 }
 
+impl TryFrom<&str> for FHIRMethod {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "create" => Ok(FHIRMethod::Create),
+            "read" => Ok(FHIRMethod::Read),
+            "update" => Ok(FHIRMethod::Update),
+            "delete" => Ok(FHIRMethod::Delete),
+            _ => Err(format!("Unsupported FHIR method: {}", value)),
+        }
+    }
+}
+
 impl TryFrom<&FHIRRequest> for FHIRMethod {
     type Error = String;
 

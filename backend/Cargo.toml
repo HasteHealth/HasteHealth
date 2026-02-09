@@ -46,6 +46,7 @@ members = [
     "crates/sd-to-json-schema",
     "crates/server",
     "crates/testscript-runner",
+    "crates/wal_worker",
     "crates/x-fhir-query",
 ]
 
@@ -97,6 +98,7 @@ haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
+haste_wal_worker = { path = "./crates/wal_worker" }
 tracing-subscriber = "0.3.20"
 toml = "0.9.8"
 json-patch = "4.1.0"

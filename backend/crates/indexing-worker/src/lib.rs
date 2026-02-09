@@ -204,6 +204,14 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     let config = get_config::<IndexingWorkerEnvironmentVariables>("environment".into());
     let fp_engine = Arc::new(haste_fhirpath::FPEngine::new());
 
+    let pg_pool = sqlx::PgPool::connect(
+        &config
+            .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
+            .unwrap(),
+    )
+    .await
+    .expect("Failed to connect to the database");
+    let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
     let search_engine = Arc::new(
         ElasticSearchEngine::new(
             fp_engine.clone(),
@@ -236,15 +244,6 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
         attempts += 1;
     }
 
-    let pg_pool = sqlx::PgPool::connect(
-        &config
-            .get(IndexingWorkerEnvironmentVariables::DatabaseURL)
-            .unwrap(),
-    )
-    .await
-    .expect("Failed to connect to the database");
-
-    let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
     let mut cursor = OffsetDateTime::UNIX_EPOCH;
     let tenants_limit: usize = 100;
 
