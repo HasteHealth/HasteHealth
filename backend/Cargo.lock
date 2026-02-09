@@ -2129,6 +2129,7 @@ dependencies = [
  "haste-fhir-operation-error",
  "haste-fhir-search",
  "haste-fhir-serialization-json",
+ "haste-fhirpath",
  "haste-jwt",
  "haste-repository",
  "tokio",

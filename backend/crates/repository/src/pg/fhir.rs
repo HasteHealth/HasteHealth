@@ -2,7 +2,7 @@ use crate::{
     fhir::{CachePolicy, FHIRRepository, ResourcePollingValue},
     pg::{
         PGConnection, StoreError,
-        utilities::{commit_transaction, create_transaction, rollback_transaction},
+        utilities::{commit_transaction, create_transaction},
     },
     types::{FHIRMethod, SupportedFHIRVersions},
     utilities,
@@ -157,7 +157,7 @@ impl FHIRRepository for PGConnection {
                     res
                 };
 
-                rollback_transaction(tx).await?;
+                commit_transaction(tx).await?;
                 Ok(res)
             }
             PGConnection::Transaction(tx, _) => {

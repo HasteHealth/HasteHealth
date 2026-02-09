@@ -1,17 +1,64 @@
-use std::time::Duration;
+use std::sync::Arc;
 
 use etl::{
     config::{BatchConfig, PgConnectionConfig, PipelineConfig, TableSyncCopyConfig, TlsConfig},
-    destination::memory::MemoryDestination,
     pipeline::Pipeline,
-    store::both::{memory::MemoryStore, postgres::PostgresStore},
+    store::both::postgres::PostgresStore,
 };
+use haste_config::get_config;
+use haste_fhir_search::elastic_search::ElasticSearchEngine;
+
+use crate::es_search_destination::ESSearchDestination;
 mod es_search_destination;
 
 static PIPELINE_ID: u64 = 1;
 
+pub enum ESSearchWorkerEnvironmentVariables {
+    ElasticSearchURL,
+    ElasticSearchUsername,
+    ElasticSearchPassword,
+}
+
+impl From<ESSearchWorkerEnvironmentVariables> for String {
+    fn from(value: ESSearchWorkerEnvironmentVariables) -> Self {
+        match value {
+            ESSearchWorkerEnvironmentVariables::ElasticSearchURL => "ELASTICSEARCH_URL".to_string(),
+            ESSearchWorkerEnvironmentVariables::ElasticSearchUsername => {
+                "ELASTICSEARCH_USERNAME".to_string()
+            }
+            ESSearchWorkerEnvironmentVariables::ElasticSearchPassword => {
+                "ELASTICSEARCH_PASSWORD".to_string()
+            }
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = get_config::<ESSearchWorkerEnvironmentVariables>("environment".into());
+    let search_engine = ElasticSearchEngine::new(
+        Arc::new(haste_fhirpath::FPEngine::new()),
+        &config
+            .get(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
+            )),
+        config
+            .get(ESSearchWorkerEnvironmentVariables::ElasticSearchUsername)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchUsername)
+            )),
+        config
+            .get(ESSearchWorkerEnvironmentVariables::ElasticSearchPassword)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(ESSearchWorkerEnvironmentVariables::ElasticSearchPassword)
+            )),
+    )
+    .expect("Failed to create Elasticsearch client");
+
     let pg_config = PgConnectionConfig {
         host: "localhost".to_string(),
         port: 5432,
@@ -28,7 +75,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = PipelineConfig {
         id: PIPELINE_ID,
         publication_name: "my_publication".to_string(),
-        pg_connection: pg_config,
+        pg_connection: pg_config.clone(),
         batch: BatchConfig {
             max_size: 1000,
             max_fill_ms: 5000,
@@ -40,27 +87,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let store = PostgresStore::new(PIPELINE_ID, pg_config);
-    let destination = MemoryDestination::new();
-
-    // Print destination contents periodically
-    let dest_clone = destination.clone();
-    tokio::spawn(async move {
-        loop {
-            tokio::time::sleep(Duration::from_secs(5)).await;
-            let rows = dest_clone.table_rows().await;
-            let events = dest_clone.events().await;
-            println!("\n--- Destination State ---");
-            println!("Tables: {}, Events: {}", rows.len(), events.len());
-
-            let event_types = events.iter().map(|e| e.event_type()).collect::<Vec<_>>();
-
-            println!("rows : {:?} events: {:?}", rows, event_types);
-
-            for (table_id, table_rows) in &rows {
-                println!("  Table {}: {} rows", table_id.0, table_rows.len());
-            }
-        }
-    });
+    let destination = ESSearchDestination::new(search_engine)
+        .expect("Failed to create Elasticsearch destination");
 
     println!("Starting pipeline...");
     let mut pipeline = Pipeline::new(config, store, destination);
