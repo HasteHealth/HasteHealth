@@ -16,11 +16,12 @@ pub struct RemoveIndex {
 #[derive(Clone)]
 pub struct IndexResource {
     pub id: ResourceId,
-    pub version_id: String,
+    pub version_id: VersionId,
 
+    pub tenant: TenantId,
     pub project: ProjectId,
-    pub fhir_method: FHIRMethod,
 
+    pub fhir_method: FHIRMethod,
     pub resource_type: ResourceType,
     pub resource: Resource,
 }
@@ -56,7 +57,6 @@ pub trait SearchEngine: Send + Sync {
     fn index(
         &self,
         fhir_version: SupportedFHIRVersions,
-        tenant: TenantId,
         resource: Vec<IndexResource>,
     ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync;
 

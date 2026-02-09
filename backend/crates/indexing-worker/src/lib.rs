@@ -4,7 +4,7 @@ use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
 use haste_fhirpath::FHIRPathError;
-use haste_jwt::TenantId;
+use haste_jwt::{TenantId, VersionId};
 use haste_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
 use sqlx::{Pool, Postgres, query_as, types::time::OffsetDateTime};
 use std::sync::Arc;
@@ -97,12 +97,12 @@ async fn index_tenant_next_sequence<
         let result = search_client
             .index(
                 SupportedFHIRVersions::R4,
-                tenant_id.clone(),
                 resources
                     .into_iter()
                     .map(|r| IndexResource {
+                        tenant: r.tenant,
                         id: r.id,
-                        version_id: r.version_id,
+                        version_id: VersionId::new(r.version_id),
                         project: r.project,
                         fhir_method: r.fhir_method,
                         resource_type: r.resource_type,

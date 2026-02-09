@@ -257,7 +257,6 @@ impl SearchEngine for ElasticSearchEngine {
     fn index(
         &self,
         fhir_version: SupportedFHIRVersions,
-        tenant: TenantId,
         resources: Vec<IndexResource>,
     ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync
     {
@@ -273,14 +272,12 @@ impl SearchEngine for ElasticSearchEngine {
                 _ => false,
             }) {
                 let engine = self.fp_engine.clone();
-                let tenant = tenant.clone();
-
                 tasks.push(tokio::spawn(async move {
                     match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
                             // Id is not sufficient because different Resourcetypes may have the same id.
                             let index_id =
-                                unique_index_id(&tenant, &r.project, &r.resource_type, &r.id);
+                                unique_index_id(&r.tenant, &r.project, &r.resource_type, &r.id);
                             let params =
                             haste_artifacts::search_parameters::get_search_parameters_for_resource(
                                 &r.resource_type,
@@ -301,7 +298,7 @@ impl SearchEngine for ElasticSearchEngine {
 
                             elastic_index.insert(
                                 "version_id".to_string(),
-                                InsertableIndex::Meta(r.version_id.to_string()),
+                                InsertableIndex::Meta(r.version_id.as_ref().to_string()),
                             );
                             elastic_index.insert(
                                 "project".to_string(),
@@ -309,7 +306,7 @@ impl SearchEngine for ElasticSearchEngine {
                             );
                             elastic_index.insert(
                                 "tenant".to_string(),
-                                InsertableIndex::Meta(tenant.as_ref().to_string()),
+                                InsertableIndex::Meta(r.tenant.as_ref().to_string()),
                             );
                             Ok(BulkOperation::index(elastic_index)
                                 .id(index_id)
@@ -317,7 +314,7 @@ impl SearchEngine for ElasticSearchEngine {
                                 .into())
                         }
                         FHIRMethod::Delete => Ok(BulkOperation::delete(unique_index_id(
-                            &tenant,
+                            &r.tenant,
                             &r.project,
                             &r.resource_type,
                             &r.id,
@@ -358,11 +355,7 @@ impl SearchEngine for ElasticSearchEngine {
                 })?;
 
                 if response_body["errors"].as_bool().unwrap() == true {
-                    tracing::error!(
-                        "Failed to index resources for tenant: '{}'. Response: '{:?}'",
-                        tenant.as_ref(),
-                        response_body
-                    );
+                    tracing::error!("Failed to index resources. Response: '{:?}'", response_body);
                     return Err(SearchError::Fatal(500).into());
                 }
                 Ok(SuccessfullyIndexedCount(
