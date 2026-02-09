@@ -3,7 +3,7 @@ use std::sync::Arc;
 use etl::{
     config::{BatchConfig, PgConnectionConfig, PipelineConfig, TableSyncCopyConfig, TlsConfig},
     pipeline::Pipeline,
-    store::both::postgres::PostgresStore,
+    store::both::memory::MemoryStore,
 };
 use haste_config::get_config;
 use haste_fhir_search::elastic_search::ElasticSearchEngine;
@@ -86,7 +86,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         table_sync_copy: TableSyncCopyConfig::SkipAllTables,
     };
 
-    let store = PostgresStore::new(PIPELINE_ID, pg_config);
+    let store = MemoryStore::new();
+    // let store = PostgresStore::new(PIPELINE_ID, pg_config);
     let destination = ESSearchDestination::new(search_engine)
         .expect("Failed to create Elasticsearch destination");
 
