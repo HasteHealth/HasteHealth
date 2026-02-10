@@ -121,6 +121,9 @@ impl ParsedParameters {
     pub fn parameters<'a>(&'a self) -> &'a Vec<ParsedParameter> {
         &self.0
     }
+    pub fn owned_parameters<'a>(self) -> Vec<ParsedParameter> {
+        self.0
+    }
     pub fn get<'a>(&'a self, name: &str) -> Option<&'a ParsedParameter> {
         self.0.iter().find(|p| match p {
             ParsedParameter::Resource(param) | ParsedParameter::Result(param) => param.name == name,

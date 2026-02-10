@@ -1325,6 +1325,8 @@ dependencies = [
 name = "fhir-subscription-processor"
 version = "0.11.0"
 dependencies = [
+ "haste-artifacts",
+ "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",
 ]
