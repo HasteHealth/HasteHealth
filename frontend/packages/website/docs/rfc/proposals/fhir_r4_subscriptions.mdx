@@ -11,7 +11,7 @@ tags:
 # [RFC] FHIR Subscriptions
 
 ## Abstract
-FHIR Subscriptions are FHIR resources which define a mechanism for clients to receive notifications about changes to resources that match certain criteria. 
+FHIR Subscriptions are FHIR resources that define a mechanism for clients to receive notifications about changes to resources that match certain criteria.
 This allows clients to stay up-to-date with changes in the server without having to continuously poll for updates.
 However, implementing FHIR Subscriptions can be complex and may require significant changes to the server architecture.
 
@@ -21,20 +21,20 @@ The data model for a FHIR Subscription is defined [here](/docs/reference/fhir/mo
 This is the `normal` approach for handling in R4.
 
 **R4 Backport:**
-With R5 they did a complete redesign and offer a backport to R4 the following is the [implementation guide](https://build.fhir.org/ig/HL7/fhir-subscription-backport-ig/).
+With R5, they did a complete redesign and offer a backport to R4. The following is the [implementation guide](https://build.fhir.org/ig/HL7/fhir-subscription-backport-ig/).
 
-The main difference between the R4 Backport and R4 is the backport decouples 
+The main difference between the R4 Backport and R4 is the backport decouples
 subscribers from the subscription resource and instead uses a separate `SubscriptionTopic` resource to define the criteria for notifications.
 
 ## Problem
-How to implement FHIR Subscriptions in a way that is efficient, scalable, and maintainable while also adhering to the FHIR specification.
+How should we implement FHIR Subscriptions in a way that is efficient, scalable, and maintainable while also adhering to the FHIR specification?
 
 ## Proposal
 
 Terminology:
-- Queue: Abstract queue which delivers resources
-- Subscription Filter: Worker/s which filter for resources which match a FHIR Subscriptions criteria.
-- Subscription Delivery: Worker/s which deliver resources to subscribers.
+- Queue: Abstract queue that delivers resources
+- Subscription Filter: Worker(s) that filter for resources that match a FHIR Subscription's criteria
+- Subscription Delivery: Worker(s) that deliver resources to subscribers
 
 
 ```mermaid
@@ -49,7 +49,7 @@ sequenceDiagram
     User->>Queue: User creates/updates/deletes resource
     Queue->>SubscriptionFilter: Subscription Filter checks for matching subscriptions
     SubscriptionFilter->>SubscriptionDelivery: Subscription Delivery sends notifications to subscribers
-    SubscriptionDelivery->>SubscribedUser: Subscriber receives notification
+    SubscriptionDelivery->>SubscribedUser: Subscriber receives a notification
 ```
 
 
@@ -68,11 +68,11 @@ Detailed approaches to implementing FHIR Subscriptions.
 ### Kafka Based Implementation
 #### Notes
 
-Could use `tenant:project:subscription_id` as the message key for kafka messages to ensure that messages for the same subscription are processed in order.
-Could then have multiple consumers which are partitioned by subscription_id to ensure that messages for the same subscription are processed in order.
+Could use `tenant:project:subscription_id` as the message key for Kafka messages to ensure that messages for the same subscription are processed in order.
+Could then have multiple consumers that are partitioned by `subscription_id` to ensure that messages for the same subscription are processed in order.
 Would also allow consumption for multiple tenants and projects without having to worry about message ordering across tenants and projects.
 
 
-Implementatino would look as follows:
+Implementation would look as follows:
 
-Postgres DATA Sink (wal or via sql) -> Kafka main bus Tenant:project -> Subscription Filter -> Kafka Tenant:project:[subscription_id or topic] -> Subscription Delivery worker -> Subscriber
+Postgres data sink (WAL or via SQL) -> Kafka main bus `tenant:project` -> Subscription Filter -> Kafka `tenant:project:[subscription_id or topic]` -> Subscription Delivery worker -> Subscriber
