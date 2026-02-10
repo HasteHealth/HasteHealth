@@ -71,3 +71,8 @@ Detailed approaches to implementing FHIR Subscriptions.
 Could use `tenant:project:subscription_id` as the message key for kafka messages to ensure that messages for the same subscription are processed in order.
 Could then have multiple consumers which are partitioned by subscription_id to ensure that messages for the same subscription are processed in order.
 Would also allow consumption for multiple tenants and projects without having to worry about message ordering across tenants and projects.
+
+
+Implementatino would look as follows:
+
+Postgres DATA Sink (wal or via sql) -> Kafka main bus Tenant:project -> Subscription Filter -> Kafka Tenant:project:[subscription_id or topic] -> Subscription Delivery worker -> Subscriber
