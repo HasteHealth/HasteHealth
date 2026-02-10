@@ -570,7 +570,7 @@ pub fn generate(
                 }
             });
     let rust_type_map_generated = quote! {
-        pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<std::collections::HashMap<&'static str, &'static str>> = LazyLock::new(|| {
+        pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<std::collections::HashMap<&'static str, &'static str>> = std::sync::LazyLock::new(|| {
             let mut #rust_type_map_ident = std::collections::HashMap::new();
             #(#rust_types_to_fhir_types)*
             #rust_type_map_ident
