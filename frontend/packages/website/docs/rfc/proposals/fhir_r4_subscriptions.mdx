@@ -62,7 +62,11 @@ Describe any alternative solutions that were considered and why they were not ch
 ## Migration Plan `<Optional>`
 Describe how the changes will be rolled out and what impact they will have on existing systems.
 
-## Random assortment of notes
+
+## Approaches
+Detailed approaches to implementing FHIR Subscriptions.
+### Kafka Based Implementation
+#### Notes
 
 Could use `tenant:project:subscription_id` as the message key for kafka messages to ensure that messages for the same subscription are processed in order.
 Could then have multiple consumers which are partitioned by subscription_id to ensure that messages for the same subscription are processed in order.
