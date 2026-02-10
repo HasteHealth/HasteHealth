@@ -30,7 +30,7 @@ members = [
     "crates/fhir-ops-derive",
     "crates/fhir-search",
     "crates/fhir-serialization-json",
-    "crates/fhir-serialization-json-derive",
+    "crates/fhir-serialization-json-derive", "crates/fhir-subscription-processor",
     "crates/fhir-terminology",
     "crates/fhirpath",
     "crates/hl7v2",
