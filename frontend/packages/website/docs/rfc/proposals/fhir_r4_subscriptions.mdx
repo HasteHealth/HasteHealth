@@ -16,17 +16,43 @@ This allows clients to stay up-to-date with changes in the server without having
 However, implementing FHIR Subscriptions can be complex and may require significant changes to the server architecture.
 
 ## Background
+**R4:**
 The data model for a FHIR Subscription is defined [here](/docs/reference/fhir/model/resources/Subscription).
 This is the `normal` approach for handling in R4.
+
+**R4 Backport:**
 With R5 they did a complete redesign and offer a backport to R4 the following is the [implementation guide](https://build.fhir.org/ig/HL7/fhir-subscription-backport-ig/).
 
-
+The main difference between the R4 Backport and R4 is the backport decouples 
+subscribers from the subscription resource and instead uses a separate `SubscriptionTopic` resource to define the criteria for notifications.
 
 ## Problem
-Describe the problem that the RFC aims to solve. It should explain why the current implementation is insufficient and what issues it causes.
+How to implement FHIR Subscriptions in a way that is efficient, scalable, and maintainable while also adhering to the FHIR specification.
 
 ## Proposal
-Describe the proposed solution. It should explain how the proposed changes will solve the problem and what benefits they will bring.
+
+Terminology:
+- Queue: Abstract queue which delivers resources
+- Subscription Filter: Worker/s which filter for resources which match a FHIR Subscriptions criteria.
+- Subscription Delivery: Worker/s which deliver resources to subscribers.
+
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant SubscribedUser as Subscribed User
+    participant Queue as Queue
+    participant SubscriptionFilter as Subscription Filter
+    participant SubscriptionDelivery as Subscription Delivery
+
+
+    User->>Queue: User creates/updates/deletes resource
+    Queue->>SubscriptionFilter: Subscription Filter checks for matching subscriptions
+    SubscriptionFilter->>SubscriptionDelivery: Subscription Delivery sends notifications to subscribers
+    SubscriptionDelivery->>SubscribedUser: Subscriber receives notification
+```
+
+
 
 ## Alternative Solutions `<Optional>`
 Describe any alternative solutions that were considered and why they were not chosen.
