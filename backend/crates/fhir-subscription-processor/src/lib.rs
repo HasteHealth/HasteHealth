@@ -127,7 +127,9 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
 }
 
 impl traits::SubscriptionFilter for MemorySubscriptionFilter {
-    fn matches(&self, _resource: &Resource) -> bool {
+    fn matches(&self, resource: &Resource) -> bool {
+        let resource_type = resource.resource_type();
+        
         todo!("Not Implemented.")
     }
 }
