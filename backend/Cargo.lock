@@ -1322,13 +1322,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "fhir-subscription-processor"
+name = "fhir_subscription_processor"
 version = "0.11.0"
 dependencies = [
  "haste-artifacts",
  "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",
+ "haste-fhirpath",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 [package]
-name = "fhir-subscription-processor"
+name = "fhir_subscription_processor"
 publish = false
 description = "Haste Health FHIR subscription processor."
 version.workspace = true
@@ -15,3 +15,4 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 ] }
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
+haste-fhirpath = { path = "../fhirpath", version = "0.*" }
