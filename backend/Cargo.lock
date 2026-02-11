@@ -1329,6 +1329,7 @@ dependencies = [
  "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",
+ "haste-fhir-search",
  "haste-fhirpath",
 ]
 

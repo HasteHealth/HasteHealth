@@ -1,9 +1,12 @@
+use std::sync::Arc;
+
 use haste_fhir_client::url::{ParsedParameter, ParsedParameters};
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, Subscription},
+    resources::{Resource, ResourceType, SearchParameter, Subscription},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
+use haste_fhir_search::indexing_conversion;
 
 pub mod traits;
 
@@ -18,6 +21,7 @@ pub enum SubscriptionFilterError {
 
 #[allow(dead_code)]
 pub struct SubscriptionParameter {
+    search_parameter: Arc<SearchParameter>,
     fp_extract_expression: String,
     value: Vec<String>,
     modifier: Option<String>,
@@ -111,6 +115,7 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
                         };
 
                         Ok(SubscriptionParameter {
+                            search_parameter: search_parameter.clone(),
                             fp_extract_expression: fp_expression.clone(),
                             value: resource_param.value,
                             modifier: resource_param.modifier,
@@ -145,6 +150,34 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
     }
 }
 
+async fn fits_subscription_parameter(
+    fp_engine: &haste_fhirpath::FPEngine,
+    subscription_parameter: &SubscriptionParameter,
+    resource: &Resource,
+) -> Result<bool, OperationOutcomeError> {
+    let result = fp_engine
+        .evaluate(
+            &subscription_parameter.fp_extract_expression,
+            vec![resource],
+        )
+        .await
+        .map_err(SubscriptionFilterError::from)?;
+
+    let conversions = indexing_conversion::to_insertable_index(
+        &subscription_parameter.search_parameter.as_ref(),
+        result.iter().collect::<Vec<_>>(),
+    )?;
+
+    // Here we would need to evaluate the FHIRPath expression against the resource
+    // and compare it to the parameter value(s).
+    // This is non-trivial and would likely require a FHIRPath evaluation library.
+    // For now, we'll just return an error indicating it's not implemented.
+    return Err(OperationOutcomeError::error(
+        IssueType::Exception(None),
+        "QueryFilter trigger matching is not yet implemented".to_string(),
+    ));
+}
+
 impl traits::SubscriptionFilter for MemorySubscriptionFilter {
     async fn matches(&self, resource: &Resource) -> Result<bool, OperationOutcomeError> {
         let resource_resource_type = resource.resource_type();
@@ -160,20 +193,12 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
                     }
 
                     for sub_parameter in parameters {
-                        let result = self
-                            .fp_engine
-                            .evaluate(&sub_parameter.fp_extract_expression, vec![resource])
-                            .await
-                            .map_err(SubscriptionFilterError::from)?;
-
-                        // Here we would need to evaluate the FHIRPath expression against the resource
-                        // and compare it to the parameter value(s).
-                        // This is non-trivial and would likely require a FHIRPath evaluation library.
-                        // For now, we'll just return an error indicating it's not implemented.
-                        return Err(OperationOutcomeError::error(
-                            IssueType::Exception(None),
-                            "QueryFilter trigger matching is not yet implemented".to_string(),
-                        ));
+                        let fits_criteria =
+                            fits_subscription_parameter(&self.fp_engine, sub_parameter, resource)
+                                .await?;
+                        if !fits_criteria {
+                            return Ok(false);
+                        }
                     }
 
                     return Ok(true);
