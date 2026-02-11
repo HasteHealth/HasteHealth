@@ -6,7 +6,7 @@ use haste_fhir_model::r4::generated::{
     terminology::IssueType,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::indexing_conversion;
+use haste_fhir_search::indexing_conversion::{self, InsertableIndex};
 
 pub mod traits;
 
@@ -168,14 +168,54 @@ async fn fits_subscription_parameter(
         result.iter().collect::<Vec<_>>(),
     )?;
 
-    // Here we would need to evaluate the FHIRPath expression against the resource
-    // and compare it to the parameter value(s).
-    // This is non-trivial and would likely require a FHIRPath evaluation library.
-    // For now, we'll just return an error indicating it's not implemented.
-    return Err(OperationOutcomeError::error(
-        IssueType::Exception(None),
-        "QueryFilter trigger matching is not yet implemented".to_string(),
-    ));
+    match conversions {
+        InsertableIndex::String(resource_values) => {
+            Ok(resource_values.iter().any(|resource_value| {
+                subscription_parameter
+                    .value
+                    .iter()
+                    .any(|v| resource_value.to_lowercase().starts_with(&v.to_lowercase()))
+            }))
+        }
+        InsertableIndex::Number(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Number search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+        InsertableIndex::URI(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "URI search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+        InsertableIndex::Token(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Token search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+        InsertableIndex::Date(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Date search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+
+        InsertableIndex::Reference(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Reference search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+        InsertableIndex::Quantity(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Quantity search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+
+        InsertableIndex::Composite(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Composite search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+        InsertableIndex::Special(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Special search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+        InsertableIndex::Meta(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Meta search parameters are not supported in subscription criteria".to_string(),
+        ))?,
+    }
 }
 
 impl traits::SubscriptionFilter for MemorySubscriptionFilter {
@@ -218,7 +258,12 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
 
 #[cfg(test)]
 mod tests {
-    use haste_fhir_model::r4::generated::types::FHIRString;
+    use haste_fhir_model::r4::generated::{
+        resources::Patient,
+        types::{FHIRString, HumanName},
+    };
+
+    use crate::traits::SubscriptionFilter;
 
     use super::*;
 
@@ -275,5 +320,64 @@ mod tests {
             }
             _ => panic!("Expected QueryFilter trigger"),
         };
+    }
+
+    #[tokio::test]
+    async fn test_run_fhirpath() {
+        let sub_filter = MemorySubscriptionFilter::try_from(Subscription {
+            criteria: Box::new(FHIRString {
+                value: Some("Patient?name=Smith".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .unwrap();
+        let patient = Resource::Patient(Patient {
+            name: Some(vec![Box::new(HumanName {
+                family: Some(Box::new(FHIRString {
+                    value: Some("Smith".to_string()),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        });
+
+        assert_eq!(sub_filter.matches(&patient).await.unwrap(), true);
+
+        let sub_filter_partial = MemorySubscriptionFilter::try_from(Subscription {
+            criteria: Box::new(FHIRString {
+                value: Some("Patient?name=Sm".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .unwrap();
+
+        assert_eq!(sub_filter_partial.matches(&patient).await.unwrap(), true);
+
+        let sub_filter_casing = MemorySubscriptionFilter::try_from(Subscription {
+            criteria: Box::new(FHIRString {
+                value: Some("Patient?name=sm".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .unwrap();
+
+        assert_eq!(sub_filter_casing.matches(&patient).await.unwrap(), true);
+
+        let patient = Resource::Patient(Patient {
+            name: Some(vec![Box::new(HumanName {
+                family: Some(Box::new(FHIRString {
+                    value: Some("NotSmith".to_string()),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        });
+
+        assert_eq!(sub_filter.matches(&patient).await.unwrap(), false);
     }
 }
