@@ -137,8 +137,8 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
 }
 
 impl traits::SubscriptionFilter for MemorySubscriptionFilter {
-    fn matches(&self, resource: &Resource) -> Result<bool, OperationOutcomeError> {
-        let resource_type = resource.resource_type();
+    async fn matches(&self, resource: &Resource) -> Result<bool, OperationOutcomeError> {
+        let resource_resource_type = resource.resource_type();
 
         for trigger in self.triggers.iter() {
             match trigger {
@@ -146,13 +146,21 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
                     resource_type,
                     parameters,
                 } => {
-                    if resource_type != resource_type {
+                    if *resource_type != resource_resource_type {
                         return Ok(false);
                     }
 
-                    for parameter in parameters {
-                        // Here we would need to evaluate the FHIRPath expression against the resource and compare it to the parameter value(s).
-                        // This is non-trivial and would likely require a FHIRPath evaluation library. For now, we'll just return an error indicating it's not implemented.
+                    for sub_parameter in parameters {
+                        let k = self
+                            .fp_engine
+                            .evaluate(&sub_parameter.fp_extract_expression, vec![resource])
+                            .await
+                            .expect("FHIRPath evaluation failed");
+
+                        // Here we would need to evaluate the FHIRPath expression against the resource
+                        // and compare it to the parameter value(s).
+                        // This is non-trivial and would likely require a FHIRPath evaluation library.
+                        // For now, we'll just return an error indicating it's not implemented.
                         return Err(OperationOutcomeError::error(
                             IssueType::Exception(None),
                             "QueryFilter trigger matching is not yet implemented".to_string(),
@@ -161,7 +169,7 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
 
                     return Ok(true);
                 }
-                SubscriptionTrigger::FHIRPathFilter { expression } => {
+                SubscriptionTrigger::FHIRPathFilter { .. } => {
                     return Err(OperationOutcomeError::error(
                         IssueType::Exception(None),
                         "FHIRPathFilter triggers are not yet supported".to_string(),
