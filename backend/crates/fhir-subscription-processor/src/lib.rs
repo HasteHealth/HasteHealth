@@ -3,9 +3,18 @@ use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, Subscription},
     terminology::IssueType,
 };
-use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 pub mod traits;
+
+#[derive(OperationOutcomeError, Debug)]
+pub enum SubscriptionFilterError {
+    #[fatal(
+        code = "exception",
+        diagnostic = "Failed to evaluate fhirpath expression."
+    )]
+    FHIRPathError(#[from] haste_fhirpath::FHIRPathError),
+}
 
 #[allow(dead_code)]
 pub struct SubscriptionParameter {
@@ -151,11 +160,11 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
                     }
 
                     for sub_parameter in parameters {
-                        let k = self
+                        let result = self
                             .fp_engine
                             .evaluate(&sub_parameter.fp_extract_expression, vec![resource])
                             .await
-                            .expect("FHIRPath evaluation failed");
+                            .map_err(SubscriptionFilterError::from)?;
 
                         // Here we would need to evaluate the FHIRPath expression against the resource
                         // and compare it to the parameter value(s).

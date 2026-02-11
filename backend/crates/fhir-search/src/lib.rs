@@ -6,12 +6,7 @@ use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
 use serde::Deserialize;
 
 pub mod elastic_search;
-mod indexing_conversion;
-
-pub struct RemoveIndex {
-    // resource_type: ResourceType,
-    // id: String,
-}
+pub mod indexing_conversion;
 
 #[derive(Clone)]
 pub struct IndexResource {
