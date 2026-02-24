@@ -157,7 +157,7 @@ function SystemBar() {
                   params.resourceType === type,
                 [" bg-gray-100 hover:bg-orange-500 hover:text-white p-2"]:
                   params.resourceType !== type,
-              }
+              },
             )}
           >
             {type}s
@@ -335,7 +335,7 @@ function Navbar() {
               <div className="mt-2">
                 <a
                   className={classNames(
-                    "cursor-pointer block px-4 py-2 text-sm  hover:text-orange-800 hover:bg-orange-200"
+                    "cursor-pointer block px-4 py-2 text-sm  hover:text-orange-800 hover:bg-orange-200",
                   )}
                   onClick={() => {
                     navigate(generatePath("/settings", {}));
@@ -412,7 +412,7 @@ function ProjectRoot() {
                     {
                       "text-orange-900 underline":
                         matches[matches.length - 1].id === "dashboard",
-                    }
+                    },
                   )}
                 >
                   {project?.name}
@@ -431,7 +431,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "OperationDefinition",
-                  })
+                  }),
                 );
               }}
             >
@@ -443,7 +443,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "Subscription",
-                  })
+                  }),
                 );
               }}
             >
@@ -457,7 +457,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "Patient",
-                  })
+                  }),
                 );
               }}
             >
@@ -469,7 +469,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "Encounter",
-                  })
+                  }),
                 );
               }}
             >
@@ -481,7 +481,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "Observation",
-                  })
+                  }),
                 );
               }}
             >
@@ -495,7 +495,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "Questionnaire",
-                  })
+                  }),
                 );
               }}
             >
@@ -509,7 +509,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "QuestionnaireResponse",
-                  })
+                  }),
                 );
               }}
             >
@@ -523,7 +523,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "AuditEvent",
-                  })
+                  }),
                 );
               }}
             >
@@ -538,7 +538,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "Membership",
-                  })
+                  }),
                 );
               }}
             >
@@ -550,7 +550,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "AccessPolicyV2",
-                  })
+                  }),
                 );
               }}
             >
@@ -562,7 +562,7 @@ function ProjectRoot() {
                 navigate(
                   generatePath("/resources/:resourceType", {
                     resourceType: "ClientApplication",
-                  })
+                  }),
                 );
               }}
             >
@@ -588,7 +588,7 @@ function ProjectRoot() {
                     match.params.resourceType !== "IdentityProvider" &&
                     match.params.resourceType !== "Patient" &&
                     match.params.resourceType !== "Encounter" &&
-                    match.params.resourceType !== "Observation"
+                    match.params.resourceType !== "Observation",
                 ) !== undefined
               }
               onClick={() => {
@@ -645,13 +645,13 @@ function App() {
 }
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById("root") as HTMLElement,
 );
 
 root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

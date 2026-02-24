@@ -1912,11 +1912,11 @@ dependencies = [
  "haste-fhir-search",
  "haste-fhir-serialization-json",
  "haste-fhirpath",
- "haste-indexing-worker",
  "haste-jwt",
  "haste-repository",
  "haste-server",
  "haste-testscript-runner",
+ "haste-worker",
  "haste_wal_worker",
  "json-patch",
  "jsonwebtoken",
@@ -1937,23 +1937,6 @@ version = "0.11.0"
 dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
-]
-
-[[package]]
-name = "haste-indexing-worker"
-version = "0.11.0"
-dependencies = [
- "elasticsearch",
- "haste-config",
- "haste-fhir-model",
- "haste-fhir-operation-error",
- "haste-fhir-search",
- "haste-fhirpath",
- "haste-jwt",
- "haste-repository",
- "sqlx",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -2116,6 +2099,23 @@ dependencies = [
  "haste-pointer",
  "haste-reflect",
  "regex",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haste-worker"
+version = "0.11.0"
+dependencies = [
+ "elasticsearch",
+ "haste-config",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhir-search",
+ "haste-fhirpath",
+ "haste-jwt",
+ "haste-repository",
+ "sqlx",
  "tokio",
  "tracing",
 ]

@@ -34,7 +34,7 @@ members = [
     "crates/fhir-terminology",
     "crates/fhirpath",
     "crates/hl7v2",
-    "crates/indexing-worker",
+    "crates/worker",
     "crates/jwt",
     "crates/macro-loads",
     "crates/openapi-schema-generator",
@@ -93,7 +93,7 @@ haste-fhir-operation-error = { path = "./crates/fhir-operation-error" }
 haste-fhir-search = { path = "./crates/fhir-search" }
 haste-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
 haste-fhirpath = { path = "./crates/fhirpath" }
-haste-indexing-worker = { path = "./crates/indexing-worker" }
+haste-worker = { path = "./crates/worker" }
 haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }

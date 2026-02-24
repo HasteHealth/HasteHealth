@@ -1,5 +1,5 @@
 [package]
-name = "haste-indexing-worker"
+name = "haste-worker"
 publish = false
 description = "Haste Health FHIR indexing worker."
 version = { workspace = true }
