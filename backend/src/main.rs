@@ -4,6 +4,7 @@ use std::{
 };
 
 use clap::{Parser, Subcommand};
+use haste_config::{ConfigType, get_config};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_server::auth_n::oidc::routes::discovery::WellKnownDiscoveryDocument;
 use tokio::sync::Mutex;
@@ -90,25 +91,55 @@ static CLI_STATE: LazyLock<Arc<Mutex<CLIState>>> = LazyLock::new(|| {
     Arc::new(Mutex::new(CLIState::new(config)))
 });
 
-#[tokio::main]
-async fn main() -> Result<(), OperationOutcomeError> {
-    // let subscriber = tracing_subscriber::FmtSubscriber::new();
-    // tracing::subscriber::set_global_default(subscriber).unwrap();
+enum CLIEnvironmentVariables {
+    SentryDSN,
+}
 
+impl From<CLIEnvironmentVariables> for String {
+    fn from(value: CLIEnvironmentVariables) -> Self {
+        match value {
+            CLIEnvironmentVariables::SentryDSN => "SENTRY_DSN".to_string(),
+        }
+    }
+}
+
+fn main() -> Result<(), OperationOutcomeError> {
     tracing_subscriber::fmt::init();
     let cli = Cli::parse();
     let config = CLI_STATE.clone();
+    let env = get_config(ConfigType::Environment);
+    let sentry_location = env.get(CLIEnvironmentVariables::SentryDSN);
 
-    match &cli.command {
-        CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
-        CLICommand::Generate { command } => commands::codegen::codegen(command).await,
-        CLICommand::Server { command } => commands::server::server(command).await,
-        CLICommand::Worker { command } => commands::worker::worker(command).await,
-        CLICommand::Config { command } => commands::config::config(&config, command).await,
-        CLICommand::Api { command } => commands::api::api_commands(config, command).await,
-        CLICommand::Testscript { command } => {
-            commands::testscript::testscript_commands(config, command).await
-        }
-        CLICommand::Admin { command } => commands::admin::admin(command).await,
-    }
+    // let subscriber = tracing_subscriber::FmtSubscriber::new();
+    // tracing::subscriber::set_global_default(subscriber).unwrap();
+
+    let _guard = sentry::init((
+        sentry_location.unwrap_or_default(),
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            // Capture user IPs and potentially sensitive headers when using HTTP server integrations
+            // see https://docs.sentry.io/platforms/rust/data-management/data-collected for more info
+            send_default_pii: true,
+            ..Default::default()
+        },
+    ));
+
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
+            match &cli.command {
+                CLICommand::FHIRPath { fhirpath } => commands::fhirpath::fhirpath(fhirpath).await,
+                CLICommand::Generate { command } => commands::codegen::codegen(command).await,
+                CLICommand::Server { command } => commands::server::server(command).await,
+                CLICommand::Worker { command } => commands::worker::worker(command).await,
+                CLICommand::Config { command } => commands::config::config(&config, command).await,
+                CLICommand::Api { command } => commands::api::api_commands(config, command).await,
+                CLICommand::Testscript { command } => {
+                    commands::testscript::testscript_commands(config, command).await
+                }
+                CLICommand::Admin { command } => commands::admin::admin(command).await,
+            }
+        })
 }

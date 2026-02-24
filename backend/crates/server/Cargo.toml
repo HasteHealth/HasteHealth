@@ -72,6 +72,7 @@ sendgrid = "0.26.0"
 serde_html_form = "0.4.0"
 sha1 = "0.10.6"
 sha2 = "0.10.9"
+sentry = { workspace = true, features = ["tower-axum-matched-path"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.6", features = [
     "fs",

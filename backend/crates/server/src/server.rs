@@ -15,6 +15,7 @@ use axum::{
     Extension, Router, ServiceExt,
     body::Body,
     extract::{DefaultBodyLimit, OriginalUri, Path, State},
+    http::Request,
     http::{HeaderName, HeaderValue, Method, Uri},
     middleware::from_fn,
     response::{IntoResponse, Response},
@@ -27,6 +28,7 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
 use haste_repository::{Repository, types::SupportedFHIRVersions};
+use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
 use std::{collections::HashMap, sync::Arc};
 use tower::{Layer, ServiceBuilder};
@@ -230,6 +232,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                .layer(NewSentryLayer::<Request<Body>>::new_from_top())
                 .layer(TraceLayer::new_for_http())
                 // 4mb by default.
                 .layer(DefaultBodyLimit::max(max_body_size))
