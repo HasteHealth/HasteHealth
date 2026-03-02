@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType},
-    terminology::AllTypes,
+    resources::Resource,
+    terminology::{AllTypes, CanonicalResourceTypes},
 };
 
 trait CanonicalResolver {
     fn resolve(
         &self,
-        fhir_type: &ResourceType,
+        canonical_type: &CanonicalResourceTypes,
         url: &str,
     ) -> dyn Future<Output = Option<Arc<Resource>>>;
 }
