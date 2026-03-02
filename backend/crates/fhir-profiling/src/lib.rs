@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::sync::Arc;
 
 use haste_fhir_model::r4::generated::{
@@ -17,6 +19,6 @@ struct FHIRProfilerCTX {
     resolver: Arc<dyn CanonicalResolver>,
 }
 
-pub async fn validate_profile(fhir_type: &AllTypes, url: &str) -> String {
+pub async fn validate_profile(_fhir_type: &AllTypes, _url: &str) -> String {
     "Hello, FHIR Profiling!".to_string()
 }
