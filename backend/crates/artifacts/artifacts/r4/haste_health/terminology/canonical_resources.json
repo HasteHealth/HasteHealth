@@ -1,0 +1,195 @@
+{
+    "resourceType": "Bundle",
+    "id": "hastehealth-canonical-resources",
+    "type": "collection",
+    "entry": [
+        {
+            "fullUrl": "https://haste.health/fhir/CodeSystem/CanonicalResourceTypes",
+            "resource": {
+                "id": "canonical-resource-types",
+                "url": "https://haste.health/fhir/CodeSystem/CanonicalResourceTypes",
+                "resourceType": "CodeSystem",
+                "version": "4.0.1",
+                "name": "CanonicalResourceTypes",
+                "title": "CanonicalResourceTypes",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Canonical Resource Types",
+                "caseSensitive": true,
+                "valueSet": "https://haste.health/fhir/ValueSet/CanonicalResourceTypes",
+                "content": "complete",
+                "concept": [
+                    {
+                        "code": "ActivityDefinition",
+                        "display": "ActivityDefinition",
+                        "definition": "A canonical resource that describes the definition of an activity."
+                    },
+                    {
+                        "code": "CapabilityStatement",
+                        "display": "CapabilityStatement",
+                        "definition": "A canonical resource that describes the capabilities of a system."
+                    },
+                    {
+                        "code": "ChargeItemDefinition",
+                        "display": "ChargeItemDefinition",
+                        "definition": "A canonical resource that defines a charge item."
+                    },
+                    {
+                        "code": "CodeSystem",
+                        "display": "CodeSystem",
+                        "definition": "A canonical resource that defines a code system."
+                    },
+                    {
+                        "code": "CompartmentDefinition",
+                        "display": "CompartmentDefinition",
+                        "definition": "A canonical resource that defines a compartment."
+                    },
+                    {
+                        "code": "ConceptMap",
+                        "display": "ConceptMap",
+                        "definition": "A canonical resource that maps concepts between systems."
+                    },
+                    {
+                        "code": "EffectEvidenceSynthesis",
+                        "display": "EffectEvidenceSynthesis",
+                        "definition": "A canonical resource that summarizes the effect of evidence."
+                    },
+                    {
+                        "code": "EventDefinition",
+                        "display": "EventDefinition",
+                        "definition": "A canonical resource that defines an event."
+                    },
+                    {
+                        "code": "Evidence",
+                        "display": "Evidence",
+                        "definition": "A canonical resource that describes available evidence."
+                    },
+                    {
+                        "code": "EvidenceVariable",
+                        "display": "EvidenceVariable",
+                        "definition": "A canonical resource that defines a variable used in evidence."
+                    },
+                    {
+                        "code": "ExampleScenario",
+                        "display": "ExampleScenario",
+                        "definition": "A canonical resource that provides an example scenario."
+                    },
+                    {
+                        "code": "GraphDefinition",
+                        "display": "GraphDefinition",
+                        "definition": "A canonical resource that defines a graph structure."
+                    },
+                    {
+                        "code": "ImplementationGuide",
+                        "display": "ImplementationGuide",
+                        "definition": "A canonical resource that provides an implementation guide."
+                    },
+                    {
+                        "code": "Library",
+                        "display": "Library",
+                        "definition": "A canonical resource that represents a library of resources."
+                    },
+                    {
+                        "code": "Measure",
+                        "display": "Measure",
+                        "definition": "A canonical resource that defines a measure."
+                    },
+                    {
+                        "code": "MessageDefinition",
+                        "display": "MessageDefinition",
+                        "definition": "A canonical resource that defines a message."
+                    },
+                    {
+                        "code": "NamingSystem",
+                        "display": "NamingSystem",
+                        "definition": "A canonical resource that defines a naming system."
+                    },
+                    {
+                        "code": "OperationDefinition",
+                        "display": "OperationDefinition",
+                        "definition": "A canonical resource that defines an operation."
+                    },
+                    {
+                        "code": "PlanDefinition",
+                        "display": "PlanDefinition",
+                        "definition": "A canonical resource that defines a plan."
+                    },
+                    {
+                        "code": "Questionnaire",
+                        "display": "Questionnaire",
+                        "definition": "A canonical resource that defines a questionnaire."
+                    },
+                    {
+                        "code": "ResearchDefinition",
+                        "display": "ResearchDefinition",
+                        "definition": "A canonical resource that defines a research definition."
+                    },
+                    {
+                        "code": "ResearchElementDefinition",
+                        "display": "ResearchElementDefinition",
+                        "definition": "A canonical resource that defines a research element."
+                    },
+                    {
+                        "code": "RiskEvidenceSynthesis",
+                        "display": "RiskEvidenceSynthesis",
+                        "definition": "A canonical resource that summarizes risk evidence."
+                    },
+                    {
+                        "code": "SearchParameter",
+                        "display": "SearchParameter",
+                        "definition": "A canonical resource that defines a search parameter."
+                    },
+                    {
+                        "code": "StructureDefinition",
+                        "display": "StructureDefinition",
+                        "definition": "A canonical resource that defines a structure."
+                    },
+                    {
+                        "code": "StructureMap",
+                        "display": "StructureMap",
+                        "definition": "A canonical resource that defines a structure map."
+                    },
+                    {
+                        "code": "TerminologyCapabilities",
+                        "display": "TerminologyCapabilities",
+                        "definition": "A canonical resource that describes terminology capabilities."
+                    },
+                    {
+                        "code": "TestScript",
+                        "display": "TestScript",
+                        "definition": "A canonical resource that defines a test script."
+                    },
+                    {
+                        "code": "ValueSet",
+                        "display": "ValueSet",
+                        "definition": "A canonical resource that defines a value set."
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "https://haste.health/fhir/ValueSet/CanonicalResourceTypes",
+            "resource": {
+                "resourceType": "ValueSet",
+                "id": "canonical-resource-types",
+                "url": "https://haste.health/fhir/ValueSet/CanonicalResourceTypes",
+                "version": "4.0.1",
+                "name": "CanonicalResourceTypes",
+                "title": "CanonicalResourceTypes",
+                "status": "active",
+                "experimental": true,
+                "publisher": "HasteHealth",
+                "description": "Canonical Resource Types",
+                "immutable": true,
+                "compose": {
+                    "include": [
+                        {
+                            "system": "https://haste.health/fhir/CodeSystem/CanonicalResourceTypes"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -182079,6 +182079,306 @@ impl MetaValue for AccessPolicyRuleEffect {
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
+pub enum CanonicalResourceTypes {
+    #[doc = "ActivityDefinition"]
+    #[code = "ActivityDefinition"]
+    ActivityDefinition(Option<Element>),
+    #[doc = "CapabilityStatement"]
+    #[code = "CapabilityStatement"]
+    CapabilityStatement(Option<Element>),
+    #[doc = "ChargeItemDefinition"]
+    #[code = "ChargeItemDefinition"]
+    ChargeItemDefinition(Option<Element>),
+    #[doc = "CodeSystem"]
+    #[code = "CodeSystem"]
+    CodeSystem(Option<Element>),
+    #[doc = "CompartmentDefinition"]
+    #[code = "CompartmentDefinition"]
+    CompartmentDefinition(Option<Element>),
+    #[doc = "ConceptMap"]
+    #[code = "ConceptMap"]
+    ConceptMap(Option<Element>),
+    #[doc = "EffectEvidenceSynthesis"]
+    #[code = "EffectEvidenceSynthesis"]
+    EffectEvidenceSynthesis(Option<Element>),
+    #[doc = "EventDefinition"]
+    #[code = "EventDefinition"]
+    EventDefinition(Option<Element>),
+    #[doc = "Evidence"]
+    #[code = "Evidence"]
+    Evidence(Option<Element>),
+    #[doc = "EvidenceVariable"]
+    #[code = "EvidenceVariable"]
+    EvidenceVariable(Option<Element>),
+    #[doc = "ExampleScenario"]
+    #[code = "ExampleScenario"]
+    ExampleScenario(Option<Element>),
+    #[doc = "GraphDefinition"]
+    #[code = "GraphDefinition"]
+    GraphDefinition(Option<Element>),
+    #[doc = "ImplementationGuide"]
+    #[code = "ImplementationGuide"]
+    ImplementationGuide(Option<Element>),
+    #[doc = "Library"]
+    #[code = "Library"]
+    Library(Option<Element>),
+    #[doc = "Measure"]
+    #[code = "Measure"]
+    Measure(Option<Element>),
+    #[doc = "MessageDefinition"]
+    #[code = "MessageDefinition"]
+    MessageDefinition(Option<Element>),
+    #[doc = "NamingSystem"]
+    #[code = "NamingSystem"]
+    NamingSystem(Option<Element>),
+    #[doc = "OperationDefinition"]
+    #[code = "OperationDefinition"]
+    OperationDefinition(Option<Element>),
+    #[doc = "PlanDefinition"]
+    #[code = "PlanDefinition"]
+    PlanDefinition(Option<Element>),
+    #[doc = "Questionnaire"]
+    #[code = "Questionnaire"]
+    Questionnaire(Option<Element>),
+    #[doc = "ResearchDefinition"]
+    #[code = "ResearchDefinition"]
+    ResearchDefinition(Option<Element>),
+    #[doc = "ResearchElementDefinition"]
+    #[code = "ResearchElementDefinition"]
+    ResearchElementDefinition(Option<Element>),
+    #[doc = "RiskEvidenceSynthesis"]
+    #[code = "RiskEvidenceSynthesis"]
+    RiskEvidenceSynthesis(Option<Element>),
+    #[doc = "SearchParameter"]
+    #[code = "SearchParameter"]
+    SearchParameter(Option<Element>),
+    #[doc = "StructureDefinition"]
+    #[code = "StructureDefinition"]
+    StructureDefinition(Option<Element>),
+    #[doc = "StructureMap"]
+    #[code = "StructureMap"]
+    StructureMap(Option<Element>),
+    #[doc = "TerminologyCapabilities"]
+    #[code = "TerminologyCapabilities"]
+    TerminologyCapabilities(Option<Element>),
+    #[doc = "TestScript"]
+    #[code = "TestScript"]
+    TestScript(Option<Element>),
+    #[doc = "ValueSet"]
+    #[code = "ValueSet"]
+    ValueSet(Option<Element>),
+    #[doc = "If value is missing and just the element is present."]
+    Null(Option<Element>),
+}
+impl Default for CanonicalResourceTypes {
+    fn default() -> Self {
+        CanonicalResourceTypes::Null(None)
+    }
+}
+impl TryFrom<String> for CanonicalResourceTypes {
+    type Error = String;
+    fn try_from(value: String) -> Result<Self, String> {
+        match value.as_str() {
+            "ActivityDefinition" => Ok(CanonicalResourceTypes::ActivityDefinition(None)),
+            "CapabilityStatement" => Ok(CanonicalResourceTypes::CapabilityStatement(None)),
+            "ChargeItemDefinition" => Ok(CanonicalResourceTypes::ChargeItemDefinition(None)),
+            "CodeSystem" => Ok(CanonicalResourceTypes::CodeSystem(None)),
+            "CompartmentDefinition" => Ok(CanonicalResourceTypes::CompartmentDefinition(None)),
+            "ConceptMap" => Ok(CanonicalResourceTypes::ConceptMap(None)),
+            "EffectEvidenceSynthesis" => Ok(CanonicalResourceTypes::EffectEvidenceSynthesis(None)),
+            "EventDefinition" => Ok(CanonicalResourceTypes::EventDefinition(None)),
+            "Evidence" => Ok(CanonicalResourceTypes::Evidence(None)),
+            "EvidenceVariable" => Ok(CanonicalResourceTypes::EvidenceVariable(None)),
+            "ExampleScenario" => Ok(CanonicalResourceTypes::ExampleScenario(None)),
+            "GraphDefinition" => Ok(CanonicalResourceTypes::GraphDefinition(None)),
+            "ImplementationGuide" => Ok(CanonicalResourceTypes::ImplementationGuide(None)),
+            "Library" => Ok(CanonicalResourceTypes::Library(None)),
+            "Measure" => Ok(CanonicalResourceTypes::Measure(None)),
+            "MessageDefinition" => Ok(CanonicalResourceTypes::MessageDefinition(None)),
+            "NamingSystem" => Ok(CanonicalResourceTypes::NamingSystem(None)),
+            "OperationDefinition" => Ok(CanonicalResourceTypes::OperationDefinition(None)),
+            "PlanDefinition" => Ok(CanonicalResourceTypes::PlanDefinition(None)),
+            "Questionnaire" => Ok(CanonicalResourceTypes::Questionnaire(None)),
+            "ResearchDefinition" => Ok(CanonicalResourceTypes::ResearchDefinition(None)),
+            "ResearchElementDefinition" => {
+                Ok(CanonicalResourceTypes::ResearchElementDefinition(None))
+            }
+            "RiskEvidenceSynthesis" => Ok(CanonicalResourceTypes::RiskEvidenceSynthesis(None)),
+            "SearchParameter" => Ok(CanonicalResourceTypes::SearchParameter(None)),
+            "StructureDefinition" => Ok(CanonicalResourceTypes::StructureDefinition(None)),
+            "StructureMap" => Ok(CanonicalResourceTypes::StructureMap(None)),
+            "TerminologyCapabilities" => Ok(CanonicalResourceTypes::TerminologyCapabilities(None)),
+            "TestScript" => Ok(CanonicalResourceTypes::TestScript(None)),
+            "ValueSet" => Ok(CanonicalResourceTypes::ValueSet(None)),
+            _ => Err(format!("Unknown code '{}'", value)),
+        }
+    }
+}
+impl Into<Option<String>> for &CanonicalResourceTypes {
+    fn into(self) -> Option<String> {
+        match self {
+            CanonicalResourceTypes::ActivityDefinition(_) => Some("ActivityDefinition".to_string()),
+            CanonicalResourceTypes::CapabilityStatement(_) => {
+                Some("CapabilityStatement".to_string())
+            }
+            CanonicalResourceTypes::ChargeItemDefinition(_) => {
+                Some("ChargeItemDefinition".to_string())
+            }
+            CanonicalResourceTypes::CodeSystem(_) => Some("CodeSystem".to_string()),
+            CanonicalResourceTypes::CompartmentDefinition(_) => {
+                Some("CompartmentDefinition".to_string())
+            }
+            CanonicalResourceTypes::ConceptMap(_) => Some("ConceptMap".to_string()),
+            CanonicalResourceTypes::EffectEvidenceSynthesis(_) => {
+                Some("EffectEvidenceSynthesis".to_string())
+            }
+            CanonicalResourceTypes::EventDefinition(_) => Some("EventDefinition".to_string()),
+            CanonicalResourceTypes::Evidence(_) => Some("Evidence".to_string()),
+            CanonicalResourceTypes::EvidenceVariable(_) => Some("EvidenceVariable".to_string()),
+            CanonicalResourceTypes::ExampleScenario(_) => Some("ExampleScenario".to_string()),
+            CanonicalResourceTypes::GraphDefinition(_) => Some("GraphDefinition".to_string()),
+            CanonicalResourceTypes::ImplementationGuide(_) => {
+                Some("ImplementationGuide".to_string())
+            }
+            CanonicalResourceTypes::Library(_) => Some("Library".to_string()),
+            CanonicalResourceTypes::Measure(_) => Some("Measure".to_string()),
+            CanonicalResourceTypes::MessageDefinition(_) => Some("MessageDefinition".to_string()),
+            CanonicalResourceTypes::NamingSystem(_) => Some("NamingSystem".to_string()),
+            CanonicalResourceTypes::OperationDefinition(_) => {
+                Some("OperationDefinition".to_string())
+            }
+            CanonicalResourceTypes::PlanDefinition(_) => Some("PlanDefinition".to_string()),
+            CanonicalResourceTypes::Questionnaire(_) => Some("Questionnaire".to_string()),
+            CanonicalResourceTypes::ResearchDefinition(_) => Some("ResearchDefinition".to_string()),
+            CanonicalResourceTypes::ResearchElementDefinition(_) => {
+                Some("ResearchElementDefinition".to_string())
+            }
+            CanonicalResourceTypes::RiskEvidenceSynthesis(_) => {
+                Some("RiskEvidenceSynthesis".to_string())
+            }
+            CanonicalResourceTypes::SearchParameter(_) => Some("SearchParameter".to_string()),
+            CanonicalResourceTypes::StructureDefinition(_) => {
+                Some("StructureDefinition".to_string())
+            }
+            CanonicalResourceTypes::StructureMap(_) => Some("StructureMap".to_string()),
+            CanonicalResourceTypes::TerminologyCapabilities(_) => {
+                Some("TerminologyCapabilities".to_string())
+            }
+            CanonicalResourceTypes::TestScript(_) => Some("TestScript".to_string()),
+            CanonicalResourceTypes::ValueSet(_) => Some("ValueSet".to_string()),
+            CanonicalResourceTypes::Null(_) => None,
+        }
+    }
+}
+impl MetaValue for CanonicalResourceTypes {
+    fn fields(&self) -> Vec<&'static str> {
+        vec!["value", "id", "extension"]
+    }
+    fn get_field<'a>(&'a self, field: &str) -> Option<&'a dyn MetaValue> {
+        match field {
+            "value" => {
+                let code_value: Option<String> = self.into();
+                if let Some(code_value) = code_value {
+                    let v = Box::new(code_value);
+                    let code_ref: &'a String = Box::leak(v);
+                    Some(code_ref)
+                } else {
+                    None
+                }
+            }
+            _ => match self {
+                CanonicalResourceTypes::ActivityDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::CapabilityStatement(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ChargeItemDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::CodeSystem(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::CompartmentDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ConceptMap(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::EffectEvidenceSynthesis(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::EventDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::Evidence(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::EvidenceVariable(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ExampleScenario(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::GraphDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ImplementationGuide(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::Library(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::Measure(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::MessageDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::NamingSystem(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::OperationDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::PlanDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::Questionnaire(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ResearchDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ResearchElementDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::RiskEvidenceSynthesis(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::SearchParameter(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::StructureDefinition(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::StructureMap(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::TerminologyCapabilities(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::TestScript(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::ValueSet(Some(e)) => e.get_field(field),
+                CanonicalResourceTypes::Null(Some(e)) => e.get_field(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_field_mut<'a>(&'a mut self, field: &str) -> Option<&'a mut dyn MetaValue> {
+        match field {
+            "value" => None,
+            _ => match self {
+                CanonicalResourceTypes::ActivityDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::CapabilityStatement(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ChargeItemDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::CodeSystem(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::CompartmentDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ConceptMap(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::EffectEvidenceSynthesis(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::EventDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::Evidence(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::EvidenceVariable(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ExampleScenario(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::GraphDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ImplementationGuide(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::Library(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::Measure(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::MessageDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::NamingSystem(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::OperationDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::PlanDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::Questionnaire(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ResearchDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ResearchElementDefinition(Some(e)) => {
+                    e.get_field_mut(field)
+                }
+                CanonicalResourceTypes::RiskEvidenceSynthesis(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::SearchParameter(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::StructureDefinition(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::StructureMap(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::TerminologyCapabilities(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::TestScript(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::ValueSet(Some(e)) => e.get_field_mut(field),
+                CanonicalResourceTypes::Null(Some(e)) => e.get_field_mut(field),
+                _ => None,
+            },
+        }
+    }
+    fn get_index<'a>(&'a self, _index: usize) -> Option<&'a dyn MetaValue> {
+        None
+    }
+    fn get_index_mut<'a>(&'a mut self, _index: usize) -> Option<&'a mut dyn MetaValue> {
+        None
+    }
+    fn flatten(&self) -> Vec<&dyn MetaValue> {
+        vec![self]
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn typename(&self) -> &'static str {
+        "FHIRCode"
+    }
+}
+#[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
+#[fhir_serialize_type = "valueset"]
 pub enum ClientapplicationGrantType {
     #[doc = "Authorization Code"]
     #[code = "authorization_code"]
