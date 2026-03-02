@@ -1,0 +1,10 @@
+[package]
+name = "haste-fhir-profiling"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+haste-fhir-model = { path = "../fhir-model", version = "0.*" }

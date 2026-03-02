@@ -2090,6 +2090,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-fhir-profiling"
+version = "0.11.0"
+dependencies = [
+ "haste-fhir-model",
+]
+
+[[package]]
 name = "haste-fhir-search"
 version = "0.11.0"
 dependencies = [
