@@ -1,4 +1,4 @@
-use crate::fhir_client::{FHIRServerClient, ServerCTX};
+use crate::fhir_client::ServerCTX;
 use haste_artifacts::ARTIFACT_RESOURCES;
 use haste_fhir_client::{
     FHIRClient,
@@ -13,9 +13,6 @@ use haste_fhir_model::r4::generated::{
     terminology::{CompartmentType, IssueType},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
 use std::sync::{Arc, LazyLock};
 
 // Supported Compartment Definitions from R4.
@@ -45,12 +42,10 @@ fn compartment_type_to_resource_type(compartment_type: &CompartmentType) -> Opti
 /// An example of a compartment request is /Patient/123/Observation which utilizes patient compartmentdefinition
 /// To determine query parameters for pulling observations for patient 123.
 pub async fn process_compartment_request<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
 >(
-    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    fhir_client: &Client,
+    ctx: Arc<ServerCTX<Client>>,
     compartment_request: &CompartmentRequest,
 ) -> Result<FHIRResponse, OperationOutcomeError> {
     let Some(compartment) = COMPARTMENTS.iter().find(|compartment_def| {

@@ -11,9 +11,7 @@ use haste_fhir_model::r4::generated::{
     resources::{CapabilityStatement, CapabilityStatementRestResourceSearchParam},
     terminology::SearchParamType,
 };
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
+use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::json;
 use std::sync::Arc;
 
@@ -154,11 +152,9 @@ fn generate_get_search_parameters_tool(capabilities: &CapabilityStatement) -> To
 }
 
 pub async fn list_tools<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    ctx: Arc<ServerCTX<Client>>,
     _request: &ListToolsRequest,
 ) -> Result<ListToolsResult, MCPError<serde_json::Value>> {
     let capabilities = ctx.client.capabilities(ctx.clone()).await?;

@@ -2010,6 +2010,7 @@ name = "haste-fhir-client"
 version = "0.11.0"
 dependencies = [
  "axum",
+ "dashmap",
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-fhir-serialization-json",

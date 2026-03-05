@@ -11,6 +11,7 @@ use crate::{
 
 #[cfg(feature = "axum")]
 pub mod axum;
+pub mod canonical_resolver;
 #[cfg(feature = "http")]
 pub mod http;
 pub mod middleware;

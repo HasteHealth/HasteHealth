@@ -10,6 +10,7 @@ use crate::fhir_client::{
     },
 };
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{
         DeleteRequest, DeleteResponse, FHIRBatchResponse, FHIRCreateResponse,
@@ -81,10 +82,11 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
+        Arc<ServerCTX<Client>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -93,9 +95,11 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        mut context: ServerMiddlewareContext<Client>,
+        next: Option<
+            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
+        >,
+    ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             let response = match &mut context.request {
                 FHIRRequest::Create(create_request) => {
@@ -617,9 +621,16 @@ impl<
                             state.config.clone(),
                         ));
 
+                        let transaction_context = Arc::new(
+                            context
+                                .ctx
+                                .as_ref()
+                                .swap_client(Arc::new(transaction_client)),
+                        );
+
                         Ok(process_transaction_bundle(
-                            &transaction_client,
-                            context.ctx.clone(),
+                            transaction_context.client.as_ref(),
+                            transaction_context.clone(),
                             sorted_transaction,
                         )
                         .await?)
@@ -660,10 +671,13 @@ impl<
                         state.config.clone(),
                     ));
 
+                    let batch_context =
+                        Arc::new(context.ctx.as_ref().swap_client(Arc::new(batch_client)));
+
                     Ok(Some(FHIRResponse::Batch(FHIRBatchResponse {
                         resource: process_batch_bundle(
-                            &batch_client,
-                            context.ctx.clone(),
+                            batch_context.client.as_ref(),
+                            batch_context.clone(),
                             batch_entries.unwrap_or_else(Vec::new),
                         )
                         .await?,

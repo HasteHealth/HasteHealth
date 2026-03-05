@@ -8,17 +8,14 @@ use crate::{
         },
     },
 };
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
+use haste_fhir_client::FHIRClient;
+use haste_fhir_operation_error::OperationOutcomeError;
 use std::{collections::HashMap, sync::Arc};
 
 pub async fn initialize<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    _ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    _ctx: Arc<ServerCTX<Client>>,
     _request: &InitializeRequest,
 ) -> Result<InitializeResult, MCPError<serde_json::Value>> {
     Ok(InitializeResult {

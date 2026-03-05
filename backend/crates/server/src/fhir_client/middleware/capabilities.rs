@@ -9,6 +9,7 @@ use crate::{
     load_artifacts::{get_all_sds, get_all_sps},
 };
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{FHIRCapabilitiesResponse, FHIRRequest, FHIRResponse},
 };
@@ -176,10 +177,11 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
+        Arc<ServerCTX<Client>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -187,11 +189,12 @@ impl<
 {
     fn call(
         &self,
-
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        mut context: ServerMiddlewareContext<Client>,
+        next: Option<
+            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
+        >,
+    ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             match context.request {
                 FHIRRequest::Capabilities => {

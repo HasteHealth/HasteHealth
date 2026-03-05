@@ -7,6 +7,7 @@ use crate::fhir_client::{
     utilities::request_to_resource_type,
 };
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{DeleteResponse, FHIRRequest, FHIRResponse},
 };
@@ -49,10 +50,11 @@ impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >
     MiddlewareChain<
         ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
+        Arc<ServerCTX<Client>>,
         FHIRRequest,
         FHIRResponse,
         OperationOutcomeError,
@@ -61,9 +63,11 @@ impl<
     fn call(
         &self,
         state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        context: ServerMiddlewareContext<Client>,
+        next: Option<
+            Arc<ServerMiddlewareNext<Client, ServerMiddlewareState<Repo, Search, Terminology>>>,
+        >,
+    ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             if let Some(next) = next {
                 let res = next(state.clone(), context).await?;

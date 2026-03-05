@@ -1,20 +1,15 @@
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
 };
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
-use haste_repository::Repository;
 use std::sync::Arc;
 
 pub struct Middleware {}
@@ -25,24 +20,17 @@ impl Middleware {
 }
 
 impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
+    State: Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
+    for Middleware
 {
     fn call(
         &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        state: State,
+        mut context: ServerMiddlewareContext<Client>,
+        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
+    ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             let ctx = Arc::new(ServerCTX::new(
                 TenantId::System,

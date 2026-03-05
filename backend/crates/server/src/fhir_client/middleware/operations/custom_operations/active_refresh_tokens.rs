@@ -1,10 +1,14 @@
-use crate::fhir_client::middleware::operations::ServerOperationContext;
-use haste_fhir_client::request::InvocationRequest;
+use crate::fhir_client::{
+    ServerCTX,
+    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+};
+use haste_fhir_client::{FHIRClient, request::InvocationRequest};
 use haste_fhir_generated_ops::generated::HasteHealthListRefreshTokens;
 use haste_fhir_model::r4::{
     datetime::parse_datetime,
     generated::types::{FHIRDateTime, FHIRId, FHIRString},
 };
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationExecutor;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -15,6 +19,7 @@ use haste_repository::{
     types::authorization_code::{AuthorizationCodeKind, AuthorizationCodeSearchClaims},
 };
 use sqlx::types::time::OffsetDateTime;
+use std::sync::Arc;
 use tower_sessions::cookie::time::format_description;
 
 fn format_datetime(datetime: &OffsetDateTime) -> Option<String> {
@@ -34,15 +39,19 @@ pub fn active_refresh_tokens_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >() -> OperationExecutor<
-    ServerOperationContext<Repo, Search, Terminology>,
+    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     HasteHealthListRefreshTokens::Input,
     HasteHealthListRefreshTokens::Output,
 > {
     OperationExecutor::new(
         HasteHealthListRefreshTokens::CODE.to_string(),
         Box::new(
-            |context: ServerOperationContext<Repo, Search, Terminology>,
+            |context: ServerOperationContext<
+                ServerMiddlewareState<Repo, Search, Terminology>,
+                Client,
+            >,
              tenant: TenantId,
              project: ProjectId,
              _request: &InvocationRequest,

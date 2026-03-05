@@ -1,8 +1,15 @@
 use crate::{
-    ServerEnvironmentVariables, fhir_client::middleware::operations::ServerOperationContext,
+    ServerEnvironmentVariables,
+    fhir_client::{
+        ServerCTX,
+        middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+    },
     route_path::api_v1_oidc_path,
 };
-use haste_fhir_client::request::{FHIRInvokeInstanceRequest, InvocationRequest};
+use haste_fhir_client::{
+    FHIRClient,
+    request::{FHIRInvokeInstanceRequest, InvocationRequest},
+};
 use haste_fhir_generated_ops::generated::HasteHealthIdpRegistrationInfo;
 use haste_fhir_model::r4::generated::{
     resources::ResourceType, terminology::IssueType, types::FHIRString,
@@ -13,21 +20,26 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::Repository;
+use std::sync::Arc;
 use url::Url;
 
 pub fn idp_registration_info_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >() -> OperationExecutor<
-    ServerOperationContext<Repo, Search, Terminology>,
+    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     HasteHealthIdpRegistrationInfo::Input,
     HasteHealthIdpRegistrationInfo::Output,
 > {
     OperationExecutor::new(
         HasteHealthIdpRegistrationInfo::CODE.to_string(),
         Box::new(
-            |context: ServerOperationContext<Repo, Search, Terminology>,
+            |context: ServerOperationContext<
+                ServerMiddlewareState<Repo, Search, Terminology>,
+                Client,
+            >,
              tenant: TenantId,
              _project: ProjectId,
              request: &InvocationRequest,

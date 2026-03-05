@@ -1,5 +1,5 @@
 use crate::{
-    fhir_client::{FHIRServerClient, ServerCTX, utilities::request_to_resource_type},
+    fhir_client::{ServerCTX, utilities::request_to_resource_type},
     fhir_http::{self, HTTPRequest},
 };
 use axum::http::Method;
@@ -13,10 +13,8 @@ use haste_fhir_model::r4::generated::{
     types::Reference,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_reflect::MetaValue;
-use haste_repository::{Repository, types::SupportedFHIRVersions};
+use haste_repository::types::SupportedFHIRVersions;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::{algo::toposort, visit::EdgeRef};
 use std::{pin::Pin, str::FromStr, sync::Arc};
@@ -187,12 +185,10 @@ pub fn bundle_entry_to_fhir_request(
 }
 
 pub async fn process_batch_bundle<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
 >(
-    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    fhir_client: &Client,
+    ctx: Arc<ServerCTX<Client>>,
     request_bundle_entries: Vec<BundleEntry>,
 ) -> Result<Bundle, OperationOutcomeError> {
     let mut bundle_response_entries = Vec::with_capacity(request_bundle_entries.len());
@@ -319,12 +315,10 @@ pub async fn build_sorted_transaction_graph<'a>(
 /// Sorts transactions using topological sort to ensure that dependencies are processed first.
 pub async fn process_transaction_bundle<
     'a,
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>,
 >(
-    fhir_client: &FHIRServerClient<Repo, Search, Terminology>,
-    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    fhir_client: &Client,
+    ctx: Arc<ServerCTX<Client>>,
     mut sorted_transaction: SortedTransaction<'a>,
 ) -> Result<Bundle, OperationOutcomeError> {
     // Performance improvement over .push as we know exact size of vector based on transaction request bundle.

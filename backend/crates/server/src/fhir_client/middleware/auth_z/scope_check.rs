@@ -1,25 +1,20 @@
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{
-        ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-        ServerMiddlewareState,
-    },
+    middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
     utilities::request_to_resource_type,
 };
 
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::scopes::{
     SMARTResourceScope, Scope, Scopes, SmartResourceScopeLevel, SmartResourceScopePermission,
     SmartResourceScopeUser, SmartScope,
 };
-use haste_repository::Repository;
 use std::sync::Arc;
 
 fn request_type_to_permission(
@@ -113,24 +108,17 @@ impl SMARTScopeAccessMiddleware {
     }
 }
 impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for SMARTScopeAccessMiddleware
+    State: Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
+    for SMARTScopeAccessMiddleware
 {
     fn call(
         &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        state: State,
+        context: ServerMiddlewareContext<Client>,
+        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
+    ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             match &context.request {
                 // Batch and transaction will call back into this middleware for their individual requests

@@ -2,25 +2,20 @@ use crate::{
     ServerEnvironmentVariables,
     fhir_client::{
         ServerCTX,
-        middleware::{
-            ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
-            ServerMiddlewareState,
-        },
+        middleware::{ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput},
     },
 };
 use haste_config::{ConfigType, get_config};
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_model::r4::generated::{resources::Bundle, terminology::HttpVerb};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::claims::SubscriptionTier;
 use haste_rate_limit::RateLimitError;
-use haste_repository::Repository;
 use std::sync::{Arc, LazyLock};
 
 struct OperationScoringPoints {
@@ -190,24 +185,17 @@ impl Middleware {
 }
 
 impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
+    State: Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
+    for Middleware
 {
     fn call(
         &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        state: State,
+        context: ServerMiddlewareContext<Client>,
+        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
+    ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             match &context.ctx.user.subscription_tier {
                 SubscriptionTier::Free

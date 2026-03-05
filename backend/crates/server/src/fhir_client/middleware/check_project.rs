@@ -7,10 +7,10 @@ use crate::fhir_client::{
     },
 };
 use haste_fhir_client::{
+    FHIRClient,
     middleware::MiddlewareChain,
     request::{FHIRRequest, FHIRResponse},
 };
-
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -28,24 +28,17 @@ impl Middleware {
     }
 }
 impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for Middleware
+    State: Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
+    for Middleware
 {
     fn call(
         &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        state: State,
+        mut context: ServerMiddlewareContext<Client>,
+        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
+    ) -> ServerMiddlewareOutput<Client> {
         let project_id = self.project_id.clone();
         Box::pin(async move {
             if let Some(next) = next
@@ -74,24 +67,17 @@ impl SetProjectReadOnlyMiddleware {
     }
 }
 impl<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
->
-    MiddlewareChain<
-        ServerMiddlewareState<Repo, Search, Terminology>,
-        Arc<ServerCTX<Repo, Search, Terminology>>,
-        FHIRRequest,
-        FHIRResponse,
-        OperationOutcomeError,
-    > for SetProjectReadOnlyMiddleware
+    State: Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
+> MiddlewareChain<State, Arc<ServerCTX<Client>>, FHIRRequest, FHIRResponse, OperationOutcomeError>
+    for SetProjectReadOnlyMiddleware
 {
     fn call(
         &self,
-        state: ServerMiddlewareState<Repo, Search, Terminology>,
-        mut context: ServerMiddlewareContext<Repo, Search, Terminology>,
-        next: Option<Arc<ServerMiddlewareNext<Repo, Search, Terminology>>>,
-    ) -> ServerMiddlewareOutput<Repo, Search, Terminology> {
+        state: State,
+        mut context: ServerMiddlewareContext<Client>,
+        next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
+    ) -> ServerMiddlewareOutput<Client> {
         let project_id = self.project_id.clone();
         Box::pin(async move {
             if let Some(next) = next {

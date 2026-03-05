@@ -1,12 +1,12 @@
-use std::sync::Arc;
-
 use crate::fhir_client::{
-    ServerCTX, batch_transaction_processing::bundle_entry_to_fhir_request,
-    middleware::operations::ServerOperationContext,
+    ServerCTX,
+    batch_transaction_processing::bundle_entry_to_fhir_request,
+    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
 };
 use haste_access_control::context::{PermissionLevel, PolicyContext, PolicyEnvironment, UserInfo};
-use haste_fhir_client::request::InvocationRequest;
+use haste_fhir_client::{FHIRClient, request::InvocationRequest};
 use haste_fhir_generated_ops::generated::HasteHealthEvaluatePolicy;
+use std::sync::Arc;
 
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcome, OperationOutcomeIssue, Resource, ResourceType},
@@ -52,15 +52,19 @@ pub fn evaluate_policy_op<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >() -> OperationExecutor<
-    ServerOperationContext<Repo, Search, Terminology>,
+    ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
     HasteHealthEvaluatePolicy::Input,
     HasteHealthEvaluatePolicy::Output,
 > {
     OperationExecutor::new(
         HasteHealthEvaluatePolicy::CODE.to_string(),
         Box::new(
-            |context: ServerOperationContext<Repo, Search, Terminology>,
+            |context: ServerOperationContext<
+                ServerMiddlewareState<Repo, Search, Terminology>,
+                Client,
+            >,
              tenant: TenantId,
              project: ProjectId,
              request: &InvocationRequest,

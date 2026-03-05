@@ -12,9 +12,6 @@ use crate::{
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::{resources::ResourceType, terminology::IssueType};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_search::SearchEngine;
-use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
 use std::{collections::HashMap, sync::Arc};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -25,11 +22,9 @@ struct FHIRSearchArguments {
 }
 
 pub async fn tools_call<
-    Repo: Repository + Send + Sync + 'static,
-    Search: SearchEngine + Send + Sync + 'static,
-    Terminology: FHIRTerminology + Send + Sync + 'static,
+    Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError> + 'static,
 >(
-    ctx: Arc<ServerCTX<Repo, Search, Terminology>>,
+    ctx: Arc<ServerCTX<Client>>,
     request: CallToolRequest,
 ) -> Result<CallToolResult, MCPError<serde_json::Value>> {
     match request.params.name.as_str() {
