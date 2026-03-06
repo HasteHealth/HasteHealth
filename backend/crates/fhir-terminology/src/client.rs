@@ -29,10 +29,12 @@ impl<Resolver: CanonicalResolver> FHIRCanonicalTerminology<Resolver> {
 
 async fn resolve_valueset<Resolver: CanonicalResolver>(
     canonical_resolution: Arc<Resolver>,
-    input: ValueSetExpand::Input,
-) -> Result<Option<ValueSet>, OperationOutcomeError> {
-    if let Some(valueset) = input.valueSet.as_ref() {
-        return Ok(Some(valueset.clone()));
+    mut input: ValueSetExpand::Input,
+) -> Result<Option<Arc<ValueSet>>, OperationOutcomeError> {
+    if input.valueSet.is_some() {
+        let mut valueset: Option<ValueSet> = None;
+        std::mem::swap(&mut input.valueSet, &mut valueset);
+        return Ok(valueset.map(|v| Arc::new(v)));
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
         let Resource::ValueSet(value_set) = canonical_resolution
             .resolve(ResourceType::ValueSet, url.to_string())
@@ -41,7 +43,7 @@ async fn resolve_valueset<Resolver: CanonicalResolver>(
             return Ok(None);
         };
 
-        return Ok(Some(value_set));
+        return Ok(Some(Arc::new(value_set)));
     }
     Ok(None)
 }
@@ -69,7 +71,7 @@ fn codes_inline_to_expansion(include: &ValueSetComposeInclude) -> Vec<ValueSetEx
 async fn resolve_codesystem<Resolver: CanonicalResolver>(
     canonical_resolution: Arc<Resolver>,
     url: &str,
-) -> Result<Option<CodeSystem>, OperationOutcomeError> {
+) -> Result<Option<Arc<CodeSystem>>, OperationOutcomeError> {
     let Resource::CodeSystem(code_system) = canonical_resolution
         .resolve(ResourceType::CodeSystem, url.to_string())
         .await?
@@ -77,11 +79,11 @@ async fn resolve_codesystem<Resolver: CanonicalResolver>(
         return Ok(None);
     };
 
-    Ok(Some(code_system))
+    Ok(Some(Arc::new(code_system)))
 }
 
 async fn get_concepts(
-    codesystem: CodeSystem,
+    codesystem: Arc<CodeSystem>,
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
     match codesystem.content.as_ref() {
         CodesystemContentMode::NotPresent(_) => Err(OperationOutcomeError::error(
@@ -240,16 +242,20 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + 'static>(
     Box::pin(async move {
         let value_set = resolve_valueset(canonical_resolution.clone(), input).await?;
 
-        if let Some(mut value_set) = value_set {
+        if let Some(value_set) = value_set {
             let contains = get_valueset_expansion(canonical_resolution.clone(), &value_set).await?;
-            value_set.expansion = Some(ValueSetExpansion {
-                contains: Some(contains),
-                timestamp: Box::new(FHIRDateTime {
-                    value: Some(DateTime::Iso8601(chrono::Utc::now())),
+
+            let value_set = ValueSet {
+                expansion: Some(ValueSetExpansion {
+                    contains: Some(contains),
+                    timestamp: Box::new(FHIRDateTime {
+                        value: Some(DateTime::Iso8601(chrono::Utc::now())),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 }),
-                ..Default::default()
-            });
+                ..(*value_set).clone()
+            };
 
             Ok(ValueSetExpand::Output { return_: value_set })
         } else {
