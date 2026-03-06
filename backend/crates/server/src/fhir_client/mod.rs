@@ -11,13 +11,14 @@ use crate::{
 use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
+    canonical_resolver::CanonicalResolver,
     middleware::{Middleware, MiddlewareChain},
     request::{
         FHIRBatchRequest, FHIRConditionalUpdateRequest, FHIRCreateRequest, FHIRReadRequest,
         FHIRRequest, FHIRResponse, FHIRSearchTypeRequest, FHIRTransactionRequest,
         FHIRUpdateInstanceRequest, SearchRequest, SearchResponse, UpdateRequest,
     },
-    url::ParsedParameters,
+    url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::resources::{
     Bundle, CapabilityStatement, Parameters, Resource, ResourceType,
@@ -62,6 +63,15 @@ pub enum StorageError {
     InvalidType,
 }
 
+fn generate_key(
+    tenant_id: &TenantId,
+    project_id: &ProjectId,
+    resource_type: &ResourceType,
+    url: &str,
+) -> String {
+    format!("{}::{}::{}::{}", tenant_id, project_id, resource_type.as_ref(), url)
+}
+
 pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     pub tenant: TenantId,
     pub project: ProjectId,
@@ -69,6 +79,50 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     pub user: Arc<haste_jwt::claims::UserTokenClaims>,
     pub client: Arc<Client>,
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
+    // Used for the canonical resolver.
+    // internal_cache: DashMap<String, Arc<Resource>>,
+}
+
+impl<Client: FHIRClient<Self, OperationOutcomeError>>
+    CanonicalResolver<ServerCTX<Client>, OperationOutcomeError> for Arc<ServerCTX<Client>>
+{
+    async fn resolve(
+        &self,
+        resource_type: ResourceType,
+        canonical_url: String,
+    ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
+        let key = generate_key(&self.tenant, &self.project, &resource_type, &canonical_url);
+        if let Some(cached) = self.cache.get(&key) {
+            Ok(Some(cached.clone()))
+        } else {
+            if let Some(url) = canonical_url.split('|').next()
+                // Perform search for an entry with the given canonical URL.
+                && let Some(resource) = self.client
+                    .search_type(
+                        self.clone(),
+                        resource_type,
+            ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
+                                name: "url".to_string(),
+                                value: vec![url.to_string()],
+                                modifier: None,
+                                chains: None,
+                            })]),
+            
+                
+                    )
+                    .await?
+                    .entry
+                    .and_then(|mut e| e.pop()).and_then(|e| e.resource)
+
+            {
+                let resource = Arc::new(*resource);
+                self.cache.insert(key, resource.clone());
+                return Ok(Some(resource));
+            }
+            
+            Ok(None)
+        }
+    }
 }
 
 impl<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> ServerCTX<Client> {
