@@ -2145,9 +2145,7 @@ dependencies = [
  "haste-fhir-generated-ops",
  "haste-fhir-model",
  "haste-fhir-operation-error",
- "haste-fhir-search",
  "haste-jwt",
- "haste-repository",
 ]
 
 [[package]]

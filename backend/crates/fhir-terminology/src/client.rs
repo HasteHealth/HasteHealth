@@ -1,4 +1,5 @@
-use crate::{FHIRTerminology, resolvers::CanonicalResolver};
+use crate::FHIRTerminology;
+use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_generated_ops::generated::{CodeSystemLookup, ValueSetExpand, ValueSetValidateCode};
 use haste_fhir_model::r4::{
     datetime::DateTime,
@@ -36,7 +37,7 @@ async fn resolve_valueset<Resolver: CanonicalResolver>(
         std::mem::swap(&mut input.valueSet, &mut valueset);
         return Ok(valueset.map(|v| Arc::new(v)));
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
-        let Resource::ValueSet(value_set) = canonical_resolution
+        let Some(resource) = canonical_resolution
             .resolve(ResourceType::ValueSet, url.to_string())
             .await?
         else {

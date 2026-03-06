@@ -2,7 +2,6 @@ use haste_fhir_generated_ops::generated::{CodeSystemLookup, ValueSetExpand, Valu
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 
 pub mod client;
-pub mod resolvers;
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum TerminologyError {

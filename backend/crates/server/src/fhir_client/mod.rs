@@ -85,7 +85,7 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
 static CACHE: LazyLock<DashMap<String, Arc<Resource>>> = LazyLock::new(DashMap::new);
 
 impl<Client: FHIRClient<Self, OperationOutcomeError>>
-    CanonicalResolver<ServerCTX<Client>, OperationOutcomeError> for Arc<ServerCTX<Client>>
+    CanonicalResolver for Arc<ServerCTX<Client>>
 {
     async fn resolve(
         &self,
