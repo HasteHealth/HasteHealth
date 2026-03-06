@@ -8,6 +8,7 @@ use crate::{
         utilities::request_to_resource_type,
     },
 };
+use dashmap::DashMap;
 use haste_config::Config;
 use haste_fhir_client::{
     FHIRClient,
@@ -79,9 +80,9 @@ pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {
     pub user: Arc<haste_jwt::claims::UserTokenClaims>,
     pub client: Arc<Client>,
     pub rate_limit: Arc<dyn haste_rate_limit::RateLimit>,
-    // Used for the canonical resolver.
-    // internal_cache: DashMap<String, Arc<Resource>>,
 }
+
+static CACHE: LazyLock<DashMap<String, Arc<Resource>>> = LazyLock::new(DashMap::new);
 
 impl<Client: FHIRClient<Self, OperationOutcomeError>>
     CanonicalResolver<ServerCTX<Client>, OperationOutcomeError> for Arc<ServerCTX<Client>>
@@ -92,7 +93,7 @@ impl<Client: FHIRClient<Self, OperationOutcomeError>>
         canonical_url: String,
     ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
         let key = generate_key(&self.tenant, &self.project, &resource_type, &canonical_url);
-        if let Some(cached) = self.cache.get(&key) {
+        if let Some(cached) = CACHE.get(&key) {
             Ok(Some(cached.clone()))
         } else {
             if let Some(url) = canonical_url.split('|').next()
@@ -116,7 +117,7 @@ impl<Client: FHIRClient<Self, OperationOutcomeError>>
 
             {
                 let resource = Arc::new(*resource);
-                self.cache.insert(key, resource.clone());
+                CACHE.insert(key, resource.clone());
                 return Ok(Some(resource));
             }
             
