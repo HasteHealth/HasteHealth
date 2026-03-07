@@ -2095,7 +2095,9 @@ dependencies = [
 name = "haste-fhir-profiling"
 version = "0.11.0"
 dependencies = [
+ "haste-fhir-client",
  "haste-fhir-model",
+ "haste-fhir-operation-error",
 ]
 
 [[package]]

@@ -1,24 +1,22 @@
-#![allow(dead_code)]
-
+use haste_fhir_client::canonical_resolver::CanonicalResolver;
+use haste_fhir_model::r4::generated::terminology::AllTypes;
+use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
-use haste_fhir_model::r4::generated::{
-    resources::Resource,
-    terminology::{AllTypes, CanonicalResourceTypes},
-};
-
-trait CanonicalResolver {
-    fn resolve(
-        &self,
-        canonical_type: &CanonicalResourceTypes,
-        url: &str,
-    ) -> dyn Future<Output = Option<Arc<Resource>>>;
+pub struct FHIRProfilerCTX<Resolver: CanonicalResolver> {
+    #[allow(dead_code)]
+    resolver: Arc<Resolver>,
+}
+impl<Resolver: CanonicalResolver> FHIRProfilerCTX<Resolver> {
+    pub fn new(resolver: Arc<Resolver>) -> Self {
+        Self { resolver }
+    }
 }
 
-struct FHIRProfilerCTX {
-    resolver: Arc<dyn CanonicalResolver>,
-}
-
-pub async fn validate_profile(_fhir_type: &AllTypes, _url: &str) -> String {
-    "Hello, FHIR Profiling!".to_string()
+pub async fn validate_profile<Resolver: CanonicalResolver>(
+    _profile_ctx: FHIRProfilerCTX<Resolver>,
+    _fhir_type: &AllTypes,
+    _url: &str,
+) -> Result<(), OperationOutcomeError> {
+    Ok(())
 }
