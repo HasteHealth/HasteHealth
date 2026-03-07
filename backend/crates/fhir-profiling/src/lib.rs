@@ -7,7 +7,6 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use std::sync::Arc;
 
 pub struct FHIRProfilerCTX<Resolver: CanonicalResolver> {
-    #[allow(dead_code)]
     resolver: Arc<Resolver>,
 }
 impl<Resolver: CanonicalResolver> FHIRProfilerCTX<Resolver> {
