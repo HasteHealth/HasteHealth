@@ -1,6 +1,6 @@
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, StructureDefinition},
+    resources::{RUST_TO_FHIR_TYPE_MAP, Resource, ResourceType, StructureDefinition},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -14,6 +14,13 @@ impl<Resolver: CanonicalResolver> FHIRProfilerCTX<Resolver> {
     pub fn new(resolver: Arc<Resolver>) -> Self {
         Self { resolver }
     }
+}
+
+#[allow(dead_code)]
+/// Helper function to get the FHIR type from a MetaValue
+/// Internally on types we generate hashmap of rust type name to FHIR type, so we can use that to get the FHIR type for a given MetaValue.
+fn get_fhir_type(value: &dyn MetaValue) -> Option<&'static str> {
+    RUST_TO_FHIR_TYPE_MAP.get(value.typename()).map(|s| *s)
 }
 
 pub async fn validate_profile(
