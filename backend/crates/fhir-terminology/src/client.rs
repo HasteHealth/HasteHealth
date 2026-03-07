@@ -31,22 +31,20 @@ impl<Resolver: CanonicalResolver> FHIRCanonicalTerminology<Resolver> {
 async fn resolve_valueset<Resolver: CanonicalResolver>(
     canonical_resolution: Arc<Resolver>,
     mut input: ValueSetExpand::Input,
-) -> Result<Option<Arc<ValueSet>>, OperationOutcomeError> {
+) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
     if input.valueSet.is_some() {
         let mut valueset: Option<ValueSet> = None;
         std::mem::swap(&mut input.valueSet, &mut valueset);
-        return Ok(valueset.map(|v| Arc::new(v)));
+        return Ok(valueset.map(|v| Arc::new(Resource::ValueSet(v))));
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
-        let Some(resource) = canonical_resolution
+        let resolved_resource = canonical_resolution
             .resolve(ResourceType::ValueSet, url.to_string())
-            .await?
-        else {
-            return Ok(None);
-        };
+            .await?;
 
-        return Ok(Some(Arc::new(value_set)));
+        Ok(resolved_resource)
+    } else {
+        Ok(None)
     }
-    Ok(None)
 }
 
 fn are_codes_inline(include: &ValueSetComposeInclude) -> bool {
@@ -72,19 +70,16 @@ fn codes_inline_to_expansion(include: &ValueSetComposeInclude) -> Vec<ValueSetEx
 async fn resolve_codesystem<Resolver: CanonicalResolver>(
     canonical_resolution: Arc<Resolver>,
     url: &str,
-) -> Result<Option<Arc<CodeSystem>>, OperationOutcomeError> {
-    let Resource::CodeSystem(code_system) = canonical_resolution
+) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
+    let code_system = canonical_resolution
         .resolve(ResourceType::CodeSystem, url.to_string())
-        .await?
-    else {
-        return Ok(None);
-    };
+        .await?;
 
-    Ok(Some(Arc::new(code_system)))
+    Ok(code_system)
 }
 
 async fn get_concepts(
-    codesystem: Arc<CodeSystem>,
+    codesystem: &CodeSystem,
 ) -> Result<Vec<CodeSystemConcept>, OperationOutcomeError> {
     match codesystem.content.as_ref() {
         CodesystemContentMode::NotPresent(_) => Err(OperationOutcomeError::error(
@@ -204,8 +199,9 @@ async fn get_valueset_expansion_contains<Resolver: CanonicalResolver + Send + Sy
         Ok(contains)
     } else if let Some(system) = include.system.as_ref()
         && let Some(uri) = system.value.as_ref()
-        && let Some(code_system) =
+        && let Some(resource) =
             resolve_codesystem(canonical_resolution.clone(), uri.as_str()).await?
+        && let Resource::CodeSystem(code_system) = &*resource
     {
         let url = code_system.url.clone();
         let version = code_system.version.clone();
@@ -241,24 +237,26 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + 'static>(
 ) -> Pin<Box<dyn Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send>> {
     // Implementation would go here
     Box::pin(async move {
-        let value_set = resolve_valueset(canonical_resolution.clone(), input).await?;
+        let resolved = resolve_valueset(canonical_resolution.clone(), input).await?;
 
-        if let Some(value_set) = value_set {
-            let contains = get_valueset_expansion(canonical_resolution.clone(), &value_set).await?;
+        if let Some(resource) = resolved
+            && let Resource::ValueSet(value_set) = &*resource
+        {
+            let contains = get_valueset_expansion(canonical_resolution.clone(), value_set).await?;
+            let mut expanded_valueset = value_set.clone();
 
-            let value_set = ValueSet {
-                expansion: Some(ValueSetExpansion {
-                    contains: Some(contains),
-                    timestamp: Box::new(FHIRDateTime {
-                        value: Some(DateTime::Iso8601(chrono::Utc::now())),
-                        ..Default::default()
-                    }),
+            expanded_valueset.expansion = Some(ValueSetExpansion {
+                contains: Some(contains),
+                timestamp: Box::new(FHIRDateTime {
+                    value: Some(DateTime::Iso8601(chrono::Utc::now())),
                     ..Default::default()
                 }),
-                ..(*value_set).clone()
-            };
+                ..Default::default()
+            });
 
-            Ok(ValueSetExpand::Output { return_: value_set })
+            Ok(ValueSetExpand::Output {
+                return_: expanded_valueset,
+            })
         } else {
             return Err(OperationOutcomeError::error(
                 IssueType::NotFound(None),

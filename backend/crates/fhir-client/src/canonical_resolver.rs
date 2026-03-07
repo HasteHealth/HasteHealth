@@ -8,5 +8,5 @@ pub trait CanonicalResolver {
         &self,
         resource_type: ResourceType,
         canonical_url: String,
-    ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>>;
+    ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send;
 }

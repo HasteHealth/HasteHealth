@@ -20,7 +20,6 @@ pub trait FHIRTerminology {
     ) -> impl Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send;
     fn validate(
         &self,
-
         input: ValueSetValidateCode::Input,
     ) -> impl Future<Output = Result<ValueSetValidateCode::Output, OperationOutcomeError>> + Send;
     fn lookup(
