@@ -14,18 +14,18 @@ pub enum TerminologyError {
     LookupError,
 }
 
-pub trait FHIRTerminology<Resolver: CanonicalResolver> {
-    fn expand(
+pub trait FHIRTerminology {
+    fn expand<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
         &self,
         resolver: Resolver,
         input: ValueSetExpand::Input,
     ) -> impl Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send;
-    fn validate(
+    fn validate<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
         &self,
         resolver: Resolver,
         input: ValueSetValidateCode::Input,
     ) -> impl Future<Output = Result<ValueSetValidateCode::Output, OperationOutcomeError>> + Send;
-    fn lookup(
+    fn lookup<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
         &self,
         resolver: Resolver,
         input: CodeSystemLookup::Input,

@@ -264,17 +264,15 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
     })
 }
 
-impl<Resolver: CanonicalResolver + Send + Clone + Sync + 'static> FHIRTerminology<Resolver>
-    for FHIRCanonicalTerminology
-{
-    async fn expand(
+impl FHIRTerminology for FHIRCanonicalTerminology {
+    async fn expand<Resolver: CanonicalResolver + Send + Clone + Sync + 'static>(
         &self,
         resolver: Resolver,
         input: ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
         expand_valueset(resolver, input).await
     }
-    async fn validate(
+    async fn validate<Resolver: CanonicalResolver + Send + Clone + Sync + 'static>(
         &self,
         resolver: Resolver,
         input: ValueSetValidateCode::Input,
@@ -355,7 +353,7 @@ impl<Resolver: CanonicalResolver + Send + Clone + Sync + 'static> FHIRTerminolog
             }),
         })
     }
-    async fn lookup(
+    async fn lookup<Resolver: CanonicalResolver + Send + Clone + Sync + 'static>(
         &self,
         _resolver: Resolver,
         _input: CodeSystemLookup::Input,

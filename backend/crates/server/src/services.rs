@@ -6,11 +6,7 @@ use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
-use haste_fhir_terminology::{
-    FHIRTerminology,
-    client::FHIRCanonicalTerminology,
-    resolvers::{self, remote::LRUCanonicalRemoteResolver},
-};
+use haste_fhir_terminology::{FHIRTerminology, client::FHIRCanonicalTerminology};
 use haste_fhirpath::FPEngine;
 use haste_repository::{Repository, pg::PGConnection};
 use sqlx::{Pool, Postgres};

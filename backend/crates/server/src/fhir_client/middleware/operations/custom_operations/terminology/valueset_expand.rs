@@ -1,6 +1,9 @@
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+    middleware::{
+        ServerMiddlewareState,
+        operations::{ServerOperationContext, custom_operations::TerminologyResolver},
+    },
 };
 use haste_fhir_client::{FHIRClient, request::InvocationRequest};
 use haste_fhir_generated_ops::generated::ValueSetExpand;
@@ -34,7 +37,11 @@ pub fn valueset_expand_op<
              _request: &InvocationRequest,
              input: ValueSetExpand::Input| {
                 Box::pin(async move {
-                    let output = context.state.terminology.expand(context.ctx, input).await?;
+                    let output = context
+                        .state
+                        .terminology
+                        .expand(TerminologyResolver::new(context.ctx), input)
+                        .await?;
                     Ok(output)
                 })
             },
