@@ -4,6 +4,7 @@ use haste_fhir_model::r4::generated::{
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_reflect::MetaValue;
 use std::sync::Arc;
 
 pub struct FHIRProfilerCTX<Resolver: CanonicalResolver> {
@@ -18,6 +19,7 @@ impl<Resolver: CanonicalResolver> FHIRProfilerCTX<Resolver> {
 pub async fn validate_profile(
     _profile_ctx: FHIRProfilerCTX<impl CanonicalResolver>,
     _sd: &StructureDefinition,
+    _values: Vec<&dyn MetaValue>,
 ) -> Result<(), OperationOutcomeError> {
     Ok(())
 }
@@ -25,6 +27,7 @@ pub async fn validate_profile(
 pub async fn validate_profile_by_url<Resolver: CanonicalResolver>(
     profile_ctx: FHIRProfilerCTX<Resolver>,
     canonical_url: &str,
+    values: Vec<&dyn MetaValue>,
 ) -> Result<(), OperationOutcomeError> {
     let Some(profile) = profile_ctx
         .resolver
@@ -38,7 +41,7 @@ pub async fn validate_profile_by_url<Resolver: CanonicalResolver>(
     };
 
     match &*profile {
-        Resource::StructureDefinition(sd) => validate_profile(profile_ctx, sd).await,
+        Resource::StructureDefinition(sd) => validate_profile(profile_ctx, sd, values).await,
         _ => Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
             format!(
