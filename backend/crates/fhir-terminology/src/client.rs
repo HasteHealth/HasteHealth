@@ -34,7 +34,7 @@ async fn resolve_valueset<Resolver: CanonicalResolver>(
         return Ok(valueset.map(|v| Arc::new(Resource::ValueSet(v))));
     } else if let Some(url) = &input.url.as_ref().and_then(|u| u.value.as_ref()) {
         let resolved_resource = canonical_resolution
-            .resolve(ResourceType::ValueSet, url.to_string())
+            .resolve(ResourceType::ValueSet, url)
             .await?;
 
         Ok(resolved_resource)
@@ -68,7 +68,7 @@ async fn resolve_codesystem<Resolver: CanonicalResolver>(
     url: &str,
 ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
     let code_system = canonical_resolution
-        .resolve(ResourceType::CodeSystem, url.to_string())
+        .resolve(ResourceType::CodeSystem, url)
         .await?;
 
     Ok(code_system)

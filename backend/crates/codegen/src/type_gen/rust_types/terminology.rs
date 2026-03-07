@@ -359,12 +359,12 @@ impl CanonicalResolver for InlineResolver {
     fn resolve(
         &self,
         resource_type: ResourceType,
-        url: String,
+        url: &str,
     ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send {
         let data = self.data.clone();
         Box::pin(async move {
             if let Some(resources) = data.clone().get(&resource_type)
-                && let Some(resource) = resources.get(&url)
+                && let Some(resource) = resources.get(url)
             {
                 Ok(Some(resource.clone()))
             } else {

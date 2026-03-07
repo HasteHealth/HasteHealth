@@ -7,6 +7,6 @@ pub trait CanonicalResolver {
     fn resolve(
         &self,
         resource_type: ResourceType,
-        canonical_url: String,
+        canonical_url: &str,
     ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send;
 }
