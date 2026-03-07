@@ -16,20 +16,16 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::{borrow::Cow, pin::Pin, sync::Arc};
 
-pub struct FHIRCanonicalTerminology<Resolver: CanonicalResolver> {
-    resolver: Arc<Resolver>,
-}
+pub struct FHIRCanonicalTerminology {}
 
-impl<Resolver: CanonicalResolver> FHIRCanonicalTerminology<Resolver> {
-    pub fn new(resolver: Resolver) -> Self {
-        FHIRCanonicalTerminology {
-            resolver: Arc::new(resolver),
-        }
+impl FHIRCanonicalTerminology {
+    pub fn new() -> Self {
+        FHIRCanonicalTerminology {}
     }
 }
 
 async fn resolve_valueset<Resolver: CanonicalResolver>(
-    canonical_resolution: Arc<Resolver>,
+    canonical_resolution: Resolver,
     mut input: ValueSetExpand::Input,
 ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
     if input.valueSet.is_some() {
@@ -68,7 +64,7 @@ fn codes_inline_to_expansion(include: &ValueSetComposeInclude) -> Vec<ValueSetEx
 }
 
 async fn resolve_codesystem<Resolver: CanonicalResolver>(
-    canonical_resolution: Arc<Resolver>,
+    canonical_resolution: Resolver,
     url: &str,
 ) -> Result<Option<Arc<Resource>>, OperationOutcomeError> {
     let code_system = canonical_resolution
@@ -145,8 +141,10 @@ fn code_system_concept_to_valueset_expansion(
         .collect()
 }
 
-async fn get_valueset_expansion_contains<Resolver: CanonicalResolver + Send + Sync + 'static>(
-    canonical_resolution: Arc<Resolver>,
+async fn get_valueset_expansion_contains<
+    Resolver: CanonicalResolver + Send + Clone + Sync + 'static,
+>(
+    canonical_resolution: Resolver,
     include: &ValueSetComposeInclude,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     if are_codes_inline(include) {
@@ -216,8 +214,8 @@ async fn get_valueset_expansion_contains<Resolver: CanonicalResolver + Send + Sy
     }
 }
 
-async fn get_valueset_expansion<Resolver: CanonicalResolver + Sync + Send + 'static>(
-    canonical_resolution: Arc<Resolver>,
+async fn get_valueset_expansion<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
+    canonical_resolution: Resolver,
     value_set: &ValueSet,
 ) -> Result<Vec<ValueSetExpansionContains>, OperationOutcomeError> {
     let mut result = Vec::new();
@@ -231,8 +229,8 @@ async fn get_valueset_expansion<Resolver: CanonicalResolver + Sync + Send + 'sta
     Ok(result)
 }
 
-fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + 'static>(
-    canonical_resolution: Arc<Resolver>,
+fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + Clone + 'static>(
+    canonical_resolution: Resolver,
     input: ValueSetExpand::Input,
 ) -> Pin<Box<dyn Future<Output = Result<ValueSetExpand::Output, OperationOutcomeError>> + Send>> {
     // Implementation would go here
@@ -266,17 +264,19 @@ fn expand_valueset<Resolver: CanonicalResolver + Sync + Send + 'static>(
     })
 }
 
-impl<Resolver: CanonicalResolver + Send + Sync + 'static> FHIRTerminology
-    for FHIRCanonicalTerminology<Resolver>
+impl<Resolver: CanonicalResolver + Send + Clone + Sync + 'static> FHIRTerminology<Resolver>
+    for FHIRCanonicalTerminology
 {
     async fn expand(
         &self,
+        resolver: Resolver,
         input: ValueSetExpand::Input,
     ) -> Result<ValueSetExpand::Output, OperationOutcomeError> {
-        expand_valueset(self.resolver.clone(), input).await
+        expand_valueset(resolver, input).await
     }
     async fn validate(
         &self,
+        resolver: Resolver,
         input: ValueSetValidateCode::Input,
     ) -> Result<ValueSetValidateCode::Output, OperationOutcomeError> {
         let Some(code) = input.code else {
@@ -288,29 +288,32 @@ impl<Resolver: CanonicalResolver + Send + Sync + 'static> FHIRTerminology
 
         // Implementation would go here
         let expansion = self
-            .expand(ValueSetExpand::Input {
-                url: input.url,
-                valueSet: input.valueSet,
-                valueSetVersion: input.valueSetVersion,
-                context: input.context,
-                contextDirection: None,
-                filter: None,
-                date: None,
-                offset: None,
-                count: None,
-                includeDesignations: None,
-                designation: None,
-                includeDefinition: None,
-                activeOnly: None,
-                excludeNested: None,
-                excludeNotForUI: None,
-                excludePostCoordinated: None,
-                displayLanguage: None,
-                exclude_system: None,
-                system_version: None,
-                check_system_version: None,
-                force_system_version: None,
-            })
+            .expand(
+                resolver,
+                ValueSetExpand::Input {
+                    url: input.url,
+                    valueSet: input.valueSet,
+                    valueSetVersion: input.valueSetVersion,
+                    context: input.context,
+                    contextDirection: None,
+                    filter: None,
+                    date: None,
+                    offset: None,
+                    count: None,
+                    includeDesignations: None,
+                    designation: None,
+                    includeDefinition: None,
+                    activeOnly: None,
+                    excludeNested: None,
+                    excludeNotForUI: None,
+                    excludePostCoordinated: None,
+                    displayLanguage: None,
+                    exclude_system: None,
+                    system_version: None,
+                    check_system_version: None,
+                    force_system_version: None,
+                },
+            )
             .await?;
 
         let valueset = expansion.return_;
@@ -354,6 +357,7 @@ impl<Resolver: CanonicalResolver + Send + Sync + 'static> FHIRTerminology
     }
     async fn lookup(
         &self,
+        _resolver: Resolver,
         _input: CodeSystemLookup::Input,
     ) -> Result<CodeSystemLookup::Output, OperationOutcomeError> {
         // Implementation would go here

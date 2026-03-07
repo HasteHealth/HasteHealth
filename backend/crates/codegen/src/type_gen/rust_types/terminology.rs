@@ -1,18 +1,16 @@
 use crate::utilities::{generate::capitalize, load};
+use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_generated_ops::generated::ValueSetExpand;
 use haste_fhir_model::r4::generated::{
     resources::{Resource, ResourceType, ValueSet, ValueSetExpansionContains},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_fhir_terminology::{
-    FHIRTerminology, client::FHIRCanonicalTerminology, resolvers::CanonicalResolver,
-};
+use haste_fhir_terminology::{FHIRTerminology, client::FHIRCanonicalTerminology};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{
     collections::{BTreeMap, HashMap},
-    pin::Pin,
     sync::Arc,
 };
 use walkdir::WalkDir;
@@ -258,7 +256,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
     None
 }
 
-type ResolverData = BTreeMap<ResourceType, BTreeMap<String, Resource>>;
+type ResolverData = BTreeMap<ResourceType, BTreeMap<String, Arc<Resource>>>;
 
 fn load_terminologies(
     file_paths: &Vec<String>,
@@ -291,7 +289,7 @@ fn load_terminologies(
                                             .expect("VS Must have url")
                                             .value
                                             .expect("VS must have url"),
-                                        Resource::ValueSet(vs),
+                                        Arc::new(Resource::ValueSet(vs)),
                                     );
                                 }
                                 Resource::CodeSystem(cs) => {
@@ -304,7 +302,7 @@ fn load_terminologies(
                                             .expect("CS Must have url")
                                             .value
                                             .expect("CS must have url"),
-                                        Resource::CodeSystem(cs),
+                                        Arc::new(Resource::CodeSystem(cs)),
                                     );
                                 }
                                 _ => {}
@@ -322,7 +320,7 @@ fn load_terminologies(
                             .expect("VS Must have url")
                             .value
                             .expect("VS must have url"),
-                        Resource::ValueSet(vs),
+                        Arc::new(Resource::ValueSet(vs)),
                     );
                 }
                 Resource::CodeSystem(cs) => {
@@ -335,7 +333,7 @@ fn load_terminologies(
                             .expect("CS Must have url")
                             .value
                             .expect("CS must have url"),
-                        Resource::CodeSystem(cs),
+                        Arc::new(Resource::CodeSystem(cs)),
                     );
                 }
                 _ => {}
@@ -346,6 +344,7 @@ fn load_terminologies(
     Ok(Arc::new(resolver_data))
 }
 
+#[derive(Clone)]
 struct InlineResolver {
     data: Arc<ResolverData>,
 }
@@ -361,13 +360,13 @@ impl CanonicalResolver for InlineResolver {
         &self,
         resource_type: ResourceType,
         url: String,
-    ) -> Pin<Box<dyn Future<Output = Result<Resource, OperationOutcomeError>> + Send>> {
+    ) -> impl Future<Output = Result<Option<Arc<Resource>>, OperationOutcomeError>> + Send {
         let data = self.data.clone();
         Box::pin(async move {
             if let Some(resources) = data.clone().get(&resource_type)
                 && let Some(resource) = resources.get(&url)
             {
-                Ok(resource.clone())
+                Ok(Some(resource.clone()))
             } else {
                 Err(OperationOutcomeError::error(
                     IssueType::NotFound(None),
@@ -389,39 +388,43 @@ pub async fn generate(
 ) -> Result<GeneratedTerminologies, OperationOutcomeError> {
     let data = load_terminologies(file_paths)?;
 
-    let terminology = FHIRCanonicalTerminology::new(InlineResolver::new(data.clone()));
+    let resolver = InlineResolver::new(data.clone());
+    let terminology = FHIRCanonicalTerminology::new();
 
     let mut codes = Vec::new();
 
     let mut inlined_terminologies = HashMap::new();
 
     for resource in data.get(&ResourceType::ValueSet).unwrap().values() {
-        match resource {
+        match &**resource {
             Resource::ValueSet(valueset) => {
                 let expanded_valueset = terminology
-                    .expand(ValueSetExpand::Input {
-                        valueSet: Some(valueset.clone()),
-                        url: None,
-                        valueSetVersion: None,
-                        context: None,
-                        contextDirection: None,
-                        filter: None,
-                        date: None,
-                        offset: None,
-                        count: None,
-                        includeDesignations: None,
-                        designation: None,
-                        includeDefinition: None,
-                        activeOnly: None,
-                        excludeNested: None,
-                        excludeNotForUI: None,
-                        excludePostCoordinated: None,
-                        displayLanguage: None,
-                        exclude_system: None,
-                        system_version: None,
-                        check_system_version: None,
-                        force_system_version: None,
-                    })
+                    .expand(
+                        resolver.clone(),
+                        ValueSetExpand::Input {
+                            valueSet: Some(valueset.clone()),
+                            url: None,
+                            valueSetVersion: None,
+                            context: None,
+                            contextDirection: None,
+                            filter: None,
+                            date: None,
+                            offset: None,
+                            count: None,
+                            includeDesignations: None,
+                            designation: None,
+                            includeDefinition: None,
+                            activeOnly: None,
+                            excludeNested: None,
+                            excludeNotForUI: None,
+                            excludePostCoordinated: None,
+                            displayLanguage: None,
+                            exclude_system: None,
+                            system_version: None,
+                            check_system_version: None,
+                            force_system_version: None,
+                        },
+                    )
                     .await;
                 if let Ok(expanded_valueset) = expanded_valueset
                     && let Some(code_enum_code) = generate_enum_variants(expanded_valueset.return_)

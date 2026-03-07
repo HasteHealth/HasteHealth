@@ -34,7 +34,7 @@ pub fn valueset_expand_op<
              _request: &InvocationRequest,
              input: ValueSetExpand::Input| {
                 Box::pin(async move {
-                    let output = context.state.terminology.expand(input).await?;
+                    let output = context.state.terminology.expand(context.ctx, input).await?;
                     Ok(output)
                 })
             },

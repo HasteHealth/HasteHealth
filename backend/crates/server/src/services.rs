@@ -122,13 +122,7 @@ impl<
 pub async fn create_services(
     config: Arc<dyn Config<ServerEnvironmentVariables>>,
 ) -> Result<
-    Arc<
-        AppState<
-            PGConnection,
-            ElasticSearchEngine,
-            FHIRCanonicalTerminology<LRUCanonicalRemoteResolver<PGConnection, ElasticSearchEngine>>,
-        >,
-    >,
+    Arc<AppState<PGConnection, ElasticSearchEngine, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
     let pool = get_pool(config.as_ref()).await;
@@ -159,9 +153,7 @@ pub async fn create_services(
 
     let pool = Arc::new(PGConnection::pool(pool.clone()));
 
-    let terminology = Arc::new(FHIRCanonicalTerminology::new(
-        resolvers::remote::LRUCanonicalRemoteResolver::new(pool.clone(), search_engine.clone()),
-    ));
+    let terminology = Arc::new(FHIRCanonicalTerminology::new());
 
     let can_mutate: String = config
         .get(ServerEnvironmentVariables::AllowArtifactMutations)
