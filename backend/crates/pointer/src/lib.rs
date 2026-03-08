@@ -23,7 +23,7 @@ fn path_descend(path: &str, key: &str) -> String {
     format!("{}/{}", path, key)
 }
 
-impl<'a, Root: MetaValue, U: MetaValue> Pointer<Root, U> {
+impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
     pub fn new(value: Arc<Root>) -> Pointer<Root, Root> {
         Pointer {
             value: ChildPointer(&*value.as_ref() as *const Root),
@@ -46,11 +46,10 @@ impl<'a, Root: MetaValue, U: MetaValue> Pointer<Root, U> {
 
     pub fn value(&self) -> Option<&U> {
         let p = unsafe { (*self.value.0).as_any().downcast_ref::<U>() };
-
         p
     }
 
-    pub fn descend<Child: MetaValue>(&'a self, key: &Key) -> Option<Pointer<Root, Child>> {
+    pub fn descend<Child: MetaValue>(&self, key: &Key) -> Option<Pointer<Root, Child>> {
         match key {
             Key::Field(field) => self.value().and_then(|v| {
                 v.get_field(field)
@@ -71,6 +70,10 @@ impl<'a, Root: MetaValue, U: MetaValue> Pointer<Root, U> {
                     })
             }),
         }
+    }
+
+    pub fn ascend<Parent: MetaValue>(&self) -> Option<Pointer<Root, Parent>> {
+        None
     }
 }
 

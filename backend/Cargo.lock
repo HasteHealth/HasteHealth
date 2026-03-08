@@ -2098,6 +2098,7 @@ dependencies = [
  "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",
+ "haste-pointer",
  "haste-reflect",
 ]
 

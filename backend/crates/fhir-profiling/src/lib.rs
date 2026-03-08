@@ -7,6 +7,8 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
+mod element;
+
 pub struct FHIRProfilerCTX<Resolver: CanonicalResolver> {
     resolver: Arc<Resolver>,
 }
