@@ -1,6 +1,46 @@
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
+mod escape;
+
+#[derive(Clone)]
+struct Path(String);
+
+impl Path {
+    fn new() -> Self {
+        Self("".to_string())
+    }
+    fn descend(&self, field: &str) -> Self {
+        Self(format!("{}/{}", self.0, escape::escape_field(field)))
+    }
+    fn ascend(&self) -> Option<(Self, String)> {
+        if self.0.is_empty() {
+            None
+        } else {
+            let mut parts = self.0.rsplitn(2, '/');
+            let field = parts.next().unwrap();
+            let parent_path = parts.next().unwrap_or("");
+
+            Some((Path(parent_path.to_string()), escape::unescape_field(field)))
+        }
+    }
+}
+
+pub enum Key {
+    Field(String),
+    Index(usize),
+}
+
+impl Key {
+    pub fn from_str(field: &str) -> Self {
+        if let Ok(index) = field.parse::<usize>() {
+            Key::Index(index)
+        } else {
+            Key::Field(field.to_string())
+        }
+    }
+}
+
 #[derive(Clone)]
 struct ChildPointer<U>(*const U);
 
@@ -11,16 +51,7 @@ unsafe impl<U> Sync for ChildPointer<U> {}
 pub struct Pointer<T: MetaValue, U: MetaValue> {
     root: Arc<T>,
     value: ChildPointer<U>,
-    path: String,
-}
-
-pub enum Key {
-    Field(String),
-    Index(usize),
-}
-
-fn path_descend(path: &str, key: &str) -> String {
-    format!("{}/{}", path, key)
+    path: Path,
 }
 
 impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
@@ -28,7 +59,7 @@ impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
         Pointer {
             value: ChildPointer(&*value.as_ref() as *const Root),
             root: value,
-            path: "".to_string(),
+            path: Path::new(),
         }
     }
 
@@ -36,12 +67,12 @@ impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
         Pointer {
             value: ChildPointer(&*self.root.as_ref() as *const Root),
             root: self.root.clone(),
-            path: "".to_string(),
+            path: Path::new(),
         }
     }
 
     pub fn path(&self) -> &str {
-        self.path.as_str()
+        self.path.0.as_str()
     }
 
     pub fn value(&self) -> Option<&U> {
@@ -49,15 +80,15 @@ impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
         p
     }
 
-    pub fn descend<Child: MetaValue>(&self, key: &Key) -> Option<Pointer<Root, Child>> {
-        match key {
+    pub fn descend<Child: MetaValue>(&self, field: &Key) -> Option<Pointer<Root, Child>> {
+        match field {
             Key::Field(field) => self.value().and_then(|v| {
                 v.get_field(field)
                     .and_then(|v| v.as_any().downcast_ref::<Child>())
                     .map(|child| Pointer {
                         root: self.root.clone(),
                         value: ChildPointer(&*child as *const Child),
-                        path: path_descend(self.path.as_str(), field.as_str()),
+                        path: self.path.descend(field),
                     })
             }),
             Key::Index(index) => self.value().and_then(|v| {
@@ -66,14 +97,10 @@ impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
                     .map(|child| Pointer {
                         root: self.root.clone(),
                         value: ChildPointer(&*child as *const Child),
-                        path: path_descend(self.path.as_str(), index.to_string().as_str()),
+                        path: self.path.descend(&index.to_string()),
                     })
             }),
         }
-    }
-
-    pub fn ascend<Parent: MetaValue>(&self) -> Option<Pointer<Root, Parent>> {
-        None
     }
 }
 
