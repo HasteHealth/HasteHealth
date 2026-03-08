@@ -5,7 +5,7 @@ use haste_fhir_model::r4::generated::{
     types::FHIRBoolean,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_pointer::Pointer;
+use haste_pointer::TypedPointer;
 use std::sync::Arc;
 
 use crate::{
@@ -30,7 +30,7 @@ async fn should_evaluate_rule<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Option<Pointer<AccessPolicyV2, AccessPolicyV2RuleTarget>>,
+    pointer: Option<TypedPointer<AccessPolicyV2, AccessPolicyV2RuleTarget>>,
 ) -> Result<PolicyResult<bool, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
     let Some(pointer) = pointer else {
         // If no target is specified, always evaluate the rule.
@@ -127,7 +127,7 @@ async fn evaluate_condition<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     policy_context: Arc<PolicyContext<CTX, Client>>,
-    rule_pointer: Pointer<AccessPolicyV2, AccessPolicyV2Rule>,
+    rule_pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>,
 ) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
     let rule = rule_pointer
         .value()
@@ -176,7 +176,7 @@ async fn evaluate_access_policy_rule<
     Client: FHIRClient<CTX, OperationOutcomeError> + Send + Sync + 'static,
 >(
     policy_context: Arc<PolicyContext<CTX, Client>>,
-    rule_pointer: Pointer<AccessPolicyV2, AccessPolicyV2Rule>,
+    rule_pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2Rule>,
 ) -> Result<PolicyResult<PermissionLevel, Arc<PolicyContext<CTX, Client>>>, OperationOutcomeError> {
     let rule = rule_pointer
         .value()
@@ -319,7 +319,7 @@ pub async fn evaluate<
     mut policy_context: Arc<PolicyContext<CTX, Client>>,
     policy: Arc<AccessPolicyV2>,
 ) -> Result<PermissionLevel, OperationOutcomeError> {
-    let pointer = Pointer::<AccessPolicyV2, AccessPolicyV2>::new(policy.clone());
+    let pointer = TypedPointer::<AccessPolicyV2, AccessPolicyV2>::new(policy.clone());
     let rules_pointer = pointer
         .descend::<Vec<AccessPolicyV2Rule>>(&haste_pointer::Key::Field("rule".to_string()))
         .ok_or_else(|| PDPError::PointerError("rule".to_string()))?;

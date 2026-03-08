@@ -4,16 +4,16 @@ use std::sync::Arc;
 mod escape;
 
 #[derive(Clone)]
-struct Path(String);
+pub struct Path(String);
 
 impl Path {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self("".to_string())
     }
-    fn descend(&self, field: &str) -> Self {
+    pub fn descend(&self, field: &str) -> Self {
         Self(format!("{}/{}", self.0, escape::escape_field(field)))
     }
-    fn ascend(&self) -> Option<(Self, String)> {
+    pub fn ascend(&self) -> Option<(Self, String)> {
         if self.0.is_empty() {
             None
         } else {
@@ -48,23 +48,23 @@ unsafe impl<U> Send for ChildPointer<U> {}
 unsafe impl<U> Sync for ChildPointer<U> {}
 
 #[derive(Clone)]
-pub struct Pointer<T: MetaValue, U: MetaValue> {
+pub struct TypedPointer<T: MetaValue, U: MetaValue> {
     root: Arc<T>,
     value: ChildPointer<U>,
     path: Path,
 }
 
-impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
-    pub fn new(value: Arc<Root>) -> Pointer<Root, Root> {
-        Pointer {
+impl<Root: MetaValue, U: MetaValue> TypedPointer<Root, U> {
+    pub fn new(value: Arc<Root>) -> TypedPointer<Root, Root> {
+        TypedPointer {
             value: ChildPointer(&*value.as_ref() as *const Root),
             root: value,
             path: Path::new(),
         }
     }
 
-    pub fn root(&self) -> Pointer<Root, Root> {
-        Pointer {
+    pub fn root(&self) -> TypedPointer<Root, Root> {
+        TypedPointer {
             value: ChildPointer(&*self.root.as_ref() as *const Root),
             root: self.root.clone(),
             path: Path::new(),
@@ -80,12 +80,12 @@ impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
         p
     }
 
-    pub fn descend<Child: MetaValue>(&self, field: &Key) -> Option<Pointer<Root, Child>> {
+    pub fn descend<Child: MetaValue>(&self, field: &Key) -> Option<TypedPointer<Root, Child>> {
         match field {
             Key::Field(field) => self.value().and_then(|v| {
                 v.get_field(field)
                     .and_then(|v| v.as_any().downcast_ref::<Child>())
-                    .map(|child| Pointer {
+                    .map(|child| TypedPointer {
                         root: self.root.clone(),
                         value: ChildPointer(&*child as *const Child),
                         path: self.path.descend(field),
@@ -94,7 +94,7 @@ impl<Root: MetaValue, U: MetaValue> Pointer<Root, U> {
             Key::Index(index) => self.value().and_then(|v| {
                 v.get_index(*index)
                     .and_then(|v| v.as_any().downcast_ref::<Child>())
-                    .map(|child| Pointer {
+                    .map(|child| TypedPointer {
                         root: self.root.clone(),
                         value: ChildPointer(&*child as *const Child),
                         path: self.path.descend(&index.to_string()),
@@ -125,7 +125,7 @@ mod test {
             ..Default::default()
         });
 
-        let pointer = Pointer::<Patient, Patient>::new(patient);
+        let pointer = TypedPointer::<Patient, Patient>::new(patient);
         let pointer = pointer
             .descend::<Vec<Box<HumanName>>>(&Key::Field("name".to_string()))
             .unwrap();

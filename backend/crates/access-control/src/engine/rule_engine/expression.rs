@@ -5,7 +5,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhirpath::{Context, ExternalConstantResolver, FHIRPathError};
-use haste_pointer::Pointer;
+use haste_pointer::TypedPointer;
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
@@ -15,7 +15,7 @@ pub fn create_config<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
+    pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2>,
 ) -> haste_fhirpath::Config<'a> {
     haste_fhirpath::Config {
         variable_resolver: Some(ExternalConstantResolver::Function(Box::new(
@@ -54,7 +54,7 @@ pub async fn evaluate_expression<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
+    pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2>,
     expression: &Expression,
 ) -> Result<ExpressionResult<'a>, OperationOutcomeError> {
     match (
@@ -110,7 +110,7 @@ pub async fn evaluate_to_string<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     context: Arc<PolicyContext<CTX, Client>>,
-    pointer: Pointer<AccessPolicyV2, AccessPolicyV2>,
+    pointer: TypedPointer<AccessPolicyV2, AccessPolicyV2>,
     expression: &Expression,
 ) -> Result<String, OperationOutcomeError> {
     let result = evaluate_expression(context, pointer, expression).await?;
