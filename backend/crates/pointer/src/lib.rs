@@ -24,8 +24,28 @@ impl Path {
             Some((Path(parent_path.to_string()), escape::unescape_field(field)))
         }
     }
+
+    pub fn get<'a>(&self, value: &'a dyn MetaValue) -> Option<&'a dyn MetaValue> {
+        let mut current = value;
+        // Skip the first empty part from the leading '/'
+        for part in self.0.split('/').skip(1) {
+            let k = Key::from_str(&escape::unescape_field(part));
+
+            match k {
+                Key::Field(field) => {
+                    current = current.get_field(&field)?;
+                }
+                Key::Index(index) => {
+                    current = current.get_index(index)?;
+                }
+            }
+        }
+
+        Some(current)
+    }
 }
 
+#[derive(Debug)]
 pub enum Key {
     Field(String),
     Index(usize),
@@ -141,5 +161,34 @@ mod test {
 
         assert_eq!(pointer.path(), "/name/0/family/value");
         assert_eq!(pointer.value(), Some(&"Doe".to_string()));
+    }
+
+    #[test]
+    fn test_path() {
+        let patient = Arc::new(Patient {
+            id: Some("patient-1".to_string()),
+            name: Some(vec![Box::new(HumanName {
+                family: Some(Box::new(FHIRString {
+                    value: Some("Doe".to_string()),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        });
+
+        let path = Path::new()
+            .descend("name")
+            .descend("0")
+            .descend("family")
+            .descend("value");
+
+        assert_eq!(path.0, "/name/0/family/value");
+        let k = path.get(patient.as_ref());
+
+        assert_eq!(
+            k.and_then(|v| v.as_any().downcast_ref::<String>()),
+            Some(&"Doe".to_string())
+        );
     }
 }
