@@ -407,7 +407,7 @@ importers:
         version: 8.5.6
       postcss-cli:
         specifier: ^11.0.0
-        version: 11.0.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.11.2)
+        version: 11.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.11.2)
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -745,14 +745,14 @@ importers:
         specifier: ^9.2.2
         version: 9.2.2
       rollup:
-        specifier: ^4.59.0
-        version: 4.59.0
+        specifier: ^2.79.2
+        version: 2.80.0
       rollup-plugin-dts:
         specifier: ^4.2.3
-        version: 4.2.3(rollup@4.59.0)(typescript@4.9.5)
+        version: 4.2.3(rollup@2.80.0)(typescript@4.9.5)
       rollup-plugin-ts:
         specifier: ^3.4.5
-        version: 3.4.5(@babel/core@7.28.5)(@babel/plugin-transform-runtime@7.28.5(@babel/core@7.28.5))(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@babel/preset-typescript@7.28.5(@babel/core@7.28.5))(@babel/runtime@7.28.6)(@swc/helpers@0.5.17)(rollup@4.59.0)(typescript@4.9.5)
+        version: 3.4.5(@babel/core@7.28.5)(@babel/plugin-transform-runtime@7.28.5(@babel/core@7.28.5))(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@babel/preset-typescript@7.28.5(@babel/core@7.28.5))(@babel/runtime@7.28.6)(@swc/helpers@0.5.17)(rollup@2.80.0)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.5
         version: 4.9.5
@@ -21231,6 +21231,14 @@ snapshots:
       picomatch: 2.3.1
       rollup: 2.80.0
 
+  '@rollup/pluginutils@5.3.0(rollup@2.80.0)':
+    dependencies:
+      '@types/estree': 1.0.8
+      estree-walker: 2.0.2
+      picomatch: 4.0.3
+    optionalDependencies:
+      rollup: 2.80.0
+
   '@rollup/pluginutils@5.3.0(rollup@4.59.0)':
     dependencies:
       '@types/estree': 1.0.8
@@ -29953,6 +29961,24 @@ snapshots:
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
+  postcss-cli@11.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.11.2):
+    dependencies:
+      chokidar: 3.6.0
+      dependency-graph: 1.0.0
+      fs-extra: 11.3.2
+      picocolors: 1.1.1
+      postcss: 8.5.6
+      postcss-load-config: 5.1.0(jiti@1.21.7)(postcss@8.5.6)(tsx@4.11.2)
+      postcss-reporter: 7.1.0(postcss@8.5.6)
+      pretty-hrtime: 1.0.3
+      read-cache: 1.0.0
+      slash: 5.1.0
+      tinyglobby: 0.2.15
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - jiti
+      - tsx
+
   postcss-cli@11.0.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.11.2):
     dependencies:
       chokidar: 3.6.0
@@ -30262,6 +30288,15 @@ snapshots:
       yaml: 1.10.2
     optionalDependencies:
       postcss: 8.5.6
+
+  postcss-load-config@5.1.0(jiti@1.21.7)(postcss@8.5.6)(tsx@4.11.2):
+    dependencies:
+      lilconfig: 3.1.3
+      yaml: 2.8.1
+    optionalDependencies:
+      jiti: 1.21.7
+      postcss: 8.5.6
+      tsx: 4.11.2
 
   postcss-load-config@5.1.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.11.2):
     dependencies:
@@ -31736,10 +31771,10 @@ snapshots:
 
   robust-predicates@3.0.2: {}
 
-  rollup-plugin-dts@4.2.3(rollup@4.59.0)(typescript@4.9.5):
+  rollup-plugin-dts@4.2.3(rollup@2.80.0)(typescript@4.9.5):
     dependencies:
       magic-string: 0.26.7
-      rollup: 4.59.0
+      rollup: 2.80.0
       typescript: 4.9.5
     optionalDependencies:
       '@babel/code-frame': 7.27.1
@@ -31791,9 +31826,9 @@ snapshots:
       serialize-javascript: 4.0.0
       terser: 5.44.1
 
-  rollup-plugin-ts@3.4.5(@babel/core@7.28.5)(@babel/plugin-transform-runtime@7.28.5(@babel/core@7.28.5))(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@babel/preset-typescript@7.28.5(@babel/core@7.28.5))(@babel/runtime@7.28.6)(@swc/helpers@0.5.17)(rollup@4.59.0)(typescript@4.9.5):
+  rollup-plugin-ts@3.4.5(@babel/core@7.28.5)(@babel/plugin-transform-runtime@7.28.5(@babel/core@7.28.5))(@babel/preset-env@7.28.5(@babel/core@7.28.5))(@babel/preset-typescript@7.28.5(@babel/core@7.28.5))(@babel/runtime@7.28.6)(@swc/helpers@0.5.17)(rollup@2.80.0)(typescript@4.9.5):
     dependencies:
-      '@rollup/pluginutils': 5.3.0(rollup@4.59.0)
+      '@rollup/pluginutils': 5.3.0(rollup@2.80.0)
       '@wessberg/stringutil': 1.0.19
       ansi-colors: 4.1.3
       browserslist: 4.28.0
@@ -31801,7 +31836,7 @@ snapshots:
       compatfactory: 3.0.0(typescript@4.9.5)
       crosspath: 2.0.0
       magic-string: 0.30.21
-      rollup: 4.59.0
+      rollup: 2.80.0
       ts-clone-node: 3.0.0(typescript@4.9.5)
       tslib: 2.8.1
       typescript: 4.9.5
