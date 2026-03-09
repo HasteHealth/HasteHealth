@@ -3,7 +3,7 @@
   "version": "0.5.0",
   "dependencies": {
     "@types/koa": "^2.15.0",
-    "multer": "^2.0.0"
+    "multer": "^2.1.1"
   },
   "devDependencies": {
     "@types/multer": "^1.4.12",
