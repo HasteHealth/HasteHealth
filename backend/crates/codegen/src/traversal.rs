@@ -1,7 +1,7 @@
 use haste_fhir_model::r4::generated::{resources::StructureDefinition, types::ElementDefinition};
 use regex::Regex;
 
-fn ele_index_to_child_indices(
+pub fn ele_index_to_child_indices(
     elements: &[Box<ElementDefinition>],
     index: usize,
 ) -> Result<Vec<usize>, String> {

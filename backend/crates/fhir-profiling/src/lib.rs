@@ -28,6 +28,20 @@ pub struct FHIRProfileCTX<'a, Resolver: CanonicalResolver> {
     root: &'a dyn MetaValue,
 }
 
+impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
+    pub fn new(
+        resolver: Arc<Resolver>,
+        profile: &'a StructureDefinition,
+        root: &'a dyn MetaValue,
+    ) -> Self {
+        Self {
+            resolver,
+            profile,
+            root,
+        }
+    }
+}
+
 pub async fn validate_profile<'a>(
     ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
