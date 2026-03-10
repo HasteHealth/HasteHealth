@@ -6,12 +6,15 @@ use crate::{
 };
 use dashmap::DashMap;
 pub use error::FHIRPathError;
-use haste_fhir_model::r4::generated::{
-    resources::{RUST_TO_FHIR_TYPE_MAP, ResourceType},
-    types::{
-        FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt,
-        Reference,
+use haste_fhir_model::r4::{
+    generated::{
+        resources::ResourceType,
+        types::{
+            FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRString, FHIRUnsignedInt,
+            Reference,
+        },
     },
+    get_fhir_type,
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
@@ -373,9 +376,9 @@ fn check_type_name(type_name: &str, type_to_check: &str) -> bool {
 }
 
 fn check_type(value: &dyn MetaValue, type_to_check: &str) -> bool {
-    let fhir_type_name = RUST_TO_FHIR_TYPE_MAP.get(value.typename());
+    let fhir_type_name = get_fhir_type(value);
 
-    match fhir_type_name.map(|s| *s) {
+    match fhir_type_name {
         // Special handling for reference which is to check the reference type.
         Some("Reference") => {
             if type_to_check == "Reference" {
