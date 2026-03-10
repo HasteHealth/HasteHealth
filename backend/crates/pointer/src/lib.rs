@@ -34,7 +34,7 @@ impl Path {
         }
     }
 
-    pub fn get<'a, Type: MetaValue>(&self, value: &'a dyn MetaValue) -> Option<&'a Type> {
+    pub fn get<'a>(&self, value: &'a dyn MetaValue) -> Option<&'a dyn MetaValue> {
         let mut current = value;
         // Skip the first empty part from the leading '/'
         for part in self.0.split('/').skip(1) {
@@ -50,6 +50,11 @@ impl Path {
             }
         }
 
+        Some(current)
+    }
+
+    pub fn get_typed<'a, Type: MetaValue>(&self, value: &'a dyn MetaValue) -> Option<&'a Type> {
+        let current = self.get(value)?;
         current.as_any().downcast_ref::<Type>()
     }
 }
@@ -193,7 +198,7 @@ mod test {
             .descend("value");
 
         assert_eq!(path.0, "/name/0/family/value");
-        let k = path.get::<String>(patient.as_ref());
+        let k = path.get_typed::<String>(patient.as_ref());
 
         assert_eq!(k, Some(&"Doe".to_string()));
     }
