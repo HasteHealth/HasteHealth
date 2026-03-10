@@ -8,31 +8,41 @@ use haste_pointer::Path;
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
+use crate::element::validate_element;
+
 mod element;
 
-pub struct FHIRProfilerCTX<Resolver: CanonicalResolver> {
+pub struct FHIRProfileArguments<Resolver: CanonicalResolver> {
     resolver: Arc<Resolver>,
 }
-impl<Resolver: CanonicalResolver> FHIRProfilerCTX<Resolver> {
+
+impl<Resolver: CanonicalResolver> FHIRProfileArguments<Resolver> {
     pub fn new(resolver: Arc<Resolver>) -> Self {
         Self { resolver }
     }
 }
 
-pub async fn validate_profile(
-    ctx: FHIRProfilerCTX<impl CanonicalResolver>,
-    profile: &StructureDefinition,
-    root: &dyn MetaValue,
+pub struct FHIRProfileCTX<'a, Resolver: CanonicalResolver> {
+    resolver: Arc<Resolver>,
+    profile: &'a StructureDefinition,
+    root: &'a dyn MetaValue,
+}
+
+pub async fn validate_profile<'a>(
+    ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
-    match profile.derivation.as_ref() {
+    let mut outcome = OperationOutcome::default();
+    match ctx.profile.derivation.as_ref().map(|d| d.as_ref()) {
         Some(TypeDerivationRule::Constraint(_)) => {
-            let profile_location = Path::new()
+            let element_location = Path::new()
                 .descend("snapshot")
                 .descend("element")
                 .descend("0");
 
-            let k = profile_location.ascend();
             let starting_path = Path::new();
+
+            let result = validate_element(ctx, element_location, starting_path).await?;
+            outcome.issue.extend(result);
         }
         _ => {
             return Err(OperationOutcomeError::error(
@@ -42,15 +52,15 @@ pub async fn validate_profile(
         }
     }
 
-    Ok(OperationOutcome::default())
+    Ok(outcome)
 }
 
-pub async fn validate_profile_by_url<Resolver: CanonicalResolver>(
-    profile_ctx: FHIRProfilerCTX<Resolver>,
+pub async fn validate_profile_by_url<'a>(
+    args: FHIRProfileArguments<impl CanonicalResolver>,
     canonical_url: &str,
-    values: Vec<&dyn MetaValue>,
+    value: &'a dyn MetaValue,
 ) -> Result<(), OperationOutcomeError> {
-    let Some(profile) = profile_ctx
+    let Some(profile) = args
         .resolver
         .resolve(ResourceType::StructureDefinition, canonical_url)
         .await?
@@ -62,7 +72,16 @@ pub async fn validate_profile_by_url<Resolver: CanonicalResolver>(
     };
 
     match &*profile {
-        Resource::StructureDefinition(sd) => validate_profile(profile_ctx, sd, values).await,
+        Resource::StructureDefinition(sd) => {
+            validate_profile(FHIRProfileCTX {
+                resolver: args.resolver.clone(),
+                profile: sd,
+                root: value,
+            })
+            .await?;
+
+            Ok(())
+        }
         _ => Err(OperationOutcomeError::error(
             IssueType::Invalid(None),
             format!(
