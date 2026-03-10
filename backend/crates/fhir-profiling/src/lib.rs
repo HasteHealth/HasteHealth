@@ -23,6 +23,7 @@ impl<Resolver: CanonicalResolver> FHIRProfileArguments<Resolver> {
 }
 
 pub struct FHIRProfileCTX<'a, Resolver: CanonicalResolver> {
+    #[allow(dead_code)]
     resolver: Arc<Resolver>,
     profile: &'a StructureDefinition,
     root: &'a dyn MetaValue,
