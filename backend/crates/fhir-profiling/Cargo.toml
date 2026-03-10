@@ -13,3 +13,4 @@ haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-pointer = { path = "../pointer", version = "0.*" }
+haste-codegen = { path = "../codegen", version = "0.*" }
