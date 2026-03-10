@@ -13,7 +13,7 @@ impl Path {
     pub fn descend(&self, field: &str) -> Self {
         Self(format!("{}/{}", self.0, escape::escape_field(field)))
     }
-    pub fn ascend(&self) -> Option<(Self, String)> {
+    pub fn ascend(&self) -> Option<(Self, Key)> {
         if self.0.is_empty() {
             None
         } else {
@@ -21,7 +21,10 @@ impl Path {
             let field = parts.next().unwrap();
             let parent_path = parts.next().unwrap_or("");
 
-            Some((Path(parent_path.to_string()), escape::unescape_field(field)))
+            Some((
+                Path(parent_path.to_string()),
+                Key::from_str(&escape::unescape_field(field)),
+            ))
         }
     }
 

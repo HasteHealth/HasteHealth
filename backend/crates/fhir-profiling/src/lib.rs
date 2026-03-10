@@ -1,9 +1,10 @@
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, StructureDefinition},
-    terminology::IssueType,
+    resources::{OperationOutcome, Resource, ResourceType, StructureDefinition},
+    terminology::{IssueType, TypeDerivationRule},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_pointer::Path;
 use haste_reflect::MetaValue;
 use std::sync::Arc;
 
@@ -19,11 +20,29 @@ impl<Resolver: CanonicalResolver> FHIRProfilerCTX<Resolver> {
 }
 
 pub async fn validate_profile(
-    _profile_ctx: FHIRProfilerCTX<impl CanonicalResolver>,
-    _sd: &StructureDefinition,
-    _values: Vec<&dyn MetaValue>,
-) -> Result<(), OperationOutcomeError> {
-    Ok(())
+    ctx: FHIRProfilerCTX<impl CanonicalResolver>,
+    profile: &StructureDefinition,
+    root: &dyn MetaValue,
+) -> Result<OperationOutcome, OperationOutcomeError> {
+    match profile.derivation.as_ref() {
+        Some(TypeDerivationRule::Constraint(_)) => {
+            let profile_location = Path::new()
+                .descend("snapshot")
+                .descend("element")
+                .descend("0");
+
+            let k = profile_location.ascend();
+            let starting_path = Path::new();
+        }
+        _ => {
+            return Err(OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Only profiles with derivation 'constraint' are supported".to_string(),
+            ));
+        }
+    }
+
+    Ok(OperationOutcome::default())
 }
 
 pub async fn validate_profile_by_url<Resolver: CanonicalResolver>(
