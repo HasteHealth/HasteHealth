@@ -37,24 +37,40 @@ fn validate_type_if_multiple_types_constrained<'a>(
     }
 }
 
-fn _validate_cardinality(
-    value_cardinality: usize,
-    // Max could be '*' which is any number of elements.
-    element_cardinality: (usize, Option<&str>),
-) -> bool {
-    false
+fn _validate_cardinality(value_cardinality: usize, (min, max): (usize, Option<&str>)) -> bool {
+    if value_cardinality < min {
+        return false;
+    }
+
+    match max {
+        // "*" means unbounded upper cardinality.
+        Some("*") => true,
+        Some(max) => max
+            .parse::<usize>()
+            .is_ok_and(|max| value_cardinality <= max),
+        // Missing max defaults to no upper bound at this helper level.
+        None => true,
+    }
 }
 
 fn validate_cardinality<'a>(
-    ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
+    _ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
     element: &ElementDefinition,
-    value: Option<&'a dyn MetaValue>,
+    value: &Option<&'a dyn MetaValue>,
 ) -> Vec<OperationOutcomeIssue> {
+    let element_cardinalities = (
+        element.min.as_ref().and_then(|v| v.value).unwrap_or(0) as usize,
+        element
+            .max
+            .as_ref()
+            .and_then(|v| v.value.as_ref().map(|s| s.as_str())),
+    );
     match value {
         Some(v) => {
-            v.flatten().len();
+            let value_cardinality = v.flatten().len();
+            _validate_cardinality(value_cardinality, element_cardinalities)
         }
-        None => {}
+        None => _validate_cardinality(0, element_cardinalities),
     };
 
     vec![]
@@ -65,7 +81,7 @@ pub async fn validate_element<'a>(
     element_pointer: Path,
     value_pointer: Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    let value = value_pointer.get(ctx.root);
+    let mut issues = vec![];
 
     let Some((elements_pointer, Key::Index(index))) = element_pointer.ascend() else {
         return Err(OperationOutcomeError::error(
@@ -74,8 +90,15 @@ pub async fn validate_element<'a>(
         ));
     };
 
+    let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile) else {
+        return Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!("Invalid element path: {}", element_pointer),
+        ));
+    };
+
     let elements = elements_pointer
-        .get_typed::<Vec<Box<ElementDefinition>>>(ctx.root)
+        .get_typed::<Vec<Box<ElementDefinition>>>(ctx.profile)
         .ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
@@ -83,10 +106,12 @@ pub async fn validate_element<'a>(
             )
         })?;
 
+    let value = value_pointer.get(ctx.root);
+
+    issues.extend(validate_cardinality(ctx, element, &value));
+
     let _children = traversal::ele_index_to_child_indices(elements, index)
         .map_err(|error| OperationOutcomeError::error(IssueType::Exception(None), error))?;
 
-    let _element = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.root);
-
-    Ok(vec![])
+    Ok(issues)
 }
