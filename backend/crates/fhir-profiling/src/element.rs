@@ -19,27 +19,27 @@ use crate::FHIRProfileCTX;
  * @param type The type found on the element.
  * @returns true|false as to whether the element is constrained to the type.
  */
-// fn validate_type_if_multiple_types_constrained<'a>(
-//     ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
-//     element: &ElementDefinition,
-//     type_: &str,
-// ) -> bool {
-//     let Some(types) = &element.type_ else {
-//         return true;
-//     };
+fn validate_type_if_multiple_types_constrained<'a>(
+    ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
+    element: &ElementDefinition,
+    type_: &str,
+) -> bool {
+    let Some(types) = &element.type_ else {
+        return true;
+    };
 
-//     if types
-//         .iter()
-//         .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some(type_))
-//         .is_some()
-//     {
-//         true
-//     } else if type_ == "Element" {
-//         false
-//     } else {
-//         false
-//     }
-// }
+    if types
+        .iter()
+        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some(type_))
+        .is_some()
+    {
+        true
+    } else if type_ == "Element" {
+        false
+    } else {
+        false
+    }
+}
 
 fn outcome_issue(
     value_location: &Path,
