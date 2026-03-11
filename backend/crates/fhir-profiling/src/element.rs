@@ -1,7 +1,9 @@
 use haste_codegen::traversal;
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
-    resources::OperationOutcomeIssue, terminology::IssueType, types::ElementDefinition,
+    resources::OperationOutcomeIssue,
+    terminology::{IssueSeverity, IssueType},
+    types::{ElementDefinition, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Path};
@@ -15,49 +17,100 @@ use crate::FHIRProfileCTX;
  * @param type The type found on the element.
  * @returns true|false as to whether the element is constrained to the type.
  */
-fn validate_type_if_multiple_types_constrained<'a>(
-    ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
-    element: &ElementDefinition,
-    type_: &str,
-) -> bool {
-    let Some(types) = &element.type_ else {
-        return true;
-    };
+// fn validate_type_if_multiple_types_constrained<'a>(
+//     ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
+//     element: &ElementDefinition,
+//     type_: &str,
+// ) -> bool {
+//     let Some(types) = &element.type_ else {
+//         return true;
+//     };
 
-    if types
-        .iter()
-        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some(type_))
-        .is_some()
-    {
-        true
-    } else if type_ == "Element" {
-        false
-    } else {
-        false
+//     if types
+//         .iter()
+//         .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some(type_))
+//         .is_some()
+//     {
+//         true
+//     } else if type_ == "Element" {
+//         false
+//     } else {
+//         false
+//     }
+// }
+
+fn outcome_issue(
+    value_location: Path,
+    severity: IssueSeverity,
+    code: IssueType,
+    diagnostic: String,
+) -> OperationOutcomeIssue {
+    OperationOutcomeIssue {
+        severity: Box::new(severity),
+        code: Box::new(code),
+        diagnostics: Some(Box::new(FHIRString {
+            value: Some(diagnostic),
+            ..Default::default()
+        })),
+        location: Some(vec![Box::new(FHIRString {
+            value: Some(format!("{}", value_location)),
+            ..Default::default()
+        })]),
+        ..Default::default()
     }
 }
 
-fn _validate_cardinality(value_cardinality: usize, (min, max): (usize, Option<&str>)) -> bool {
+fn _validate_cardinality(
+    value_location: Path,
+    value_cardinality: usize,
+    (min, max): (usize, Option<&str>),
+) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     if value_cardinality < min {
-        return false;
+        return Ok(vec![outcome_issue(
+            value_location,
+            IssueSeverity::Error(None),
+            IssueType::Required(None),
+            format!(
+                "Cardinality too low: expected at least '{}', found '{}'",
+                min, value_cardinality
+            ),
+        )]);
     }
 
     match max {
         // "*" means unbounded upper cardinality.
-        Some("*") => true,
-        Some(max) => max
-            .parse::<usize>()
-            .is_ok_and(|max| value_cardinality <= max),
-        // Missing max defaults to no upper bound at this helper level.
-        None => true,
+        None | Some("*") => Ok(vec![]),
+        Some(max) => {
+            let Ok(max) = max.parse::<usize>() else {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Exception(None),
+                    format!("Invalid max cardinality: {}", max),
+                ));
+            };
+
+            if value_cardinality <= max {
+                Ok(vec![])
+            } else {
+                Ok(vec![outcome_issue(
+                    value_location,
+                    IssueSeverity::Error(None),
+                    IssueType::Required(None),
+                    format!(
+                        "Cardinality too high: expected at most '{}', found '{}'",
+                        max, value_cardinality
+                    ),
+                )])
+            }
+        } // Missing max defaults to no upper bound at this helper level.
     }
 }
 
 fn validate_cardinality<'a>(
+    value_location: Path,
     _ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
     element: &ElementDefinition,
     value: &Option<&'a dyn MetaValue>,
-) -> Vec<OperationOutcomeIssue> {
+) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let element_cardinalities = (
         element.min.as_ref().and_then(|v| v.value).unwrap_or(0) as usize,
         element
@@ -65,15 +118,14 @@ fn validate_cardinality<'a>(
             .as_ref()
             .and_then(|v| v.value.as_ref().map(|s| s.as_str())),
     );
+
     match value {
         Some(v) => {
             let value_cardinality = v.flatten().len();
-            _validate_cardinality(value_cardinality, element_cardinalities)
+            _validate_cardinality(value_location, value_cardinality, element_cardinalities)
         }
-        None => _validate_cardinality(0, element_cardinalities),
-    };
-
-    vec![]
+        None => _validate_cardinality(value_location, 0, element_cardinalities),
+    }
 }
 
 pub async fn validate_element<'a>(
@@ -108,7 +160,7 @@ pub async fn validate_element<'a>(
 
     let value = value_pointer.get(ctx.root);
 
-    issues.extend(validate_cardinality(ctx, element, &value));
+    issues.extend(validate_cardinality(value_pointer, ctx, element, &value)?);
 
     let _children = traversal::ele_index_to_child_indices(elements, index)
         .map_err(|error| OperationOutcomeError::error(IssueType::Exception(None), error))?;
