@@ -44,7 +44,7 @@ impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
 }
 
 pub async fn validate_profile<'a>(
-    ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
     let mut outcome = OperationOutcome::default();
     match ctx.profile.derivation.as_ref().map(|d| d.as_ref()) {
@@ -88,11 +88,11 @@ pub async fn validate_profile_by_url<'a>(
 
     match &*profile {
         Resource::StructureDefinition(sd) => {
-            validate_profile(FHIRProfileCTX {
+            validate_profile(Arc::new(FHIRProfileCTX {
                 resolver: args.resolver.clone(),
                 profile: sd,
                 root: value,
-            })
+            }))
             .await?;
 
             Ok(())

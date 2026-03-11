@@ -1,4 +1,6 @@
-use haste_codegen::traversal;
+use std::sync::Arc;
+
+use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::OperationOutcomeIssue,
@@ -40,7 +42,7 @@ use crate::FHIRProfileCTX;
 // }
 
 fn outcome_issue(
-    value_location: Path,
+    value_location: &Path,
     severity: IssueSeverity,
     code: IssueType,
     diagnostic: String,
@@ -61,7 +63,7 @@ fn outcome_issue(
 }
 
 fn _validate_cardinality(
-    value_location: Path,
+    value_location: &Path,
     value_cardinality: usize,
     (min, max): (usize, Option<&str>),
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
@@ -106,8 +108,8 @@ fn _validate_cardinality(
 }
 
 fn validate_cardinality<'a>(
-    value_location: Path,
-    _ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
+    _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    value_location: &Path,
     element: &ElementDefinition,
     value: &Option<&'a dyn MetaValue>,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
@@ -129,7 +131,7 @@ fn validate_cardinality<'a>(
 }
 
 pub async fn validate_element<'a>(
-    ctx: FHIRProfileCTX<'a, impl CanonicalResolver>,
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element_pointer: Path,
     value_pointer: Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
@@ -160,10 +162,36 @@ pub async fn validate_element<'a>(
 
     let value = value_pointer.get(ctx.root);
 
-    issues.extend(validate_cardinality(value_pointer, ctx, element, &value)?);
+    issues.extend(validate_cardinality(
+        ctx.clone(),
+        &value_pointer,
+        element,
+        &value,
+    )?);
 
-    let _children = traversal::ele_index_to_child_indices(elements, index)
+    let children = traversal::ele_index_to_child_indices(elements, index)
         .map_err(|error| OperationOutcomeError::error(IssueType::Exception(None), error))?;
+
+    for child in children.iter() {
+        let child_element = &elements[*child];
+        let field_name = extract::field_name(
+            child_element
+                .path
+                .value
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or(""),
+        );
+        let child_element_pointer = elements_pointer.descend(&format!("{}", child));
+        let child_value_pointer = value_pointer.descend(&field_name);
+        let child_issues = Box::pin(validate_element(
+            ctx.clone(),
+            child_element_pointer,
+            child_value_pointer,
+        ))
+        .await?;
+        issues.extend(child_issues);
+    }
 
     Ok(issues)
 }
