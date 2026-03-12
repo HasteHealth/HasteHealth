@@ -2,10 +2,13 @@ use std::sync::Arc;
 
 use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
-use haste_fhir_model::r4::generated::{
-    resources::OperationOutcomeIssue,
-    terminology::{IssueSeverity, IssueType},
-    types::{ElementDefinition, FHIRString},
+use haste_fhir_model::r4::{
+    generated::{
+        resources::{OperationOutcomeIssue, Resource, ResourceType},
+        terminology::{IssueSeverity, IssueType},
+        types::{ElementDefinition, FHIRString},
+    },
+    get_fhir_type,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Path};
@@ -14,34 +17,86 @@ use haste_reflect::MetaValue;
 use crate::FHIRProfileCTX;
 
 /// Check if the element is constrained to profiles type.
+/// Also if nested profiles are found, validate against those as well.
 ///
 /// # Arguments
 ///
 /// * `ctx` - The FHIRProfileCTX containing the profile and root data.
 /// * `element` - ElementDefinition to check
 /// * `type_` - The type found on the element
-fn validate_type_if_multiple_types_constrained<'a>(
-    _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+async fn validate_type_if_multiple_types_constrained<'a>(
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element: &ElementDefinition,
-    type_: &str,
-) -> Vec<OperationOutcomeIssue> {
+    value_pointer: &Path,
+    type_: Option<&str>,
+) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let Some(types) = &element.type_ else {
-        return vec![];
+        return Ok(vec![]);
     };
 
-    if types
+    if let Some(profile_type) = types
         .iter()
-        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some(type_))
-        .is_some()
+        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == type_)
     {
-        vec![]
+        let mut issues = vec![];
+
+        if let Some(profiles_to_check) = profile_type.profile.as_ref() {
+            for profile_canonical in profiles_to_check.iter() {
+                if let Some(profile_canonical) = profile_canonical.value.as_ref() {
+                    let resolved_resource = ctx
+                        .resolver
+                        .resolve(ResourceType::StructureDefinition, profile_canonical)
+                        .await?
+                        .ok_or_else(|| {
+                            OperationOutcomeError::error(
+                                IssueType::Exception(None),
+                                format!(
+                                    "Failed to resolve profile canonical: {}",
+                                    profile_canonical
+                                ),
+                            )
+                        })?;
+
+                    let Resource::StructureDefinition(profile) = resolved_resource.as_ref() else {
+                        return Err(OperationOutcomeError::error(
+                            IssueType::Exception(None),
+                            format!(
+                                "Resolved canonical is not a StructureDefinition: {}",
+                                profile_canonical
+                            ),
+                        ));
+                    };
+
+                    issues.extend(
+                        validate_element(
+                            Arc::new(FHIRProfileCTX {
+                                resolver: ctx.resolver.clone(),
+                                profile,
+                                root: ctx.root,
+                            }),
+                            &Path::new()
+                                .descend("snapshot")
+                                .descend("element")
+                                .descend("0"),
+                            value_pointer,
+                        )
+                        .await?,
+                    );
+                }
+            }
+        }
+
+        Ok(issues)
     } else {
-        vec![outcome_issue(
+        Ok(vec![outcome_issue(
             &Path::new(),
             IssueSeverity::Error(None),
             IssueType::Required(None),
-            format!("Type '{}' is not allowed for this element", type_),
-        )]
+            format!(
+                "Type '{}' is not allowed for this element",
+                type_.unwrap_or("unknown")
+            ),
+        )])
     }
 }
 
@@ -134,10 +189,10 @@ fn validate_cardinality<'a>(
     }
 }
 
-async fn validate_element_singular<'a>(
+async fn validate_singular_element<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    element_pointer: Path,
-    value_pointer: Path,
+    element_pointer: &Path,
+    value_pointer: &Path,
     element: &ElementDefinition,
     value: &'a dyn MetaValue,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
@@ -158,11 +213,15 @@ async fn validate_element_singular<'a>(
             )
         })?;
 
-    issues.extend(validate_type_if_multiple_types_constrained(
-        ctx.clone(),
-        element,
-        value.typename(),
-    ));
+    issues.extend(
+        validate_type_if_multiple_types_constrained(
+            ctx.clone(),
+            element,
+            &value_pointer,
+            get_fhir_type(value),
+        )
+        .await?,
+    );
 
     let children = traversal::ele_index_to_child_indices(elements, index)
         .map_err(|error| OperationOutcomeError::error(IssueType::Exception(None), error))?;
@@ -181,8 +240,8 @@ async fn validate_element_singular<'a>(
         let child_value_pointer = value_pointer.descend(&field_name);
         let child_issues = Box::pin(validate_element(
             ctx.clone(),
-            child_element_pointer,
-            child_value_pointer,
+            &child_element_pointer,
+            &child_value_pointer,
         ))
         .await?;
         issues.extend(child_issues);
@@ -193,8 +252,8 @@ async fn validate_element_singular<'a>(
 
 pub async fn validate_element<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    element_pointer: Path,
-    value_pointer: Path,
+    element_pointer: &Path,
+    value_pointer: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let mut issues = vec![];
     let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile) else {
@@ -217,10 +276,10 @@ pub async fn validate_element<'a>(
         if value.is_many() {
             for (i, v) in value.flatten().iter().enumerate() {
                 issues.extend(
-                    validate_element_singular(
+                    validate_singular_element(
                         ctx.clone(),
-                        element_pointer.clone(),
-                        value_pointer.descend(&format!("{}", i)),
+                        element_pointer,
+                        &value_pointer.descend(&format!("{}", i)),
                         element,
                         *v,
                     )
@@ -229,10 +288,10 @@ pub async fn validate_element<'a>(
             }
         } else {
             issues.extend(
-                validate_element_singular(
+                validate_singular_element(
                     ctx.clone(),
-                    element_pointer.clone(),
-                    value_pointer.clone(),
+                    element_pointer,
+                    value_pointer,
                     element,
                     value,
                 )

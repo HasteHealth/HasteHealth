@@ -56,7 +56,7 @@ pub async fn validate_profile<'a>(
 
             let starting_path = Path::new();
 
-            let result = validate_element(ctx, element_location, starting_path).await?;
+            let result = validate_element(ctx, &element_location, &starting_path).await?;
             outcome.issue.extend(result);
         }
         _ => {
