@@ -273,4 +273,8 @@ impl MetaValue for RequestReflection {
     fn typename(&self) -> &'static str {
         "FHIRRequest"
     }
+
+    fn is_many(&self) -> bool {
+        false
+    }
 }

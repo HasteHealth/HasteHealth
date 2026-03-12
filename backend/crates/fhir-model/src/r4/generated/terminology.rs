@@ -231,6 +231,9 @@ impl MetaValue for FHIRVersion {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -317,6 +320,9 @@ impl MetaValue for AbstractTypes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -426,6 +432,9 @@ impl MetaValue for AccountStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -512,6 +521,9 @@ impl MetaValue for ActionCardinalityBehavior {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -607,6 +619,9 @@ impl MetaValue for ActionConditionKind {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -700,6 +715,9 @@ impl MetaValue for ActionGroupingBehavior {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -802,6 +820,9 @@ impl MetaValue for ActionParticipantType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -888,6 +909,9 @@ impl MetaValue for ActionPrecheckBehavior {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -1027,6 +1051,9 @@ impl MetaValue for ActionRelationshipType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -1122,6 +1149,9 @@ impl MetaValue for ActionRequiredBehavior {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -1238,6 +1268,9 @@ impl MetaValue for ActionSelectionBehavior {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -1339,6 +1372,9 @@ impl MetaValue for ActionType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -1432,6 +1468,9 @@ impl MetaValue for ActivityDefinitionCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -1548,6 +1587,9 @@ impl MetaValue for Additionalmaterials {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -1641,6 +1683,9 @@ impl MetaValue for AddressType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -1749,6 +1794,9 @@ impl MetaValue for AddressUse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -1879,6 +1927,9 @@ impl MetaValue for Adjudication {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -1966,6 +2017,9 @@ impl MetaValue for AdjudicationError {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -2052,6 +2106,9 @@ impl MetaValue for AdjudicationReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -2154,6 +2211,9 @@ impl MetaValue for AdministrativeGender {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -2240,6 +2300,9 @@ impl MetaValue for AdverseEventActuality {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -2436,6 +2499,9 @@ impl MetaValue for AdverseEventCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -2565,6 +2631,9 @@ impl MetaValue for AdverseEventCausalityAssess {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -2660,6 +2729,9 @@ impl MetaValue for AdverseEventCausalityMethod {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -2777,6 +2849,9 @@ impl MetaValue for AdverseEventOutcome {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -2939,6 +3014,9 @@ impl MetaValue for AdverseEventSeriousness {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -3032,6 +3110,9 @@ impl MetaValue for AdverseEventSeverity {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -3147,6 +3228,9 @@ impl MetaValue for AgeUnits {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -4784,6 +4868,9 @@ impl MetaValue for AllTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -4874,6 +4961,9 @@ impl MetaValue for AllergIntolSubstanceExpRisk {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -4976,6 +5066,9 @@ impl MetaValue for AllergyIntoleranceCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -5072,6 +5165,9 @@ impl MetaValue for AllergyIntoleranceCriticality {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -5158,6 +5254,9 @@ impl MetaValue for AllergyIntoleranceType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -5252,6 +5351,9 @@ impl MetaValue for AllergyintoleranceClinical {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -5356,6 +5458,9 @@ impl MetaValue for AllergyintoleranceVerification {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -5449,6 +5554,9 @@ impl MetaValue for AnimalGenderstatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -5593,6 +5701,9 @@ impl MetaValue for AnimalSpecies {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -5736,6 +5847,9 @@ impl MetaValue for Appointmentstatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -5822,6 +5936,9 @@ impl MetaValue for AssertDirectionCodes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -5972,6 +6089,9 @@ impl MetaValue for AssertOperatorCodes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -6132,6 +6252,9 @@ impl MetaValue for AssertResponseCodeTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -6211,6 +6334,9 @@ impl MetaValue for AssetAvailability {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -7409,6 +7535,9 @@ impl MetaValue for AuditEntityType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -7517,6 +7646,9 @@ impl MetaValue for AuditEventAction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -7617,6 +7749,9 @@ impl MetaValue for AuditEventOutcome {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -7947,6 +8082,9 @@ impl MetaValue for AuditEventSubType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -8307,6 +8445,9 @@ impl MetaValue for AuditEventType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -8442,6 +8583,9 @@ impl MetaValue for AuditSourceType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -8628,6 +8772,9 @@ impl MetaValue for BasicResourceType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -8714,6 +8861,9 @@ impl MetaValue for BenefitNetwork {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -8808,6 +8958,9 @@ impl MetaValue for BenefitTerm {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -8966,6 +9119,9 @@ impl MetaValue for BenefitType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -9052,6 +9208,9 @@ impl MetaValue for BenefitUnit {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -9154,6 +9313,9 @@ impl MetaValue for BindingStrength {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -9247,6 +9409,9 @@ impl MetaValue for BodysiteLaterality {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -9405,6 +9570,9 @@ impl MetaValue for BodystructureRelativeLocation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -9540,6 +9708,9 @@ impl MetaValue for BundleType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -10166,6 +10337,9 @@ impl MetaValue for C80Facilitycodes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -11045,6 +11219,9 @@ impl MetaValue for C80PracticeCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -11138,6 +11315,9 @@ impl MetaValue for CapabilityStatementKind {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -11261,6 +11441,9 @@ impl MetaValue for CarePlanActivityKind {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -11398,6 +11581,9 @@ impl MetaValue for CarePlanActivityStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -11494,6 +11680,9 @@ impl MetaValue for CarePlanIntent {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -11603,6 +11792,9 @@ impl MetaValue for CareTeamStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -11697,6 +11889,9 @@ impl MetaValue for CatalogType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -11790,6 +11985,9 @@ impl MetaValue for CdshooksIndicator {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -11941,6 +12139,9 @@ impl MetaValue for CertaintySubcomponentRating {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -12074,6 +12275,9 @@ impl MetaValue for CertaintySubcomponentType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -12167,6 +12371,9 @@ impl MetaValue for ChargeitemBillingcodes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -12290,6 +12497,9 @@ impl MetaValue for ChargeitemStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -12376,6 +12586,9 @@ impl MetaValue for ChoiceListOrientation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -12618,6 +12831,9 @@ impl MetaValue for ChromosomeHuman {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -12719,6 +12935,9 @@ impl MetaValue for ClaimCareteamrole {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -12805,6 +13024,9 @@ impl MetaValue for ClaimException {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -12981,6 +13203,9 @@ impl MetaValue for ClaimInformationcategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13096,6 +13321,9 @@ impl MetaValue for ClaimModifiers {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13182,6 +13410,9 @@ impl MetaValue for ClaimSubtype {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -13291,6 +13522,9 @@ impl MetaValue for ClaimType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13385,6 +13619,9 @@ impl MetaValue for ClaimUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13476,6 +13713,9 @@ impl MetaValue for ClinicalimpressionStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13562,6 +13802,9 @@ impl MetaValue for CodeSearchSupport {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -13671,6 +13914,9 @@ impl MetaValue for CodesystemAltcodeKind {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13779,6 +14025,9 @@ impl MetaValue for CodesystemContentMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13880,6 +14129,9 @@ impl MetaValue for CodesystemHierarchyMeaning {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -13959,6 +14211,9 @@ impl MetaValue for CommonTags {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -14060,6 +14315,9 @@ impl MetaValue for CommunicationCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -14182,6 +14440,9 @@ impl MetaValue for CommunicationNotDoneReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -14301,6 +14562,9 @@ impl MetaValue for CommunicationTopic {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -14409,6 +14673,9 @@ impl MetaValue for CompartmentType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -14509,6 +14776,9 @@ impl MetaValue for CompositeMeasureScoring {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -14618,6 +14888,9 @@ impl MetaValue for CompositionAltcodeKind {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -14719,6 +14992,9 @@ impl MetaValue for CompositionAttestationMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -14819,6 +15095,9 @@ impl MetaValue for CompositionStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -14963,6 +15242,9 @@ impl MetaValue for ConceptMapEquivalence {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -15085,6 +15367,9 @@ impl MetaValue for ConceptPropertyType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -15186,6 +15471,9 @@ impl MetaValue for ConceptSubsumptionOutcome {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -15280,6 +15568,9 @@ impl MetaValue for ConceptmapUnmappedMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -15366,6 +15657,9 @@ impl MetaValue for ConditionCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -15482,6 +15776,9 @@ impl MetaValue for ConditionClinical {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -15572,6 +15869,9 @@ impl MetaValue for ConditionSeverity {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -15666,6 +15966,9 @@ impl MetaValue for ConditionState {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -15782,6 +16085,9 @@ impl MetaValue for ConditionVerStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -15875,6 +16181,9 @@ impl MetaValue for ConditionalDeleteStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -15977,6 +16286,9 @@ impl MetaValue for ConditionalReadStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -16077,6 +16389,9 @@ impl MetaValue for ConformanceExpectation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -16186,6 +16501,9 @@ impl MetaValue for ConsentAction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -16286,6 +16604,9 @@ impl MetaValue for ConsentDataMeaning {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -16394,6 +16715,9 @@ impl MetaValue for ConsentPerformer {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -16652,6 +16976,9 @@ impl MetaValue for ConsentPolicy {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -16738,6 +17065,9 @@ impl MetaValue for ConsentProvisionType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -16839,6 +17169,9 @@ impl MetaValue for ConsentScope {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -16955,6 +17288,9 @@ impl MetaValue for ConsentStateCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -17056,6 +17392,9 @@ impl MetaValue for ConsistencyType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -17142,6 +17481,9 @@ impl MetaValue for ConstraintSeverity {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -17265,6 +17607,9 @@ impl MetaValue for ContactPointSystem {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -17372,6 +17717,9 @@ impl MetaValue for ContactPointUse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -17487,6 +17835,9 @@ impl MetaValue for ContactentityType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -17645,6 +17996,9 @@ impl MetaValue for ContainerCap {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -17739,6 +18093,9 @@ impl MetaValue for ContainerMaterial {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -17826,6 +18183,9 @@ impl MetaValue for ContractAction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -17905,6 +18265,9 @@ impl MetaValue for ContractActionstatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -17993,6 +18356,9 @@ impl MetaValue for ContractActorrole {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18072,6 +18438,9 @@ impl MetaValue for ContractAssetcontext {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -18153,6 +18522,9 @@ impl MetaValue for ContractAssetscope {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18233,6 +18605,9 @@ impl MetaValue for ContractAssetsubtype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18312,6 +18687,9 @@ impl MetaValue for ContractAssettype {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -18414,6 +18792,9 @@ impl MetaValue for ContractContentDerivative {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18515,6 +18896,9 @@ impl MetaValue for ContractDataMeaning {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18594,6 +18978,9 @@ impl MetaValue for ContractDecisionMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -18675,6 +19062,9 @@ impl MetaValue for ContractDefinitionSubtype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18755,6 +19145,9 @@ impl MetaValue for ContractDefinitionType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -18834,6 +19227,9 @@ impl MetaValue for ContractExpirationType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -19013,6 +19409,9 @@ impl MetaValue for ContractLegalstate {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -19092,6 +19491,9 @@ impl MetaValue for ContractPartyRole {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -19271,6 +19673,9 @@ impl MetaValue for ContractPublicationstatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -19350,6 +19755,9 @@ impl MetaValue for ContractScope {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -19431,6 +19839,9 @@ impl MetaValue for ContractSecurityCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -19511,6 +19922,9 @@ impl MetaValue for ContractSecurityClassification {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -19590,6 +20004,9 @@ impl MetaValue for ContractSecurityControl {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -20000,6 +20417,9 @@ impl MetaValue for ContractSignerType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -20178,6 +20598,9 @@ impl MetaValue for ContractStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -20264,6 +20687,9 @@ impl MetaValue for ContractSubtype {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -20359,6 +20785,9 @@ impl MetaValue for ContractTermSubtype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -20445,6 +20874,9 @@ impl MetaValue for ContractTermType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -20554,6 +20986,9 @@ impl MetaValue for ContractType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -20655,6 +21090,9 @@ impl MetaValue for ContributorType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -20748,6 +21186,9 @@ impl MetaValue for CopyNumberEvent {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -20899,6 +21340,9 @@ impl MetaValue for CoverageClass {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -21042,6 +21486,9 @@ impl MetaValue for CoverageCopayType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -21129,6 +21576,9 @@ impl MetaValue for CoverageFinancialException {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -21208,6 +21658,9 @@ impl MetaValue for CoverageSelfpay {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -21375,6 +21828,9 @@ impl MetaValue for CoverageeligibilityresponseExAuthSupport {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -21553,6 +22009,9 @@ impl MetaValue for DataAbsentReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -22068,6 +22527,9 @@ impl MetaValue for DataTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -22189,6 +22651,9 @@ impl MetaValue for DaysOfWeek {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -23782,6 +24247,9 @@ impl MetaValue for DefinedTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -23901,6 +24369,9 @@ impl MetaValue for DefinitionResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -24002,6 +24473,9 @@ impl MetaValue for DefinitionStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -24095,6 +24569,9 @@ impl MetaValue for DefinitionTopic {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -24211,6 +24688,9 @@ impl MetaValue for DefinitionUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -24295,6 +24775,9 @@ impl MetaValue for DesignationUse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -24389,6 +24872,9 @@ impl MetaValue for DetectedissueSeverity {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -24533,6 +25019,9 @@ impl MetaValue for DeviceComponentProperty {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -24633,6 +25122,9 @@ impl MetaValue for DeviceDefinitionStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -24749,6 +25241,9 @@ impl MetaValue for DeviceNametype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -24863,6 +25358,9 @@ impl MetaValue for DeviceSafety {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -24979,6 +25477,9 @@ impl MetaValue for DeviceStatementStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -25079,6 +25580,9 @@ impl MetaValue for DeviceStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -25209,6 +25713,9 @@ impl MetaValue for DeviceStatusReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -25330,6 +25837,9 @@ impl MetaValue for DiagnosisRole {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -25474,6 +25984,9 @@ impl MetaValue for DiagnosticReportStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -25607,6 +26120,9 @@ impl MetaValue for Dicm405Mediatype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -25715,6 +26231,9 @@ impl MetaValue for DiscriminatorType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -25822,6 +26341,9 @@ impl MetaValue for DistanceUnits {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -26226,6 +26748,9 @@ impl MetaValue for DocSectionCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -26614,6 +27139,9 @@ impl MetaValue for DocumentClasscodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -26700,6 +27228,9 @@ impl MetaValue for DocumentMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -26794,6 +27325,9 @@ impl MetaValue for DocumentReferenceStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -26896,6 +27430,9 @@ impl MetaValue for DocumentRelationshipType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -26982,6 +27519,9 @@ impl MetaValue for DoseRateType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -27112,6 +27652,9 @@ impl MetaValue for DurationUnits {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -27234,6 +27777,9 @@ impl MetaValue for EffectEstimateType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -27334,6 +27880,9 @@ impl MetaValue for EligibilityrequestPurpose {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -27437,6 +27986,9 @@ impl MetaValue for EligibilityresponsePurpose {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -27581,6 +28133,9 @@ impl MetaValue for EncounterAdmitSource {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -27702,6 +28257,9 @@ impl MetaValue for EncounterDiet {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -27853,6 +28411,9 @@ impl MetaValue for EncounterDischargeDisposition {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -27953,6 +28514,9 @@ impl MetaValue for EncounterLocationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -28479,6 +29043,9 @@ impl MetaValue for EncounterParticipantType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -28586,6 +29153,9 @@ impl MetaValue for EncounterSpecialArrangements {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -28695,6 +29265,9 @@ impl MetaValue for EncounterSpecialCourtesy {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -28832,6 +29405,9 @@ impl MetaValue for EncounterStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -28932,6 +29508,9 @@ impl MetaValue for EncounterType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -29103,6 +29682,9 @@ impl MetaValue for EndpointConnectionType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -29982,6 +30564,9 @@ impl MetaValue for EndpointPayloadType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -30096,6 +30681,9 @@ impl MetaValue for EndpointStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -30224,6 +30812,9 @@ impl MetaValue for EnteralRoute {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -30331,6 +30922,9 @@ impl MetaValue for EntformulaAdditive {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -30657,6 +31251,9 @@ impl MetaValue for EntformulaType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -30779,6 +31376,9 @@ impl MetaValue for EpisodeOfCareStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -30887,6 +31487,9 @@ impl MetaValue for EpisodeofcareType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -30973,6 +31576,9 @@ impl MetaValue for EventCapabilityMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -31443,6 +32049,9 @@ impl MetaValue for EventOrRequestResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -31760,6 +32369,9 @@ impl MetaValue for EventResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -31888,6 +32500,9 @@ impl MetaValue for EventStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -32130,6 +32745,9 @@ impl MetaValue for EventTiming {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -32231,6 +32849,9 @@ impl MetaValue for EvidenceQuality {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -32324,6 +32945,9 @@ impl MetaValue for EvidenceVariantState {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -32594,6 +33218,9 @@ impl MetaValue for ExBenefitcategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -32695,6 +33322,9 @@ impl MetaValue for ExDiagnosisOnAdmission {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -32795,6 +33425,9 @@ impl MetaValue for ExDiagnosisrelatedgroup {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -32953,6 +33586,9 @@ impl MetaValue for ExDiagnosistype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -33046,6 +33682,9 @@ impl MetaValue for ExOnsettype {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -33148,6 +33787,9 @@ impl MetaValue for ExPayeeResourceType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -33235,6 +33877,9 @@ impl MetaValue for ExPaymenttype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -33321,6 +33966,9 @@ impl MetaValue for ExProcedureType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -33422,6 +34070,9 @@ impl MetaValue for ExProgramCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -33559,6 +34210,9 @@ impl MetaValue for ExRevenueCenter {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -33660,6 +34314,9 @@ impl MetaValue for ExampleExtensional {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -33753,6 +34410,9 @@ impl MetaValue for ExampleFilter {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -33905,6 +34565,9 @@ impl MetaValue for ExampleHierarchical {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -33991,6 +34654,9 @@ impl MetaValue for ExamplescenarioActorType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -34086,6 +34752,9 @@ impl MetaValue for ExpansionParameterSource {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -34179,6 +34848,9 @@ impl MetaValue for ExpansionProcessingRule {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -34281,6 +34953,9 @@ impl MetaValue for ExplanationofbenefitStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -34367,6 +35042,9 @@ impl MetaValue for ExposureState {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -34464,6 +35142,9 @@ impl MetaValue for ExpressionLanguage {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -34557,6 +35238,9 @@ impl MetaValue for ExtensionContextType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -34694,6 +35378,9 @@ impl MetaValue for FilterOperator {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -34801,6 +35488,9 @@ impl MetaValue for FinancialTaskcode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -34923,6 +35613,9 @@ impl MetaValue for FinancialTaskinputtype {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -35067,6 +35760,9 @@ impl MetaValue for FlagCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -35168,6 +35864,9 @@ impl MetaValue for FlagPriority {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -35262,6 +35961,9 @@ impl MetaValue for FlagStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -35341,6 +36043,9 @@ impl MetaValue for FmConditions {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -35435,6 +36140,9 @@ impl MetaValue for FmItemtype {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -35537,6 +36245,9 @@ impl MetaValue for FmStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -35631,6 +36342,9 @@ impl MetaValue for FocalSubject {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -35717,6 +36431,9 @@ impl MetaValue for Forms {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -35811,6 +36528,9 @@ impl MetaValue for Fundsreserve {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -35934,6 +36654,9 @@ impl MetaValue for GenderIdentity {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -36027,6 +36750,9 @@ impl MetaValue for GoalAcceptanceStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -36164,6 +36890,9 @@ impl MetaValue for GoalAchievement {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -36272,6 +37001,9 @@ impl MetaValue for GoalCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -36365,6 +37097,9 @@ impl MetaValue for GoalPriority {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -36474,6 +37209,9 @@ impl MetaValue for GoalRelationshipType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -36574,6 +37312,9 @@ impl MetaValue for GoalStartEvent {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -36710,6 +37451,9 @@ impl MetaValue for GoalStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -36849,6 +37593,9 @@ impl MetaValue for GoalStatusReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -36950,6 +37697,9 @@ impl MetaValue for GraphCompartmentRule {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -37036,6 +37786,9 @@ impl MetaValue for GraphCompartmentUse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -37152,6 +37905,9 @@ impl MetaValue for GroupMeasure {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -37266,6 +38022,9 @@ impl MetaValue for GroupType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -37382,6 +38141,9 @@ impl MetaValue for GuidanceResponseStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -37482,6 +38244,9 @@ impl MetaValue for GuidePageGeneration {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -37626,6 +38391,9 @@ impl MetaValue for GuideParameterCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -37719,6 +38487,9 @@ impl MetaValue for HandlingCondition {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -37821,6 +38592,9 @@ impl MetaValue for HistoryAbsentReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -37921,6 +38695,9 @@ impl MetaValue for HistoryStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -38163,6 +38940,9 @@ impl MetaValue for Hl7WorkGroup {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -38285,6 +39065,9 @@ impl MetaValue for HttpOperations {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -38399,6 +39182,9 @@ impl MetaValue for HttpVerb {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -38522,6 +39308,9 @@ impl MetaValue for Icd10 {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -38615,6 +39404,9 @@ impl MetaValue for Icd10Procedures {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -38797,6 +39589,9 @@ impl MetaValue for IdentifierType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -38905,6 +39700,9 @@ impl MetaValue for IdentifierUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -39005,6 +39803,9 @@ impl MetaValue for IdentityAssuranceLevel {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -39114,6 +39915,9 @@ impl MetaValue for ImagingstudyStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -39200,6 +40004,9 @@ impl MetaValue for ImmunizationEvaluationDoseStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -39319,6 +40126,9 @@ impl MetaValue for ImmunizationEvaluationDoseStatusReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -39403,6 +40213,9 @@ impl MetaValue for ImmunizationEvaluationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -39531,6 +40344,9 @@ impl MetaValue for ImmunizationEvaluationTargetDisease {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -39615,6 +40431,9 @@ impl MetaValue for ImmunizationFunction {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -39702,6 +40521,9 @@ impl MetaValue for ImmunizationFundingSource {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -39804,6 +40626,9 @@ impl MetaValue for ImmunizationOrigin {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -39891,6 +40716,9 @@ impl MetaValue for ImmunizationProgramEligibility {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -39975,6 +40803,9 @@ impl MetaValue for ImmunizationReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -40073,6 +40904,9 @@ impl MetaValue for ImmunizationRecommendationDateCriterion {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -40157,6 +40991,9 @@ impl MetaValue for ImmunizationRecommendationReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -40269,6 +41106,9 @@ impl MetaValue for ImmunizationRecommendationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -40415,6 +41255,9 @@ impl MetaValue for ImmunizationRecommendationTargetDisease {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -40537,6 +41380,9 @@ impl MetaValue for ImmunizationRoute {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -40623,6 +41469,9 @@ impl MetaValue for ImmunizationSite {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -40714,6 +41563,9 @@ impl MetaValue for ImmunizationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -40808,6 +41660,9 @@ impl MetaValue for ImmunizationSubpotentReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -40936,6 +41791,9 @@ impl MetaValue for ImmunizationTargetDisease {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -41036,6 +41894,9 @@ impl MetaValue for ImplantStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -41306,6 +42167,9 @@ impl MetaValue for Inactive {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -41403,6 +42267,9 @@ impl MetaValue for InstanceAvailability {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -41496,6 +42363,9 @@ impl MetaValue for InsuranceplanApplicability {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -41640,6 +42510,9 @@ impl MetaValue for InsuranceplanType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -41727,6 +42600,9 @@ impl MetaValue for Intervention {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -41813,6 +42689,9 @@ impl MetaValue for InvestigationSets {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -41929,6 +42808,9 @@ impl MetaValue for InvoicePriceComponentType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -42036,6 +42918,9 @@ impl MetaValue for InvoiceStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -43853,6 +44738,9 @@ impl MetaValue for Iso316612 {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -43953,6 +44841,9 @@ impl MetaValue for IssueSeverity {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -44244,6 +45135,9 @@ impl MetaValue for IssueType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -44436,6 +45330,9 @@ impl MetaValue for ItemType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -44574,6 +45471,9 @@ impl MetaValue for KnowledgeResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -44660,6 +45560,9 @@ impl MetaValue for LanguagePreferenceType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -45126,6 +46029,9 @@ impl MetaValue for Languages {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -45212,6 +46118,9 @@ impl MetaValue for LdlcholesterolCodes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -45314,6 +46223,9 @@ impl MetaValue for LibraryType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -45415,6 +46327,9 @@ impl MetaValue for LinkType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -45508,6 +46423,9 @@ impl MetaValue for LinkageType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -45623,6 +46541,9 @@ impl MetaValue for ListEmptyReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -45760,6 +46681,9 @@ impl MetaValue for ListExampleCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -45875,6 +46799,9 @@ impl MetaValue for ListItemFlag {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -45968,6 +46895,9 @@ impl MetaValue for ListMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -46098,6 +47028,9 @@ impl MetaValue for ListOrder {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -46192,6 +47125,9 @@ impl MetaValue for ListStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -46278,6 +47214,9 @@ impl MetaValue for LocationMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -46450,6 +47389,9 @@ impl MetaValue for LocationPhysicalType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -46544,6 +47486,9 @@ impl MetaValue for LocationStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -46630,6 +47575,9 @@ impl MetaValue for MapContextType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -46725,6 +47673,9 @@ impl MetaValue for MapGroupTypeMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -46811,6 +47762,9 @@ impl MetaValue for MapInputMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -46912,6 +47866,9 @@ impl MetaValue for MapModelMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -47021,6 +47978,9 @@ impl MetaValue for MapSourceListMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -47121,6 +48081,9 @@ impl MetaValue for MapTargetListMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -47314,6 +48277,9 @@ impl MetaValue for MapTransform {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -47463,6 +48429,9 @@ impl MetaValue for MaritalStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -47564,6 +48533,9 @@ impl MetaValue for MatchGrade {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -47651,6 +48623,9 @@ impl MetaValue for MeasureDataUsage {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -47737,6 +48712,9 @@ impl MetaValue for MeasureImprovementNotation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -47878,6 +48856,9 @@ impl MetaValue for MeasurePopulation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -47971,6 +48952,9 @@ impl MetaValue for MeasureReportStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -48073,6 +49057,9 @@ impl MetaValue for MeasureReportType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -48173,6 +49160,9 @@ impl MetaValue for MeasureScoring {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -48282,6 +49272,9 @@ impl MetaValue for MeasureType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -48375,6 +49368,9 @@ impl MetaValue for MedAdminPerformFunction {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -48470,6 +49466,9 @@ impl MetaValue for MediaType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -48563,6 +49562,9 @@ impl MetaValue for MedicationAdminCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -48686,6 +49688,9 @@ impl MetaValue for MedicationAdminStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -48788,6 +49793,9 @@ impl MetaValue for MedicationStatementCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -48918,6 +49926,9 @@ impl MetaValue for MedicationStatementStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -49011,6 +50022,9 @@ impl MetaValue for MedicationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -49112,6 +50126,9 @@ impl MetaValue for MedicationdispenseCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -49217,6 +50234,9 @@ impl MetaValue for MedicationdispensePerformerFunction {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -49353,6 +50373,9 @@ impl MetaValue for MedicationdispenseStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -49574,6 +50597,9 @@ impl MetaValue for MedicationdispenseStatusReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -49695,6 +50721,9 @@ impl MetaValue for MedicationknowledgeCharacteristic {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -49923,6 +50952,9 @@ impl MetaValue for MedicationknowledgePackageType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -50016,6 +51048,9 @@ impl MetaValue for MedicationknowledgeStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -50118,6 +51153,9 @@ impl MetaValue for MedicationrequestCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -50211,6 +51249,9 @@ impl MetaValue for MedicationrequestCourseOfTherapy {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -50341,6 +51382,9 @@ impl MetaValue for MedicationrequestIntent {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -50469,6 +51513,9 @@ impl MetaValue for MedicationrequestStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -50634,6 +51681,9 @@ impl MetaValue for MedicationrequestStatusReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -50749,6 +51799,9 @@ impl MetaValue for MessageReasonEncounter {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -50843,6 +51896,9 @@ impl MetaValue for MessageSignificanceCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -50936,6 +51992,9 @@ impl MetaValue for MessageTransport {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -51037,6 +52096,9 @@ impl MetaValue for MessageheaderResponseRequest {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -51141,6 +52203,9 @@ impl MetaValue for MetricCalibrationState {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -51242,6 +52307,9 @@ impl MetaValue for MetricCalibrationType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -51342,6 +52410,9 @@ impl MetaValue for MetricCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -51472,6 +52543,9 @@ impl MetaValue for MetricColor {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -51573,6 +52647,9 @@ impl MetaValue for MetricOperationalStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -51673,6 +52750,9 @@ impl MetaValue for MissingToothReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -51845,6 +52925,9 @@ impl MetaValue for ModifiedFoodtype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -51966,6 +53049,9 @@ impl MetaValue for NameAssemblyOrder {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -52124,6 +53210,9 @@ impl MetaValue for NamePartQualifier {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -52246,6 +53335,9 @@ impl MetaValue for NameUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -52336,6 +53428,9 @@ impl MetaValue for NameV3Representation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -52438,6 +53533,9 @@ impl MetaValue for NamingsystemIdentifierType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -52531,6 +53629,9 @@ impl MetaValue for NamingsystemType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -52632,6 +53733,9 @@ impl MetaValue for NarrativeStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -52740,6 +53844,9 @@ impl MetaValue for NetworkType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -53003,6 +54110,9 @@ impl MetaValue for NhinPurposeofuse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -53096,6 +54206,9 @@ impl MetaValue for NoteType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -53464,6 +54577,9 @@ impl MetaValue for ObjectLifecycleEvents {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -53705,6 +54821,9 @@ impl MetaValue for ObjectRole {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -53840,6 +54959,9 @@ impl MetaValue for ObservationCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -54377,6 +55499,9 @@ impl MetaValue for ObservationInterpretation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -54470,6 +55595,9 @@ impl MetaValue for ObservationRangeCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -54691,6 +55819,9 @@ impl MetaValue for ObservationStatistics {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -54819,6 +55950,9 @@ impl MetaValue for ObservationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -54971,6 +56105,9 @@ impl MetaValue for ObservationVitalsignresult {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -55057,6 +56194,9 @@ impl MetaValue for OperationKind {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -55511,6 +56651,9 @@ impl MetaValue for OperationOutcome {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -55597,6 +56740,9 @@ impl MetaValue for OperationParameterUse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -55698,6 +56844,9 @@ impl MetaValue for OralProsthodonticMaterial {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -55827,6 +56976,9 @@ impl MetaValue for OrganizationRole {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -55985,6 +57137,9 @@ impl MetaValue for OrganizationType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -56071,6 +57226,9 @@ impl MetaValue for OrientationType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -56207,6 +57365,9 @@ impl MetaValue for ParameterGroup {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -59216,6 +60377,9 @@ impl MetaValue for ParentRelationshipCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -59309,6 +60473,9 @@ impl MetaValue for Participantrequired {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -59411,6 +60578,9 @@ impl MetaValue for Participationstatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -59505,6 +60675,9 @@ impl MetaValue for Payeetype {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -59592,6 +60765,9 @@ impl MetaValue for PaymentAdjustmentReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -59678,6 +60854,9 @@ impl MetaValue for PaymentStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -59772,6 +60951,9 @@ impl MetaValue for PaymentType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -59930,6 +61112,9 @@ impl MetaValue for PerformerFunction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -60080,6 +61265,9 @@ impl MetaValue for PermittedDataType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -60180,6 +61368,9 @@ impl MetaValue for PlanDefinitionType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -60310,6 +61501,9 @@ impl MetaValue for PostalAddressUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -60418,6 +61612,9 @@ impl MetaValue for PractitionerSpecialty {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -60518,6 +61715,9 @@ impl MetaValue for PrecisionEstimateType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -60655,6 +61855,9 @@ impl MetaValue for ProbabilityDistributionType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -60769,6 +61972,9 @@ impl MetaValue for ProcedureCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -60903,6 +62109,9 @@ impl MetaValue for ProcedureFollowup {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -60993,6 +62202,9 @@ impl MetaValue for ProcedureOutcome {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -61113,6 +62325,9 @@ impl MetaValue for ProcedureProgressStatusCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -61206,6 +62421,9 @@ impl MetaValue for ProcessPriority {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -61315,6 +62533,9 @@ impl MetaValue for ProductCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -61401,6 +62622,9 @@ impl MetaValue for ProductStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -61495,6 +62719,9 @@ impl MetaValue for ProductStorageScale {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -61603,6 +62830,9 @@ impl MetaValue for PropertyRepresentation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -62174,6 +63404,9 @@ impl MetaValue for ProvenanceActivityType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -62316,6 +63549,9 @@ impl MetaValue for ProvenanceAgentRole {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -62460,6 +63696,9 @@ impl MetaValue for ProvenanceAgentType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -62568,6 +63807,9 @@ impl MetaValue for ProvenanceEntityRole {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -62668,6 +63910,9 @@ impl MetaValue for ProvenanceHistoryAgentType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -62839,6 +64084,9 @@ impl MetaValue for ProvenanceHistoryRecordActivity {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -62932,6 +64180,9 @@ impl MetaValue for ProviderQualification {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -63034,6 +64285,9 @@ impl MetaValue for PublicationStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -63127,6 +64381,9 @@ impl MetaValue for QualityType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -63229,6 +64486,9 @@ impl MetaValue for QuantityComparator {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -63308,6 +64568,9 @@ impl MetaValue for QuestionMaxOccurs {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -63417,6 +64680,9 @@ impl MetaValue for QuestionnaireAnswersStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -63525,6 +64791,9 @@ impl MetaValue for QuestionnaireCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -63619,6 +64888,9 @@ impl MetaValue for QuestionnaireDisplayCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -63705,6 +64977,9 @@ impl MetaValue for QuestionnaireEnableBehavior {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -63827,6 +65102,9 @@ impl MetaValue for QuestionnaireEnableOperator {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -64073,6 +65351,9 @@ impl MetaValue for QuestionnaireItemControl {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -64183,6 +65464,9 @@ impl MetaValue for QuestionnaireUsageMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -64273,6 +65557,9 @@ impl MetaValue for QuestionnaireresponseMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -64375,6 +65662,9 @@ impl MetaValue for ReactionEventCertainty {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -64468,6 +65758,9 @@ impl MetaValue for ReactionEventSeverity {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -64563,6 +65856,9 @@ impl MetaValue for ReasonMedicationGivenCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -64649,6 +65945,9 @@ impl MetaValue for RecommendationStrength {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -64758,6 +66057,9 @@ impl MetaValue for ReferenceHandlingPolicy {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -64851,6 +66153,9 @@ impl MetaValue for ReferenceVersionRules {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -65016,6 +66321,9 @@ impl MetaValue for ReferencerangeMeaning {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -65123,6 +66431,9 @@ impl MetaValue for RejectionCriteria {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -65253,6 +66564,9 @@ impl MetaValue for RelatedArtifactType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -65340,6 +66654,9 @@ impl MetaValue for RelatedClaimRelationship {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -65426,6 +66743,9 @@ impl MetaValue for RelationType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -65535,6 +66855,9 @@ impl MetaValue for Relationship {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -65635,6 +66958,9 @@ impl MetaValue for RemittanceOutcome {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -65744,6 +67070,9 @@ impl MetaValue for ReportActionResultCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -65838,6 +67167,9 @@ impl MetaValue for ReportParticipantType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -65931,6 +67263,9 @@ impl MetaValue for ReportResultCodes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -66040,6 +67375,9 @@ impl MetaValue for ReportStatusCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -66147,6 +67485,9 @@ impl MetaValue for RepositoryType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -66284,6 +67625,9 @@ impl MetaValue for RequestIntent {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -66384,6 +67728,9 @@ impl MetaValue for RequestPriority {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -66569,6 +67916,9 @@ impl MetaValue for RequestResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -66691,6 +68041,9 @@ impl MetaValue for RequestStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -66785,6 +68138,9 @@ impl MetaValue for ResearchElementType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -66878,6 +68234,9 @@ impl MetaValue for ResearchStudyObjectiveType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -67007,6 +68366,9 @@ impl MetaValue for ResearchStudyPhase {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -67145,6 +68507,9 @@ impl MetaValue for ResearchStudyPrimPurpType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -67263,6 +68628,9 @@ impl MetaValue for ResearchStudyReasonStopped {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -67436,6 +68804,9 @@ impl MetaValue for ResearchStudyStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -67604,6 +68975,9 @@ impl MetaValue for ResearchSubjectStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -67697,6 +69071,9 @@ impl MetaValue for ResourceAggregationMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -67806,6 +69183,9 @@ impl MetaValue for ResourceSecurityCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -67899,6 +69279,9 @@ impl MetaValue for ResourceSlicingRules {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -68190,6 +69573,9 @@ impl MetaValue for ResourceStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -68290,6 +69676,9 @@ impl MetaValue for ResourceTypeLink {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -69492,6 +70881,9 @@ impl MetaValue for ResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -69593,6 +70985,9 @@ impl MetaValue for ResourceValidationMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -69687,6 +71082,9 @@ impl MetaValue for ResponseCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -69773,6 +71171,9 @@ impl MetaValue for RestfulCapabilityMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -69889,6 +71290,9 @@ impl MetaValue for RestfulSecurityService {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -70004,6 +71408,9 @@ impl MetaValue for RiskEstimateType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -70111,6 +71518,9 @@ impl MetaValue for RiskProbability {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -70248,6 +71658,9 @@ impl MetaValue for SearchComparator {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -70341,6 +71754,9 @@ impl MetaValue for SearchEntryMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -70499,6 +71915,9 @@ impl MetaValue for SearchModifierCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -70635,6 +72054,9 @@ impl MetaValue for SearchParamType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -70743,6 +72165,9 @@ impl MetaValue for SearchXpathUsage {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -70829,6 +72254,9 @@ impl MetaValue for SecondaryFinding {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -70923,6 +72351,9 @@ impl MetaValue for SequenceType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -71032,6 +72463,9 @@ impl MetaValue for SeriesPerformerFunction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -71118,6 +72552,9 @@ impl MetaValue for ServiceModifiers {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -71233,6 +72670,9 @@ impl MetaValue for ServicePharmacy {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -71426,6 +72866,9 @@ impl MetaValue for ServicePlace {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -71512,6 +72955,9 @@ impl MetaValue for ServiceProduct {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -71606,6 +73052,9 @@ impl MetaValue for ServiceProvisionConditions {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -71714,6 +73163,9 @@ impl MetaValue for ServiceReferralMethod {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -71928,6 +73380,9 @@ impl MetaValue for ServiceUscls {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -72036,6 +73491,9 @@ impl MetaValue for ServicerequestCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -72143,6 +73601,9 @@ impl MetaValue for ServicerequestOrderdetail {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -75152,6 +76613,9 @@ impl MetaValue for SiblingRelationshipCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -75351,6 +76815,9 @@ impl MetaValue for SignatureType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -75458,6 +76925,9 @@ impl MetaValue for Slotstatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -75644,6 +77114,9 @@ impl MetaValue for SmartCapabilities {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -75730,6 +77203,9 @@ impl MetaValue for SortDirection {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -78240,6 +79716,9 @@ impl MetaValue for SpdxLicense {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -78354,6 +79833,9 @@ impl MetaValue for SpecialValues {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -78498,6 +79980,9 @@ impl MetaValue for SpecimenCollection {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -78641,6 +80126,9 @@ impl MetaValue for SpecimenCollectionMethod {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -78763,6 +80251,9 @@ impl MetaValue for SpecimenCollectionPriority {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -78849,6 +80340,9 @@ impl MetaValue for SpecimenContainedPreference {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -78950,6 +80444,9 @@ impl MetaValue for SpecimenStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -79066,6 +80563,9 @@ impl MetaValue for StandardsStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -79152,6 +80652,9 @@ impl MetaValue for StrandType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -79253,6 +80756,9 @@ impl MetaValue for StructureDefinitionKind {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -79376,6 +80882,9 @@ impl MetaValue for StudyType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -79478,6 +80987,9 @@ impl MetaValue for SubjectType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -79601,6 +81113,9 @@ impl MetaValue for SubscriberRelationship {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -79709,6 +81224,9 @@ impl MetaValue for SubscriptionChannelType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -79810,6 +81328,9 @@ impl MetaValue for SubscriptionStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -79896,6 +81417,9 @@ impl MetaValue for SubscriptionTag {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -80019,6 +81543,9 @@ impl MetaValue for SubstanceCategory {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -80112,6 +81639,9 @@ impl MetaValue for SubstanceStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -80501,6 +82031,9 @@ impl MetaValue for SupplementType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -80602,6 +82135,9 @@ impl MetaValue for SupplydeliveryStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -80688,6 +82224,9 @@ impl MetaValue for SupplydeliveryType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -80776,6 +82315,9 @@ impl MetaValue for SupplyrequestKind {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -80862,6 +82404,9 @@ impl MetaValue for SupplyrequestReason {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -80984,6 +82529,9 @@ impl MetaValue for SupplyrequestStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -81135,6 +82683,9 @@ impl MetaValue for Surface {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -81250,6 +82801,9 @@ impl MetaValue for SynthesisType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -81346,6 +82900,9 @@ impl MetaValue for SystemRestfulInteraction {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -81468,6 +83025,9 @@ impl MetaValue for TaskCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -81596,6 +83156,9 @@ impl MetaValue for TaskIntent {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -81753,6 +83316,9 @@ impl MetaValue for TaskStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -82051,6 +83617,9 @@ impl MetaValue for Teeth {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -82179,6 +83748,9 @@ impl MetaValue for TemplateStatusCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -82570,6 +84142,9 @@ impl MetaValue for TestscriptOperationCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -82695,6 +84270,9 @@ impl MetaValue for TestscriptProfileDestinationTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -82783,6 +84361,9 @@ impl MetaValue for TestscriptProfileOriginTypes {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -82954,6 +84535,9 @@ impl MetaValue for TextureCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -83139,6 +84723,9 @@ impl MetaValue for TimingAbbreviation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -83500,6 +85087,9 @@ impl MetaValue for Tooth {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -83600,6 +85190,9 @@ impl MetaValue for TransactionMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -83730,6 +85323,9 @@ impl MetaValue for TriggerType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -83816,6 +85412,9 @@ impl MetaValue for TypeDerivationRule {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -83944,6 +85543,9 @@ impl MetaValue for TypeRestfulInteraction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -84037,6 +85639,9 @@ impl MetaValue for UcumBodylength {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -84125,6 +85730,9 @@ impl MetaValue for UcumBodytemp {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -84224,6 +85832,9 @@ impl MetaValue for UcumBodyweight {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -84414,6 +86025,9 @@ impl MetaValue for UcumVitalsCommon {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -84493,6 +86107,9 @@ impl MetaValue for Udi {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -84608,6 +86225,9 @@ impl MetaValue for UdiEntryType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -84731,6 +86351,9 @@ impl MetaValue for UnitsOfTime {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -84831,6 +86454,9 @@ impl MetaValue for UnknownContentCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -84968,6 +86594,9 @@ impl MetaValue for UsageContextType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -85061,6 +86690,9 @@ impl MetaValue for VariableType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -85156,6 +86788,9 @@ impl MetaValue for VariantState {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -85249,6 +86884,9 @@ impl MetaValue for VerificationresultCanPushUpdates {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -85351,6 +86989,9 @@ impl MetaValue for VerificationresultCommunicationMethod {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -85452,6 +87093,9 @@ impl MetaValue for VerificationresultFailureAction {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -85545,6 +87189,9 @@ impl MetaValue for VerificationresultNeed {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -85682,6 +87329,9 @@ impl MetaValue for VerificationresultPrimarySourceType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -85775,6 +87425,9 @@ impl MetaValue for VerificationresultPushTypeAvailable {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -85891,6 +87544,9 @@ impl MetaValue for VerificationresultStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -86006,6 +87662,9 @@ impl MetaValue for VerificationresultValidationProcess {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -86099,6 +87758,9 @@ impl MetaValue for VerificationresultValidationStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -86194,6 +87856,9 @@ impl MetaValue for VerificationresultValidationType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -86287,6 +87952,9 @@ impl MetaValue for VersioningPolicy {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -86389,6 +88057,9 @@ impl MetaValue for VisionBaseCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -86476,6 +88147,9 @@ impl MetaValue for VisionEyeCodes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -86562,6 +88236,9 @@ impl MetaValue for VisionProduct {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -86818,6 +88495,9 @@ impl MetaValue for WrittenLanguage {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -86918,6 +88598,9 @@ impl MetaValue for V3AcknowledgementCondition {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -87196,6 +88879,9 @@ impl MetaValue for V3AcknowledgementDetailCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -87307,6 +88993,9 @@ impl MetaValue for V3AcknowledgementDetailType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -87422,6 +89111,9 @@ impl MetaValue for V3AcknowledgementType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -88344,6 +90036,9 @@ impl MetaValue for V3ActClass {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -89283,6 +90978,9 @@ impl MetaValue for V3ActClassClinicalDocument {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -90208,6 +91906,9 @@ impl MetaValue for V3ActClassDocument {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -91147,6 +92848,9 @@ impl MetaValue for V3ActClassInvestigation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -92074,6 +93778,9 @@ impl MetaValue for V3ActClassObservation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -93003,6 +94710,9 @@ impl MetaValue for V3ActClassProcedure {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -93928,6 +95638,9 @@ impl MetaValue for V3ActClassROI {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -94855,6 +96568,9 @@ impl MetaValue for V3ActClassSupply {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -94958,6 +96674,9 @@ impl MetaValue for V3ActExposureLevelCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -95058,6 +96777,9 @@ impl MetaValue for V3ActInvoiceElementModifier {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -95327,6 +97049,9 @@ impl MetaValue for V3ActMood {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -95599,6 +97324,9 @@ impl MetaValue for V3ActMoodIntent {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -95870,6 +97598,9 @@ impl MetaValue for V3ActMoodPredicate {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -96047,6 +97778,9 @@ impl MetaValue for V3ActPriority {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -98200,6 +99934,9 @@ impl MetaValue for V3ActReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -98307,6 +100044,9 @@ impl MetaValue for V3ActRelationshipCheckpoint {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -99402,6 +101142,9 @@ impl MetaValue for V3ActRelationshipConditional {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -100491,6 +102234,9 @@ impl MetaValue for V3ActRelationshipFulfills {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -101586,6 +103332,9 @@ impl MetaValue for V3ActRelationshipHasComponent {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -101686,6 +103435,9 @@ impl MetaValue for V3ActRelationshipJoin {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -102777,6 +104529,9 @@ impl MetaValue for V3ActRelationshipPertains {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -102877,6 +104632,9 @@ impl MetaValue for V3ActRelationshipSplit {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -103064,6 +104822,9 @@ impl MetaValue for V3ActRelationshipSubset {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -104139,6 +105900,9 @@ impl MetaValue for V3ActRelationshipType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -104594,6 +106358,9 @@ impl MetaValue for V3ActSite {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -104736,6 +106503,9 @@ impl MetaValue for V3ActStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -104888,6 +106658,9 @@ impl MetaValue for V3ActSubstanceAdminSubstitutionCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -105010,6 +106783,9 @@ impl MetaValue for V3ActUSPrivacyLaw {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -105096,6 +106872,9 @@ impl MetaValue for V3ActUncertainty {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -105380,6 +107159,9 @@ impl MetaValue for V3AddressPartType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -105588,6 +107370,9 @@ impl MetaValue for V3AddressUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -105681,6 +107466,9 @@ impl MetaValue for V3AdministrativeGender {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -107844,6 +109632,9 @@ impl MetaValue for V3AmericanIndianAlaskaNativeLanguages {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -107923,6 +109714,9 @@ impl MetaValue for V3Calendar {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -108127,6 +109921,9 @@ impl MetaValue for V3CalendarCycle {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -108206,6 +110003,9 @@ impl MetaValue for V3CalendarType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -108350,6 +110150,9 @@ impl MetaValue for V3Charset {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -108479,6 +110282,9 @@ impl MetaValue for V3CodingRationale {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -108572,6 +110378,9 @@ impl MetaValue for V3CommunicationFunctionType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -108687,6 +110496,9 @@ impl MetaValue for V3CompressionAlgorithm {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -108909,6 +110721,9 @@ impl MetaValue for V3Confidentiality {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -109017,6 +110832,9 @@ impl MetaValue for V3ConfidentialityClassification {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -109140,6 +110958,9 @@ impl MetaValue for V3ContainerCap {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -109227,6 +111048,9 @@ impl MetaValue for V3ContainerSeparator {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -109313,6 +111137,9 @@ impl MetaValue for V3ContentProcessingMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -109452,6 +111279,9 @@ impl MetaValue for V3ContextControl {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -109665,6 +111495,9 @@ impl MetaValue for V3DataOperation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -111867,6 +113700,9 @@ impl MetaValue for V3Dentition {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -111967,6 +113803,9 @@ impl MetaValue for V3DeviceAlertLevel {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -112104,6 +113943,9 @@ impl MetaValue for V3DocumentCompletion {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -112204,6 +114046,9 @@ impl MetaValue for V3DocumentStorage {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -112341,6 +114186,9 @@ impl MetaValue for V3EducationLevel {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -112427,6 +114275,9 @@ impl MetaValue for V3EmployeeJobClass {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -112521,6 +114372,9 @@ impl MetaValue for V3EncounterAdmissionSource {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -112629,6 +114483,9 @@ impl MetaValue for V3EncounterSpecialCourtesy {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -112892,6 +114749,9 @@ impl MetaValue for V3EntityClass {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -113153,6 +115013,9 @@ impl MetaValue for V3EntityClassDevice {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -113416,6 +115279,9 @@ impl MetaValue for V3EntityClassLivingSubject {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -113677,6 +115543,9 @@ impl MetaValue for V3EntityClassManufacturedMaterial {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -113940,6 +115809,9 @@ impl MetaValue for V3EntityClassOrganization {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -114202,6 +116074,9 @@ impl MetaValue for V3EntityClassPlace {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -114463,6 +116338,9 @@ impl MetaValue for V3EntityClassRoot {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -115566,6 +117444,9 @@ impl MetaValue for V3EntityCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -115674,6 +117555,9 @@ impl MetaValue for V3EntityDeterminer {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -115781,6 +117665,9 @@ impl MetaValue for V3EntityDeterminerDetermined {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -115980,6 +117867,9 @@ impl MetaValue for V3EntityHandling {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -116301,6 +118191,9 @@ impl MetaValue for V3EntityNamePartQualifier {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -116571,6 +118464,9 @@ impl MetaValue for V3EntityNamePartQualifierR2 {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -116679,6 +118575,9 @@ impl MetaValue for V3EntityNamePartType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -116779,6 +118678,9 @@ impl MetaValue for V3EntityNamePartTypeR2 {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -116959,6 +118861,9 @@ impl MetaValue for V3EntityNameUse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -117161,6 +119066,9 @@ impl MetaValue for V3EntityNameUseR2 {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -117311,6 +119219,9 @@ impl MetaValue for V3EntityRisk {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -117419,6 +119330,9 @@ impl MetaValue for V3EntityStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -117519,6 +119433,9 @@ impl MetaValue for V3EquipmentAlertLevel {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -117894,6 +119811,9 @@ impl MetaValue for V3Ethnicity {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -118001,6 +119921,9 @@ impl MetaValue for V3ExposureMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -120946,6 +122869,9 @@ impl MetaValue for V3FamilyMember {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -121335,6 +123261,9 @@ impl MetaValue for V3GTSAbbreviation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -121421,6 +123350,9 @@ impl MetaValue for V3GenderStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -121549,6 +123481,9 @@ impl MetaValue for V3GeneralPurposeOfUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -121642,6 +123577,9 @@ impl MetaValue for V3HL7ContextConductionStyle {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -121891,6 +123829,9 @@ impl MetaValue for V3HL7StandardVersionCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -122076,6 +124017,9 @@ impl MetaValue for V3HL7UpdateMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -122254,6 +124198,9 @@ impl MetaValue for V3HtmlLinkType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -122347,6 +124294,9 @@ impl MetaValue for V3IdentifierReliability {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -122449,6 +124399,9 @@ impl MetaValue for V3IdentifierScope {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -122535,6 +124488,9 @@ impl MetaValue for V3IntegrityCheckAlgorithm {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -122651,6 +124607,9 @@ impl MetaValue for V3LanguageAbilityMode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -122751,6 +124710,9 @@ impl MetaValue for V3LanguageAbilityProficiency {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -122909,6 +124871,9 @@ impl MetaValue for V3LivingArrangement {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -122996,6 +124961,9 @@ impl MetaValue for V3LocalMarkupIgnore {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -123082,6 +125050,9 @@ impl MetaValue for V3LocalRemoteControlState {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -123198,6 +125169,9 @@ impl MetaValue for V3ManagedParticipationStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -123291,6 +125265,9 @@ impl MetaValue for V3MapRelationship {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -123435,6 +125412,9 @@ impl MetaValue for V3MaritalStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -123528,6 +125508,9 @@ impl MetaValue for V3MessageWaitingPriority {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -126503,6 +128486,9 @@ impl MetaValue for V3MilitaryRoleType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -126589,6 +128575,9 @@ impl MetaValue for V3ModifyIndicator {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -126782,6 +128771,9 @@ impl MetaValue for V3NullFlavor {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -126910,6 +128902,9 @@ impl MetaValue for V3ObservationCategory {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -127446,6 +129441,9 @@ impl MetaValue for V3ObservationInterpretation {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -129658,6 +131656,9 @@ impl MetaValue for V3ObservationMethod {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -131549,6 +133550,9 @@ impl MetaValue for V3ObservationValue {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -132026,6 +134030,9 @@ impl MetaValue for V3ParticipationFunction {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -132543,6 +134550,9 @@ impl MetaValue for V3ParticipationIndirectTarget {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -133058,6 +135068,9 @@ impl MetaValue for V3ParticipationInformationGenerator {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -133575,6 +135588,9 @@ impl MetaValue for V3ParticipationInformationTranscriber {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -133752,6 +135768,9 @@ impl MetaValue for V3ParticipationMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -134269,6 +136288,9 @@ impl MetaValue for V3ParticipationPhysicalPerformer {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -134362,6 +136384,9 @@ impl MetaValue for V3ParticipationSignature {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -134876,6 +136901,9 @@ impl MetaValue for V3ParticipationTargetDirect {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -135393,6 +137421,9 @@ impl MetaValue for V3ParticipationTargetLocation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -135909,6 +137940,9 @@ impl MetaValue for V3ParticipationTargetSubject {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -136418,6 +138452,9 @@ impl MetaValue for V3ParticipationType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -136929,6 +138966,9 @@ impl MetaValue for V3ParticipationVerifier {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -137065,6 +139105,9 @@ impl MetaValue for V3PatientImportance {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -137165,6 +139208,9 @@ impl MetaValue for V3PaymentTerms {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -137308,6 +139354,9 @@ impl MetaValue for V3PersonDisabilityType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -140361,6 +142410,9 @@ impl MetaValue for V3PersonalRelationshipRoleType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -140497,6 +142549,9 @@ impl MetaValue for V3ProbabilityDistributionType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -140590,6 +142645,9 @@ impl MetaValue for V3ProcessingID {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -140691,6 +142749,9 @@ impl MetaValue for V3ProcessingMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -140831,6 +142892,9 @@ impl MetaValue for V3ProvenanceEventCurrentState {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -140940,6 +143004,9 @@ impl MetaValue for V3ProvenanceEventCurrentStateAS {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -141042,6 +143109,9 @@ impl MetaValue for V3ProvenanceEventCurrentStateDC {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -143225,6 +145295,9 @@ impl MetaValue for V3PurposeOfUse {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -143422,6 +145495,9 @@ impl MetaValue for V3QueryParameterValue {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -143509,6 +145585,9 @@ impl MetaValue for V3QueryPriority {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -143595,6 +145674,9 @@ impl MetaValue for V3QueryRequestLimit {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -143696,6 +145778,9 @@ impl MetaValue for V3QueryResponse {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -143806,6 +145891,9 @@ impl MetaValue for V3QueryStatusCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -143936,6 +146024,9 @@ impl MetaValue for V3RelationalOperator {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -144029,6 +146120,9 @@ impl MetaValue for V3RelationshipConjunction {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -144677,6 +146771,9 @@ impl MetaValue for V3ReligiousAffiliation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -144799,6 +146896,9 @@ impl MetaValue for V3ResponseLevel {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -144893,6 +146993,9 @@ impl MetaValue for V3ResponseModality {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -144986,6 +147089,9 @@ impl MetaValue for V3ResponseMode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -145847,6 +147953,9 @@ impl MetaValue for V3RoleClass {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -146712,6 +148821,9 @@ impl MetaValue for V3RoleClassAgent {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -147587,6 +149699,9 @@ impl MetaValue for V3RoleClassAssociative {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -148485,6 +150600,9 @@ impl MetaValue for V3RoleClassManufacturedProduct {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -149376,6 +151494,9 @@ impl MetaValue for V3RoleClassMutualRelationship {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -150249,6 +152370,9 @@ impl MetaValue for V3RoleClassPartitive {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -151117,6 +153241,9 @@ impl MetaValue for V3RoleClassPassive {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -152009,6 +154136,9 @@ impl MetaValue for V3RoleClassRelationshipFormal {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -152873,6 +155003,9 @@ impl MetaValue for V3RoleClassRoot {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -153777,6 +155910,9 @@ impl MetaValue for V3RoleClassServiceDeliveryLocation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -154649,6 +156785,9 @@ impl MetaValue for V3RoleClassSpecimen {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -157574,6 +159713,9 @@ impl MetaValue for V3RoleCode {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -157688,6 +159830,9 @@ impl MetaValue for V3RoleLinkStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -157818,6 +159963,9 @@ impl MetaValue for V3RoleLinkType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -157939,6 +160087,9 @@ impl MetaValue for V3RoleStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -160881,6 +163032,9 @@ impl MetaValue for V3RouteOfAdministration {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -162904,6 +165058,9 @@ impl MetaValue for V3SecurityIntegrityObservationValue {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -162997,6 +165154,9 @@ impl MetaValue for V3Sequencing {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -166076,6 +168236,9 @@ impl MetaValue for V3ServiceDeliveryLocationRoleType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -166190,6 +168353,9 @@ impl MetaValue for V3SetOperator {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -168102,6 +170268,9 @@ impl MetaValue for V3SeverityObservation {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -169043,6 +171212,9 @@ impl MetaValue for V3SpecimenType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -169924,6 +172096,9 @@ impl MetaValue for V3SubstanceAdminSubstitutionReason {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -170031,6 +172206,9 @@ impl MetaValue for V3SubstitutionCondition {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -170140,6 +172318,9 @@ impl MetaValue for V3TableCellHorizontalAlign {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -170241,6 +172422,9 @@ impl MetaValue for V3TableCellScope {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -170341,6 +172525,9 @@ impl MetaValue for V3TableCellVerticalAlign {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -170478,6 +172665,9 @@ impl MetaValue for V3TableFrame {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -170585,6 +172775,9 @@ impl MetaValue for V3TableRules {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -170701,6 +172894,9 @@ impl MetaValue for V3TargetAwareness {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -170808,6 +173004,9 @@ impl MetaValue for V3TelecommunicationCapabilities {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -171008,6 +173207,9 @@ impl MetaValue for V3TimingEvent {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -171087,6 +173289,9 @@ impl MetaValue for V3TransmissionRelationshipTypeCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -171440,6 +173645,9 @@ impl MetaValue for V3VaccineManufacturer {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -173656,6 +175864,9 @@ impl MetaValue for V3VerificationMethod {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -173791,6 +176002,9 @@ impl MetaValue for V3WorkClassificationODH {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -175680,6 +177894,9 @@ impl MetaValue for V3WorkScheduleODH {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -177592,6 +179809,9 @@ impl MetaValue for V3EmploymentStatusODH {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -177805,6 +180025,9 @@ impl MetaValue for V3Hl7ApprovalStatus {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -177931,6 +180154,9 @@ impl MetaValue for V3Hl7CMETAttribution {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -178018,6 +180244,9 @@ impl MetaValue for V3Hl7ITSType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -178097,6 +180326,9 @@ impl MetaValue for V3Hl7ITSVersionCode {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -178465,6 +180697,9 @@ impl MetaValue for V3Hl7PublishingDomain {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -178565,6 +180800,9 @@ impl MetaValue for V3Hl7PublishingSection {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -178708,6 +180946,9 @@ impl MetaValue for V3Hl7PublishingSubSection {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -179097,6 +181338,9 @@ impl MetaValue for V3Hl7Realm {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -179211,6 +181455,9 @@ impl MetaValue for V3Hl7V3Conformance {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -179377,6 +181624,9 @@ impl MetaValue for V3Hl7VoteResolution {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -180586,6 +182836,9 @@ impl MetaValue for V3OrderableDrugForm {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -180806,6 +183059,9 @@ impl MetaValue for V3StyleType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -180957,6 +183213,9 @@ impl MetaValue for V3SubstanceAdminSubstitution {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -181107,6 +183366,9 @@ impl MetaValue for V3TriggerEventID {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -181197,6 +183459,9 @@ impl MetaValue for V3XBasicConfidentialityKind {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -181296,6 +183561,9 @@ impl MetaValue for AccessPolicyAttributeOperationTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -181382,6 +183650,9 @@ impl MetaValue for AccessPolicyv2Engine {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -181476,6 +183747,9 @@ impl MetaValue for AccessPolicyFhirApiLevel {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -181634,6 +183908,9 @@ impl MetaValue for AccessPolicyFhirApiMethods {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -181728,6 +184005,9 @@ impl MetaValue for AccessPolicyFhirApiParameter {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -181814,6 +184094,9 @@ impl MetaValue for AccessPolicyType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -181902,6 +184185,9 @@ impl MetaValue for AccessPolicyv2CombineBehavior {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -181989,6 +184275,9 @@ impl MetaValue for AccessPolicyv2RuleConditionOperator {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -182075,6 +184364,9 @@ impl MetaValue for AccessPolicyRuleEffect {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -182376,6 +184668,9 @@ impl MetaValue for CanonicalResourceTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -182481,6 +184776,9 @@ impl MetaValue for ClientapplicationGrantType {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -182568,6 +184866,9 @@ impl MetaValue for ClientapplicationResponseTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -182647,6 +184948,9 @@ impl MetaValue for IdentityProviderAccessType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -182735,6 +185039,9 @@ impl MetaValue for IdentityProviderPkceChallengeMethod {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -182821,6 +185128,9 @@ impl MetaValue for IdentityProviderStatus {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -182909,6 +185219,9 @@ impl MetaValue for MembershipRole {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -182988,6 +185301,9 @@ impl MetaValue for MessageBrokerType {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -184183,6 +186499,9 @@ impl MetaValue for HasteHealthTypes {
     fn typename(&self) -> &'static str {
         "FHIRCode"
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
@@ -184262,6 +186581,9 @@ impl MetaValue for SupportedFhirVersion {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
@@ -184356,5 +186678,8 @@ impl MetaValue for UserRole {
     }
     fn typename(&self) -> &'static str {
         "FHIRCode"
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }

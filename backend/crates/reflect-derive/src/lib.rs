@@ -127,6 +127,10 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                         vec![self]
                     }
 
+                    fn is_many(&self) -> bool {
+                        false
+                    }
+
                 }
             };
 
@@ -240,6 +244,10 @@ pub fn haste_reflect(input: TokenStream) -> TokenStream {
                         match self {
                             #(#variants_flatten),*
                         }
+                    }
+
+                    fn is_many(&self) -> bool {
+                        false
                     }
                 }
             };

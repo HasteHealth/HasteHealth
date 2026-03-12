@@ -23,7 +23,7 @@ use crate::FHIRProfileCTX;
 fn validate_type_if_multiple_types_constrained<'a>(
     _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element: &ElementDefinition,
-    type_: Option<&str>,
+    type_: &str,
 ) -> Vec<OperationOutcomeIssue> {
     let Some(types) = &element.type_ else {
         return vec![];
@@ -31,7 +31,7 @@ fn validate_type_if_multiple_types_constrained<'a>(
 
     if types
         .iter()
-        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == type_)
+        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == Some(type_))
         .is_some()
     {
         vec![]
@@ -40,10 +40,7 @@ fn validate_type_if_multiple_types_constrained<'a>(
             &Path::new(),
             IssueSeverity::Error(None),
             IssueType::Required(None),
-            format!(
-                "Type '{}' is not allowed for this element",
-                type_.unwrap_or("unknown")
-            ),
+            format!("Type '{}' is not allowed for this element", type_),
         )]
     }
 }
@@ -137,21 +134,15 @@ fn validate_cardinality<'a>(
     }
 }
 
-pub async fn validate_element<'a>(
+async fn validate_element_singular<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element_pointer: Path,
     value_pointer: Path,
+    element: &ElementDefinition,
+    value: &'a dyn MetaValue,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let mut issues = vec![];
-
     let Some((elements_pointer, Key::Index(index))) = element_pointer.ascend() else {
-        return Err(OperationOutcomeError::error(
-            IssueType::Exception(None),
-            format!("Invalid element path: {}", element_pointer),
-        ));
-    };
-
-    let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile) else {
         return Err(OperationOutcomeError::error(
             IssueType::Exception(None),
             format!("Invalid element path: {}", element_pointer),
@@ -167,19 +158,10 @@ pub async fn validate_element<'a>(
             )
         })?;
 
-    let value = value_pointer.get(ctx.root);
-
-    issues.extend(validate_cardinality(
-        ctx.clone(),
-        &value_pointer,
-        element,
-        &value,
-    )?);
-
     issues.extend(validate_type_if_multiple_types_constrained(
         ctx.clone(),
         element,
-        value.map(|v| v.typename()),
+        value.typename(),
     ));
 
     let children = traversal::ele_index_to_child_indices(elements, index)
@@ -204,6 +186,59 @@ pub async fn validate_element<'a>(
         ))
         .await?;
         issues.extend(child_issues);
+    }
+
+    Ok(issues)
+}
+
+pub async fn validate_element<'a>(
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    element_pointer: Path,
+    value_pointer: Path,
+) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
+    let mut issues = vec![];
+    let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile) else {
+        return Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!("Invalid element path: {}", element_pointer),
+        ));
+    };
+
+    let value = value_pointer.get(ctx.root);
+
+    issues.extend(validate_cardinality(
+        ctx.clone(),
+        &value_pointer,
+        element,
+        &value,
+    )?);
+
+    if let Some(value) = value {
+        if value.is_many() {
+            for (i, v) in value.flatten().iter().enumerate() {
+                issues.extend(
+                    validate_element_singular(
+                        ctx.clone(),
+                        element_pointer.clone(),
+                        value_pointer.descend(&format!("{}", i)),
+                        element,
+                        *v,
+                    )
+                    .await?,
+                );
+            }
+        } else {
+            issues.extend(
+                validate_element_singular(
+                    ctx.clone(),
+                    element_pointer.clone(),
+                    value_pointer.clone(),
+                    element,
+                    value,
+                )
+                .await?,
+            );
+        }
     }
 
     Ok(issues)

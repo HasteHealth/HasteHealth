@@ -34,6 +34,9 @@ impl MetaValue for Time {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for DateTime {
@@ -67,6 +70,9 @@ impl MetaValue for DateTime {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 
@@ -102,6 +108,9 @@ impl MetaValue for Date {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for Instant {
@@ -135,5 +144,8 @@ impl MetaValue for Instant {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }

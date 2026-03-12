@@ -34,6 +34,10 @@ impl MetaValue for TenantId {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for ProjectId {
@@ -67,6 +71,10 @@ impl MetaValue for ProjectId {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+
+    fn is_many(&self) -> bool {
+        false
     }
 }
 
@@ -102,6 +110,9 @@ impl MetaValue for ResourceId {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for VersionId {
@@ -135,5 +146,9 @@ impl MetaValue for VersionId {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+
+    fn is_many(&self) -> bool {
+        false
     }
 }

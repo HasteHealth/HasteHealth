@@ -74,6 +74,10 @@ impl MetaValue for ParsedParameter {
             ParsedParameter::Result(p) | ParsedParameter::Resource(p) => p.typename(),
         }
     }
+
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, OperationOutcomeError)]
@@ -166,6 +170,10 @@ impl MetaValue for ParsedParameters {
 
     fn typename(&self) -> &'static str {
         "ParsedParameters"
+    }
+
+    fn is_many(&self) -> bool {
+        true
     }
 }
 

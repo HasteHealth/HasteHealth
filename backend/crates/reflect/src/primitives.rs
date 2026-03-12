@@ -43,6 +43,9 @@ impl MetaValue for i64 {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for u64 {
@@ -76,6 +79,9 @@ impl MetaValue for u64 {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 
@@ -111,6 +117,9 @@ impl MetaValue for f64 {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for bool {
@@ -144,6 +153,9 @@ impl MetaValue for bool {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+    fn is_many(&self) -> bool {
+        false
     }
 }
 
@@ -179,6 +191,9 @@ impl MetaValue for String {
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
     }
+    fn is_many(&self) -> bool {
+        false
+    }
 }
 
 impl MetaValue for &'static str {
@@ -212,6 +227,10 @@ impl MetaValue for &'static str {
 
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         vec![self]
+    }
+
+    fn is_many(&self) -> bool {
+        false
     }
 }
 
@@ -268,6 +287,10 @@ where
     fn flatten(&self) -> Vec<&dyn MetaValue> {
         self.iter().flat_map(|item| item.flatten()).collect()
     }
+
+    fn is_many(&self) -> bool {
+        true
+    }
 }
 
 // Used for mutable access which requires setting optional fields.
@@ -315,6 +338,10 @@ where
     fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
         self.as_mut().and_then(|v| v.get_index_mut(index))
     }
+
+    fn is_many(&self) -> bool {
+        self.as_ref().map(|v| v.is_many()).unwrap_or(false)
+    }
 }
 
 impl<T> MetaValue for Box<T>
@@ -351,5 +378,8 @@ where
 
     fn get_index_mut<'a>(&'a mut self, index: usize) -> Option<&'a mut dyn MetaValue> {
         self.as_mut().get_index_mut(index)
+    }
+    fn is_many(&self) -> bool {
+        self.as_ref().is_many()
     }
 }
