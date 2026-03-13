@@ -11,6 +11,7 @@ use std::sync::Arc;
 use crate::element::validate_element;
 
 mod element;
+mod slicing;
 
 pub struct FHIRProfileArguments<Resolver: CanonicalResolver> {
     resolver: Arc<Resolver>,
