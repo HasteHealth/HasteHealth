@@ -12,6 +12,7 @@ use crate::element::validate_element;
 
 mod element;
 mod slicing;
+mod utilities;
 
 pub struct FHIRProfileArguments<Resolver: CanonicalResolver> {
     resolver: Arc<Resolver>,

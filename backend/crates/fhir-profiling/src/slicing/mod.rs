@@ -1,9 +1,6 @@
 use haste_codegen::traversal;
-use haste_fhir_model::r4::generated::{
-    resources::StructureDefinition, terminology::IssueType, types::ElementDefinition,
-};
+use haste_fhir_model::r4::generated::{terminology::IssueType, types::ElementDefinition};
 use haste_fhir_operation_error::OperationOutcomeError;
-use haste_pointer::{Key, Path};
 
 fn is_slice(element: &ElementDefinition) -> bool {
     element.slicing.is_some()
@@ -52,4 +49,23 @@ pub fn get_slice_indices(
     }
 
     Ok(slice_indices)
+}
+
+/// The element discriminator specifies a path that is used to discriminate slices with.
+/// However to know what the dicriminator should expect you need to use the element for the given discriminators path.
+/// For example on US-core Patient has slicing like
+/// ```json
+// "slicing" : {
+//   "discriminator" : [
+//             {
+//               "type" : "value",
+//               "path" : "url"
+//             }
+//   ],
+/// ```
+///
+/// For the race you would then look for Element.url and the fixed uri value.
+///
+fn find_element_definition_for_discriminator() -> Result<(), OperationOutcomeError> {
+    Ok(())
 }
