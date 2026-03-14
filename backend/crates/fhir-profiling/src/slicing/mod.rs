@@ -1,17 +1,21 @@
 use haste_codegen::traversal;
 use haste_fhir_model::r4::generated::{terminology::IssueType, types::ElementDefinition};
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_reflect::MetaValue;
 
 fn is_slice(element: &ElementDefinition) -> bool {
     element.slicing.is_some()
 }
 
 pub struct SlicingDescriptor {
+    /// The index of the element definition that contains the discriminator.
     discriminator: usize,
+    /// The indices of the slice element definitions that belong to the discriminator. The discriminator element is not included in this list.
     slices: Vec<usize>,
 }
 
-pub fn get_slice_indices(
+/// Return child elements that are slice elemenet definitions.
+pub fn get_slice_element_definition_locations(
     elements: &[Box<ElementDefinition>],
     index: usize,
 ) -> Result<Vec<SlicingDescriptor>, OperationOutcomeError> {
@@ -49,6 +53,16 @@ pub fn get_slice_indices(
     }
 
     Ok(slice_indices)
+}
+
+struct SliceSplit {}
+
+async fn split_values_into_slices(
+    elements: &Vec<ElementDefinition>,
+    slicing_descriptor: SlicingDescriptor,
+    values: Vec<&dyn MetaValue>,
+) -> Result<(), OperationOutcomeError> {
+    Ok(())
 }
 
 /// The element discriminator specifies a path that is used to discriminate slices with.

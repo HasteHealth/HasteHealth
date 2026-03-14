@@ -12,6 +12,7 @@ pub fn remove_type_on_path(path: &str) -> &str {
     &path[first_dot.map(|i| i + 1).unwrap_or(path.len())..]
 }
 
+/// Because the discriminator path is relative to the element with the discriminator, we need to remove the type on the path to get the correct path to check on the instance data.
 pub fn convert_discriminator_to_path(
     discriminator_element: &ElementDefinition,
     discriminator: &ElementDefinitionSlicingDiscriminator,
