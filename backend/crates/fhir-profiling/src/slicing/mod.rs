@@ -9,11 +9,14 @@ fn is_slice(element: &ElementDefinition) -> bool {
 
 pub struct SlicingDescriptor {
     /// The index of the element definition that contains the discriminator.
+    #[allow(dead_code)]
     discriminator: usize,
     /// The indices of the slice element definitions that belong to the discriminator. The discriminator element is not included in this list.
+    #[allow(dead_code)]
     slices: Vec<usize>,
 }
 
+#[allow(dead_code)]
 /// Return child elements that are slice elemenet definitions.
 pub fn get_slice_element_definition_locations(
     elements: &[Box<ElementDefinition>],
@@ -55,12 +58,14 @@ pub fn get_slice_element_definition_locations(
     Ok(slice_indices)
 }
 
+#[allow(dead_code)]
 struct SliceSplit {}
 
+#[allow(dead_code)]
 async fn split_values_into_slices(
-    elements: &Vec<ElementDefinition>,
-    slicing_descriptor: SlicingDescriptor,
-    values: Vec<&dyn MetaValue>,
+    _elements: &Vec<ElementDefinition>,
+    _slicing_descriptor: SlicingDescriptor,
+    _values: Vec<&dyn MetaValue>,
 ) -> Result<(), OperationOutcomeError> {
     Ok(())
 }
@@ -80,6 +85,7 @@ async fn split_values_into_slices(
 ///
 /// For the race you would then look for Element.url and the fixed uri value.
 ///
+#[allow(dead_code)]
 fn find_element_definition_for_discriminator() -> Result<(), OperationOutcomeError> {
     Ok(())
 }

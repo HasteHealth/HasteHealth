@@ -51,23 +51,11 @@ fn check_bare_primitive_pattern(
             let pattern_integer = match pattern.type_id() == std::any::TypeId::of::<i64>() {
                 true => *(downcast_meta_value::<i64>(pattern)?),
                 false => *(downcast_meta_value::<u64>(pattern)?) as i64,
-                _ => {
-                    return Err(OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
-                        format!("Unsupported integer pattern type: {}", pattern.typename()),
-                    ));
-                }
             };
 
             let value_integer = match data_to_check.type_id() == std::any::TypeId::of::<i64>() {
                 true => *(downcast_meta_value::<i64>(data_to_check)?),
                 false => *(downcast_meta_value::<u64>(data_to_check)?) as i64,
-                _ => {
-                    return Err(OperationOutcomeError::fatal(
-                        IssueType::Invalid(None),
-                        format!("Unsupported integer pattern type: {}", pattern.typename()),
-                    ));
-                }
             };
 
             Ok(pattern_integer == value_integer)
