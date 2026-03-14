@@ -383,7 +383,6 @@ impl CanonicalResolver for InlineResolver {
 
 pub struct GeneratedTerminologies {
     pub tokens: TokenStream,
-    #[allow(dead_code)]
     pub inlined_terminologies: HashMap<String, String>,
 }
 

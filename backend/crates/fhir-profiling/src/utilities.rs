@@ -6,12 +6,14 @@ use haste_fhir_operation_error::OperationOutcomeError;
 
 /// Various utilities for working with FHIR profiles.
 
+#[allow(dead_code)]
 pub fn remove_type_on_path(path: &str) -> &str {
     let first_dot = path.find('.');
     // If first element this would be the entire path as no subfield.
     &path[first_dot.map(|i| i + 1).unwrap_or(path.len())..]
 }
 
+#[allow(dead_code)]
 /// Because the discriminator path is relative to the element with the discriminator, we need to remove the type on the path to get the correct path to check on the instance data.
 pub fn convert_discriminator_to_path(
     discriminator_element: &ElementDefinition,
