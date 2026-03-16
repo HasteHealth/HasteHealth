@@ -1,7 +1,15 @@
+use std::sync::Arc;
+
 use haste_codegen::traversal;
-use haste_fhir_model::r4::generated::{terminology::IssueType, types::ElementDefinition};
+use haste_fhir_client::canonical_resolver::CanonicalResolver;
+use haste_fhir_model::r4::generated::{
+    resources::OperationOutcomeIssue, terminology::IssueType, types::ElementDefinition,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_pointer::Path;
 use haste_reflect::MetaValue;
+
+use crate::FHIRProfileCTX;
 
 fn is_slice(element: &ElementDefinition) -> bool {
     element.slicing.is_some()
@@ -17,7 +25,7 @@ pub struct SlicingDescriptor {
 }
 
 #[allow(dead_code)]
-/// Return child elements that are slice elemenet definitions.
+/// Return child elements that are slice element definitions.
 pub fn get_slice_element_definition_locations(
     elements: &[Box<ElementDefinition>],
     index: usize,
@@ -88,4 +96,21 @@ async fn split_values_into_slices(
 #[allow(dead_code)]
 fn find_element_definition_for_discriminator() -> Result<(), OperationOutcomeError> {
     Ok(())
+}
+
+fn get_slice_value_locs(
+    discriminator_element: &ElementDefinition,
+    root: &dyn MetaValue,
+    value_path: &Path,
+) -> Result<(), OperationOutcomeError> {
+    Ok(())
+}
+
+pub fn validate_slicing_descriptor<'a>(
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    slicing_descriptor: &SlicingDescriptor,
+    value: &dyn MetaValue,
+    value_path: &Path,
+) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
+    Ok(vec![])
 }
