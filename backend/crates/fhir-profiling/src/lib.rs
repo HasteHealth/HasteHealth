@@ -27,20 +27,34 @@ impl<Resolver: CanonicalResolver> FHIRProfileArguments<Resolver> {
 
 pub struct FHIRProfileCTX<'a, Resolver: CanonicalResolver> {
     resolver: Arc<Resolver>,
-    profile: &'a StructureDefinition,
+    profile: Arc<Resource>,
     root: &'a dyn MetaValue,
 }
 
 impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
     pub fn new(
         resolver: Arc<Resolver>,
-        profile: &'a StructureDefinition,
+        profile: Arc<Resource>,
         root: &'a dyn MetaValue,
-    ) -> Self {
-        Self {
+    ) -> Result<Self, OperationOutcomeError> {
+        if let Resource::StructureDefinition(_profile) = &*profile {
+            return Err(OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Profile resource must be a StructureDefinition".to_string(),
+            ));
+        };
+
+        Ok(Self {
             resolver,
             profile,
             root,
+        })
+    }
+
+    pub fn profile(&'a self) -> &'a StructureDefinition {
+        match self.profile.as_ref() {
+            Resource::StructureDefinition(sd) => sd,
+            _ => panic!("Expected a StructureDefinition"),
         }
     }
 }
@@ -49,7 +63,7 @@ pub async fn validate_profile<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
 ) -> Result<OperationOutcome, OperationOutcomeError> {
     let mut outcome = OperationOutcome::default();
-    match ctx.profile.derivation.as_ref().map(|d| d.as_ref()) {
+    match ctx.profile().derivation.as_ref().map(|d| d.as_ref()) {
         Some(TypeDerivationRule::Constraint(_)) => {
             let element_location = Path::new()
                 .descend("snapshot")
@@ -88,23 +102,9 @@ pub async fn validate_profile_by_url<'a>(
         ));
     };
 
-    match &*profile {
-        Resource::StructureDefinition(sd) => {
-            validate_profile(Arc::new(FHIRProfileCTX {
-                resolver: args.resolver.clone(),
-                profile: sd,
-                root: value,
-            }))
-            .await?;
+    let ctx = Arc::new(FHIRProfileCTX::new(args.resolver.clone(), profile, value)?);
 
-            Ok(())
-        }
-        _ => Err(OperationOutcomeError::error(
-            IssueType::Invalid(None),
-            format!(
-                "Resource at url '{}' is not a StructureDefinition",
-                canonical_url
-            ),
-        )),
-    }
+    validate_profile(ctx).await?;
+
+    Ok(())
 }

@@ -3,7 +3,9 @@ use std::sync::Arc;
 use haste_codegen::{traversal, utilities::extract::field_name};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
-    resources::OperationOutcomeIssue, terminology::IssueType, types::ElementDefinition,
+    resources::OperationOutcomeIssue,
+    terminology::IssueType,
+    types::{Element, ElementDefinition},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
@@ -78,26 +80,20 @@ async fn split_values_into_slices(
     Ok(())
 }
 
-/// The element discriminator specifies a path that is used to discriminate slices with.
-/// However to know what the dicriminator should expect you need to use the element for the given discriminators path.
-/// For example on US-core Patient has slicing like
-/// ```json
-// "slicing" : {
-//   "discriminator" : [
-//             {
-//               "type" : "value",
-//               "path" : "url"
-//             }
-//   ],
-/// ```
-///
-/// For the race you would then look for Element.url and the fixed uri value.
-///
+/// The discriminator element specifies a path from which to compare with.
+/// To know how split should be done though we need the constant pattern etc... from that path.
+/// For example Extension.url could be the discriminator, but
+/// We need to pull from for example https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-race.html
+///  the actual value of the pattern to know how to split the slice. Which would be "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
 #[allow(dead_code)]
-fn find_element_definition_for_discriminator() -> Result<(), OperationOutcomeError> {
+fn find_element_definition_for_discriminator<'a>(
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    discriminator_element: &ElementDefinition,
+) -> Result<&'a ElementDefinition, OperationOutcomeError> {
     Ok(())
 }
 
+/// Returns all the slice locs that are relevant to the given discriminator.
 fn get_slice_value_locs(
     discriminator_element: &ElementDefinition,
     value: &dyn MetaValue,
@@ -150,6 +146,7 @@ pub fn validate_slicing_descriptor<'a>(
             )
         })?;
 
-    let slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path);
+    let slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
+
     Ok(vec![])
 }
