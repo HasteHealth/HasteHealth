@@ -4,7 +4,7 @@ use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::{
     generated::{
-        resources::{OperationOutcomeIssue, Resource, ResourceType},
+        resources::{OperationOutcomeIssue, ResourceType},
         terminology::{IssueSeverity, IssueType},
         types::{ElementDefinition, FHIRString},
     },
@@ -57,23 +57,13 @@ async fn validate_type_if_multiple_types_constrained<'a>(
                             )
                         })?;
 
-                    let Resource::StructureDefinition(profile) = resolved_resource.as_ref() else {
-                        return Err(OperationOutcomeError::error(
-                            IssueType::Exception(None),
-                            format!(
-                                "Resolved canonical is not a StructureDefinition: {}",
-                                profile_canonical
-                            ),
-                        ));
-                    };
-
                     issues.extend(
                         validate_element(
-                            Arc::new(FHIRProfileCTX {
-                                resolver: ctx.resolver.clone(),
-                                profile,
-                                root: ctx.root,
-                            }),
+                            Arc::new(FHIRProfileCTX::new(
+                                ctx.resolver.clone(),
+                                resolved_resource,
+                                ctx.root,
+                            )?),
                             &Path::new()
                                 .descend("snapshot")
                                 .descend("element")
@@ -205,7 +195,7 @@ async fn validate_singular_element<'a>(
     };
 
     let elements = elements_pointer
-        .get_typed::<Vec<Box<ElementDefinition>>>(ctx.profile)
+        .get_typed::<Vec<Box<ElementDefinition>>>(ctx.profile())
         .ok_or_else(|| {
             OperationOutcomeError::error(
                 IssueType::Exception(None),
@@ -256,7 +246,7 @@ pub async fn validate_element<'a>(
     value_pointer: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let mut issues = vec![];
-    let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile) else {
+    let Some(element) = element_pointer.get_typed::<Box<ElementDefinition>>(ctx.profile()) else {
         return Err(OperationOutcomeError::error(
             IssueType::Exception(None),
             format!("Invalid element path: {}", element_pointer),

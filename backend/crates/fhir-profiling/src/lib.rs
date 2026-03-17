@@ -54,7 +54,9 @@ impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
     pub fn profile(&'a self) -> &'a StructureDefinition {
         match self.profile.as_ref() {
             Resource::StructureDefinition(sd) => sd,
-            _ => panic!("Expected a StructureDefinition"),
+            _ => panic!(
+                "Invalid state for profile ctx, profile field must be a StructureDefinition."
+            ),
         }
     }
 }

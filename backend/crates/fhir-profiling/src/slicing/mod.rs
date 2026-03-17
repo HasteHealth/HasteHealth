@@ -3,9 +3,7 @@ use std::sync::Arc;
 use haste_codegen::{traversal, utilities::extract::field_name};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
-    resources::OperationOutcomeIssue,
-    terminology::IssueType,
-    types::{Element, ElementDefinition},
+    resources::OperationOutcomeIssue, terminology::IssueType, types::ElementDefinition,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
@@ -87,9 +85,9 @@ async fn split_values_into_slices(
 ///  the actual value of the pattern to know how to split the slice. Which would be "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
 #[allow(dead_code)]
 fn find_element_definition_for_discriminator<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    discriminator_element: &ElementDefinition,
-) -> Result<&'a ElementDefinition, OperationOutcomeError> {
+    _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    _discriminator_element: &ElementDefinition,
+) -> Result<(), OperationOutcomeError> {
     Ok(())
 }
 
@@ -125,6 +123,7 @@ fn get_slice_value_locs(
     }
 }
 
+#[allow(dead_code)]
 pub fn validate_slicing_descriptor<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     slicing_descriptor: &SlicingDescriptor,
@@ -132,7 +131,7 @@ pub fn validate_slicing_descriptor<'a>(
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let discriminator_element = ctx
-        .profile
+        .profile()
         .snapshot
         .as_ref()
         .and_then(|snapshot| snapshot.element.get(slicing_descriptor.discriminator))
@@ -146,7 +145,7 @@ pub fn validate_slicing_descriptor<'a>(
             )
         })?;
 
-    let slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
+    let _slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
 
     Ok(vec![])
 }
