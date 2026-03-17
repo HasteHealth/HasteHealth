@@ -91,12 +91,12 @@ struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
 /// We need to pull from for example https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-race.html
 ///  the actual value of the pattern to know how to split the slice. Which would be "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
 #[allow(dead_code)]
-async fn find_element_definition_for_discriminator<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolver>(
+    ctx: Arc<FHIRProfileCTX<'a, Resolver>>,
     search_for_path: &str,
     current_index: usize,
     parent_path: Option<&str>,
-) -> Result<Option<FoundDiscriminator<'a, impl CanonicalResolver>>, OperationOutcomeError> {
+) -> Result<Option<FoundDiscriminator<'a, Resolver>>, OperationOutcomeError> {
     let element_to_check = ctx
         .profile()
         .snapshot
@@ -154,25 +154,27 @@ async fn find_element_definition_for_discriminator<'a>(
                             )
                         })?;
 
-                    let v = find_element_definition_for_discriminator(
-                        Arc::new(FHIRProfileCTX {
-                            resolver: ctx.resolver.clone(),
-                            profile: resolved_profile,
-                            root: ctx.root,
-                        }),
-                        search_for_path,
-                        0,
-                        Some(&current_element_path),
-                    )
-                    .await?;
+                    let p = Arc::new(FHIRProfileCTX::new(
+                        ctx.resolver.clone(),
+                        resolved_profile,
+                        ctx.root,
+                    )?);
+
+                    let v: Option<FoundDiscriminator<'a, _>> =
+                        find_element_definition_for_discriminator(
+                            p,
+                            search_for_path,
+                            0,
+                            Some(&current_element_path),
+                        )
+                        .await?;
+
+                    if let Some(v) = v {
+                        return Ok(Some(v));
+                    }
                 }
             }
         }
-
-        // return Ok(Some(FoundDiscriminator {
-        //     ctx,
-        //     discriminator_element: element_to_check.as_ref(),
-        // }));
     };
 
     Ok(None)
