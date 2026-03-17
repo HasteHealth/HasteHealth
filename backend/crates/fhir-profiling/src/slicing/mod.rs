@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use haste_codegen::{traversal, utilities::extract::field_name};
+use haste_codegen::{
+    traversal::{self, ele_index_to_child_indices},
+    utilities::extract::field_name,
+};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcomeIssue, ResourceType},
@@ -160,19 +163,44 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
                         ctx.root,
                     )?);
 
-                    let v: Option<FoundDiscriminator<'a, _>> =
-                        find_element_definition_for_discriminator(
-                            p,
-                            search_for_path,
-                            0,
-                            Some(&current_element_path),
-                        )
-                        .await?;
+                    let found_discriminator = find_element_definition_for_discriminator(
+                        p,
+                        search_for_path,
+                        0,
+                        Some(&current_element_path),
+                    )
+                    .await?;
 
-                    if let Some(v) = v {
+                    if let Some(v) = found_discriminator {
                         return Ok(Some(v));
                     }
                 }
+            }
+        }
+
+        let default = vec![];
+
+        let child_indices = ele_index_to_child_indices(
+            ctx.profile()
+                .snapshot
+                .as_ref()
+                .map(|s| s.element.as_ref())
+                .unwrap_or(&default),
+            current_index,
+        )
+        .map_err(|err| OperationOutcomeError::error(IssueType::Exception(None), err))?;
+
+        for child_index in child_indices {
+            let found_discriminator = find_element_definition_for_discriminator(
+                ctx.clone(),
+                search_for_path,
+                child_index,
+                Some(&current_element_path),
+            )
+            .await?;
+
+            if let Some(v) = found_discriminator {
+                return Ok(Some(v));
             }
         }
     };
