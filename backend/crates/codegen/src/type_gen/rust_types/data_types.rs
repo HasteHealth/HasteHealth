@@ -50,14 +50,11 @@ fn min_max_attribute(element: &ElementDefinition) -> TokenStream {
     }
 }
 
-fn wrap_cardinality_and_optionality(
-    element: &ElementDefinition,
-    field_value: TokenStream,
-) -> TokenStream {
+fn wrap_if_vec(element: &ElementDefinition, field_value: TokenStream) -> TokenStream {
     let cardinality = extract::cardinality(element);
 
     // Check the cardinality.
-    let field_value = match cardinality.1 {
+    let wrapped_field = match cardinality.1 {
         extract::Max::Unlimited => quote! {
             Vec<#field_value>
         },
@@ -68,6 +65,17 @@ fn wrap_cardinality_and_optionality(
             Vec<#field_value>
         },
     };
+
+    wrapped_field
+}
+
+fn wrap_cardinality_and_optionality(
+    element: &ElementDefinition,
+    field_value: TokenStream,
+) -> TokenStream {
+    let cardinality = extract::cardinality(element);
+
+    let field_value = wrap_if_vec(element, field_value);
 
     // Check the Optionality
     if cardinality.0 == 0 {
@@ -211,7 +219,10 @@ fn create_type_choice(
         .iter()
         .map(|fhir_type| {
             let enum_name = format_ident!("{}", generate::capitalize(fhir_type));
-            let rust_type = fhir_type_to_rust_type(element, fhir_type, inlined_terminology);
+            let rust_type = wrap_if_vec(
+                element,
+                fhir_type_to_rust_type(element, fhir_type, inlined_terminology),
+            );
             // For Reference types, extract target profiles and use as an attribute.
             let target_types = if *fhir_type == "Reference" {
                 get_reference_target_attribute(element)
