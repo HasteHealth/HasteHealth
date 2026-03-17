@@ -84,7 +84,9 @@ async fn split_values_into_slices(
 }
 
 struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
+    #[allow(dead_code)]
     ctx: Arc<FHIRProfileCTX<'a, Resolver>>,
+    #[allow(dead_code)]
     discriminator_element_index: usize,
 }
 
