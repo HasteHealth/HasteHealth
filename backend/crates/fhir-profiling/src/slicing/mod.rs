@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use haste_codegen::traversal;
+use haste_codegen::{traversal, utilities::extract::field_name};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::OperationOutcomeIssue, terminology::IssueType, types::ElementDefinition,
@@ -98,21 +98,58 @@ fn find_element_definition_for_discriminator() -> Result<(), OperationOutcomeErr
     Ok(())
 }
 
-#[allow(dead_code)]
 fn get_slice_value_locs(
-    _discriminator_element: &ElementDefinition,
-    _root: &dyn MetaValue,
-    _value_path: &Path,
-) -> Result<(), OperationOutcomeError> {
-    Ok(())
+    discriminator_element: &ElementDefinition,
+    value: &dyn MetaValue,
+    value_path: &Path,
+) -> Result<Vec<Path>, OperationOutcomeError> {
+    let field = field_name(
+        discriminator_element
+            .path
+            .value
+            .as_ref()
+            .map(|s| s.as_str())
+            .unwrap_or(""),
+    );
+
+    let slice_path = value_path.descend(&field);
+
+    let Some(v) = slice_path.get(value) else {
+        return Ok(vec![]);
+    };
+
+    if v.is_many() {
+        Ok(v.flatten()
+            .iter()
+            .enumerate()
+            .map(|(i, _)| slice_path.descend(&format!("{}", i)))
+            .collect())
+    } else {
+        Ok(vec![slice_path])
+    }
 }
 
-#[allow(dead_code)]
 pub fn validate_slicing_descriptor<'a>(
-    _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    _slicing_descriptor: &SlicingDescriptor,
-    _value: &dyn MetaValue,
-    _value_path: &Path,
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    slicing_descriptor: &SlicingDescriptor,
+    value: &dyn MetaValue,
+    value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
+    let discriminator_element = ctx
+        .profile
+        .snapshot
+        .as_ref()
+        .and_then(|snapshot| snapshot.element.get(slicing_descriptor.discriminator))
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!(
+                    "Invalid slicing discriminator index: {}",
+                    slicing_descriptor.discriminator
+                ),
+            )
+        })?;
+
+    let slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path);
     Ok(vec![])
 }
