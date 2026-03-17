@@ -98,19 +98,21 @@ fn find_element_definition_for_discriminator() -> Result<(), OperationOutcomeErr
     Ok(())
 }
 
+#[allow(dead_code)]
 fn get_slice_value_locs(
-    discriminator_element: &ElementDefinition,
-    root: &dyn MetaValue,
-    value_path: &Path,
+    _discriminator_element: &ElementDefinition,
+    _root: &dyn MetaValue,
+    _value_path: &Path,
 ) -> Result<(), OperationOutcomeError> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn validate_slicing_descriptor<'a>(
-    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    slicing_descriptor: &SlicingDescriptor,
-    value: &dyn MetaValue,
-    value_path: &Path,
+    _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    _slicing_descriptor: &SlicingDescriptor,
+    _value: &dyn MetaValue,
+    _value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     Ok(vec![])
 }
