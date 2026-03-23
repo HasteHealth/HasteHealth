@@ -7,8 +7,8 @@ use haste_codegen::{
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcomeIssue, ResourceType},
-    terminology::IssueType,
-    types::ElementDefinition,
+    terminology::{DiscriminatorType, IssueType},
+    types::{ElementDefinition, ElementDefinitionSlicingDiscriminator},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
@@ -241,6 +241,55 @@ fn get_slice_value_locs(
         Ok(vec![slice_path])
     }
 }
+
+fn is_conformant_to_slice_descriptor(
+    discriminator: &ElementDefinitionSlicingDiscriminator,
+    slice_value_element_definition: &ElementDefinition,
+    root: &dyn MetaValue,
+    path: &Path,
+) -> Result<bool, OperationOutcomeError> {
+    let value = path.get(root).ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Value for discriminator not found at path".to_string(),
+        )
+    })?;
+
+    match discriminator.type_.as_ref() {
+        DiscriminatorType::Exists(_) => Ok(value.flatten().len() > 0),
+        DiscriminatorType::Pattern(_) => {
+            slice_value_element_definition.pattern.as_ref().ok_or_else(|| OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Slice value element definition must have a pattern for pattern discriminator".to_string(),
+            ))?;
+            todo!()
+        }
+        DiscriminatorType::Profile(_) => Err(OperationOutcomeError::error(
+            IssueType::NotSupported(None),
+            "Profile discriminator type is not supported".to_string(),
+        )),
+        DiscriminatorType::Type(_) => {
+            let expected_types =
+                slice_value_element_definition
+                    .type_
+                    .as_ref()
+                    .ok_or_else(|| {
+                        OperationOutcomeError::error(
+                            IssueType::Invalid(None),
+                            "Slice value element definition must have types for type discriminator"
+                                .to_string(),
+                        )
+                    })?;
+        }
+        DiscriminatorType::Value(_) => todo!(),
+        DiscriminatorType::Null(_) => Err(OperationOutcomeError::error(
+            IssueType::NotSupported(None),
+            "Null discriminator type is not supported".to_string(),
+        )),
+    }
+}
+
+fn split_slicing() {}
 
 #[allow(dead_code)]
 pub fn validate_slicing_descriptor<'a>(

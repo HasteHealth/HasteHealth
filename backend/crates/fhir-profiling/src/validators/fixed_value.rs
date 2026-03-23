@@ -6,10 +6,7 @@ use crate::validators::utilities;
 /// Validates perfect match between fixed value and data.
 /// Effectively this is a deep equality check between v1 and v2.
 #[allow(dead_code)]
-pub fn validate_fixed_value(
-    v1: &dyn MetaValue,
-    v2: &dyn MetaValue,
-) -> Result<bool, OperationOutcomeError> {
+pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, OperationOutcomeError> {
     if v1.typename() != v2.typename() {
         return Ok(false);
     }
@@ -29,7 +26,7 @@ pub fn validate_fixed_value(
 
             if let Some(v1) = v1
                 && let Some(v2) = v2
-                && !validate_fixed_value(v1, v2)?
+                && !is_equal(v1, v2)?
             {
                 return Ok(false);
             }
@@ -67,6 +64,6 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(!validate_fixed_value(&data, &pattern).unwrap());
+        assert!(!is_equal(&data, &pattern).unwrap());
     }
 }
