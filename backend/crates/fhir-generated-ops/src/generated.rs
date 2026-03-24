@@ -382,8 +382,8 @@ pub mod CapabilityStatementConforms {
     pub const CODE: &str = "conforms";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        pub left: Option<FHIRString>,
-        pub right: Option<FHIRString>,
+        pub left: Option<FHIRCanonical>,
+        pub right: Option<FHIRCanonical>,
         pub mode: Option<FHIRCode>,
     }
     impl From<Input> for Resource {
@@ -416,8 +416,8 @@ pub mod CapabilityStatementImplements {
     pub const CODE: &str = "implements";
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
-        pub server: Option<FHIRString>,
-        pub client: Option<FHIRString>,
+        pub server: Option<FHIRCanonical>,
+        pub client: Option<FHIRCanonical>,
         pub resource: Option<CapabilityStatement>,
     }
     impl From<Input> for Resource {
@@ -1784,9 +1784,9 @@ pub mod StructureDefinitionQuestionnaire {
     #[derive(Debug, FromParameters, ToParameters)]
     pub struct Input {
         #[parameter_rename = "identifier"]
-        pub identifier_: Option<FHIRString>,
+        pub identifier_: Option<FHIRCanonical>,
         pub profile: Option<FHIRString>,
-        pub url: Option<FHIRString>,
+        pub url: Option<FHIRCanonical>,
         pub supportedOnly: Option<FHIRBoolean>,
     }
     impl From<Input> for Resource {
@@ -1892,13 +1892,13 @@ pub mod ValueSetExpand {
         pub excludePostCoordinated: Option<FHIRBoolean>,
         pub displayLanguage: Option<FHIRCode>,
         #[parameter_rename = "exclude-system"]
-        pub exclude_system: Option<Vec<FHIRString>>,
+        pub exclude_system: Option<Vec<FHIRCanonical>>,
         #[parameter_rename = "system-version"]
-        pub system_version: Option<Vec<FHIRString>>,
+        pub system_version: Option<Vec<FHIRCanonical>>,
         #[parameter_rename = "check-system-version"]
-        pub check_system_version: Option<Vec<FHIRString>>,
+        pub check_system_version: Option<Vec<FHIRCanonical>>,
         #[parameter_rename = "force-system-version"]
-        pub force_system_version: Option<Vec<FHIRString>>,
+        pub force_system_version: Option<Vec<FHIRCanonical>>,
     }
     impl From<Input> for Resource {
         fn from(value: Input) -> Self {
