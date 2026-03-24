@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use haste_codegen::{
-    traversal::{self, ele_index_to_child_indices},
+    traversal::ele_index_to_child_indices,
     utilities::extract::{Max, cardinality, field_name},
 };
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
