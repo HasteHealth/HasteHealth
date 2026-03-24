@@ -90,7 +90,7 @@ async fn validate_type_if_multiple_types_constrained<'a>(
     }
 }
 
-fn outcome_issue(
+pub fn outcome_issue(
     value_location: &Path,
     severity: IssueSeverity,
     code: IssueType,

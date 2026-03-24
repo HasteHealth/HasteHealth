@@ -2,12 +2,12 @@ use std::{collections::HashMap, sync::Arc};
 
 use haste_codegen::{
     traversal::{self, ele_index_to_child_indices},
-    utilities::extract::field_name,
+    utilities::extract::{Max, cardinality, field_name},
 };
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
-    terminology::{DiscriminatorType, IssueType},
+    terminology::{DiscriminatorType, IssueSeverity, IssueType},
     types::{ElementDefinition, ElementDefinitionSlicingDiscriminator},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -16,6 +16,7 @@ use haste_reflect::MetaValue;
 
 use crate::{
     FHIRProfileCTX,
+    element::outcome_issue,
     utilities::{self, convert_discriminator_to_path},
     validators::{fixed_value::is_equal, pattern::validate_pattern},
 };
@@ -55,6 +56,8 @@ pub fn get_slice_element_definition_locations(
                 slices: vec![],
             };
 
+            // SliceName indicates that it's a part of the slice (upper discriminator).
+            // So we keep adding to the slice until we find an element that doesn't have a sliceName or we run out of children.
             while i < children.len()
                 && elements[children[i]]
                     .sliceName
@@ -404,6 +407,49 @@ fn get_element<'a>(
     Ok(element)
 }
 
+fn validate_slice_cardinality(
+    slice_element_definition: &ElementDefinition,
+    slice_locs: &Vec<Path>,
+) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
+    let (min, max) = cardinality(slice_element_definition);
+
+    let mut issues = vec![];
+
+    if slice_locs.len() < min as usize {
+        issues.push(outcome_issue(
+            slice_locs.first().unwrap_or(&Path::new()),
+            IssueSeverity::Error(None),
+            IssueType::Value(None),
+            format!(
+                "Cardinality too low: expected at least '{}', found '{}'",
+                min,
+                slice_locs.len()
+            ),
+        ));
+    }
+
+    match max {
+        Max::Fixed(fixed_max) => {
+            if slice_locs.len() > fixed_max as usize {
+                issues.push(outcome_issue(
+                    slice_locs.first().unwrap_or(&Path::new()),
+                    IssueSeverity::Error(None),
+                    IssueType::Value(None),
+                    format!(
+                        "Cardinality too high: expected at most '{}', found '{}'",
+                        fixed_max,
+                        slice_locs.len()
+                    ),
+                ));
+            }
+        }
+        // Do nothing if max is unlimited, as there is no upper bound to violate.
+        Max::Unlimited => {}
+    }
+
+    Ok(issues)
+}
+
 #[allow(dead_code)]
 pub async fn validate_slicing_descriptor<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
@@ -412,9 +458,26 @@ pub async fn validate_slicing_descriptor<'a>(
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let discriminator_element = get_element(ctx.profile(), slicing_descriptor.discriminator)?;
-    let _slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
-    let _split_slices =
-        split_slicing(ctx.clone(), slicing_descriptor, value, _slice_value_locs).await?;
+    let all_slice_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
+    let split_slices =
+        split_slicing(ctx.clone(), slicing_descriptor, value, all_slice_locs).await?;
 
-    Ok(vec![])
+    let mut issues = vec![];
+
+    for slice in slicing_descriptor.slices.iter() {
+        let slice_locs = split_slices.0.get(slice).ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Missing slice locations for slice index: {}", slice),
+            )
+        })?;
+        let slice_element_definition = get_element(ctx.profile(), *slice)?;
+
+        issues.extend(validate_slice_cardinality(
+            slice_element_definition,
+            slice_locs,
+        )?);
+    }
+
+    Ok(issues)
 }
