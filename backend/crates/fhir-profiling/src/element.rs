@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{iter, sync::Arc};
 
 use haste_codegen::{traversal, utilities::extract};
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
@@ -14,7 +14,11 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Path};
 use haste_reflect::MetaValue;
 
-use crate::FHIRProfileCTX;
+use crate::{
+    FHIRProfileCTX,
+    slicing::{get_slice_descriptors, validate_slicing_descriptor},
+    validators::{cardinality::validate_cardinality, fixed_value, pattern::validate_pattern},
+};
 
 /// Check if the element is constrained to profiles type.
 /// Also if nested profiles are found, validate against those as well.
@@ -111,74 +115,6 @@ pub fn outcome_issue(
     }
 }
 
-fn _validate_cardinality(
-    value_location: &Path,
-    value_cardinality: usize,
-    (min, max): (usize, Option<&str>),
-) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    if value_cardinality < min {
-        return Ok(vec![outcome_issue(
-            value_location,
-            IssueSeverity::Error(None),
-            IssueType::Required(None),
-            format!(
-                "Cardinality too low: expected at least '{}', found '{}'",
-                min, value_cardinality
-            ),
-        )]);
-    }
-
-    match max {
-        // "*" means unbounded upper cardinality.
-        None | Some("*") => Ok(vec![]),
-        Some(max) => {
-            let Ok(max) = max.parse::<usize>() else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Exception(None),
-                    format!("Invalid max cardinality: {}", max),
-                ));
-            };
-
-            if value_cardinality <= max {
-                Ok(vec![])
-            } else {
-                Ok(vec![outcome_issue(
-                    value_location,
-                    IssueSeverity::Error(None),
-                    IssueType::Required(None),
-                    format!(
-                        "Cardinality too high: expected at most '{}', found '{}'",
-                        max, value_cardinality
-                    ),
-                )])
-            }
-        } // Missing max defaults to no upper bound at this helper level.
-    }
-}
-
-fn validate_cardinality<'a>(
-    _ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    value_location: &Path,
-    element: &ElementDefinition,
-    value: &Option<&'a dyn MetaValue>,
-) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    let element_cardinalities = (
-        element.min.as_ref().and_then(|v| v.value).unwrap_or(0) as usize,
-        element
-            .max
-            .as_ref()
-            .and_then(|v| v.value.as_ref().map(|s| s.as_str())),
-    );
-
-    match value {
-        Some(v) => {
-            let value_cardinality = v.flatten().len();
-            _validate_cardinality(value_location, value_cardinality, element_cardinalities)
-        }
-        None => _validate_cardinality(value_location, 0, element_cardinalities),
-    }
-}
-
 async fn validate_singular_element<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element_pointer: &Path,
@@ -203,6 +139,29 @@ async fn validate_singular_element<'a>(
             )
         })?;
 
+    let children = traversal::ele_index_to_child_indices(elements, index)
+        .map_err(|error| OperationOutcomeError::error(IssueType::Exception(None), error))?;
+
+    // Includes all of slice descriptors which is how to split (the descriptor)
+    // and the slices that belong to that descriptor (the slices).
+    let slice_descriptors = get_slice_descriptors(elements, &children)?;
+    let slice_indices_set = slice_descriptors
+        .iter()
+        .flat_map(|descriptor| {
+            descriptor
+                .slices
+                .iter()
+                .chain(iter::once(&descriptor.discriminator))
+        })
+        .copied()
+        .collect::<std::collections::HashSet<usize>>();
+
+    for descriptor in slice_descriptors.iter() {
+        issues.extend(
+            validate_slicing_descriptor(ctx.clone(), descriptor, value, value_pointer).await?,
+        );
+    }
+
     issues.extend(
         validate_type_if_multiple_types_constrained(
             ctx.clone(),
@@ -213,10 +172,33 @@ async fn validate_singular_element<'a>(
         .await?,
     );
 
-    let children = traversal::ele_index_to_child_indices(elements, index)
-        .map_err(|error| OperationOutcomeError::error(IssueType::Exception(None), error))?;
+    if let Some(pattern) = element.pattern.as_ref()
+        && !validate_pattern(value, pattern)?
+    {
+        issues.push(outcome_issue(
+            value_pointer,
+            IssueSeverity::Error(None),
+            IssueType::Invalid(None),
+            format!("Value does not match pattern: {:?}", pattern),
+        ));
+    }
 
-    for child in children.iter() {
+    if let Some(fixed_value) = element.fixed.as_ref()
+        && !fixed_value::is_equal(value, fixed_value)?
+    {
+        issues.push(outcome_issue(
+            value_pointer,
+            IssueSeverity::Error(None),
+            IssueType::Invalid(None),
+            format!("Value does not match fixed value: {:?}", fixed_value),
+        ));
+    }
+
+    // Loop through all children that are not a part of the slice.
+    for child in children
+        .iter()
+        .filter(|child_index| !slice_indices_set.contains(child_index))
+    {
         let child_element = &elements[*child];
         let field_name = extract::field_name(
             child_element
