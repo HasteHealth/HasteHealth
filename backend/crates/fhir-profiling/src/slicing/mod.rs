@@ -72,22 +72,9 @@ pub fn get_slice_descriptors(
     Ok(slice_indices)
 }
 
-#[allow(dead_code)]
-struct SliceSplit {}
-
-#[allow(dead_code)]
-async fn split_values_into_slices(
-    _elements: &Vec<ElementDefinition>,
-    _slicing_descriptor: SlicingDescriptor,
-    _values: Vec<&dyn MetaValue>,
-) -> Result<(), OperationOutcomeError> {
-    Ok(())
-}
-
 struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
-    #[allow(dead_code)]
     ctx: Arc<FHIRProfileCTX<'a, Resolver>>,
-    #[allow(dead_code)]
+
     discriminator_element_index: usize,
 }
 
@@ -96,7 +83,6 @@ struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
 /// For example Extension.url could be the discriminator, but
 /// We need to pull from for example https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-race.html
 ///  the actual value of the pattern to know how to split the slice. Which would be "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
-#[allow(dead_code)]
 async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolver>(
     ctx: Arc<FHIRProfileCTX<'a, Resolver>>,
     search_for_path: &str,
@@ -446,7 +432,6 @@ fn validate_slice_cardinality(
     Ok(issues)
 }
 
-#[allow(dead_code)]
 pub async fn validate_slicing_descriptor<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     slicing_descriptor: &SlicingDescriptor,
