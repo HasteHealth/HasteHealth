@@ -118,9 +118,9 @@ pub fn outcome_issue(
 async fn validate_singular_element<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element_pointer: &Path,
-    value_pointer: &Path,
     element: &ElementDefinition,
     value: &'a dyn MetaValue,
+    value_pointer: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
     let mut issues = vec![];
     let Some((elements_pointer, Key::Index(index))) = element_pointer.ascend() else {
@@ -251,9 +251,9 @@ pub async fn validate_element<'a>(
                     validate_singular_element(
                         ctx.clone(),
                         element_pointer,
-                        &value_pointer.descend(&format!("{}", i)),
                         element,
                         *v,
+                        &value_pointer.descend(&format!("{}", i)),
                     )
                     .await?,
                 );
@@ -263,9 +263,9 @@ pub async fn validate_element<'a>(
                 validate_singular_element(
                     ctx.clone(),
                     element_pointer,
-                    value_pointer,
                     element,
                     value,
+                    value_pointer,
                 )
                 .await?,
             );

@@ -136,6 +136,10 @@ impl<Root: MetaValue, U: MetaValue> TypedPointer<Root, U> {
             }),
         }
     }
+
+    pub fn ascend(&self) -> Option<(Path, Key)> {
+        self.path.ascend()
+    }
 }
 
 #[cfg(test)]
