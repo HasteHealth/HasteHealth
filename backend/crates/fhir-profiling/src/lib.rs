@@ -25,6 +25,7 @@ impl<Resolver: CanonicalResolver> FHIRProfileArguments<Resolver> {
     }
 }
 
+#[derive(Clone)]
 pub struct FHIRProfileCTX<'a, Resolver: CanonicalResolver> {
     resolver: Arc<Resolver>,
     profile: Arc<Resource>,

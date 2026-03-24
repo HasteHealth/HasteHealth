@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use haste_codegen::{
     traversal::{self, ele_index_to_child_indices},
@@ -6,7 +6,7 @@ use haste_codegen::{
 };
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
-    resources::{OperationOutcomeIssue, ResourceType},
+    resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
     terminology::{DiscriminatorType, IssueType},
     types::{ElementDefinition, ElementDefinitionSlicingDiscriminator},
 };
@@ -14,7 +14,11 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
 use haste_reflect::MetaValue;
 
-use crate::{FHIRProfileCTX, utilities};
+use crate::{
+    FHIRProfileCTX,
+    utilities::{self, convert_discriminator_to_path},
+    validators::{fixed_value::is_equal, pattern::validate_pattern},
+};
 
 fn is_slice(element: &ElementDefinition) -> bool {
     element.slicing.is_some()
@@ -22,10 +26,8 @@ fn is_slice(element: &ElementDefinition) -> bool {
 
 pub struct SlicingDescriptor {
     /// The index of the element definition that contains the discriminator.
-    #[allow(dead_code)]
     discriminator: usize,
     /// The indices of the slice element definitions that belong to the discriminator. The discriminator element is not included in this list.
-    #[allow(dead_code)]
     slices: Vec<usize>,
 }
 
@@ -258,11 +260,12 @@ fn is_conformant_to_slice_descriptor(
     match discriminator.type_.as_ref() {
         DiscriminatorType::Exists(_) => Ok(value.flatten().len() > 0),
         DiscriminatorType::Pattern(_) => {
-            slice_value_element_definition.pattern.as_ref().ok_or_else(|| OperationOutcomeError::error(
+            let pattern = slice_value_element_definition.pattern.as_ref().ok_or_else(|| OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Slice value element definition must have a pattern for pattern discriminator".to_string(),
             ))?;
-            todo!()
+
+            validate_pattern(value, pattern)
         }
         DiscriminatorType::Profile(_) => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
@@ -280,8 +283,24 @@ fn is_conformant_to_slice_descriptor(
                                 .to_string(),
                         )
                     })?;
+            let result = expected_types.iter().find(|t| {
+                if let Some(type_name) = t.code.value.as_ref().map(|c| c.as_str()) {
+                    type_name == value.typename()
+                } else {
+                    false
+                }
+            });
+
+            Ok(result.is_some())
         }
-        DiscriminatorType::Value(_) => todo!(),
+        DiscriminatorType::Value(_) => {
+            let fixed_value  = slice_value_element_definition.fixed.as_ref().ok_or_else(|| OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Slice value element definition must have a fixed value for value discriminator".to_string(),
+            ))?;
+
+            is_equal(value, fixed_value)
+        }
         DiscriminatorType::Null(_) => Err(OperationOutcomeError::error(
             IssueType::NotSupported(None),
             "Null discriminator type is not supported".to_string(),
@@ -289,31 +308,113 @@ fn is_conformant_to_slice_descriptor(
     }
 }
 
-fn split_slicing() {}
+struct SplitSlicing(HashMap<usize, Vec<Path>>);
+
+/// Splits the given values into slices according to the discriminator.
+async fn split_slicing<'a>(
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    slicing_descriptor: &SlicingDescriptor,
+    value: &dyn MetaValue,
+    mut locs: Vec<Path>,
+) -> Result<SplitSlicing, OperationOutcomeError> {
+    let mut slices_split = SplitSlicing(HashMap::new());
+    let discriminator_element_definition =
+        get_element(ctx.profile(), slicing_descriptor.discriminator)?;
+    let discriminators = discriminator_element_definition
+        .slicing
+        .as_ref()
+        .and_then(|s| s.discriminator.as_ref())
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                "Invalid slicing discriminator configuration".to_string(),
+            )
+        })?;
+
+    let discriminator_element_paths = discriminators
+        .iter()
+        .map(|d| convert_discriminator_to_path(discriminator_element_definition, d))
+        .collect::<Result<Vec<_>, _>>()?;
+
+    for slice_index in &slicing_descriptor.slices {
+        for (discriminator_element_index, discriminator_element_path) in
+            discriminator_element_paths.iter().enumerate()
+        {
+            let discriminator = &discriminators[discriminator_element_index];
+            let Some(slice_descriminator_value_definition) =
+                find_element_definition_for_discriminator(
+                    ctx.clone(),
+                    discriminator_element_path,
+                    *slice_index,
+                    None,
+                )
+                .await?
+            else {
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!(
+                        "Failed to find element definition for discriminator path '{}'",
+                        discriminator_element_path
+                    ),
+                ));
+            };
+
+            let mut remainder_locs = vec![];
+            let mut slice_locations = vec![];
+            for loc in locs.into_iter() {
+                if is_conformant_to_slice_descriptor(
+                    discriminator,
+                    get_element(
+                        slice_descriminator_value_definition.ctx.profile(),
+                        slice_descriminator_value_definition.discriminator_element_index,
+                    )?,
+                    value,
+                    &loc,
+                )? {
+                    slice_locations.push(loc.clone());
+                } else {
+                    remainder_locs.push(loc.clone());
+                }
+            }
+
+            slices_split.0.insert(*slice_index, slice_locations);
+
+            locs = remainder_locs;
+        }
+    }
+
+    Ok(slices_split)
+}
+
+fn get_element<'a>(
+    profile: &'a StructureDefinition,
+    element_index: usize,
+) -> Result<&'a Box<ElementDefinition>, OperationOutcomeError> {
+    let element = profile
+        .snapshot
+        .as_ref()
+        .and_then(|snapshot| snapshot.element.get(element_index))
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Invalid slicing discriminator index: {}", element_index),
+            )
+        })?;
+
+    Ok(element)
+}
 
 #[allow(dead_code)]
-pub fn validate_slicing_descriptor<'a>(
+pub async fn validate_slicing_descriptor<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     slicing_descriptor: &SlicingDescriptor,
     value: &dyn MetaValue,
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    let discriminator_element = ctx
-        .profile()
-        .snapshot
-        .as_ref()
-        .and_then(|snapshot| snapshot.element.get(slicing_descriptor.discriminator))
-        .ok_or_else(|| {
-            OperationOutcomeError::error(
-                IssueType::Exception(None),
-                format!(
-                    "Invalid slicing discriminator index: {}",
-                    slicing_descriptor.discriminator
-                ),
-            )
-        })?;
-
+    let discriminator_element = get_element(ctx.profile(), slicing_descriptor.discriminator)?;
     let _slice_value_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
+    let _split_slices =
+        split_slicing(ctx.clone(), slicing_descriptor, value, _slice_value_locs).await?;
 
     Ok(vec![])
 }
