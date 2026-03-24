@@ -12,7 +12,6 @@ use haste_fhir_model::r4::{
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::{Key, Path};
-use haste_reflect::MetaValue;
 
 use crate::{
     FHIRProfileCTX,
@@ -28,7 +27,7 @@ use crate::{
 /// * `ctx` - The FHIRProfileCTX containing the profile and root data.
 /// * `element` - ElementDefinition to check
 /// * `type_` - The type found on the element
-async fn validate_type_if_multiple_types_constrained<'a>(
+async fn validate_types_and_profiles_if_present<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     element: &ElementDefinition,
     value_pointer: &Path,
@@ -115,18 +114,31 @@ pub fn outcome_issue(
     }
 }
 
-async fn validate_singular_element<'a>(
+pub async fn validate_singular_element<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
-    element_pointer: &Path,
-    element: &ElementDefinition,
-    value: &'a dyn MetaValue,
-    value_pointer: &Path,
+    element_path: &Path,
+    value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    let mut issues = vec![];
-    let Some((elements_pointer, Key::Index(index))) = element_pointer.ascend() else {
+    let element = element_path
+        .get_typed::<Box<ElementDefinition>>(ctx.profile())
+        .ok_or_else(|| {
+            OperationOutcomeError::error(
+                IssueType::Exception(None),
+                format!("Invalid elements path: {}", element_path),
+            )
+        })?;
+
+    let Some(value) = value_path.get(ctx.root) else {
         return Err(OperationOutcomeError::error(
             IssueType::Exception(None),
-            format!("Invalid element path: {}", element_pointer),
+            format!("Invalid value path: {}", value_path),
+        ));
+    };
+    let mut issues = vec![];
+    let Some((elements_pointer, Key::Index(index))) = element_path.ascend() else {
+        return Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            format!("Invalid element path: {}", element_path),
         ));
     };
 
@@ -157,16 +169,15 @@ async fn validate_singular_element<'a>(
         .collect::<std::collections::HashSet<usize>>();
 
     for descriptor in slice_descriptors.iter() {
-        issues.extend(
-            validate_slicing_descriptor(ctx.clone(), descriptor, value, value_pointer).await?,
-        );
+        issues
+            .extend(validate_slicing_descriptor(ctx.clone(), descriptor, value, value_path).await?);
     }
 
     issues.extend(
-        validate_type_if_multiple_types_constrained(
+        validate_types_and_profiles_if_present(
             ctx.clone(),
             element,
-            &value_pointer,
+            &value_path,
             get_fhir_type(value),
         )
         .await?,
@@ -176,7 +187,7 @@ async fn validate_singular_element<'a>(
         && !validate_pattern(value, pattern)?
     {
         issues.push(outcome_issue(
-            value_pointer,
+            value_path,
             IssueSeverity::Error(None),
             IssueType::Invalid(None),
             format!("Value does not match pattern: {:?}", pattern),
@@ -187,7 +198,7 @@ async fn validate_singular_element<'a>(
         && !fixed_value::is_equal(value, fixed_value)?
     {
         issues.push(outcome_issue(
-            value_pointer,
+            value_path,
             IssueSeverity::Error(None),
             IssueType::Invalid(None),
             format!("Value does not match fixed value: {:?}", fixed_value),
@@ -209,7 +220,7 @@ async fn validate_singular_element<'a>(
                 .unwrap_or(""),
         );
         let child_element_pointer = elements_pointer.descend(&format!("{}", child));
-        let child_value_pointer = value_pointer.descend(&field_name);
+        let child_value_pointer = value_path.descend(&field_name);
         let child_issues = Box::pin(validate_element(
             ctx.clone(),
             &child_element_pointer,
@@ -246,13 +257,11 @@ pub async fn validate_element<'a>(
 
     if let Some(value) = value {
         if value.is_many() {
-            for (i, v) in value.flatten().iter().enumerate() {
+            for (i, _v) in value.flatten().iter().enumerate() {
                 issues.extend(
                     validate_singular_element(
                         ctx.clone(),
                         element_pointer,
-                        element,
-                        *v,
                         &value_pointer.descend(&format!("{}", i)),
                     )
                     .await?,
@@ -260,14 +269,7 @@ pub async fn validate_element<'a>(
             }
         } else {
             issues.extend(
-                validate_singular_element(
-                    ctx.clone(),
-                    element_pointer,
-                    element,
-                    value,
-                    value_pointer,
-                )
-                .await?,
+                validate_singular_element(ctx.clone(), element_pointer, value_pointer).await?,
             );
         }
     }

@@ -16,7 +16,7 @@ use haste_reflect::MetaValue;
 
 use crate::{
     FHIRProfileCTX,
-    element::outcome_issue,
+    element::{outcome_issue, validate_singular_element},
     utilities::{self, convert_discriminator_to_path},
     validators::{fixed_value::is_equal, pattern::validate_pattern},
 };
@@ -442,8 +442,8 @@ pub async fn validate_slicing_descriptor<'a>(
     let all_slice_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
     let split_slices =
         split_slicing(ctx.clone(), slicing_descriptor, value, all_slice_locs).await?;
-
     let mut issues = vec![];
+    let elements_pointer = Path::new().descend("snapshot").descend("element");
 
     for slice in slicing_descriptor.slices.iter() {
         let slice_locs = split_slices.0.get(slice).ok_or_else(|| {
@@ -458,6 +458,17 @@ pub async fn validate_slicing_descriptor<'a>(
             slice_element_definition,
             slice_locs,
         )?);
+
+        for slice_loc in slice_locs.iter() {
+            issues.extend(
+                validate_singular_element(
+                    ctx.clone(),
+                    &elements_pointer.descend(&format!("{}", slice)),
+                    slice_loc,
+                )
+                .await?,
+            );
+        }
     }
 
     Ok(issues)
