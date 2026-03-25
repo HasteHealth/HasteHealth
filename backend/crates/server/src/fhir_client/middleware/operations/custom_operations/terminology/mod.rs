@@ -32,28 +32,26 @@ fn generate_key(
 
 static CACHE: LazyLock<DashMap<String, Arc<Resource>>> = LazyLock::new(DashMap::new);
 
-pub struct TerminologyResolver<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>(
+pub struct ServerCTXResolver<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>(
     Arc<ServerCTX<Client>>,
 );
 
+impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> ServerCTXResolver<Client> {
+    pub fn new(ctx: Arc<ServerCTX<Client>>) -> Self {
+        Self(ctx)
+    }
+}
+
 impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Clone
-    for TerminologyResolver<Client>
+    for ServerCTXResolver<Client>
 {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
 }
 
-impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>
-    TerminologyResolver<Client>
-{
-    pub fn new(ctx: Arc<ServerCTX<Client>>) -> Self {
-        Self(ctx)
-    }
-}
-
 impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> CanonicalResolver
-    for TerminologyResolver<Client>
+    for ServerCTXResolver<Client>
 {
     async fn resolve(
         &self,

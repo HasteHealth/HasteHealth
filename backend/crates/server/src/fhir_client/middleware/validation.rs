@@ -12,6 +12,7 @@ use haste_fhir_client::{
 };
 use haste_fhir_model::r4::generated::{resources::Resource, types::Meta};
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_fhir_profiling::FHIRProfileArguments;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_reflect::MetaValue;
@@ -120,6 +121,15 @@ impl<
                 let result = next(state, context).await;
                 return result;
             };
+
+            for profile_url in profile_urls.iter() {
+                let issues = haste_fhir_profiling::validate_profile_by_url(
+                    FHIRProfileArguments::new(context.ctx.clone()),
+                    profile_url,
+                    resource,
+                )
+                .await?;
+            }
 
             println!(
                 "Extracted profile urls: {:?} from resource of type '{:?}'",
