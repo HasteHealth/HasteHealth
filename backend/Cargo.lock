@@ -2334,6 +2334,7 @@ dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-fhir-ops",
+ "haste-fhir-profiling",
  "haste-fhir-search",
  "haste-fhir-serialization-json",
  "haste-fhir-terminology",

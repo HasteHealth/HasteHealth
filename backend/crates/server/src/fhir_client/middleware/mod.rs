@@ -15,6 +15,7 @@ pub mod rate_limit;
 pub mod set_artifact_tenant;
 pub mod storage;
 pub mod transaction;
+pub mod validation;
 
 pub type ServerMiddlewareState<Repository, Search, Terminology> =
     Arc<ClientState<Repository, Search, Terminology>>;

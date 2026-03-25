@@ -1,6 +1,6 @@
 [package]
 name = "haste-fhir-profiling"
-publish = false
+publish = true
 version.workspace = true
 authors.workspace = true
 license.workspace = true
