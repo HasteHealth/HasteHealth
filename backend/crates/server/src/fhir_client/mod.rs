@@ -39,6 +39,7 @@ use std::sync::{Arc, LazyLock};
 mod batch_transaction_processing;
 mod compartment;
 mod middleware;
+mod resolver;
 mod utilities;
 
 #[derive(OperationOutcomeError, Debug)]

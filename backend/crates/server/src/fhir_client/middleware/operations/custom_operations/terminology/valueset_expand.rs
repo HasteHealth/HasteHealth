@@ -1,9 +1,7 @@
 use crate::fhir_client::{
     ServerCTX,
-    middleware::{
-        ServerMiddlewareState,
-        operations::{ServerOperationContext, custom_operations::ServerCTXResolver},
-    },
+    middleware::{ServerMiddlewareState, operations::ServerOperationContext},
+    resolver::ServerCTXResolver,
 };
 use haste_fhir_client::{FHIRClient, request::InvocationRequest};
 use haste_fhir_generated_ops::generated::ValueSetExpand;

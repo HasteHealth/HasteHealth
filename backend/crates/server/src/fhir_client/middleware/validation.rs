@@ -4,6 +4,7 @@ use crate::fhir_client::{
         ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
         ServerMiddlewareState,
     },
+    resolver::ServerCTXResolver,
 };
 use haste_fhir_client::{
     FHIRClient,
@@ -123,12 +124,15 @@ impl<
             };
 
             for profile_url in profile_urls.iter() {
+                let resolver = ServerCTXResolver::new(context.ctx.clone());
                 let issues = haste_fhir_profiling::validate_profile_by_url(
-                    FHIRProfileArguments::new(context.ctx.clone()),
+                    FHIRProfileArguments::new(Arc::new(resolver)),
                     profile_url,
                     resource,
                 )
                 .await?;
+
+                println!("issues: {:?} for resource of type '{:?}'", issues, resource);
             }
 
             println!(
