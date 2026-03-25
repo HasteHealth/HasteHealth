@@ -22,11 +22,6 @@ use std::sync::Arc;
 
 fn extract_profile_url_from_resource<'a>(resource: &'a Resource) -> Option<Vec<&'a str>> {
     let meta = resource.get_field("meta")?;
-    println!("Extracted meta field: {:?}", meta);
-    println!(
-        "Extracted meta cast: {:?} ",
-        meta.as_any().downcast_ref::<Box<Meta>>()
-    );
     let meta = meta.as_any().downcast_ref::<Box<Meta>>()?;
 
     meta.profile
@@ -137,7 +132,7 @@ impl<
                 )
                 .await?;
 
-                println!("issues: {:?} for resource of type '{:?}'", issues, resource);
+                println!("issues: {:?} for profile", issues);
             }
 
             next(state, context).await

@@ -78,6 +78,16 @@ struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
     discriminator_element_index: usize,
 }
 
+fn join_paths(parent: &str, child: &str) -> String {
+    if parent.is_empty() {
+        child.to_string()
+    } else if child.is_empty() {
+        parent.to_string()
+    } else {
+        format!("{}.{}", parent, child)
+    }
+}
+
 /// The discriminator element specifies a path from which to compare with.
 /// To know how split should be done though we need the constant pattern etc... from that path.
 /// For example Extension.url could be the discriminator, but
@@ -108,11 +118,7 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
         .unwrap_or("");
 
     let current_element_path = if let Some(parent_path) = parent_path {
-        format!(
-            "{}.{}",
-            parent_path,
-            utilities::remove_type_on_path(element_path)
-        )
+        join_paths(parent_path, utilities::remove_type_on_path(element_path))
     } else {
         utilities::remove_type_on_path(element_path).to_string()
     };
