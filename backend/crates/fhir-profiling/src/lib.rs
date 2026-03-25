@@ -38,18 +38,17 @@ impl<'a, Resolver: CanonicalResolver> FHIRProfileCTX<'a, Resolver> {
         profile: Arc<Resource>,
         root: &'a dyn MetaValue,
     ) -> Result<Self, OperationOutcomeError> {
-        if let Resource::StructureDefinition(_profile) = &*profile {
-            return Err(OperationOutcomeError::error(
+        match &*profile {
+            Resource::StructureDefinition(_profile) => Ok(Self {
+                resolver,
+                profile,
+                root,
+            }),
+            _ => Err(OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 "Profile resource must be a StructureDefinition".to_string(),
-            ));
-        };
-
-        Ok(Self {
-            resolver,
-            profile,
-            root,
-        })
+            )),
+        }
     }
 
     pub fn profile(&'a self) -> &'a StructureDefinition {

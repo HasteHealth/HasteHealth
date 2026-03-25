@@ -22,7 +22,12 @@ use std::sync::Arc;
 
 fn extract_profile_url_from_resource<'a>(resource: &'a Resource) -> Option<Vec<&'a str>> {
     let meta = resource.get_field("meta")?;
-    let meta = meta.as_any().downcast_ref::<Meta>()?;
+    println!("Extracted meta field: {:?}", meta);
+    println!(
+        "Extracted meta cast: {:?} ",
+        meta.as_any().downcast_ref::<Box<Meta>>()
+    );
+    let meta = meta.as_any().downcast_ref::<Box<Meta>>()?;
 
     meta.profile
         .as_ref()?
@@ -134,11 +139,6 @@ impl<
 
                 println!("issues: {:?} for resource of type '{:?}'", issues, resource);
             }
-
-            println!(
-                "Extracted profile urls: {:?} from resource of type '{:?}'",
-                profile_urls, resource
-            );
 
             next(state, context).await
         })

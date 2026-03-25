@@ -152,12 +152,12 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
                         ctx.root,
                     )?);
 
-                    let found_discriminator = find_element_definition_for_discriminator(
+                    let found_discriminator = Box::pin(find_element_definition_for_discriminator(
                         p,
                         search_for_path,
                         0,
                         Some(&current_element_path),
-                    )
+                    ))
                     .await?;
 
                     if let Some(v) = found_discriminator {
@@ -180,12 +180,12 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
         .map_err(|err| OperationOutcomeError::error(IssueType::Exception(None), err))?;
 
         for child_index in child_indices {
-            let found_discriminator = find_element_definition_for_discriminator(
+            let found_discriminator = Box::pin(find_element_definition_for_discriminator(
                 ctx.clone(),
                 search_for_path,
                 child_index,
                 Some(&current_element_path),
-            )
+            ))
             .await?;
 
             if let Some(v) = found_discriminator {
