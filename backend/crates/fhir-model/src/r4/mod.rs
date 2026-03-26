@@ -7,6 +7,8 @@ pub mod sqlx;
 // pub mod terminology;
 pub mod generated;
 
+pub mod conversion;
+
 /// Helper function to get the FHIR type from a MetaValue
 /// Internally on types we generate hashmap of rust type name to FHIR type, so we can use that to get the FHIR type for a given MetaValue.
 pub fn get_fhir_type(value: &dyn MetaValue) -> Option<&'static str> {

@@ -246,6 +246,12 @@ async fn is_conformant_to_slice_descriptor(
     root: &dyn MetaValue,
     path: &Path,
 ) -> Result<bool, OperationOutcomeError> {
+    let value = path.get(root).ok_or_else(|| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Value for discriminator not found at path".to_string(),
+        )
+    })?;
     let values = FP_ENGINE
         .evaluate(
             discriminator
@@ -254,12 +260,7 @@ async fn is_conformant_to_slice_descriptor(
                 .as_ref()
                 .map(|s| s.as_str())
                 .unwrap_or("$this"),
-            vec![path.get(root).ok_or_else(|| {
-                OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    "Value for discriminator not found at path".to_string(),
-                )
-            })?],
+            vec![value],
         )
         .await
         .map_err(|err| {
@@ -272,8 +273,6 @@ async fn is_conformant_to_slice_descriptor(
             )
         })?;
     let values = values.iter().collect::<Vec<_>>();
-
-    println!("{:?}", values);
 
     match discriminator.type_.as_ref() {
         DiscriminatorType::Exists(_) => Ok(values.len() > 0),
