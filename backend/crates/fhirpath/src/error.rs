@@ -41,4 +41,6 @@ pub enum FHIRPathError {
     FailedTypeNameDerivation,
     #[error("Function error: {0}")]
     FunctionError(#[from] FunctionError),
+    #[error("Downcast error: {0}")]
+    DowncastError(#[from] haste_fhir_model::r4::conversion::DowncastError),
 }
