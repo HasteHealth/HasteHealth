@@ -119,6 +119,11 @@ pub async fn validate_singular_element<'a>(
     element_path: &Path,
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
+    println!(
+        "Validating element at path: {} with profile {:?}",
+        element_path,
+        ctx.profile().id
+    );
     let element = element_path
         .get_typed::<Box<ElementDefinition>>(ctx.profile())
         .ok_or_else(|| {

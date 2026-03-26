@@ -3,7 +3,7 @@ use std::{fmt::Display, sync::Arc};
 
 mod escape;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Path(String);
 
 impl Display for Path {

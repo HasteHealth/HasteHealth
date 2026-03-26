@@ -4,9 +4,10 @@ use haste_reflect::MetaValue;
 use crate::validators::utilities;
 
 /// Validates perfect match between fixed value and data.
-/// Effectively this is a deep equality check between v1 and v2.
-#[allow(dead_code)]
+/// Effectively this is a deep equality check between v1 and
 pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, OperationOutcomeError> {
+    println!("{} {} {:?} {:?}", v1.typename(), v2.typename(), v1, v2);
+
     if v1.typename() != v2.typename() {
         return Ok(false);
     }
