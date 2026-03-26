@@ -1,7 +1,4 @@
-use haste_fhir_model::r4::{
-    conversion::{BOOLEAN_TYPES, NUMBER_TYPES, STRING_TYPES, downcast_bool},
-    generated::terminology::IssueType,
-};
+use haste_fhir_model::r4::conversion::PRIMITIVE_TYPES;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_reflect::MetaValue;
 
@@ -16,12 +13,10 @@ pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, Operatio
         return Ok(false);
     }
 
-    let pattern_fields = v1.fields();
-
-    if pattern_fields.len() == 0 {
-        utilities::check_bare_primitive_pattern(v1, v2)
+    if PRIMITIVE_TYPES.contains(v1.typename()) {
+        return Ok(utilities::primitive_conversion(v1)? == utilities::primitive_conversion(v2)?);
     } else {
-        for key in pattern_fields {
+        for key in v1.fields() {
             let v1 = v1.get_field(key);
             let v2 = v2.get_field(key);
 
