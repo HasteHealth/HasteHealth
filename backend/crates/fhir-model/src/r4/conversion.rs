@@ -60,6 +60,15 @@ pub static STRING_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     m
 });
 
+pub static PRIMITIVE_TYPES: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
+    let mut res = BOOLEAN_TYPES.clone();
+    res.extend(NUMBER_TYPES.iter().map(|s| *s));
+    res.extend(DATE_TIME_TYPES.iter().map(|s| *s));
+    res.extend(STRING_TYPES.iter().map(|s| *s));
+
+    res
+});
+
 pub fn downcast_bool(value: &dyn MetaValue) -> Result<bool, DowncastError> {
     match value.typename() {
         "http://hl7.org/fhirpath/System.Boolean" => value
