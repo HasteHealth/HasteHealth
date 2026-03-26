@@ -1,5 +1,6 @@
-use crate::r4::generated::types::{
-    FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt,
+use crate::r4::{
+    datetime::{Date, DateTime, Instant, Time},
+    generated::types::{FHIRBoolean, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRUnsignedInt},
 };
 use haste_reflect::MetaValue;
 use std::{collections::HashSet, sync::LazyLock};
@@ -147,6 +148,47 @@ pub fn downcast_number(value: &dyn MetaValue) -> Result<f64, DowncastError> {
             .downcast_ref::<f64>()
             .map(|v| *v)
             .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string())),
+        type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
+    }
+}
+
+pub fn downcast_datetime(value: &dyn MetaValue) -> Result<String, DowncastError> {
+    // For simplicity, we will just downcast to string for date and datetime types, as FHIRPath evaluation only requires string representation of dates.
+    match value.typename() {
+        "FHIRDate" | "FHIRDateTime" | "FHIRInstant" | "FHIRTime" => {
+            downcast_datetime(value.get_field("value").unwrap_or(&"".to_string()))
+        }
+        "http://hl7.org/fhirpath/System.Date" => {
+            let fp_date = value
+                .as_any()
+                .downcast_ref::<Date>()
+                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+
+            Ok(fp_date.to_string())
+        }
+        "http://hl7.org/fhirpath/System.DateTime" => {
+            let fp_datetime = value
+                .as_any()
+                .downcast_ref::<DateTime>()
+                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+
+            Ok(fp_datetime.to_string())
+        }
+        "http://hl7.org/fhirpath/System.Instant" => {
+            let fp_instant = value
+                .as_any()
+                .downcast_ref::<Instant>()
+                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+
+            Ok(fp_instant.to_string())
+        }
+        "http://hl7.org/fhirpath/System.Time" => {
+            let fp_time = value
+                .as_any()
+                .downcast_ref::<Time>()
+                .ok_or_else(|| DowncastError::FailedDowncast(value.typename().to_string()))?;
+            Ok(fp_time.to_string())
+        }
         type_name => Err(DowncastError::FailedDowncast(type_name.to_string())),
     }
 }

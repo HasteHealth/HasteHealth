@@ -1,4 +1,7 @@
 use haste_fhir_model::r4::{
+    conversion::{
+        BOOLEAN_TYPES, DATE_TIME_TYPES, NUMBER_TYPES, PRIMITIVE_TYPES, STRING_TYPES, downcast_bool, downcast_number, downcast_string
+    },
     datetime::{Date, DateTime, Time},
     generated::terminology::IssueType,
 };
@@ -24,6 +27,54 @@ fn downcast_meta_value<'a, T: 'static>(
             format!("Expected a value of type {}", std::any::type_name::<T>()),
         )
     })
+}
+
+#[derive(PartialEq, Debug)]
+enum Primitive {
+    Boolean(bool),
+    Number(f64),
+    String(String),
+    Date(Date),
+    DateTime(DateTime),
+    Time(Time),
+}
+
+fn primitive_conversion(value: &dyn MetaValue) -> Result<Option<Primitive>, OperationOutcomeError> {
+    let type_name = value.typename();
+    if PRIMITIVE_TYPES.contains(type_name) {
+        if STRING_TYPES.contains(type_name) {
+            Ok(Some(Primitive::String(downcast_string(value).map_err(
+                |e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::Invalid(None),
+                        format!("Failed to downcast value to string: {}", e),
+                    )
+                },
+            )?)))
+        } else if NUMBER_TYPES.contains(type_name)) {
+            Ok(Some(Primitive::Number(downcast_number(value).map_err(
+                |e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::Invalid(None),
+                        format!("Failed to downcast value to number: {}", e),
+                    )
+                },
+            )?)))
+        } else if BOOLEAN_TYPES.contains(type_name) {
+            Ok(Some(Primitive::Boolean(
+                downcast_bool::<bool>(value).map_err(|e| {
+                    OperationOutcomeError::fatal(
+                        IssueType::Invalid(None),
+                        format!("Failed to downcast value to boolean: {}", e),
+                    )
+                })?,
+            )))
+        }
+    } else if DATE_TIME_TYPES.contains(type_name){
+        
+    } else {
+        Ok(None)
+    }
 }
 
 pub fn check_bare_primitive_pattern(

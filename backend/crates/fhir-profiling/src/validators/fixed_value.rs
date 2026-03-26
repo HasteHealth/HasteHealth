@@ -7,26 +7,6 @@ use haste_reflect::MetaValue;
 
 use crate::validators::utilities;
 
-fn loose_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, OperationOutcomeError> {
-    if STRING_TYPES.contains(&v1.typename()) && STRING_TYPES.contains(&v2.typename()) {
-    } else if NUMBER_TYPES.contains(&v1.typename()) && NUMBER_TYPES.contains(&v2.typename()) {
-    } else if BOOLEAN_TYPES.contains(&v1.typename()) && BOOLEAN_TYPES.contains(&v2.typename()) {
-        Ok(downcast_bool(v1).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                format!("Failed to downcast boolean value: {e}"),
-            )
-        })? == downcast_bool(v2).map_err(|e| {
-            OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                format!("Failed to downcast boolean value: {e}"),
-            )
-        })?)
-    } else {
-        todo!();
-    }
-}
-
 /// Validates perfect match between fixed value and data.
 /// Effectively this is a deep equality check between v1 and
 pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, OperationOutcomeError> {
