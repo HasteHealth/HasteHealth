@@ -80,10 +80,8 @@ fn extract_profile_url_and_resource_from_request(
     }
 }
 
-#[allow(dead_code)]
 pub struct Middleware {}
 impl Middleware {
-    #[allow(dead_code)]
     pub fn new() -> Self {
         Middleware {}
     }
