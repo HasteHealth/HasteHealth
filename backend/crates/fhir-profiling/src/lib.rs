@@ -92,7 +92,7 @@ pub async fn validate_profile_by_url<'a>(
     args: FHIRProfileArguments<impl CanonicalResolver>,
     canonical_url: &str,
     value: &'a dyn MetaValue,
-) -> Result<(), OperationOutcomeError> {
+) -> Result<OperationOutcome, OperationOutcomeError> {
     let Some(profile) = args
         .resolver
         .resolve(ResourceType::StructureDefinition, canonical_url)
@@ -106,7 +106,5 @@ pub async fn validate_profile_by_url<'a>(
 
     let ctx = Arc::new(FHIRProfileCTX::new(args.resolver.clone(), profile, value)?);
 
-    validate_profile(ctx).await?;
-
-    Ok(())
+    validate_profile(ctx).await
 }

@@ -6,11 +6,14 @@ use haste_fhir_operation_error::OperationOutcomeError;
 
 /// Various utilities for working with FHIR profiles.
 
-#[allow(dead_code)]
 pub fn remove_type_on_path(path: &str) -> &str {
     let first_dot = path.find('.');
     // If first element this would be the entire path as no subfield.
     &path[first_dot.map(|i| i + 1).unwrap_or(path.len())..]
+}
+
+pub fn get_element_field(path: &str) -> Option<&str> {
+    remove_type_on_path(path).rsplit('.').next()
 }
 
 #[allow(dead_code)]
@@ -46,5 +49,15 @@ pub fn convert_discriminator_to_path(
         Ok(parent_path.to_string())
     } else {
         Ok(format!("{}.{}", parent_path, path))
+    }
+}
+
+pub fn join_paths(parent: &str, child: &str) -> String {
+    if parent.is_empty() {
+        child.to_string()
+    } else if child.is_empty() {
+        parent.to_string()
+    } else {
+        format!("{}.{}", parent, child)
     }
 }

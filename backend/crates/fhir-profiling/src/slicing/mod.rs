@@ -82,16 +82,6 @@ struct FoundDiscriminator<'a, Resolver: CanonicalResolver> {
     discriminator_element_index: usize,
 }
 
-fn join_paths(parent: &str, child: &str) -> String {
-    if parent.is_empty() {
-        child.to_string()
-    } else if child.is_empty() {
-        parent.to_string()
-    } else {
-        format!("{}.{}", parent, child)
-    }
-}
-
 /// The discriminator element specifies a path from which to compare with.
 /// To know how split should be done though we need the constant pattern etc... from that path.
 /// For example Extension.url could be the discriminator, but
@@ -114,6 +104,7 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
                 format!("Invalid element index: {}", current_index),
             )
         })?;
+
     let element_path = element_to_check
         .path
         .value
@@ -122,9 +113,14 @@ async fn find_element_definition_for_discriminator<'a, Resolver: CanonicalResolv
         .unwrap_or("");
 
     let current_element_path = if let Some(parent_path) = parent_path {
-        join_paths(parent_path, utilities::remove_type_on_path(element_path))
+        utilities::join_paths(
+            parent_path,
+            utilities::get_element_field(element_path).unwrap_or(""),
+        )
     } else {
-        utilities::remove_type_on_path(element_path).to_string()
+        utilities::get_element_field(element_path)
+            .unwrap_or("")
+            .to_string()
     };
 
     if current_element_path == search_for_path {
@@ -272,6 +268,7 @@ async fn is_conformant_to_slice_descriptor(
                 ),
             )
         })?;
+
     let values = values.iter().collect::<Vec<_>>();
 
     match discriminator.type_.as_ref() {
@@ -338,6 +335,7 @@ async fn is_conformant_to_slice_descriptor(
     }
 }
 
+#[derive(Debug)]
 struct SplitSlicing(HashMap<usize, Vec<Path>>);
 
 /// Splits the given values into slices according to the discriminator.
@@ -489,6 +487,7 @@ pub async fn validate_slicing_descriptor<'a>(
     let all_slice_locs = get_slice_value_locs(discriminator_element, value, value_path)?;
     let split_slices =
         split_slicing(ctx.clone(), slicing_descriptor, value, all_slice_locs).await?;
+
     let mut issues = vec![];
     let elements_pointer = Path::new().descend("snapshot").descend("element");
 
