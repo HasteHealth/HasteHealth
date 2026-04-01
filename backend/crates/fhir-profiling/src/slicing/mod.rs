@@ -242,7 +242,6 @@ async fn is_conformant_to_slice_descriptor(
     path: &Path,
 ) -> Result<bool, OperationOutcomeError> {
     let value = path.get(root).ok_or_else(|| {
-        println!("{} {:#?}", path, root);
         OperationOutcomeError::error(
             IssueType::Invalid(None),
             "Value for discriminator not found at path".to_string(),
@@ -342,7 +341,6 @@ struct SplitSlicing(HashMap<usize, Vec<Path>>);
 async fn split_slicing<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
     slicing_descriptor: &SlicingDescriptor,
-    value_path: &Path,
     mut locs: Vec<Path>,
 ) -> Result<SplitSlicing, OperationOutcomeError> {
     let mut slices_split = SplitSlicing(HashMap::new());
@@ -488,8 +486,7 @@ pub async fn validate_slicing_descriptor<'a>(
     let profile = ctx.profile();
     let discriminator_element = get_element(profile, slicing_descriptor.discriminator)?;
     let all_slice_locs = get_slice_value_locs(ctx.clone(), discriminator_element, value_path)?;
-    let split_slices =
-        split_slicing(ctx.clone(), slicing_descriptor, value_path, all_slice_locs).await?;
+    let split_slices = split_slicing(ctx.clone(), slicing_descriptor, all_slice_locs).await?;
 
     let mut issues = vec![];
     let elements_pointer = Path::new().descend("snapshot").descend("element");
