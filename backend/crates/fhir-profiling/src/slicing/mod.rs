@@ -216,12 +216,7 @@ fn get_slice_value_locs<'a>(
             .unwrap_or(""),
     );
 
-    // println!("get_slice_value_locs field to check: {}", field);
-
     let slice_path = value_path.descend(&field);
-
-    // println!("get_slice_value_locs slice_path: {}", slice_path);
-
     let Some(v) = slice_path.get(ctx.root) else {
         return Ok(vec![]);
     };
@@ -493,7 +488,6 @@ pub async fn validate_slicing_descriptor<'a>(
     let profile = ctx.profile();
     let discriminator_element = get_element(profile, slicing_descriptor.discriminator)?;
     let all_slice_locs = get_slice_value_locs(ctx.clone(), discriminator_element, value_path)?;
-    // println!("{:#?}", all_slice_locs);
     let split_slices =
         split_slicing(ctx.clone(), slicing_descriptor, value_path, all_slice_locs).await?;
 

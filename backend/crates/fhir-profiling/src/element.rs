@@ -199,6 +199,10 @@ pub async fn validate_singular_element<'a>(
         .await?,
     );
 
+    if issues.len() > 0 {
+        println!("{} {:#?}", value.typename(), get_fhir_type(value));
+    }
+
     if let Some(pattern) = element.pattern.as_ref()
         && !validate_pattern(value, pattern)?
     {

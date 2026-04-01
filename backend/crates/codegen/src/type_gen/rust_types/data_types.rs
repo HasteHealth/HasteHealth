@@ -519,6 +519,27 @@ pub struct GeneratedCode {
     pub types: TokenStream,
 }
 
+/*
+ * 067  public static final String FP_String = "http://hl7.org/fhirpath/System.String";
+ * 068  public static final String FP_Boolean = "http://hl7.org/fhirpath/System.Boolean";
+ * 069  public static final String FP_Integer = "http://hl7.org/fhirpath/System.Integer";
+ * 070  public static final String FP_Decimal = "http://hl7.org/fhirpath/System.Decimal";
+ * 071  public static final String FP_Quantity = "http://hl7.org/fhirpath/System.Quantity";
+ * 072  public static final String FP_DateTime = "http://hl7.org/fhirpath/System.DateTime";
+ * "http://hl7.org/fhirpath/System.Date"
+ * 073  public static final String FP_Time = "http://hl7.org/fhirpath/System.Time";
+ */
+static PRIMITIVE_TYPES: &[&str] = &[
+    "http://hl7.org/fhirpath/System.String",
+    "http://hl7.org/fhirpath/System.Boolean",
+    "http://hl7.org/fhirpath/System.Integer",
+    "http://hl7.org/fhirpath/System.Decimal",
+    "http://hl7.org/fhirpath/System.Quantity",
+    "http://hl7.org/fhirpath/System.DateTime",
+    "http://hl7.org/fhirpath/System.Date",
+    "http://hl7.org/fhirpath/System.Time",
+];
+
 pub fn generate(
     file_paths: &Vec<String>,
     level: Option<&'static str>,
@@ -583,11 +604,17 @@ pub fn generate(
                     #rust_type_map_ident.insert(#rust_type, #fhir_type);
                 }
             });
+    let primitive_types_to_fhir_types = PRIMITIVE_TYPES.iter().map(|primitive_type| {
+        quote! {
+            #rust_type_map_ident.insert(#primitive_type, #primitive_type);
+        }
+    });
 
     let rust_type_map_generated = quote! {
         pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<std::collections::HashMap<&'static str, &'static str>> = std::sync::LazyLock::new(|| {
             let mut #rust_type_map_ident = std::collections::HashMap::new();
             #(#rust_types_to_fhir_types)*
+            #(#primitive_types_to_fhir_types)*
             #rust_type_map_ident
         });
     };
