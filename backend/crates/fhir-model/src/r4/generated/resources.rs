@@ -30802,5 +30802,37 @@ pub static RUST_TO_FHIR_TYPE_MAP: std::sync::LazyLock<
         "VisionPrescriptionLensSpecificationPrism",
         "BackboneElement",
     );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.String",
+        "http://hl7.org/fhirpath/System.String",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.Boolean",
+        "http://hl7.org/fhirpath/System.Boolean",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.Integer",
+        "http://hl7.org/fhirpath/System.Integer",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.Decimal",
+        "http://hl7.org/fhirpath/System.Decimal",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.Quantity",
+        "http://hl7.org/fhirpath/System.Quantity",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.DateTime",
+        "http://hl7.org/fhirpath/System.DateTime",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.Date",
+        "http://hl7.org/fhirpath/System.Date",
+    );
+    rust_to_fhir_type_map.insert(
+        "http://hl7.org/fhirpath/System.Time",
+        "http://hl7.org/fhirpath/System.Time",
+    );
     rust_to_fhir_type_map
 });

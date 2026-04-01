@@ -33,6 +33,15 @@ async fn validate_types_and_profiles_if_present<'a>(
     value_pointer: &Path,
     type_: Option<&str>,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
+    if let Some(type_) = type_
+        && type_.starts_with("http://hl7.org/fhirpath/System.")
+    {
+        // FHIRPath system types are not valid types to constrain to, so we ignore them.
+        // [TODO] Could consider using the "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type"
+        // But this would require an alteration to code generation. Would also have implications on how to validate further the type.
+        // As you could end up treating FHIRString for a primitive string type as a complex type with all the extra fields that FHIRString has compared to a primitive string.
+        return Ok(vec![]);
+    }
     let Some(types) = &element.type_ else {
         return Ok(vec![]);
     };
@@ -120,15 +129,6 @@ pub async fn validate_singular_element<'a>(
     element_path: &Path,
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    if ctx.profile().id == Some("us-core-race".to_string()) {
-        // println!(
-        //     "Validating element at path: {} with profile {:?}",
-        //     element_path,
-        //     ctx.profile().id
-        // );
-
-        // println!("value: {:#?}", value_path.get(ctx.root));
-    }
     let element = element_path
         .get_typed::<Box<ElementDefinition>>(ctx.profile())
         .ok_or_else(|| {
@@ -198,10 +198,6 @@ pub async fn validate_singular_element<'a>(
         )
         .await?,
     );
-
-    if issues.len() > 0 {
-        println!("{} {:#?}", value.typename(), get_fhir_type(value));
-    }
 
     if let Some(pattern) = element.pattern.as_ref()
         && !validate_pattern(value, pattern)?
