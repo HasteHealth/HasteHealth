@@ -11,9 +11,6 @@
             "id": "patient-1",
             "resourceType": "Patient",
             "meta": {
-                "profile": [
-                    "http://hl7.org/fhir/StructureDefinition/Patient"
-                ],
                 "tag": [
                     {
                         "code": "missing-modifier-test"
