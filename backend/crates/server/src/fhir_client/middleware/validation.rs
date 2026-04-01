@@ -140,6 +140,8 @@ impl<
                 }
             }
 
+            println!("Validation successful for profiles: {:?}", profile_urls);
+
             next(state, context).await
         })
     }

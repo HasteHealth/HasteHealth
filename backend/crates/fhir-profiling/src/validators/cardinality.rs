@@ -13,6 +13,7 @@ use haste_reflect::MetaValue;
 use crate::{FHIRProfileCTX, element::outcome_issue};
 
 fn _validate_cardinality(
+    element: &ElementDefinition,
     value_location: &Path,
     value_cardinality: usize,
     (min, max): (usize, Option<&str>),
@@ -23,8 +24,10 @@ fn _validate_cardinality(
             IssueSeverity::Error(None),
             IssueType::Required(None),
             format!(
-                "Cardinality too low: expected at least '{}', found '{}'",
-                min, value_cardinality
+                "Element: '{}' Minimum number of required values not met expected at least '{}', found '{}'",
+                element.id.as_ref().map(|s| s.as_str()).unwrap_or("unknown"),
+                min,
+                value_cardinality
             ),
         )]);
     }
@@ -48,8 +51,10 @@ fn _validate_cardinality(
                     IssueSeverity::Error(None),
                     IssueType::Required(None),
                     format!(
-                        "Cardinality too high: expected at most '{}', found '{}'",
-                        max, value_cardinality
+                        "Element: '{}' Too many values: expected at most '{}', found '{}'",
+                        element.id.as_ref().map(|s| s.as_str()).unwrap_or("unknown"),
+                        max,
+                        value_cardinality
                     ),
                 )])
             }
@@ -74,8 +79,13 @@ pub fn validate_cardinality<'a>(
     match value {
         Some(v) => {
             let value_cardinality = v.flatten().len();
-            _validate_cardinality(value_location, value_cardinality, element_cardinalities)
+            _validate_cardinality(
+                element,
+                value_location,
+                value_cardinality,
+                element_cardinalities,
+            )
         }
-        None => _validate_cardinality(value_location, 0, element_cardinalities),
+        None => _validate_cardinality(element, value_location, 0, element_cardinalities),
     }
 }

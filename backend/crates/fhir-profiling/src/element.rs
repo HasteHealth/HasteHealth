@@ -86,8 +86,9 @@ async fn validate_types_and_profiles_if_present<'a>(
             IssueSeverity::Error(None),
             IssueType::Required(None),
             format!(
-                "Type '{}' is not allowed for this element",
-                type_.unwrap_or("unknown")
+                "Type '{}' is not allowed for element '{}'",
+                type_.unwrap_or("unknown"),
+                element.id.as_ref().map(|s| s.as_str()).unwrap_or("unknown")
             ),
         )])
     }
@@ -119,11 +120,15 @@ pub async fn validate_singular_element<'a>(
     element_path: &Path,
     value_path: &Path,
 ) -> Result<Vec<OperationOutcomeIssue>, OperationOutcomeError> {
-    println!(
-        "Validating element at path: {} with profile {:?}",
-        element_path,
-        ctx.profile().id
-    );
+    if ctx.profile().id == Some("us-core-race".to_string()) {
+        // println!(
+        //     "Validating element at path: {} with profile {:?}",
+        //     element_path,
+        //     ctx.profile().id
+        // );
+
+        // println!("value: {:#?}", value_path.get(ctx.root));
+    }
     let element = element_path
         .get_typed::<Box<ElementDefinition>>(ctx.profile())
         .ok_or_else(|| {
@@ -178,7 +183,6 @@ pub async fn validate_singular_element<'a>(
             Box::pin(validate_slicing_descriptor(
                 ctx.clone(),
                 descriptor,
-                value,
                 value_path,
             ))
             .await?,
