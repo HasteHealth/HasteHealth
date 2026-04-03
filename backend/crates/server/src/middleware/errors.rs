@@ -43,7 +43,7 @@ pub async fn operation_outcome_error_handle(
         .cloned();
 
     if let Some(err) = error {
-        if content_type.contains("text/html") || content_type.contains("application/fhir+json") {
+        if content_type.contains("text/html") {
             let (parts, _) = response.into_parts();
 
             let outcome = err.outcome();

@@ -104,8 +104,9 @@ pub fn convert_meta_value(value: &dyn MetaValue) -> Option<ConvertedValue> {
         return Some(ConvertedValue::Number(i));
     } else if let Some(b) = downcast_bool(value) {
         return Some(ConvertedValue::Boolean(b));
+    } else {
+        Some(ConvertedValue::String(format!("{:?}", value)))
     }
-    None
 }
 
 pub fn convert_string_value(value: &str) -> Option<ConvertedValue> {

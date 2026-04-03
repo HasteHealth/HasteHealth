@@ -1,0 +1,341 @@
+{
+    "id": "us-core-patient",
+    "title": "US Core Patient tests",
+    "name": "US Core Patient",
+    "status": "active",
+    "url": "https://haste.health/fhir/TestScript/us-core-patient",
+    "description": "Creates a patient and validate read responses for US Core Patient profile.",
+    "resourceType": "TestScript",
+    "contained": [
+        {
+            "resourceType": "Patient",
+            "id": "us-core-valid",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "us-core-patient"
+                    }
+                ],
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                ]
+            },
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2028-9",
+                                "display": "Asian"
+                            }
+                        },
+                        {
+                            "url": "text",
+                            "valueString": "Asian"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+                },
+                {
+                    "extension": [
+                        {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2186-5",
+                                "display": "Not Hispanic or Latino"
+                            }
+                        },
+                        {
+                            "url": "text",
+                            "valueString": "Not Hispanic or Latino"
+                        }
+                    ],
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+                },
+                {
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
+                    "valueCoding": {
+                        "system": "http://snomed.info/sct",
+                        "version": "http://snomed.info/sct/731000124108",
+                        "code": "248153007",
+                        "display": "Male (finding)"
+                    }
+                }
+            ],
+            "identifier": [
+                {
+                    "use": "usual",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MR",
+                                "display": "Medical Record Number"
+                            }
+                        ],
+                        "text": "Medical Record Number"
+                    },
+                    "system": "http://example.org/patient/identifiers",
+                    "value": "1032704"
+                }
+            ],
+            "active": true,
+            "name": [
+                {
+                    "family": "Example",
+                    "given": [
+                        "Child"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "555-555-5555",
+                    "use": "home"
+                }
+            ],
+            "birthDate": "2016-01-15",
+            "address": [
+                {
+                    "line": [
+                        "49 MEADOW ST"
+                    ],
+                    "city": "MOUNDS",
+                    "state": "OK",
+                    "postalCode": "74047",
+                    "country": "US"
+                }
+            ]
+        },
+        {
+            "resourceType": "Patient",
+            "id": "us-core-invalid-race-slice",
+            "meta": {
+                "tag": [
+                    {
+                        "code": "us-core-patient"
+                    }
+                ],
+                "profile": [
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                ]
+            },
+            "extension": [
+                {
+                    "extension": [
+                        {
+                            "url": "ombCategory",
+                            "valueCoding": {
+                                "system": "urn:oid:2.16.840.1.113883.6.238",
+                                "code": "2028-9",
+                                "display": "Asian"
+                            }
+                        },
+                        {
+                            "url": "text",
+                            "valueString": "Asian"
+                        }
+                    ],
+                    "valueString": "No values are allowed here.",
+                    "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+                }
+            ],
+            "identifier": [
+                {
+                    "use": "usual",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                "code": "MR"
+                            }
+                        ]
+                    },
+                    "system": "http://example.org/patient/identifiers",
+                    "value": "1032704"
+                }
+            ],
+            "active": true,
+            "name": [
+                {
+                    "family": "Example",
+                    "given": [
+                        "Child"
+                    ]
+                }
+            ],
+            "telecom": [
+                {
+                    "system": "phone",
+                    "value": "555-555-5555",
+                    "use": "home"
+                }
+            ],
+            "birthDate": "2016-01-15",
+            "address": [
+                {
+                    "line": [
+                        "49 MEADOW ST"
+                    ],
+                    "city": "MOUNDS",
+                    "state": "OK",
+                    "postalCode": "74047",
+                    "country": "US"
+                }
+            ]
+        }
+    ],
+    "fixture": [
+        {
+            "id": "us-core-valid",
+            "resource": {
+                "reference": "#us-core-valid"
+            },
+            "autocreate": false,
+            "autodelete": false
+        },
+        {
+            "id": "us-core-invalid-race-slice",
+            "resource": {
+                "reference": "#us-core-invalid-race-slice"
+            },
+            "autocreate": false,
+            "autodelete": false
+        }
+    ],
+    "setup": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "create"
+                    },
+                    "resource": "Patient",
+                    "sourceId": "us-core-valid",
+                    "responseId": "create-response",
+                    "encodeRequestUrl": false
+                }
+            },
+            {
+                "assert": {
+                    "label": "01-ReadPatientOK",
+                    "description": "Confirm patient created.",
+                    "direction": "response",
+                    "resource": "Patient",
+                    "warningOnly": false
+                }
+            },
+            {
+                "assert": {
+                    "label": "Confirm first name is Child",
+                    "expression": "Patient.name.given[0]",
+                    "value": "Child",
+                    "warningOnly": false
+                }
+            }
+        ]
+    },
+    "test": [
+        {
+            "id": "Read US Core Patient",
+            "name": "Read US Core Patient",
+            "description": "Read a US Core Patient and validate response.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "read"
+                        },
+                        "targetId": "create-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.id",
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "Patient.id",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId.empty()",
+                        "operator": "equals",
+                        "value": "false",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "Patient.meta.versionId",
+                        "operator": "equals",
+                        "compareToSourceId": "create-response",
+                        "compareToSourceExpression": "$this.meta.versionId",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "Attempt to create invalid US Core Patient",
+            "name": "Attempt to create invalid US Core Patient",
+            "description": "Attempt to create an invalid US Core Patient and validate response.",
+            "action": [
+                {
+                    "operation": {
+                        "type": {
+                            "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                            "code": "create"
+                        },
+                        "resource": "Patient",
+                        "sourceId": "us-core-invalid-race-slice",
+                        "responseId": "create-invalid-response",
+                        "encodeRequestUrl": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue[0].code",
+                        "operator": "equals",
+                        "compareToSourceId": "create-invalid-response",
+                        "compareToSourceExpression": "'required'",
+                        "warningOnly": false
+                    }
+                },
+                {
+                    "assert": {
+                        "expression": "OperationOutcome.issue[0].location",
+                        "operator": "equals",
+                        "compareToSourceId": "create-invalid-response",
+                        "compareToSourceExpression": "'/extension/0/value'",
+                        "warningOnly": false
+                    }
+                }
+            ]
+        }
+    ],
+    "teardown": {
+        "action": [
+            {
+                "operation": {
+                    "type": {
+                        "system": "http://terminology.hl7.org/CodeSystem/testscript-operation-codes",
+                        "code": "deleteCondMultiple"
+                    },
+                    "resource": "Patient",
+                    "params": "_tag=us-core-patient",
+                    "description": "Delete Patients created in test.",
+                    "encodeRequestUrl": false
+                }
+            }
+        ]
+    }
+}

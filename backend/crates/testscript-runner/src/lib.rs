@@ -841,7 +841,7 @@ async fn run_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError>>(
             Ok(TestResult {
                 state: state.clone(),
                 value: TestReportSetupActionOperation {
-                    result: Box::new(ReportActionResultCodes::Fail(None)),
+                    result: Box::new(ReportActionResultCodes::Warning(None)),
                     message: Some(Box::new(FHIRMarkdown {
                         value: Some(format!("Operation failed: {}", op_error)),
                         ..Default::default()
