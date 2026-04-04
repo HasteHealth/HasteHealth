@@ -8,7 +8,7 @@ use haste_fhir_model::r4::generated::{
         TestScriptSetupActionOperation, TestScriptTeardown, TestScriptTeardownAction,
         TestScriptTest, TestScriptTestAction,
     },
-    terminology::{AssertDirectionCodes, DefinedTypes},
+    terminology::{AssertDirectionCodes, DefinedTypes, PublicationStatus},
     types::{Coding, FHIRBoolean, FHIRCode, FHIRId, FHIRString, FHIRUri, Meta, Reference},
 };
 use haste_reflect::MetaValue;
@@ -140,6 +140,10 @@ fn generate_testcases_for_resource(
                     })),
                     direction: Some(Box::new(AssertDirectionCodes::Response(None))),
                     resource: defined_type.clone(),
+                    warningOnly: Box::new(FHIRBoolean {
+                        value: Some(false),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -194,6 +198,11 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
 
     let tag = file_path.to_str().unwrap();
 
+    testscript.url = Box::new(FHIRUri {
+        value: Some(tag.to_string()),
+        ..Default::default()
+    });
+    testscript.status = Box::new(PublicationStatus::Active(None));
     testscript.id = Some(tag.to_string());
     testscript.name = Box::new(FHIRString {
         value: Some(tag.to_string()),
@@ -237,6 +246,11 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
                     })),
                     ..Default::default()
                 })),
+                encodeRequestUrl: Box::new(FHIRBoolean {
+                    value: Some(true),
+                    ..Default::default()
+                }),
+                resource: None,
                 params: Some(Box::new(FHIRString {
                     value: Some(format!("_tag={}", tag)),
                     ..Default::default()
@@ -245,6 +259,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
                     value: Some("Delete resources created in test.".to_string()),
                     ..Default::default()
                 })),
+
                 ..Default::default()
             },
             ..Default::default()
