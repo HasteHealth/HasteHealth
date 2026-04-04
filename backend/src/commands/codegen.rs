@@ -149,7 +149,12 @@ pub async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
                 .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e))?;
 
             for testscript in &testscripts {
-                let testscript_path = output_path.join(testscript.id.clone().unwrap());
+                let id = testscript.id.clone().unwrap();
+                let id = id.replace("/", "_").replace(" ", "").replace(".", "_") + ".json";
+                let testscript_path = output_path.join(id);
+
+                println!("Writing TestScript to: {}", testscript_path.display());
+
                 std::fs::write(
                     testscript_path,
                     haste_fhir_serialization_json::to_string(testscript)
