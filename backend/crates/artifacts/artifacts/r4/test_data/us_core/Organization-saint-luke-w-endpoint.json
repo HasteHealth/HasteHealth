@@ -1,0 +1,62 @@
+{
+  "resourceType" : "Organization",
+  "id" : "saint-luke-w-endpoint",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Organization saint-luke-w-endpoint</b></p><a name=\"saint-luke-w-endpoint\"> </a><a name=\"hcsaint-luke-w-endpoint\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-organization.html\">US Core Organization Profileversion: null9.0.0)</a></p></div><p><b>identifier</b>: <a href=\"http://terminology.hl7.org/5.5.0/NamingSystem-npi.html\" title=\"National Provider Identifier\">United States National Provider Identifier</a>/1063494177, <code>http://example.org/fhir/us/argo/sid/us-ein</code>/00-0000000</p><p><b>active</b>: true</p><p><b>name</b>: Saint Luke's Hospital of Kansas City</p><p><b>telecom</b>: ph: (816)932-2000(Work), http://www.saintlukeshealthsystem.org/locations/saint-lukes-hospital-kansas-city(Work)</p><p><b>address</b>: 4401 WORNALL RD AMHERST MA 01002</p><p><b>endpoint</b>: <a href=\"#hcsaint-luke-w-endpoint/75\">Endpoint Dr. Ronald Bone Direct Address</a></p><hr/><blockquote><p class=\"res-header-id\"><b>Generated Narrative: Endpoint #75</b></p><a name=\"saint-luke-w-endpoint/75\"> </a><a name=\"hcsaint-luke-w-endpoint/75\"> </a><p><b>status</b>: Active</p><p><b>connectionType</b>: <a href=\"http://terminology.hl7.org/7.1.0/CodeSystem-endpoint-connection-type.html#endpoint-connection-type-direct-project\">Endpoint Connection Type: direct-project</a> (Direct Project)</p><p><b>name</b>: Dr. Ronald Bone Direct Address</p><p><b>managingOrganization</b>: <a href=\"Organization-example-organization-2.html\">Organization Acme Clinic</a></p><p><b>payloadType</b>: <span title=\"Codes:{http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode urn:hl7-org:sdwg:ccda-structuredBody:1.1}\">For documents following C-CDA 1.1 constraints using a structured body.</span></p><p><b>payloadMimeType</b>: text/xml</p><p><b>address</b>: <a href=\"mailto:Interoperability@DirectAddress.com\">Interoperability@DirectAddress.com</a></p></blockquote></div>"
+  },
+  "contained" : [{
+    "resourceType" : "Endpoint",
+    "id" : "75",
+    "status" : "active",
+    "connectionType" : {
+      "system" : "http://terminology.hl7.org/CodeSystem/endpoint-connection-type",
+      "code" : "direct-project"
+    },
+    "name" : "Dr. Ronald Bone Direct Address",
+    "managingOrganization" : {
+      "reference" : "Organization/example-organization-2"
+    },
+    "payloadType" : [{
+      "coding" : [{
+        "system" : "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode",
+        "code" : "urn:hl7-org:sdwg:ccda-structuredBody:1.1"
+      }]
+    }],
+    "payloadMimeType" : ["text/xml"],
+    "address" : "mailto:Interoperability@DirectAddress.com"
+  }],
+  "identifier" : [{
+    "system" : "http://hl7.org/fhir/sid/us-npi",
+    "value" : "1063494177"
+  },
+  {
+    "system" : "http://example.org/fhir/us/argo/sid/us-ein",
+    "value" : "00-0000000"
+  }],
+  "active" : true,
+  "name" : "Saint Luke's Hospital of Kansas City",
+  "telecom" : [{
+    "system" : "phone",
+    "value" : "(816)932-2000",
+    "use" : "work"
+  },
+  {
+    "system" : "other",
+    "value" : "http://www.saintlukeshealthsystem.org/locations/saint-lukes-hospital-kansas-city",
+    "use" : "work"
+  }],
+  "address" : [{
+    "text" : "4401 WORNALL RD AMHERST MA 01002",
+    "line" : ["4401 WORNALL RD"],
+    "city" : "AMHERST",
+    "state" : "MA",
+    "postalCode" : "64111"
+  }],
+  "endpoint" : [{
+    "reference" : "#75"
+  }]
+}

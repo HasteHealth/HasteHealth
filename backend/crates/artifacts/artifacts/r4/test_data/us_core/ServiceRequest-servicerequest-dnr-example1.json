@@ -1,0 +1,68 @@
+{
+  "resourceType" : "ServiceRequest",
+  "id" : "servicerequest-dnr-example1",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ServiceRequest servicerequest-dnr-example1</b></p><a name=\"servicerequest-dnr-example1\"> </a><a name=\"hcservicerequest-dnr-example1\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-servicerequest.html\">US Core ServiceRequest Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Active</p><p><b>intent</b>: Directive</p><p><b>category</b>: <span title=\"Codes:{http://hl7.org/fhir/us/core/CodeSystem/us-core-category PMO}\">PMO derived order</span>, <span title=\"Codes:{http://loinc.org 100822-6}\">Cardiopulmonary resuscitation orders</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org LA33471-6}\">No CPR: Do Not Attempt Resuscitation</span></p><p><b>orderDetail</b>: <span title=\"Codes:\">Patient has explicitly declined CPR per advance directive discussion</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy V. Baxter</a></p><p><b>encounter</b>: <a href=\"Encounter-1036.html\">Encounter: status = in-progress; class = inpatient encounter (ActCode#IMP); type = Unknown (qualifier value)</a></p><p><b>occurrence</b>: 2025-08-26 --&gt; (ongoing)</p><p><b>authoredOn</b>: 2025-08-26</p><p><b>requester</b>: <a href=\"Practitioner-practitioner-1.html\">Dr. Ronald Bone</a></p><p><b>reasonCode</b>: <span title=\"Codes:{http://snomed.info/sct 300936002}\">Terminal illness</span></p><p><b>reasonReference</b>: <a href=\"DocumentReference-polst.html\">US Core ADI DocumentReference for POLST</a></p></div>"
+  },
+  "status" : "active",
+  "intent" : "directive",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+      "code" : "PMO",
+      "display" : "Portable Medical Order (PMO)"
+    }],
+    "text" : "PMO derived order"
+  },
+  {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "100822-6",
+      "display" : "Cardiopulmonary resuscitation orders"
+    }],
+    "text" : "Cardiopulmonary resuscitation orders"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "LA33471-6",
+      "display" : "No CPR: Do Not Attempt Resuscitation."
+    }],
+    "text" : "No CPR: Do Not Attempt Resuscitation"
+  },
+  "orderDetail" : [{
+    "text" : "Patient has explicitly declined CPR per advance directive discussion"
+  }],
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy V. Baxter"
+  },
+  "encounter" : {
+    "reference" : "Encounter/1036"
+  },
+  "occurrencePeriod" : {
+    "start" : "2025-08-26"
+  },
+  "authoredOn" : "2025-08-26",
+  "requester" : {
+    "reference" : "Practitioner/practitioner-1",
+    "display" : "Dr. Ronald Bone"
+  },
+  "reasonCode" : [{
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "300936002",
+      "display" : "Terminal illness"
+    }],
+    "text" : "Terminal illness"
+  }],
+  "reasonReference" : [{
+    "reference" : "DocumentReference/polst",
+    "display" : "US Core ADI DocumentReference for POLST"
+  }]
+}

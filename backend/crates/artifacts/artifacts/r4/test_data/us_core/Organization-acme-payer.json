@@ -1,0 +1,39 @@
+{
+  "resourceType" : "Organization",
+  "id" : "acme-payer",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Organization acme-payer</b></p><a name=\"acme-payer\"> </a><a name=\"hcacme-payer\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-organization.html\">US Core Organization Profileversion: null9.0.0)</a></p></div><p><b>identifier</b>: <a href=\"http://terminology.hl7.org/7.1.0/NamingSystem-NAICCompanyCodes.html\" title=\"NAIC company codes, also referred to as NAIC numbers, are five-digit identification codes assigned by the National Association of Insurance Commissioners (NAIC) to every insurance company to identify them. NAIC maintains a list of all lines of insurance the company sells and a list of all jurisdictions in which the company is licensed.\r\n\r\nFor more information, see [https://content.naic.org/cis_consumer_information.htm](https://content.naic.org/cis_consumer_information.htm)\">National Association of Insurance Commissioners (NAIC) Company Codes</a>/55555</p><p><b>active</b>: true</p><p><b>type</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/organization-type pay}\">Payer</span></p><p><b>name</b>: Acme Health Plan</p><p><b>telecom</b>: ph: (+1) 555-555-5555, <a href=\"mailto:hq@acme.org\">hq@acme.org</a></p><p><b>address</b>: 100 INSURANCE AVE AMHERST MA 01002 USA </p></div>"
+  },
+  "identifier" : [{
+    "system" : "urn:oid:2.16.840.1.113883.6.300",
+    "value" : "55555"
+  }],
+  "active" : true,
+  "type" : [{
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/organization-type",
+      "code" : "pay"
+    }],
+    "text" : "Payer"
+  }],
+  "name" : "Acme Health Plan",
+  "telecom" : [{
+    "system" : "phone",
+    "value" : "(+1) 555-555-5555"
+  },
+  {
+    "system" : "email",
+    "value" : "hq@acme.org"
+  }],
+  "address" : [{
+    "line" : ["100 INSURANCE AVE"],
+    "city" : "AMHERST",
+    "state" : "MA",
+    "postalCode" : "01002",
+    "country" : "USA"
+  }]
+}

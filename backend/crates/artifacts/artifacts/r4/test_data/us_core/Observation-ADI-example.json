@@ -1,0 +1,65 @@
+{
+  "resourceType" : "Observation",
+  "id" : "ADI-example",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation|9.0.0"]
+  },
+  "text" : {
+    "status" : "extensions",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Observation ADI-example</b></p><a name=\"ADI-example\"> </a><a name=\"hcADI-example\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-observation-adi-documentation.html\">US Core Observation ADI Documentation Profileversion: null9.0.0)</a></p></div><p><b>Supporting info</b>: <a href=\"DocumentReference-polst.html\">POLST</a></p><p><b>Supporting info</b>: <a href=\"DocumentReference-adi-dnr.html\">ADI DNR</a></p><p><b>Supporting info</b>: <a href=\"DocumentReference-living-will.html\">Living Will</a></p><p><b>status</b>: Final</p><p><b>category</b>: <span title=\"Codes:{http://hl7.org/fhir/us/core/CodeSystem/us-core-category observation-adi-documentation}\">Observation ADI Documentation</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 45473-6}\">Advance healthcare directive completed</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy V. Baxter  (no stated gender), DoB: 1987-02-20 ( Medical Record Number:\u00a01032702\u00a0(use:\u00a0usual,\u00a0))</a></p><p><b>effective</b>: 2024-05-16 01:06:06+0000</p><p><b>issued</b>: 2024-05-16 01:06:06+0000</p><p><b>performer</b>: <a href=\"Practitioner-practitioner-1.html\">Dr Smith</a></p><p><b>value</b>: <span title=\"Codes:{http://snomed.info/sct 373066001}\">Yes (qualifier value)</span></p></div>"
+  },
+  "extension" : [{
+    "url" : "http://hl7.org/fhir/StructureDefinition/workflow-supportingInfo",
+    "valueReference" : {
+      "reference" : "DocumentReference/polst",
+      "display" : "POLST"
+    }
+  },
+  {
+    "url" : "http://hl7.org/fhir/StructureDefinition/workflow-supportingInfo",
+    "valueReference" : {
+      "reference" : "DocumentReference/adi-dnr",
+      "display" : "ADI DNR"
+    }
+  },
+  {
+    "url" : "http://hl7.org/fhir/StructureDefinition/workflow-supportingInfo",
+    "valueReference" : {
+      "reference" : "DocumentReference/living-will",
+      "display" : "Living Will"
+    }
+  }],
+  "status" : "final",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://hl7.org/fhir/us/core/CodeSystem/us-core-category",
+      "code" : "observation-adi-documentation",
+      "display" : "Observation ADI Documentation"
+    }],
+    "text" : "Observation ADI Documentation"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "45473-6",
+      "display" : "Advance healthcare directive completed"
+    }]
+  },
+  "subject" : {
+    "reference" : "Patient/example"
+  },
+  "effectiveDateTime" : "2024-05-16T01:06:06.393Z",
+  "issued" : "2024-05-16T01:06:06.393Z",
+  "performer" : [{
+    "reference" : "Practitioner/practitioner-1",
+    "display" : "Dr Smith"
+  }],
+  "valueCodeableConcept" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "373066001",
+      "display" : "Yes (qualifier value)"
+    }]
+  }
+}

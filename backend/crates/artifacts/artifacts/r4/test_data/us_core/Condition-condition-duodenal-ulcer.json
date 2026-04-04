@@ -1,0 +1,59 @@
+{
+  "resourceType" : "Condition",
+  "id" : "condition-duodenal-ulcer",
+  "meta" : {
+    "lastUpdated" : "2016-08-10T07:15:07-08:00",
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns|9.0.0"]
+  },
+  "text" : {
+    "status" : "extensions",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Condition condition-duodenal-ulcer</b></p><a name=\"condition-duodenal-ulcer\"> </a><a name=\"hccondition-duodenal-ulcer\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Last updated: 2016-08-10 07:15:07-0800</p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-condition-problems-health-concerns.html\">US Core Condition Problems and Health Concerns Profileversion: null9.0.0)</a></p></div><p><b>Condition Asserted Date</b>: 2016-08-10</p><p><b>clinicalStatus</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/condition-clinical active}\">Active</span></p><p><b>verificationStatus</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/condition-ver-status confirmed}\">Confirmed</span></p><p><b>category</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/condition-category problem-list-item}\">Problem List Item</span></p><p><b>code</b>: <span title=\"Codes:{http://snomed.info/sct 51868009}\">Active Duodenal Ulcer</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy V. Shaw</a></p><p><b>onset</b>: 2016-08-10</p><p><b>recordedDate</b>: 2016-08-10 07:15:07-0800</p><p><b>recorder</b>: <a href=\"Practitioner-practitioner-1.html\">Dr Ronald Bone</a></p></div>"
+  },
+  "extension" : [{
+    "url" : "http://hl7.org/fhir/StructureDefinition/condition-assertedDate",
+    "valueDateTime" : "2016-08-10"
+  }],
+  "clinicalStatus" : {
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/condition-clinical",
+      "code" : "active",
+      "display" : "Active"
+    }],
+    "text" : "Active"
+  },
+  "verificationStatus" : {
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+      "code" : "confirmed",
+      "display" : "Confirmed"
+    }],
+    "text" : "Confirmed"
+  },
+  "category" : [{
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/condition-category",
+      "code" : "problem-list-item",
+      "display" : "Problem List Item"
+    }],
+    "text" : "Problem List Item"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "51868009",
+      "display" : "Ulcer of duodenum (disorder)"
+    }],
+    "text" : "Active Duodenal Ulcer"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy V. Shaw"
+  },
+  "onsetDateTime" : "2016-08-10",
+  "recordedDate" : "2016-08-10T07:15:07-08:00",
+  "recorder" : {
+    "reference" : "Practitioner/practitioner-1",
+    "display" : "Dr Ronald Bone"
+  }
+}

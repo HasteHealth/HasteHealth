@@ -1,0 +1,90 @@
+{
+  "resourceType" : "Observation",
+  "id" : "average-blood-pressure",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-average-blood-pressure|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Observation average-blood-pressure</b></p><a name=\"average-blood-pressure\"> </a><a name=\"hcaverage-blood-pressure\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-average-blood-pressure.html\">US Core Average Blood Pressure Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Final</p><p><b>category</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/observation-category vital-signs}\">Vital Signs</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 96607-7}\">Avg Blood pressure systolic and diastolic</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>effective</b>: 2023-08-03 01:06:52+0000 --&gt; 2023-08-06 13:07:01+0000</p><p><b>performer</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>note</b>: </p><blockquote><div><p>Average blood pressure is calculated from 12 measurements taken by the patient over 3 days.</p>\n</div></blockquote><blockquote><p><b>component</b></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 96608-5}\">Average systolic blood pressure</span></p><p><b>value</b>: 109 mm[Hg]<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM  codemm[Hg] = 'mm[Hg]')</span></p></blockquote><blockquote><p><b>component</b></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 96609-3}\">Average diastolic blood pressure</span></p><p><b>value</b>: 72 mm[Hg]<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM  codemm[Hg] = 'mm[Hg]')</span></p></blockquote><blockquote><p><b>component</b></p><p><b>code</b>: <span title=\"Codes:{http://snomed.info/sct 246432004}\">Number of measurements</span></p><p><b>value</b>: 3 #</p></blockquote></div>"
+  },
+  "status" : "final",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+      "code" : "vital-signs",
+      "display" : "Vital Signs"
+    }],
+    "text" : "Vital Signs"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "96607-7",
+      "display" : "Blood pressure panel mean systolic and mean diastolic"
+    }],
+    "text" : "Avg Blood pressure systolic and diastolic"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  },
+  "effectivePeriod" : {
+    "start" : "2023-08-03T01:06:52.480Z",
+    "end" : "2023-08-06T13:07:01.166Z"
+  },
+  "performer" : [{
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  }],
+  "note" : [{
+    "text" : "Average blood pressure is calculated from 12 measurements taken by the patient over 3 days."
+  }],
+  "component" : [{
+    "code" : {
+      "coding" : [{
+        "system" : "http://loinc.org",
+        "code" : "96608-5",
+        "display" : "Systolic blood pressure mean"
+      }],
+      "text" : "Average systolic blood pressure"
+    },
+    "valueQuantity" : {
+      "value" : 109,
+      "unit" : "mm[Hg]",
+      "system" : "http://unitsofmeasure.org",
+      "code" : "mm[Hg]"
+    }
+  },
+  {
+    "code" : {
+      "coding" : [{
+        "system" : "http://loinc.org",
+        "code" : "96609-3",
+        "display" : "Diastolic blood pressure mean"
+      }],
+      "text" : "Average diastolic blood pressure"
+    },
+    "valueQuantity" : {
+      "value" : 72,
+      "unit" : "mm[Hg]",
+      "system" : "http://unitsofmeasure.org",
+      "code" : "mm[Hg]"
+    }
+  },
+  {
+    "code" : {
+      "coding" : [{
+        "system" : "http://snomed.info/sct",
+        "version" : "http://snomed.info/sct/731000124108",
+        "code" : "246432004",
+        "display" : "Number of occurrences (qualifier value)"
+      }],
+      "text" : "Number of measurements"
+    },
+    "valueQuantity" : {
+      "value" : 3,
+      "unit" : "#"
+    }
+  }]
+}

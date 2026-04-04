@@ -1,0 +1,50 @@
+{
+  "resourceType" : "ServiceRequest",
+  "id" : "bmp",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ServiceRequest bmp</b></p><a name=\"bmp\"> </a><a name=\"hcbmp\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-servicerequest.html\">US Core ServiceRequest Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Active</p><p><b>intent</b>: Order</p><p><b>category</b>: <span title=\"Codes:{http://snomed.info/sct 108252007}\">Laboratory Order</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 24321-2}\">Basic Metabolic Panel (BMP)</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>encounter</b>: <a href=\"Encounter-example-1.html\">Office Visit</a></p><p><b>authoredOn</b>: 2024-10-13 10:59:38-0800</p><p><b>requester</b>: <a href=\"Practitioner-practitioner-1.html\">Practitioner Ronald Bone </a></p><p><b>reasonCode</b>: <span title=\"Codes:{http://hl7.org/fhir/sid/icd-10-cm Z00.00}\">General adult medical examination</span></p></div>"
+  },
+  "status" : "active",
+  "intent" : "order",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "108252007",
+      "display" : "Laboratory procedure (procedure)"
+    }],
+    "text" : "Laboratory Order"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "24321-2",
+      "display" : "Basic metabolic 2000 panel - Serum or Plasma"
+    }],
+    "text" : "Basic Metabolic Panel (BMP)"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  },
+  "encounter" : {
+    "reference" : "Encounter/example-1",
+    "display" : "Office Visit"
+  },
+  "authoredOn" : "2024-10-13T10:59:38-08:00",
+  "requester" : {
+    "reference" : "Practitioner/practitioner-1"
+  },
+  "reasonCode" : [{
+    "coding" : [{
+      "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+      "code" : "Z00.00",
+      "display" : "Encounter for general adult medical examination without abnormal findings"
+    }],
+    "text" : "General adult medical examination"
+  }]
+}

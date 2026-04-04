@@ -1,0 +1,32 @@
+{
+  "resourceType" : "Device",
+  "id" : "udi-5",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-device|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Device udi-5</b></p><a name=\"udi-5\"> </a><a name=\"hcudi-5\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-device.html\">US Core Device Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Active</p><p><b>manufacturer</b>: ACME Biomedical</p><p><b>serialNumber</b>: AC22112345</p><h3>DeviceNames</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Name</b></td><td><b>Type</b></td></tr><tr><td style=\"display: none\">*</td><td>ACME basics folding walker</td><td>manufacturer-name</td></tr></table><p><b>modelNumber</b>: 1.0</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 467068002}\">Walker</span></p><p><b>patient</b>: <a href=\"Patient-example.html\">Amy V. Shaw</a></p></div>"
+  },
+  "status" : "active",
+  "manufacturer" : "ACME Biomedical",
+  "serialNumber" : "AC22112345",
+  "deviceName" : [{
+    "name" : "ACME basics folding walker",
+    "type" : "manufacturer-name"
+  }],
+  "modelNumber" : "1.0",
+  "type" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "467068002",
+      "display" : "Basic walking frame, foldable (physical object)"
+    }],
+    "text" : "Walker"
+  },
+  "patient" : {
+    "reference" : "Patient/example",
+    "display" : "Amy V. Shaw"
+  }
+}

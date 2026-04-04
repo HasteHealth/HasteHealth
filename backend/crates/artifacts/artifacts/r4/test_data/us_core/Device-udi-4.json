@@ -1,0 +1,39 @@
+{
+  "resourceType" : "Device",
+  "id" : "udi-4",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-device|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Device udi-4</b></p><a name=\"udi-4\"> </a><a name=\"hcudi-4\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-device.html\">US Core Device Profileversion: null9.0.0)</a></p></div><h3>UdiCarriers</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>DeviceIdentifier</b></td><td><b>CarrierHRF</b></td><td><b>EntryType</b></td></tr><tr><td style=\"display: none\">*</td><td>00812345678901</td><td>(01)00812345678901(11)240115(10)LOT789XYZ(21)IP2000-123456</td><td>Barcode</td></tr></table><p><b>status</b>: Active</p><p><b>manufacturer</b>: ExampleMed Inc.</p><p><b>manufactureDate</b>: 2024-01-15</p><p><b>lotNumber</b>: LOT789XYZ</p><p><b>serialNumber</b>: IP2000-123456</p><h3>DeviceNames</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Name</b></td><td><b>Type</b></td></tr><tr><td style=\"display: none\">*</td><td>ExampleMed IP-2000</td><td>manufacturer-name</td></tr></table><p><b>modelNumber</b>: IP-2000</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 433296005}\">Intravenous Infusion Pump</span></p><p><b>patient</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p></div>"
+  },
+  "udiCarrier" : [{
+    "deviceIdentifier" : "00812345678901",
+    "carrierHRF" : "(01)00812345678901(11)240115(10)LOT789XYZ(21)IP2000-123456",
+    "entryType" : "barcode"
+  }],
+  "status" : "active",
+  "manufacturer" : "ExampleMed Inc.",
+  "manufactureDate" : "2024-01-15",
+  "lotNumber" : "LOT789XYZ",
+  "serialNumber" : "IP2000-123456",
+  "deviceName" : [{
+    "name" : "ExampleMed IP-2000",
+    "type" : "manufacturer-name"
+  }],
+  "modelNumber" : "IP-2000",
+  "type" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "433296005",
+      "display" : "Infusion pump for intravenous fluids (physical object)"
+    }],
+    "text" : "Intravenous Infusion Pump"
+  },
+  "patient" : {
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  }
+}

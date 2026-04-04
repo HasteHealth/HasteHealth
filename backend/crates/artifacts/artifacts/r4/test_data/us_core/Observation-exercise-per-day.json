@@ -1,0 +1,51 @@
+{
+  "resourceType" : "Observation",
+  "id" : "exercise-per-day",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Observation exercise-per-day</b></p><a name=\"exercise-per-day\"> </a><a name=\"hcexercise-per-day\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-simple-observation.html\">US Core Simple Observation Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Final</p><p><b>category</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/observation-category social-history}\">Social History</span>, <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/observation-category activity}\">Physical Activity</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 68516-4}\">Exercise Minutes Per Day</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>effective</b>: 2023-08-03</p><p><b>performer</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>value</b>: 60 minutes per day<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM  codemin/d = 'min/d')</span></p></div>"
+  },
+  "status" : "final",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+      "code" : "social-history",
+      "display" : "Social History"
+    }],
+    "text" : "Social History"
+  },
+  {
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+      "code" : "activity",
+      "display" : "Activity"
+    }],
+    "text" : "Physical Activity"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "68516-4",
+      "display" : "On those days that you engage in moderate to strenuous exercise, how many minutes, on average, do you exercise"
+    }],
+    "text" : "Exercise Minutes Per Day"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  },
+  "effectiveDateTime" : "2023-08-03",
+  "performer" : [{
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  }],
+  "valueQuantity" : {
+    "value" : 60,
+    "unit" : "minutes per day",
+    "system" : "http://unitsofmeasure.org",
+    "code" : "min/d"
+  }
+}

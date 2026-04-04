@@ -1,0 +1,52 @@
+{
+  "resourceType" : "Procedure",
+  "id" : "defib-implant",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Procedure defib-implant</b></p><a name=\"defib-implant\"> </a><a name=\"hcdefib-implant\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-procedure.html\">US Core Procedure Profileversion: null9.0.0)</a></p></div><p><b>identifier</b>: <a href=\"http://terminology.hl7.org/7.1.0/NamingSystem-uri.html\" title=\"As defined by RFC 3986 (http://www.ietf.org/rfc/rfc3986.txt)(with many schemes defined in many RFCs). For OIDs and UUIDs, use the URN form (urn:oid:(note: lowercase) and urn:uuid:). See http://www.ietf.org/rfc/rfc3001.txt and http://www.ietf.org/rfc/rfc4122.txt \r\n\r\nThis oid is used as an identifier II.root to indicate the the extension is an absolute URI (technically, an IRI). Typically, this is used for OIDs and GUIDs. Note that when this OID is used with OIDs and GUIDs, the II.extension should start with urn:oid or urn:uuid: \r\n\r\nNote that this OID is created to aid with interconversion between CDA and FHIR - FHIR uses urn:ietf:rfc:3986 as equivalent to this OID. URIs as identifiers appear more commonly in FHIR.\r\n\r\nThis OID may also be used in CD.codeSystem.\">Uniform Resource Identifier (URI)</a>/urn:uuid:b2a737f2-2fdb-49c1-b097-dac173d07aff</p><p><b>status</b>: Completed</p><p><b>code</b>: <span title=\"Codes:{http://www.ama-assn.org/go/cpt 33249}\">Insertion or replacement of permanent implantable defibrillator system with transvenous lead(s), single or dual chamber</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy V. Baxter  (no stated gender), DoB: 1987-02-20 ( Medical Record Number:\u00a01032702\u00a0(use:\u00a0usual,\u00a0))</a></p><p><b>encounter</b>: <a href=\"Encounter-example-1.html\">Office Visit</a></p><p><b>performed</b>: 2019-03-26 12:55:26-0700 --&gt; 2019-03-26 13:25:26-0700</p><h3>Performers</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Actor</b></td></tr><tr><td style=\"display: none\">*</td><td><a href=\"Practitioner-practitioner-1.html\">Practitioner Ronald Bone </a></td></tr></table><p><b>reasonCode</b>: <span title=\"Codes:{http://hl7.org/fhir/sid/icd-10-cm I49.01}\">Ventricular fibrillation</span></p><h3>FocalDevices</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Manipulated</b></td></tr><tr><td style=\"display: none\">*</td><td><a href=\"Device-udi-2.html\">Device: status = active; manufacturer = ACME Biomedical; expirationDate = 2022-01-01; lotNumber = M320; serialNumber = AC221; modelNumber = 1.0; type = Defibrillator, device</a></td></tr></table></div>"
+  },
+  "identifier" : [{
+    "system" : "urn:ietf:rfc:3986",
+    "value" : "urn:uuid:b2a737f2-2fdb-49c1-b097-dac173d07aff"
+  }],
+  "status" : "completed",
+  "code" : {
+    "coding" : [{
+      "system" : "http://www.ama-assn.org/go/cpt",
+      "code" : "33249"
+    }],
+    "text" : "Insertion or replacement of permanent implantable defibrillator system with transvenous lead(s), single or dual chamber"
+  },
+  "subject" : {
+    "reference" : "Patient/example"
+  },
+  "encounter" : {
+    "reference" : "Encounter/example-1",
+    "display" : "Office Visit"
+  },
+  "performedPeriod" : {
+    "start" : "2019-03-26T12:55:26-07:00",
+    "end" : "2019-03-26T13:25:26-07:00"
+  },
+  "performer" : [{
+    "actor" : {
+      "reference" : "Practitioner/practitioner-1"
+    }
+  }],
+  "reasonCode" : [{
+    "coding" : [{
+      "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+      "code" : "I49.01",
+      "display" : "Ventricular fibrillation"
+    }],
+    "text" : "Ventricular fibrillation"
+  }],
+  "focalDevice" : [{
+    "manipulated" : {
+      "reference" : "Device/udi-2"
+    }
+  }]
+}

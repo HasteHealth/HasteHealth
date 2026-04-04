@@ -1,0 +1,60 @@
+{
+  "resourceType" : "Observation",
+  "id" : "10-minute-apgar-score-panel",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Observation 10-minute-apgar-score-panel</b></p><a name=\"10-minute-apgar-score-panel\"> </a><a name=\"hc10-minute-apgar-score-panel\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-observation-screening-assessment.html\">US Core Observation Screening Assessment Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Final</p><p><b>category</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/observation-category survey}\">Survey</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 48332-1}, {http://snomed.info/sct 169922007}\">10 minute Apgar panel</span></p><p><b>subject</b>: <a href=\"Patient-infant-example.html\">Infant Example  (no stated gender), DoB: 2020-06-02 ( Medical Record Number:\u00a01032703\u00a0(use:\u00a0usual,\u00a0))</a></p><p><b>effective</b>: 2016-05-18 22:33:22+0000</p><p><b>performer</b>: <a href=\"Practitioner-practitioner-1.html\">Ronald Bone</a></p><p><b>hasMember</b>: </p><ul><li><a href=\"Observation-10-minute-apgar-score.html\">Observation 10 minute Apgar Score</a></li><li><a href=\"Observation-10-minute-apgar-respiratory-effort.html\">Observation 10 minute Apgar Respiratory effort</a></li><li><a href=\"Observation-10-minute-apgar-muscle-tone.html\">Observation 10 minute Apgar Muscle Tone</a></li><li><a href=\"Observation-10-minute-apgar-reflex-irritability.html\">Observation 10 minute Apgar Reflex Irritability</a></li><li><a href=\"Observation-10-minute-apgar-color.html\">Observation 10 minute Apgar Color</a></li><li><a href=\"Observation-10-minute-apgar-heart-rate.html\">Observation 10 minute Apgar Heart Rate</a></li></ul></div>"
+  },
+  "status" : "final",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+      "code" : "survey",
+      "display" : "Survey"
+    }],
+    "text" : "Survey"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "48332-1",
+      "display" : "10 minute Apgar panel"
+    },
+    {
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "169922007",
+      "display" : "Apgar at 10 minutes"
+    }],
+    "text" : "10 minute Apgar panel"
+  },
+  "subject" : {
+    "reference" : "Patient/infant-example"
+  },
+  "effectiveDateTime" : "2016-05-18T22:33:22Z",
+  "performer" : [{
+    "reference" : "Practitioner/practitioner-1",
+    "display" : "Ronald Bone"
+  }],
+  "hasMember" : [{
+    "reference" : "Observation/10-minute-apgar-score"
+  },
+  {
+    "reference" : "Observation/10-minute-apgar-respiratory-effort"
+  },
+  {
+    "reference" : "Observation/10-minute-apgar-muscle-tone"
+  },
+  {
+    "reference" : "Observation/10-minute-apgar-reflex-irritability"
+  },
+  {
+    "reference" : "Observation/10-minute-apgar-color"
+  },
+  {
+    "reference" : "Observation/10-minute-apgar-heart-rate"
+  }]
+}

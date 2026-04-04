@@ -1,0 +1,41 @@
+{
+  "resourceType" : "Practitioner",
+  "id" : "practitioner-3",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Practitioner practitioner-3</b></p><a name=\"practitioner-3\"> </a><a name=\"hcpractitioner-3\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-practitioner.html\">US Core Practitioner Profileversion: null9.0.0)</a></p></div><p><b>identifier</b>: <a href=\"http://terminology.hl7.org/5.5.0/NamingSystem-npi.html\" title=\"National Provider Identifier\">United States National Provider Identifier</a>/1245319599, <a href=\"http://terminology.hl7.org/7.1.0/NamingSystem-NCSBNID.html\" title=\"Every licensed nurse is assigned an NCSBN ID. This unique number connects all licenses held by a nurse—regardless of license type and across jurisdictions. It supports efficient license management and verification while protecting personal identifiable information (PII), enabling data sharing between systems without compromising privacy. With one number, a nurse can easily access all licensure information in one place.\r\n\r\nNursys is the only national database for verification of nurse licensure, discipline and practice privileges for RNs, LPN/VNs and APRNs licensed in participating jurisdictions, including all states in the Nurse Licensure Compact (NLC).\r\n\r\nFor more information, see [https://www.ncsbn.org/nursing-regulation/licensure/license-verification/ncsbn-id.page](https://www.ncsbn.org/nursing-regulation/licensure/license-verification/ncsbn-id.page).\">National Council of State Boards of Nursing (NCSBN) ID</a>/87654321</p><p><b>name</b>: Nancy Nurse (Official)</p><p><b>telecom</b>: <a href=\"mailto:Nurse.Nancy@direct.ExampleMedicalPractice.net\">Nurse.Nancy@direct.ExampleMedicalPractice.net</a></p><p><b>address</b>: 1080 FIRST COLONIAL RD VIRGINIA BEACH VA 21454-2406 (work)</p></div>"
+  },
+  "identifier" : [{
+    "system" : "http://hl7.org/fhir/sid/us-npi",
+    "value" : "1245319599"
+  },
+  {
+    "system" : "http://terminology.hl7.org/NamingSystem/NCSBNID",
+    "value" : "87654321"
+  }],
+  "name" : [{
+    "use" : "official",
+    "family" : "Nurse",
+    "given" : ["Nancy"],
+    "suffix" : ["RN"]
+  }],
+  "telecom" : [{
+    "extension" : [{
+      "url" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-direct",
+      "valueBoolean" : true
+    }],
+    "system" : "email",
+    "value" : "Nurse.Nancy@direct.ExampleMedicalPractice.net",
+    "use" : "work"
+  }],
+  "address" : [{
+    "use" : "work",
+    "line" : ["1080 FIRST COLONIAL RD"],
+    "city" : "VIRGINIA BEACH",
+    "state" : "VA",
+    "postalCode" : "21454-2406"
+  }]
+}

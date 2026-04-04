@@ -1,5 +1,5 @@
 use clap::{Subcommand, ValueEnum};
-use haste_codegen::type_gen;
+use haste_codegen::{testscript_gen, type_gen};
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use quote::quote;
@@ -29,6 +29,13 @@ pub enum CodeGen {
         /// Output Rust file path
         #[arg(short, long)]
         output: Option<String>,
+    },
+    TestScripts {
+        #[arg(short, long)]
+        input: Vec<String>,
+        /// Output Rust file path
+        #[arg(short, long)]
+        output: String,
     },
 }
 
@@ -134,6 +141,30 @@ pub async fn codegen(command: &CodeGen) -> Result<(), OperationOutcomeError> {
             })?;
 
             println!("Generated FHIR types written to: {}", output_path.display());
+            Ok(())
+        }
+        CodeGen::TestScripts { input, output } => {
+            let output_path = Path::new(output);
+            let testscripts = testscript_gen::generate_testscripts(input)
+                .map_err(|e| OperationOutcomeError::error(IssueType::Exception(None), e))?;
+
+            for testscript in &testscripts {
+                let testscript_path = output_path.join(testscript.id.clone().unwrap());
+                std::fs::write(
+                    testscript_path,
+                    haste_fhir_serialization_json::to_string(testscript)
+                        .expect("Failed to serialize TestScript to JSON"),
+                )
+                .map_err(|e| {
+                    OperationOutcomeError::error(IssueType::Exception(None), e.to_string())
+                })?;
+            }
+
+            println!(
+                "Generated TestScripts written to: {}",
+                output_path.display()
+            );
+
             Ok(())
         }
     }

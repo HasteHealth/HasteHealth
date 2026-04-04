@@ -1,0 +1,51 @@
+{
+  "resourceType" : "ServiceRequest",
+  "id" : "ekg",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ServiceRequest ekg</b></p><a name=\"ekg\"> </a><a name=\"hcekg\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-servicerequest.html\">US Core ServiceRequest Profileversion: null9.0.0)</a></p></div><p><b>status</b>: Active</p><p><b>intent</b>: Order</p><p><b>category</b>: <span title=\"Codes:{http://snomed.info/sct 386053000}\">Clinical Test Order</span></p><p><b>code</b>: <span title=\"Codes:{http://loinc.org 45033-8}\">Cardiovascular physiologic and EKG assessment panel</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>encounter</b>: <a href=\"Encounter-example-1.html\">office visit</a></p><p><b>authoredOn</b>: 2024-10-13 10:59:38-0800</p><p><b>requester</b>: <a href=\"Practitioner-practitioner-1.html\">Practitioner Ronald Bone </a></p><p><b>reasonCode</b>: <span title=\"Codes:{http://snomed.info/sct 698247007}\">Cardiac arrhythmia</span></p></div>"
+  },
+  "status" : "active",
+  "intent" : "order",
+  "category" : [{
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "386053000",
+      "display" : "Evaluation procedure (procedure)"
+    }],
+    "text" : "Clinical Test Order"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://loinc.org",
+      "code" : "45033-8",
+      "display" : "Cardiovascular physiologic and EKG assessment panel"
+    }],
+    "text" : "Cardiovascular physiologic and EKG assessment panel"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  },
+  "encounter" : {
+    "reference" : "Encounter/example-1",
+    "display" : "office visit"
+  },
+  "authoredOn" : "2024-10-13T10:59:38-08:00",
+  "requester" : {
+    "reference" : "Practitioner/practitioner-1"
+  },
+  "reasonCode" : [{
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "698247007",
+      "display" : "Cardiac arrhythmia (disorder)"
+    }],
+    "text" : "Cardiac arrhythmia"
+  }]
+}

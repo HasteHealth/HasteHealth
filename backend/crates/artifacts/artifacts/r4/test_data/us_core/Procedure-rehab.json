@@ -1,0 +1,38 @@
+{
+  "resourceType" : "Procedure",
+  "id" : "rehab",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Procedure rehab</b></p><a name=\"rehab\"> </a><a name=\"hcrehab\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-procedure.html\">US Core Procedure Profileversion: null9.0.0)</a></p></div><p><b>basedOn</b>: <a href=\"ServiceRequest-rehab.html\">ServiceRequest Alcoholism counseling</a></p><p><b>status</b>: Completed</p><p><b>code</b>: <span title=\"Codes:{http://snomed.info/sct 24165007}, {http://www.cms.gov/Medicare/Coding/ICD10 HZ30ZZZ}\">Alcohol rehabilitation</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy Shaw</a></p><p><b>encounter</b>: <a href=\"Encounter-example-1.html\">Office Visit</a></p><p><b>performed</b>: 2002-05-23</p></div>"
+  },
+  "basedOn" : [{
+    "reference" : "ServiceRequest/rehab"
+  }],
+  "status" : "completed",
+  "code" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "24165007",
+      "display" : "Alcoholism counseling"
+    },
+    {
+      "system" : "http://www.cms.gov/Medicare/Coding/ICD10",
+      "code" : "HZ30ZZZ",
+      "display" : "Individual Counseling for Substance Abuse Treatment, Cognitive"
+    }],
+    "text" : "Alcohol rehabilitation"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy Shaw"
+  },
+  "encounter" : {
+    "reference" : "Encounter/example-1",
+    "display" : "Office Visit"
+  },
+  "performedDateTime" : "2002-05-23"
+}

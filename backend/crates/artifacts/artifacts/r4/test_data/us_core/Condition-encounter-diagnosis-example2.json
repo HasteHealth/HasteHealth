@@ -1,0 +1,45 @@
+{
+  "resourceType" : "Condition",
+  "id" : "encounter-diagnosis-example2",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Condition encounter-diagnosis-example2</b></p><a name=\"encounter-diagnosis-example2\"> </a><a name=\"hcencounter-diagnosis-example2\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-condition-encounter-diagnosis.html\">US Core Condition Encounter Diagnosis Profileversion: null9.0.0)</a></p></div><p><b>category</b>: <span title=\"Codes:{http://terminology.hl7.org/CodeSystem/condition-category encounter-diagnosis}\">Encounter Diagnosis</span></p><p><b>code</b>: <span title=\"Codes:{http://snomed.info/sct 442311008}, {http://hl7.org/fhir/sid/icd-10-cm Z38.00}\">Single live birth, born in hospital</span></p><p><b>subject</b>: <a href=\"Patient-example.html\">Amy V. Shaw</a></p><p><b>encounter</b>: <a href=\"Encounter-delivery.html\">Encounter: status = finished; class = inpatient encounter (ActCode#IMP); type = Normal delivery procedure (procedure)</a></p><p><b>recordedDate</b>: 2016-08-10 07:15:07-0800</p><p><b>recorder</b>: <a href=\"Practitioner-practitioner-1.html\">Dr Ronald Bone</a></p></div>"
+  },
+  "category" : [{
+    "coding" : [{
+      "system" : "http://terminology.hl7.org/CodeSystem/condition-category",
+      "code" : "encounter-diagnosis",
+      "display" : "Encounter Diagnosis"
+    }],
+    "text" : "Encounter Diagnosis"
+  }],
+  "code" : {
+    "coding" : [{
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "442311008",
+      "display" : "Liveborn born in hospital"
+    },
+    {
+      "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+      "code" : "Z38.00",
+      "display" : "Single liveborn infant, delivered vaginally"
+    }],
+    "text" : "Single live birth, born in hospital"
+  },
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Amy V. Shaw"
+  },
+  "encounter" : {
+    "reference" : "Encounter/delivery"
+  },
+  "recordedDate" : "2016-08-10T07:15:07-08:00",
+  "recorder" : {
+    "reference" : "Practitioner/practitioner-1",
+    "display" : "Dr Ronald Bone"
+  }
+}

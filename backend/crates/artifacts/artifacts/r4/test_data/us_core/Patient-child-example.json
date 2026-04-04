@@ -1,0 +1,81 @@
+{
+  "resourceType" : "Patient",
+  "id" : "child-example",
+  "meta" : {
+    "profile" : ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Patient child-example</b></p><a name=\"child-example\"> </a><a name=\"hcchild-example\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-us-core-patient.html\">US Core Patient Profileversion: null9.0.0)</a></p></div><p style=\"border: 1px #661aff solid; background-color: #e6e6ff; padding: 10px;\">Child Example  (no stated gender), DoB: 2016-01-15 ( Medical Record Number:\u00a01032704\u00a0(use:\u00a0usual,\u00a0))</p><hr/><table class=\"grid\"><tr><td style=\"background-color: #f3f5da\" title=\"Record is active\">Active:</td><td colspan=\"3\">true</td></tr><tr><td style=\"background-color: #f3f5da\" title=\"Ways to contact the Patient\">Contact Detail</td><td colspan=\"3\"><ul><li>ph: 555-555-5555(Home)</li><li>49 MEADOW ST MOUNDS OK 74047 US </li></ul></td></tr><tr><td style=\"background-color: #f3f5da\" title=\"Concepts classifying the person into a named category of humans sharing common history, traits, geographical origin or nationality.  The ethnicity codes used to represent these concepts are based upon the [Race &amp; Ethnicity - CDC (CDCREC)](https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.6.238) code system. Detailed ethnicity concepts are grouped by and pre-mapped to the 2 OMB ethnicity categories:\n\n   - Hispanic or Latino\n   - Not Hispanic or Latino.\">US Core Ethnicity Extension:</td><td colspan=\"3\"><ul><li>ombCategory: <a href=\"http://terminology.hl7.org/6.5.0/CodeSystem-CDCREC.html#CDCREC-2186-5\">CDC Race and Ethnicity: 2186-5</a> (Not Hispanic or Latino)</li><li>text: Not Hispanic or Latino</li></ul></td></tr><tr><td style=\"background-color: #f3f5da\" title=\"USCDI includes a data element for Sex, intended to support the exchange of a recorded sex value. This extension aligns with the USCDI definition of Sex: &quot;Documentation of a specific instance of sex.&quot; It enables systems to share the sex value as it was documented in a particular context.  Systems choosing to record sources of information should use the [Provenance resource](element-level-provenance.html).\"><a href=\"StructureDefinition-us-core-individual-sex.html\">US Core Individual Sex Extension</a></td><td colspan=\"3\"><a href=\"http://snomed.info/id/248153007\">SNOMED CT: 248153007</a> (Male (finding)) (version = http://snomed.info/sct/731000124108 )</td></tr><tr><td style=\"background-color: #f3f5da\" title=\"Concepts classifying the person into a named category of humans sharing common history, traits, geographical origin or nationality.  The race codes used to represent these concepts are based upon the [Race &amp; Ethnicity - CDC (CDCREC)](https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.6.238) code system. Detailed race concepts are grouped by and pre-mapped to the 5 OMB race categories:\n\n - American Indian or Alaska Native\n - Asian\n - Black or African American\n - Native Hawaiian or Other Pacific Islander\n - White.\">US Core Race Extension:</td><td colspan=\"3\"><ul><li>ombCategory: <a href=\"http://terminology.hl7.org/6.5.0/CodeSystem-CDCREC.html#CDCREC-2028-9\">CDC Race and Ethnicity: 2028-9</a> (Asian)</li><li>text: Asian</li></ul></td></tr></table></div>"
+  },
+  "extension" : [{
+    "extension" : [{
+      "url" : "ombCategory",
+      "valueCoding" : {
+        "system" : "urn:oid:2.16.840.1.113883.6.238",
+        "code" : "2028-9",
+        "display" : "Asian"
+      }
+    },
+    {
+      "url" : "text",
+      "valueString" : "Asian"
+    }],
+    "url" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+  },
+  {
+    "extension" : [{
+      "url" : "ombCategory",
+      "valueCoding" : {
+        "system" : "urn:oid:2.16.840.1.113883.6.238",
+        "code" : "2186-5",
+        "display" : "Not Hispanic or Latino"
+      }
+    },
+    {
+      "url" : "text",
+      "valueString" : "Not Hispanic or Latino"
+    }],
+    "url" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+  },
+  {
+    "url" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex",
+    "valueCoding" : {
+      "system" : "http://snomed.info/sct",
+      "version" : "http://snomed.info/sct/731000124108",
+      "code" : "248153007",
+      "display" : "Male (finding)"
+    }
+  }],
+  "identifier" : [{
+    "use" : "usual",
+    "type" : {
+      "coding" : [{
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code" : "MR",
+        "display" : "Medical Record Number"
+      }],
+      "text" : "Medical Record Number"
+    },
+    "system" : "http://example.org/patient/identifiers",
+    "value" : "1032704"
+  }],
+  "active" : true,
+  "name" : [{
+    "family" : "Example",
+    "given" : ["Child"]
+  }],
+  "telecom" : [{
+    "system" : "phone",
+    "value" : "555-555-5555",
+    "use" : "home"
+  }],
+  "birthDate" : "2016-01-15",
+  "address" : [{
+    "line" : ["49 MEADOW ST"],
+    "city" : "MOUNDS",
+    "state" : "OK",
+    "postalCode" : "74047",
+    "country" : "US"
+  }]
+}
