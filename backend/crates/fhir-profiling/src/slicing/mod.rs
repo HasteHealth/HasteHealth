@@ -11,7 +11,9 @@ use haste_fhir_client::canonical_resolver::CanonicalResolver;
 use haste_fhir_model::r4::generated::{
     resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
     terminology::{DiscriminatorType, IssueSeverity, IssueType},
-    types::{ElementDefinition, ElementDefinitionSlicingDiscriminator},
+    types::{
+        CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator, FHIRUri,
+    },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
@@ -314,17 +316,65 @@ async fn is_conformant_to_slice_descriptor(
 
             Ok(result.is_some())
         }
+        // Observation us-core has pattern even though it's value based slicing
         DiscriminatorType::Value(_) => {
-            let fixed_value  = slice_value_element_definition.fixed.as_ref().ok_or_else(|| OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                "Slice value element definition must have a fixed value for value discriminator".to_string(),
-            ))?;
-
-            for value in values.iter() {
-                if is_equal(*value, fixed_value)? {
-                    return Ok(true);
+            if let Some(fixed_value) = slice_value_element_definition.fixed.as_ref() {
+                for value in values.iter() {
+                    if is_equal(*value, fixed_value)? {
+                        return Ok(true);
+                    }
                 }
+            } else if let Some(pattern) = slice_value_element_definition.pattern.as_ref() {
+                for value in values.iter() {
+                    if validate_pattern(*value, pattern)? {
+                        return Ok(true);
+                    }
+                }
+            } else if let Some(binding) = slice_value_element_definition.binding.as_ref() {
+                let value_set = binding.valueSet.as_ref().and_then(|vs| vs.value.as_ref());
+
+                let coding_pattern = Coding {
+                    system: value_set.map(|s| {
+                        Box::new(FHIRUri {
+                            value: Some(s.to_string()),
+                            ..Default::default()
+                        })
+                    }),
+                    ..Default::default()
+                };
+
+                let codeable_concept_pattern = CodeableConcept {
+                    coding: Some(vec![Box::new(coding_pattern.clone())]),
+                    ..Default::default()
+                };
+
+                for value in values.iter() {
+                    match value.typename() {
+                        "Coding" => {
+                            if validate_pattern(*value, &codeable_concept_pattern)? {
+                                return Ok(true);
+                            }
+                        }
+                        "CodeableConcept" => {
+                            if validate_pattern(*value, &codeable_concept_pattern)? {
+                                return Ok(true);
+                            }
+                        }
+                        // Not supporting coding for now as it would require validating terminology which not yet supported.
+                        "FHIRCode" | _ => {}
+                    }
+                }
+            } else {
+                println!(
+                    "Element definition for discriminator value does not have fixed value or pattern: {:#?}",
+                    slice_value_element_definition
+                );
+                return Err(OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "Slice value element definition must have either a fixed value or a pattern for value discriminator".to_string(),
+                ));
             }
+
             return Ok(false);
         }
         DiscriminatorType::Null(_) => Err(OperationOutcomeError::error(
