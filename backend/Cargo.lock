@@ -2000,6 +2000,7 @@ dependencies = [
  "haste-fhir-operation-error",
  "haste-fhir-serialization-json",
  "haste-fhir-terminology",
+ "haste-reflect",
  "indexmap 2.13.0",
  "proc-macro2",
  "quote",
