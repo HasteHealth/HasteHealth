@@ -117,6 +117,10 @@ fn generate_testcases_for_resource(
                         value: Some(fixture_name(index, resource_type.as_ref())),
                         ..Default::default()
                     })),
+                    encodeRequestUrl: Box::new(FHIRBoolean {
+                        value: Some(true),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 }),
                 ..Default::default()
