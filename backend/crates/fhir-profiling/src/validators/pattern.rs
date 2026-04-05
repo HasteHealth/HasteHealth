@@ -3,28 +3,36 @@ use haste_reflect::MetaValue;
 
 use crate::validators::utilities;
 
-#[allow(dead_code)]
 pub fn validate_pattern(
-    data_to_check: &dyn MetaValue,
+    value: &dyn MetaValue,
     pattern: &dyn MetaValue,
 ) -> Result<bool, OperationOutcomeError> {
-    if data_to_check.typename() != pattern.typename() {
+    if value.typename() != pattern.typename() {
         return Ok(false);
     }
 
     let pattern_fields = pattern.fields();
 
     if pattern_fields.len() == 0 {
-        utilities::check_bare_primitive_pattern(data_to_check, pattern)
+        utilities::check_bare_primitive_pattern(value, pattern)
     } else {
-        for key in pattern_fields {
+        for key in pattern_fields.iter() {
             if let Some(pattern_value) = pattern.get_field(key) {
-                let Some(data_value) = data_to_check.get_field(key) else {
+                let Some(data_value) = value.get_field(key) else {
                     return Ok(false);
                 };
 
-                if !validate_pattern(data_value, pattern_value)? {
+                let values = data_value.flatten();
+                let pattern_values = pattern_value.flatten();
+
+                if values.len() != pattern_values.len() {
                     return Ok(false);
+                }
+
+                for (data_value, pattern_value) in values.iter().zip(pattern_values.iter()) {
+                    if !validate_pattern(*data_value, *pattern_value)? {
+                        return Ok(false);
+                    }
                 }
             }
         }

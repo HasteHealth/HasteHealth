@@ -17,15 +17,26 @@ pub fn is_equal(v1: &dyn MetaValue, v2: &dyn MetaValue) -> Result<bool, Operatio
             let v1 = v1.get_field(key);
             let v2 = v2.get_field(key);
 
-            if v1.is_some() != v2.is_some() {
-                return Ok(false);
-            }
-
             if let Some(v1) = v1
                 && let Some(v2) = v2
-                && !is_equal(v1, v2)?
             {
-                return Ok(false);
+                let v1_values = v1.flatten();
+                let v2_values = v2.flatten();
+
+                // Could be an array so flatten the values and confirm length than iterate over them.
+                if v1_values.len() != v2_values.len() {
+                    return Ok(false);
+                }
+                for (v1_value, v2_value) in v1_values.iter().zip(v2_values.iter()) {
+                    if !is_equal(*v1_value, *v2_value)? {
+                        return Ok(false);
+                    }
+                }
+            } else {
+                // If one of the values is none verify that both are none in this case.
+                if v1.is_some() != v2.is_some() {
+                    return Ok(false);
+                }
             }
         }
 

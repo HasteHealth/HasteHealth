@@ -351,7 +351,7 @@ async fn is_conformant_to_slice_descriptor(
                 for value in values.iter() {
                     match value.typename() {
                         "Coding" => {
-                            if validate_pattern(*value, &codeable_concept_pattern)? {
+                            if validate_pattern(*value, &coding_pattern)? {
                                 return Ok(true);
                             }
                         }
@@ -365,10 +365,6 @@ async fn is_conformant_to_slice_descriptor(
                     }
                 }
             } else {
-                println!(
-                    "Element definition for discriminator value does not have fixed value or pattern: {:#?}",
-                    slice_value_element_definition
-                );
                 return Err(OperationOutcomeError::error(
                     IssueType::Invalid(None),
                     "Slice value element definition must have either a fixed value or a pattern for value discriminator".to_string(),
