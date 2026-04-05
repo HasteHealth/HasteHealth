@@ -19,6 +19,13 @@ use crate::{
     validators::{cardinality::validate_cardinality, fixed_value, pattern::validate_pattern},
 };
 
+fn conformant_to_type(type_: Option<&str>, type_to_check: Option<&str>) -> bool {
+    match type_to_check {
+        Some("Resource") | Some("DomainResource") => true,
+        _ => type_ == type_to_check,
+    }
+}
+
 /// Check if the element is constrained to profiles type.
 /// Also if nested profiles are found, validate against those as well.
 ///
@@ -48,7 +55,7 @@ async fn validate_types_and_profiles_if_present<'a>(
 
     if let Some(profile_type) = types
         .iter()
-        .find(|t| t.code.value.as_ref().map(|s| s.as_str()) == type_)
+        .find(|t| conformant_to_type(t.code.value.as_ref().map(|s| s.as_str()), type_))
     {
         let mut issues = vec![];
 

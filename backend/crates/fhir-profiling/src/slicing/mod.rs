@@ -559,8 +559,6 @@ pub async fn validate_slicing_descriptor<'a>(
     let all_slice_locs = get_slice_value_locs(ctx.clone(), discriminator_element, value_path)?;
     let split_slices = split_slicing(ctx.clone(), slicing_descriptor, all_slice_locs).await?;
 
-    println!("Split slices: {:#?}", split_slices);
-
     let mut issues = vec![];
     let elements_pointer = Path::new().descend("snapshot").descend("element");
 
