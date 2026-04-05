@@ -25,12 +25,16 @@ pub fn validate_pattern(
                 let values = data_value.flatten();
                 let pattern_values = pattern_value.flatten();
 
-                if values.len() != pattern_values.len() {
+                if pattern_values.len() > values.len() {
                     return Ok(false);
                 }
 
-                for (data_value, pattern_value) in values.iter().zip(pattern_values.iter()) {
-                    if !validate_pattern(*data_value, *pattern_value)? {
+                for pattern_value in pattern_values.iter() {
+                    let found = values
+                        .iter()
+                        .find(|v| validate_pattern(**v, *pattern_value).unwrap_or(false));
+
+                    if found.is_none() {
                         return Ok(false);
                     }
                 }

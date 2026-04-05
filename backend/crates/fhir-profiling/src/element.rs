@@ -19,7 +19,7 @@ use crate::{
     validators::{cardinality::validate_cardinality, fixed_value, pattern::validate_pattern},
 };
 
-fn conformant_to_type(type_: Option<&str>, type_to_check: Option<&str>) -> bool {
+fn conformant_to_type(type_to_check: Option<&str>, type_: Option<&str>) -> bool {
     match type_to_check {
         Some("Resource") | Some("DomainResource") => true,
         _ => type_ == type_to_check,
