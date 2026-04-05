@@ -331,7 +331,11 @@ async fn is_conformant_to_slice_descriptor(
                     }
                 }
             } else if let Some(binding) = slice_value_element_definition.binding.as_ref() {
-                let value_set = binding.valueSet.as_ref().and_then(|vs| vs.value.as_ref());
+                let value_set = binding
+                    .valueSet
+                    .as_ref()
+                    .and_then(|vs| vs.value.as_ref())
+                    .and_then(|s| s.split('|').next());
 
                 let coding_pattern = Coding {
                     system: value_set.map(|s| {
@@ -383,6 +387,52 @@ async fn is_conformant_to_slice_descriptor(
 #[derive(Debug)]
 struct SplitSlicing(HashMap<usize, Vec<Path>>);
 
+async fn is_conformant_to_discriminators<'a>(
+    ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
+    slice_index: &usize,
+    discriminators: &Vec<ElementDefinitionSlicingDiscriminator>,
+    discriminator_element_paths: &Vec<String>,
+    loc: &Path,
+) -> Result<bool, OperationOutcomeError> {
+    for (discriminator_element_index, discriminator_element_path) in
+        discriminator_element_paths.iter().enumerate()
+    {
+        let discriminator = &discriminators[discriminator_element_index];
+        let Some(slice_descriminator_value_definition) = find_element_definition_for_discriminator(
+            ctx.clone(),
+            discriminator_element_path,
+            *slice_index,
+            None,
+        )
+        .await?
+        else {
+            return Err(OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!(
+                    "Failed to find element definition for discriminator path '{}'",
+                    discriminator_element_path
+                ),
+            ));
+        };
+
+        if !is_conformant_to_slice_descriptor(
+            discriminator,
+            get_element(
+                slice_descriminator_value_definition.ctx.profile(),
+                slice_descriminator_value_definition.discriminator_element_index,
+            )?,
+            ctx.root,
+            &loc,
+        )
+        .await?
+        {
+            return Ok(false);
+        }
+    }
+
+    Ok(true)
+}
+
 /// Splits the given values into slices according to the discriminator.
 async fn split_slicing<'a>(
     ctx: Arc<FHIRProfileCTX<'a, impl CanonicalResolver>>,
@@ -409,52 +459,27 @@ async fn split_slicing<'a>(
         .collect::<Result<Vec<_>, _>>()?;
 
     for slice_index in &slicing_descriptor.slices {
-        for (discriminator_element_index, discriminator_element_path) in
-            discriminator_element_paths.iter().enumerate()
-        {
-            let discriminator = &discriminators[discriminator_element_index];
-            let Some(slice_descriminator_value_definition) =
-                find_element_definition_for_discriminator(
-                    ctx.clone(),
-                    discriminator_element_path,
-                    *slice_index,
-                    None,
-                )
-                .await?
-            else {
-                return Err(OperationOutcomeError::error(
-                    IssueType::Invalid(None),
-                    format!(
-                        "Failed to find element definition for discriminator path '{}'",
-                        discriminator_element_path
-                    ),
-                ));
-            };
+        let mut remainder_locs = vec![];
+        let mut slice_locations = vec![];
 
-            let mut remainder_locs = vec![];
-            let mut slice_locations = vec![];
-            for loc in locs.into_iter() {
-                if is_conformant_to_slice_descriptor(
-                    discriminator,
-                    get_element(
-                        slice_descriminator_value_definition.ctx.profile(),
-                        slice_descriminator_value_definition.discriminator_element_index,
-                    )?,
-                    ctx.root,
-                    &loc,
-                )
-                .await?
-                {
-                    slice_locations.push(loc.clone());
-                } else {
-                    remainder_locs.push(loc.clone());
-                }
+        for loc in locs.iter() {
+            if is_conformant_to_discriminators(
+                ctx.clone(),
+                slice_index,
+                discriminators,
+                &discriminator_element_paths,
+                loc,
+            )
+            .await?
+            {
+                slice_locations.push(loc.clone());
+            } else {
+                remainder_locs.push(loc.clone());
             }
-
-            slices_split.0.insert(*slice_index, slice_locations);
-
-            locs = remainder_locs;
         }
+
+        slices_split.0.insert(*slice_index, slice_locations);
+        locs = remainder_locs;
     }
 
     Ok(slices_split)
@@ -533,6 +558,8 @@ pub async fn validate_slicing_descriptor<'a>(
     let discriminator_element = get_element(profile, slicing_descriptor.discriminator)?;
     let all_slice_locs = get_slice_value_locs(ctx.clone(), discriminator_element, value_path)?;
     let split_slices = split_slicing(ctx.clone(), slicing_descriptor, all_slice_locs).await?;
+
+    println!("Split slices: {:#?}", split_slices);
 
     let mut issues = vec![];
     let elements_pointer = Path::new().descend("snapshot").descend("element");
