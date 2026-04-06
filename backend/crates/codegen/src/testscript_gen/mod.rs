@@ -192,11 +192,20 @@ fn generate_fixtures_for_resource(
     Ok(())
 }
 
+fn create_tag(file_path: &Path) -> String {
+    file_path
+        .to_str()
+        .unwrap()
+        .replace("/", "-")
+        .replace("\\", "-")
+        .replace(".", "-")
+}
+
 fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String> {
     let mut testscript = TestScript::default();
     let mut resources = file_path_to_resources(file_path)?;
 
-    let tag = file_path.to_str().unwrap();
+    let tag = create_tag(file_path);
 
     testscript.url = Box::new(FHIRUri {
         value: Some(tag.to_string()),
@@ -210,7 +219,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
     });
 
     for (i, resource) in resources.iter_mut().enumerate() {
-        set_resource_tag(tag, resource).expect("Failed to set resource tag");
+        set_resource_tag(&tag, resource).expect("Failed to set resource tag");
         set_resource_id(
             &fixture_name(i, &resource.resource_type().as_ref()),
             resource,
@@ -224,7 +233,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
         resources
             .iter()
             .enumerate()
-            .map(|(i, r)| generate_testcases_for_resource(tag, i, r))
+            .map(|(i, r)| generate_testcases_for_resource(&tag, i, r))
             .flatten()
             .collect::<Vec<_>>(),
     );
