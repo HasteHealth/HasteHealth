@@ -174,6 +174,7 @@ pub async fn validate_singular_element<'a>(
     // Includes all of slice descriptors which is how to split (the descriptor)
     // and the slices that belong to that descriptor (the slices).
     let slice_descriptors = get_slice_descriptors(elements, &children)?;
+
     let slice_indices_set = slice_descriptors
         .iter()
         .flat_map(|descriptor| {

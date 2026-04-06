@@ -8,12 +8,16 @@ use haste_codegen::{
     utilities::extract::{Max, cardinality, field_name},
 };
 use haste_fhir_client::canonical_resolver::CanonicalResolver;
-use haste_fhir_model::r4::generated::{
-    resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
-    terminology::{DiscriminatorType, IssueSeverity, IssueType},
-    types::{
-        CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator, FHIRUri,
+use haste_fhir_model::r4::{
+    generated::{
+        resources::{OperationOutcomeIssue, ResourceType, StructureDefinition},
+        terminology::{DiscriminatorType, IssueSeverity, IssueType},
+        types::{
+            CodeableConcept, Coding, ElementDefinition, ElementDefinitionSlicingDiscriminator,
+            FHIRUri,
+        },
     },
+    get_fhir_type,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_pointer::Path;
@@ -304,7 +308,11 @@ async fn is_conformant_to_slice_descriptor(
                                 .to_string(),
                         )
                     })?;
-            let types = values.iter().map(|v| v.typename()).collect::<HashSet<_>>();
+
+            let types = values
+                .iter()
+                .filter_map(|v| get_fhir_type(*v))
+                .collect::<HashSet<_>>();
 
             let result = expected_types.iter().find(|t| {
                 if let Some(type_name) = t.code.value.as_ref().map(|c| c.as_str()) {
@@ -392,6 +400,7 @@ async fn is_conformant_to_discriminators<'a>(
     slice_index: &usize,
     discriminators: &Vec<ElementDefinitionSlicingDiscriminator>,
     discriminator_element_paths: &Vec<String>,
+    parent_path: Option<&str>,
     loc: &Path,
 ) -> Result<bool, OperationOutcomeError> {
     for (discriminator_element_index, discriminator_element_path) in
@@ -402,14 +411,19 @@ async fn is_conformant_to_discriminators<'a>(
             ctx.clone(),
             discriminator_element_path,
             *slice_index,
-            None,
+            parent_path,
         )
         .await?
         else {
             return Err(OperationOutcomeError::error(
                 IssueType::Invalid(None),
                 format!(
-                    "Failed to find element definition for discriminator path '{}'",
+                    "'{}' Failed to find element definition for discriminator path '{}'",
+                    ctx.profile()
+                        .id
+                        .as_ref()
+                        .map(|s| s.as_str())
+                        .unwrap_or("unknown"),
                     discriminator_element_path
                 ),
             ));
@@ -453,6 +467,17 @@ async fn split_slicing<'a>(
             )
         })?;
 
+    // Set the initial parent as the discriminator IE if the discriminator is Observation.coding.code than the parent_path
+    // should be coding because the discriminator path is relative to the element with the discriminator.
+    // So we need to remove the type on the path and ascend to get the correct path to check on the instance data.
+    let parent_path = discriminator_element_definition
+        .path
+        .value
+        .as_ref()
+        .map(|s| s.as_str())
+        .and_then(utilities::ascend_element_path)
+        .map(utilities::remove_type_on_path);
+
     let discriminator_element_paths = discriminators
         .iter()
         .map(|d| convert_discriminator_to_path(discriminator_element_definition, d))
@@ -468,6 +493,7 @@ async fn split_slicing<'a>(
                 slice_index,
                 discriminators,
                 &discriminator_element_paths,
+                parent_path,
                 loc,
             )
             .await?
@@ -557,6 +583,7 @@ pub async fn validate_slicing_descriptor<'a>(
     let profile = ctx.profile();
     let discriminator_element = get_element(profile, slicing_descriptor.discriminator)?;
     let all_slice_locs = get_slice_value_locs(ctx.clone(), discriminator_element, value_path)?;
+
     let split_slices = split_slicing(ctx.clone(), slicing_descriptor, all_slice_locs).await?;
 
     let mut issues = vec![];

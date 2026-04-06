@@ -12,6 +12,11 @@ pub fn remove_type_on_path(path: &str) -> &str {
     &path[first_dot.map(|i| i + 1).unwrap_or(path.len())..]
 }
 
+// Removes the last element on the path, returning the parent path. If there is no parent, returns None.
+pub fn ascend_element_path(path: &str) -> Option<&str> {
+    path.rfind('.').map(|i| &path[..i])
+}
+
 pub fn get_element_field(path: &str) -> Option<&str> {
     remove_type_on_path(path).rsplit('.').next()
 }
