@@ -1,4 +1,7 @@
-use elasticsearch::{Elasticsearch, indices::IndicesCreateParts};
+use elasticsearch::{
+    Elasticsearch,
+    indices::{IndicesCreateParts, IndicesPutMappingParts},
+};
 use haste_fhir_model::r4::generated::terminology::SearchParamType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::{Value, json};
@@ -111,6 +114,29 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     }
 
     property_mapping.insert(
+        "dynamic_parameters".to_string(),
+        json!({
+            "type": "nested",
+            "properties": {
+                "url": { "type": "keyword" },
+                "type": { "type": "keyword" },
+                "value": {
+                    "type": "object",
+                    "properties": {
+                        "string": string_index_mapping(),
+                        "number": number_index_mapping(),
+                        "date": date_index_mapping(),
+                        "uri": uri_index_mapping(),
+                        "token": token_index_mapping(),
+                        "quantity": quantity_index_mapping(),
+                        "reference": reference_index_mapping()
+                    }
+                }
+            }
+        }),
+    );
+
+    property_mapping.insert(
         "resource_type".to_string(),
         json!({
             "type": "keyword",
@@ -165,12 +191,32 @@ pub async fn create_mapping(
         .await
         .unwrap();
 
-    if !exists_res.status_code().is_success() {
-        let mapping_body = create_elasticsearch_searchparameter_mappings(
-            &haste_artifacts::search_parameters::get_all_search_parameters(),
-        )
-        .await
-        .unwrap();
+    println!("Exists res: {:?}", exists_res.status_code().is_success());
+
+    let mapping_body = create_elasticsearch_searchparameter_mappings(
+        &haste_artifacts::search_parameters::get_all_search_parameters(),
+    )
+    .await
+    .unwrap();
+
+    let index_exists = exists_res.status_code().is_success();
+
+    if index_exists {
+        let res = elastic_search
+            .indices()
+            .put_mapping(IndicesPutMappingParts::Index(&[index]))
+            .body(mapping_body)
+            .send()
+            .await
+            .unwrap();
+        if res.status_code().is_success() {
+            tracing::info!("Elasticsearch mapping updated successfully.");
+        } else {
+            tracing::error!("Failed to update Elasticsearch mapping: {:?}", res);
+            tracing::error!("Response: {:?}", res.text().await.unwrap());
+            panic!();
+        }
+    } else {
         let res = elastic_search
             .indices()
             .create(IndicesCreateParts::Index(index))
