@@ -191,8 +191,6 @@ pub async fn create_mapping(
         .await
         .unwrap();
 
-    println!("Exists res: {:?}", exists_res.status_code().is_success());
-
     let mapping_body = create_elasticsearch_searchparameter_mappings(
         &haste_artifacts::search_parameters::get_all_search_parameters(),
     )
