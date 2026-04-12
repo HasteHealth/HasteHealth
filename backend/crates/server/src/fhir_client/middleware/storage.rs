@@ -189,7 +189,7 @@ impl<
                             .search(
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
-                                &context.ctx.project,
+                                &[&context.ctx.project],
                                 &delete_search_request,
                                 None,
                             )
@@ -387,7 +387,7 @@ impl<
                             .search(
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
-                                &context.ctx.project,
+                                &[&context.ctx.project],
                                 &SearchRequest::Type(FHIRSearchTypeRequest {
                                     resource_type: update_request.resource_type.clone(),
                                     parameters: ParsedParameters::new(
@@ -527,7 +527,7 @@ impl<
                             .search(
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
-                                &context.ctx.project,
+                                &[&context.ctx.project],
                                 &search_request,
                                 None,
                             )
@@ -564,7 +564,7 @@ impl<
                             .search(
                                 &context.ctx.fhir_version,
                                 &context.ctx.tenant,
-                                &context.ctx.project,
+                                &[&context.ctx.project],
                                 &search_request,
                                 None,
                             )

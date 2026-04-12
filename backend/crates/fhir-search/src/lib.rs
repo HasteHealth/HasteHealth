@@ -26,6 +26,7 @@ pub struct SearchEntry {
     pub id: ResourceId,
     pub resource_type: ResourceType,
     pub version_id: VersionId,
+    pub project: ProjectId,
 }
 
 pub struct SearchReturn {
@@ -44,7 +45,7 @@ pub trait SearchEngine: Send + Sync {
         &self,
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
-        project: &ProjectId,
+        projects: &[&ProjectId],
         search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send + Sync;

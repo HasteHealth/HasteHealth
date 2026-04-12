@@ -32,6 +32,7 @@ struct SearchEntryPrivate {
     pub id: Vec<ResourceId>,
     pub resource_type: Vec<ResourceType>,
     pub version_id: Vec<VersionId>,
+    pub project: Vec<ProjectId>,
 }
 
 #[derive(OperationOutcomeError, Debug)]
@@ -213,11 +214,12 @@ impl SearchEngine for ElasticSearchEngine {
         &self,
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
-        project: &ProjectId,
+        projects: &[&ProjectId],
         search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
-        let query = search::build_elastic_search_query(tenant, project, &search_request, &options)?;
+        let query =
+            search::build_elastic_search_query(tenant, projects, &search_request, &options)?;
 
         let search_response = self
             .client
@@ -249,6 +251,7 @@ impl SearchEngine for ElasticSearchEngine {
                     id: hit.fields.id.pop().unwrap(),
                     resource_type: hit.fields.resource_type.pop().unwrap(),
                     version_id: hit.fields.version_id.pop().unwrap(),
+                    project: hit.fields.project.pop().unwrap(),
                 })
                 .collect(),
         })

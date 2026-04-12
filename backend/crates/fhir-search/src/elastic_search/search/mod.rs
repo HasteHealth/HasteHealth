@@ -232,7 +232,7 @@ fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
 
 pub fn build_elastic_search_query(
     tenant: &TenantId,
-    project: &ProjectId,
+    projects: &[&ProjectId],
     request: &SearchRequest,
     options: &Option<SearchOptions>,
 ) -> Result<serde_json::Value, QueryBuildError> {
@@ -363,14 +363,21 @@ pub fn build_elastic_search_query(
         }
     }));
 
-    clauses.push(json! ({
-        "match": {
-            "project": project.as_ref()
+    // Allow Span of multiple projects for search.
+    clauses.push(json!({
+        "bool": {
+            "should": projects.iter().map(|project| {
+                json!({
+                    "match": {
+                        "project": project.as_ref()
+                    }
+                })
+            }).collect::<Vec<_>>()
         }
     }));
 
     let query = json!({
-        "fields": ["version_id", "id", "resource_type"],
+        "fields": ["version_id", "id", "resource_type", "project"],
         "size": size,
         "track_total_hits": show_total,
         "_source": false,
