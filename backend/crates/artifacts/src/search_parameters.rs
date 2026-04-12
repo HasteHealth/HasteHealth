@@ -10,7 +10,7 @@ pub enum ArtifactError {
     InvalidResource(String),
 }
 
-pub struct SearchParametersIndex {
+struct SearchParametersIndex {
     by_url: HashMap<String, Arc<SearchParameter>>,
     by_resource_type: HashMap<String, HashMap<String, Arc<SearchParameter>>>,
 }
