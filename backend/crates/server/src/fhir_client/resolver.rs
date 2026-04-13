@@ -64,7 +64,7 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
         } else {
             if let Some(url) = canonical_url.split('|').next()
                 // Perform search for an entry with the given canonical URL.
-                && let Some(resource) = self.0.client
+                && let Some(resolved_resource) = self.0.client
                     .search_type(
                         self.0.clone(),
                         resource_type,
@@ -79,7 +79,7 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
                     .entry
                     .and_then(|mut e| e.pop()).and_then(|e| e.resource)
             {
-                let resource = Arc::new(*resource);
+                let resource = Arc::new(*resolved_resource);
                 CACHE.insert(key, resource.clone());
                 return Ok(Some(resource));
             }
