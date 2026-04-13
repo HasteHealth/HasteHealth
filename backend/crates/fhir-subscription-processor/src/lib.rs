@@ -6,7 +6,10 @@ use haste_fhir_model::r4::generated::{
     terminology::IssueType,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::indexing_conversion::{self, InsertableIndex};
+use haste_fhir_search::{
+    SearchParameterResolve,
+    indexing_conversion::{self, InsertableIndex},
+};
 
 pub mod traits;
 
@@ -48,10 +51,11 @@ pub struct MemorySubscriptionFilter {
     triggers: Vec<SubscriptionTrigger>,
 }
 
-impl TryFrom<Subscription> for MemorySubscriptionFilter {
-    type Error = OperationOutcomeError;
-
-    fn try_from(value: Subscription) -> Result<Self, Self::Error> {
+impl MemorySubscriptionFilter {
+    pub async fn new<Resolver: SearchParameterResolve>(
+        resolver: Arc<Resolver>,
+        value: Subscription,
+    ) -> Result<Self, OperationOutcomeError> {
         if let Some(criteria) = value.criteria.value {
             let criteria_pieces = criteria.split('?').collect::<Vec<_>>();
             let [path, parameters] = criteria_pieces.as_slice() else {
@@ -69,17 +73,14 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
             })?;
 
             let parsed_parameters = ParsedParameters::try_from(*parameters)?;
+            let mut subscription_parsed_parameters = vec![];
 
-            let subscription_parsed_parameters = parsed_parameters
-                .owned_parameters()
-                .into_iter()
-                .map(|parameter| match parameter {
+            for parameter in parsed_parameters.owned_parameters().into_iter() {
+                match parameter {
                     ParsedParameter::Resource(resource_param) => {
-                        let Some(search_parameter) =
-                            haste_artifacts::search_parameters::get_search_parameter_for_name(
-                                Some(&resource_type),
-                                &resource_param.name,
-                            )
+                        let Some(search_parameter) = resolver
+                            .by_name(Some(&resource_type), &resource_param.name)
+                            .await
                         else {
                             return Err(OperationOutcomeError::error(
                                 IssueType::Exception(None),
@@ -114,13 +115,12 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
                             ));
                         };
 
-                        Ok(SubscriptionParameter {
+                        subscription_parsed_parameters.push(SubscriptionParameter {
                             search_parameter: search_parameter.clone(),
                             fp_extract_expression: fp_expression.clone(),
                             value: resource_param.value,
                             modifier: resource_param.modifier,
-                        })
-
+                        });
                     }
                     ParsedParameter::Result(result_param) => {
                         return Err(OperationOutcomeError::error(
@@ -131,8 +131,8 @@ impl TryFrom<Subscription> for MemorySubscriptionFilter {
                             ),
                         ));
                     }
-                })
-                .collect::<Result<Vec<_>, OperationOutcomeError>>()?;
+                }
+            }
 
             Ok(MemorySubscriptionFilter {
                 fp_engine: haste_fhirpath::FPEngine::new(),
@@ -258,6 +258,7 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
 
 #[cfg(test)]
 mod tests {
+    use haste_artifacts::search_parameters::MemoryResolver;
     use haste_fhir_model::r4::generated::{
         resources::Patient,
         types::{FHIRString, HumanName},
@@ -267,8 +268,8 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn quick_test_derive() {
+    #[tokio::test]
+    async fn quick_test_derive() {
         let subscription = Subscription {
             criteria: Box::new(FHIRString {
                 value: Some("Patient?name=Smith".to_string()),
@@ -277,7 +278,11 @@ mod tests {
             ..Default::default()
         };
 
-        let sub_filter = MemorySubscriptionFilter::try_from(subscription).unwrap();
+        let resolver = Arc::new(MemoryResolver::new());
+
+        let sub_filter = MemorySubscriptionFilter::new(resolver, subscription)
+            .await
+            .unwrap();
 
         assert_eq!(sub_filter.triggers.len(), 1);
 
@@ -294,8 +299,8 @@ mod tests {
         };
     }
 
-    #[test]
-    fn modifier_check() {
+    #[tokio::test]
+    async fn modifier_check() {
         let subscription = Subscription {
             criteria: Box::new(FHIRString {
                 value: Some("Observation?category:missing=true".to_string()),
@@ -304,7 +309,10 @@ mod tests {
             ..Default::default()
         };
 
-        let sub_filter = MemorySubscriptionFilter::try_from(subscription).unwrap();
+        let resolver = Arc::new(MemoryResolver::new());
+        let sub_filter = MemorySubscriptionFilter::new(resolver, subscription)
+            .await
+            .unwrap();
 
         assert_eq!(sub_filter.triggers.len(), 1);
 
@@ -324,13 +332,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_fhirpath() {
-        let sub_filter = MemorySubscriptionFilter::try_from(Subscription {
-            criteria: Box::new(FHIRString {
-                value: Some("Patient?name=Smith".to_string()),
+        let resolver = Arc::new(MemoryResolver::new());
+        let sub_filter = MemorySubscriptionFilter::new(
+            resolver.clone(),
+            Subscription {
+                criteria: Box::new(FHIRString {
+                    value: Some("Patient?name=Smith".to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        })
+            },
+        )
+        .await
         .unwrap();
         let patient = Resource::Patient(Patient {
             name: Some(vec![Box::new(HumanName {
@@ -345,24 +358,32 @@ mod tests {
 
         assert_eq!(sub_filter.matches(&patient).await.unwrap(), true);
 
-        let sub_filter_partial = MemorySubscriptionFilter::try_from(Subscription {
-            criteria: Box::new(FHIRString {
-                value: Some("Patient?name=Sm".to_string()),
+        let sub_filter_partial = MemorySubscriptionFilter::new(
+            resolver.clone(),
+            Subscription {
+                criteria: Box::new(FHIRString {
+                    value: Some("Patient?name=Sm".to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        })
+            },
+        )
+        .await
         .unwrap();
 
         assert_eq!(sub_filter_partial.matches(&patient).await.unwrap(), true);
 
-        let sub_filter_casing = MemorySubscriptionFilter::try_from(Subscription {
-            criteria: Box::new(FHIRString {
-                value: Some("Patient?name=sm".to_string()),
+        let sub_filter_casing = MemorySubscriptionFilter::new(
+            resolver.clone(),
+            Subscription {
+                criteria: Box::new(FHIRString {
+                    value: Some("Patient?name=sm".to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        })
+            },
+        )
+        .await
         .unwrap();
 
         assert_eq!(sub_filter_casing.matches(&patient).await.unwrap(), true);
