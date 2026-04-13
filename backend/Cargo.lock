@@ -2123,7 +2123,6 @@ version = "0.12.0"
 dependencies = [
  "chrono",
  "elasticsearch",
- "haste-artifacts",
  "haste-fhir-client",
  "haste-fhir-model",
  "haste-fhir-operation-error",

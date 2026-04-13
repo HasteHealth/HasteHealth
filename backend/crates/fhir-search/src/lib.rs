@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use haste_fhir_client::request::SearchRequest;
-use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, ResourceId, TenantId, VersionId};
 use haste_repository::types::{FHIRMethod, SupportedFHIRVersions};
@@ -36,6 +38,22 @@ pub struct SearchReturn {
 
 pub struct SearchOptions {
     pub count_limit: bool,
+}
+
+pub trait SearchParameterResolve: Send + Sync {
+    // Returns all search parameters for the given resource type, if any exist.
+    fn by_resource_type(
+        &self,
+        resource_type: &ResourceType,
+    ) -> impl Future<Output = Vec<Arc<SearchParameter>>> + Send + Sync;
+    // Returns the search parameter for the given resource type and code, if it exists.
+    fn by_name(
+        &self,
+        resource_type: Option<&ResourceType>,
+        code: &str,
+    ) -> impl Future<Output = Option<Arc<SearchParameter>>> + Send + Sync;
+    // Returns all search parameters, regardless of resource type.
+    fn all(&self) -> impl Future<Output = Vec<Arc<SearchParameter>>> + Send + Sync;
 }
 
 pub struct SuccessfullyIndexedCount(pub usize);

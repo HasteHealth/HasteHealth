@@ -1,5 +1,5 @@
 use crate::{
-    IndexResource, SearchEngine, SearchEntry, SearchOptions, SearchReturn,
+    IndexResource, SearchEngine, SearchEntry, SearchOptions, SearchParameterResolve, SearchReturn,
     SuccessfullyIndexedCount,
     indexing_conversion::{self, InsertableIndex},
 };
@@ -82,13 +82,17 @@ pub enum SearchConfigError {
 }
 
 #[derive(Clone)]
-pub struct ElasticSearchEngine {
+pub struct ElasticSearchEngine<SearchParameterResolver: SearchParameterResolve + 'static> {
+    parameter_resolver: Arc<SearchParameterResolver>,
     fp_engine: Arc<FPEngine>,
     client: Arc<Elasticsearch>,
 }
 
-impl ElasticSearchEngine {
+impl<SearchParameterResolver: SearchParameterResolve + 'static>
+    ElasticSearchEngine<SearchParameterResolver>
+{
     pub fn new(
+        parameter_resolver: Arc<SearchParameterResolver>,
         fp_engine: Arc<FPEngine>,
         url: &str,
         username: String,
@@ -104,6 +108,7 @@ impl ElasticSearchEngine {
 
         let elasticsearch_client = Elasticsearch::new(transport);
         Ok(ElasticSearchEngine {
+            parameter_resolver,
             fp_engine,
             client: Arc::new(elasticsearch_client),
         })
@@ -209,7 +214,9 @@ fn unique_index_id(
     unique_index_id
 }
 
-impl SearchEngine for ElasticSearchEngine {
+impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
+    for ElasticSearchEngine<SearchParameterResolver>
+{
     async fn search(
         &self,
         fhir_version: &SupportedFHIRVersions,
@@ -218,8 +225,14 @@ impl SearchEngine for ElasticSearchEngine {
         search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
-        let query =
-            search::build_elastic_search_query(tenant, projects, &search_request, &options)?;
+        let query = search::build_elastic_search_query(
+            self.parameter_resolver.clone(),
+            tenant,
+            projects,
+            &search_request,
+            &options,
+        )
+        .await?;
 
         let search_response = self
             .client
@@ -275,6 +288,7 @@ impl SearchEngine for ElasticSearchEngine {
                 _ => false,
             }) {
                 let engine = self.fp_engine.clone();
+                let parameter_resolver = self.parameter_resolver.clone();
                 tasks.push(tokio::spawn(async move {
                     match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
@@ -282,9 +296,7 @@ impl SearchEngine for ElasticSearchEngine {
                             let index_id =
                                 unique_index_id(&r.tenant, &r.project, &r.resource_type, &r.id);
                             let params =
-                            haste_artifacts::search_parameters::get_search_parameters_for_resource(
-                                &r.resource_type,
-                            );
+                                parameter_resolver.by_resource_type(&r.resource_type).await;
 
                             let mut elastic_index =
                                 resource_to_elastic_index(engine, &params, &r.resource).await?;
@@ -374,7 +386,12 @@ impl SearchEngine for ElasticSearchEngine {
         &self,
         _fhir_version: &SupportedFHIRVersions,
     ) -> Result<(), haste_fhir_operation_error::OperationOutcomeError> {
-        migration::create_mapping(&self.client, get_index_name(_fhir_version)?).await?;
+        migration::create_mapping(
+            self.parameter_resolver.clone(),
+            &self.client,
+            get_index_name(_fhir_version)?,
+        )
+        .await?;
         Ok(())
     }
 }

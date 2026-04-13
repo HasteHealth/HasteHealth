@@ -7,6 +7,8 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
 
+use crate::SearchParameterResolve;
+
 // Note use of nested because must preserve groupings of fields.
 fn date_index_mapping() -> serde_json::Value {
     json!({
@@ -178,7 +180,8 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     }))
 }
 
-pub async fn create_mapping(
+pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: Arc<ParameterResolver>,
     elastic_search: &Elasticsearch,
     index: &str,
 ) -> Result<(), OperationOutcomeError> {
@@ -191,11 +194,10 @@ pub async fn create_mapping(
         .await
         .unwrap();
 
-    let mapping_body = create_elasticsearch_searchparameter_mappings(
-        &haste_artifacts::search_parameters::get_all_search_parameters(),
-    )
-    .await
-    .unwrap();
+    let mapping_body =
+        create_elasticsearch_searchparameter_mappings(&parameter_resolver.all().await)
+            .await
+            .unwrap();
 
     let index_exists = exists_res.status_code().is_success();
 

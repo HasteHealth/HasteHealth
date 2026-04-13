@@ -1,4 +1,6 @@
-use crate::SearchOptions;
+use std::sync::Arc;
+
+use crate::{SearchOptions, SearchParameterResolve};
 use haste_fhir_client::{
     request::SearchRequest,
     url::{Parameter, ParsedParameter, ParsedParameters},
@@ -230,7 +232,8 @@ fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
     }
 }
 
-pub fn build_elastic_search_query(
+pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
+    parameter_resolver: Arc<ParameterResolver>,
     tenant: &TenantId,
     projects: &[&ProjectId],
     request: &SearchRequest,
@@ -254,11 +257,9 @@ pub fn build_elastic_search_query(
     for parameter in parameters.parameters().iter() {
         match parameter {
             ParsedParameter::Resource(resource_param) => {
-                let search_param =
-                    haste_artifacts::search_parameters::get_search_parameter_for_name(
-                        resource_type,
-                        &resource_param.name,
-                    )
+                let search_param = parameter_resolver
+                    .by_name(resource_type, &resource_param.name)
+                    .await
                     .ok_or_else(|| {
                         QueryBuildError::MissingParameter(resource_param.name.to_string())
                     })?;
@@ -311,34 +312,28 @@ pub fn build_elastic_search_query(
                     }
                 }
                 "_sort" => {
-                    sort = result_param
-                        .value
-                        .iter()
-                        .map(|sort_param| {
-                            let parameter_name = if sort_param.starts_with("-") {
-                                &sort_param[1..]
-                            } else {
-                                sort_param
-                            };
+                    for sort_param in result_param.value.iter() {
+                        let parameter_name = if sort_param.starts_with("-") {
+                            &sort_param[1..]
+                        } else {
+                            sort_param
+                        };
 
-                            let sort_direction = if sort_param.starts_with("-") {
-                                SortDirection::Desc
-                            } else {
-                                SortDirection::Asc
-                            };
+                        let sort_direction = if sort_param.starts_with("-") {
+                            SortDirection::Desc
+                        } else {
+                            SortDirection::Asc
+                        };
 
-                            let search_param =
-                                haste_artifacts::search_parameters::get_search_parameter_for_name(
-                                    resource_type,
-                                    parameter_name,
-                                )
-                                .ok_or_else(|| {
-                                    QueryBuildError::MissingParameter(parameter_name.to_string())
-                                })?;
+                        let search_param = parameter_resolver
+                            .by_name(resource_type, parameter_name)
+                            .await
+                            .ok_or_else(|| {
+                                QueryBuildError::MissingParameter(parameter_name.to_string())
+                            })?;
 
-                            sort_build(search_param.as_ref(), &sort_direction)
-                        })
-                        .collect::<Result<Vec<_>, _>>()?;
+                        sort.push(sort_build(search_param.as_ref(), &sort_direction)?);
+                    }
                 }
                 _ => {
                     return Err(QueryBuildError::UnsupportedParameter(
