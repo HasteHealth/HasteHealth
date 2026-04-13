@@ -27,17 +27,17 @@ use tracing::{info, warn};
 // 10  sequence      | bigint                   |           | not null | nextval('resources_sequence_seq'::regclass)
 
 #[derive(Debug, Clone)]
-pub struct ESSearchDestination<Search: SearchEngine> {
+pub struct ESSearchDestination<Search: SearchEngine + Clone> {
     search_client: Search,
 }
 
-impl<Search: SearchEngine> ESSearchDestination<Search> {
+impl<Search: SearchEngine + Clone> ESSearchDestination<Search> {
     pub fn new(search_client: Search) -> EtlResult<Self> {
         Ok(Self { search_client })
     }
 }
 
-impl<Search: SearchEngine> Destination for ESSearchDestination<Search> {
+impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
     fn name() -> &'static str {
         "http"
     }

@@ -111,6 +111,7 @@ static R4_SEARCH_PARAMETERS: LazyLock<SearchParametersIndex> = LazyLock::new(|| 
     index
 });
 
+#[derive(Clone)]
 pub struct MemoryResolver {}
 impl MemoryResolver {
     pub fn new() -> Self {
