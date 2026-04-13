@@ -327,102 +327,99 @@ impl<
 > FHIRServerClient<Repo, Search, Terminology>
 {
     pub fn new(config: ServerClientConfig<Repo, Search, Terminology>) -> Self {
-        let clinical_resources_route = Route {
-            filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Invocation(_) | FHIRRequest::Capabilities => false,
-                _ => {
-                    if let Some(resource_type) = request_to_resource_type(req) {
-                        !SPECIAL_TYPES.contains(&resource_type)
-                    } else {
-                        true
-                    }
-                }
-            }),
-            middleware: Middleware::new(vec![Box::new(middleware::storage::Middleware::new())]),
-        };
-
-        let operation_invocation_routes = Route {
-            filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Invocation(_) => true,
-                _ => false,
-            }),
-            middleware: Middleware::new(vec![Box::new(middleware::operations::Middleware::new())]),
-        };
-
-        let artifact_routes = Route {
-            filter: if config.mutate_artifacts {
-                Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Update(_)
-                    | FHIRRequest::Read(_)
-                    | FHIRRequest::Search(SearchRequest::Type(_)) => {
-                        if let Some(resource_type) = request_to_resource_type(req) {
-                            ARTIFACT_TYPES.contains(&resource_type)
-                        } else {
-                            false
-                        }
-                    }
-                    _ => false,
-                })
-            } else {
-                Box::new(|req: &FHIRRequest| match req {
-                    FHIRRequest::Read(_) | FHIRRequest::Search(SearchRequest::Type(_)) => {
-                        if let Some(resource_type) = request_to_resource_type(req) {
-                            ARTIFACT_TYPES.contains(&resource_type)
-                        } else {
-                            false
-                        }
-                    }
-                    _ => false,
-                })
-            },
-            middleware: Middleware::new(vec![
-                Box::new(middleware::set_artifact_tenant::Middleware::new()),
-                Box::new(middleware::storage::Middleware::new()),
-            ]),
-        };
-
-        let project_auth_routes = Route {
-            filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Invocation(_) => false,
-                _ => request_to_resource_type(req)
-                    .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
-            }),
-            middleware: Middleware::new(vec![
-                Box::new(middleware::transaction::Middleware::new()),
-                Box::new(middleware::custom_models::membership::Middleware::new()),
-                Box::new(middleware::storage::Middleware::new()),
-            ]),
-        };
-
-        let tenant_auth_routes = Route {
-            filter: Box::new(|req: &FHIRRequest| match req {
-                FHIRRequest::Invocation(_) => false,
-                _ => {
-                    request_to_resource_type(req).map_or(false, |rt| TENANT_AUTH_TYPES.contains(rt))
-                }
-            }),
-            middleware: Middleware::new(vec![
-                Box::new(
-                    middleware::check_project::SetProjectReadOnlyMiddleware::new(ProjectId::System),
-                ),
-                // Confirm in system project as above will only set to system if readonly.
-                Box::new(middleware::check_project::Middleware::new(
-                    ProjectId::System,
-                )),
-                Box::new(middleware::transaction::Middleware::new()),
-                Box::new(middleware::custom_models::project::Middleware::new()),
-                Box::new(middleware::custom_models::user::Middleware::new()),
-                Box::new(middleware::storage::Middleware::new()),
-            ]),
-        };
-
         let route_middleware = RouterMiddleware::new(Arc::new(vec![
-            clinical_resources_route,
-            artifact_routes,
-            operation_invocation_routes,
-            // Special Authentication routes.
-            project_auth_routes,
-            tenant_auth_routes,
+            // Clinical resources.
+            Route {
+                filter: Box::new(|req: &FHIRRequest| match req {
+                    FHIRRequest::Invocation(_) | FHIRRequest::Capabilities => false,
+                    _ => {
+                        if let Some(resource_type) = request_to_resource_type(req) {
+                            !SPECIAL_TYPES.contains(&resource_type)
+                        } else {
+                            true
+                        }
+                    }
+                }),
+                middleware: Middleware::new(vec![Box::new(middleware::storage::Middleware::new())]),
+            },
+            // Artifact routes.
+            Route {
+                filter: if config.mutate_artifacts {
+                    Box::new(|req: &FHIRRequest| match req {
+                        FHIRRequest::Update(_)
+                        | FHIRRequest::Read(_)
+                        | FHIRRequest::Search(SearchRequest::Type(_)) => {
+                            if let Some(resource_type) = request_to_resource_type(req) {
+                                ARTIFACT_TYPES.contains(&resource_type)
+                            } else {
+                                false
+                            }
+                        }
+                        _ => false,
+                    })
+                } else {
+                    Box::new(|req: &FHIRRequest| match req {
+                        FHIRRequest::Read(_) | FHIRRequest::Search(SearchRequest::Type(_)) => {
+                            if let Some(resource_type) = request_to_resource_type(req) {
+                                ARTIFACT_TYPES.contains(&resource_type)
+                            } else {
+                                false
+                            }
+                        }
+                        _ => false,
+                    })
+                },
+                middleware: Middleware::new(vec![
+                    Box::new(middleware::set_artifact_tenant::Middleware::new()),
+                    Box::new(middleware::storage::Middleware::new()),
+                ]),
+            },
+            // Operation routes
+            Route {
+                filter: Box::new(|req: &FHIRRequest| match req {
+                    FHIRRequest::Invocation(_) => true,
+                    _ => false,
+                }),
+                middleware: Middleware::new(vec![Box::new(
+                    middleware::operations::Middleware::new(),
+                )]),
+            },
+            // Authentication routes.
+            Route {
+                filter: Box::new(|req: &FHIRRequest| match req {
+                    FHIRRequest::Invocation(_) => false,
+                    _ => request_to_resource_type(req)
+                        .map_or(false, |rt| PROJECT_AUTH_TYPES.contains(rt)),
+                }),
+                middleware: Middleware::new(vec![
+                    Box::new(middleware::transaction::Middleware::new()),
+                    Box::new(middleware::custom_models::membership::Middleware::new()),
+                    Box::new(middleware::storage::Middleware::new()),
+                ]),
+            },
+            // Tenant auth routes.
+            Route {
+                filter: Box::new(|req: &FHIRRequest| match req {
+                    FHIRRequest::Invocation(_) => false,
+                    _ => request_to_resource_type(req)
+                        .map_or(false, |rt| TENANT_AUTH_TYPES.contains(rt)),
+                }),
+                middleware: Middleware::new(vec![
+                    Box::new(
+                        middleware::check_project::SetProjectReadOnlyMiddleware::new(
+                            ProjectId::System,
+                        ),
+                    ),
+                    // Confirm in system project as above will only set to system if readonly.
+                    Box::new(middleware::check_project::Middleware::new(
+                        ProjectId::System,
+                    )),
+                    Box::new(middleware::transaction::Middleware::new()),
+                    Box::new(middleware::custom_models::project::Middleware::new()),
+                    Box::new(middleware::custom_models::user::Middleware::new()),
+                    Box::new(middleware::storage::Middleware::new()),
+                ]),
+            },
         ]));
 
         FHIRServerClient {
