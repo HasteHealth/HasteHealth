@@ -1986,6 +1986,7 @@ name = "haste-artifacts"
 version = "0.12.0"
 dependencies = [
  "haste-fhir-model",
+ "haste-fhir-search",
  "haste-fhir-serialization-json",
  "rust-embed",
 ]
@@ -2397,6 +2398,7 @@ name = "haste-worker"
 version = "0.12.0"
 dependencies = [
  "elasticsearch",
+ "haste-artifacts",
  "haste-config",
  "haste-fhir-model",
  "haste-fhir-operation-error",
@@ -2427,6 +2429,7 @@ version = "0.12.0"
 dependencies = [
  "elasticsearch",
  "etl",
+ "haste-artifacts",
  "haste-config",
  "haste-fhir-model",
  "haste-fhir-operation-error",

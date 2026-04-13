@@ -22,3 +22,4 @@ haste-fhir-serialization-json = { path = "../fhir-serialization-json", version =
 haste-repository = { path = "../repository", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
+haste-artifacts = { path = "../artifacts", version = "0.*" }

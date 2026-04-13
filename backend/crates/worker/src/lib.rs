@@ -1,4 +1,5 @@
 use crate::indexing_lock::IndexLockProvider;
+use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::get_config;
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -214,6 +215,7 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
     let search_engine = Arc::new(
         ElasticSearchEngine::new(
+            Arc::new(MemoryResolver::new()),
             fp_engine.clone(),
             &config
                 .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)

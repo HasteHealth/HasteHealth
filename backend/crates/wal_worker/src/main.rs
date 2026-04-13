@@ -5,6 +5,7 @@ use etl::{
     pipeline::Pipeline,
     store::both::memory::MemoryStore,
 };
+use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::get_config;
 use haste_fhir_search::elastic_search::ElasticSearchEngine;
 
@@ -37,6 +38,7 @@ impl From<ESSearchWorkerEnvironmentVariables> for String {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = get_config::<ESSearchWorkerEnvironmentVariables>("environment".into());
     let search_engine = ElasticSearchEngine::new(
+        Arc::new(MemoryResolver::new()),
         Arc::new(haste_fhirpath::FPEngine::new()),
         &config
             .get(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)

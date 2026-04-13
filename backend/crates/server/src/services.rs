@@ -2,6 +2,7 @@ use crate::{
     ServerEnvironmentVariables,
     fhir_client::{FHIRServerClient, ServerClientConfig},
 };
+use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -118,12 +119,13 @@ impl<
 pub async fn create_services(
     config: Arc<dyn Config<ServerEnvironmentVariables>>,
 ) -> Result<
-    Arc<AppState<PGConnection, ElasticSearchEngine, FHIRCanonicalTerminology>>,
+    Arc<AppState<PGConnection, ElasticSearchEngine<MemoryResolver>, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
     let pool = get_pool(config.as_ref()).await;
     let search_engine = Arc::new(
         haste_fhir_search::elastic_search::ElasticSearchEngine::new(
+            Arc::new(MemoryResolver::new()),
             Arc::new(FPEngine::new()),
             &config
                 .get(ServerEnvironmentVariables::ElasticSearchURL)

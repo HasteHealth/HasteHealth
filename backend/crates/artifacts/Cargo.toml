@@ -12,6 +12,7 @@ haste-fhir-model = { path = "../fhir-model", version = "0.*", features = [
     "sqlx",
 ] }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 rust-embed = { version = "8.9.0", features = [
     "compression",
     "include-exclude",
