@@ -9,7 +9,6 @@ homepage = { workspace = true }
 
 [dependencies]
 chrono = { workspace = true }
-dashmap = "6.1.0"
 haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }

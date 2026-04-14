@@ -1,5 +1,4 @@
 use crate::fhir_client::ServerCTX;
-use dashmap::DashMap;
 use haste_fhir_client::{
     FHIRClient,
     canonical_resolver::CanonicalResolver,
@@ -8,6 +7,7 @@ use haste_fhir_client::{
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
+use moka::future::{Cache, CacheBuilder};
 use std::sync::{Arc, LazyLock};
 
 fn generate_key(
@@ -25,7 +25,12 @@ fn generate_key(
     )
 }
 
-static CACHE: LazyLock<DashMap<String, Arc<Resource>>> = LazyLock::new(DashMap::new);
+static CACHE: LazyLock<Cache<String, Arc<Resource>>> = LazyLock::new(|| {
+    // Cache entries live for 2 hours, after which they will be automatically evicted.
+    CacheBuilder::new(10_000)
+        .time_to_idle(std::time::Duration::from_secs(2 * 60 * 60))
+        .build()
+});
 
 pub struct ServerCTXResolver<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>>(
     Arc<ServerCTX<Client>>,
@@ -59,7 +64,7 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
             &resource_type,
             canonical_url,
         );
-        if let Some(cached) = CACHE.get(&key) {
+        if let Some(cached) = CACHE.get(&key).await {
             Ok(Some(cached.clone()))
         } else {
             if let Some(url) = canonical_url.split('|').next()
@@ -80,7 +85,7 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
                     .and_then(|mut e| e.pop()).and_then(|e| e.resource)
             {
                 let resource = Arc::new(*resolved_resource);
-                CACHE.insert(key, resource.clone());
+                CACHE.insert(key, resource.clone()).await;
                 return Ok(Some(resource));
             }
 
