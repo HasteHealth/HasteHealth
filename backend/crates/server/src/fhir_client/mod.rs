@@ -224,6 +224,7 @@ impl<
         let routes = self.routes.clone();
         Box::pin(async move {
             let route = routes.iter().find(|r| (r.filter)(&context.request));
+
             match route {
                 Some(route) => {
                     let context = route

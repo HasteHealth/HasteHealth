@@ -5,7 +5,7 @@ use crate::fhir_client::{
 use haste_fhir_client::{
     FHIRClient,
     middleware::MiddlewareChain,
-    request::{FHIRRequest, FHIRResponse},
+    request::{FHIRRequest, FHIRResponse, SearchRequest},
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -32,24 +32,34 @@ impl<
         next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
-            let ctx = Arc::new(ServerCTX::new(
-                TenantId::System,
-                ProjectId::System,
-                context.ctx.fhir_version.clone(),
-                context.ctx.user.clone(),
-                context.ctx.client.clone(),
-                context.ctx.rate_limit.clone(),
-            ));
-
-            context.ctx = ctx;
-
-            if let Some(next) = next {
-                next(state, context).await
-            } else {
-                Err(OperationOutcomeError::fatal(
+            let Some(next) = next else {
+                return Err(OperationOutcomeError::fatal(
                     IssueType::Exception(None),
                     "No next middleware found".to_string(),
-                ))
+                ));
+            };
+
+            match context.request {
+                FHIRRequest::Read(_) | FHIRRequest::Search(SearchRequest::Type(_)) => {
+                    // Artifact CTX
+                    context.ctx = Arc::new(ServerCTX::new(
+                        TenantId::System,
+                        ProjectId::System,
+                        context.ctx.fhir_version.clone(),
+                        context.ctx.user.clone(),
+                        context.ctx.client.clone(),
+                        context.ctx.rate_limit.clone(),
+                    ));
+
+                    next(state, context).await
+                }
+                _ => {
+                    return Err(OperationOutcomeError::fatal(
+                        IssueType::Exception(None),
+                        "Artifact tenant middleware only supports read and search requests."
+                            .to_string(),
+                    ));
+                }
             }
         })
     }
