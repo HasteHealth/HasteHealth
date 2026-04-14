@@ -345,31 +345,21 @@ impl<
             },
             // Artifact routes.
             Route {
-                filter: if config.mutate_artifacts {
-                    Box::new(|req: &FHIRRequest| match req {
-                        FHIRRequest::Update(_)
-                        | FHIRRequest::Read(_)
-                        | FHIRRequest::Search(SearchRequest::Type(_)) => {
-                            if let Some(resource_type) = request_to_resource_type(req) {
-                                ARTIFACT_TYPES.contains(&resource_type)
-                            } else {
-                                false
-                            }
+                filter: Box::new(|req: &FHIRRequest| match req {
+                    FHIRRequest::Create(_)
+                    | FHIRRequest::Update(_)
+                    | FHIRRequest::Delete(_)
+                    | FHIRRequest::Read(_)
+                    | FHIRRequest::Search(SearchRequest::Type(_)) => {
+                        if let Some(resource_type) = request_to_resource_type(req) {
+                            ARTIFACT_TYPES.contains(&resource_type)
+                        } else {
+                            false
                         }
-                        _ => false,
-                    })
-                } else {
-                    Box::new(|req: &FHIRRequest| match req {
-                        FHIRRequest::Read(_) | FHIRRequest::Search(SearchRequest::Type(_)) => {
-                            if let Some(resource_type) = request_to_resource_type(req) {
-                                ARTIFACT_TYPES.contains(&resource_type)
-                            } else {
-                                false
-                            }
-                        }
-                        _ => false,
-                    })
-                },
+                    }
+                    _ => false,
+                }),
+
                 middleware: Middleware::new(vec![
                     Box::new(middleware::set_artifact_tenant::Middleware::new()),
                     Box::new(middleware::storage::Middleware::new()),
