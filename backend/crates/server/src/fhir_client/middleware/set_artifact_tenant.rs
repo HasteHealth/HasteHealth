@@ -46,10 +46,10 @@ fn zip_together_search_requests(
         ) => {
             let mut combined_bundle = project_search_response.bundle;
 
-            let mut k = combined_bundle.entry.unwrap_or(vec![]);
-            k.extend(system_search_response.bundle.entry.unwrap_or(vec![]));
+            let mut combined_entries = combined_bundle.entry.unwrap_or(vec![]);
+            combined_entries.extend(system_search_response.bundle.entry.unwrap_or(vec![]));
 
-            combined_bundle.entry = Some(k);
+            combined_bundle.entry = Some(combined_entries);
 
             combined_bundle.total = combined_bundle.total.map(|mut total| {
                 total.value = Some(
@@ -85,7 +85,7 @@ impl<
     fn call(
         &self,
         state: State,
-        mut context: ServerMiddlewareContext<Client>,
+        context: ServerMiddlewareContext<Client>,
         next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
@@ -116,14 +116,14 @@ impl<
                     }
                 }
                 FHIRRequest::Search(SearchRequest::Type(_)) => {
-                    context.ctx = system_artifact_tenant(context.ctx);
-
                     let mut context = next(state.clone(), context).await?;
-                    let system_response = context.response;
-
-                    context.response = None;
-                    let mut context = next(state, context).await?;
                     let project_response = context.response;
+
+                    context.ctx = system_artifact_tenant(context.ctx);
+                    context.response = None;
+
+                    let mut context = next(state, context).await?;
+                    let system_response = context.response;
 
                     context.response = Some(zip_together_search_requests(
                         project_response,
