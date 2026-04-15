@@ -113,12 +113,12 @@ fn check_rate_limit<'a>(
                 }
             });
 
-            let current = current + points;
+            let current_score = current + points;
 
-            if points > max {
+            if current_score > max {
                 Err(RateLimitError::Exceeded)
             } else {
-                Ok(current)
+                Ok(current_score)
             }
         } else {
             let result =
