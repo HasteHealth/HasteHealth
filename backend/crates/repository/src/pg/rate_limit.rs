@@ -8,7 +8,13 @@ use haste_rate_limit::{RateLimit, RateLimitError};
 use moka::future::{Cache, CacheBuilder};
 use sqlx::{Acquire, Postgres};
 
-static MEMORY: LazyLock<Cache<String, i32>> = LazyLock::new(
+#[derive(Clone)]
+enum RateLimitState {
+    Count(i32),
+    Max,
+}
+
+static MEMORY: LazyLock<Cache<String, RateLimitState>> = LazyLock::new(
     // Cache entries live for 30 seconds, after which they will be automatically evicted.
     || {
         CacheBuilder::new(10_000)
@@ -90,21 +96,28 @@ fn check_rate_limit<'a>(
     async move {
         // First check in-memory cache
         if let Some(current) = MEMORY.get(rate_key).await {
-            let rate_key = rate_key.to_string();
+            let cloned_key = rate_key.to_string();
             // Run background task to update the cache asynchronously without blocking the main request flow.
             // This allows us to have a fast response time while still keeping the cache reasonably up to date.
             tokio::spawn(async move {
-                let result =
-                    check_rate_limit_remote(connection, &rate_key, max, points, window_in_seconds)
-                        .await;
+                let result = check_rate_limit_remote(
+                    connection,
+                    &cloned_key,
+                    max,
+                    points,
+                    window_in_seconds,
+                )
+                .await;
 
                 if let Ok(points) = result {
-                    MEMORY.insert(rate_key, points).await;
+                    MEMORY
+                        .insert(cloned_key, RateLimitState::Count(points))
+                        .await;
                 } else if let Err(e) = result {
                     match e {
                         RateLimitError::Exceeded => {
                             // If the rate limit is exceeded, we can set the in-memory cache to max to prevent further requests from hitting the database until the cache expires.
-                            MEMORY.insert(rate_key, i32::MAX).await;
+                            MEMORY.insert(cloned_key, RateLimitState::Max).await;
                         }
                         RateLimitError::Error(e) => {
                             println!("Error checking rate limit: {:?}", e);
@@ -113,19 +126,29 @@ fn check_rate_limit<'a>(
                 }
             });
 
-            let current_score = current + points;
+            match current {
+                RateLimitState::Count(current) => {
+                    let current_score = current + points;
 
-            if current_score > max {
-                Err(RateLimitError::Exceeded)
-            } else {
-                Ok(current_score)
+                    if current_score > max {
+                        Err(RateLimitError::Exceeded)
+                    } else {
+                        MEMORY
+                            .insert(rate_key.to_string(), RateLimitState::Count(current_score))
+                            .await;
+                        Ok(current_score)
+                    }
+                }
+                RateLimitState::Max => Err(RateLimitError::Exceeded),
             }
         } else {
             let result =
                 check_rate_limit_remote(connection, rate_key, max, points, window_in_seconds)
                     .await?;
 
-            MEMORY.insert(rate_key.to_string(), result).await;
+            MEMORY
+                .insert(rate_key.to_string(), RateLimitState::Count(result))
+                .await;
 
             Ok(result)
         }

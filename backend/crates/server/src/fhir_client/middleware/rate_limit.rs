@@ -14,7 +14,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::claims::SubscriptionTier;
 use haste_rate_limit::RateLimitError;
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 
 pub struct Middleware {}
 impl Middleware {
@@ -36,6 +36,7 @@ impl<
         next: Option<Arc<ServerMiddlewareNext<Client, State>>>,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
+            // let start = Instant::now();
             match &context.ctx.user.subscription_tier {
                 SubscriptionTier::Free
                 | SubscriptionTier::Professional
@@ -72,6 +73,8 @@ impl<
                     // Do nothing for unlimited.
                 }
             }
+
+            // println!("Rate limit check took {} ms", start.elapsed().as_millis());
 
             if let Some(next) = next {
                 next(state, context).await
