@@ -14,7 +14,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::claims::SubscriptionTier;
 use haste_rate_limit::RateLimitError;
-use std::{sync::Arc, time::Instant};
+use std::sync::Arc;
 
 pub struct Middleware {}
 impl Middleware {
