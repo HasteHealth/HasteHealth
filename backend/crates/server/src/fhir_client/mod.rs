@@ -40,6 +40,7 @@ mod batch_transaction_processing;
 mod compartment;
 mod middleware;
 mod resolver;
+mod subscription_limits;
 mod utilities;
 
 #[derive(OperationOutcomeError, Debug)]
