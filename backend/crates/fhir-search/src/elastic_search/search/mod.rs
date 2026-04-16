@@ -360,10 +360,8 @@ pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolv
 
     // Allow Span of multiple projects for search.
     clauses.push(json!({
-        "bool": {
-            "match": {
-                "project": project.as_ref()
-            }
+        "match": {
+            "project": project.as_ref()
         }
     }));
 
