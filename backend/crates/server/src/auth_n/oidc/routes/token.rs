@@ -378,7 +378,7 @@ async fn find_users_access_policy_version_ids<Search: SearchEngine>(
         .search(
             &SupportedFHIRVersions::R4,
             &tenant,
-            &[&project],
+            &project,
             &SearchRequest::Type(FHIRSearchTypeRequest {
                 resource_type: ResourceType::AccessPolicyV2,
                 parameters: ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {

@@ -1,5 +1,6 @@
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use haste_fhir_search::SearchParameterResolve;
+use haste_jwt::{ProjectId, TenantId};
 use rust_embed::Embed;
 use std::{
     collections::HashMap,
@@ -119,7 +120,12 @@ impl MemoryResolver {
     }
 }
 impl SearchParameterResolve for MemoryResolver {
-    async fn by_resource_type(&self, resource_type: &ResourceType) -> Vec<Arc<SearchParameter>> {
+    async fn by_resource_type(
+        &self,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+        resource_type: &ResourceType,
+    ) -> Vec<Arc<SearchParameter>> {
         let resource_params = R4_SEARCH_PARAMETERS
             .by_resource_type
             .get("Resource")
@@ -144,6 +150,8 @@ impl SearchParameterResolve for MemoryResolver {
 
     async fn by_name(
         &self,
+        _tenant: &TenantId,
+        _project: &ProjectId,
         resource_type: Option<&ResourceType>,
         name: &str,
     ) -> Option<Arc<SearchParameter>> {
@@ -169,7 +177,7 @@ impl SearchParameterResolve for MemoryResolver {
             .cloned()
     }
 
-    async fn all(&self) -> Vec<Arc<SearchParameter>> {
+    async fn all(&self, _tenant: &TenantId, _project: &ProjectId) -> Vec<Arc<SearchParameter>> {
         R4_SEARCH_PARAMETERS
             .by_url
             .values()

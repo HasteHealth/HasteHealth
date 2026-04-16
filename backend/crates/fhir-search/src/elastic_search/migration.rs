@@ -4,6 +4,7 @@ use elasticsearch::{
 };
 use haste_fhir_model::r4::generated::terminology::SearchParamType;
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_jwt::{ProjectId, TenantId};
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
 
@@ -194,10 +195,13 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
         .await
         .unwrap();
 
-    let mapping_body =
-        create_elasticsearch_searchparameter_mappings(&parameter_resolver.all().await)
-            .await
-            .unwrap();
+    let mapping_body = create_elasticsearch_searchparameter_mappings(
+        &parameter_resolver
+            .all(&TenantId::System, &ProjectId::System)
+            .await,
+    )
+    .await
+    .unwrap();
 
     let index_exists = exists_res.status_code().is_success();
 

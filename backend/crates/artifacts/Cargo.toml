@@ -17,3 +17,4 @@ rust-embed = { version = "8.9.0", features = [
     "compression",
     "include-exclude",
 ] }
+haste-jwt = { path = "../jwt", version = "0.*" }

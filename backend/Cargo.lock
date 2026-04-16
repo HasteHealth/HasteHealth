@@ -1988,6 +1988,7 @@ dependencies = [
  "haste-fhir-model",
  "haste-fhir-search",
  "haste-fhir-serialization-json",
+ "haste-jwt",
  "rust-embed",
 ]
 

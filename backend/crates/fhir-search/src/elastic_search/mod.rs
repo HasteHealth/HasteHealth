@@ -221,14 +221,14 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
         &self,
         fhir_version: &SupportedFHIRVersions,
         tenant: &TenantId,
-        projects: &[&ProjectId],
+        project: &ProjectId,
         search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
         let query = search::build_elastic_search_query(
             self.parameter_resolver.clone(),
             tenant,
-            projects,
+            project,
             &search_request,
             &options,
         )
@@ -295,8 +295,9 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
                             // Id is not sufficient because different Resourcetypes may have the same id.
                             let index_id =
                                 unique_index_id(&r.tenant, &r.project, &r.resource_type, &r.id);
-                            let params =
-                                parameter_resolver.by_resource_type(&r.resource_type).await;
+                            let params = parameter_resolver
+                                .by_resource_type(&r.tenant, &r.project, &r.resource_type)
+                                .await;
 
                             let mut elastic_index =
                                 resource_to_elastic_index(engine, &params, &r.resource).await?;

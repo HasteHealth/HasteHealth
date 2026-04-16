@@ -213,7 +213,7 @@ pub async fn get_all_sds<Repo: Repository, Search: SearchEngine>(
         .search(
             &SupportedFHIRVersions::R4,
             &TenantId::System,
-            &[&ProjectId::System],
+            &ProjectId::System,
             &SearchRequest::Type(sd_search),
             Some(SearchOptions { count_limit: false }),
         )
@@ -254,7 +254,7 @@ pub async fn get_all_sps<Repo: Repository, Search: SearchEngine>(
         .search(
             &SupportedFHIRVersions::R4,
             &TenantId::System,
-            &[&ProjectId::System],
+            &ProjectId::System,
             &SearchRequest::Type(sp_search),
             Some(SearchOptions { count_limit: false }),
         )

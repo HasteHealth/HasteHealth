@@ -235,7 +235,7 @@ fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
 pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     parameter_resolver: Arc<ParameterResolver>,
     tenant: &TenantId,
-    projects: &[&ProjectId],
+    project: &ProjectId,
     request: &SearchRequest,
     options: &Option<SearchOptions>,
 ) -> Result<serde_json::Value, QueryBuildError> {
@@ -258,7 +258,7 @@ pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolv
         match parameter {
             ParsedParameter::Resource(resource_param) => {
                 let search_param = parameter_resolver
-                    .by_name(resource_type, &resource_param.name)
+                    .by_name(tenant, project, resource_type, &resource_param.name)
                     .await
                     .ok_or_else(|| {
                         QueryBuildError::MissingParameter(resource_param.name.to_string())
@@ -326,7 +326,7 @@ pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolv
                         };
 
                         let search_param = parameter_resolver
-                            .by_name(resource_type, parameter_name)
+                            .by_name(tenant, project, resource_type, parameter_name)
                             .await
                             .ok_or_else(|| {
                                 QueryBuildError::MissingParameter(parameter_name.to_string())
@@ -361,13 +361,9 @@ pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolv
     // Allow Span of multiple projects for search.
     clauses.push(json!({
         "bool": {
-            "should": projects.iter().map(|project| {
-                json!({
-                    "match": {
-                        "project": project.as_ref()
-                    }
-                })
-            }).collect::<Vec<_>>()
+            "match": {
+                "project": project.as_ref()
+            }
         }
     }));
 
