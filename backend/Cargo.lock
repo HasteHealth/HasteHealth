@@ -1574,6 +1574,7 @@ dependencies = [
  "haste-fhir-operation-error",
  "haste-fhir-search",
  "haste-fhirpath",
+ "haste-jwt",
  "tokio",
 ]
 

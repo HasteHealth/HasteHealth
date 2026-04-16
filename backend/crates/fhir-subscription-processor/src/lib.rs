@@ -10,6 +10,7 @@ use haste_fhir_search::{
     SearchParameterResolve,
     indexing_conversion::{self, InsertableIndex},
 };
+use haste_jwt::{ProjectId, TenantId};
 
 pub mod traits;
 
@@ -53,6 +54,8 @@ pub struct MemorySubscriptionFilter {
 
 impl MemorySubscriptionFilter {
     pub async fn new<Resolver: SearchParameterResolve>(
+        tenant_id: &TenantId,
+        project_id: &ProjectId,
         resolver: Arc<Resolver>,
         value: Subscription,
     ) -> Result<Self, OperationOutcomeError> {
@@ -79,7 +82,12 @@ impl MemorySubscriptionFilter {
                 match parameter {
                     ParsedParameter::Resource(resource_param) => {
                         let Some(search_parameter) = resolver
-                            .by_name(Some(&resource_type), &resource_param.name)
+                            .by_name(
+                                tenant_id,
+                                project_id,
+                                Some(&resource_type),
+                                &resource_param.name,
+                            )
                             .await
                         else {
                             return Err(OperationOutcomeError::error(
@@ -280,9 +288,14 @@ mod tests {
 
         let resolver = Arc::new(MemoryResolver::new());
 
-        let sub_filter = MemorySubscriptionFilter::new(resolver, subscription)
-            .await
-            .unwrap();
+        let sub_filter = MemorySubscriptionFilter::new(
+            &TenantId::System,
+            &ProjectId::System,
+            resolver,
+            subscription,
+        )
+        .await
+        .unwrap();
 
         assert_eq!(sub_filter.triggers.len(), 1);
 
@@ -310,9 +323,14 @@ mod tests {
         };
 
         let resolver = Arc::new(MemoryResolver::new());
-        let sub_filter = MemorySubscriptionFilter::new(resolver, subscription)
-            .await
-            .unwrap();
+        let sub_filter = MemorySubscriptionFilter::new(
+            &TenantId::System,
+            &ProjectId::System,
+            resolver,
+            subscription,
+        )
+        .await
+        .unwrap();
 
         assert_eq!(sub_filter.triggers.len(), 1);
 
@@ -334,6 +352,8 @@ mod tests {
     async fn test_run_fhirpath() {
         let resolver = Arc::new(MemoryResolver::new());
         let sub_filter = MemorySubscriptionFilter::new(
+            &TenantId::System,
+            &ProjectId::System,
             resolver.clone(),
             Subscription {
                 criteria: Box::new(FHIRString {
@@ -359,6 +379,8 @@ mod tests {
         assert_eq!(sub_filter.matches(&patient).await.unwrap(), true);
 
         let sub_filter_partial = MemorySubscriptionFilter::new(
+            &TenantId::System,
+            &ProjectId::System,
             resolver.clone(),
             Subscription {
                 criteria: Box::new(FHIRString {
@@ -374,6 +396,8 @@ mod tests {
         assert_eq!(sub_filter_partial.matches(&patient).await.unwrap(), true);
 
         let sub_filter_casing = MemorySubscriptionFilter::new(
+            &TenantId::System,
+            &ProjectId::System,
             resolver.clone(),
             Subscription {
                 criteria: Box::new(FHIRString {

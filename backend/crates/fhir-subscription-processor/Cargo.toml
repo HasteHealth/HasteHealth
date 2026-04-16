@@ -17,6 +17,7 @@ haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-fhir-search = { path = "../fhir-search", version = "0.*" }
+haste-jwt = { path = "../jwt", version = "0.*" }
 
 [dev-dependencies]
 criterion = { version = "0.8", features = ["async_tokio"] }
