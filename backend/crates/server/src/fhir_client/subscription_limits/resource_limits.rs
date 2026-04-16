@@ -6,33 +6,51 @@ use haste_jwt::claims::SubscriptionTier;
 /// Hardcoding limits for now
 
 #[derive(Clone)]
-pub enum Limit {
-    #[allow(dead_code)]
-    Count(usize),
+pub enum TenantResourceLimit {
+    Count(ResourceType, usize),
     Unlimited,
 }
 
-static SUBSCRIPTION_LIMITS: LazyLock<HashMap<SubscriptionTier, HashMap<ResourceType, Limit>>> =
-    LazyLock::new(|| {
-        let mut limits = HashMap::new();
+static FREE_TIER_OPERATION_LIMITS: usize = 0;
+static FREE_TIER_SUBSCRIPTION_LIMITS: usize = 0;
+static FREE_TIER_SEARCH_PARAMETER_LIMITS: usize = 0;
 
-        let mut free_tier_limits = HashMap::new();
-        free_tier_limits.insert(ResourceType::OperationDefinition, Limit::Count(0));
-        free_tier_limits.insert(ResourceType::Subscription, Limit::Count(0));
-        free_tier_limits.insert(ResourceType::SearchParameter, Limit::Count(0));
+static SUBSCRIPTION_LIMITS: LazyLock<
+    HashMap<SubscriptionTier, HashMap<ResourceType, TenantResourceLimit>>,
+> = LazyLock::new(|| {
+    let mut limits = HashMap::new();
 
-        limits.insert(SubscriptionTier::Free, free_tier_limits);
+    let mut free_tier_limits = HashMap::new();
+    free_tier_limits.insert(
+        ResourceType::OperationDefinition,
+        TenantResourceLimit::Count(
+            ResourceType::OperationDefinition,
+            FREE_TIER_OPERATION_LIMITS,
+        ),
+    );
+    free_tier_limits.insert(
+        ResourceType::Subscription,
+        TenantResourceLimit::Count(ResourceType::Subscription, FREE_TIER_SUBSCRIPTION_LIMITS),
+    );
+    free_tier_limits.insert(
+        ResourceType::SearchParameter,
+        TenantResourceLimit::Count(
+            ResourceType::SearchParameter,
+            FREE_TIER_SEARCH_PARAMETER_LIMITS,
+        ),
+    );
 
-        limits
-    });
+    limits.insert(SubscriptionTier::Free, free_tier_limits);
 
-#[allow(dead_code)]
-pub fn get_subscription_resource_limit(
+    limits
+});
+
+pub fn get_tenant_resource_limit(
     tier: &SubscriptionTier,
     resource_type: &ResourceType,
-) -> Limit {
+) -> TenantResourceLimit {
     SUBSCRIPTION_LIMITS
         .get(tier)
         .and_then(|resource_limits| resource_limits.get(resource_type).cloned())
-        .unwrap_or(Limit::Unlimited)
+        .unwrap_or(TenantResourceLimit::Unlimited)
 }

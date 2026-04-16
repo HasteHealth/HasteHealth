@@ -422,6 +422,7 @@ impl<
                 config: config.config,
             }),
             middleware: Middleware::new(vec![
+                Box::new(middleware::subscription_tier_limit::Middleware::new()),
                 Box::new(middleware::rate_limit::Middleware::new()),
                 Box::new(middleware::auth_z::scope_check::SMARTScopeAccessMiddleware::new()),
                 Box::new(middleware::auth_z::access_control::AccessControlMiddleware::new()),
