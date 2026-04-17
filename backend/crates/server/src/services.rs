@@ -122,7 +122,7 @@ pub async fn create_services(
     Arc<AppState<PGConnection, ElasticSearchEngine<MemoryResolver>, FHIRCanonicalTerminology>>,
     OperationOutcomeError,
 > {
-    let pool = get_pool(config.as_ref()).await;
+    let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
     let search_engine = Arc::new(
         haste_fhir_search::elastic_search::ElasticSearchEngine::new(
             Arc::new(MemoryResolver::new()),
@@ -148,8 +148,6 @@ pub async fn create_services(
         )
         .expect("Failed to create Elasticsearch client"),
     );
-
-    let pool = Arc::new(PGConnection::pool(pool.clone()));
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 
