@@ -6,7 +6,10 @@ use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::{SearchEngine, elastic_search::ElasticSearchEngine};
+use haste_fhir_search::{
+    SearchEngine,
+    elastic_search::{ElasticSearchEngine, create_es_client},
+};
 use haste_fhir_terminology::{FHIRTerminology, client::FHIRCanonicalTerminology};
 use haste_fhirpath::FPEngine;
 use haste_repository::{Repository, pg::PGConnection};
@@ -123,31 +126,33 @@ pub async fn create_services(
     OperationOutcomeError,
 > {
     let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
-    let search_engine = Arc::new(
-        haste_fhir_search::elastic_search::ElasticSearchEngine::new(
-            Arc::new(MemoryResolver::new()),
-            Arc::new(FPEngine::new()),
-            &config
-                .get(ServerEnvironmentVariables::ElasticSearchURL)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(ServerEnvironmentVariables::ElasticSearchURL)
-                )),
-            config
-                .get(ServerEnvironmentVariables::ElasticSearchUsername)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(ServerEnvironmentVariables::ElasticSearchUsername)
-                )),
-            config
-                .get(ServerEnvironmentVariables::ElasticSearchPassword)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(ServerEnvironmentVariables::ElasticSearchPassword)
-                )),
-        )
-        .expect("Failed to create Elasticsearch client"),
-    );
+    let es_client = create_es_client(
+        &config
+            .get(ServerEnvironmentVariables::ElasticSearchURL)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(ServerEnvironmentVariables::ElasticSearchURL)
+            )),
+        config
+            .get(ServerEnvironmentVariables::ElasticSearchUsername)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(ServerEnvironmentVariables::ElasticSearchUsername)
+            )),
+        config
+            .get(ServerEnvironmentVariables::ElasticSearchPassword)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(ServerEnvironmentVariables::ElasticSearchPassword)
+            )),
+    )
+    .expect("Failed to create Elasticsearch client");
+
+    let search_engine = Arc::new(haste_fhir_search::elastic_search::ElasticSearchEngine::new(
+        Arc::new(MemoryResolver::new()),
+        Arc::new(FPEngine::new()),
+        es_client,
+    ));
 
     let terminology = Arc::new(FHIRCanonicalTerminology::new());
 

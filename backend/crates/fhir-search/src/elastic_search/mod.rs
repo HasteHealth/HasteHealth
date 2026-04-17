@@ -88,30 +88,36 @@ pub struct ElasticSearchEngine<SearchParameterResolver: SearchParameterResolve +
     client: Arc<Elasticsearch>,
 }
 
+pub fn create_es_client(
+    url: &str,
+    username: String,
+    password: String,
+) -> Result<Arc<Elasticsearch>, SearchConfigError> {
+    let url = Url::parse(url).map_err(|_e| SearchConfigError::UrlParseError(url.to_string()))?;
+    let conn_pool = SingleNodeConnectionPool::new(url);
+    let transport = TransportBuilder::new(conn_pool)
+        .cert_validation(CertificateValidation::None)
+        .auth(Credentials::Basic(username, password))
+        .build()?;
+
+    let elasticsearch_client = Elasticsearch::new(transport);
+
+    Ok(Arc::new(elasticsearch_client))
+}
+
 impl<SearchParameterResolver: SearchParameterResolve + 'static>
     ElasticSearchEngine<SearchParameterResolver>
 {
     pub fn new(
         parameter_resolver: Arc<SearchParameterResolver>,
         fp_engine: Arc<FPEngine>,
-        url: &str,
-        username: String,
-        password: String,
-    ) -> Result<Self, SearchConfigError> {
-        let url =
-            Url::parse(url).map_err(|_e| SearchConfigError::UrlParseError(url.to_string()))?;
-        let conn_pool = SingleNodeConnectionPool::new(url);
-        let transport = TransportBuilder::new(conn_pool)
-            .cert_validation(CertificateValidation::None)
-            .auth(Credentials::Basic(username, password))
-            .build()?;
-
-        let elasticsearch_client = Elasticsearch::new(transport);
-        Ok(ElasticSearchEngine {
+        es_client: Arc<Elasticsearch>,
+    ) -> Self {
+        ElasticSearchEngine {
             parameter_resolver,
             fp_engine,
-            client: Arc::new(elasticsearch_client),
-        })
+            client: es_client,
+        }
     }
 
     pub async fn is_connected(&self) -> Result<(), SearchError> {

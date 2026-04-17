@@ -7,7 +7,7 @@ use etl::{
 };
 use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::get_config;
-use haste_fhir_search::elastic_search::ElasticSearchEngine;
+use haste_fhir_search::elastic_search::{ElasticSearchEngine, create_es_client};
 
 use crate::es_search_destination::ESSearchDestination;
 mod es_search_destination;
@@ -37,9 +37,7 @@ impl From<ESSearchWorkerEnvironmentVariables> for String {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = get_config::<ESSearchWorkerEnvironmentVariables>("environment".into());
-    let search_engine = ElasticSearchEngine::new(
-        Arc::new(MemoryResolver::new()),
-        Arc::new(haste_fhirpath::FPEngine::new()),
+    let es_client = create_es_client(
         &config
             .get(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
             .expect(&format!(
@@ -60,6 +58,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             )),
     )
     .expect("Failed to create Elasticsearch client");
+
+    let search_engine = ElasticSearchEngine::new(
+        Arc::new(MemoryResolver::new()),
+        Arc::new(haste_fhirpath::FPEngine::new()),
+        es_client,
+    );
 
     let pg_config = PgConnectionConfig {
         host: "localhost".to_string(),

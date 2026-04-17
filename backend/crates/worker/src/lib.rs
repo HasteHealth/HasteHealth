@@ -3,7 +3,10 @@ use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::get_config;
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::{IndexResource, SearchEngine, elastic_search::ElasticSearchEngine};
+use haste_fhir_search::{
+    IndexResource, SearchEngine,
+    elastic_search::{ElasticSearchEngine, create_es_client},
+};
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
 use haste_repository::{fhir::FHIRRepository, types::SupportedFHIRVersions};
@@ -213,31 +216,33 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     .await
     .expect("Failed to connect to the database");
     let repo = Arc::new(haste_repository::pg::PGConnection::pool(pg_pool.clone()));
-    let search_engine = Arc::new(
-        ElasticSearchEngine::new(
-            Arc::new(MemoryResolver::new()),
-            fp_engine.clone(),
-            &config
-                .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
-                )),
-            config
-                .get(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
-                )),
-            config
-                .get(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
-                .expect(&format!(
-                    "'{}' variable not set",
-                    String::from(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
-                )),
-        )
-        .expect("Failed to create Elasticsearch client"),
-    );
+    let es_client = create_es_client(
+        &config
+            .get(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(IndexingWorkerEnvironmentVariables::ElasticSearchURL)
+            )),
+        config
+            .get(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(IndexingWorkerEnvironmentVariables::ElasticSearchUsername)
+            )),
+        config
+            .get(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
+            .expect(&format!(
+                "'{}' variable not set",
+                String::from(IndexingWorkerEnvironmentVariables::ElasticSearchPassword)
+            )),
+    )
+    .expect("Failed to create Elasticsearch client");
+
+    let search_engine = Arc::new(ElasticSearchEngine::new(
+        Arc::new(MemoryResolver::new()),
+        fp_engine.clone(),
+        es_client,
+    ));
 
     let mut attempts = 0;
     while !search_engine.is_connected().await.is_ok() && attempts < 5 {
