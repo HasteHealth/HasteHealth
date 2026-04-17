@@ -26,6 +26,7 @@ use std::{collections::HashMap, sync::Arc};
 
 mod migration;
 mod search;
+mod search_parameter_resolver;
 
 #[derive(Deserialize, Debug)]
 struct SearchEntryPrivate {
