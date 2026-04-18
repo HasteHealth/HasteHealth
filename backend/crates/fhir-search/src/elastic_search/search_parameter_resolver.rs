@@ -3,11 +3,14 @@ use haste_jwt::{ProjectId, TenantId};
 use moka::future::{Cache, CacheBuilder};
 use std::sync::{Arc, LazyLock};
 
-use crate::{SearchParameterResolve, memory::SearchParametersIndex};
+use crate::{
+    SearchParameterResolve,
+    memory::{SearchParameterMemoryResolve, SearchParametersIndex},
+};
 
 #[allow(dead_code)]
 pub struct ElasticSearchParameterResolver {
-    client: Arc<Elasticsearch>,
+    es: Arc<Elasticsearch>,
 }
 
 #[allow(dead_code)]
@@ -21,36 +24,42 @@ static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), SearchParame
 
 impl ElasticSearchParameterResolver {
     #[allow(dead_code)]
-    pub fn new(client: Arc<Elasticsearch>) -> Self {
-        ElasticSearchParameterResolver { client }
+    pub fn new(es: Arc<Elasticsearch>) -> Self {
+        ElasticSearchParameterResolver { es }
     }
 }
 
 impl SearchParameterResolve for ElasticSearchParameterResolver {
     async fn by_resource_type(
         &self,
-        _tenant: &haste_jwt::TenantId,
-        _project: &haste_jwt::ProjectId,
-        _resource_type: &haste_fhir_model::r4::generated::resources::ResourceType,
+        tenant: &haste_jwt::TenantId,
+        project: &haste_jwt::ProjectId,
+        resource_type: &haste_fhir_model::r4::generated::resources::ResourceType,
     ) -> Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>> {
-        todo!()
+        SearchParameterMemoryResolve::new()
+            .by_resource_type(tenant, project, resource_type)
+            .await
     }
 
     async fn by_name(
         &self,
-        _tenant: &haste_jwt::TenantId,
-        _project: &haste_jwt::ProjectId,
-        _resource_type: Option<&haste_fhir_model::r4::generated::resources::ResourceType>,
-        _code: &str,
+        tenant: &haste_jwt::TenantId,
+        project: &haste_jwt::ProjectId,
+        resource_type: Option<&haste_fhir_model::r4::generated::resources::ResourceType>,
+        code: &str,
     ) -> Option<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>> {
-        todo!()
+        SearchParameterMemoryResolve::new()
+            .by_name(tenant, project, resource_type, code)
+            .await
     }
 
     async fn all(
         &self,
-        _tenant: &haste_jwt::TenantId,
-        _project: &haste_jwt::ProjectId,
+        tenant: &haste_jwt::TenantId,
+        project: &haste_jwt::ProjectId,
     ) -> Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>> {
-        todo!()
+        SearchParameterMemoryResolve::new()
+            .all(tenant, project)
+            .await
     }
 }
