@@ -23,3 +23,4 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+moka = { workspace = true, features = ["future"] }

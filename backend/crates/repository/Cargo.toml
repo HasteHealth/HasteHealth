@@ -20,7 +20,7 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*", features = ["sqlx"] }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
-moka = { version = "0.12.11", features = ["future"] }
+moka = { workspace=true, features = ["future"] }
 nanoid = "0.4.0"
 regex = { workspace = true }
 serde = { workspace = true }

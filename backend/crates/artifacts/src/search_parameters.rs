@@ -12,7 +12,7 @@ pub enum ArtifactError {
     InvalidResource(String),
 }
 
-struct SearchParametersIndex {
+pub struct SearchParametersIndex {
     by_url: HashMap<String, Arc<SearchParameter>>,
     by_resource_type: HashMap<String, HashMap<String, Arc<SearchParameter>>>,
 }
@@ -111,6 +111,16 @@ static R4_SEARCH_PARAMETERS: LazyLock<SearchParametersIndex> = LazyLock::new(|| 
 
     index
 });
+
+pub fn create_index_map(search_parameters: Vec<SearchParameter>) -> SearchParametersIndex {
+    let mut index = SearchParametersIndex::default();
+    for param in search_parameters {
+        build_search_parameter_index_map(&mut index, Resource::SearchParameter(param))
+            .expect("Failed to build search parameter index");
+    }
+
+    index
+}
 
 #[derive(Clone)]
 pub struct MemoryResolver {}

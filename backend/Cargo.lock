@@ -2132,6 +2132,7 @@ dependencies = [
  "haste-jwt",
  "haste-reflect",
  "haste-repository",
+ "moka",
  "serde",
  "serde_json",
  "tokio",

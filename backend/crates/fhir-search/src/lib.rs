@@ -44,23 +44,23 @@ pub trait SearchParameterResolve: Send + Sync {
     // Returns all search parameters for the given resource type, if any exist.
     fn by_resource_type(
         &self,
-        tenant_id: &TenantId,
-        project_id: &ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         resource_type: &ResourceType,
     ) -> impl Future<Output = Vec<Arc<SearchParameter>>> + Send + Sync;
     // Returns the search parameter for the given resource type and code, if it exists.
     fn by_name(
         &self,
-        tenant_id: &TenantId,
-        project_id: &ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
         resource_type: Option<&ResourceType>,
         code: &str,
     ) -> impl Future<Output = Option<Arc<SearchParameter>>> + Send + Sync;
     // Returns all search parameters, regardless of resource type.
     fn all(
         &self,
-        tenant_id: &TenantId,
-        project_id: &ProjectId,
+        tenant: &TenantId,
+        project: &ProjectId,
     ) -> impl Future<Output = Vec<Arc<SearchParameter>>> + Send + Sync;
 }
 

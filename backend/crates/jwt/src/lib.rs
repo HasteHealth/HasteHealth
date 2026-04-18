@@ -112,7 +112,7 @@ impl Display for AuthorKind {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TenantId {
     System,
     Custom(String),
@@ -171,7 +171,7 @@ impl Display for TenantId {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ProjectId {
     System,
     Custom(String),
