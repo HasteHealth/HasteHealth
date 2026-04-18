@@ -1,10 +1,10 @@
 use crate::{
-    IndexResource, SearchEngine, SearchEntry, SearchOptions, SearchParameterResolve, SearchReturn,
+    IndexResource, SearchEngine, SearchOptions, SearchParameterResolve, SearchReturn,
     SuccessfullyIndexedCount,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
-    BulkOperation, BulkParts, Elasticsearch, SearchParts,
+    BulkOperation, BulkParts, Elasticsearch,
     auth::Credentials,
     cert::CertificateValidation,
     http::{
@@ -232,49 +232,16 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
         search_request: &SearchRequest,
         options: Option<SearchOptions>,
     ) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
-        let query = search::build_elastic_search_query(
+        search::execute_search(
+            self.client.clone(),
             self.parameter_resolver.clone(),
+            fhir_version,
             tenant,
             project,
-            &search_request,
+            search_request,
             &options,
         )
-        .await?;
-
-        let search_response = self
-            .client
-            .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
-            .body(query)
-            .send()
-            .await
-            .map_err(SearchError::from)?;
-
-        if !search_response.status_code().is_success() {
-            return Err(SearchError::ElasticSearchResponseError(
-                search_response.status_code().as_u16(),
-            )
-            .into());
-        }
-
-        let search_results = search_response
-            .json::<ElasticSearchResponse>()
-            .await
-            .map_err(SearchError::from)?;
-
-        Ok(SearchReturn {
-            total: search_results.hits.total.as_ref().map(|t| t.value),
-            entries: search_results
-                .hits
-                .hits
-                .into_iter()
-                .map(|mut hit| SearchEntry {
-                    id: hit.fields.id.pop().unwrap(),
-                    resource_type: hit.fields.resource_type.pop().unwrap(),
-                    version_id: hit.fields.version_id.pop().unwrap(),
-                    project: hit.fields.project.pop().unwrap(),
-                })
-                .collect(),
-        })
+        .await
     }
 
     fn index(

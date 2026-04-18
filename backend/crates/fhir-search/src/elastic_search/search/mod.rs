@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use crate::{SearchOptions, SearchParameterResolve};
+use crate::{
+    SearchEntry, SearchOptions, SearchParameterResolve, SearchReturn,
+    elastic_search::{ElasticSearchResponse, SearchError, get_index_name},
+};
+use elasticsearch::{Elasticsearch, SearchParts};
 use haste_fhir_client::{
     request::SearchRequest,
     url::{Parameter, ParsedParameter, ParsedParameters},
@@ -11,6 +15,7 @@ use haste_fhir_model::r4::generated::{
 };
 use haste_fhir_operation_error::derive::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
+use haste_repository::types::SupportedFHIRVersions;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -232,7 +237,7 @@ fn get_parameters<'a>(request: &'a SearchRequest) -> &'a ParsedParameters {
     }
 }
 
-pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
+async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     parameter_resolver: Arc<ParameterResolver>,
     tenant: &TenantId,
     project: &ProjectId,
@@ -382,4 +387,57 @@ pub async fn build_elastic_search_query<ParameterResolver: SearchParameterResolv
     // println!("{}", serde_json::to_string_pretty(&query).unwrap());
 
     Ok(query)
+}
+
+pub async fn execute_search<ParameterResolver: SearchParameterResolve>(
+    es: Arc<Elasticsearch>,
+    parameter_resolver: Arc<ParameterResolver>,
+    fhir_version: &SupportedFHIRVersions,
+    tenant: &TenantId,
+    project: &ProjectId,
+    search_request: &SearchRequest,
+    options: &Option<SearchOptions>,
+) -> Result<SearchReturn, haste_fhir_operation_error::OperationOutcomeError> {
+    let query = build_elastic_search_query(
+        parameter_resolver.clone(),
+        tenant,
+        project,
+        &search_request,
+        options,
+    )
+    .await?;
+
+    let search_response = es
+        .search(SearchParts::Index(&[get_index_name(&fhir_version)?]))
+        .body(query)
+        .send()
+        .await
+        .map_err(SearchError::from)?;
+
+    if !search_response.status_code().is_success() {
+        return Err(SearchError::ElasticSearchResponseError(
+            search_response.status_code().as_u16(),
+        )
+        .into());
+    }
+
+    let search_results = search_response
+        .json::<ElasticSearchResponse>()
+        .await
+        .map_err(SearchError::from)?;
+
+    Ok(SearchReturn {
+        total: search_results.hits.total.as_ref().map(|t| t.value),
+        entries: search_results
+            .hits
+            .hits
+            .into_iter()
+            .map(|mut hit| SearchEntry {
+                id: hit.fields.id.pop().unwrap(),
+                resource_type: hit.fields.resource_type.pop().unwrap(),
+                version_id: hit.fields.version_id.pop().unwrap(),
+                project: hit.fields.project.pop().unwrap(),
+            })
+            .collect(),
+    })
 }

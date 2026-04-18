@@ -1,16 +1,21 @@
 use elasticsearch::Elasticsearch;
+use haste_fhir_client::request::{FHIRSearchTypeRequest, SearchRequest};
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
+use haste_repository::Repository;
 use moka::future::{Cache, CacheBuilder};
 use std::sync::{Arc, LazyLock};
 
 use crate::{
-    SearchParameterResolve,
+    SearchOptions, SearchParameterResolve,
+    elastic_search::search,
     memory::{SearchParameterMemoryResolve, SearchParametersIndex},
 };
 
 #[allow(dead_code)]
-pub struct ElasticSearchParameterResolver {
+pub struct ElasticSearchParameterResolver<Repo: Repository + Send + Sync> {
     es: Arc<Elasticsearch>,
+    repo: Repo,
 }
 
 #[allow(dead_code)]
@@ -22,14 +27,39 @@ static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), SearchParame
             .build()
     });
 
-impl ElasticSearchParameterResolver {
+impl<Repo: Repository + Send + Sync> ElasticSearchParameterResolver<Repo> {
     #[allow(dead_code)]
-    pub fn new(es: Arc<Elasticsearch>) -> Self {
-        ElasticSearchParameterResolver { es }
+    pub fn new(es: Arc<Elasticsearch>, repo: Repo) -> Self {
+        ElasticSearchParameterResolver { es, repo }
     }
 }
 
-impl SearchParameterResolve for ElasticSearchParameterResolver {
+async fn retrieve_search_parameters_from_repo<Repo: Repository + Send + Sync>(
+    es: Arc<Elasticsearch>,
+    repo: &Repo,
+    tenant: &TenantId,
+    project: &ProjectId,
+) -> Result<SearchParametersIndex, OperationOutcomeError> {
+    let result = search::execute_search(
+        es,
+        Arc::new(SearchParameterMemoryResolve::new()),
+        &haste_repository::types::SupportedFHIRVersions::R4,
+        tenant,
+        project,
+        &SearchRequest::Type(FHIRSearchTypeRequest {
+            resource_type: todo!(),
+            parameters: todo!(),
+        }),
+        &Some(SearchOptions { count_limit: false }),
+    )
+    .await?;
+
+    todo!();
+}
+
+impl<Repo: Repository + Send + Sync> SearchParameterResolve
+    for ElasticSearchParameterResolver<Repo>
+{
     async fn by_resource_type(
         &self,
         tenant: &haste_jwt::TenantId,
@@ -48,9 +78,14 @@ impl SearchParameterResolve for ElasticSearchParameterResolver {
         resource_type: Option<&haste_fhir_model::r4::generated::resources::ResourceType>,
         code: &str,
     ) -> Option<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>> {
-        SearchParameterMemoryResolve::new()
+        if let Some(parameter) = SearchParameterMemoryResolve::new()
             .by_name(tenant, project, resource_type, code)
             .await
+        {
+            Some(parameter)
+        } else {
+            None
+        }
     }
 
     async fn all(
