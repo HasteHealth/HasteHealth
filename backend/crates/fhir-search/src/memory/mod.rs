@@ -1,7 +1,7 @@
+use crate::SearchParameterResolve;
+use haste_artifacts::R4_SEARCH_PARAMETERS;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
-use haste_fhir_search::SearchParameterResolve;
 use haste_jwt::{ProjectId, TenantId};
-use rust_embed::Embed;
 use std::{
     collections::HashMap,
     sync::{Arc, LazyLock},
@@ -12,6 +12,7 @@ pub enum ArtifactError {
     InvalidResource(String),
 }
 
+#[derive(Clone)]
 pub struct SearchParametersIndex {
     by_url: HashMap<String, Arc<SearchParameter>>,
     by_resource_type: HashMap<String, HashMap<String, Arc<SearchParameter>>>,
@@ -89,32 +90,18 @@ fn build_search_parameter_index_map(
     }
 }
 
-#[derive(Embed)]
-#[folder = "./artifacts/r4"]
-#[include = "haste_health/search_parameter/*.json"]
-#[include = "hl7/minified/search-parameters.min.json"]
-
-struct EmbededSearchParameterAssets;
-
-static R4_SEARCH_PARAMETERS: LazyLock<SearchParametersIndex> = LazyLock::new(|| {
-    let mut index = SearchParametersIndex::default();
-
-    for path in EmbededSearchParameterAssets::iter() {
-        let data = EmbededSearchParameterAssets::get(path.as_ref()).unwrap();
-        let bundle = haste_fhir_serialization_json::from_str::<Resource>(
-            std::str::from_utf8(&data.data).unwrap(),
-        )
-        .expect("Failed to parse search parameters JSON");
-        build_search_parameter_index_map(&mut index, bundle)
-            .expect("Failed to extract search parameters");
-    }
-
-    index
+static R4_SEARCH_PARAMETERS_INDEX: LazyLock<SearchParametersIndex> = LazyLock::new(|| {
+    create_index_map(
+        R4_SEARCH_PARAMETERS
+            .iter()
+            .map(|param| param.as_ref().clone())
+            .collect(),
+    )
 });
 
 pub fn create_index_map(search_parameters: Vec<SearchParameter>) -> SearchParametersIndex {
     let mut index = SearchParametersIndex::default();
-    for param in search_parameters {
+    for param in search_parameters.into_iter() {
         build_search_parameter_index_map(&mut index, Resource::SearchParameter(param))
             .expect("Failed to build search parameter index");
     }
@@ -123,24 +110,24 @@ pub fn create_index_map(search_parameters: Vec<SearchParameter>) -> SearchParame
 }
 
 #[derive(Clone)]
-pub struct MemoryResolver {}
-impl MemoryResolver {
+pub struct SearchParameterMemoryResolve {}
+impl SearchParameterMemoryResolve {
     pub fn new() -> Self {
         Self {}
     }
 }
-impl SearchParameterResolve for MemoryResolver {
+impl SearchParameterResolve for SearchParameterMemoryResolve {
     async fn by_resource_type(
         &self,
         _tenant: &TenantId,
         _project: &ProjectId,
         resource_type: &ResourceType,
     ) -> Vec<Arc<SearchParameter>> {
-        let resource_params = R4_SEARCH_PARAMETERS
+        let resource_params = R4_SEARCH_PARAMETERS_INDEX
             .by_resource_type
             .get("Resource")
             .unwrap();
-        let domain_params = R4_SEARCH_PARAMETERS
+        let domain_params = R4_SEARCH_PARAMETERS_INDEX
             .by_resource_type
             .get("DomainResource")
             .unwrap();
@@ -148,7 +135,7 @@ impl SearchParameterResolve for MemoryResolver {
         return_vec.extend(resource_params.values().cloned());
         return_vec.extend(domain_params.values().cloned());
 
-        if let Some(params) = R4_SEARCH_PARAMETERS
+        if let Some(params) = R4_SEARCH_PARAMETERS_INDEX
             .by_resource_type
             .get(resource_type.as_ref())
         {
@@ -167,19 +154,19 @@ impl SearchParameterResolve for MemoryResolver {
     ) -> Option<Arc<SearchParameter>> {
         resource_type
             .and_then(|resource_type| {
-                R4_SEARCH_PARAMETERS
+                R4_SEARCH_PARAMETERS_INDEX
                     .by_resource_type
                     .get(resource_type.as_ref())
             })
             .and_then(|params| params.get(name))
             .or_else(|| {
-                R4_SEARCH_PARAMETERS
+                R4_SEARCH_PARAMETERS_INDEX
                     .by_resource_type
                     .get("Resource")
                     .and_then(|params| params.get(name))
             })
             .or_else(|| {
-                R4_SEARCH_PARAMETERS
+                R4_SEARCH_PARAMETERS_INDEX
                     .by_resource_type
                     .get("DomainResource")
                     .and_then(|params| params.get(name))
@@ -188,7 +175,7 @@ impl SearchParameterResolve for MemoryResolver {
     }
 
     async fn all(&self, _tenant: &TenantId, _project: &ProjectId) -> Vec<Arc<SearchParameter>> {
-        R4_SEARCH_PARAMETERS
+        R4_SEARCH_PARAMETERS_INDEX
             .by_url
             .values()
             .cloned()

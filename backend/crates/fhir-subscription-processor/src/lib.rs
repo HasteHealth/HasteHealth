@@ -266,11 +266,11 @@ impl traits::SubscriptionFilter for MemorySubscriptionFilter {
 
 #[cfg(test)]
 mod tests {
-    use haste_artifacts::search_parameters::MemoryResolver;
     use haste_fhir_model::r4::generated::{
         resources::Patient,
         types::{FHIRString, HumanName},
     };
+    use haste_fhir_search::memory::SearchParameterMemoryResolve;
 
     use crate::traits::SubscriptionFilter;
 
@@ -286,7 +286,7 @@ mod tests {
             ..Default::default()
         };
 
-        let resolver = Arc::new(MemoryResolver::new());
+        let resolver = Arc::new(SearchParameterMemoryResolve::new());
 
         let sub_filter = MemorySubscriptionFilter::new(
             &TenantId::System,
@@ -322,7 +322,7 @@ mod tests {
             ..Default::default()
         };
 
-        let resolver = Arc::new(MemoryResolver::new());
+        let resolver = Arc::new(SearchParameterMemoryResolve::new());
         let sub_filter = MemorySubscriptionFilter::new(
             &TenantId::System,
             &ProjectId::System,
@@ -350,7 +350,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_fhirpath() {
-        let resolver = Arc::new(MemoryResolver::new());
+        let resolver = Arc::new(SearchParameterMemoryResolve::new());
         let sub_filter = MemorySubscriptionFilter::new(
             &TenantId::System,
             &ProjectId::System,

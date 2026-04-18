@@ -9,6 +9,7 @@ use serde::Deserialize;
 
 pub mod elastic_search;
 pub mod indexing_conversion;
+pub mod memory;
 
 #[derive(Clone)]
 pub struct IndexResource {

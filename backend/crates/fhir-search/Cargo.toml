@@ -19,6 +19,7 @@ haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-repository = { path = "../repository", version = "0.*" }
+haste-artifacts = { path = "../artifacts", version = "0.*" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }
