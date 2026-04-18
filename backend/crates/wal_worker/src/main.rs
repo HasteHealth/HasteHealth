@@ -5,9 +5,11 @@ use etl::{
     pipeline::Pipeline,
     store::both::memory::MemoryStore,
 };
-use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::get_config;
-use haste_fhir_search::elastic_search::{ElasticSearchEngine, create_es_client};
+use haste_fhir_search::{
+    elastic_search::{ElasticSearchEngine, create_es_client},
+    memory::SearchParameterMemoryResolve,
+};
 
 use crate::es_search_destination::ESSearchDestination;
 mod es_search_destination;
@@ -60,7 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .expect("Failed to create Elasticsearch client");
 
     let search_engine = ElasticSearchEngine::new(
-        Arc::new(MemoryResolver::new()),
+        Arc::new(SearchParameterMemoryResolve::new()),
         Arc::new(haste_fhirpath::FPEngine::new()),
         es_client,
     );

@@ -1,11 +1,11 @@
 use crate::indexing_lock::IndexLockProvider;
-use haste_artifacts::search_parameters::MemoryResolver;
 use haste_config::get_config;
 use haste_fhir_model::r4::generated::resources::ResourceTypeError;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::{
     IndexResource, SearchEngine,
     elastic_search::{ElasticSearchEngine, create_es_client},
+    memory::SearchParameterMemoryResolve,
 };
 use haste_fhirpath::FHIRPathError;
 use haste_jwt::{TenantId, VersionId};
@@ -239,7 +239,7 @@ pub async fn run_worker() -> Result<(), OperationOutcomeError> {
     .expect("Failed to create Elasticsearch client");
 
     let search_engine = Arc::new(ElasticSearchEngine::new(
-        Arc::new(MemoryResolver::new()),
+        Arc::new(SearchParameterMemoryResolve::new()),
         fp_engine.clone(),
         es_client,
     ));
