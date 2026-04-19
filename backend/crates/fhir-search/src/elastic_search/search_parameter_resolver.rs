@@ -13,24 +13,25 @@ use std::sync::{Arc, LazyLock};
 use crate::{
     SearchOptions, SearchParameterResolve,
     elastic_search::search,
-    memory::{SearchParameterMemoryResolve, SearchParametersIndex, create_index_map},
+    memory::{R4_SEARCH_PARAMETERS_INDEX, SearchParametersIndex, create_index_map},
 };
 
+#[derive(Clone)]
 pub struct ElasticSearchParameterResolver<Repo: Repository + Send + Sync> {
     es: Arc<Elasticsearch>,
-    repo: Repo,
+    repo: Arc<Repo>,
 }
 
 static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), Arc<SearchParametersIndex>>> =
     LazyLock::new(|| {
         CacheBuilder::new(50_000)
-            // Duration for 1 hour for search parameters.
-            .time_to_idle(std::time::Duration::from_secs(60 * 60))
+            // Duration for 2 hour for search parameters.
+            .time_to_idle(std::time::Duration::from_secs(2 * 60 * 60))
             .build()
     });
 
 impl<Repo: Repository + Send + Sync> ElasticSearchParameterResolver<Repo> {
-    pub fn new(es: Arc<Elasticsearch>, repo: Repo) -> Self {
+    pub fn new(es: Arc<Elasticsearch>, repo: Arc<Repo>) -> Self {
         ElasticSearchParameterResolver { es, repo }
     }
 }
@@ -43,7 +44,7 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
 ) -> Result<SearchParametersIndex, OperationOutcomeError> {
     let result = search::execute_search(
         es,
-        Arc::new(SearchParameterMemoryResolve::new()),
+        R4_SEARCH_PARAMETERS_INDEX.clone(),
         &haste_repository::types::SupportedFHIRVersions::R4,
         tenant,
         project,
@@ -79,15 +80,21 @@ async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
     repo: &Repo,
     tenant: TenantId,
     project: ProjectId,
-) -> Result<Arc<SearchParametersIndex>, OperationOutcomeError> {
-    let index_key = (tenant, project);
-    if let Some(index) = SEARCHPARAMETER_CACHE.get(&index_key).await {
-        Ok(index)
-    } else {
-        let index = Arc::new(create_project_sp_index(es, repo, &index_key.0, &index_key.1).await?);
-        SEARCHPARAMETER_CACHE.insert(index_key, index.clone()).await;
+) -> Result<Option<Arc<SearchParametersIndex>>, OperationOutcomeError> {
+    match (&tenant, &project) {
+        (TenantId::System, ProjectId::System) => Ok(None),
+        _ => {
+            let index_key = (tenant, project);
+            if let Some(index) = SEARCHPARAMETER_CACHE.get(&index_key).await {
+                Ok(Some(index))
+            } else {
+                let index =
+                    Arc::new(create_project_sp_index(es, repo, &index_key.0, &index_key.1).await?);
+                SEARCHPARAMETER_CACHE.insert(index_key, index.clone()).await;
 
-        Ok(index)
+                Ok(Some(index))
+            }
+        }
     }
 }
 
@@ -103,23 +110,24 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
         OperationOutcomeError,
     > {
-        let project_index = get_or_create_sp_index_for_project(
+        let mut sps_by_resource_type = R4_SEARCH_PARAMETERS_INDEX
+            .by_resource_type(tenant, project, resource_type)
+            .await?;
+
+        if let Some(project_index) = get_or_create_sp_index_for_project(
             self.es.clone(),
-            &self.repo,
+            self.repo.as_ref(),
             tenant.clone(),
             project.clone(),
         )
-        .await?;
+        .await?
+        {
+            let project_sps = project_index
+                .by_resource_type(tenant, project, resource_type)
+                .await?;
 
-        let mut sps_by_resource_type = SearchParameterMemoryResolve::new()
-            .by_resource_type(tenant, project, resource_type)
-            .await?;
-
-        let project_sps = project_index
-            .by_resource_type(tenant, project, resource_type)
-            .await?;
-
-        sps_by_resource_type.extend(project_sps);
+            sps_by_resource_type.extend(project_sps);
+        }
 
         Ok(sps_by_resource_type)
     }
@@ -134,22 +142,24 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         Option<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
         OperationOutcomeError,
     > {
-        if let Some(parameter) = SearchParameterMemoryResolve::new()
+        if let Some(parameter) = R4_SEARCH_PARAMETERS_INDEX
             .by_name(tenant, project, resource_type, code)
             .await?
         {
             Ok(Some(parameter))
-        } else {
-            let project_index = get_or_create_sp_index_for_project(
-                self.es.clone(),
-                &self.repo,
-                tenant.clone(),
-                project.clone(),
-            )
-            .await?;
+        } else if let Some(project_index) = get_or_create_sp_index_for_project(
+            self.es.clone(),
+            self.repo.as_ref(),
+            tenant.clone(),
+            project.clone(),
+        )
+        .await?
+        {
             project_index
                 .by_name(tenant, project, resource_type, code)
                 .await
+        } else {
+            Ok(None)
         }
     }
 
@@ -161,19 +171,18 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
         OperationOutcomeError,
     > {
-        let mut all_sps = SearchParameterMemoryResolve::new()
-            .all(tenant, project)
-            .await?;
+        let mut all_sps = R4_SEARCH_PARAMETERS_INDEX.all(tenant, project).await?;
 
-        let project_index = get_or_create_sp_index_for_project(
+        if let Some(project_index) = get_or_create_sp_index_for_project(
             self.es.clone(),
-            &self.repo,
+            self.repo.as_ref(),
             tenant.clone(),
             project.clone(),
         )
-        .await?;
-
-        all_sps.extend(project_index.all(tenant, project).await?);
+        .await?
+        {
+            all_sps.extend(project_index.all(tenant, project).await?);
+        }
 
         Ok(all_sps)
     }

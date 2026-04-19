@@ -5,7 +5,7 @@ use crate::{
 use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
-use haste_fhir_search::memory::SearchParameterMemoryResolve;
+use haste_fhir_search::elastic_search::search_parameter_resolver::ElasticSearchParameterResolver;
 use haste_fhir_search::{
     SearchEngine,
     elastic_search::{ElasticSearchEngine, create_es_client},
@@ -125,7 +125,7 @@ pub async fn create_services(
     Arc<
         AppState<
             PGConnection,
-            ElasticSearchEngine<SearchParameterMemoryResolve>,
+            ElasticSearchEngine<ElasticSearchParameterResolver<PGConnection>>,
             FHIRCanonicalTerminology,
         >,
     >,
@@ -155,7 +155,10 @@ pub async fn create_services(
     .expect("Failed to create Elasticsearch client");
 
     let search_engine = Arc::new(haste_fhir_search::elastic_search::ElasticSearchEngine::new(
-        Arc::new(SearchParameterMemoryResolve::new()),
+        Arc::new(ElasticSearchParameterResolver::new(
+            es_client.clone(),
+            pool.clone(),
+        )),
         Arc::new(FPEngine::new()),
         es_client,
     ));

@@ -270,7 +270,7 @@ mod tests {
         resources::Patient,
         types::{FHIRString, HumanName},
     };
-    use haste_fhir_search::memory::SearchParameterMemoryResolve;
+    use haste_fhir_search::memory::R4_SEARCH_PARAMETERS_INDEX;
 
     use crate::traits::SubscriptionFilter;
 
@@ -286,7 +286,7 @@ mod tests {
             ..Default::default()
         };
 
-        let resolver = Arc::new(SearchParameterMemoryResolve::new());
+        let resolver = R4_SEARCH_PARAMETERS_INDEX.clone();
 
         let sub_filter = MemorySubscriptionFilter::new(
             &TenantId::System,
@@ -322,7 +322,7 @@ mod tests {
             ..Default::default()
         };
 
-        let resolver = Arc::new(SearchParameterMemoryResolve::new());
+        let resolver = R4_SEARCH_PARAMETERS_INDEX.clone();
         let sub_filter = MemorySubscriptionFilter::new(
             &TenantId::System,
             &ProjectId::System,
@@ -350,7 +350,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_fhirpath() {
-        let resolver = Arc::new(SearchParameterMemoryResolve::new());
+        let resolver = R4_SEARCH_PARAMETERS_INDEX.clone();
         let sub_filter = MemorySubscriptionFilter::new(
             &TenantId::System,
             &ProjectId::System,

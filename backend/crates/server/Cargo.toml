@@ -10,7 +10,6 @@ homepage = { workspace = true }
 
 [dependencies]
 dotenvy = { workspace = true }
-sqlx-postgres = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 serde_json = { workspace = true }
 serde = { workspace = true }
@@ -20,6 +19,7 @@ sqlx = { workspace = true, features = [
     "postgres",
     "time",
 ] }
+sqlx-postgres = { workspace = true }
 jsonwebtoken = { workspace = true }
 regex = { workspace = true }
 tracing = { workspace = true }

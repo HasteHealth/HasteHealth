@@ -1,17 +1,22 @@
 use std::sync::Arc;
 
+use crate::es_search_destination::ESSearchDestination;
 use etl::{
     config::{BatchConfig, PgConnectionConfig, PipelineConfig, TableSyncCopyConfig, TlsConfig},
     pipeline::Pipeline,
     store::both::memory::MemoryStore,
 };
-use haste_config::get_config;
-use haste_fhir_search::{
-    elastic_search::{ElasticSearchEngine, create_es_client},
-    memory::SearchParameterMemoryResolve,
+use haste_config::{Config, get_config};
+use haste_fhir_search::elastic_search::{
+    ElasticSearchEngine, create_es_client,
+    search_parameter_resolver::ElasticSearchParameterResolver,
 };
+use haste_repository::pg::PGConnection;
+use sqlx::{Pool, Postgres};
+use sqlx_postgres::PgPoolOptions;
+use tokio::sync::OnceCell;
+use tracing::info;
 
-use crate::es_search_destination::ESSearchDestination;
 mod es_search_destination;
 
 static PIPELINE_ID: u64 = 1;
@@ -20,6 +25,8 @@ pub enum ESSearchWorkerEnvironmentVariables {
     ElasticSearchURL,
     ElasticSearchUsername,
     ElasticSearchPassword,
+    // Database url
+    DataBaseURL,
 }
 
 impl From<ESSearchWorkerEnvironmentVariables> for String {
@@ -32,13 +39,38 @@ impl From<ESSearchWorkerEnvironmentVariables> for String {
             ESSearchWorkerEnvironmentVariables::ElasticSearchPassword => {
                 "ELASTICSEARCH_PASSWORD".to_string()
             }
+            ESSearchWorkerEnvironmentVariables::DataBaseURL => "DATABASE_URL".to_string(),
         }
     }
+}
+
+static POOL: OnceCell<Pool<Postgres>> = OnceCell::const_new();
+
+pub async fn get_pool(
+    config: &dyn Config<ESSearchWorkerEnvironmentVariables>,
+) -> &'static Pool<Postgres> {
+    POOL.get_or_init(async || {
+        let database_url = config
+            .get(ESSearchWorkerEnvironmentVariables::DataBaseURL)
+            .expect(&format!(
+                "'{}' must be set",
+                String::from(ESSearchWorkerEnvironmentVariables::DataBaseURL)
+            ));
+        info!("Connecting to postgres database");
+        let connection = PgPoolOptions::new()
+            .max_connections(5)
+            .connect(&database_url)
+            .await
+            .expect("Failed to create database connection pool");
+        connection
+    })
+    .await
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = get_config::<ESSearchWorkerEnvironmentVariables>("environment".into());
+    let pool = Arc::new(PGConnection::pool(get_pool(config.as_ref()).await.clone()));
     let es_client = create_es_client(
         &config
             .get(ESSearchWorkerEnvironmentVariables::ElasticSearchURL)
@@ -61,12 +93,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .expect("Failed to create Elasticsearch client");
 
-    let search_engine = ElasticSearchEngine::new(
-        Arc::new(SearchParameterMemoryResolve::new()),
-        Arc::new(haste_fhirpath::FPEngine::new()),
-        es_client,
-    );
-
     let pg_config = PgConnectionConfig {
         host: "localhost".to_string(),
         port: 5432,
@@ -79,6 +105,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         keepalive: None,
     };
+
+    let search_engine = ElasticSearchEngine::new(
+        Arc::new(ElasticSearchParameterResolver::new(es_client.clone(), pool)),
+        Arc::new(haste_fhirpath::FPEngine::new()),
+        es_client,
+    );
 
     let config = PipelineConfig {
         id: PIPELINE_ID,

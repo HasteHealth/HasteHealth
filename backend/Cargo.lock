@@ -2439,6 +2439,8 @@ dependencies = [
  "haste-fhirpath",
  "haste-jwt",
  "haste-repository",
+ "sqlx",
+ "sqlx-postgres",
  "tokio",
  "tracing",
 ]
