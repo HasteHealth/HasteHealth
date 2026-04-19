@@ -16,13 +16,11 @@ use crate::{
     memory::{SearchParameterMemoryResolve, SearchParametersIndex, create_index_map},
 };
 
-#[allow(dead_code)]
 pub struct ElasticSearchParameterResolver<Repo: Repository + Send + Sync> {
     es: Arc<Elasticsearch>,
     repo: Repo,
 }
 
-#[allow(dead_code)]
 static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), Arc<SearchParametersIndex>>> =
     LazyLock::new(|| {
         CacheBuilder::new(50_000)
@@ -32,13 +30,11 @@ static SEARCHPARAMETER_CACHE: LazyLock<Cache<(TenantId, ProjectId), Arc<SearchPa
     });
 
 impl<Repo: Repository + Send + Sync> ElasticSearchParameterResolver<Repo> {
-    #[allow(dead_code)]
     pub fn new(es: Arc<Elasticsearch>, repo: Repo) -> Self {
         ElasticSearchParameterResolver { es, repo }
     }
 }
 
-#[allow(dead_code)]
 async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     es: Arc<Elasticsearch>,
     repo: &Repo,
