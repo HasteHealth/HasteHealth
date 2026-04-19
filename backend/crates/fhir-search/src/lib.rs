@@ -48,7 +48,7 @@ pub trait SearchParameterResolve: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
         resource_type: &ResourceType,
-    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send;
     // Returns the search parameter for the given resource type and code, if it exists.
     fn by_name(
         &self,
@@ -56,13 +56,13 @@ pub trait SearchParameterResolve: Send + Sync {
         project: &ProjectId,
         resource_type: Option<&ResourceType>,
         code: &str,
-    ) -> impl Future<Output = Result<Option<Arc<SearchParameter>>, OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<Option<Arc<SearchParameter>>, OperationOutcomeError>> + Send;
     // Returns all search parameters, regardless of resource type.
     fn all(
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send;
 }
 
 pub struct SuccessfullyIndexedCount(pub usize);
@@ -75,16 +75,16 @@ pub trait SearchEngine: Send + Sync {
         projects: &ProjectId,
         search_request: &SearchRequest,
         options: Option<SearchOptions>,
-    ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<SearchReturn, OperationOutcomeError>> + Send;
 
     fn index(
         &self,
         fhir_version: SupportedFHIRVersions,
         resource: Vec<IndexResource>,
-    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send;
 
     fn migrate(
         &self,
         fhir_version: &SupportedFHIRVersions,
-    ) -> impl Future<Output = Result<(), haste_fhir_operation_error::OperationOutcomeError>> + Send + Sync;
+    ) -> impl Future<Output = Result<(), haste_fhir_operation_error::OperationOutcomeError>> + Send;
 }

@@ -107,13 +107,13 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
         OperationOutcomeError,
     > {
-        // let project_index = get_or_create_sp_index_for_project(
-        //     self.es.clone(),
-        //     &self.repo,
-        //     tenant.clone(),
-        //     project.clone(),
-        // )
-        // .await?;
+        let _project_index = get_or_create_sp_index_for_project(
+            self.es.clone(),
+            &self.repo,
+            tenant.clone(),
+            project.clone(),
+        )
+        .await?;
 
         let root = SearchParameterMemoryResolve::new()
             .by_resource_type(tenant, project, resource_type)

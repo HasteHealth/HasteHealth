@@ -248,8 +248,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
         &self,
         fhir_version: SupportedFHIRVersions,
         resources: Vec<IndexResource>,
-    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send + Sync
-    {
+    ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send {
         async move {
             // Iterator used to evaluate all of the search expressions for indexing.
 
