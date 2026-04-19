@@ -107,7 +107,7 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
         OperationOutcomeError,
     > {
-        let _project_index = get_or_create_sp_index_for_project(
+        let project_index = get_or_create_sp_index_for_project(
             self.es.clone(),
             &self.repo,
             tenant.clone(),
@@ -115,13 +115,17 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         )
         .await?;
 
-        let root = SearchParameterMemoryResolve::new()
+        let mut sps_by_resource_type = SearchParameterMemoryResolve::new()
             .by_resource_type(tenant, project, resource_type)
             .await?;
 
-        // root.extend(;
+        let project_sps = project_index
+            .by_resource_type(tenant, project, resource_type)
+            .await?;
 
-        Ok(root)
+        sps_by_resource_type.extend(project_sps);
+
+        Ok(sps_by_resource_type)
     }
 
     async fn by_name(
@@ -140,7 +144,16 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         {
             Ok(Some(parameter))
         } else {
-            Ok(None)
+            let project_index = get_or_create_sp_index_for_project(
+                self.es.clone(),
+                &self.repo,
+                tenant.clone(),
+                project.clone(),
+            )
+            .await?;
+            project_index
+                .by_name(tenant, project, resource_type, code)
+                .await
         }
     }
 
@@ -152,8 +165,20 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
         OperationOutcomeError,
     > {
-        SearchParameterMemoryResolve::new()
+        let mut all_sps = SearchParameterMemoryResolve::new()
             .all(tenant, project)
-            .await
+            .await?;
+
+        let project_index = get_or_create_sp_index_for_project(
+            self.es.clone(),
+            &self.repo,
+            tenant.clone(),
+            project.clone(),
+        )
+        .await?;
+
+        all_sps.extend(project_index.all(tenant, project).await?);
+
+        Ok(all_sps)
     }
 }
