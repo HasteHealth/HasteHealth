@@ -12,12 +12,7 @@ tracing = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 etl = { git = "https://github.com/supabase/etl" }
 elasticsearch = "9.0.0-alpha.1"
-sqlx = { workspace = true, features = [
-    "runtime-tokio",
-    "tls-native-tls",
-    "postgres",
-    "time",
-] }
+sqlx = { workspace = true, features = ["runtime-tokio"] }
 sqlx-postgres = { workspace = true }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*", features = [
     "derive",
