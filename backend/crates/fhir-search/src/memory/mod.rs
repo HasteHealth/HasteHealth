@@ -1,6 +1,7 @@
 use crate::SearchParameterResolve;
 use haste_artifacts::R4_SEARCH_PARAMETERS;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
+use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
 use std::{
     collections::HashMap,
@@ -122,7 +123,7 @@ impl SearchParameterResolve for SearchParameterMemoryResolve {
         _tenant: &TenantId,
         _project: &ProjectId,
         resource_type: &ResourceType,
-    ) -> Vec<Arc<SearchParameter>> {
+    ) -> Result<Vec<Arc<SearchParameter>>, OperationOutcomeError> {
         let resource_params = R4_SEARCH_PARAMETERS_INDEX
             .by_resource_type
             .get("Resource")
@@ -142,7 +143,7 @@ impl SearchParameterResolve for SearchParameterMemoryResolve {
             return_vec.extend(params.values().cloned());
         }
 
-        return_vec
+        Ok(return_vec)
     }
 
     async fn by_name(
@@ -151,8 +152,8 @@ impl SearchParameterResolve for SearchParameterMemoryResolve {
         _project: &ProjectId,
         resource_type: Option<&ResourceType>,
         name: &str,
-    ) -> Option<Arc<SearchParameter>> {
-        resource_type
+    ) -> Result<Option<Arc<SearchParameter>>, OperationOutcomeError> {
+        Ok(resource_type
             .and_then(|resource_type| {
                 R4_SEARCH_PARAMETERS_INDEX
                     .by_resource_type
@@ -171,14 +172,18 @@ impl SearchParameterResolve for SearchParameterMemoryResolve {
                     .get("DomainResource")
                     .and_then(|params| params.get(name))
             })
-            .cloned()
+            .cloned())
     }
 
-    async fn all(&self, _tenant: &TenantId, _project: &ProjectId) -> Vec<Arc<SearchParameter>> {
-        R4_SEARCH_PARAMETERS_INDEX
+    async fn all(
+        &self,
+        _tenant: &TenantId,
+        _project: &ProjectId,
+    ) -> Result<Vec<Arc<SearchParameter>>, OperationOutcomeError> {
+        Ok(R4_SEARCH_PARAMETERS_INDEX
             .by_url
             .values()
             .cloned()
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>())
     }
 }

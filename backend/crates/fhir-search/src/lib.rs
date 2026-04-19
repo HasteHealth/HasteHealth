@@ -48,7 +48,7 @@ pub trait SearchParameterResolve: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
         resource_type: &ResourceType,
-    ) -> impl Future<Output = Vec<Arc<SearchParameter>>> + Send + Sync;
+    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send + Sync;
     // Returns the search parameter for the given resource type and code, if it exists.
     fn by_name(
         &self,
@@ -56,13 +56,13 @@ pub trait SearchParameterResolve: Send + Sync {
         project: &ProjectId,
         resource_type: Option<&ResourceType>,
         code: &str,
-    ) -> impl Future<Output = Option<Arc<SearchParameter>>> + Send + Sync;
+    ) -> impl Future<Output = Result<Option<Arc<SearchParameter>>, OperationOutcomeError>> + Send + Sync;
     // Returns all search parameters, regardless of resource type.
     fn all(
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-    ) -> impl Future<Output = Vec<Arc<SearchParameter>>> + Send + Sync;
+    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send + Sync;
 }
 
 pub struct SuccessfullyIndexedCount(pub usize);

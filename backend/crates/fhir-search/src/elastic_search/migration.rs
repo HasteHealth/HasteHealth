@@ -198,7 +198,7 @@ pub async fn create_mapping<ParameterResolver: SearchParameterResolve>(
     let mapping_body = create_elasticsearch_searchparameter_mappings(
         &parameter_resolver
             .all(&TenantId::System, &ProjectId::System)
-            .await,
+            .await?,
     )
     .await
     .unwrap();

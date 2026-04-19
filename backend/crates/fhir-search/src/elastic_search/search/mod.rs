@@ -13,7 +13,7 @@ use haste_fhir_model::r4::generated::{
     resources::{ResourceType, SearchParameter},
     terminology::SearchParamType,
 };
-use haste_fhir_operation_error::derive::OperationOutcomeError;
+use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_jwt::{ProjectId, TenantId};
 use haste_repository::types::SupportedFHIRVersions;
 use serde::{Deserialize, Serialize};
@@ -243,7 +243,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     project: &ProjectId,
     request: &SearchRequest,
     options: &Option<SearchOptions>,
-) -> Result<serde_json::Value, QueryBuildError> {
+) -> Result<serde_json::Value, OperationOutcomeError> {
     let resource_type = get_resource_type(request);
     let parameters = get_parameters(request);
 
@@ -264,7 +264,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
             ParsedParameter::Resource(resource_param) => {
                 let search_param = parameter_resolver
                     .by_name(tenant, project, resource_type, &resource_param.name)
-                    .await
+                    .await?
                     .ok_or_else(|| {
                         QueryBuildError::MissingParameter(resource_param.name.to_string())
                     })?;
@@ -312,7 +312,8 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
                         _ => {
                             return Err(QueryBuildError::InvalidParameterValue(
                                 result_param.name.to_string(),
-                            ));
+                            )
+                            .into());
                         }
                     }
                 }
@@ -332,7 +333,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
 
                         let search_param = parameter_resolver
                             .by_name(tenant, project, resource_type, parameter_name)
-                            .await
+                            .await?
                             .ok_or_else(|| {
                                 QueryBuildError::MissingParameter(parameter_name.to_string())
                             })?;
@@ -343,7 +344,8 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
                 _ => {
                     return Err(QueryBuildError::UnsupportedParameter(
                         result_param.name.to_string(),
-                    ));
+                    )
+                    .into());
                 }
             },
         }

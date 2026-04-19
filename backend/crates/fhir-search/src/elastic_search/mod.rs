@@ -271,7 +271,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
                                 unique_index_id(&r.tenant, &r.project, &r.resource_type, &r.id);
                             let params = parameter_resolver
                                 .by_resource_type(&r.tenant, &r.project, &r.resource_type)
-                                .await;
+                                .await?;
 
                             let mut elastic_index =
                                 resource_to_elastic_index(engine, &params, &r.resource).await?;

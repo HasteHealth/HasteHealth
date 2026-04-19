@@ -88,7 +88,7 @@ impl MemorySubscriptionFilter {
                                 Some(&resource_type),
                                 &resource_param.name,
                             )
-                            .await
+                            .await?
                         else {
                             return Err(OperationOutcomeError::error(
                                 IssueType::Exception(None),
