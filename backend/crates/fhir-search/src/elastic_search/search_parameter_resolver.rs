@@ -78,7 +78,6 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
     Ok(create_index_map(project_sps))
 }
 
-#[allow(dead_code)]
 async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
     es: Arc<Elasticsearch>,
     repo: &Repo,
@@ -109,7 +108,7 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         OperationOutcomeError,
     > {
         // let project_index = get_or_create_sp_index_for_project(
-        //     self.es.as_ref(),
+        //     self.es.clone(),
         //     &self.repo,
         //     tenant.clone(),
         //     project.clone(),
