@@ -26,11 +26,23 @@ impl SearchParameterResolve for SearchParametersIndex {
         _project: &ProjectId,
         resource_type: &ResourceType,
     ) -> Result<Vec<Arc<SearchParameter>>, OperationOutcomeError> {
-        let resource_params = self.by_resource_type.get("Resource").unwrap();
-        let domain_params = self.by_resource_type.get("DomainResource").unwrap();
         let mut return_vec = Vec::new();
-        return_vec.extend(resource_params.values().cloned());
-        return_vec.extend(domain_params.values().cloned());
+
+        if let Some(domain_params) = self
+            .by_resource_type
+            .get("DomainResource")
+            .map(|d| d.values().cloned())
+        {
+            return_vec.extend(domain_params);
+        }
+
+        if let Some(resource_params) = self
+            .by_resource_type
+            .get("Resource")
+            .map(|r| r.values().cloned())
+        {
+            return_vec.extend(resource_params);
+        }
 
         if let Some(params) = self.by_resource_type.get(resource_type.as_ref()) {
             return_vec.extend(params.values().cloned());
