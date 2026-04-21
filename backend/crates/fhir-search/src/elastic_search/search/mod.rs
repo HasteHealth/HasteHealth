@@ -1,8 +1,11 @@
 use std::sync::Arc;
 
 use crate::{
-    SearchEntry, SearchOptions, SearchParameterResolve, SearchReturn,
-    elastic_search::{ElasticSearchResponse, SearchError, get_index_name},
+    ParameterLevel, ResolvedParameter, SearchEntry, SearchOptions, SearchParameterResolve,
+    SearchReturn,
+    elastic_search::{
+        DYNAMIC_PARAMETER_INDEX_FIELD, ElasticSearchResponse, SearchError, get_index_name,
+    },
 };
 use elasticsearch::{Elasticsearch, SearchParts};
 use haste_fhir_client::{
@@ -201,17 +204,26 @@ fn simple_missing_modifier(
 }
 
 fn parameter_to_elasticsearch_clauses(
-    search_param: &SearchParameter,
+    parameter: &ResolvedParameter,
     parsed_parameter: &Parameter,
 ) -> Result<serde_json::Value, QueryBuildError> {
+    let namespace = match parameter.level {
+        ParameterLevel::System => None,
+        ParameterLevel::Project => Some(DYNAMIC_PARAMETER_INDEX_FIELD),
+    };
+    let search_param = parameter.search_parameter.as_ref();
     match search_param.type_.as_ref() {
-        SearchParamType::Uri(_) => clauses::uri(parsed_parameter, search_param),
-        SearchParamType::Quantity(_) => clauses::quantity(parsed_parameter, search_param),
-        SearchParamType::Reference(_) => clauses::reference(parsed_parameter, search_param),
-        SearchParamType::Date(_) => clauses::date(parsed_parameter, search_param),
-        SearchParamType::Token(_) => clauses::token(parsed_parameter, search_param),
-        SearchParamType::Number(_) => clauses::number(parsed_parameter, search_param),
-        SearchParamType::String(_) => clauses::string(parsed_parameter, search_param),
+        SearchParamType::Uri(_) => clauses::uri(namespace, parsed_parameter, search_param),
+        SearchParamType::Quantity(_) => {
+            clauses::quantity(namespace, parsed_parameter, search_param)
+        }
+        SearchParamType::Reference(_) => {
+            clauses::reference(namespace, parsed_parameter, search_param)
+        }
+        SearchParamType::Date(_) => clauses::date(namespace, parsed_parameter, search_param),
+        SearchParamType::Token(_) => clauses::token(namespace, parsed_parameter, search_param),
+        SearchParamType::Number(_) => clauses::number(namespace, parsed_parameter, search_param),
+        SearchParamType::String(_) => clauses::string(namespace, parsed_parameter, search_param),
         _ => Err(QueryBuildError::UnsupportedParameter(
             search_param.name.value.clone().unwrap_or_default(),
         )),
@@ -268,10 +280,7 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
                     .ok_or_else(|| {
                         QueryBuildError::MissingParameter(resource_param.name.to_string())
                     })?;
-                let clause = parameter_to_elasticsearch_clauses(
-                    parameter.search_parameter.as_ref(),
-                    &resource_param,
-                )?;
+                let clause = parameter_to_elasticsearch_clauses(&parameter, &resource_param)?;
                 clauses.push(clause);
             }
             ParsedParameter::Result(result_param) => match result_param.name.as_str() {
