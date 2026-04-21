@@ -212,7 +212,7 @@ fn parameter_to_elasticsearch_clauses(
         ParameterLevel::Project => Some(DYNAMIC_PARAMETER_INDEX_FIELD),
     };
     let search_param = parameter.search_parameter.as_ref();
-    match search_param.type_.as_ref() {
+    let elastic_clause = match search_param.type_.as_ref() {
         SearchParamType::Uri(_) => clauses::uri(namespace, parsed_parameter, search_param),
         SearchParamType::Quantity(_) => {
             clauses::quantity(namespace, parsed_parameter, search_param)
@@ -227,6 +227,16 @@ fn parameter_to_elasticsearch_clauses(
         _ => Err(QueryBuildError::UnsupportedParameter(
             search_param.name.value.clone().unwrap_or_default(),
         )),
+    }?;
+
+    match parameter.level {
+        ParameterLevel::System => Ok(elastic_clause),
+        ParameterLevel::Project => Ok(json!({
+            "nested": {
+                "path": DYNAMIC_PARAMETER_INDEX_FIELD,
+                "query": elastic_clause
+            }
+        })),
     }
 }
 
