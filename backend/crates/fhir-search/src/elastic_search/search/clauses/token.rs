@@ -30,7 +30,7 @@ pub fn token(
                         "path": &column_name,
                         "query": {
                             "bool": {
-                                matching_type.clone(): [{
+                                &matching_type: [{
                                     "match": {
                                         format!("{}.code", column_name): {
                                         "query": pieces.get(0)
@@ -45,7 +45,7 @@ pub fn token(
                         "path": &column_name,
                         "query": {
                             "bool": {
-                                matching_type.clone(): [{
+                                &matching_type: [{
                                     "bool": {
                                         "filter": [
                                             {
