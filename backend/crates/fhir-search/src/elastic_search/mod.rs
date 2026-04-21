@@ -287,6 +287,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
                     match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
                             // Id is not sufficient because different Resourcetypes may have the same id.
+                            // Additionally should be namespaced by tenant and project to avoid conflicts across tenants and projects.
                             let index_id =
                                 unique_index_id(&r.tenant, &r.project, &r.resource_type, &r.id);
                             let params = parameter_resolver
@@ -318,6 +319,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
                                 "tenant".to_string(),
                                 InsertableIndex::Meta(r.tenant.as_ref().to_string()),
                             );
+
                             Ok(BulkOperation::index(elastic_index)
                                 .id(index_id)
                                 .index(search_index_name)
