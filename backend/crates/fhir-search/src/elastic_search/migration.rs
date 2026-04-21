@@ -8,7 +8,9 @@ use haste_jwt::{ProjectId, TenantId};
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{ResolvedParameter, SearchParameterResolve};
+use crate::{
+    ResolvedParameter, SearchParameterResolve, elastic_search::DYNAMIC_PARAMETER_INDEX_FIELD,
+};
 
 // Note use of nested because must preserve groupings of fields.
 fn date_index_mapping() -> serde_json::Value {
@@ -118,7 +120,7 @@ pub async fn create_elasticsearch_searchparameter_mappings(
     }
 
     property_mapping.insert(
-        "dynamic_parameters".to_string(),
+        DYNAMIC_PARAMETER_INDEX_FIELD.to_string(),
         json!({
             "type": "nested",
             "properties": {

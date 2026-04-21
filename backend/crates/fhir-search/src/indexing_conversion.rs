@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 /// Reference of conversions found here https://www.hl7.org/fhir/R4/search.html#table
 use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
@@ -70,6 +72,7 @@ pub enum InsertableIndex {
     Quantity(Vec<QuantityRange>),
     Composite(Vec<String>),
     Special(Vec<String>),
+    DynamicParameters(HashMap<String, InsertableIndex>),
 }
 
 #[derive(OperationOutcomeError, Debug)]

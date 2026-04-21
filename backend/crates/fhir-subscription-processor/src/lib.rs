@@ -211,6 +211,10 @@ async fn fits_subscription_parameter(
             IssueType::Exception(None),
             "Quantity search parameters are not supported in subscription criteria".to_string(),
         ))?,
+        InsertableIndex::DynamicParameters(_) => Err(OperationOutcomeError::error(
+            IssueType::Exception(None),
+            "Dynamic search parameters are not supported in subscription criteria".to_string(),
+        ))?,
 
         InsertableIndex::Composite(_) => Err(OperationOutcomeError::error(
             IssueType::Exception(None),

@@ -1,6 +1,6 @@
 use crate::{
-    IndexResource, ResolvedParameter, SearchEngine, SearchOptions, SearchParameterResolve,
-    SearchReturn, SuccessfullyIndexedCount,
+    IndexResource, ParameterLevel, ResolvedParameter, SearchEngine, SearchOptions,
+    SearchParameterResolve, SearchReturn, SuccessfullyIndexedCount,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -35,6 +35,8 @@ struct SearchEntryPrivate {
     pub version_id: Vec<VersionId>,
     pub project: Vec<ProjectId>,
 }
+
+static DYNAMIC_PARAMETER_INDEX_FIELD: &str = "dynamic_parameters";
 
 #[derive(OperationOutcomeError, Debug)]
 pub enum SearchError {
@@ -138,6 +140,7 @@ async fn resource_to_elastic_index(
     resource: &Resource,
 ) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
     let mut map = HashMap::new();
+    let mut dynamic_parameters = HashMap::new();
     for param in parameters.iter() {
         if let Some(expression) = param
             .search_parameter
@@ -165,9 +168,23 @@ async fn resource_to_elastic_index(
                 result?.iter().collect::<Vec<_>>(),
             )?;
 
-            map.insert(url.clone(), result_vec);
+            match param.level {
+                ParameterLevel::System => {
+                    map.insert(url.clone(), result_vec);
+                }
+                // Project Parameters are indexed using a single JS Object which gets indexed to
+                ParameterLevel::Project => {
+                    dynamic_parameters.insert(url.clone(), result_vec);
+                }
+            }
         }
     }
+
+    // Various project level parameters. These are indexed under a single field in elasticsearch as a nested type with url and indexed value..
+    map.insert(
+        DYNAMIC_PARAMETER_INDEX_FIELD.to_string(),
+        InsertableIndex::DynamicParameters(dynamic_parameters),
+    );
 
     Ok(map)
 }
