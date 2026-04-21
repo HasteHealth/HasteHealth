@@ -126,6 +126,7 @@ fn main() -> Result<(), OperationOutcomeError> {
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
+        // 8MB stack size
         .thread_stack_size(1024 * 8000)
         .build()
         .unwrap()
