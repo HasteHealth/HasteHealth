@@ -8,7 +8,7 @@ use haste_jwt::{ProjectId, TenantId};
 use serde_json::{Value, json};
 use std::{collections::HashMap, sync::Arc};
 
-use crate::SearchParameterResolve;
+use crate::{ResolvedParameter, SearchParameterResolve};
 
 // Note use of nested because must preserve groupings of fields.
 fn date_index_mapping() -> serde_json::Value {
@@ -79,12 +79,13 @@ fn reference_index_mapping() -> serde_json::Value {
 }
 
 pub async fn create_elasticsearch_searchparameter_mappings(
-    search_parameters: &Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
+    parameters: &Vec<ResolvedParameter>,
 ) -> Result<Value, OperationOutcomeError> {
     let mut property_mapping: HashMap<String, Value> = HashMap::new();
-    for parameter in search_parameters.iter() {
-        if let Some(parameter_url) = parameter.url.value.as_ref() {
-            match parameter.type_.as_ref() {
+    for parameter in parameters.iter() {
+        let search_parameter = &parameter.search_parameter;
+        if let Some(parameter_url) = search_parameter.url.value.as_ref() {
+            match search_parameter.type_.as_ref() {
                 SearchParamType::Number(_) => {
                     property_mapping.insert(parameter_url.to_string(), number_index_mapping());
                 }

@@ -1,6 +1,6 @@
 use crate::{
-    IndexResource, SearchEngine, SearchOptions, SearchParameterResolve, SearchReturn,
-    SuccessfullyIndexedCount,
+    IndexResource, ResolvedParameter, SearchEngine, SearchOptions, SearchParameterResolve,
+    SearchReturn, SuccessfullyIndexedCount,
     indexing_conversion::{self, InsertableIndex},
 };
 use elasticsearch::{
@@ -14,7 +14,7 @@ use elasticsearch::{
 };
 use haste_fhir_client::request::SearchRequest;
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, SearchParameter},
+    resources::{Resource, ResourceType},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
@@ -134,13 +134,17 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static>
 
 async fn resource_to_elastic_index(
     fp_engine: Arc<FPEngine>,
-    parameters: &Vec<Arc<SearchParameter>>,
+    parameters: &Vec<ResolvedParameter>,
     resource: &Resource,
 ) -> Result<HashMap<String, InsertableIndex>, OperationOutcomeError> {
     let mut map = HashMap::new();
     for param in parameters.iter() {
-        if let Some(expression) = param.expression.as_ref().and_then(|e| e.value.as_ref())
-            && let Some(url) = param.url.value.as_ref()
+        if let Some(expression) = param
+            .search_parameter
+            .expression
+            .as_ref()
+            .and_then(|e| e.value.as_ref())
+            && let Some(url) = param.search_parameter.url.value.as_ref()
         {
             let result = fp_engine
                 .evaluate(expression, vec![resource])

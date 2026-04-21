@@ -49,8 +49,9 @@ pub enum ParameterLevel {
 
 #[derive(Clone, Debug)]
 pub struct ResolvedParameter {
-    level: ParameterLevel,
-    search_parameter: Arc<SearchParameter>,
+    #[allow(dead_code)]
+    pub level: ParameterLevel,
+    pub search_parameter: Arc<SearchParameter>,
 }
 impl ResolvedParameter {
     pub fn new(level: ParameterLevel, search_parameter: Arc<SearchParameter>) -> Self {

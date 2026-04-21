@@ -11,7 +11,7 @@ use moka::future::{Cache, CacheBuilder};
 use std::sync::{Arc, LazyLock};
 
 use crate::{
-    SearchOptions, SearchParameterResolve,
+    ResolvedParameter, SearchOptions, SearchParameterResolve,
     elastic_search::search,
     memory::{R4_SEARCH_PARAMETERS_INDEX, SearchParametersIndex, create_index_map},
 };
@@ -72,7 +72,10 @@ async fn create_project_sp_index<Repo: Repository + Send + Sync>(
         })
         .collect::<Vec<_>>();
 
-    Ok(create_index_map(project_sps))
+    Ok(create_index_map(
+        &crate::ParameterLevel::Project,
+        project_sps,
+    ))
 }
 
 async fn get_or_create_sp_index_for_project<Repo: Repository + Send + Sync>(
@@ -106,10 +109,7 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         tenant: &haste_jwt::TenantId,
         project: &haste_jwt::ProjectId,
         resource_type: &haste_fhir_model::r4::generated::resources::ResourceType,
-    ) -> Result<
-        Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
-        OperationOutcomeError,
-    > {
+    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
         let mut sps_by_resource_type = R4_SEARCH_PARAMETERS_INDEX
             .by_resource_type(tenant, project, resource_type)
             .await?;
@@ -138,10 +138,7 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         project: &haste_jwt::ProjectId,
         resource_type: Option<&haste_fhir_model::r4::generated::resources::ResourceType>,
         code: &str,
-    ) -> Result<
-        Option<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
-        OperationOutcomeError,
-    > {
+    ) -> Result<Option<ResolvedParameter>, OperationOutcomeError> {
         if let Some(parameter) = R4_SEARCH_PARAMETERS_INDEX
             .by_name(tenant, project, resource_type, code)
             .await?
@@ -167,10 +164,7 @@ impl<Repo: Repository + Send + Sync> SearchParameterResolve
         &self,
         tenant: &haste_jwt::TenantId,
         project: &haste_jwt::ProjectId,
-    ) -> Result<
-        Vec<Arc<haste_fhir_model::r4::generated::resources::SearchParameter>>,
-        OperationOutcomeError,
-    > {
+    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
         let mut all_sps = R4_SEARCH_PARAMETERS_INDEX.all(tenant, project).await?;
 
         if let Some(project_index) = get_or_create_sp_index_for_project(

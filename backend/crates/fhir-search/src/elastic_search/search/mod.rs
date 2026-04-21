@@ -262,13 +262,16 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
     for parameter in parameters.parameters().iter() {
         match parameter {
             ParsedParameter::Resource(resource_param) => {
-                let search_param = parameter_resolver
+                let parameter = parameter_resolver
                     .by_name(tenant, project, resource_type, &resource_param.name)
                     .await?
                     .ok_or_else(|| {
                         QueryBuildError::MissingParameter(resource_param.name.to_string())
                     })?;
-                let clause = parameter_to_elasticsearch_clauses(&search_param, &resource_param)?;
+                let clause = parameter_to_elasticsearch_clauses(
+                    parameter.search_parameter.as_ref(),
+                    &resource_param,
+                )?;
                 clauses.push(clause);
             }
             ParsedParameter::Result(result_param) => match result_param.name.as_str() {
@@ -331,14 +334,17 @@ async fn build_elastic_search_query<ParameterResolver: SearchParameterResolve>(
                             SortDirection::Asc
                         };
 
-                        let search_param = parameter_resolver
+                        let parameter = parameter_resolver
                             .by_name(tenant, project, resource_type, parameter_name)
                             .await?
                             .ok_or_else(|| {
                                 QueryBuildError::MissingParameter(parameter_name.to_string())
                             })?;
 
-                        sort.push(sort_build(search_param.as_ref(), &sort_direction)?);
+                        sort.push(sort_build(
+                            parameter.search_parameter.as_ref(),
+                            &sort_direction,
+                        )?);
                     }
                 }
                 _ => {

@@ -2,7 +2,7 @@
 use haste_fhir_model::r4::{
     datetime::{Date, DateTime, Instant},
     generated::{
-        resources::{ResourceType, ResourceTypeError, SearchParameter},
+        resources::{ResourceType, ResourceTypeError},
         terminology::SearchParamType,
         types::{
             Address, Age, CodeableConcept, Coding, ContactPoint, Duration, FHIRBoolean,
@@ -15,6 +15,8 @@ use haste_fhir_model::r4::{
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_reflect::MetaValue;
 use serde::{Deserialize, Serialize};
+
+use crate::ResolvedParameter;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenIndex {
@@ -824,10 +826,11 @@ fn index_reference(value: &dyn MetaValue) -> Result<Vec<ReferenceIndex>, Inserta
 }
 
 pub fn to_insertable_index(
-    parameter: &SearchParameter,
+    parameter: &ResolvedParameter,
     result: Vec<&dyn MetaValue>,
 ) -> Result<InsertableIndex, OperationOutcomeError> {
-    match parameter.type_.as_ref() {
+    let search_parameter = &parameter.search_parameter;
+    match search_parameter.type_.as_ref() {
         SearchParamType::Number(_) => {
             let numbers = result
                 .iter()
@@ -888,7 +891,7 @@ pub fn to_insertable_index(
         SearchParamType::Composite(_) => Ok(InsertableIndex::Composite(vec![])),
         SearchParamType::Special(_) => Ok(InsertableIndex::Special(vec![])),
         _ => {
-            let type_name: Option<String> = parameter.type_.as_ref().into();
+            let type_name: Option<String> = search_parameter.type_.as_ref().into();
             Err(
                 InsertableIndexError::InvalidType(type_name.unwrap_or("unknown".to_string()))
                     .into(),

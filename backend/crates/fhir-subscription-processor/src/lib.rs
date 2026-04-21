@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use haste_fhir_client::url::{ParsedParameter, ParsedParameters};
 use haste_fhir_model::r4::generated::{
-    resources::{Resource, ResourceType, SearchParameter, Subscription},
+    resources::{Resource, ResourceType, Subscription},
     terminology::IssueType,
 };
 use haste_fhir_operation_error::{OperationOutcomeError, derive::OperationOutcomeError};
 use haste_fhir_search::{
-    SearchParameterResolve,
+    ResolvedParameter, SearchParameterResolve,
     indexing_conversion::{self, InsertableIndex},
 };
 use haste_jwt::{ProjectId, TenantId};
@@ -25,7 +25,7 @@ pub enum SubscriptionFilterError {
 
 #[allow(dead_code)]
 pub struct SubscriptionParameter {
-    search_parameter: Arc<SearchParameter>,
+    parameter: ResolvedParameter,
     fp_extract_expression: String,
     value: Vec<String>,
     modifier: Option<String>,
@@ -81,7 +81,7 @@ impl MemorySubscriptionFilter {
             for parameter in parsed_parameters.owned_parameters().into_iter() {
                 match parameter {
                     ParsedParameter::Resource(resource_param) => {
-                        let Some(search_parameter) = resolver
+                        let Some(parameter) = resolver
                             .by_name(
                                 tenant_id,
                                 project_id,
@@ -109,7 +109,8 @@ impl MemorySubscriptionFilter {
                             ));
                         }
 
-                        let Some(fp_expression) = search_parameter
+                        let Some(fp_expression) = parameter
+                            .search_parameter
                             .expression
                             .as_ref()
                             .and_then(|expr| expr.value.as_ref())
@@ -124,7 +125,7 @@ impl MemorySubscriptionFilter {
                         };
 
                         subscription_parsed_parameters.push(SubscriptionParameter {
-                            search_parameter: search_parameter.clone(),
+                            parameter: parameter.clone(),
                             fp_extract_expression: fp_expression.clone(),
                             value: resource_param.value,
                             modifier: resource_param.modifier,
@@ -172,7 +173,7 @@ async fn fits_subscription_parameter(
         .map_err(SubscriptionFilterError::from)?;
 
     let conversions = indexing_conversion::to_insertable_index(
-        &subscription_parameter.search_parameter.as_ref(),
+        &subscription_parameter.parameter,
         result.iter().collect::<Vec<_>>(),
     )?;
 
