@@ -1,4 +1,4 @@
-use crate::SearchParameterResolve;
+use crate::{ParameterLevel, ResolvedParameter, SearchParameterResolve};
 use haste_artifacts::R4_SEARCH_PARAMETERS;
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType, SearchParameter};
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -15,8 +15,8 @@ pub enum ArtifactError {
 
 #[derive(Clone)]
 pub struct SearchParametersIndex {
-    by_url: HashMap<String, Arc<SearchParameter>>,
-    by_resource_type: HashMap<String, HashMap<String, Arc<SearchParameter>>>,
+    by_url: HashMap<String, ResolvedParameter>,
+    by_resource_type: HashMap<String, HashMap<String, ResolvedParameter>>,
 }
 
 impl SearchParameterResolve for SearchParametersIndex {
@@ -25,7 +25,7 @@ impl SearchParameterResolve for SearchParametersIndex {
         _tenant: &TenantId,
         _project: &ProjectId,
         resource_type: &ResourceType,
-    ) -> Result<Vec<Arc<SearchParameter>>, OperationOutcomeError> {
+    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
         let mut return_vec = Vec::new();
 
         if let Some(domain_params) = self
@@ -57,7 +57,7 @@ impl SearchParameterResolve for SearchParametersIndex {
         _project: &ProjectId,
         resource_type: Option<&ResourceType>,
         name: &str,
-    ) -> Result<Option<Arc<SearchParameter>>, OperationOutcomeError> {
+    ) -> Result<Option<ResolvedParameter>, OperationOutcomeError> {
         Ok(resource_type
             .and_then(|resource_type| self.by_resource_type.get(resource_type.as_ref()))
             .and_then(|params| params.get(name))
@@ -78,7 +78,7 @@ impl SearchParameterResolve for SearchParametersIndex {
         &self,
         _tenant: &TenantId,
         _project: &ProjectId,
-    ) -> Result<Vec<Arc<SearchParameter>>, OperationOutcomeError> {
+    ) -> Result<Vec<ResolvedParameter>, OperationOutcomeError> {
         Ok(self.by_url.values().cloned().collect::<Vec<_>>())
     }
 }
@@ -93,6 +93,7 @@ impl Default for SearchParametersIndex {
 }
 
 fn build_search_parameter_index_map(
+    level: &ParameterLevel,
     index: &mut SearchParametersIndex,
     resource: Resource,
 ) -> Result<(), ArtifactError> {
@@ -109,9 +110,10 @@ fn build_search_parameter_index_map(
                 });
 
             for param in params {
-                index
-                    .by_url
-                    .insert(param.id.clone().unwrap(), param.clone());
+                index.by_url.insert(
+                    param.id.clone().unwrap(),
+                    ResolvedParameter::new(level.clone(), param.clone()),
+                );
                 for resource_type in &param.base {
                     let resource_type: Option<String> = (&**resource_type).into();
                     if let Some(resource_type) = resource_type {
@@ -121,7 +123,7 @@ fn build_search_parameter_index_map(
                             .or_default()
                             .insert(
                                 param.code.value.as_ref().unwrap().to_string(),
-                                param.clone(),
+                                ResolvedParameter::new(level.clone(), param.clone()),
                             );
                     }
                 }
@@ -131,9 +133,10 @@ fn build_search_parameter_index_map(
         }
         Resource::SearchParameter(search_param) => {
             let param = Arc::new(search_param);
-            index
-                .by_url
-                .insert(param.id.clone().unwrap(), param.clone());
+            index.by_url.insert(
+                param.id.clone().unwrap(),
+                ResolvedParameter::new(level.clone(), param.clone()),
+            );
             for resource_type in &param.base {
                 let resource_type: Option<String> = (&**resource_type).into();
                 if let Some(resource_type) = resource_type.as_ref() {
@@ -143,7 +146,7 @@ fn build_search_parameter_index_map(
                         .or_default()
                         .insert(
                             param.code.value.as_ref().unwrap().to_string(),
-                            param.clone(),
+                            ResolvedParameter::new(level.clone(), param.clone()),
                         );
                 }
             }
@@ -157,6 +160,7 @@ fn build_search_parameter_index_map(
 
 pub static R4_SEARCH_PARAMETERS_INDEX: LazyLock<Arc<SearchParametersIndex>> = LazyLock::new(|| {
     Arc::new(create_index_map(
+        &ParameterLevel::System,
         R4_SEARCH_PARAMETERS
             .iter()
             .map(|param| param.as_ref().clone())
@@ -164,10 +168,13 @@ pub static R4_SEARCH_PARAMETERS_INDEX: LazyLock<Arc<SearchParametersIndex>> = La
     ))
 });
 
-pub fn create_index_map(search_parameters: Vec<SearchParameter>) -> SearchParametersIndex {
+pub fn create_index_map(
+    level: &ParameterLevel,
+    search_parameters: Vec<SearchParameter>,
+) -> SearchParametersIndex {
     let mut index = SearchParametersIndex::default();
     for param in search_parameters.into_iter() {
-        build_search_parameter_index_map(&mut index, Resource::SearchParameter(param))
+        build_search_parameter_index_map(level, &mut index, Resource::SearchParameter(param))
             .expect("Failed to build search parameter index");
     }
 

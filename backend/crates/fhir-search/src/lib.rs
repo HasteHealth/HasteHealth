@@ -41,6 +41,26 @@ pub struct SearchOptions {
     pub count_limit: bool,
 }
 
+#[derive(Clone, Debug)]
+pub enum ParameterLevel {
+    Project,
+    System,
+}
+
+#[derive(Clone, Debug)]
+pub struct ResolvedParameter {
+    level: ParameterLevel,
+    search_parameter: Arc<SearchParameter>,
+}
+impl ResolvedParameter {
+    pub fn new(level: ParameterLevel, search_parameter: Arc<SearchParameter>) -> Self {
+        ResolvedParameter {
+            level,
+            search_parameter,
+        }
+    }
+}
+
 pub trait SearchParameterResolve: Send + Sync {
     // Returns all search parameters for the given resource type, if any exist.
     fn by_resource_type(
@@ -48,7 +68,7 @@ pub trait SearchParameterResolve: Send + Sync {
         tenant: &TenantId,
         project: &ProjectId,
         resource_type: &ResourceType,
-    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> + Send;
     // Returns the search parameter for the given resource type and code, if it exists.
     fn by_name(
         &self,
@@ -56,13 +76,13 @@ pub trait SearchParameterResolve: Send + Sync {
         project: &ProjectId,
         resource_type: Option<&ResourceType>,
         code: &str,
-    ) -> impl Future<Output = Result<Option<Arc<SearchParameter>>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Option<ResolvedParameter>, OperationOutcomeError>> + Send;
     // Returns all search parameters, regardless of resource type.
     fn all(
         &self,
         tenant: &TenantId,
         project: &ProjectId,
-    ) -> impl Future<Output = Result<Vec<Arc<SearchParameter>>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<ResolvedParameter>, OperationOutcomeError>> + Send;
 }
 
 pub struct SuccessfullyIndexedCount(pub usize);
