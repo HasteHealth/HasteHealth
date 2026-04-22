@@ -6,6 +6,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
 
+mod login;
 mod signup;
 mod tenant_select;
 

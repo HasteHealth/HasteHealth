@@ -1,7 +1,10 @@
 use crate::{
-    admin::ProjectAuthAdmin,
+    admin::{ProjectAuthAdmin, SystemAdmin},
     pg::{PGConnection, StoreError},
-    types::membership::{CreateMembership, Membership, MembershipRole, MembershipSearchClaims},
+    types::membership::{
+        CreateMembership, Membership, MembershipRole, MembershipSearchClaims,
+        SystemMemberSearchClauses,
+    },
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_jwt::{ProjectId, TenantId};
@@ -280,6 +283,61 @@ impl<Key: AsRef<str> + Send + Sync>
             PGConnection::Transaction(tx, _) => {
                 let mut tx = tx.lock().await;
                 let res = search_memberships(&mut *tx, tenant, project, clauses).await?;
+                Ok(res)
+            }
+        }
+    }
+}
+
+fn system_search_memberships<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
+    connection: Connection,
+    clauses: &'a SystemMemberSearchClauses,
+) -> impl Future<Output = Result<Vec<Membership>, OperationOutcomeError>> + Send + 'a {
+    async move {
+        let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
+
+        let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
+            r#"SELECT user_id, tenant, project, role, resource_id FROM memberships WHERE  "#,
+        );
+
+        let mut seperator = query_builder.separated(" AND ");
+
+        if let Some(tenant) = clauses.tenant.as_ref() {
+            seperator
+                .push(" tenant = ")
+                .push_bind_unseparated(tenant.as_ref());
+        }
+
+        if let Some(user_id) = clauses.user_id.as_ref() {
+            seperator
+                .push(" user_id = ")
+                .push_bind_unseparated(user_id.as_ref());
+        }
+
+        let query = query_builder.build_query_as();
+
+        let memberships: Vec<Membership> = query
+            .fetch_all(&mut *conn)
+            .await
+            .map_err(StoreError::from)?;
+
+        Ok(memberships)
+    }
+}
+
+impl SystemAdmin<Membership, SystemMemberSearchClauses> for PGConnection {
+    async fn search(
+        &self,
+        clauses: &SystemMemberSearchClauses,
+    ) -> Result<Vec<Membership>, OperationOutcomeError> {
+        match self {
+            PGConnection::Pool(pool, _) => {
+                let res = system_search_memberships(pool, clauses).await?;
+                Ok(res)
+            }
+            PGConnection::Transaction(tx, _) => {
+                let mut tx = tx.lock().await;
+                let res = system_search_memberships(&mut *tx, clauses).await?;
                 Ok(res)
             }
         }

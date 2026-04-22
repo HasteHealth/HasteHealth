@@ -29,3 +29,8 @@ pub enum MembershipRole {
     Admin,
     Member,
 }
+
+pub struct SystemMemberSearchClauses {
+    pub tenant: Option<TenantId>,
+    pub user_id: Option<UserId>,
+}
