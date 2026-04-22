@@ -986,6 +986,14 @@ async fn derive_comparison_to(
     }
 }
 
+fn get_id<T: MetaValue>(pointer: &TypedPointer<TestScript, T>) -> String {
+    pointer
+        .root()
+        .value()
+        .and_then(|t| t.id.clone())
+        .unwrap_or_default()
+}
+
 /// Assertions are what determine the testreports ultimate pass/fail status.
 /// So set that within state here depending on assertion success/failure.
 async fn run_assertion(
@@ -1032,7 +1040,8 @@ async fn run_assertion(
         );
         if !operation_evaluation_result {
             tracing::error!(
-                "Assertion at '{}' failed: resource type '{}' does not match '{}'.",
+                "{} Assertion at '{}' failed: resource type '{}' does not match '{}'.",
+                get_id(&pointer),
                 pointer.path(),
                 resource_string,
                 source.typename()
@@ -1057,7 +1066,8 @@ async fn run_assertion(
             .await
         else {
             tracing::error!(
-                "Assertion at '{}' failed: FHIRPath expression '{}' failed to evaluate.",
+                "{} Assertion at '{}' failed: FHIRPath expression '{}' failed to evaluate.",
+                get_id(&pointer),
                 expression,
                 pointer.path()
             );
@@ -1079,7 +1089,8 @@ async fn run_assertion(
 
         if !operation_evaluation_result {
             tracing::error!(
-                "Assertion at '{}' failed: '{:?}' {:?} '{:?}'.",
+                "{} Assertion at '{}' failed: '{:?}' {:?} '{:?}'.",
+                get_id(&pointer),
                 pointer.path(),
                 converted_values,
                 operator,
