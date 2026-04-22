@@ -170,7 +170,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.count()",
+                        "expression": "Bundle.entry.resource.where($this.meta.tag.code = 'history-test').count()",
                         "operator": "equals",
                         "value": "1",
                         "warningOnly": false
@@ -178,7 +178,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.id",
+                        "expression": "Bundle.entry.resource.where($this.meta.tag.code = 'history-test').id",
                         "compareToSourceExpression": "Patient.id",
                         "compareToSourceId": "update-response",
                         "operator": "equals",
@@ -198,7 +198,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry.resource.count()",
+                        "expression": "Bundle.entry.resource.where($this.meta.tag.code = 'history-test').count()",
                         "operator": "equals",
                         "value": "2",
                         "warningOnly": false
@@ -206,7 +206,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[1].resource.id",
+                        "expression": "Bundle.entry.where($this.resource.meta.tag.code = 'history-test')[1].resource.id",
                         "compareToSourceExpression": "Patient.id",
                         "compareToSourceId": "create-response",
                         "operator": "equals",
@@ -215,7 +215,7 @@
                 },
                 {
                     "assert": {
-                        "expression": "Bundle.entry[1].resource.meta.versionId",
+                        "expression": "Bundle.entry.where($this.resource.meta.tag.code = 'history-test')[1].resource.meta.versionId",
                         "compareToSourceExpression": "Patient.meta.versionId",
                         "compareToSourceId": "create-response",
                         "operator": "equals",
