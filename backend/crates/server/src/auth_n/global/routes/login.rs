@@ -3,12 +3,15 @@ use crate::services::AppState;
 use crate::ui::components::{banner, page_html};
 use axum::response::{IntoResponse, Redirect, Response};
 use axum::{Form, extract::State};
+use haste_fhir_model::r4::generated::resources::Membership;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use haste_repository::admin::SystemAdmin;
+use haste_repository::types::membership::SystemMemberSearchClauses;
+use haste_repository::types::scope::UserId;
 use haste_repository::types::user::UserSearchClauses;
 use std::sync::Arc;
 
@@ -57,7 +60,14 @@ pub async fn login_post<
     }
 
     for user in users_with_email.iter() {
-        let memberships = SystemAdmin::search(&self, clauses);
+        let memberships = SystemAdmin::<Membership, SystemMemberSearchClauses>::search(
+            app_state.repo.as_ref(),
+            &SystemMemberSearchClauses {
+                tenant: None,
+                user_id: Some(UserId::new(user.id.clone())),
+            },
+        )
+        .await?;
     }
 
     todo!();
