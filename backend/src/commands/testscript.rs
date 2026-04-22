@@ -8,7 +8,7 @@ use haste_fhir_model::r4::generated::{
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_testscript_runner::TestRunnerOptions;
 use std::{path::Path, sync::Arc};
-use tokio::sync::Mutex;
+use tokio::{sync::Mutex, task::JoinSet};
 use tracing::info;
 
 #[derive(Subcommand)]
@@ -86,6 +86,7 @@ pub async fn testscript_commands(
             });
 
             let mut status_code = 0;
+            let mut test_runs = JoinSet::new();
 
             for input in inputs {
                 let walker = walkdir::WalkDir::new(&input).into_iter();
@@ -117,42 +118,59 @@ pub async fn testscript_commands(
                             entry.path().to_string_lossy()
                         );
 
-                        match haste_testscript_runner::run(
-                            fhir_client.as_ref(),
-                            (),
-                            testscript.clone(),
-                            testrunner_options.clone(),
-                        )
-                        .await
-                        {
-                            Ok(mut test_report) => {
-                                test_report.id = Some(format!("report-{}", testscript_id));
+                        let testscript_id = testscript_id.clone();
+                        let testrunner_options = testrunner_options.clone();
+                        let fhir_client = fhir_client.clone();
 
-                                match test_report.result.as_ref() {
-                                    ReportResultCodes::Fail(_) => status_code = 1,
-                                    // Ignore for rest.
-                                    ReportResultCodes::Pass(_)
-                                    | ReportResultCodes::Pending(_)
-                                    | ReportResultCodes::Null(_) => {}
+                        test_runs.spawn(async move {
+                            match haste_testscript_runner::run(
+                                fhir_client.as_ref(),
+                                (),
+                                testscript,
+                                testrunner_options,
+                            )
+                            .await
+                            {
+                                Ok(mut test_report) => {
+                                    test_report.id = Some(testscript_id);
+                                    Ok(test_report)
                                 }
+                                Err(e) => Err(e),
+                            }
+                        });
+                    }
+                }
+            }
 
-                                testreport_entries.push(BundleEntry {
-                                    request: Some(BundleEntryRequest {
-                                        method: Box::new(HttpVerb::PUT(None)),
-                                        url: Box::new(FHIRUri {
-                                            value: Some(format!("TestReport/{}", testscript_id)),
-                                            ..Default::default()
-                                        }),
-                                        ..Default::default()
-                                    }),
-                                    resource: Some(Box::new(Resource::TestReport(test_report))),
-                                    ..Default::default()
-                                });
-                            }
-                            Err(e) => {
-                                info!("Error running TestScript '{:?}'", e);
-                            }
+            while let Some(Ok(res)) = test_runs.join_next().await {
+                match res {
+                    Ok(test_report) => {
+                        match test_report.result.as_ref() {
+                            ReportResultCodes::Fail(_) => status_code = 1,
+                            // Ignore for rest.
+                            ReportResultCodes::Pass(_)
+                            | ReportResultCodes::Pending(_)
+                            | ReportResultCodes::Null(_) => {}
                         }
+
+                        testreport_entries.push(BundleEntry {
+                            request: Some(BundleEntryRequest {
+                                method: Box::new(HttpVerb::PUT(None)),
+                                url: Box::new(FHIRUri {
+                                    value: Some(format!(
+                                        "TestReport/{}",
+                                        test_report.id.as_ref().map(|id| id.as_str()).unwrap_or("")
+                                    )),
+                                    ..Default::default()
+                                }),
+                                ..Default::default()
+                            }),
+                            resource: Some(Box::new(Resource::TestReport(test_report))),
+                            ..Default::default()
+                        });
+                    }
+                    Err(e) => {
+                        info!("Error running TestScript '{:?}'", e);
                     }
                 }
             }
