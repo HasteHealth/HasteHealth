@@ -60,7 +60,7 @@ pub async fn login_post<
     }
 
     for user in users_with_email.iter() {
-        let memberships = SystemAdmin::<Membership, SystemMemberSearchClauses>::search(
+        let memberships = SystemAdmin::search(
             app_state.repo.as_ref(),
             &SystemMemberSearchClauses {
                 tenant: None,
