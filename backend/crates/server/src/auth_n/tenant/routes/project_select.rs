@@ -1,7 +1,7 @@
 use crate::{
     extract::path_tenant::TenantIdentifier, fhir_client::ServerCTX, services::AppState, ui::pages,
 };
-use axum::extract::{OriginalUri, State};
+use axum::extract::State;
 use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
