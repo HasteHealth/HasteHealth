@@ -1,30 +1,10 @@
 use crate::{
-    auth_n::{
-        oidc::{
-            extract::client_app::OIDCClientApplication, routes::authorize::redirect_authorize_uri,
-        },
-        session,
-    },
-    extract::path_tenant::{Project, TenantIdentifier},
-    fhir_client::ServerCTX,
-    services::AppState,
-    ui::pages,
+    extract::path_tenant::TenantIdentifier, fhir_client::ServerCTX, services::AppState, ui::pages,
 };
-use axum::{
-    Form,
-    extract::{OriginalUri, State},
-    response::{IntoResponse, Redirect, Response},
-};
+use axum::extract::{OriginalUri, State};
 use axum_extra::{extract::Cached, routing::TypedPath};
-use haste_fhir_client::{
-    FHIRClient,
-    url::{ParsedParameter, ParsedParameters},
-};
-use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource, ResourceType},
-    terminology::HttpVerb,
-    types::FHIRUri,
-};
+use haste_fhir_client::{FHIRClient, url::ParsedParameters};
+use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -45,13 +25,12 @@ pub async fn project_get<
     _: ProjectSelect,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-    uri: OriginalUri,
 ) -> Result<Markup, OperationOutcomeError> {
     let tenant_projects = state
         .fhir_client
         .search_type(
             Arc::new(ServerCTX::system(
-                tenant,
+                tenant.clone(),
                 ProjectId::System,
                 state.fhir_client.clone(),
                 state.rate_limit.clone(),
@@ -70,9 +49,11 @@ pub async fn project_get<
         })
         .collect::<Vec<_>>();
 
-    let response =
-        pages::project_select::project_select_html(&state.config, &tenant, &tenant_projects);
+    let response = pages::project_select::project_select_html(
+        state.config.as_ref(),
+        &tenant,
+        &tenant_projects,
+    )?;
 
-    todo!();
-    // Ok(response)
+    Ok(response)
 }
