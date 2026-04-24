@@ -2,7 +2,11 @@ use std::path::PathBuf;
 
 use haste_jwt::{ProjectId, TenantId};
 
-fn project_route_string(tenant: &TenantId, project: &ProjectId) -> PathBuf {
+pub fn tenant_route_string(tenant: &TenantId) -> PathBuf {
+    ["/w", tenant.as_ref()].iter().collect()
+}
+
+pub fn project_route_string(tenant: &TenantId, project: &ProjectId) -> PathBuf {
     ["/w", tenant.as_ref(), project.as_ref(), "api", "v1"]
         .iter()
         .collect()

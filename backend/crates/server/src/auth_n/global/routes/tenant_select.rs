@@ -1,4 +1,4 @@
-use crate::auth_n::oidc::hardcoded_clients::admin_app;
+use crate::auth_n::oidc::routes::route_string::tenant_route_string;
 use crate::services::AppState;
 use crate::ui::components::{banner, page_html};
 use axum::response::{IntoResponse, Redirect, Response};
@@ -6,7 +6,7 @@ use axum::{Form, extract::State};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::TenantId;
 use haste_repository::Repository;
 use maud::html;
 use std::sync::Arc;
@@ -32,13 +32,9 @@ pub async fn tenant_select_get<
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 form class="space-y-2" action=(action_url) method="POST" {
                     div class="grid grid-cols-4 gap-1" {
-                        div class="col-span-3" {
+                        div class="col-span-4" {
                             label for="tenant" class="block text-sm font-medium text-slate-600" { "Tenant" }
                             input type="tenant" id="tenant" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " placeholder="Tenant id" required name="tenant" value="" {}
-                        }
-                        div class="col-span-1" {
-                            label for="project" class="block text-sm font-medium text-slate-600" { "Project" }
-                            input type="project" id="project" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " placeholder="system" name="project" {}
                         }
                     }
 
@@ -57,41 +53,26 @@ pub async fn tenant_select_get<
 #[derive(serde::Deserialize)]
 pub struct TenantSelectForm {
     pub tenant: String,
-    pub project: Option<String>,
 }
 
 #[derive(serde::Deserialize, axum_extra::routing::TypedPath)]
 #[typed_path("/tenant-select")]
 pub struct TenantSelectPost {}
 
-pub async fn tenant_select_post<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
+pub async fn tenant_select_post(
     _: TenantSelectPost,
-    State(app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Form(form): Form<TenantSelectForm>,
 ) -> Result<Response, OperationOutcomeError> {
     let tenant_id = TenantId::new(form.tenant);
-    let project_id = if let Some(project) = form.project
-        && !project.is_empty()
-    {
-        ProjectId::new(project)
-    } else {
-        ProjectId::System
-    };
+    let project_select_route =
+        tenant_route_string(&tenant_id).join("./auth/interactions/project-select");
 
-    let admin_app_redirect_url =
-        admin_app::redirect_url(app_state.config.as_ref(), &tenant_id, &project_id);
-
-    if let Some(admin_app_redirect_url) = admin_app_redirect_url.as_ref() {
-        Ok(Redirect::to(&admin_app_redirect_url).into_response())
+    if let Some(project_select_route) = project_select_route.to_str() {
+        Ok(Redirect::to(&project_select_route).into_response())
     } else {
         tracing::error!(
-            "Failed to get admin app redirect URL for tenant '{}' and project '{}'",
+            "Failed to get admin app redirect URL for tenant '{}'",
             tenant_id.as_ref(),
-            project_id.as_ref()
         );
         Err(OperationOutcomeError::error(
             haste_fhir_model::r4::generated::terminology::IssueType::Exception(None),
