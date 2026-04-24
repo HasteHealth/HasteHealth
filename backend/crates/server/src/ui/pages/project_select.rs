@@ -37,7 +37,7 @@ pub fn project_select_html(
                          in projects.iter() {
                             div class="border border-gray-200" {
                                 a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or("".to_string()))
-                                   class="block w-full text-center px-4 py-2 bg-gray-50 text-slate-900 hover:bg-blue-100" {
+                                   class="block w-full text-center px-4 py-2 bg-gray-100 text-slate-900 hover:bg-orange-100" {
                                     (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
                                 }
                             }
