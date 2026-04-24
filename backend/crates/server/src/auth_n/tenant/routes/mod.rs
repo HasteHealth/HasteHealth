@@ -12,9 +12,7 @@ pub fn create_router<
     Repo: Repository + Send + Sync,
     Search: SearchEngine + Send + Sync,
     Terminology: FHIRTerminology + Send + Sync,
->(
-    state: Arc<AppState<Repo, Search, Terminology>>,
-) -> Router<Arc<AppState<Repo, Search, Terminology>>> {
+>() -> Router<Arc<AppState<Repo, Search, Terminology>>> {
     Router::new().nest(
         "/interactions",
         Router::new().typed_get(project_select::project_get),
