@@ -30,15 +30,21 @@ pub fn project_select_html(
     Ok(page_html(html! {
         (banner(tenant.as_ref(), None))
         div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 w-md sm:max-w-md text-slate-700" {
-            div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
-                div class="space-y-4 md:space-y-6" {
-                    div class="grid grid-cols-1 gap-2" {
-                        @for project
-                         in projects.iter() {
-                            div class="border border-gray-200" {
-                                a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or("".to_string()))
-                                   class="block w-full text-center px-4 py-2 bg-gray-100 text-slate-900 hover:bg-orange-100" {
-                                    (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
+            @if projects.is_empty() {
+                div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
+                    span class="font-semibold leading-tight text-red-600 text-md " { "No projects found. Please contact your administrator." }
+                }
+            } @else {
+                div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
+                    div class="space-y-4 md:space-y-6" {
+                        div class="grid grid-cols-1 gap-2" {
+                            @for project
+                            in projects.iter() {
+                                div class="border border-gray-200" {
+                                    a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or("".to_string()))
+                                    class="block w-full text-center px-4 py-2 bg-gray-100 text-slate-900 hover:bg-orange-100" {
+                                        (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
+                                    }
                                 }
                             }
                         }
