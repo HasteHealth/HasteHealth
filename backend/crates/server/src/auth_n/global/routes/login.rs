@@ -1,46 +1,41 @@
 use crate::{
-    auth_n::session,
-    extract::path_tenant::TenantIdentifier,
+    ServerEnvironmentVariables,
+    auth_n::email::send_email,
     services::AppState,
-    ui::components::{banner, page_html},
+    ui::{
+        components::{banner, page_html},
+        pages::message::message_html,
+    },
 };
 use axum::{
     Form,
-    extract::{OriginalUri, State},
-    response::{IntoResponse as _, Redirect, Response},
+    extract::State,
+    http::Uri,
+    response::{IntoResponse as _, Response},
 };
-use axum_extra::{extract::Cached, routing::TypedPath};
+use axum_extra::routing::TypedPath;
 
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_repository::Repository;
+use haste_repository::{
+    Repository,
+    admin::SystemAdmin,
+    types::user::{User, UserSearchClauses},
+};
 use maud::html;
 use serde::Deserialize;
 use std::sync::Arc;
-use tower_sessions::Session;
 
 #[derive(TypedPath)]
 #[typed_path("/login")]
 pub struct EmailSelect;
 
-pub async fn global_login_get<
-    Repo: Repository + Send + Sync,
-    Search: SearchEngine + Send + Sync,
-    Terminology: FHIRTerminology + Send + Sync,
->(
-    _: EmailSelect,
-
-    Cached(current_session): Cached<Session>,
-) -> Result<Response, OperationOutcomeError> {
+pub async fn global_login_get(_: EmailSelect) -> Result<Response, OperationOutcomeError> {
     let global_login_post_uri = "/auth/login";
-    if let Ok(Some(user)) = session::user::get_user(&current_session).await {
-        // User is already authenticated, redirect to project select.
-        let redirect_uri = format!("/w/{}/auth/project-select", user.tenant.as_ref());
 
-        Ok(Redirect::to(&redirect_uri).into_response())
-    } else {
-        Ok(page_html(html! {
+    Ok(page_html(html! {
             (banner("Global Login", None))
             div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
                 form class="space-y-4 md:space-y-6" action=(global_login_post_uri) method="POST" {
@@ -58,7 +53,6 @@ pub async fn global_login_get<
                 }
             }
         }).into_response())
-    }
 }
 
 #[derive(Deserialize)]
@@ -72,9 +66,77 @@ pub async fn global_login_post<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: EmailSelect,
-    uri: OriginalUri,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Form(login_data): Form<GlobalLoginForm>,
 ) -> Result<Response, OperationOutcomeError> {
-    todo!();
+    let found_users = SystemAdmin::<User, UserSearchClauses>::search(
+        state.repo.as_ref(),
+        &UserSearchClauses {
+            email: Some(login_data.email.clone()),
+            role: None,
+            method: None,
+        },
+    )
+    .await?;
+
+    let api_url = state.config.get(ServerEnvironmentVariables::APIURI)?;
+
+    let tenant_select_email = crate::ui::email::base::base(
+        &Uri::try_from(api_url.as_str()).map_err(|_| {
+            OperationOutcomeError::fatal(
+                IssueType::Exception(None),
+                "API Url is invalid".to_string(),
+            )
+        })?,
+        html! {
+            div style="padding-top: 24px;" {
+                "We received a request to log in to your account. If you made this request, click one of the tenants we found associated with your email."
+            }
+
+            div style="font-weight: 600; padding-top: 12px;" {
+                "If you did not make this request, you can ignore this email. Otherwise, please click one of the tenants below that is associated with your account to log in."
+            }
+
+            table style="padding-top: 24px; width:100%" {
+                @for user in &found_users {
+                    tr style="padding-bottom: 12px;" {
+                        td style="padding:12px; border: 1px solid #e5e7eb;" {
+                            a href=(format!("{}/w/{}/auth/interactions/project-select", api_url, user.tenant)) {
+                                "Tenant " (user.tenant)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    );
+
+    if !found_users.is_empty() {
+        send_email(
+            state.config.as_ref(),
+            &login_data.email,
+            "Haste Health Login",
+            &tenant_select_email.into_string(),
+        )
+        .await?;
+    }
+
+    Ok(message_html(
+        None,
+        None,
+        html! { div class="space-y-4 text-orange-900" {
+
+                div { span {
+                    "An email has been sent to your email address with instructions to login."
+                }}
+
+                div {
+                    span class="font-semibold" {
+                        "If you don't receive an email shortly, please check your spam folder."
+                    }
+                }
+            }
+        },
+    )
+    .into_response())
 }
