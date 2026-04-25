@@ -37,12 +37,12 @@ pub fn project_select_html(
             } @else {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                     div class="space-y-4 md:space-y-6" {
-                        div class="grid grid-cols-1 gap-2" {
+                        div class="grid grid-cols-1 gap-3" {
                             @for project
                             in projects.iter() {
-                                div class="border border-gray-200" {
+                                div {
                                     a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or("".to_string()))
-                                    class="block w-full text-center px-4 py-2 bg-gray-100 text-slate-900 hover:bg-orange-100" {
+                                    class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-orange-50 hover:border-orange-200" {
                                         (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
                                     }
                                 }
