@@ -1,7 +1,6 @@
 use crate::ui::components::{banner, page_html};
-use haste_jwt::{ProjectId, TenantId};
+use haste_jwt::TenantId;
 use maud::{Markup, html};
-use std::borrow::Cow;
 
 pub struct EmailInformation {
     pub continue_url: String,
@@ -9,19 +8,16 @@ pub struct EmailInformation {
 
 pub fn email_form_html(
     tenant: &TenantId,
-    project: &haste_fhir_model::r4::generated::resources::Project,
+    project: Option<&haste_fhir_model::r4::generated::resources::Project>,
     email_information: &EmailInformation,
 ) -> Markup {
-    let project_id = project.id.clone().map(|id| ProjectId::new(id)).unwrap();
     let project_name = project
-        .name
-        .value
-        .as_ref()
-        .map(|s| Cow::Borrowed(s.as_str()))
-        .unwrap_or_else(|| Cow::Owned(project_id.as_ref().to_string()));
+        .and_then(|p| p.name.value.as_ref())
+        .or_else(|| project.and_then(|p| p.id.as_ref()))
+        .map(|s| s.as_str());
 
     page_html(html! {
-        (banner(tenant.as_ref(), Some(&project_name)))
+        (banner(tenant.as_ref(), project_name))
         div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0  sm:max-w-md" {
             form class="space-y-4 md:space-y-6" action=(email_information.continue_url) method="POST" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {

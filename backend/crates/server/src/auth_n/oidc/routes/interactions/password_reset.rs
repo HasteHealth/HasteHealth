@@ -40,7 +40,7 @@ pub async fn password_reset_initiate_get(
 ) -> Result<Markup, OperationOutcomeError> {
     let response = pages::email_form::email_form_html(
         &tenant,
-        &project,
+        Some(&project),
         &pages::email_form::EmailInformation {
             continue_url: uri.path().to_string(),
         },
