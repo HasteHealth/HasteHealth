@@ -21,8 +21,10 @@ use axum::{
     response::{IntoResponse, Response},
     routing::{any, get, post},
 };
+use axum_client_ip::ClientIpSource;
 use haste_config::get_config;
 use haste_fhir_client::FHIRClient;
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -31,6 +33,7 @@ use haste_repository::{Repository, types::SupportedFHIRVersions};
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
 use std::{collections::HashMap, sync::Arc};
+use std::{net::SocketAddr, str::FromStr};
 use tower::{Layer, ServiceBuilder};
 use tower_http::normalize_path::NormalizePath;
 use tower_http::{
@@ -158,6 +161,20 @@ async fn fhir_type_handler<
 
 pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
     let config = get_config("environment".into());
+
+    // Setup Ip Source for determining client ip for login etc..
+    let ip_source = config
+        .get(crate::ServerEnvironmentVariables::IpSource)
+        .and_then(|ip_source| {
+            ClientIpSource::from_str(&ip_source).map_err(|_e| {
+                OperationOutcomeError::fatal(
+                    IssueType::Exception(None),
+                    format!("Invalid IP_SOURCE value: {}", ip_source),
+                )
+            })
+        })
+        .unwrap_or_else(|_e| ClientIpSource::ConnectInfo);
+
     // Varify instantiates.
     get_certification_provider();
 
@@ -233,6 +250,7 @@ pub async fn server() -> Result<NormalizePath<Router>, OperationOutcomeError> {
         .nest("/w/{tenant}", tenant_router)
         .layer(
             ServiceBuilder::new()
+                .layer(ip_source.into_extension())
                 .layer(NewSentryLayer::<Request<Body>>::new_from_top())
                 .layer(TraceLayer::new_for_http())
                 // 4mb by default.
@@ -275,7 +293,7 @@ pub async fn serve(port: u16) -> Result<(), OperationOutcomeError> {
         listener,
         <tower_http::normalize_path::NormalizePath<Router> as ServiceExt<
             axum::http::Request<Body>,
-        >>::into_make_service(server),
+        >>::into_make_service_with_connect_info::<SocketAddr>(server),
     )
     .await
     .unwrap();

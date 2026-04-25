@@ -3,6 +3,7 @@ use crate::services::AppState;
 use crate::ui::components::{banner, page_html};
 use axum::response::{IntoResponse, Redirect, Response};
 use axum::{Form, extract::State};
+//use axum_client_ip::ClientIp;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
@@ -21,6 +22,7 @@ pub async fn tenant_select_get<
     Terminology: FHIRTerminology + Send + Sync,
 >(
     _: TenantSelectGet,
+    //ClientIp(ip_address): ClientIp,
     State(_app_state): State<Arc<AppState<Repo, Search, Terminology>>>,
 ) -> Result<Response, OperationOutcomeError> {
     let signup_url = "/auth/signup";

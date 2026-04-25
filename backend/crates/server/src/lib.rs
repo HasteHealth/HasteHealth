@@ -35,6 +35,7 @@ pub enum ServerEnvironmentVariables {
     RateLimitSubscriptions,
     RateLimitWindowInSeconds,
     RateLimitOperationPoints,
+    IpSource,
 }
 
 impl From<ServerEnvironmentVariables> for String {
@@ -60,14 +61,13 @@ impl From<ServerEnvironmentVariables> for String {
             ServerEnvironmentVariables::RateLimitSubscriptions => {
                 "RATE_LIMIT_SUBSCRIPTIONS".to_string()
             }
-
             ServerEnvironmentVariables::RateLimitWindowInSeconds => {
                 "RATE_LIMIT_WINDOW_IN_SECONDS".to_string()
             }
-
             ServerEnvironmentVariables::RateLimitOperationPoints => {
                 "RATE_LIMIT_OPERATION_POINTS".to_string()
             }
+            ServerEnvironmentVariables::IpSource => "IP_SOURCE".to_string(),
         }
     }
 }
