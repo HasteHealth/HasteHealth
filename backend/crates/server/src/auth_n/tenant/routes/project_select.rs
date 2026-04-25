@@ -1,7 +1,11 @@
 use crate::{
-    extract::path_tenant::TenantIdentifier, fhir_client::ServerCTX, services::AppState, ui::pages,
+    auth_n::oidc::hardcoded_clients::admin_app, extract::path_tenant::TenantIdentifier,
+    fhir_client::ServerCTX, services::AppState, ui::pages,
 };
-use axum::extract::State;
+use axum::{
+    extract::State,
+    response::{IntoResponse, Redirect, Response},
+};
 use axum_extra::{extract::Cached, routing::TypedPath};
 use haste_fhir_client::{FHIRClient, url::ParsedParameters};
 use haste_fhir_model::r4::generated::resources::{Resource, ResourceType};
@@ -10,7 +14,6 @@ use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_jwt::ProjectId;
 use haste_repository::Repository;
-use maud::Markup;
 use std::sync::Arc;
 
 #[derive(TypedPath)]
@@ -25,7 +28,7 @@ pub async fn project_get<
     _: ProjectSelect,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
-) -> Result<Markup, OperationOutcomeError> {
+) -> Result<Response, OperationOutcomeError> {
     let tenant_projects = state
         .fhir_client
         .search_type(
@@ -49,11 +52,21 @@ pub async fn project_get<
         })
         .collect::<Vec<_>>();
 
-    let response = pages::project_select::project_select_html(
-        state.config.as_ref(),
-        &tenant,
-        &tenant_projects,
-    )?;
+    // If there is only one project, skip the project select page and go directly to the login page for that project
+    if tenant_projects.len() == 1
+        && let Some(project) = tenant_projects.first()
+        && let Some(project_id) = project.id.as_ref().map(|id| ProjectId::new(id.clone()))
+        && let Some(admin_app_url) =
+            admin_app::redirect_url(state.config.as_ref(), &tenant, &project_id)
+    {
+        Ok(Redirect::to(&admin_app_url).into_response())
+    } else {
+        let response = pages::project_select::project_select_html(
+            state.config.as_ref(),
+            &tenant,
+            &tenant_projects,
+        )?;
 
-    Ok(response)
+        Ok(response.into_response())
+    }
 }
