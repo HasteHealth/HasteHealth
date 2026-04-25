@@ -6,7 +6,7 @@ use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
 use std::sync::Arc;
 
-mod email_select;
+mod login;
 mod signup;
 mod tenant_select;
 
@@ -22,4 +22,6 @@ pub fn create_router<
         .typed_post(tenant_select::tenant_select_post)
         .typed_get(signup::global_signup_get)
         .typed_post(signup::global_signup_post)
+        .typed_get(login::global_login_get)
+        .typed_post(login::global_login_post)
 }

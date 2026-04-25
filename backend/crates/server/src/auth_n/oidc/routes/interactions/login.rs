@@ -164,7 +164,7 @@ pub async fn login_post<
 
     match login_result {
         LoginResult::Success { user } => {
-            session::user::set_user(&current_session, &tenant, &user).await?;
+            session::user::set_user(&current_session, &user).await?;
             let authorization_redirect =
                 Redirect::to(&(redirect_authorize_uri(&uri, "/interactions/login")));
 

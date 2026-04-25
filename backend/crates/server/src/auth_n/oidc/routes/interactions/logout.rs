@@ -26,7 +26,7 @@ pub async fn logout(
     Cached(current_session): Cached<Session>,
     Extension(oidc_params): Extension<OIDCParameters>,
 ) -> Result<Redirect, OperationOutcomeError> {
-    session::user::clear_user(&current_session, &tenant).await?;
+    session::user::clear_user(&current_session).await?;
 
     let redirect_uri = oidc_params.parameters.get("redirect_uri").ok_or_else(|| {
         OperationOutcomeError::error(

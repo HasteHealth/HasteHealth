@@ -485,7 +485,7 @@ pub async fn federated_callback<
         ));
     };
 
-    session::user::set_user(&session, &tenant, &user_model).await?;
+    session::user::set_user(&session, &user_model).await?;
 
     // Will redirect authorize_path
     Ok(Redirect::to(&idp_session_info.redirect_to))

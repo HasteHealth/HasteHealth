@@ -77,7 +77,7 @@ pub async fn scope_post<
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OIDCError> {
-    let user = session::user::get_user(&current_session, &tenant)
+    let user = session::user::get_user(&current_session)
         .await.map_err(|_| {
             OIDCError::new(
                 OIDCErrorCode::ServerError,

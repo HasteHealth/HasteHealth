@@ -53,6 +53,16 @@ pub async fn find_membership<Repo: Repository>(
     project: &ProjectId,
     user: &User,
 ) -> Result<Option<Membership>, OIDCError> {
+    // Should be confirmed in AuthSessionValidationLayer from middleware/session_validation that user.tenant == tenant,
+    // but double check here before querying for membership.
+    if user.tenant != *tenant {
+        return Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("User does not belong to the tenant.".to_string()),
+            None,
+        ));
+    }
+
     match &user.role {
         UserRole::Owner | UserRole::Admin => Ok(None),
         UserRole::Member => {
@@ -139,7 +149,7 @@ pub async fn authorize<
         )
     })?;
 
-    let user = session::user::get_user(&current_session, &tenant)
+    let Some(user) = session::user::get_user(&current_session)
         .await
         .map_err(|_e| {
             OIDCError::new(
@@ -148,7 +158,14 @@ pub async fn authorize<
                 Some(redirect_uri.to_string()),
             )
         })?
-        .unwrap();
+    else {
+        return Err(OIDCError::new(
+            OIDCErrorCode::AccessDenied,
+            Some("User is not authenticated.".to_string()),
+            Some(redirect_uri.to_string()),
+        ));
+    };
+
     // Verify the user has access to the given project.
 
     let membership = find_membership(&*app_state.repo, &tenant, &project, &user).await?;
@@ -158,7 +175,7 @@ pub async fn authorize<
             "User '{}' is not a member of project '{}'",
             user.id, project
         );
-        session::user::clear_user(&current_session, &tenant)
+        session::user::clear_user(&current_session)
             .await
             .map_err(|_e| {
                 OIDCError::new(

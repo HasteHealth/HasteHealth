@@ -87,7 +87,7 @@ where
 
             let to_route = oidc_route_string(&tenant, &project, &to);
 
-            if let Ok(Some(user)) = session::user::get_user(&current_session, &tenant).await
+            if let Ok(Some(user)) = session::user::get_user(&current_session).await
                 && user.tenant == tenant
             {
                 let response = inner.call(request).await?;
