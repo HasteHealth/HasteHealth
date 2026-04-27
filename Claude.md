@@ -6,7 +6,6 @@
 - ElasticSearch - search
 - PostgreSQL 18 - Resource storage
 
-
 ## Build Commands
 ### Backend
 - from backend/ `cargo run server start`
@@ -37,7 +36,5 @@
 - SonarQube quality gate must pass before merge
 
 ## Important Notes
-- Spring Boot BOM manages most dep versions — check BOM 
-  compatibility before upgrading individual deps
-- event-processor has strict latency SLA — be careful with 
-  dependency changes that could affect performance
+- Cargo.toml and package.json files manage dependencies.
+- Code in backend/crates/repository and backend/crates/fhir-search have high performance requirements.
