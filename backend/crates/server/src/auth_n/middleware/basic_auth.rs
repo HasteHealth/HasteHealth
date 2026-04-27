@@ -44,6 +44,7 @@ static CACHED_BASIC_TOKENS: LazyLock<
     moka::future::Cache<CacheTokenKey, String>,
 > = LazyLock::new(|| {
     moka::future::Cache::builder()
+        // Set as slightly less than the token expiration to ensure tokens are refreshed before they expire.
         .time_to_live(Duration::from_secs(TOKEN_EXPIRATION as u64 - 500))
         .build()
 });
