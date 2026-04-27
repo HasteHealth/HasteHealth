@@ -49,7 +49,10 @@ use haste_repository::{
 use jsonwebtoken::{Algorithm, Header};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 
 #[derive(TypedPath)]
 #[typed_path("/token")]
