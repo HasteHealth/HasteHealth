@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::{
-        error::{OIDCError, OIDCErrorCode},
+        error::OIDCError,
         routes::token::{
             ClientCredentialsMethod, TOKEN_EXPIRATION, client_credentials_to_token_response,
         },
@@ -65,58 +65,53 @@ pub async fn basic_auth_middleware<
     mut request: Request,
     next: Next,
 ) -> Result<Response, OIDCError> {
-    let Some(credentials) = credentials else {
-        return Err(OIDCError::new(
-            OIDCErrorCode::AccessDenied,
-            Some("Failed to authorize client.".to_string()),
-            None,
-        ));
-    };
-    if let Some(cached_token) = CACHED_BASIC_TOKENS
-        .get(&CacheTokenKey::new(
-            &tenant,
-            &project,
-            &credentials.0,
-            &credentials.1,
-        ))
-        .await
-    {
-        request.headers_mut().insert(
-            axum::http::header::AUTHORIZATION,
-            format!("Bearer {}", cached_token).parse().unwrap(),
-        );
-    } else {
-        let res = client_credentials_to_token_response(
-            state.as_ref(),
-            &tenant,
-            &project,
-            &None,
-            &OAuth2TokenBody {
-                client_id: credentials.0.clone(),
-                client_secret: Some(credentials.1.clone()),
-                code: None,
-                code_verifier: None,
-                grant_type: OAuth2TokenBodyGrantType::ClientCredentials,
-                redirect_uri: None,
-                refresh_token: None,
-                scope: None,
-            },
-            ClientCredentialsMethod::BasicAuth,
-        )
-        .await?;
-
-        CACHED_BASIC_TOKENS
-            .insert(
-                CacheTokenKey::new(&tenant, &project, &credentials.0, &credentials.1),
-                res.id_token.clone().unwrap_or_default(),
-            )
-            .await;
-
-        if let Some(token_response) = res.id_token {
+    if let Some(credentials) = credentials {
+        if let Some(cached_token) = CACHED_BASIC_TOKENS
+            .get(&CacheTokenKey::new(
+                &tenant,
+                &project,
+                &credentials.0,
+                &credentials.1,
+            ))
+            .await
+        {
             request.headers_mut().insert(
                 axum::http::header::AUTHORIZATION,
-                format!("Bearer {}", token_response).parse().unwrap(),
+                format!("Bearer {}", cached_token).parse().unwrap(),
             );
+        } else {
+            let res = client_credentials_to_token_response(
+                state.as_ref(),
+                &tenant,
+                &project,
+                &None,
+                &OAuth2TokenBody {
+                    client_id: credentials.0.clone(),
+                    client_secret: Some(credentials.1.clone()),
+                    code: None,
+                    code_verifier: None,
+                    grant_type: OAuth2TokenBodyGrantType::ClientCredentials,
+                    redirect_uri: None,
+                    refresh_token: None,
+                    scope: None,
+                },
+                ClientCredentialsMethod::BasicAuth,
+            )
+            .await?;
+
+            CACHED_BASIC_TOKENS
+                .insert(
+                    CacheTokenKey::new(&tenant, &project, &credentials.0, &credentials.1),
+                    res.id_token.clone().unwrap_or_default(),
+                )
+                .await;
+
+            if let Some(token_response) = res.id_token {
+                request.headers_mut().insert(
+                    axum::http::header::AUTHORIZATION,
+                    format!("Bearer {}", token_response).parse().unwrap(),
+                );
+            }
         }
     }
 
