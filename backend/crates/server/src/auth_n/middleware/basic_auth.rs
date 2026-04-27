@@ -100,7 +100,7 @@ pub async fn basic_auth_middleware<
             )
             .await?;
 
-            let Some(token_response) = res.id_token else {
+            let Some(id_token) = res.id_token else {
                 return Err(OIDCError::new(
                     OIDCErrorCode::AccessDenied,
                     Some("Failed to authorize client.".to_string()),
@@ -111,13 +111,13 @@ pub async fn basic_auth_middleware<
             CACHED_BASIC_TOKENS
                 .insert(
                     CacheTokenKey::new(&tenant, &project, &credentials.0, &credentials.1),
-                    token_response.clone(),
+                    id_token.clone(),
                 )
                 .await;
 
             request.headers_mut().insert(
                 axum::http::header::AUTHORIZATION,
-                format!("Bearer {}", token_response).parse().unwrap(),
+                format!("Bearer {}", id_token).parse().unwrap(),
             );
         }
     }
