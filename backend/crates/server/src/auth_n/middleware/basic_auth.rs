@@ -1,6 +1,6 @@
 use crate::{
     auth_n::oidc::{
-        error::OIDCError,
+        error::{OIDCError, OIDCErrorCode},
         routes::token::{
             ClientCredentialsMethod, TOKEN_EXPIRATION, client_credentials_to_token_response,
         },
@@ -100,19 +100,25 @@ pub async fn basic_auth_middleware<
             )
             .await?;
 
+            let Some(token_response) = res.id_token else {
+                return Err(OIDCError::new(
+                    OIDCErrorCode::AccessDenied,
+                    Some("Failed to authorize client.".to_string()),
+                    None,
+                ));
+            };
+
             CACHED_BASIC_TOKENS
                 .insert(
                     CacheTokenKey::new(&tenant, &project, &credentials.0, &credentials.1),
-                    res.id_token.clone().unwrap_or_default(),
+                    token_response.clone(),
                 )
                 .await;
 
-            if let Some(token_response) = res.id_token {
-                request.headers_mut().insert(
-                    axum::http::header::AUTHORIZATION,
-                    format!("Bearer {}", token_response).parse().unwrap(),
-                );
-            }
+            request.headers_mut().insert(
+                axum::http::header::AUTHORIZATION,
+                format!("Bearer {}", token_response).parse().unwrap(),
+            );
         }
     }
 
