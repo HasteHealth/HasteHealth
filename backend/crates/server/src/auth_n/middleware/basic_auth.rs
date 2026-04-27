@@ -44,7 +44,7 @@ static CACHED_BASIC_TOKENS: LazyLock<
     moka::future::Cache<CacheTokenKey, String>,
 > = LazyLock::new(|| {
     moka::future::Cache::builder()
-        .time_to_live(Duration::from_secs((TOKEN_EXPIRATION as u64 - 500)))
+        .time_to_live(Duration::from_secs(TOKEN_EXPIRATION as u64 - 500))
         .build()
 });
 
@@ -91,8 +91,8 @@ pub async fn basic_auth_middleware<
             &project,
             &None,
             &OAuth2TokenBody {
-                client_id: credentials.0,
-                client_secret: Some(credentials.1),
+                client_id: credentials.0.clone(),
+                client_secret: Some(credentials.1.clone()),
                 code: None,
                 code_verifier: None,
                 grant_type: OAuth2TokenBodyGrantType::ClientCredentials,
@@ -106,12 +106,7 @@ pub async fn basic_auth_middleware<
 
         CACHED_BASIC_TOKENS
             .insert(
-                CacheTokenKey::new(
-                    &tenant,
-                    &project,
-                    &res.client_id,
-                    res.client_secret.as_deref().unwrap_or_default(),
-                ),
+                CacheTokenKey::new(&tenant, &project, &credentials.0, &credentials.1),
                 res.id_token.clone().unwrap_or_default(),
             )
             .await;
