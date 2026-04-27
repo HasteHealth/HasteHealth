@@ -39,6 +39,7 @@ impl CacheTokenKey {
     }
 }
 
+// Token creation is expensive so caching for performance.
 static CACHED_BASIC_TOKENS: LazyLock<
     // Tenant, Project, ClientId, ClientSecret
     moka::future::Cache<CacheTokenKey, String>,
