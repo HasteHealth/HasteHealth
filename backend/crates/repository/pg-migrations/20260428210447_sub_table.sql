@@ -19,11 +19,11 @@ CREATE TABLE subscriptions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    FOREIGN KEY (tenant) REFERENCES tenants(id),
-    FOREIGN KEY (project) REFERENCES projects(id),
     CONSTRAINT subscription_pkey PRIMARY KEY (tenant, project, id),
+    CONSTRAINT fk_tenant FOREIGN KEY (tenant) REFERENCES tenants (id) ON DELETE CASCADE,
+    CONSTRAINT fk_project FOREIGN KEY (tenant, project) REFERENCES projects (tenant, id) ON DELETE CASCADE
 );
 
 
 CREATE INDEX subscriptions_tenant_project_idx ON subscriptions(tenant, project);
-CREATE INDEX subscriptions_status_idx ON subscriptions(status) WHERE status = 'active';
+CREATE INDEX subscriptions_status_idx ON subscriptions(tenant, project, status);
