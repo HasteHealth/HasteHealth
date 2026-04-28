@@ -1,0 +1,12 @@
+[package]
+name = "haste_deno_executor"
+publish = false
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+edition.workspace = true
+
+[dependencies]
+deno_core = "0.400.0"
+tokio = { workspace = true, features = ["full"] }

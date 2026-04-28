@@ -1,0 +1,1 @@
+Expirements for Plugin system using Deno Core. May merge this library into operation executor.

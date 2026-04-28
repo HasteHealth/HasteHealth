@@ -47,7 +47,7 @@ members = [
     "crates/server",
     "crates/testscript-runner",
     "crates/wal_worker",
-    "crates/x-fhir-query", "crates/fhir-profiling",
+    "crates/x-fhir-query", "crates/fhir-profiling", "crates/deno_executor",
 ]
 
 [workspace.package]
