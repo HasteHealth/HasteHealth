@@ -15,6 +15,7 @@ use axum::{
 };
 use axum_extra::routing::TypedPath;
 
+use email_address::EmailAddress;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
@@ -61,7 +62,7 @@ pub async fn global_login_get(_: EmailSelect) -> Result<Response, OperationOutco
 
 #[derive(Deserialize)]
 pub struct GlobalLoginForm {
-    pub email: String,
+    pub email: EmailAddress,
 }
 
 pub async fn global_login_post<
@@ -76,7 +77,7 @@ pub async fn global_login_post<
     let found_users = SystemAdmin::<User, UserSearchClauses>::search(
         state.repo.as_ref(),
         &UserSearchClauses {
-            email: Some(login_data.email.clone()),
+            email: Some(login_data.email.to_string()),
             role: None,
             method: None,
         },

@@ -2349,6 +2349,7 @@ dependencies = [
  "base64",
  "chrono",
  "dotenvy",
+ "email_address",
  "haste-access-control",
  "haste-artifacts",
  "haste-config",

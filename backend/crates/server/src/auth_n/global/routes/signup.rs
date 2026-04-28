@@ -10,6 +10,7 @@ use crate::{
 use axum::{Form, response::IntoResponse};
 use axum::{extract::State, response::Response};
 use axum_extra::routing::TypedPath;
+use email_address::EmailAddress;
 use haste_fhir_model::r4::generated::{
     terminology,
     types::{FHIRString, HumanName},
@@ -72,7 +73,7 @@ pub async fn global_signup_get<
 
 #[derive(serde::Deserialize)]
 pub struct GlobalSignupForm {
-    pub email: String,
+    pub email: EmailAddress,
     #[serde(rename = "first-name")]
     pub first_name: String,
     #[serde(rename = "last-name")]

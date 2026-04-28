@@ -1,7 +1,8 @@
-use std::time::Duration;
+use std::{str::FromStr, time::Duration};
 
 use crate::{ServerEnvironmentVariables, route_path::api_v1_oidc_path, services::AppState};
 use axum::http::Uri;
+use email_address::EmailAddress;
 use haste_config::Config;
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -31,7 +32,7 @@ fn report(mut err: &dyn std::error::Error) -> String {
 
 pub async fn send_email(
     config: &dyn Config<ServerEnvironmentVariables>,
-    to: &str,
+    to: &EmailAddress,
     subject: &str,
     body: &str,
 ) -> Result<(), OperationOutcomeError> {
@@ -42,7 +43,7 @@ pub async fn send_email(
     let m = sendgrid::v3::Message::new(Email::new(&from_address))
         .set_subject(subject)
         .add_content(Content::new().set_content_type("text/html").set_value(body))
-        .add_personalization(Personalization::new(Email::new(to)));
+        .add_personalization(Personalization::new(Email::new(to.as_str())));
 
     let resp = sender.send(&m).await.map_err(|e| {
         tracing::error!("Failed to send email '{}'", e);
@@ -140,7 +141,7 @@ pub async fn send_password_reset_email<
         },
     );
 
-    let email = user.email.as_ref().ok_or_else(|| {
+    let email_str = user.email.as_ref().ok_or_else(|| {
         OperationOutcomeError::fatal(
             IssueType::Invalid(None),
             "User does not have an email associated.".to_string(),
@@ -149,7 +150,12 @@ pub async fn send_password_reset_email<
 
     send_email(
         &*state.config,
-        email,
+        &EmailAddress::from_str(email_str).map_err(|_| {
+            OperationOutcomeError::fatal(
+                IssueType::Invalid(None),
+                "User has an invalid email associated.".to_string(),
+            )
+        })?,
         message.subject.as_deref().unwrap_or("Password Reset"),
         &reset_button.into_string(),
     )
