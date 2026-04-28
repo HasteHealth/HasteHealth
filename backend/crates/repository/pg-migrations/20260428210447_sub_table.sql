@@ -1,5 +1,5 @@
 CREATE TABLE subscriptions (
-    id TEXT PRIMARY KEY,
+    id TEXT,
     tenant TEXT NOT NULL,
     project TEXT NOT NULL,
     status TEXT NOT NULL, -- 'requested' | 'active' | 'error' | 'off'
@@ -20,8 +20,10 @@ CREATE TABLE subscriptions (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     FOREIGN KEY (tenant) REFERENCES tenants(id),
-    FOREIGN KEY (project) REFERENCES projects(id)
+    FOREIGN KEY (project) REFERENCES projects(id),
+    CONSTRAINT subscription_pkey PRIMARY KEY (tenant, project, id),
 );
+
 
 CREATE INDEX subscriptions_tenant_project_idx ON subscriptions(tenant, project);
 CREATE INDEX subscriptions_status_idx ON subscriptions(status) WHERE status = 'active';
