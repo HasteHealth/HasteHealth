@@ -60,7 +60,7 @@ jobs:
           toolchain: stable
 
       - name: Build
-        run: cargo build --verbose --workspace
+        run: cargo build --locked --verbose --workspace
         working-directory: ./backend
 
       - name: Run migrations

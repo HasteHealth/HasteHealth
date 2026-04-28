@@ -9,7 +9,7 @@
 ## Build Commands
 ### Backend
 - from backend/ `cargo run server start`
-- from backend/ to build binary `cargo build --release`
+- from backend/ to build binary `cargo build --locked --release`
 ### Frontend
 - compile components - from fronend/packages/components `pnpm build`
 - start admin app - from frontend/packages/admin-app `pnpm start`

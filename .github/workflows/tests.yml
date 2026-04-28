@@ -18,7 +18,7 @@ jobs:
         with:
           toolchain: stable
       - name: Build
-        run: cargo build --verbose --workspace
+        run: cargo build --locked --verbose --workspace
         working-directory: ./backend
       - name: Unit tests
         run: cargo test --verbose --workspace

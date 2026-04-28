@@ -9,7 +9,7 @@ WORKDIR /app
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 ENV NVM_DIR=/root/.nvm
 ENV SQLX_OFFLINE=true
-RUN . /root/.nvm/nvm.sh --no-use && nvm install 24 && nvm use 24 && nvm alias default 24 && node -v && cargo build --release
+RUN . /root/.nvm/nvm.sh --no-use && nvm install 24 && nvm use 24 && nvm alias default 24 && node -v && cargo build --locked --release
 
 
 FROM debian:bookworm-slim
