@@ -1,5 +1,6 @@
 CREATE TABLE subscriptions (
     id TEXT,
+    version_id TEXT NOT NULL,
     tenant TEXT NOT NULL,
     project TEXT NOT NULL,
     status TEXT NOT NULL, -- 'requested' | 'active' | 'error' | 'off'
