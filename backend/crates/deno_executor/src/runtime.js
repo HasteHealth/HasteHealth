@@ -1,19 +1,16 @@
 // runtime.js
 
-((globalThis) => {
+((root) => {
   const core = Deno.core;
-
-  // globalThis.InteropObject = core.InteropObject;
-  // globalThis.console.log("INTEROP:", globalThis.InteropObject);
 
   function argsToMessage(...args) {
     return args.map((arg) => JSON.stringify(arg)).join(" ");
   }
 
-  globalThis.readResource = (resourceType, id) =>
+  root.readResource = (resourceType, id) =>
     core.ops.read_resource(resourceType, id);
 
-  globalThis.console = {
+  root.console = {
     log: (...args) => {
       core.print(`[out]: ${argsToMessage(...args)}\n`, false);
     },
