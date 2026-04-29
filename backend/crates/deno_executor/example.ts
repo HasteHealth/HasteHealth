@@ -1,12 +1,12 @@
-const obj = new InteropObject(22);
+// const obj = new InteropObject(22);
 
-console.log(obj, obj.value);
-obj.value = 99;
-console.log(obj.value);
+// console.log(obj, obj.value);
+// obj.value = 99;
+// console.log(obj.value);
 
-const z = await InteropObject.create(88);
+// const z = await InteropObject.create(88);
 
-console.log(z.value);
+// console.log(z.value);
 
 console.log(await stateCheck());
 
