@@ -2929,6 +2929,10 @@ dependencies = [
  "deno_ast",
  "deno_core",
  "deno_error",
+ "haste-fhir-client",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhir-serialization-json",
  "tokio",
 ]
 

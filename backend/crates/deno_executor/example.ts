@@ -8,10 +8,10 @@
 
 // console.log(z.value);
 
-console.log(await stateCheck());
-console.log(await stateCheck());
-console.log(await stateCheck());
-console.log(await stateCheck());
+const patient = await readResource("Patient", "90277570");
+
+console.log(patient.id);
+console.log(patient.name);
 
 export {};
 

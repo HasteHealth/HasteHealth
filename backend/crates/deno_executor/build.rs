@@ -1,6 +1,9 @@
-use deno_core::extension;
+use deno_core::GarbageCollected;
+use deno_core::cppgc::GcCell;
 use deno_core::snapshot::CreateSnapshotOptions;
 use deno_core::snapshot::create_snapshot;
+use deno_core::v8;
+use deno_core::{extension, op2};
 use std::env;
 use std::fs;
 use std::path::PathBuf;
@@ -8,6 +11,7 @@ use std::path::PathBuf;
 fn main() {
     extension!(
       runjs,
+      // objects = [InteropObject],
       esm_entry_point = "ext:runtime",
       esm = [
         dir "src",

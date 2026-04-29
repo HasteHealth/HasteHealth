@@ -3,10 +3,14 @@ use deno_core::error::ModuleLoaderError;
 
 use deno_core::{
     GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource,
-    ModuleType, OpState, op2, resolve_import, v8,
+    ModuleType, OpState, op2, resolve_import, serde_json, v8,
 };
 // main.rs
 use deno_core::{error::AnyError, extension};
+use haste_fhir_client::FHIRClient;
+use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
+use haste_fhir_model::r4::generated::resources::ResourceType;
+use haste_fhir_operation_error::OperationOutcomeError;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -109,6 +113,14 @@ impl ModuleLoader for TsModuleLoader {
     }
 }
 
+struct AppState<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
+    #[allow(dead_code)]
+    counter: u64,
+    z: String,
+    fhir_client: Arc<Client>,
+    ctx: CTX,
+}
+
 #[repr(C)]
 pub struct InteropObject {
     value: GcCell<f64>,
@@ -155,48 +167,46 @@ impl InteropObject {
     }
 }
 
-struct AppState {
-    #[allow(dead_code)]
-    counter: u64,
-    z: String,
-}
-
-// #[op2]
-// #[bigint]
-// async fn op_get_counter(state: &mut OpState) -> Result<u64, deno_error::JsErrorBox> {
-//     let app_state = state.borrow::<AppState>();
-
-//     Ok(app_state.counter)
-// }
-
 #[op2]
-#[string]
-pub async fn op_return_value(
+#[serde]
+pub async fn read_resource(
     state: Rc<RefCell<OpState>>,
-    // #[string] value: String,
-) -> Result<String, deno_error::JsErrorBox> {
+    #[string] resource_type: String,
+    #[string] id: String,
+) -> Result<serde_json::Value, deno_error::JsErrorBox> {
     let state = state.borrow();
     // Use the state
 
-    let app_state = state.borrow::<Arc<AppState>>();
+    let app_state = state.borrow::<Arc<AppState<Option<String>, FHIRHttpClient<Option<String>>>>>();
 
-    Ok(app_state.z.clone())
+    let patient = app_state
+        .fhir_client
+        .read(
+            app_state.ctx.clone(),
+            ResourceType::try_from(resource_type)
+                .map_err(|_| deno_error::JsErrorBox::type_error("Invalid resource type"))?,
+            id,
+        )
+        .await
+        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to read patient"))?;
+
+    serde_json::from_str(&haste_fhir_serialization_json::to_string(&patient).unwrap())
+        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize patient"))
 }
 
-async fn run_js(file_path: &str) -> Result<(), AnyError> {
+async fn run_js<CTX: Clone + 'static, Client: FHIRClient<CTX, OperationOutcomeError> + 'static>(
+    ctx: CTX,
+    client: Client,
+    file_path: &str,
+) -> Result<(), AnyError> {
     let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
-    extension!(
-        runjs,
-        ops = [op_return_value],
-        // objects = [InteropObject],
-        // esm_entry_point = "ext:runjs/runtime.js",
-        // esm = [dir "src", "runtime.js"]
-    );
+    extension!(runjs, ops = [read_resource]);
 
     let mut js_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
         module_loader: Some(Rc::new(TsModuleLoader)),
         extensions: vec![runjs::init()],
         startup_snapshot: Some(RUNTIME_SNAPSHOT),
+        // startup_snapshot: Some(RUNTIME_SNAPSHOT),
         ..Default::default()
     });
 
@@ -204,6 +214,8 @@ async fn run_js(file_path: &str) -> Result<(), AnyError> {
         let op_state = js_runtime.op_state();
         let mut op_state = op_state.borrow_mut();
         op_state.put(Arc::new(AppState {
+            fhir_client: Arc::new(client),
+            ctx,
             counter: 5100,
             z: "hello from state!!!".to_string(),
         }));
@@ -224,7 +236,11 @@ fn main() {
         .enable_all()
         .build()
         .unwrap();
-    if let Err(error) = runtime.block_on(run_js("./example.ts")) {
+    let http_fhir_client = FHIRHttpClient::<Option<String>>::new(
+        FHIRHttpState::new("https://localhost:3000", None).expect("Failed to create FHIR client"),
+    );
+
+    if let Err(error) = runtime.block_on(run_js(None, http_fhir_client, "./example.ts")) {
         eprintln!("error: {}", error);
     }
 }
