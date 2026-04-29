@@ -156,6 +156,7 @@ impl InteropObject {
 }
 
 struct AppState {
+    #[allow(dead_code)]
     counter: u64,
     z: String,
 }
@@ -172,7 +173,7 @@ struct AppState {
 #[string]
 pub async fn op_return_value(
     state: Rc<RefCell<OpState>>,
-    #[string] value: String,
+    // #[string] value: String,
 ) -> Result<String, deno_error::JsErrorBox> {
     let state = state.borrow();
     // Use the state
