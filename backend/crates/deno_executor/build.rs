@@ -1,9 +1,7 @@
-use deno_core::GarbageCollected;
-use deno_core::cppgc::GcCell;
 use deno_core::snapshot::CreateSnapshotOptions;
 use deno_core::snapshot::create_snapshot;
-use deno_core::v8;
-use deno_core::{extension, op2};
+
+use deno_core::extension;
 use std::env;
 use std::fs;
 use std::path::PathBuf;

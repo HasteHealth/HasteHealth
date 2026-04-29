@@ -114,9 +114,6 @@ impl ModuleLoader for TsModuleLoader {
 }
 
 struct AppState<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
-    #[allow(dead_code)]
-    counter: u64,
-    z: String,
     fhir_client: Arc<Client>,
     ctx: CTX,
 }
@@ -216,8 +213,6 @@ async fn run_js<CTX: Clone + 'static, Client: FHIRClient<CTX, OperationOutcomeEr
         op_state.put(Arc::new(AppState {
             fhir_client: Arc::new(client),
             ctx,
-            counter: 5100,
-            z: "hello from state!!!".to_string(),
         }));
     }
 
