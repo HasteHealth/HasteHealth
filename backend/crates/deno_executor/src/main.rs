@@ -10,22 +10,22 @@ use deno_ast::{MediaType, ModuleSpecifier};
 use deno_ast::{ParseParams, SourceMapOption};
 use deno_core::ModuleLoadResponse;
 use deno_core::ModuleSourceCode;
-use deno_core::op2;
+// use deno_core::op2;
 use deno_error::JsErrorBox;
 
-#[op2]
-#[string]
-async fn op_read_file(#[string] path: String) -> Option<String> {
-    let contents = tokio::fs::read_to_string(path).await.ok()?;
-    Some(contents)
-}
+// #[op2]
+// #[string]
+// async fn op_read_file(#[string] path: String) -> Option<String> {
+//     let contents = tokio::fs::read_to_string(path).await.ok()?;
+//     Some(contents)
+// }
 
-#[op2]
-#[string]
-async fn op_write_file(#[string] path: String, #[string] contents: String) -> Option<String> {
-    tokio::fs::write(path, contents).await.ok()?;
-    Some("".to_string())
-}
+// #[op2]
+// #[string]
+// async fn op_write_file(#[string] path: String, #[string] contents: String) -> Option<String> {
+//     tokio::fs::write(path, contents).await.ok()?;
+//     Some("".to_string())
+// }
 
 struct TsModuleLoader;
 impl ModuleLoader for TsModuleLoader {
@@ -120,10 +120,8 @@ async fn run_js(file_path: &str) -> Result<(), AnyError> {
     let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
     extension!(
         runjs,
-        ops = [
-            op_read_file,
-            op_write_file,
-        ],
+        // ops = [
+        // ],
         esm_entry_point = "ext:runjs/runtime.js",
         esm = [dir "src", "runtime.js"]
     );
