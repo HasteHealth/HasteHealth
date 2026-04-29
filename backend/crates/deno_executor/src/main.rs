@@ -1,10 +1,15 @@
+use deno_core::cppgc::GcCell;
 use deno_core::error::ModuleLoaderError;
+
 use deno_core::{
-    ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource, ModuleType, resolve_import,
+    GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource,
+    ModuleType, OpState, op2, resolve_import, v8,
 };
 // main.rs
 use deno_core::{error::AnyError, extension};
+use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use deno_ast::{MediaType, ModuleSpecifier};
 use deno_ast::{ParseParams, SourceMapOption};
@@ -116,12 +121,87 @@ impl ModuleLoader for TsModuleLoader {
     }
 }
 
+#[repr(C)]
+pub struct InteropObject {
+    value: GcCell<f64>,
+}
+
+unsafe impl GarbageCollected for InteropObject {
+    fn trace(&self, _visitor: &mut v8::cppgc::Visitor) {}
+    fn get_name(&self) -> &'static std::ffi::CStr {
+        c"InteropObject"
+    }
+}
+
+#[op2]
+impl InteropObject {
+    #[constructor]
+    #[cppgc]
+    fn new(value: f64) -> InteropObject {
+        InteropObject {
+            value: GcCell::new(value),
+        }
+    }
+
+    #[getter]
+    fn value(&self, isolate: &v8::Isolate) -> f64 {
+        *self.value.get(isolate)
+    }
+
+    #[setter]
+    fn value(&self, isolate: &mut v8::Isolate, value: f64) {
+        self.value.set(isolate, value);
+    }
+
+    // #[fast]
+    // fn double_value(&self, isolate: &v8::Isolate) -> f64 {
+    //     *self.value.get(isolate) * 2.0
+    // }
+
+    #[static_method]
+    #[cppgc]
+    fn create(value: f64) -> InteropObject {
+        InteropObject {
+            value: GcCell::new(value),
+        }
+    }
+}
+
+struct AppState {
+    counter: u64,
+    z: String,
+}
+
+// #[op2]
+// #[bigint]
+// async fn op_get_counter(state: &mut OpState) -> Result<u64, deno_error::JsErrorBox> {
+//     let app_state = state.borrow::<AppState>();
+
+//     Ok(app_state.counter)
+// }
+
+#[op2]
+#[string]
+pub async fn op_return_value(
+    state: Rc<RefCell<OpState>>,
+    #[string] value: String,
+) -> Result<String, deno_error::JsErrorBox> {
+    let state = state.borrow();
+    // Use the state
+
+    let app_state = state.borrow::<Arc<AppState>>();
+
+    Ok(app_state.z.clone())
+}
+
 async fn run_js(file_path: &str) -> Result<(), AnyError> {
     let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
     extension!(
         runjs,
-        // ops = [
-        // ],
+        ops = [
+            op_return_value
+        ],
+        objects = [InteropObject],
         esm_entry_point = "ext:runjs/runtime.js",
         esm = [dir "src", "runtime.js"]
     );
@@ -131,6 +211,15 @@ async fn run_js(file_path: &str) -> Result<(), AnyError> {
         extensions: vec![runjs::init()],
         ..Default::default()
     });
+
+    {
+        let op_state = js_runtime.op_state();
+        let mut op_state = op_state.borrow_mut();
+        op_state.put(Arc::new(AppState {
+            counter: 5100,
+            z: "hello from state!!!".to_string(),
+        }));
+    }
 
     let mod_id = js_runtime.load_main_es_module(&main_module).await?;
     let result = js_runtime.mod_evaluate(mod_id);

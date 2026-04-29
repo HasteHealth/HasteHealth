@@ -1,9 +1,14 @@
 // runtime.js
 const { core } = Deno;
+import { InteropObject } from "ext:core/ops";
 
 function argsToMessage(...args) {
   return args.map((arg) => JSON.stringify(arg)).join(" ");
 }
+
+globalThis.InteropObject = InteropObject;
+
+globalThis.stateCheck = core.ops.op_return_value;
 
 globalThis.console = {
   log: (...args) => {
@@ -13,6 +18,8 @@ globalThis.console = {
     core.print(`[err]: ${argsToMessage(...args)}\n`, true);
   },
 };
+
+globalThis.console.log("INTEROP:", globalThis.InteropObject);
 
 // globalThis.runjs = {
 //   readFile: (path) => {
