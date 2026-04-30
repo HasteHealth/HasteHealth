@@ -122,9 +122,10 @@ impl ModuleLoader for TsModuleLoader {
     }
 }
 
-struct AppState<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
+struct JSRuntimeState<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
     fhir_client: Arc<Client>,
     ctx: CTX,
+    return_value: Option<serde_json::Value>,
 }
 
 #[repr(C)]
@@ -186,7 +187,9 @@ pub async fn read_resource<
     let state = state.borrow();
     // Use the state
 
-    let app_state = state.borrow::<Arc<AppState<CTX, Client>>>();
+    let app_state = state
+        .borrow::<Rc<RefCell<JSRuntimeState<CTX, Client>>>>()
+        .borrow();
 
     let patient = app_state
         .fhir_client
@@ -203,6 +206,24 @@ pub async fn read_resource<
         .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize resource"))
 }
 
+#[op2]
+#[serde]
+pub async fn set_return_value<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+    #[serde] value: serde_json::Value,
+) -> Result<(), deno_error::JsErrorBox> {
+    let state = state.borrow();
+    // Use the state
+    let app_state = state.borrow::<Rc<RefCell<JSRuntimeState<CTX, Client>>>>();
+    let mut mutable_state = app_state.borrow_mut();
+
+    mutable_state.return_value = Some(value);
+    Ok(())
+}
+
 pub async fn run_code<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
@@ -216,7 +237,10 @@ pub async fn run_code<
 
     let runjs = Extension {
         name: "runjs",
-        ops: std::borrow::Cow::Owned(vec![read_resource::<CTX, Client>()]),
+        ops: std::borrow::Cow::Owned(vec![
+            read_resource::<CTX, Client>(),
+            set_return_value::<CTX, Client>(),
+        ]),
         ..Default::default()
     };
 
@@ -231,25 +255,28 @@ pub async fn run_code<
     {
         let op_state = deno_runtime.op_state();
         let mut op_state = op_state.borrow_mut();
-        op_state.put(Arc::new(AppState {
+        op_state.put(Rc::new(RefCell::new(JSRuntimeState {
             fhir_client: Arc::new(client),
             ctx,
-        }));
+            return_value: None,
+        })));
     }
 
-    let main_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
+    let user_module_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
 
-    let (_module_type, js_code) = transpile_code_to_js(&main_specifier, media_type, &code).unwrap();
+    let (_module_type, js_code) =
+        transpile_code_to_js(&user_module_specifier, media_type, &code).unwrap();
 
-    let mod_id = deno_runtime
-        .load_side_es_module_from_code(&main_specifier, js_code)
+    let user_mod_id = deno_runtime
+        .load_side_es_module_from_code(&user_module_specifier, js_code)
         .await?;
 
     // let mod_id = deno_runtime.load_main_es_module(&main_module).await?;
-    let result = deno_runtime.mod_evaluate(mod_id);
+    let module_load = deno_runtime.mod_evaluate(user_mod_id);
+
     deno_runtime.run_event_loop(Default::default()).await?;
 
-    result.await?;
+    module_load.await?;
 
     Ok(())
 }
