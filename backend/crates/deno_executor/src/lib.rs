@@ -232,7 +232,7 @@ pub async fn run_code<
     client: Client,
     media_type: MediaType,
     code: String,
-) -> Result<(), AnyError> {
+) -> Result<Option<serde_json::Value>, AnyError> {
     // let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
 
     let runjs = Extension {
@@ -289,11 +289,18 @@ pub async fn run_code<
 
     user_module_load.await?;
     main_module_load.await?;
+    // Clean up the JSRuntimeState from the op state
+    // Allows unwrapping RC in next call to have owned_values.
+    {
+        let op_state = deno_runtime.op_state();
+        let mut op_state = op_state.borrow_mut();
 
-    println!(
-        "return_value = {:#?}",
-        js_runtime_state.borrow().return_value
-    );
+        op_state.take::<Rc<RefCell<JSRuntimeState<CTX, Client>>>>();
+    }
 
-    Ok(())
+    let owned_runetime_state = Rc::try_unwrap(js_runtime_state)
+        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to unwrap JSRuntimeState"))?
+        .into_inner();
+
+    Ok(owned_runetime_state.return_value)
 }
