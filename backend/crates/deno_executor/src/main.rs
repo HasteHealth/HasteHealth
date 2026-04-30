@@ -235,12 +235,14 @@ async fn run_js<CTX: Clone + 'static, Client: FHIRClient<CTX, OperationOutcomeEr
 
 // main.rs
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();
+
     let http_fhir_client = FHIRHttpClient::<Option<String>>::new(
-        FHIRHttpState::new("https://localhost:3000", None).expect("Failed to create FHIR client"),
+        FHIRHttpState::new(&args[1], None).expect("Failed to create FHIR client"),
     );
 
     if let Err(error) = runtime.block_on(run_js(None, http_fhir_client, "./example.ts")) {
