@@ -252,14 +252,16 @@ pub async fn run_code<
         ..Default::default()
     });
 
+    let js_runtime_state = Rc::new(RefCell::new(JSRuntimeState {
+        fhir_client: Arc::new(client),
+        ctx,
+        return_value: None,
+    }));
+
     {
         let op_state = deno_runtime.op_state();
         let mut op_state = op_state.borrow_mut();
-        op_state.put(Rc::new(RefCell::new(JSRuntimeState {
-            fhir_client: Arc::new(client),
-            ctx,
-            return_value: None,
-        })));
+        op_state.put(js_runtime_state.clone());
     }
 
     let user_module_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
@@ -271,12 +273,27 @@ pub async fn run_code<
         .load_side_es_module_from_code(&user_module_specifier, js_code)
         .await?;
 
+    let main_mod_id = deno_runtime
+        .load_main_es_module_from_code(
+            &ModuleSpecifier::parse("memo://main.ts").unwrap(),
+            "import userFunction from 'memo://user.ts'; _internal_.setReturnValue(await userFunction());"
+                .to_string(),
+        )
+        .await?;
+
     // let mod_id = deno_runtime.load_main_es_module(&main_module).await?;
-    let module_load = deno_runtime.mod_evaluate(user_mod_id);
+    let user_module_load = deno_runtime.mod_evaluate(user_mod_id);
+    let main_module_load = deno_runtime.mod_evaluate(main_mod_id);
 
     deno_runtime.run_event_loop(Default::default()).await?;
 
-    module_load.await?;
+    user_module_load.await?;
+    main_module_load.await?;
+
+    println!(
+        "return_value = {:#?}",
+        js_runtime_state.borrow().return_value
+    );
 
     Ok(())
 }

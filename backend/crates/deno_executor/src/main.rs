@@ -21,10 +21,6 @@ fn main() {
         http_fhir_client,
         MediaType::TypeScript,
         r#"
-const patient = await readResource("Patient", "90277570");
-
-console.log(patient.id);
-console.log(patient.name);
 
 export {};
 
@@ -38,6 +34,14 @@ function hello(t: Person) {
 }
 
 hello({ name: "Alice", age: 30 });
+
+export default async function(){
+    const patient = await fhir.readResource("Patient", "90277570");
+    console.log(patient.id);
+    console.log(patient.name);
+
+    return patient;
+}
         "#
         .to_string(),
     )) {
