@@ -2,11 +2,11 @@ use deno_core::cppgc::GcCell;
 use deno_core::error::ModuleLoaderError;
 
 use deno_core::{
-    GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource,
+    Extension, GarbageCollected, ModuleLoadOptions, ModuleLoadReferrer, ModuleLoader, ModuleSource,
     ModuleType, OpState, op2, resolve_import, serde_json, v8,
 };
 // main.rs
-use deno_core::{error::AnyError, extension};
+use deno_core::error::AnyError;
 use haste_fhir_client::FHIRClient;
 use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
 use haste_fhir_model::r4::generated::resources::ResourceType;
@@ -166,7 +166,10 @@ impl InteropObject {
 
 #[op2]
 #[serde]
-pub async fn read_resource(
+pub async fn read_resource<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
     state: Rc<RefCell<OpState>>,
     #[string] resource_type: String,
     #[string] id: String,
@@ -174,7 +177,7 @@ pub async fn read_resource(
     let state = state.borrow();
     // Use the state
 
-    let app_state = state.borrow::<Arc<AppState<Option<String>, FHIRHttpClient<Option<String>>>>>();
+    let app_state = state.borrow::<Arc<AppState<CTX, Client>>>();
 
     let patient = app_state
         .fhir_client
@@ -185,10 +188,10 @@ pub async fn read_resource(
             id,
         )
         .await
-        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to read patient"))?;
+        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to read resource"))?;
 
     serde_json::from_str(&haste_fhir_serialization_json::to_string(&patient).unwrap())
-        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize patient"))
+        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize resource"))
 }
 
 async fn run_js<CTX: Clone + 'static, Client: FHIRClient<CTX, OperationOutcomeError> + 'static>(
@@ -197,11 +200,16 @@ async fn run_js<CTX: Clone + 'static, Client: FHIRClient<CTX, OperationOutcomeEr
     file_path: &str,
 ) -> Result<(), AnyError> {
     let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
-    extension!(runjs, ops = [read_resource]);
+
+    let runjs = Extension {
+        name: "runjs",
+        ops: std::borrow::Cow::Owned(vec![read_resource::<CTX, Client>()]),
+        ..Default::default()
+    };
 
     let mut js_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
         module_loader: Some(Rc::new(TsModuleLoader)),
-        extensions: vec![runjs::init()],
+        extensions: vec![runjs],
         startup_snapshot: Some(RUNTIME_SNAPSHOT),
         // startup_snapshot: Some(RUNTIME_SNAPSHOT),
         ..Default::default()
