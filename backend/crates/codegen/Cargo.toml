@@ -15,8 +15,8 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
-indexmap = "2.10.0"
-proc-macro2 = "1.0.95"
+indexmap = "2.14.0"
+proc-macro2 = "1.0.106"
 quote = { workspace = true }
 regex = { workspace = true }
 serde_json = { workspace = true }

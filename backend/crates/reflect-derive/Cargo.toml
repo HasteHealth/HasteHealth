@@ -11,4 +11,4 @@ proc-macro = true
 
 [dependencies]
 quote = { workspace = true }
-syn = "2.0.104"
+syn = "2.0.117"

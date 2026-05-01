@@ -12,12 +12,12 @@ haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
 haste-reflect-derive = { path = "../reflect-derive", version = "0.*" }
 peg = "0.8.5"
-thiserror = "2.0.12"
+thiserror = "2.0.18"
 
 [dev-dependencies]
 criterion = { version = "0.8", features = ["async_tokio"] }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
-insta = "1.43.1"
+insta = "1.47.2"
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 
 [[bench]]

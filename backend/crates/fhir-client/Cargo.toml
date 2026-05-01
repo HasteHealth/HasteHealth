@@ -19,11 +19,11 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
-http = "1.3.1"
-json-patch = "4.0.0"
+http = "1.4.0"
+json-patch = "4.2.0"
 reqwest = { workspace = true, optional = true }
 serde_json = { workspace = true }
-thiserror = "2.0.12"
+thiserror = "2.0.18"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt", "macros"] }

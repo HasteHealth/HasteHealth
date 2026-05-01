@@ -11,5 +11,5 @@ proc-macro = true
 
 [dependencies]
 quote = { workspace = true }
-syn = "2.0.106"
+syn = "2.0.117"
 walkdir = { workspace = true }

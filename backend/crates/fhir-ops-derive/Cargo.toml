@@ -11,6 +11,6 @@ proc-macro = true
 
 [dependencies]
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
-proc-macro2 = "1.0.101"
+proc-macro2 = "1.0.106"
 quote = { workspace = true }
-syn = "2.0.104"
+syn = "2.0.117"
