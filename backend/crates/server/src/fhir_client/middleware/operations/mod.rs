@@ -159,10 +159,6 @@ impl<
         // tokio::task::spawn_blocking(f)
 
         Box::pin(async move {
-            println!(
-                "OPERATIONS MIDDLEWARE: Checking for operation execution for request: {:?}",
-                context.request
-            );
             if let Some(op_executor) = executors.find_operation(&context.request) {
                 let output: Resource = match &context.request {
                     FHIRRequest::Invocation(request) => {
@@ -207,38 +203,44 @@ impl<
 
                             local.block_on(&rt, async move {
                                 let output = tokio::task::spawn_local(async move {
-                                    let Ok(Some(result)) = haste_deno_executor::run_code(
+                                    let result = haste_deno_executor::run_code(
                                         context_clone.clone(),
                                         context_clone.client.clone(),
                                         haste_deno_executor::PluginCodeType::TypeScript,
-                                        "
+                                        r#"
                                 export default async function() {
+                                    const sd = await fhir.readResource("StructureDefinition", "Patient");
+
                                     return {
                                         resourceType: 'Parameters',
                                         parameter: [
 
                                             {
                                                 name: 'message',
-                                                valueString: 'Hello from dynamic TypeScript code execution!'
+                                                resource: sd
                                             }
                                         ]
                                     };
                                 }
-                            "
+                            "#
                                         .to_string(),
                                     )
                                     .await
-                                    else {
-                                        return Err(OperationOutcomeError::fatal(
+                                    .map_err(|e| {
+                                        tracing::error!("Error executing dynamic code: {:?}", e);
+                                        OperationOutcomeError::fatal(
                                             IssueType::Exception(None),
-                                            "Failed to execute dynamic code".to_string(),
-                                        ));
-                                    };
+                                            format!("Failed to execute dynamic code"),
+                                        )
+                                    })?;
 
-                                    return Ok(result);
+                                    
+      
+                                    return result.ok_or_else(|| OperationOutcomeError::error(IssueType::Exception(None), "Dynamic code did not return a result".to_string()));
                                 })
                                 .await
-                                .map_err(|_| {
+                                .map_err(|e| {
+                                    tracing::error!("Error executing dynamic code: {:?}", e);
                                     OperationOutcomeError::fatal(
                                         IssueType::Exception(None),
                                         format!("Failed to execute dynamic code"),
@@ -256,8 +258,6 @@ impl<
                                 format!("Failed to receive dynamic code execution result"),
                             )
                         })???;
-
-                        println!("Dynamic code execution result: {:?}", result);
 
                         let parameters =
                             haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
