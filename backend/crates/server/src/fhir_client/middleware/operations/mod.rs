@@ -12,7 +12,10 @@ use haste_fhir_client::{
         FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse, InvocationRequest, InvokeResponse,
     },
 };
-use haste_fhir_model::r4::generated::{resources::Resource, terminology::IssueType};
+use haste_fhir_model::r4::generated::{
+    resources::{Parameters, Resource},
+    terminology::IssueType,
+};
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
@@ -156,6 +159,10 @@ impl<
         // tokio::task::spawn_blocking(f)
 
         Box::pin(async move {
+            println!(
+                "OPERATIONS MIDDLEWARE: Checking for operation execution for request: {:?}",
+                context.request
+            );
             if let Some(op_executor) = executors.find_operation(&context.request) {
                 let output: Resource = match &context.request {
                     FHIRRequest::Invocation(request) => {
@@ -207,7 +214,14 @@ impl<
                                         "
                                 export default async function() {
                                     return {
-                                        message: 'Hello from dynamic TypeScript code execution!'
+                                        resourceType: 'Parameters',
+                                        parameter: [
+
+                                            {
+                                                name: 'message',
+                                                valueString: 'Hello from dynamic TypeScript code execution!'
+                                            }
+                                        ]
                                     };
                                 }
                             "
@@ -243,27 +257,22 @@ impl<
                             )
                         })???;
 
-                        // Deno core must run on single thread.
-                        // let local = LocalSet::new();
-
-                        // let output = local.run_until(async move {}).await;
-
                         println!("Dynamic code execution result: {:?}", result);
 
-                        // let parameters =
-                        //     haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
-                        //         .map_err(|_| {
-                        //         OperationOutcomeError::fatal(
-                        //             IssueType::Exception(None),
-                        //             "Failed to deserialize dynamic code result".to_string(),
-                        //         )
-                        //     })?;
+                        let parameters =
+                            haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
+                                .map_err(|_| {
+                                OperationOutcomeError::fatal(
+                                    IssueType::Exception(None),
+                                    "Failed to deserialize dynamic code result".to_string(),
+                                )
+                            })?;
 
-                        // context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
-                        //     FHIRInvokeSystemResponse {
-                        //         resource: Resource::Parameters(parameters),
-                        //     },
-                        // )));
+                        context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
+                            FHIRInvokeSystemResponse {
+                                resource: Resource::Parameters(parameters),
+                            },
+                        )));
 
                         Ok(context)
                     }
