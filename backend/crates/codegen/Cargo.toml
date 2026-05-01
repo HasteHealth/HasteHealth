@@ -8,14 +8,14 @@ license = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-indexmap = "2.10.0"
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-generated-ops = { path = "../fhir-generated-ops", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
-haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*" }
+indexmap = "2.10.0"
 proc-macro2 = "1.0.95"
 quote = { workspace = true }
 regex = { workspace = true }

@@ -16,6 +16,6 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
 ] }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*", features = ["reflect"] }
-haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-pointer = { path = "../pointer", version = "0.*" }
+haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-x-fhir-query = { path = "../x-fhir-query", version = "0.*" }

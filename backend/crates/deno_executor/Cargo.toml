@@ -8,16 +8,16 @@ homepage.workspace = true
 edition.workspace = true
 
 [dependencies]
-deno_ast = {version = "0.53.1", features = ["transpiling"]}
+deno_ast = { version = "0.53.1", features = ["transpiling"] }
 deno_core = "0.400.0"
 deno_error = "0.7.1"
-tokio = { workspace = true, features = ["full"] }
 haste-fhir-client = { path = "../fhir-client", version = "0.*", features = [
     "http"
 ] }
-haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
+haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+tokio = { workspace = true, features = ["full"] }
 
 [build-dependencies]
 deno_core = "0.400.0"

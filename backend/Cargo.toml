@@ -6,10 +6,6 @@ description = "Haste Health binary."
 publish = false
 license = "GPL-3.0"
 
-[profile.profiling]
-inherits = "release"
-debug = true
-
 # [profile.release]
 # strip = true    # Automatically strip symbols from the binary.
 # opt-level = "z" # Optimize for size in release builds.
@@ -21,6 +17,7 @@ members = [
     "crates/artifacts",
     "crates/codegen",
     "crates/config",
+    "crates/deno_executor",
     "crates/fhir-client",
     "crates/fhir-generated-ops",
     "crates/fhir-model",
@@ -28,13 +25,14 @@ members = [
     "crates/fhir-operation-error-derive",
     "crates/fhir-ops",
     "crates/fhir-ops-derive",
+    "crates/fhir-profiling",
     "crates/fhir-search",
     "crates/fhir-serialization-json",
-    "crates/fhir-serialization-json-derive", "crates/fhir-subscription-processor",
+    "crates/fhir-serialization-json-derive",
+    "crates/fhir-subscription-processor",
     "crates/fhir-terminology",
     "crates/fhirpath",
     "crates/hl7v2",
-    "crates/worker",
     "crates/jwt",
     "crates/macro-loads",
     "crates/openapi-schema-generator",
@@ -47,7 +45,8 @@ members = [
     "crates/server",
     "crates/testscript-runner",
     "crates/wal_worker",
-    "crates/x-fhir-query", "crates/fhir-profiling", "crates/deno_executor",
+    "crates/worker",
+    "crates/x-fhir-query",
 ]
 
 [workspace.package]
@@ -57,34 +56,25 @@ license = "BSD-3-Clause"
 homepage = "https://haste.health"
 edition = "2024"
 
-
 [workspace.dependencies]
-tokio = { version = "1.49.0" }
-tracing = "0.1.41"
+axum = "0.8.4"
+chrono = "0.4.41"
+dotenvy = "0.15.7"
+jsonwebtoken = "10.3.0"
+moka = "0.12.15"
+quote = "1.0.40"
+regex = "1.12.2"
+reqwest = "0.13"
+sentry = "0.46.2"
 serde = "1.0.228"
 serde_json = "1.0.145"
 sqlx = "0.8"
 sqlx-postgres = "0.8.6"
-dotenvy = "0.15.7"
-regex = "1.12.2"
-jsonwebtoken = "10.3.0"
-axum = "0.8.4"
-chrono = "0.4.41"
-reqwest = "0.13"
+tokio = { version = "1.49.0" }
+tracing = "0.1.41"
 walkdir = "2.5.0"
-quote = "1.0.40"
-sentry = "0.46.2"
-moka = "0.12.15"
 
 [dependencies]
-reqwest = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-tracing = { workspace = true }
-jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
-tokio = { workspace = true, features = ["full"] }
-walkdir = { workspace = true }
-quote = { workspace = true }
 clap = { version = "4.5.40", features = ["derive"] }
 dialoguer = "0.12.0"
 haste-codegen = { path = "./crates/codegen" }
@@ -95,13 +85,25 @@ haste-fhir-operation-error = { path = "./crates/fhir-operation-error" }
 haste-fhir-search = { path = "./crates/fhir-search" }
 haste-fhir-serialization-json = { path = "./crates/fhir-serialization-json" }
 haste-fhirpath = { path = "./crates/fhirpath" }
-haste-worker = { path = "./crates/worker" }
 haste-jwt = { path = "./crates/jwt" }
 haste-repository = { path = "./crates/repository" }
 haste-server = { path = "./crates/server" }
 haste-testscript-runner = { path = "./crates/testscript-runner" }
+haste-worker = { path = "./crates/worker" }
 haste_wal_worker = { path = "./crates/wal_worker" }
-sentry = { workspace = true }
-tracing-subscriber = "0.3.20"
-toml = "0.9.8"
 json-patch = "4.1.0"
+jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
+quote = { workspace = true }
+reqwest = { workspace = true }
+sentry = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+toml = "0.9.8"
+tracing = { workspace = true }
+tracing-subscriber = "0.3.20"
+walkdir = { workspace = true }
+
+[profile.profiling]
+inherits = "release"
+debug = true

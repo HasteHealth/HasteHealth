@@ -16,8 +16,8 @@ thiserror = "2.0.12"
 
 [dev-dependencies]
 criterion = { version = "0.8", features = ["async_tokio"] }
-insta = "1.43.1"
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
+insta = "1.43.1"
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 
 [[bench]]

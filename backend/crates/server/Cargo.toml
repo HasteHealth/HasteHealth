@@ -7,35 +7,18 @@ version = { workspace = true }
 edition = { workspace = true }
 homepage = { workspace = true }
 
-
 [dependencies]
-dotenvy = { workspace = true }
-tokio = { workspace = true, features = ["full"] }
-serde_json = { workspace = true }
-serde = { workspace = true }
-sqlx = { workspace = true, features = [
-    "runtime-tokio",
-    "tls-native-tls",
-    "postgres",
-    "time",
-] }
-sqlx-postgres = { workspace = true }
-jsonwebtoken = { workspace = true }
-regex = { workspace = true }
-tracing = { workspace = true }
-chrono = { workspace = true }
-reqwest = { workspace = true, features = ["form"] }
-walkdir = { workspace = true }
 axum = { version = "0.8.4", features = ["macros"] }
+axum-client-ip = "1.3.1"
 axum-extra = { version = "0.12.5", features = [
     "typed-routing",
     "typed-header",
     "cached",
 ] }
 base64 = "0.22.1"
-json-patch = "4.0.0"
-maud = { version = "0.27.0", features = ["axum"] }
-mime_guess = "2.0.5"
+chrono = { workspace = true }
+dotenvy = { workspace = true }
+email_address = "0.2.9"
 haste-access-control = { path = "../access-control", version = "0.*" }
 haste-artifacts = { path = "../artifacts", version = "0.*" }
 haste-config = { path = "../config", version = "0.*" }
@@ -52,28 +35,45 @@ haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*"
     "axum",
 ] }
 haste-fhir-ops = { path = "../fhir-ops", version = "0.*" }
+haste-fhir-profiling = { path = "../fhir-profiling", version = "0.*" }
 haste-fhir-search = { path = "../fhir-search", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 haste-fhir-terminology = { path = "../fhir-terminology", version = "0.*" }
 haste-fhirpath = { path = "../fhirpath", version = "0.*" }
 haste-jwt = { path = "../jwt", version = "0.*" }
+haste-openapi-schema-generator = { path = "../openapi-schema-generator", version = "0.*" }
+haste-rate-limit = { path = "../rate-limit", version = "0.*" }
 haste-reflect = { path = "../reflect", version = "0.*", features = ["derive"] }
 haste-repository = { path = "../repository", version = "0.*", features = [
     "rate-limit",
 ] }
-haste-rate-limit = { path = "../rate-limit", version = "0.*" }
-haste-openapi-schema-generator = { path = "../openapi-schema-generator", version = "0.*" }
 haste-sd-to-json-schema = { path = "../sd-to-json-schema", version = "0.*" }
-haste-fhir-profiling = { path = "../fhir-profiling", version = "0.*" }
+json-patch = "4.0.0"
+jsonwebtoken = { workspace = true }
+maud = { version = "0.27.0", features = ["axum"] }
+mime_guess = "2.0.5"
+moka = { workspace = true, features = ["future"] }
 petgraph = "0.8.3"
 rand = "0.8"
+regex = { workspace = true }
+reqwest = { workspace = true, features = ["form"] }
 rsa = "0.9.10"
 rust-embed = { version = "8.9.0", features = ["axum-ex"] }
 sendgrid = "0.26.0"
+sentry = { workspace = true, features = ["tower-axum-matched-path"] }
+serde = { workspace = true }
 serde_html_form = "0.4.0"
+serde_json = { workspace = true }
 sha1 = "0.10.6"
 sha2 = "0.10.9"
-sentry = { workspace = true, features = ["tower-axum-matched-path"] }
+sqlx = { workspace = true, features = [
+    "runtime-tokio",
+    "tls-native-tls",
+    "postgres",
+    "time",
+] }
+sqlx-postgres = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.6", features = [
     "fs",
@@ -85,9 +85,8 @@ tower-http = { version = "0.6.6", features = [
 ] }
 tower-sessions = "0.14.0"
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
+tracing = { workspace = true }
 typify = "0.5.0"
 url = "2.5.4"
+walkdir = { workspace = true }
 zxcvbn = "3.1.0"
-moka = { workspace=true, features = ["future"] }
-axum-client-ip = "1.3.1"
-email_address = "0.2.9"

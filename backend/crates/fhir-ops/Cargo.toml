@@ -10,8 +10,8 @@ homepage = { workspace = true }
 derive = ["dep:haste-fhir-ops-derive"]
 
 [dependencies]
+haste-fhir-client = { path = "../fhir-client", version = "0.*" }
 haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-ops-derive = { path = "../fhir-ops-derive", version = "0.*", optional = true }
 haste-jwt = { path = "../jwt", version = "0.*" }
-haste-fhir-client = { path = "../fhir-client", version = "0.*" }
