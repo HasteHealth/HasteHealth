@@ -1849,7 +1849,7 @@ dependencies = [
 [[package]]
 name = "etl"
 version = "0.1.0"
-source = "git+https://github.com/supabase/etl#ce88ba7e4092498df82fe63ef8d9bb74959d956f"
+source = "git+https://github.com/supabase/etl#4f1141e39a92b5c6567e01ee4f588646588488ba"
 dependencies = [
  "aws-lc-rs",
  "byteorder",
@@ -1864,16 +1864,12 @@ dependencies = [
  "pg_escape",
  "pin-project-lite",
  "postgres-replication",
- "rand 0.9.4",
  "rustls",
- "serde",
  "serde_json",
  "sqlx",
- "sysinfo",
  "tokio",
  "tokio-postgres",
  "tokio-rustls",
- "tokio-stream",
  "tracing",
  "uuid",
  "x509-cert",
@@ -1882,7 +1878,7 @@ dependencies = [
 [[package]]
 name = "etl-config"
 version = "0.1.0"
-source = "git+https://github.com/supabase/etl#ce88ba7e4092498df82fe63ef8d9bb74959d956f"
+source = "git+https://github.com/supabase/etl#4f1141e39a92b5c6567e01ee4f588646588488ba"
 dependencies = [
  "config",
  "secrecy",
@@ -1890,17 +1886,18 @@ dependencies = [
  "sqlx",
  "thiserror 2.0.18",
  "tokio-postgres",
- "url",
 ]
 
 [[package]]
 name = "etl-postgres"
 version = "0.1.0"
-source = "git+https://github.com/supabase/etl#ce88ba7e4092498df82fe63ef8d9bb74959d956f"
+source = "git+https://github.com/supabase/etl#4f1141e39a92b5c6567e01ee4f588646588488ba"
 dependencies = [
  "bytes",
+ "chrono",
  "etl-config",
  "pg_escape",
+ "serde",
  "serde_json",
  "sqlx",
  "thiserror 2.0.18",
@@ -3968,15 +3965,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ntapi"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3b335231dfd352ffb0f8017f3b6027a4917f7df785ea2143d8af2adc66980ae"
-dependencies = [
- "winapi",
-]
-
-[[package]]
 name = "nu-ansi-term"
 version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4201,16 +4189,6 @@ dependencies = [
  "block2",
  "libc",
  "objc2",
- "objc2-core-foundation",
-]
-
-[[package]]
-name = "objc2-io-kit"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33fafba39597d6dc1fb709123dfa8289d39406734be322956a69f0931c73bb15"
-dependencies = [
- "libc",
  "objc2-core-foundation",
 ]
 
@@ -4665,7 +4643,7 @@ checksum = "c33a9471896f1c69cecef8d20cbe2f7accd12527ce60845ff44c153bb2a21b49"
 [[package]]
 name = "postgres-protocol"
 version = "0.6.7"
-source = "git+https://github.com/iambriccardo/rust-postgres?rev=31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38#31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38"
+source = "git+https://github.com/MaterializeInc/rust-postgres?rev=c4b473b478b3adfbf8667d2fbe895d8423f1290b#c4b473b478b3adfbf8667d2fbe895d8423f1290b"
 dependencies = [
  "base64",
  "byteorder",
@@ -4682,7 +4660,7 @@ dependencies = [
 [[package]]
 name = "postgres-replication"
 version = "0.6.7"
-source = "git+https://github.com/iambriccardo/rust-postgres?rev=31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38#31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38"
+source = "git+https://github.com/MaterializeInc/rust-postgres?rev=c4b473b478b3adfbf8667d2fbe895d8423f1290b#c4b473b478b3adfbf8667d2fbe895d8423f1290b"
 dependencies = [
  "byteorder",
  "bytes",
@@ -4697,7 +4675,7 @@ dependencies = [
 [[package]]
 name = "postgres-types"
 version = "0.2.7"
-source = "git+https://github.com/iambriccardo/rust-postgres?rev=31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38#31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38"
+source = "git+https://github.com/MaterializeInc/rust-postgres?rev=c4b473b478b3adfbf8667d2fbe895d8423f1290b#c4b473b478b3adfbf8667d2fbe895d8423f1290b"
 dependencies = [
  "bytes",
  "chrono",
@@ -6815,20 +6793,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sysinfo"
-version = "0.38.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92ab6a2f8bfe508deb3c6406578252e491d299cbbf3bc0529ecc3313aee4a52f"
-dependencies = [
- "libc",
- "memchr",
- "ntapi",
- "objc2-core-foundation",
- "objc2-io-kit",
- "windows",
-]
-
-[[package]]
 name = "system-configuration"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7095,7 +7059,7 @@ dependencies = [
 [[package]]
 name = "tokio-postgres"
 version = "0.7.11"
-source = "git+https://github.com/iambriccardo/rust-postgres?rev=31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38#31acf55c7e5c2244e5bb3a36e7afa2a01bf52c38"
+source = "git+https://github.com/MaterializeInc/rust-postgres?rev=c4b473b478b3adfbf8667d2fbe895d8423f1290b#c4b473b478b3adfbf8667d2fbe895d8423f1290b"
 dependencies = [
  "async-trait",
  "byteorder",
@@ -7136,7 +7100,6 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
- "tokio-util",
 ]
 
 [[package]]
@@ -7913,27 +7876,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
-name = "windows"
-version = "0.62.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "527fadee13e0c05939a6a05d5bd6eec6cd2e3dbd648b9f8e447c6518133d8580"
-dependencies = [
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
-]
-
-[[package]]
-name = "windows-collections"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23b2d95af1a8a14a3c7367e1ed4fc9c20e0a26e79551b1454d72583c97cc6610"
-dependencies = [
- "windows-core",
-]
-
-[[package]]
 name = "windows-core"
 version = "0.62.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7944,17 +7886,6 @@ dependencies = [
  "windows-link",
  "windows-result",
  "windows-strings",
-]
-
-[[package]]
-name = "windows-future"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1d6f90251fe18a279739e78025bd6ddc52a7e22f921070ccdc67dde84c605cb"
-dependencies = [
- "windows-core",
- "windows-link",
- "windows-threading",
 ]
 
 [[package]]
@@ -7984,16 +7915,6 @@ name = "windows-link"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
-
-[[package]]
-name = "windows-numerics"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e2e40844ac143cdb44aead537bbf727de9b044e107a0f1220392177d15b0f26"
-dependencies = [
- "windows-core",
- "windows-link",
-]
 
 [[package]]
 name = "windows-registry"
@@ -8115,15 +8036,6 @@ dependencies = [
  "windows_x86_64_gnu 0.53.1",
  "windows_x86_64_gnullvm 0.53.1",
  "windows_x86_64_msvc 0.53.1",
-]
-
-[[package]]
-name = "windows-threading"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3949bd5b99cafdf1c7ca86b43ca564028dfe27d66958f2470940f73d86d75b37"
-dependencies = [
- "windows-link",
 ]
 
 [[package]]
