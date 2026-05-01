@@ -13,6 +13,7 @@ use haste_fhir_operation_error::OperationOutcomeError;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 use deno_ast::{MediaType, ModuleSpecifier};
 use deno_ast::{ParseParams, SourceMapOption};
@@ -188,8 +189,9 @@ pub async fn read_resource<
     // Use the state
 
     let app_state = state
-        .borrow::<Rc<RefCell<JSRuntimeState<CTX, Client>>>>()
-        .borrow();
+        .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
+        .lock()
+        .await;
 
     let patient = app_state
         .fhir_client
@@ -217,11 +219,25 @@ pub async fn set_return_value<
 ) -> Result<(), deno_error::JsErrorBox> {
     let state = state.borrow();
     // Use the state
-    let app_state = state.borrow::<Rc<RefCell<JSRuntimeState<CTX, Client>>>>();
-    let mut mutable_state = app_state.borrow_mut();
+    let app_state = state.borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>();
+    let mut mutable_state = app_state.lock().await;
 
     mutable_state.return_value = Some(value);
     Ok(())
+}
+
+pub enum PluginCodeType {
+    JavaScript,
+    TypeScript,
+}
+
+impl From<PluginCodeType> for MediaType {
+    fn from(value: PluginCodeType) -> Self {
+        match value {
+            PluginCodeType::JavaScript => MediaType::JavaScript,
+            PluginCodeType::TypeScript => MediaType::TypeScript,
+        }
+    }
 }
 
 pub async fn run_code<
@@ -229,8 +245,8 @@ pub async fn run_code<
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
     ctx: CTX,
-    client: Client,
-    media_type: MediaType,
+    client: Arc<Client>,
+    media_type: PluginCodeType,
     code: String,
 ) -> Result<Option<serde_json::Value>, AnyError> {
     // let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
@@ -252,8 +268,8 @@ pub async fn run_code<
         ..Default::default()
     });
 
-    let js_runtime_state = Rc::new(RefCell::new(JSRuntimeState {
-        fhir_client: Arc::new(client),
+    let js_runtime_state = Arc::new(Mutex::new(JSRuntimeState {
+        fhir_client: client,
         ctx,
         return_value: None,
     }));
@@ -267,7 +283,7 @@ pub async fn run_code<
     let user_module_specifier = ModuleSpecifier::parse("memo://user.ts").unwrap();
 
     let (_module_type, js_code) =
-        transpile_code_to_js(&user_module_specifier, media_type, &code).unwrap();
+        transpile_code_to_js(&user_module_specifier, media_type.into(), &code).unwrap();
 
     let user_mod_id = deno_runtime
         .load_side_es_module_from_code(&user_module_specifier, js_code)
@@ -295,10 +311,10 @@ pub async fn run_code<
         let op_state = deno_runtime.op_state();
         let mut op_state = op_state.borrow_mut();
 
-        op_state.take::<Rc<RefCell<JSRuntimeState<CTX, Client>>>>();
+        op_state.take::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>();
     }
 
-    let owned_runetime_state = Rc::try_unwrap(js_runtime_state)
+    let owned_runetime_state = Arc::try_unwrap(js_runtime_state)
         .map_err(|_| deno_error::JsErrorBox::type_error("Failed to unwrap JSRuntimeState"))?
         .into_inner();
 

@@ -311,7 +311,11 @@ pub async fn authorize<
         .scheme(uri.scheme().cloned().unwrap_or(Scheme::HTTPS))
         .authority(uri.authority().unwrap().clone())
         .path_and_query(
-            uri.path().to_string() + "?code=" + &authorization_code.code + "&state=" + state,
+            uri.path().to_string()
+                + "?code="
+                + authorization_code.code.as_str()
+                + "&state="
+                + state.as_str(),
         )
         .build()
         .unwrap();

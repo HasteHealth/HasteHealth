@@ -1,4 +1,5 @@
-use deno_ast::MediaType;
+use std::sync::Arc;
+
 use haste_deno_executor;
 use haste_fhir_client::http::{FHIRHttpClient, FHIRHttpState};
 
@@ -12,14 +13,14 @@ fn main() {
 
     let api_url = args.get(1).expect("API URL argument is required");
 
-    let http_fhir_client = FHIRHttpClient::<Option<String>>::new(
+    let http_fhir_client = Arc::new(FHIRHttpClient::<Option<String>>::new(
         FHIRHttpState::new(api_url, None).expect("Failed to create FHIR client"),
-    );
+    ));
 
     if let Err(error) = runtime.block_on(haste_deno_executor::run_code(
         None,
         http_fhir_client,
-        MediaType::TypeScript,
+        haste_deno_executor::PluginCodeType::TypeScript,
         r#"
 
 export {};

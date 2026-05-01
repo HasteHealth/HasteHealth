@@ -122,19 +122,19 @@ pub async fn scope_post<
             .expect("Could not create authorize route.")
             .to_string()
             + "?client_id="
-            + &scope_data.client_id
+            + scope_data.client_id.as_str()
             + "&response_type="
-            + &scope_data.response_type
+            + scope_data.response_type.as_str()
             + "&state="
-            + &scope_data.state
+            + scope_data.state.as_str()
             + "&code_challenge="
-            + &scope_data.code_challenge
+            + scope_data.code_challenge.as_str()
             + "&code_challenge_method="
-            + &scope_data.code_challenge_method
+            + scope_data.code_challenge_method.as_str()
             + "&scope="
-            + &String::from(scope_data.scope)
+            + String::from(scope_data.scope).as_str()
             + "&redirect_uri="
-            + &scope_data.redirect_uri;
+            + scope_data.redirect_uri.as_str();
         let redirect = axum::response::Redirect::to(&authorization_route);
         Ok(redirect.into_response())
     } else {

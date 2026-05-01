@@ -142,7 +142,7 @@ pub async fn load_artifacts(
                             }),
                             ParsedParameter::Resource(Parameter {
                                 name: "_tag".to_string(),
-                                value: vec![HASH_TAG_SYSTEM.to_string() + "|" + &sha_hash],
+                                value: vec![HASH_TAG_SYSTEM.to_string() + "|" + sha_hash.as_str()],
                                 modifier: Some("not".to_string()),
                                 chains: None,
                             }),

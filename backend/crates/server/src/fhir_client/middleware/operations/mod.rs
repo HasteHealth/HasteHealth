@@ -76,18 +76,34 @@ impl<
 
     pub fn find_operation(
         &self,
-        code: &str,
+        request: &FHIRRequest,
     ) -> Option<
         &dyn OperationInvocation<
             ServerOperationContext<ServerMiddlewareState<Repo, Search, Terminology>, Client>,
         >,
     > {
+        let code = get_request_operation_code(&request)?;
         for executor in self.0.iter() {
             if executor.code() == code {
                 return Some(executor.as_ref());
             }
         }
         None
+    }
+}
+
+fn get_request_operation_code<'a>(request: &'a FHIRRequest) -> Option<&'a str> {
+    match request {
+        FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
+            Some(&instance_request.operation.name())
+        }
+        FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
+            Some(&type_request.operation.name())
+        }
+        FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
+            Some(&system_request.operation.name())
+        }
+        _ => None,
     }
 }
 
@@ -109,21 +125,6 @@ impl<
         Middleware {
             operations: ServerOperations::new(),
         }
-    }
-}
-
-fn get_request_operation_code<'a>(request: &'a FHIRRequest) -> Option<&'a str> {
-    match request {
-        FHIRRequest::Invocation(InvocationRequest::Instance(instance_request)) => {
-            Some(&instance_request.operation.name())
-        }
-        FHIRRequest::Invocation(InvocationRequest::Type(type_request)) => {
-            Some(&type_request.operation.name())
-        }
-        FHIRRequest::Invocation(InvocationRequest::System(system_request)) => {
-            Some(&system_request.operation.name())
-        }
-        _ => None,
     }
 }
 
@@ -151,10 +152,11 @@ impl<
         >,
     ) -> ServerMiddlewareOutput<Client> {
         let executors = self.operations.clone();
+
+        // tokio::task::spawn_blocking(f)
+
         Box::pin(async move {
-            if let Some(code) = get_request_operation_code(&context.request)
-                && let Some(op_executor) = executors.find_operation(code)
-            {
+            if let Some(op_executor) = executors.find_operation(&context.request) {
                 let output: Resource = match &context.request {
                     FHIRRequest::Invocation(request) => {
                         let output = op_executor
@@ -182,10 +184,94 @@ impl<
 
                 Ok(context)
             } else {
-                Err(OperationOutcomeError::fatal(
-                    IssueType::NotFound(None),
-                    "Operation not found".to_string(),
-                ))
+                match get_request_operation_code(&context.request) {
+                    Some("execute-ts") => {
+                        let context_clone = context.ctx.clone();
+
+                        let (tx, rx) = tokio::sync::oneshot::channel();
+
+                        std::thread::spawn(move || {
+                            let rt = tokio::runtime::Builder::new_current_thread()
+                                .enable_all()
+                                .build()
+                                .unwrap();
+
+                            let local = tokio::task::LocalSet::new();
+
+                            local.block_on(&rt, async move {
+                                let output = tokio::task::spawn_local(async move {
+                                    let Ok(Some(result)) = haste_deno_executor::run_code(
+                                        context_clone.clone(),
+                                        context_clone.client.clone(),
+                                        haste_deno_executor::PluginCodeType::TypeScript,
+                                        "
+                                export default async function() {
+                                    return {
+                                        message: 'Hello from dynamic TypeScript code execution!'
+                                    };
+                                }
+                            "
+                                        .to_string(),
+                                    )
+                                    .await
+                                    else {
+                                        return Err(OperationOutcomeError::fatal(
+                                            IssueType::Exception(None),
+                                            "Failed to execute dynamic code".to_string(),
+                                        ));
+                                    };
+
+                                    return Ok(result);
+                                })
+                                .await
+                                .map_err(|_| {
+                                    OperationOutcomeError::fatal(
+                                        IssueType::Exception(None),
+                                        format!("Failed to execute dynamic code"),
+                                    )
+                                });
+
+                                let _ = tx.send(output);
+                            });
+                        });
+
+                        // Back in the Send future — just await the result
+                        let result = rx.await.map_err(|_| {
+                            OperationOutcomeError::fatal(
+                                IssueType::Exception(None),
+                                format!("Failed to receive dynamic code execution result"),
+                            )
+                        })???;
+
+                        // Deno core must run on single thread.
+                        // let local = LocalSet::new();
+
+                        // let output = local.run_until(async move {}).await;
+
+                        println!("Dynamic code execution result: {:?}", result);
+
+                        // let parameters =
+                        //     haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
+                        //         .map_err(|_| {
+                        //         OperationOutcomeError::fatal(
+                        //             IssueType::Exception(None),
+                        //             "Failed to deserialize dynamic code result".to_string(),
+                        //         )
+                        //     })?;
+
+                        // context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
+                        //     FHIRInvokeSystemResponse {
+                        //         resource: Resource::Parameters(parameters),
+                        //     },
+                        // )));
+
+                        Ok(context)
+                    }
+                    _ => Err(OperationOutcomeError::fatal(
+                        IssueType::NotFound(None),
+                        "Operation not found".to_string(),
+                    )),
+                }
             }
         })
     }

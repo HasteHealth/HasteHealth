@@ -706,21 +706,22 @@ impl<
                             OperationOutcomeError::fatal(
                                 IssueType::Exception(None),
                                 "Failed to serialize resource for patching: ".to_string()
-                                    + &e.to_string(),
+                                    + e.to_string().as_str(),
                             )
                         },
                     )?;
                     writer.flush().map_err(|e| {
                         OperationOutcomeError::fatal(
                             IssueType::Exception(None),
-                            "Failed to flush buffer: ".to_string() + &e.to_string(),
+                            "Failed to flush buffer: ".to_string() + e.to_string().as_str(),
                         )
                     })?;
 
                     let content: Vec<u8> = writer.into_inner().map_err(|e| {
                         OperationOutcomeError::fatal(
                             IssueType::Exception(None),
-                            "Failed to retrieve buffer content: ".to_string() + &e.to_string(),
+                            "Failed to retrieve buffer content: ".to_string()
+                                + (e.to_string().as_str()),
                         )
                     })?;
 
@@ -729,7 +730,7 @@ impl<
                         OperationOutcomeError::fatal(
                             IssueType::Exception(None),
                             "Failed to deserialize JSON for patching: ".to_string()
-                                + &e.to_string(),
+                                + (e.to_string().as_str()),
                         )
                     })?;
 

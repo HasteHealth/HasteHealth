@@ -121,7 +121,7 @@ impl IntoResponse for OIDCError {
             let mut redirect_uri = error_uri + "?error=" + error_code;
 
             if let Some(description) = self.description {
-                redirect_uri = redirect_uri + "&error_description=" + &description;
+                redirect_uri = redirect_uri + "&error_description=" + description.as_str();
             }
 
             Redirect::to(&redirect_uri).into_response()
