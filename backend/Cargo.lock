@@ -2817,6 +2817,7 @@ dependencies = [
  "haste-reflect",
  "haste-repository",
  "haste-sd-to-json-schema",
+ "haste_deno_executor",
  "json-patch",
  "jsonwebtoken",
  "maud",
