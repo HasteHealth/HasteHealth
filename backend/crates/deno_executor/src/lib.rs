@@ -193,7 +193,7 @@ pub async fn read_resource<
         .lock()
         .await;
 
-    let patient = app_state
+    let resource = app_state
         .fhir_client
         .read(
             app_state.ctx.clone(),
@@ -202,10 +202,17 @@ pub async fn read_resource<
             id,
         )
         .await
-        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to read resource"))?;
+        .map_err(|e| {
+            println!("Error reading resource: {:?}", e);
+            deno_error::JsErrorBox::type_error("Failed to read resource")
+        })?;
 
-    serde_json::from_str(&haste_fhir_serialization_json::to_string(&patient).unwrap())
-        .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize resource"))
+    if let Some(resource) = resource {
+        serde_json::from_str(&haste_fhir_serialization_json::to_string(&resource).unwrap())
+            .map_err(|_| deno_error::JsErrorBox::type_error("Failed to serialize resource"))
+    } else {
+        Ok(serde_json::Value::Null)
+    }
 }
 
 #[op2]
