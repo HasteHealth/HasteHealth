@@ -185,13 +185,16 @@ pub async fn read_resource<
     #[string] resource_type: String,
     #[string] id: String,
 ) -> Result<serde_json::Value, deno_error::JsErrorBox> {
-    let state = state.borrow();
-    // Use the state
+    let app_state = {
+        let state = state.borrow();
+        // Use the state
 
-    let app_state = state
-        .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
-        .lock()
-        .await;
+        state
+            .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
+            .clone()
+    };
+
+    let app_state = app_state.lock().await;
 
     let resource = app_state
         .fhir_client
@@ -224,9 +227,13 @@ pub async fn set_return_value<
     state: Rc<RefCell<OpState>>,
     #[serde] value: serde_json::Value,
 ) -> Result<(), deno_error::JsErrorBox> {
-    let state = state.borrow();
-    // Use the state
-    let app_state = state.borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>();
+    let app_state = {
+        let state = state.borrow();
+        // Use the state
+        state
+            .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
+            .clone()
+    };
     let mut mutable_state = app_state.lock().await;
 
     mutable_state.return_value = Some(value);

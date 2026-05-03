@@ -202,8 +202,12 @@ impl<
 
                         std::thread::spawn(move || {
                             let local = tokio::task::LocalSet::new();
+                            let rt = tokio::runtime::Builder::new_current_thread()
+                                .enable_all()
+                                .build()
+                                .expect("Failed to create Tokio runtime");
 
-                            local.block_on(&DENO_EXECUTOR_TOKIO_RUNTIME, async move {
+                            local.block_on(&rt, async move {
                                 let output = tokio::task::spawn_local(async move {
                                     let result = haste_deno_executor::run_code(
                                         context_clone.clone(),
