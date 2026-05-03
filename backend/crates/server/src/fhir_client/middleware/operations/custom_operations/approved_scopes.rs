@@ -63,7 +63,9 @@ pub fn approved_scopes_op<
                         &tenant,
                         &project,
                         &ScopeSearchClaims {
-                            user_: Some(UserId::new(context.ctx.user.sub.as_ref().to_string())),
+                            user_: Some(UserId::new(
+                                context.ctx.user.claims.sub.as_ref().to_string(),
+                            )),
                             client: None,
                         },
                     )

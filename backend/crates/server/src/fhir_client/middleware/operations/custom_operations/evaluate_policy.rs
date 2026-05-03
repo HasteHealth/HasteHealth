@@ -128,7 +128,13 @@ pub fn evaluate_policy_op<
                                         fhir_request,
                                         Arc::new(UserInfo {
                                             id: derive_user_id(input.user)?.unwrap_or(
-                                                context.ctx.user.user_id.as_ref().to_string(),
+                                                context
+                                                    .ctx
+                                                    .user
+                                                    .claims
+                                                    .user_id
+                                                    .as_ref()
+                                                    .to_string(),
                                             ),
                                         }),
                                     ),

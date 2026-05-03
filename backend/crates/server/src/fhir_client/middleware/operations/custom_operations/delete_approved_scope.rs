@@ -56,7 +56,7 @@ pub fn delete_approved_scope_op<
                         &project,
                         &ScopeKey(
                             ClientId::new(client_id.clone()),
-                            UserId::new(context.ctx.user.sub.as_ref().to_string()),
+                            UserId::new(context.ctx.user.claims.sub.as_ref().to_string()),
                         ),
                     )
                     .await?;

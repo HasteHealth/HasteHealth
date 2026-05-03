@@ -67,7 +67,7 @@ pub fn delete_refresh_token_op<
                             client_id: Some(client_id.clone()),
                             code: None,
                             kind: Some(AuthorizationCodeKind::RefreshToken),
-                            user_id: Some(context.ctx.user.sub.as_ref().to_string()),
+                            user_id: Some(context.ctx.user.claims.sub.as_ref().to_string()),
                             user_agent: Some(user_agent),
                             is_expired: None,
                         },

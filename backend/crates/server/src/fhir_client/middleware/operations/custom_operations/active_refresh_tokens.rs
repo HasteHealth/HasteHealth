@@ -65,7 +65,7 @@ pub fn active_refresh_tokens_op<
                             client_id: None,
                             code: None,
                             kind: Some(AuthorizationCodeKind::RefreshToken),
-                            user_id: Some(context.ctx.user.sub.as_ref().to_string()),
+                            user_id: Some(context.ctx.user.claims.sub.as_ref().to_string()),
                             user_agent: None,
                             is_expired: Some(false),
                         },

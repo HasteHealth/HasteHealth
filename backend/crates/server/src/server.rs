@@ -1,6 +1,6 @@
 use crate::{
     auth_n::{self, certificates::get_certification_provider},
-    fhir_client::ServerCTX,
+    fhir_client::{ServerCTX, User},
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     mcp,
     middleware::{
@@ -28,7 +28,7 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::{ProjectId, TenantId, claims::UserTokenClaims};
+use haste_jwt::{ProjectId, TenantId};
 use haste_repository::{Repository, types::SupportedFHIRVersions};
 use sentry::integrations::tower::NewSentryLayer;
 use serde::Deserialize;
@@ -72,7 +72,7 @@ async fn fhir_handler<
     Search: SearchEngine + Send + Sync + 'static,
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
-    claims: Arc<UserTokenClaims>,
+    user: Arc<User>,
     method: Method,
     uri: Uri,
     path: FHIRHandlerPath,
@@ -102,7 +102,7 @@ async fn fhir_handler<
             path.tenant,
             path.project,
             path.fhir_version,
-            claims.clone(),
+            user.clone(),
             state.fhir_client.clone(),
             state.rate_limit.clone(),
         ));
@@ -122,7 +122,7 @@ async fn fhir_root_handler<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
-    Extension(user): Extension<Arc<UserTokenClaims>>,
+    Extension(user): Extension<Arc<User>>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRRootHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
@@ -150,7 +150,7 @@ async fn fhir_type_handler<
     Terminology: FHIRTerminology + Send + Sync + 'static,
 >(
     method: Method,
-    Extension(user): Extension<Arc<UserTokenClaims>>,
+    Extension(user): Extension<Arc<User>>,
     OriginalUri(uri): OriginalUri,
     Path(path): Path<FHIRHandlerPath>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,

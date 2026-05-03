@@ -66,7 +66,7 @@ impl<
             };
 
             let request_limit =
-                get_request_limit(&context.ctx.user.subscription_tier, &context.request)?;
+                get_request_limit(&context.ctx.user.claims.subscription_tier, &context.request)?;
 
             match request_limit {
                 TenantResourceLimit::Count(resource_type, limit) => {
@@ -97,7 +97,7 @@ impl<
                                 "Request exceeds the limit of '{}' for resource type '{}' for subscription tier {:?}",
                                 limit,
                                 resource_type.as_ref(),
-                                context.ctx.user.subscription_tier
+                                context.ctx.user.claims.subscription_tier
                             ),
                         ));
                     }

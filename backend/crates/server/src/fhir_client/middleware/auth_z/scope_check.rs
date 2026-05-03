@@ -142,7 +142,7 @@ impl<
                 | FHIRRequest::Delete(_)
                 | FHIRRequest::Search(_)
                 | FHIRRequest::History(_) => {
-                    let user_scopes = &context.ctx.user.scope;
+                    let user_scopes = &context.ctx.user.claims.scope;
 
                     let matched_scope =
                         get_highest_value_for_request_scope(user_scopes, &context.request)?;

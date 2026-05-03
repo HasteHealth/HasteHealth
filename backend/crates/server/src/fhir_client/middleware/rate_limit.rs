@@ -37,12 +37,12 @@ impl<
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
             // let start = Instant::now();
-            match &context.ctx.user.subscription_tier {
+            match &context.ctx.user.claims.subscription_tier {
                 SubscriptionTier::Free
                 | SubscriptionTier::Professional
                 | SubscriptionTier::Team => {
                     let max_score_for_tenant =
-                        get_total_rate_limit_for_tier(&context.ctx.user.subscription_tier);
+                        get_total_rate_limit_for_tier(&context.ctx.user.claims.subscription_tier);
                     let points = points_for_operation(&context.request);
 
                     context

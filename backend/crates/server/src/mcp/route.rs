@@ -1,6 +1,6 @@
 use crate::{
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    fhir_client::ServerCTX,
+    fhir_client::{ServerCTX, User},
     mcp::{
         error::MCPError,
         operations,
@@ -20,7 +20,6 @@ use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
-use haste_jwt::claims::UserTokenClaims;
 use haste_repository::{Repository, types::SupportedFHIRVersions};
 use std::sync::Arc;
 
@@ -40,14 +39,14 @@ pub async fn mcp_handler<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    Extension(claims): Extension<Arc<UserTokenClaims>>,
+    Extension(user): Extension<Arc<User>>,
     Json(mcp_request): Json<MCPRequest>,
 ) -> Result<Response, MCPError<serde_json::Value>> {
     let ctx = Arc::new(ServerCTX::new(
         tenant,
         project,
         SupportedFHIRVersions::R4,
-        claims.clone(),
+        user.clone(),
         state.fhir_client.clone(),
         state.rate_limit.clone(),
     ));

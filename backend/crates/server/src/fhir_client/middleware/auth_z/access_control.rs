@@ -48,7 +48,7 @@ impl<
         >,
     ) -> ServerMiddlewareOutput<Client> {
         Box::pin(async move {
-            match context.ctx.user.user_role {
+            match context.ctx.user.claims.user_role {
                 // Admin and Owner roles are allowed to proceed without restrictions
                 UserRole::Admin | UserRole::Owner => {
                     if let Some(next) = next {
@@ -66,6 +66,7 @@ impl<
                             &context
                                 .ctx
                                 .user
+                                .claims
                                 .access_policy_version_ids
                                 .iter()
                                 .collect::<Vec<_>>(),
@@ -96,7 +97,7 @@ impl<
                                 context.ctx.project.clone(),
                                 context.request,
                                 Arc::new(UserInfo {
-                                    id: context.ctx.user.user_id.as_ref().to_string(),
+                                    id: context.ctx.user.claims.user_id.as_ref().to_string(),
                                 }),
                             ),
                         ),
