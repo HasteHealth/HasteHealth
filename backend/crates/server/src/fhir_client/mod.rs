@@ -1,5 +1,6 @@
 use crate::{
     ServerEnvironmentVariables,
+    auth_n::middleware::jwt::User,
     fhir_client::{
         middleware::{
             ServerMiddlewareContext, ServerMiddlewareNext, ServerMiddlewareOutput,
@@ -62,12 +63,6 @@ pub enum StorageError {
     NotFound(ResourceType, String),
     #[error(code = "invalid", diagnostic = "Invalid resource type.")]
     InvalidType,
-}
-
-pub struct User {
-    #[allow(dead_code)]
-    token: Option<String>,
-    claims: haste_jwt::claims::UserTokenClaims,
 }
 
 pub struct ServerCTX<Client: FHIRClient<Arc<Self>, OperationOutcomeError>> {

@@ -1,6 +1,6 @@
 use crate::{
-    auth_n::{self, certificates::get_certification_provider},
-    fhir_client::{ServerCTX, User},
+    auth_n::{self, certificates::get_certification_provider, middleware::jwt::User},
+    fhir_client::ServerCTX,
     fhir_http::{HTTPBody, HTTPRequest, http_request_to_fhir_request},
     mcp,
     middleware::{

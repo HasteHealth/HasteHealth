@@ -21,6 +21,12 @@ use std::{
 };
 use url::Url;
 
+pub struct User {
+    #[allow(dead_code)]
+    pub token: Option<String>,
+    pub claims: haste_jwt::claims::UserTokenClaims,
+}
+
 static VALIDATION_CONFIG: LazyLock<Validation> = LazyLock::new(|| {
     let mut config = Validation::new(jsonwebtoken::Algorithm::RS256);
     config.validate_aud = false;
@@ -156,7 +162,10 @@ pub async fn token_verifcation<
 
     match validate_jwt(&token) {
         Ok(claims) => {
-            request.extensions_mut().insert(Arc::new(claims));
+            request.extensions_mut().insert(Arc::new(User {
+                token: Some(token),
+                claims,
+            }));
             Ok(next.run(request).await)
         }
         Err(status_code) => match status_code {

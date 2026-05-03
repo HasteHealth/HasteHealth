@@ -1,6 +1,7 @@
 use crate::{
+    auth_n::middleware::jwt::User,
     extract::path_tenant::{ProjectIdentifier, TenantIdentifier},
-    fhir_client::{ServerCTX, User},
+    fhir_client::ServerCTX,
     mcp::{
         error::MCPError,
         operations,
