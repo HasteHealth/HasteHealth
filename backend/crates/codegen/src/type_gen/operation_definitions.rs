@@ -84,12 +84,13 @@ fn is_resource_return(parameters: &Vec<&OperationDefinitionParameter>) -> bool {
     // Need special handling for single "return" parameter of type Any or a Resource type
     if parameters.len() == 1
         && parameters[0].name.value.as_deref() == Some("return")
-        && let Some(parameter_type) = parameters[0]
-            .type_
-            .as_ref()
-        
-        && (std::mem::discriminant(&**parameter_type) == std::mem::discriminant(&AllTypes::Any(None)) 
-            || ResourceType::try_from(Into::<Option<String>>::into(&**parameter_type).unwrap_or_default()).is_ok())
+        && let Some(parameter_type) = parameters[0].type_.as_ref()
+        && (std::mem::discriminant(&**parameter_type)
+            == std::mem::discriminant(&AllTypes::Any(None))
+            || ResourceType::try_from(
+                Into::<Option<String>>::into(&**parameter_type).unwrap_or_default(),
+            )
+            .is_ok())
     {
         true
     } else {
@@ -127,8 +128,20 @@ fn generate_parameter_type(
         };
 
         if let Some(type_) = p.type_.as_ref() {
-            let type_ = if std::mem::discriminant(&**type_) == std::mem::discriminant(&AllTypes::Any(None)) { AllTypes::Resource(None) } else { *type_.clone() };
-            let field = create_field_value(Into::<Option<String>>::into(&type_).unwrap_or_default().as_str(), is_array, required);
+            let type_ = if std::mem::discriminant(&**type_)
+                == std::mem::discriminant(&AllTypes::Any(None))
+            {
+                AllTypes::Resource(None)
+            } else {
+                *type_.clone()
+            };
+            let field = create_field_value(
+                Into::<Option<String>>::into(&type_)
+                    .unwrap_or_default()
+                    .as_str(),
+                is_array,
+                required,
+            );
 
             fields.push(quote! {
                 #attribute_rename
@@ -174,7 +187,11 @@ fn generate_parameter_type(
             })
             .unwrap_or_default();
 
-        let return_type = if type_ == "Any" { "Resource" } else { type_.as_str() };
+        let return_type = if type_ == "Any" {
+            "Resource"
+        } else {
+            type_.as_str()
+        };
         let return_type_ident = format_ident!("{}", return_type);
 
         let return_v = if required {

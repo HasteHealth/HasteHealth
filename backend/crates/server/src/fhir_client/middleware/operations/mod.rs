@@ -21,7 +21,7 @@ use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
-use std::{sync::{Arc, LazyLock}, time::Duration};
+use std::sync::{Arc, LazyLock};
 
 mod custom_operations;
 
@@ -117,7 +117,7 @@ pub struct Middleware<
     operations: ServerOperations<ServerOperationContext<State, Client>>,
 }
 
-static DENO_EXECUTOR_TOKIO_RUNTIME : LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
+static DENO_EXECUTOR_TOKIO_RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -203,7 +203,6 @@ impl<
                         std::thread::spawn(move || {
                             let local = tokio::task::LocalSet::new();
 
-
                             local.block_on(&DENO_EXECUTOR_TOKIO_RUNTIME, async move {
                                 let output = tokio::task::spawn_local(async move {
                                     let result = haste_deno_executor::run_code(
@@ -237,10 +236,6 @@ impl<
                                         )
                                     })?;
 
-                                    tokio::time::sleep(Duration::from_secs(20)).await;
-
-                                    
-      
                                     return result.ok_or_else(|| OperationOutcomeError::error(IssueType::Exception(None), "Dynamic code did not return a result".to_string()));
                                 })
                                 .await

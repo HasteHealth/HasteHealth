@@ -53,7 +53,7 @@ pub fn verify_requested_scope_is_subset(
     for scope in requested.0.iter() {
         if !allowed.0.contains(scope) {
             return Err(OIDCError::new(
-                OIDCErrorCode::InvalidScope, 
+                OIDCErrorCode::InvalidScope,
                 Some("Requested scope '{}' is not allowed. Check client configuration for what scopes are allowed.".to_string()),
                  None
                 )
@@ -78,7 +78,8 @@ pub async fn scope_post<
     Form(scope_data): Form<ScopeForm>,
 ) -> Result<Response, OIDCError> {
     let user = session::user::get_user(&current_session)
-        .await.map_err(|_| {
+        .await
+        .map_err(|_| {
             OIDCError::new(
                 OIDCErrorCode::ServerError,
                 Some("Failed to retrieve user from session.".to_string()),
@@ -109,7 +110,8 @@ pub async fn scope_post<
                 scope: scope_data.scope.clone(),
             },
         )
-        .await.map_err(|_| {
+        .await
+        .map_err(|_| {
             OIDCError::new(
                 OIDCErrorCode::ServerError,
                 Some("Failed to create scope authorization.".to_string()),
@@ -141,7 +143,7 @@ pub async fn scope_post<
         Err(OIDCError::new(
             OIDCErrorCode::AccessDenied,
             Some("User did not accept the requested scopes.".to_string()),
-            Some(scope_data.redirect_uri)
+            Some(scope_data.redirect_uri),
         ))
     }
 }
