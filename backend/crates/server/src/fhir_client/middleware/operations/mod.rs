@@ -21,7 +21,7 @@ use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
 use haste_repository::Repository;
-use std::sync::Arc;
+use std::{sync::{Arc, LazyLock}, time::Duration};
 
 mod custom_operations;
 
@@ -117,6 +117,13 @@ pub struct Middleware<
     operations: ServerOperations<ServerOperationContext<State, Client>>,
 }
 
+static DENO_EXECUTOR_TOKIO_RUNTIME : LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed to create Tokio runtime")
+});
+
 impl<
     Repo: Repository + Send + Sync + 'static,
     Search: SearchEngine + Send + Sync + 'static,
@@ -194,14 +201,10 @@ impl<
                         let (tx, rx) = tokio::sync::oneshot::channel();
 
                         std::thread::spawn(move || {
-                            let rt = tokio::runtime::Builder::new_current_thread()
-                                .enable_all()
-                                .build()
-                                .unwrap();
-
                             let local = tokio::task::LocalSet::new();
 
-                            local.block_on(&rt, async move {
+
+                            local.block_on(&DENO_EXECUTOR_TOKIO_RUNTIME, async move {
                                 let output = tokio::task::spawn_local(async move {
                                     let result = haste_deno_executor::run_code(
                                         context_clone.clone(),
@@ -233,6 +236,8 @@ impl<
                                             format!("Failed to execute dynamic code"),
                                         )
                                     })?;
+
+                                    tokio::time::sleep(Duration::from_secs(20)).await;
 
                                     
       
