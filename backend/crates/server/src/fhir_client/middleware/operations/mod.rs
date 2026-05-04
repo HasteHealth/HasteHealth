@@ -13,13 +13,15 @@ use haste_fhir_client::{
     },
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Parameters, Resource},
+    resources::{OperationDefinition, Parameters, Resource},
     terminology::IssueType,
+    types::{Extension, ExtensionValueTypeChoice, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationInvocation;
 use haste_fhir_search::SearchEngine;
 use haste_fhir_terminology::FHIRTerminology;
+use haste_operation_executor::traits::OperationExecutor;
 use haste_repository::Repository;
 use std::sync::{Arc, LazyLock};
 
@@ -41,9 +43,11 @@ impl<CTX> Clone for ServerOperations<CTX> {
     }
 }
 
-static DENO_EXECUTOR: LazyLock<haste_operation_executor::providers::deno_embedded::pool::DenoPool> = LazyLock::new(|| {
-    haste_operation_executor::providers::deno_embedded::pool::DenoPool::new(4).expect("Failed to create DenoPool")
-});
+static DENO_EXECUTOR: LazyLock<haste_operation_executor::providers::deno_embedded::pool::DenoPool> =
+    LazyLock::new(|| {
+        haste_operation_executor::providers::deno_embedded::pool::DenoPool::new(4)
+            .expect("Failed to create DenoPool")
+    });
 
 impl<
     Repo: Repository + Send + Sync + 'static,
@@ -193,42 +197,64 @@ impl<
             } else {
                 match get_request_operation_code(&context.request) {
                     Some("execute-ts") => {
-                        let result = DENO_EXECUTOR.execute(
-                            context.ctx.clone(), 
-                            context.ctx.client.clone(),
-                            haste_operation_executor::structs::PluginCodeType::TypeScript,
-                              r#"
-                                export default async function() {
-                                    const sd = await fhir.readResource("StructureDefinition", "Patient");
+                        let result = DENO_EXECUTOR
+                            .execute_operation(
+                                context.ctx.clone(),
+                                context.ctx.client.clone(),
+                                &OperationDefinition {
+                                    extension: Some(vec![Box::new(Extension {
+                                        url: "https://haste.health/Extension/custom-code".to_string(),
+                                        value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
+                                            value: Some(r#"
+                                                export default async function() {
+                                                    const sd = await fhir.readResource("StructureDefinition", "Patient");
 
-                                    return {
-                                        resourceType: 'Parameters',
-                                        parameter: [
-                                            {
-                                                name: 'message',
-                                                resource: sd
-                                            }
-                                        ]
-                                    };
-                                }
-                            "#).await.map_err(|e| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::Exception(None),
-                                    format!("Failed to execute dynamic code: {e}"),
-                                )
-                            })?.ok_or(OperationOutcomeError::fatal(
-                                IssueType::Exception(None),
-                                "Dynamic code did not return a result".to_string(),
-                            ))?;
+                                                    return {
+                                                        resourceType: 'Parameters',
+                                                        parameter: [
+                                                            {
+                                                                name: 'message',
+                                                                resource: sd
+                                                            }
+                                                        ]
+                                                    };
+                                                }
+                                            "#.to_string()),
+                                            ..Default::default()
+                                        }))),
+                                        extension: Some(vec![Box::new(Extension {
+                                            url: "https://haste.health/Extension/custom-code-type".to_string(),
+                                            value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
+                                                value: Some("text/typescript".to_string()),
+                                                ..Default::default()
+                                            }))),
+                                            ..Default::default()
+                                        })]),
+                                        ..Default::default()
+                                    })]),
+                                    ..Default::default()
+                                },
+                                match &context.request {
+                                    FHIRRequest::Invocation(invoke_request) => invoke_request,
+                                    _ => {
+                                        return Err(OperationOutcomeError::fatal(
+                                            IssueType::Invalid(None),
+                                            "Invalid request type for execute-ts operation"
+                                                .to_string(),
+                                        ));
+                                    }
+                                },
+                            )
+                            .await?;
 
-                        let parameters =
-                            haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
-                                .map_err(|_| {
-                                OperationOutcomeError::fatal(
-                                    IssueType::Exception(None),
-                                    "Failed to deserialize dynamic code result".to_string(),
-                                )
-                            })?;
+                        // let parameters =
+                        //     haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
+                        //         .map_err(|_| {
+                        //         OperationOutcomeError::fatal(
+                        //             IssueType::Exception(None),
+                        //             "Failed to deserialize dynamic code result".to_string(),
+                        //         )
+                        //     })?;
 
                         context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
                             FHIRInvokeSystemResponse {

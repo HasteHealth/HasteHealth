@@ -49,7 +49,7 @@ impl DenoPool {
         })
     }
 
-    pub async fn execute<
+    async fn execute<
         CTX: Clone + Send + 'static,
         Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
     >(
