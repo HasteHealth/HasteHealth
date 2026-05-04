@@ -2727,6 +2727,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "haste-operation-executor"
+version = "0.15.0"
+dependencies = [
+ "deno_ast",
+ "deno_core",
+ "deno_error",
+ "haste-fhir-client",
+ "haste-fhir-model",
+ "haste-fhir-operation-error",
+ "haste-fhir-serialization-json",
+ "tokio",
+]
+
+[[package]]
 name = "haste-pointer"
 version = "0.15.0"
 dependencies = [
@@ -2813,11 +2827,11 @@ dependencies = [
  "haste-fhirpath",
  "haste-jwt",
  "haste-openapi-schema-generator",
+ "haste-operation-executor",
  "haste-rate-limit",
  "haste-reflect",
  "haste-repository",
  "haste-sd-to-json-schema",
- "haste_deno_executor",
  "json-patch",
  "jsonwebtoken",
  "maud",
@@ -2892,20 +2906,6 @@ dependencies = [
  "haste-fhirpath",
  "haste-reflect",
  "regex",
- "tokio",
-]
-
-[[package]]
-name = "haste_deno_executor"
-version = "0.15.0"
-dependencies = [
- "deno_ast",
- "deno_core",
- "deno_error",
- "haste-fhir-client",
- "haste-fhir-model",
- "haste-fhir-operation-error",
- "haste-fhir-serialization-json",
  "tokio",
 ]
 

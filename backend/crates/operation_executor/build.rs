@@ -13,7 +13,7 @@ fn main() {
       esm_entry_point = "ext:runtime",
       esm = [
         dir "src",
-        "ext:runtime" = "runtime.js",
+        "ext:runtime" = "providers/deno_embedded/runtime.js",
       ],
     );
 
