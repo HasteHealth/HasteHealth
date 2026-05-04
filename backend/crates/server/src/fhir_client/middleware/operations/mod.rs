@@ -13,7 +13,7 @@ use haste_fhir_client::{
     },
 };
 use haste_fhir_model::r4::generated::{
-    resources::{OperationDefinition, Parameters, Resource},
+    resources::{OperationDefinition, Resource},
     terminology::IssueType,
     types::{Extension, ExtensionValueTypeChoice, FHIRString},
 };
@@ -247,18 +247,9 @@ impl<
                             )
                             .await?;
 
-                        // let parameters =
-                        //     haste_fhir_serialization_json::from_serde_value::<Parameters>(result)
-                        //         .map_err(|_| {
-                        //         OperationOutcomeError::fatal(
-                        //             IssueType::Exception(None),
-                        //             "Failed to deserialize dynamic code result".to_string(),
-                        //         )
-                        //     })?;
-
                         context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
                             FHIRInvokeSystemResponse {
-                                resource: Resource::Parameters(parameters),
+                                resource: Resource::Parameters(result),
                             },
                         )));
 
