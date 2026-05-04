@@ -41,7 +41,7 @@ impl<CTX> Clone for ServerOperations<CTX> {
     }
 }
 
-static DENO_EXECUTOR: LazyLock<haste_operation_executor::pool::DenoPool> = LazyLock::new(|| {
+static DENO_EXECUTOR: LazyLock<haste_operation_executor::providers::deno_embedded::pool::DenoPool> = LazyLock::new(|| {
     haste_deno_executor::pool::DenoPool::new(4).expect("Failed to create DenoPool")
 });
 
