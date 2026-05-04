@@ -42,7 +42,7 @@ impl<CTX> Clone for ServerOperations<CTX> {
 }
 
 static DENO_EXECUTOR: LazyLock<haste_operation_executor::providers::deno_embedded::pool::DenoPool> = LazyLock::new(|| {
-    haste_deno_executor::pool::DenoPool::new(4).expect("Failed to create DenoPool")
+    haste_operation_executor::providers::deno_embedded::pool::DenoPool::new(4).expect("Failed to create DenoPool")
 });
 
 impl<
@@ -196,7 +196,7 @@ impl<
                         let result = DENO_EXECUTOR.execute(
                             context.ctx.clone(), 
                             context.ctx.client.clone(),
-                            haste_deno_executor::PluginCodeType::TypeScript,
+                            haste_operation_executor::structs::PluginCodeType::TypeScript,
                               r#"
                                 export default async function() {
                                     const sd = await fhir.readResource("StructureDefinition", "Patient");

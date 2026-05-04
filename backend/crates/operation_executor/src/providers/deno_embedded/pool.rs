@@ -1,4 +1,4 @@
-use crate::{PluginCodeType, run_code};
+use crate::providers::deno_embedded::{PluginCodeType, run_code};
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_operation_error::OperationOutcomeError;
