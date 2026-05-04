@@ -1,6 +1,9 @@
 use crate::providers::deno_embedded::{PluginCodeType, run_code};
+use crate::traits::OperationExecutor;
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
+use haste_fhir_client::request::{InvocationRequest, InvokeResponse};
+use haste_fhir_model::r4::generated::resources::{OperationDefinition, Parameters};
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::io;
 use std::sync::Arc;
@@ -85,6 +88,18 @@ impl DenoPool {
 impl Drop for DenoPool {
     fn drop(&mut self) {
         shutdown_workers(&mut self.workers);
+    }
+}
+
+impl OperationExecutor for DenoPool {
+    async fn execute_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError> + 'static>(
+        &self,
+        context: CTX,
+        client: Arc<Client>,
+        operation: &OperationDefinition,
+        input: &InvocationRequest,
+    ) -> Result<Parameters, OperationOutcomeError> {
+        let result = self.execute(ctx, client, media_type, code).await?;
     }
 }
 

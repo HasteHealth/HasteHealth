@@ -255,7 +255,7 @@ pub async fn set_return_value<
     Ok(())
 }
 
-pub async fn run_code<
+async fn run_code<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
