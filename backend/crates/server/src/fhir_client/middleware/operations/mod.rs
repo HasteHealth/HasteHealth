@@ -204,7 +204,6 @@ impl<
                                     return {
                                         resourceType: 'Parameters',
                                         parameter: [
-
                                             {
                                                 name: 'message',
                                                 resource: sd
