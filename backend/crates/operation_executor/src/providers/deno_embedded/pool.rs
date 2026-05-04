@@ -1,9 +1,12 @@
-use crate::providers::deno_embedded::{PluginCodeType, run_code};
+use crate::extract_code_from_operation_definition;
+use crate::providers::deno_embedded::run_code;
+use crate::structs::PluginCodeType;
 use crate::traits::OperationExecutor;
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
-use haste_fhir_client::request::{InvocationRequest, InvokeResponse};
+use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_model::r4::generated::resources::{OperationDefinition, Parameters};
+use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::io;
 use std::sync::Arc;
@@ -92,14 +95,48 @@ impl Drop for DenoPool {
 }
 
 impl OperationExecutor for DenoPool {
-    async fn execute_operation<CTX, Client: FHIRClient<CTX, OperationOutcomeError> + 'static>(
+    async fn execute_operation<
+        CTX: Clone + Send + 'static,
+        Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+    >(
         &self,
         context: CTX,
         client: Arc<Client>,
         operation: &OperationDefinition,
-        input: &InvocationRequest,
+        _input: &InvocationRequest,
     ) -> Result<Parameters, OperationOutcomeError> {
-        let result = self.execute(ctx, client, media_type, code).await?;
+        let (code, media_type) =
+            extract_code_from_operation_definition(operation).ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    "OperationDefinition missing custom code extension metadata".to_string(),
+                )
+            })?;
+
+        let media_type = PluginCodeType::try_from(media_type)?;
+
+        let output = self
+            .execute(context, client, media_type, code.to_string())
+            .await
+            .map_err(|error| {
+                OperationOutcomeError::error(
+                    IssueType::Processing(None),
+                    format!("Failed to execute operation custom code: {error}"),
+                )
+            })?
+            .ok_or_else(|| {
+                OperationOutcomeError::error(
+                    IssueType::Processing(None),
+                    "Operation custom code returned no output".to_string(),
+                )
+            })?;
+
+        haste_fhir_serialization_json::from_serde_value(output).map_err(|error| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!("Operation custom code returned invalid Parameters payload: {error}"),
+            )
+        })
     }
 }
 
