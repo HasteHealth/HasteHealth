@@ -19,6 +19,7 @@ pub enum ServerEnvironmentVariables {
     CertificationDir,
     // Main repo config
     DataBaseURL,
+    PGMaxConnections,
     // Search variable config.
     ElasticSearchURL,
     ElasticSearchUsername,
@@ -46,6 +47,7 @@ impl From<ServerEnvironmentVariables> for String {
                 "ALLOW_ARTIFACT_MUTATIONS".to_string()
             }
             ServerEnvironmentVariables::DataBaseURL => "DATABASE_URL".to_string(),
+            ServerEnvironmentVariables::PGMaxConnections => "PG_MAX_CONNECTIONS".to_string(),
             ServerEnvironmentVariables::ElasticSearchURL => "ELASTICSEARCH_URL".to_string(),
             ServerEnvironmentVariables::ElasticSearchUsername => {
                 "ELASTICSEARCH_USERNAME".to_string()
