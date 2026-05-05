@@ -34,8 +34,8 @@ pub async fn get_pool(config: &dyn Config<ServerEnvironmentVariables>) -> &'stat
             .max_connections(
                 config
                     .get(ServerEnvironmentVariables::PGMaxConnections)
-                    .map(|s| s.parse::<u32>().unwrap_or(50))
-                    .unwrap_or(50),
+                    .map(|s| s.parse::<u32>().unwrap_or(20))
+                    .unwrap_or(20),
             )
             .connect(&database_url)
             .await
