@@ -272,9 +272,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
     ) -> impl Future<Output = Result<SuccessfullyIndexedCount, OperationOutcomeError>> + Send {
         async move {
             // Iterator used to evaluate all of the search expressions for indexing.
-
             let mut tasks = Vec::with_capacity(resources.len());
-            let resources_total = resources.len();
             let search_index_name = get_index_name(&fhir_version)?;
 
             for r in resources.into_iter().filter(|r| match r.fhir_method {
@@ -283,7 +281,7 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
             }) {
                 let engine = self.fp_engine.clone();
                 let parameter_resolver = self.parameter_resolver.clone();
-                tasks.push(tokio::spawn(async move {
+                tasks.push(async move {
                     match &r.fhir_method {
                         FHIRMethod::Create | FHIRMethod::Update => {
                             // Id is not sufficient because different Resourcetypes may have the same id.
@@ -336,20 +334,13 @@ impl<SearchParameterResolver: SearchParameterResolve + 'static> SearchEngine
                         method => Err(SearchError::UnsupportedFHIRMethod((*method).clone()))
                             .map_err(OperationOutcomeError::from),
                     }
-                }));
+                });
             }
 
             let client = self.client.clone();
 
-            let mut bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> =
-                Vec::with_capacity(resources_total);
-
-            for task in tasks {
-                let res = task.await.map_err(|e| {
-                    OperationOutcomeError::fatal(IssueType::Exception(None), e.to_string())
-                })??;
-                bulk_ops.push(res);
-            }
+            let bulk_ops: Vec<BulkOperation<HashMap<String, InsertableIndex>>> =
+                futures::future::try_join_all(tasks).await?;
 
             if !bulk_ops.is_empty() {
                 let res = client

@@ -508,7 +508,7 @@ fn read_latest<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::SQLXError)?;
         let response = sqlx::query!(
-            r#"SELECT resource as "resource: FHIRJson<Resource>", deleted FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC"#,
+            r#"SELECT resource as "resource: FHIRJson<Resource>", deleted FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 1"#,
             tenant_id.as_ref(),
             project_id.as_ref(),
             resource_id.as_ref(),
