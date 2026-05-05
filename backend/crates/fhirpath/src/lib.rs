@@ -18,11 +18,11 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
-use std::pin::Pin;
+use std::{cell::RefCell, pin::Pin, rc::Rc};
 use std::{
     collections::HashMap,
     marker::PhantomData,
-    sync::{Arc, LazyLock, Mutex},
+    sync::{Arc, LazyLock},
 };
 
 fn evaluate_literal<'b>(
@@ -160,7 +160,7 @@ async fn evaluate_singular<'a>(
     Ok(current_context)
 }
 
-async fn operation_1<'a>(
+async fn operation_2<'a>(
     left: &Expression,
     right: &Expression,
     context: Context<'a>,
@@ -519,7 +519,7 @@ async fn evaluate_operation<'a>(
 ) -> Result<Context<'a>, FHIRPathError> {
     match operation {
         Operation::Add(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 if NUMBER_TYPES.contains(left.values[0].typename())
                     && NUMBER_TYPES.contains(right.values[0].typename())
                 {
@@ -547,7 +547,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::Subtraction(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let left_value = downcast_number(left.values[0])?;
                 let right_value = downcast_number(right.values[0])?;
 
@@ -558,7 +558,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::Multiplication(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let left_value = downcast_number(left.values[0])?;
                 let right_value = downcast_number(right.values[0])?;
 
@@ -569,7 +569,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::Division(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let left_value = downcast_number(left.values[0])?;
                 let right_value = downcast_number(right.values[0])?;
 
@@ -580,7 +580,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::Equal(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let are_equal = FHIRBoolean {
                     value: Some(equal_check(&left, &right)?),
                     ..Default::default()
@@ -591,7 +591,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::NotEqual(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let not_equal = FHIRBoolean {
                     value: Some(!equal_check(&left, &right)?),
                     ..Default::default()
@@ -602,7 +602,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::And(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let left_value = downcast_bool(left.values[0])?;
                 let right_value = downcast_bool(right.values[0])?;
 
@@ -618,7 +618,7 @@ async fn evaluate_operation<'a>(
             .await
         }
         Operation::Or(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let left_value = downcast_bool(left.values[0])?;
                 let right_value = downcast_bool(right.values[0])?;
 
@@ -700,7 +700,7 @@ async fn evaluate_operation<'a>(
             Err(FHIRPathError::NotImplemented("Contains".to_string()))
         }
         Operation::XOr(left, right) => {
-            operation_1(left, right, context, config, |left, right| {
+            operation_2(left, right, context, config, |left, right| {
                 let left_value = downcast_bool(left.values[0])?;
                 let right_value = downcast_bool(right.values[0])?;
 
@@ -772,8 +772,8 @@ impl<'a> Allocator<'a> {
 }
 
 pub struct Context<'a> {
-    allocator: Arc<Mutex<Allocator<'a>>>,
-    values: Arc<Vec<&'a dyn MetaValue>>,
+    allocator: Rc<RefCell<Allocator<'a>>>,
+    values: Vec<&'a dyn MetaValue>,
 }
 
 pub enum ExternalConstantResolver<'a> {
@@ -818,20 +818,20 @@ async fn resolve_external_constant<'a>(
 }
 
 impl<'a> Context<'a> {
-    fn new(values: Vec<&'a dyn MetaValue>, allocator: Arc<Mutex<Allocator<'a>>>) -> Self {
+    fn new(values: Vec<&'a dyn MetaValue>, allocator: Rc<RefCell<Allocator<'a>>>) -> Self {
         Self {
             allocator,
-            values: Arc::new(values),
+            values: values,
         }
     }
     fn new_context_from(&self, values: Vec<&'a dyn MetaValue>) -> Self {
         Self {
             allocator: self.allocator.clone(),
-            values: Arc::new(values),
+            values: values,
         }
     }
     fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator.lock().unwrap().allocate(value)
+        self.allocator.borrow_mut().allocate(value)
     }
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().map(|v| *v))
@@ -888,7 +888,7 @@ impl FPEngine {
         let ast = get_ast(path)?;
 
         // Store created.
-        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
+        let allocator: Rc<RefCell<Allocator<'b>>> = Rc::new(RefCell::new(Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 
@@ -913,7 +913,7 @@ impl FPEngine {
         let ast = get_ast(path)?;
 
         // Store created.
-        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
+        let allocator: Rc<RefCell<Allocator<'b>>> = Rc::new(RefCell::new(Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 
