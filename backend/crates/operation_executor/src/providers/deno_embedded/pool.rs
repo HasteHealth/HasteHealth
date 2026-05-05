@@ -2,6 +2,7 @@ use crate::extract_code_from_operation_definition;
 use crate::providers::deno_embedded::run_code;
 use crate::structs::PluginCodeType;
 use crate::traits::OperationExecutor;
+use deno_core::serde_json::json;
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_client::request::InvocationRequest;
@@ -58,9 +59,11 @@ impl DenoPool {
         client: Arc<Client>,
         media_type: PluginCodeType,
         code: impl Into<String>,
+        input: serde_json::Value,
     ) -> JobResult {
         let worker_index = self.next_worker.fetch_add(1, Ordering::Relaxed) % self.workers.len();
         let worker = &self.workers[worker_index];
+
         let (response_tx, response_rx) = oneshot::channel();
         let code = code.into();
 
@@ -94,6 +97,47 @@ impl Drop for DenoPool {
     }
 }
 
+fn get_parameters<'a>(input: &'a InvocationRequest) -> &'a Parameters {
+    match input {
+        InvocationRequest::Instance(instance_request) => &instance_request.parameters,
+        InvocationRequest::Type(type_request) => &type_request.parameters,
+        InvocationRequest::System(system_request) => &system_request.parameters,
+    }
+}
+
+fn request_to_json(input: &InvocationRequest) -> Result<serde_json::Value, OperationOutcomeError> {
+    let parameter_json: serde_json::Value = serde_json::from_str(
+        &haste_fhir_serialization_json::to_string(get_parameters(input)).map_err(|error| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!("Failed to serialize operation input parameters: {error}"),
+            )
+        })?,
+    )
+    .map_err(|_| {
+        OperationOutcomeError::error(
+            IssueType::Invalid(None),
+            "Failed to convert operation input parameters to JSON value".to_string(),
+        )
+    })?;
+
+    match input {
+        InvocationRequest::Instance(instance_request) => Ok(json!({
+            "id": &instance_request.id,
+            "resource": instance_request.resource_type.as_ref(),
+            "parameters": parameter_json,
+
+        })),
+        InvocationRequest::Type(type_request) => Ok(json!({
+            "resource": type_request.resource_type.as_ref(),
+            "parameters": parameter_json,
+        })),
+        InvocationRequest::System(_system_request) => Ok(json!({
+            "parameters": parameter_json,
+        })),
+    }
+}
+
 impl OperationExecutor for DenoPool {
     async fn execute_operation<
         CTX: Clone + Send + 'static,
@@ -103,7 +147,7 @@ impl OperationExecutor for DenoPool {
         context: CTX,
         client: Arc<Client>,
         operation: &OperationDefinition,
-        _input: &InvocationRequest,
+        input: &InvocationRequest,
     ) -> Result<Parameters, OperationOutcomeError> {
         let (code, media_type) =
             extract_code_from_operation_definition(operation).ok_or_else(|| {
@@ -116,7 +160,13 @@ impl OperationExecutor for DenoPool {
         let media_type = PluginCodeType::try_from(media_type)?;
 
         let output = self
-            .execute(context, client, media_type, code.to_string())
+            .execute(
+                context,
+                client,
+                media_type,
+                code.to_string(),
+                request_to_json(input)?,
+            )
             .await
             .map_err(|error| {
                 OperationOutcomeError::error(
