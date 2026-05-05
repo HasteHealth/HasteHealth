@@ -262,7 +262,7 @@ async fn run_code<
     ctx: CTX,
     client: Arc<Client>,
     media_type: PluginCodeType,
-    code: String,
+    code: &str,
 ) -> Result<Option<serde_json::Value>, AnyError> {
     // let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
 
