@@ -18,11 +18,11 @@ use haste_fhir_model::r4::{
 };
 use haste_reflect::MetaValue;
 use haste_reflect_derive::Reflect;
-use std::{cell::RefCell, pin::Pin, rc::Rc};
+use std::pin::Pin;
 use std::{
     collections::HashMap,
     marker::PhantomData,
-    sync::{Arc, LazyLock},
+    sync::{Arc, LazyLock, Mutex},
 };
 
 fn evaluate_literal<'b>(
@@ -772,7 +772,7 @@ impl<'a> Allocator<'a> {
 }
 
 pub struct Context<'a> {
-    allocator: Rc<RefCell<Allocator<'a>>>,
+    allocator: Arc<Mutex<Allocator<'a>>>,
     values: Vec<&'a dyn MetaValue>,
 }
 
@@ -818,7 +818,7 @@ async fn resolve_external_constant<'a>(
 }
 
 impl<'a> Context<'a> {
-    fn new(values: Vec<&'a dyn MetaValue>, allocator: Rc<RefCell<Allocator<'a>>>) -> Self {
+    fn new(values: Vec<&'a dyn MetaValue>, allocator: Arc<Mutex<Allocator<'a>>>) -> Self {
         Self {
             allocator,
             values: values,
@@ -831,7 +831,7 @@ impl<'a> Context<'a> {
         }
     }
     fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator.borrow_mut().allocate(value)
+        self.allocator.lock().unwrap().allocate(value)
     }
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().map(|v| *v))
@@ -888,7 +888,7 @@ impl FPEngine {
         let ast = get_ast(path)?;
 
         // Store created.
-        let allocator: Rc<RefCell<Allocator<'b>>> = Rc::new(RefCell::new(Allocator::new()));
+        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 
@@ -913,7 +913,7 @@ impl FPEngine {
         let ast = get_ast(path)?;
 
         // Store created.
-        let allocator: Rc<RefCell<Allocator<'b>>> = Rc::new(RefCell::new(Allocator::new()));
+        let allocator: Arc<Mutex<Allocator<'b>>> = Arc::new(Mutex::new(Allocator::new()));
 
         let context = Context::new(values, allocator.clone());
 
