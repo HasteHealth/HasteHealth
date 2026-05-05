@@ -69,7 +69,7 @@ impl DenoPool {
 
         let task = Box::new(move |runtime: &Runtime| {
             let result = runtime.block_on(async move {
-                let output = run_code(ctx, client, media_type, &code).await?;
+                let output = run_code(ctx, client, media_type, &code, input).await?;
 
                 output
                     .map(serde_json::from_value)

@@ -9,7 +9,7 @@
 
   root.fhir = {
     readResource: (resourceType, id) =>
-      core.ops.read_resource(resourceType, id),
+      core.ops.fhir_read_resource(resourceType, id),
   };
 
   root.console = {
@@ -24,6 +24,9 @@
   root._internal_ = {
     setReturnValue: (value) => {
       core.ops.set_return_value(value);
+    },
+    getInputValue: () => {
+      return core.ops.get_input_value();
     },
   };
 })(globalThis);

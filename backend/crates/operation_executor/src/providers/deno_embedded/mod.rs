@@ -142,6 +142,7 @@ struct JSRuntimeState<CTX, Client: FHIRClient<CTX, OperationOutcomeError>> {
     fhir_client: Arc<Client>,
     ctx: CTX,
     return_value: Option<serde_json::Value>,
+    input: Rc<serde_json::Value>,
 }
 
 #[repr(C)]
@@ -192,7 +193,7 @@ impl InteropObject {
 
 #[op2]
 #[serde]
-pub async fn read_resource<
+pub async fn fhir_read_resource<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
 >(
@@ -255,6 +256,29 @@ pub async fn set_return_value<
     Ok(())
 }
 
+#[op2]
+#[serde]
+pub async fn get_input_value<
+    CTX: Clone + 'static,
+    Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
+>(
+    state: Rc<RefCell<OpState>>,
+) -> Result<serde_json::Value, deno_error::JsErrorBox> {
+    let app_state = {
+        let state = state.borrow();
+        // Use the state
+        state
+            .borrow::<Arc<Mutex<JSRuntimeState<CTX, Client>>>>()
+            .clone()
+    };
+
+    let state = app_state.lock().await;
+
+    Ok(serde_json::json!({
+        "request": state.input.clone(),
+    }))
+}
+
 async fn run_code<
     CTX: Clone + 'static,
     Client: FHIRClient<CTX, OperationOutcomeError> + 'static,
@@ -263,14 +287,16 @@ async fn run_code<
     client: Arc<Client>,
     media_type: PluginCodeType,
     code: &str,
+    input: serde_json::Value,
 ) -> Result<Option<serde_json::Value>, AnyError> {
     // let main_module = deno_core::resolve_path(file_path, &std::env::current_dir()?)?;
 
     let runjs = Extension {
         name: "runjs",
         ops: std::borrow::Cow::Owned(vec![
-            read_resource::<CTX, Client>(),
+            fhir_read_resource::<CTX, Client>(),
             set_return_value::<CTX, Client>(),
+            get_input_value::<CTX, Client>(),
         ]),
         ..Default::default()
     };
@@ -287,6 +313,7 @@ async fn run_code<
         fhir_client: client,
         ctx,
         return_value: None,
+        input: Rc::new(input),
     }));
 
     {
@@ -307,7 +334,7 @@ async fn run_code<
     let main_mod_id = deno_runtime
         .load_main_es_module_from_code(
             &ModuleSpecifier::parse("memo://main.ts").unwrap(),
-            "import userFunction from 'memo://user.ts'; _internal_.setReturnValue(await userFunction());"
+            "import userFunction from 'memo://user.ts'; _internal_.setReturnValue(await userFunction(_internal_.getInputValue()));"
                 .to_string(),
         )
         .await?;
