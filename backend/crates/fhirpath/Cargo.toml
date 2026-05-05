@@ -13,6 +13,7 @@ haste-reflect = { path = "../reflect", version = "0.*" }
 haste-reflect-derive = { path = "../reflect-derive", version = "0.*" }
 peg = "0.8.5"
 thiserror = "2.0.18"
+tokio = { workspace = true, features =["sync"] }
 
 [dev-dependencies]
 criterion = { version = "0.8", features = ["async_tokio"] }

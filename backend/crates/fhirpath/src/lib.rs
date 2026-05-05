@@ -22,38 +22,47 @@ use std::pin::Pin;
 use std::{
     collections::HashMap,
     marker::PhantomData,
-    sync::{Arc, LazyLock, Mutex},
+    sync::{Arc, LazyLock},
 };
+use tokio::sync::Mutex;
 
-fn evaluate_literal<'b>(
+async fn evaluate_literal<'b>(
     literal: &Literal,
     context: Context<'b>,
 ) -> Result<Context<'b>, FHIRPathError> {
     match literal {
-        Literal::String(string) => Ok(context.new_context_from(vec![context.allocate(
-            ResolvedValue::Box(Box::new(FHIRString {
-                value: Some(string.clone()),
-                ..Default::default()
-            })),
-        )])),
-        Literal::Integer(int) => Ok(context.new_context_from(vec![context.allocate(
-            ResolvedValue::Box(Box::new(FHIRInteger {
-                value: Some(int.clone()),
-                ..Default::default()
-            })),
-        )])),
-        Literal::Float(decimal) => Ok(context.new_context_from(vec![context.allocate(
-            ResolvedValue::Box(Box::new(FHIRDecimal {
-                value: Some(decimal.clone()),
-                ..Default::default()
-            })),
-        )])),
-        Literal::Boolean(bool) => Ok(context.new_context_from(vec![context.allocate(
-            ResolvedValue::Box(Box::new(FHIRBoolean {
-                value: Some(bool.clone()),
-                ..Default::default()
-            })),
-        )])),
+        Literal::String(string) => Ok(context.new_context_from(vec![
+            context
+                .allocate(ResolvedValue::Box(Box::new(FHIRString {
+                    value: Some(string.clone()),
+                    ..Default::default()
+                })))
+                .await,
+        ])),
+        Literal::Integer(int) => Ok(context.new_context_from(vec![
+            context
+                .allocate(ResolvedValue::Box(Box::new(FHIRInteger {
+                    value: Some(int.clone()),
+                    ..Default::default()
+                })))
+                .await,
+        ])),
+        Literal::Float(decimal) => Ok(context.new_context_from(vec![
+            context
+                .allocate(ResolvedValue::Box(Box::new(FHIRDecimal {
+                    value: Some(decimal.clone()),
+                    ..Default::default()
+                })))
+                .await,
+        ])),
+        Literal::Boolean(bool) => Ok(context.new_context_from(vec![
+            context
+                .allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
+                    value: Some(bool.clone()),
+                    ..Default::default()
+                })))
+                .await,
+        ])),
         Literal::Null => Ok(context.new_context_from(vec![])),
         _ => Err(FHIRPathError::InvalidLiteral(literal.to_owned())),
     }
@@ -103,7 +112,7 @@ async fn evaluate_term<'a>(
     config: Option<Arc<Config<'a>>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     match term {
-        Term::Literal(literal) => evaluate_literal(literal, context),
+        Term::Literal(literal) => evaluate_literal(literal, context).await,
         Term::ExternalConstant(constant) => {
             resolve_external_constant(
                 constant,
@@ -165,7 +174,11 @@ async fn operation_2<'a>(
     right: &Expression,
     context: Context<'a>,
     config: Option<Arc<Config<'a>>>,
-    executor: impl Fn(Context<'a>, Context<'a>) -> Result<Context<'a>, FHIRPathError>,
+    executor: impl Fn(
+        Context<'a>,
+        Context<'a>,
+    )
+        -> Pin<Box<dyn Future<Output = Result<Context<'a>, FHIRPathError>> + Send + 'a>>,
 ) -> Result<Context<'a>, FHIRPathError> {
     let left = evaluate_expression(left, context.clone(), config.clone()).await?;
     let right = evaluate_expression(right, context, config).await?;
@@ -181,7 +194,7 @@ async fn operation_2<'a>(
         ));
     }
 
-    executor(left, right)
+    executor(left, right).await
 }
 
 async fn operation_n<'a>(
@@ -326,14 +339,14 @@ async fn evaluate_function<'a>(
             validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
             let count = context.values.len() as i64;
-            Ok(
-                context.new_context_from(vec![context.allocate(ResolvedValue::Box(Box::new(
-                    FHIRInteger {
+            Ok(context.new_context_from(vec![
+                context
+                    .allocate(ResolvedValue::Box(Box::new(FHIRInteger {
                         value: Some(count),
                         ..Default::default()
-                    },
-                )))]),
-            )
+                    })))
+                    .await,
+            ]))
         }
         op @ ("upper" | "lower") => {
             validate_arguments(&function.arguments, &Cardinality::Zero)?;
@@ -355,14 +368,14 @@ async fn evaluate_function<'a>(
                 "lower" => input.to_lowercase(),
                 _ => unreachable!(),
             };
-            Ok(
-                context.new_context_from(vec![context.allocate(ResolvedValue::Box(Box::new(
-                    FHIRString {
+            Ok(context.new_context_from(vec![
+                context
+                    .allocate(ResolvedValue::Box(Box::new(FHIRString {
                         value: Some(transformed),
                         ..Default::default()
-                    },
-                )))]),
-            )
+                    })))
+                    .await,
+            ]))
         }
         "as" => {
             validate_arguments(&function.arguments, &Cardinality::One)?;
@@ -373,7 +386,9 @@ async fn evaluate_function<'a>(
         "empty" => {
             validate_arguments(&function.arguments, &Cardinality::Zero)?;
             let res = Ok(context.new_context_from(vec![
-                context.allocate(ResolvedValue::Box(Box::new(context.values.is_empty()))),
+                context
+                    .allocate(ResolvedValue::Box(Box::new(context.values.is_empty())))
+                    .await,
             ]));
 
             res
@@ -396,7 +411,9 @@ async fn evaluate_function<'a>(
             };
 
             let res = Ok(context.new_context_from(vec![
-                context.allocate(ResolvedValue::Box(Box::new(!context.values.is_empty()))),
+                context
+                    .allocate(ResolvedValue::Box(Box::new(!context.values.is_empty())))
+                    .await,
             ]));
 
             res
@@ -460,18 +477,19 @@ async fn evaluate_function<'a>(
         "type" => {
             validate_arguments(&function.arguments, &Cardinality::Zero)?;
 
-            Ok(context.new_context_from(
-                context
-                    .values
-                    .iter()
-                    .map(|value| {
-                        let type_name = value.typename();
-                        context.allocate(ResolvedValue::Box(Box::new(Reflection {
+            let mut next_ctx = Vec::with_capacity(context.values.len());
+            for v in context.values.iter() {
+                let type_name = v.typename();
+                next_ctx.push(
+                    context
+                        .allocate(ResolvedValue::Box(Box::new(Reflection {
                             name: type_name.to_string(),
                         })))
-                    })
-                    .collect(),
-            ))
+                        .await,
+                );
+            }
+
+            Ok(context.new_context_from(next_ctx))
         }
         _ => {
             return Err(FHIRPathError::NotImplemented(format!(
@@ -520,116 +538,139 @@ async fn evaluate_operation<'a>(
     match operation {
         Operation::Add(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                if NUMBER_TYPES.contains(left.values[0].typename())
-                    && NUMBER_TYPES.contains(right.values[0].typename())
-                {
-                    let left_value = downcast_number(left.values[0])?;
-                    let right_value = downcast_number(right.values[0])?;
-                    Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(left_value + right_value))),
-                    ]))
-                } else if STRING_TYPES.contains(left.values[0].typename())
-                    && STRING_TYPES.contains(right.values[0].typename())
-                {
-                    let left_string = downcast_string(left.values[0])?;
-                    let right_string = downcast_string(right.values[0])?;
+                Box::pin(async move {
+                    if NUMBER_TYPES.contains(left.values[0].typename())
+                        && NUMBER_TYPES.contains(right.values[0].typename())
+                    {
+                        let left_value = downcast_number(left.values[0])?;
+                        let right_value = downcast_number(right.values[0])?;
+                        Ok(left.new_context_from(vec![
+                            left.allocate(ResolvedValue::Box(Box::new(left_value + right_value)))
+                                .await,
+                        ]))
+                    } else if STRING_TYPES.contains(left.values[0].typename())
+                        && STRING_TYPES.contains(right.values[0].typename())
+                    {
+                        let left_string = downcast_string(left.values[0])?;
+                        let right_string = downcast_string(right.values[0])?;
 
-                    Ok(left.new_context_from(vec![
-                        left.allocate(ResolvedValue::Box(Box::new(left_string + &right_string))),
-                    ]))
-                } else {
-                    Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
-                        left.values[0].typename(),
-                        right.values[0].typename(),
-                    )))
-                }
+                        Ok(left.new_context_from(vec![
+                            left.allocate(ResolvedValue::Box(Box::new(
+                                left_string + &right_string,
+                            )))
+                            .await,
+                        ]))
+                    } else {
+                        Err(FHIRPathError::OperationError(OperationError::TypeMismatch(
+                            left.values[0].typename(),
+                            right.values[0].typename(),
+                        )))
+                    }
+                })
             })
             .await
         }
         Operation::Subtraction(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let left_value = downcast_number(left.values[0])?;
-                let right_value = downcast_number(right.values[0])?;
+                Box::pin(async move {
+                    let left_value = downcast_number(left.values[0])?;
+                    let right_value = downcast_number(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate(ResolvedValue::Box(Box::new(left_value - right_value))),
-                ]))
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(left_value - right_value)))
+                            .await,
+                    ]))
+                })
             })
             .await
         }
         Operation::Multiplication(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let left_value = downcast_number(left.values[0])?;
-                let right_value = downcast_number(right.values[0])?;
+                Box::pin(async move {
+                    let left_value = downcast_number(left.values[0])?;
+                    let right_value = downcast_number(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate(ResolvedValue::Box(Box::new(left_value * right_value))),
-                ]))
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(left_value * right_value)))
+                            .await,
+                    ]))
+                })
             })
             .await
         }
         Operation::Division(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let left_value = downcast_number(left.values[0])?;
-                let right_value = downcast_number(right.values[0])?;
+                Box::pin(async move {
+                    let left_value = downcast_number(left.values[0])?;
+                    let right_value = downcast_number(right.values[0])?;
 
-                Ok(left.new_context_from(vec![
-                    left.allocate(ResolvedValue::Box(Box::new(left_value / right_value))),
-                ]))
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(left_value / right_value)))
+                            .await,
+                    ]))
+                })
             })
             .await
         }
         Operation::Equal(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let are_equal = FHIRBoolean {
-                    value: Some(equal_check(&left, &right)?),
-                    ..Default::default()
-                };
-                Ok(left
-                    .new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(are_equal)))]))
+                Box::pin(async move {
+                    let are_equal = FHIRBoolean {
+                        value: Some(equal_check(&left, &right)?),
+                        ..Default::default()
+                    };
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(are_equal))).await,
+                    ]))
+                })
             })
             .await
         }
         Operation::NotEqual(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let not_equal = FHIRBoolean {
-                    value: Some(!equal_check(&left, &right)?),
-                    ..Default::default()
-                };
-                Ok(left
-                    .new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(not_equal)))]))
+                Box::pin(async move {
+                    let not_equal = FHIRBoolean {
+                        value: Some(!equal_check(&left, &right)?),
+                        ..Default::default()
+                    };
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(not_equal))).await,
+                    ]))
+                })
             })
             .await
         }
         Operation::And(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let left_value = downcast_bool(left.values[0])?;
-                let right_value = downcast_bool(right.values[0])?;
+                Box::pin(async move {
+                    let left_value = downcast_bool(left.values[0])?;
+                    let right_value = downcast_bool(right.values[0])?;
 
-                Ok(
-                    left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
-                        FHIRBoolean {
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
                             value: Some(left_value && right_value),
                             ..Default::default()
-                        },
-                    )))]),
-                )
+                        })))
+                        .await,
+                    ]))
+                })
             })
             .await
         }
         Operation::Or(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let left_value = downcast_bool(left.values[0])?;
-                let right_value = downcast_bool(right.values[0])?;
+                Box::pin(async move {
+                    let left_value = downcast_bool(left.values[0])?;
+                    let right_value = downcast_bool(right.values[0])?;
 
-                Ok(
-                    left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
-                        FHIRBoolean {
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
                             value: Some(left_value || right_value),
                             ..Default::default()
-                        },
-                    )))]),
-                )
+                        })))
+                        .await,
+                    ]))
+                })
             })
             .await
         }
@@ -652,11 +693,12 @@ async fn evaluate_operation<'a>(
             } else {
                 if let Some(type_name) = type_name.0.get(0).as_ref().map(|k| &k.0) {
                     let next_context = filter_by_type(&type_name, &left);
-                    Ok(
-                        left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(
                             !next_context.values.is_empty(),
-                        )))]),
-                    )
+                        )))
+                        .await,
+                    ]))
                 } else {
                     Ok(left.new_context_from(vec![]))
                 }
@@ -701,17 +743,18 @@ async fn evaluate_operation<'a>(
         }
         Operation::XOr(left, right) => {
             operation_2(left, right, context, config, |left, right| {
-                let left_value = downcast_bool(left.values[0])?;
-                let right_value = downcast_bool(right.values[0])?;
+                Box::pin(async move {
+                    let left_value = downcast_bool(left.values[0])?;
+                    let right_value = downcast_bool(right.values[0])?;
 
-                Ok(
-                    left.new_context_from(vec![left.allocate(ResolvedValue::Box(Box::new(
-                        FHIRBoolean {
+                    Ok(left.new_context_from(vec![
+                        left.allocate(ResolvedValue::Box(Box::new(FHIRBoolean {
                             value: Some(left_value ^ right_value),
                             ..Default::default()
-                        },
-                    )))]),
-                )
+                        })))
+                        .await,
+                    ]))
+                })
             })
             .await
         }
@@ -801,7 +844,7 @@ async fn resolve_external_constant<'a>(
             let result = func(name.to_string()).await;
 
             if let Some(result) = result {
-                Some(context.allocate(result))
+                Some(context.allocate(result).await)
             } else {
                 None
             }
@@ -830,8 +873,8 @@ impl<'a> Context<'a> {
             values: values,
         }
     }
-    fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
-        self.allocator.lock().unwrap().allocate(value)
+    async fn allocate(&self, value: ResolvedValue) -> &'a dyn MetaValue {
+        self.allocator.lock().await.allocate(value)
     }
     pub fn iter(&'a self) -> Box<dyn Iterator<Item = &'a dyn MetaValue> + 'a> {
         Box::new(self.values.iter().map(|v| *v))
