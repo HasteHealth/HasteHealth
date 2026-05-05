@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT resource as \"resource: FHIRJson<Resource>\", deleted FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC",
+  "query": "SELECT resource as \"resource: FHIRJson<Resource>\", deleted FROM resources WHERE tenant = $1 AND project = $2 AND id = $3 AND resource_type = $4 ORDER BY sequence DESC LIMIT 1",
   "describe": {
     "columns": [
       {
@@ -27,5 +27,5 @@
       false
     ]
   },
-  "hash": "b72cbca0c3be421612359cb3192672d54f9667263ec9d37509a7b39662b80ff2"
+  "hash": "ce09b66ca2ca68f73eba73e0a6d26173006e39a5b996717e6c9b71c88c4fb783"
 }
