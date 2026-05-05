@@ -31,7 +31,7 @@ pub async fn get_pool(config: &dyn Config<ServerEnvironmentVariables>) -> &'stat
             ));
         info!("Connecting to postgres database");
         let connection = PgPoolOptions::new()
-            .max_connections(5)
+            .max_connections(20)
             .connect(&database_url)
             .await
             .expect("Failed to create database connection pool");
