@@ -34,7 +34,7 @@ export const Select = ({
           option.label
             .toLowerCase()
             .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, ""))
+            .includes(query.toLowerCase().replace(/\s+/g, "")),
         );
 
   return (
@@ -51,11 +51,13 @@ export const Select = ({
       nullable
     >
       <div className="relative">
-        <div className="flex flex-col flex-grow">
+        <div className="flex flex-col flex-grow gap-0.5">
           <Label
             required={required}
             label={label}
-            className={classNames("mr-1 ")}
+            className={classNames(
+              "block text-xs font-medium leading-4 text-slate-700",
+            )}
           />
           <div className="relative">
             <Combobox.Input
@@ -64,14 +66,14 @@ export const Select = ({
                 inputClassNames({
                   hideBorder: false,
                   issues: issue ? [issue] : [],
-                })
+                }),
               )}
               displayValue={(option: Option) => option && option.label}
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button
               className={classNames(
-                "absolute inset-y-0 right-0 flex items-center pr-2"
+                "absolute inset-y-0 right-0 flex items-center pr-2",
               )}
             >
               <ChevronUpDownIcon
@@ -99,7 +101,7 @@ export const Select = ({
                     {
                       "bg-orange-500 text-white": active,
                       "text-gray-900": !active,
-                    }
+                    },
                   )
                 }
               >
@@ -115,7 +117,7 @@ export const Select = ({
                     {
                       "bg-orange-500 text-white": active,
                       "text-gray-900": !active,
-                    }
+                    },
                   )
                 }
                 value={option}
@@ -137,7 +139,7 @@ export const Select = ({
                           {
                             "text-white": active,
                             "text-orange-600": !active,
-                          }
+                          },
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />

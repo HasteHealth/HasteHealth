@@ -5,6 +5,7 @@ import { Coding } from "@haste-health/fhir-types/r4/types";
 import { InputContainer } from "../../base/containers";
 import { FHIRCodeEditable, FHIRUriEditable } from "../primitives";
 import { ClientProps, EditableProps } from "../types";
+import { complexPairGridClass } from "./layout";
 
 export type FHIRCodingEditableProps = EditableProps<Coding> & ClientProps;
 
@@ -18,7 +19,7 @@ export const FHIRCodingEditable = ({
 }: FHIRCodingEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexPairGridClass}>
         <FHIRUriEditable
           label="System"
           value={value?.system}

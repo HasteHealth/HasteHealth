@@ -7,6 +7,7 @@ import { Button } from "../../base/button";
 import { InputContainer } from "../../base/containers";
 import { Input } from "../../base/input";
 import { EditableProps } from "../types";
+import { complexStackClass } from "./layout";
 
 const convertFileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -33,7 +34,7 @@ export const FHIRAttachmentEditable = ({
 }: FHIRAttachmentEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex">
+      <div className={complexStackClass}>
         <Input
           type="file"
           hideBorder={true}
@@ -52,21 +53,22 @@ export const FHIRAttachmentEditable = ({
           }}
         />
         {value && value.data && (
-          <Button
-            className="ml-1"
-            buttonType="secondary"
-            buttonSize="medium"
-            onClick={() => {
-              const data = value.data;
-              if (data === undefined) alert("No data to download");
-              fileDownload(
-                data as string,
-                value?.title || "data",
-                value?.contentType
-              );
-            }}
-            children="Download"
-          />
+          <div className="flex justify-end">
+            <Button
+              buttonType="secondary"
+              buttonSize="medium"
+              onClick={() => {
+                const data = value.data;
+                if (data === undefined) alert("No data to download");
+                fileDownload(
+                  data as string,
+                  value?.title || "data",
+                  value?.contentType,
+                );
+              }}
+              children="Download"
+            />
+          </div>
         )}
       </div>
     </InputContainer>

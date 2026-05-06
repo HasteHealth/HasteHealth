@@ -7,6 +7,7 @@ import { FHIRCodeEditable } from "../primitives/code";
 import { FHIRStringEditable } from "../primitives/string";
 import { FHIRUriEditable } from "../primitives/uri";
 import { ClientProps, EditableProps } from "../types";
+import { complexFieldGridClass } from "./layout";
 
 export type FHIRIdentifierEditableProps = EditableProps<Identifier> &
   ClientProps;
@@ -21,7 +22,7 @@ export const FHIRIdentifierEditable = ({
 }: FHIRIdentifierEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexFieldGridClass}>
         <FHIRCodeEditable
           fhirVersion={fhirVersion}
           client={client}

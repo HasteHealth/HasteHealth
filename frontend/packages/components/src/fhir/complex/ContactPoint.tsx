@@ -6,6 +6,7 @@ import { InputContainer } from "../../base/containers";
 import { FHIRCodeEditable } from "../primitives/code";
 import { FHIRStringEditable } from "../primitives/string";
 import { ClientProps, EditableProps } from "../types";
+import { complexFieldGridClass } from "./layout";
 
 export type FHIRContactPointEditableProps = EditableProps<ContactPoint> &
   ClientProps;
@@ -20,7 +21,7 @@ export const FHIRContactPointEditable = ({
 }: FHIRContactPointEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexFieldGridClass}>
         <FHIRCodeEditable
           fhirVersion={fhirVersion}
           label="Use"

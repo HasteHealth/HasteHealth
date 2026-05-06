@@ -5,6 +5,7 @@ import { Period } from "@haste-health/fhir-types/r4/types";
 import { InputContainer } from "../../base/containers";
 import { FHIRDateTimeEditable } from "../primitives/datetime";
 import { EditableProps } from "../types";
+import { complexPairGridClass } from "./layout";
 
 export type FHIRPeriodEditableProps = EditableProps<Period>;
 
@@ -16,7 +17,7 @@ export const FHIRPeriodEditable = ({
 }: FHIRPeriodEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexPairGridClass}>
         <FHIRDateTimeEditable
           value={value?.start}
           label="Start"

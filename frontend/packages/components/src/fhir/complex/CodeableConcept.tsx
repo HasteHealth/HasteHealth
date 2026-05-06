@@ -7,6 +7,7 @@ import { FHIRCodingEditable } from ".";
 import { Add } from "../../base";
 import { InputContainer } from "../../base/containers";
 import { ClientProps, EditableProps } from "../types";
+import { complexStackClass } from "./layout";
 
 export type FHIRCodeableConceptEditableProps = EditableProps<CodeableConcept> &
   ClientProps;
@@ -21,9 +22,12 @@ export const FhirCodeableConceptEditable = ({
 }: FHIRCodeableConceptEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-col space-y-1">
+      <div className={complexStackClass}>
         {value?.coding?.map((coding, index) => (
-          <div key={`${coding.code}-${coding.system}`} className="relative">
+          <div
+            key={`${coding.code}-${coding.system}`}
+            className="relative rounded-md border border-slate-200 bg-white p-2 pr-8"
+          >
             <FHIRCodingEditable
               fhirVersion={fhirVersion}
               client={client}
@@ -36,8 +40,9 @@ export const FhirCodeableConceptEditable = ({
                 }
               }}
             />
-            <div
-              className="absolute top-1 right-1 text-slate-400 cursor-pointer hover:text-slate-500 "
+            <button
+              type="button"
+              className="absolute right-1.5 top-1.5 rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
               onClick={() => {
                 const newCoding: Coding[] = [...(value?.coding || [])];
                 newCoding.splice(index, 1);
@@ -45,10 +50,10 @@ export const FhirCodeableConceptEditable = ({
               }}
             >
               <XMarkIcon className="h-4 w-4" />
-            </div>
+            </button>
           </div>
         ))}
-        <div>
+        <div className="pt-0.5">
           <Add
             onChange={() => {
               const newCoding: Coding[] = [...(value?.coding || [])];

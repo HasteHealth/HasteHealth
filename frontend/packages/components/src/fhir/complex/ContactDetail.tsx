@@ -5,6 +5,7 @@ import { ContactDetail, uri } from "@haste-health/fhir-types/r4/types";
 import { InputContainer } from "../../base/containers";
 import { FHIRCodeEditable, FHIRStringEditable } from "../primitives";
 import { ClientProps, EditableProps } from "../types";
+import { complexFieldGridClass } from "./layout";
 
 export type FHIRContactDetailEditableProps = EditableProps<ContactDetail> &
   ClientProps;
@@ -19,7 +20,7 @@ export const FHIRContactDetailEditable = ({
 }: FHIRContactDetailEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexFieldGridClass}>
         <FHIRStringEditable
           label="Name"
           value={value?.name}

@@ -5,6 +5,7 @@ import { Quantity } from "@haste-health/fhir-types/r4/types";
 import { InputContainer } from "../../base/containers";
 import { FHIRDecimalEditable, FHIRStringEditable } from "../primitives";
 import { EditableProps } from "../types";
+import { complexPairGridClass } from "./layout";
 
 export type FHIRSimpleQuantityEditableProps = EditableProps<Quantity>;
 
@@ -16,7 +17,7 @@ export const FHIRSimpleQuantityEditable = ({
 }: FHIRSimpleQuantityEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexPairGridClass}>
         <FHIRDecimalEditable
           label="Value"
           value={value?.value}

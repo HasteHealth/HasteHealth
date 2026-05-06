@@ -81,7 +81,14 @@ export const InputContainer = ({
       {...labelProps}
       label={label}
       required={required}
-      className={classNames("mr-1", labelProps?.className)}
+      className={classNames(
+        {
+          "mb-0.5 block text-xs font-medium leading-4 text-slate-700":
+            !inlineLabel,
+          "mr-2 text-xs font-medium leading-4 text-slate-700": inlineLabel,
+        },
+        labelProps?.className,
+      )}
     />
 
     <div

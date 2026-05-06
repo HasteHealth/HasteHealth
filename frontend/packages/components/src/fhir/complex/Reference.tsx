@@ -199,7 +199,7 @@ export const FHIRReferenceEditable = ({
               label={label}
               issues={issue ? [issue] : []}
             >
-              <div className="flex space-x-1">
+              <div className="flex items-center gap-1.5">
                 <div onClick={() => openDisplay(true)}>
                   <a className="text-orange-400 hover:text-orange-500 cursor-pointer">
                     {value?.reference}

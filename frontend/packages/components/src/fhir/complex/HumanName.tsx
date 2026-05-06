@@ -5,6 +5,7 @@ import { HumanName } from "@haste-health/fhir-types/r4/types";
 import { InputContainer } from "../../base/containers";
 import { FHIRStringEditable } from "../primitives/string";
 import { EditableProps } from "../types";
+import { complexFieldGridClass } from "./layout";
 
 export type FHIRHumanNameEditableProps = EditableProps<HumanName>;
 
@@ -16,7 +17,7 @@ export const FHIRHumanNameEditable = ({
 }: FHIRHumanNameEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
-      <div className="flex flex-1 space-x-1">
+      <div className={complexFieldGridClass}>
         <FHIRStringEditable
           label="First"
           value={value?.given?.[0] || ""}
