@@ -36,8 +36,59 @@ type Statistics = {
   practitioner?: number;
 };
 
+type CategoryAccentColor =
+  | "blue"
+  | "emerald"
+  | "violet"
+  | "amber"
+  | "rose"
+  | "orange"
+  | "slate";
+
+const ACCENT_CLASSES: Record<
+  CategoryAccentColor,
+  { border: string; badge: string; heading: string }
+> = {
+  blue: {
+    border: "border-l-blue-500",
+    badge: "bg-blue-50 text-blue-700",
+    heading: "text-blue-700",
+  },
+  emerald: {
+    border: "border-l-emerald-500",
+    badge: "bg-emerald-50 text-emerald-700",
+    heading: "text-emerald-700",
+  },
+  violet: {
+    border: "border-l-violet-500",
+    badge: "bg-violet-50 text-violet-700",
+    heading: "text-violet-700",
+  },
+  amber: {
+    border: "border-l-amber-500",
+    badge: "bg-amber-50 text-amber-700",
+    heading: "text-amber-700",
+  },
+  rose: {
+    border: "border-l-rose-500",
+    badge: "bg-rose-50 text-rose-700",
+    heading: "text-rose-700",
+  },
+  orange: {
+    border: "border-l-orange-500",
+    badge: "bg-orange-50 text-orange-700",
+    heading: "text-orange-700",
+  },
+  slate: {
+    border: "border-l-slate-400",
+    badge: "bg-slate-100 text-slate-600",
+    heading: "text-slate-600",
+  },
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState<Statistics | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -187,83 +238,128 @@ const Dashboard = () => {
           carePlan: (bundle.entry?.[17]?.resource as Bundle)?.total,
           practitioner: (bundle.entry?.[18]?.resource as Bundle)?.total,
         });
+        setLoading(false);
       })
       .catch((e) => {
+        setLoading(false);
         if (isResponseError(e))
           Toaster.error(
-            e.response.body.issue?.[0]?.diagnostics ?? "Failed to fetch stats."
+            e.response.body.issue?.[0]?.diagnostics ?? "Failed to fetch stats.",
           );
         else {
-          Toaster.error("Failed to usage stats.");
+          Toaster.error("Failed to load usage stats.");
         }
       });
   }, [setStats]);
 
   const StatCard = ({
     title,
+    accent = "slate",
     stats,
   }: {
     title: string;
+    accent?: CategoryAccentColor;
     stats: Record<string, number | undefined>;
-  }) => (
-    <div className=" p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-slate-800">
-      <h3 className="text-lg font-semibold underline mb-2">{title}</h3>
-      <div className="space-y-1">
-        {Object.keys(stats).map((statKey) => (
-          <div
-            className="cursor-pointer font-medium hover:text-orange-400 space-x-1"
-            key={statKey}
-            onClick={() => {
-              navigate(
-                generatePath("/resources/:resourceType", {
-                  resourceType: statKey,
-                })
-              );
-            }}
+  }) => {
+    const colors = ACCENT_CLASSES[accent];
+    const total = Object.values(stats).reduce(
+      (sum, v) => (sum ?? 0) + (v ?? 0),
+      0,
+    );
+
+    return (
+      <div
+        className={`bg-white border border-slate-200 border-l-4 ${colors.border} rounded-lg shadow-sm flex flex-col`}
+      >
+        <div className="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
+          <h3
+            className={`text-sm font-semibold uppercase tracking-wide ${colors.heading}`}
           >
-            <span className="font-medium text-pretty">
-              {statKey}s:{" "}
-              <span className="text-slate-600">
-                {stats[statKey]?.toLocaleString() ?? ""}
+            {title}
+          </h3>
+          <span
+            className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.badge}`}
+          >
+            {total?.toLocaleString() ?? "—"} total
+          </span>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {Object.entries(stats).map(([resourceType, count]) => (
+            <button
+              key={resourceType}
+              className="w-full flex items-center justify-between px-5 py-2.5 text-left hover:bg-slate-50 transition-colors group"
+              onClick={() =>
+                navigate(
+                  generatePath("/resources/:resourceType", { resourceType }),
+                )
+              }
+            >
+              <span className="text-sm text-slate-700 group-hover:text-slate-900 font-medium">
+                {resourceType}
               </span>
-            </span>
-          </div>
-        ))}
+              <span className="text-sm font-semibold text-slate-900 tabular-nums">
+                {count !== undefined ? (
+                  count.toLocaleString()
+                ) : (
+                  <span className="text-slate-300">—</span>
+                )}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="w-full">
-      <div className="grid md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5  sm:grid-cols-2 gap-4 grid-flow-row-dense auto-cols-max">
+    <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+        <p className="text-sm text-slate-500">
+          Overview of FHIR resources stored in this project.
+        </p>
+      </div>
+
+      {loading && (
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <Loading />
+          <span>Loading statistics…</span>
+        </div>
+      )}
+
+      <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         <StatCard
-          title="Patient Resources"
+          title="Clinical"
+          accent="blue"
           stats={{
             Patient: stats?.patient,
             Encounter: stats?.encounter,
             Observation: stats?.observation,
+            Condition: stats?.condition,
             Medication: stats?.medication,
             MedicationRequest: stats?.medicationRequest,
-            Condition: stats?.condition,
           }}
         />
         <StatCard
-          title="Practitioner Resources"
+          title="Care Team"
+          accent="emerald"
           stats={{
+            Practitioner: stats?.practitioner,
             CareTeam: stats?.careTeam,
             CarePlan: stats?.carePlan,
-            Practitioner: stats?.practitioner,
           }}
         />
         <StatCard
-          title="Configuration Resources"
+          title="Insurance"
+          accent="amber"
           stats={{
-            OperationDefinition: stats?.operationDefinition,
-            Subscription: stats?.subscription,
+            Claim: stats?.claim,
+            ExplanationOfBenefit: stats?.explanationOfBenefit,
           }}
         />
         <StatCard
-          title="UI Resources"
+          title="Forms & Surveys"
+          accent="violet"
           stats={{
             Questionnaire: stats?.questionnaire,
             QuestionnaireResponse: stats?.questionnaireResponse,
@@ -271,6 +367,7 @@ const Dashboard = () => {
         />
         <StatCard
           title="Security"
+          accent="rose"
           stats={{
             Membership: stats?.membership,
             AccessPolicy: stats?.accessPolicy,
@@ -278,14 +375,16 @@ const Dashboard = () => {
           }}
         />
         <StatCard
-          title="Insurance"
+          title="Configuration"
+          accent="orange"
           stats={{
-            Claim: stats?.claim,
-            ExplanationOfBenefit: stats?.explanationOfBenefit,
+            OperationDefinition: stats?.operationDefinition,
+            Subscription: stats?.subscription,
           }}
         />
         <StatCard
-          title="Monitoring Resources"
+          title="Monitoring"
+          accent="slate"
           stats={{
             AuditEvent: stats?.auditEvent,
           }}
