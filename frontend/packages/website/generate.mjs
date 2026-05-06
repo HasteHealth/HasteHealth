@@ -13,7 +13,7 @@ const r4Artifacts = ["StructureDefinition", "SearchParameter"]
       silence: false,
       fhirVersion: R4,
       currentDirectory: fileURLToPath(import.meta.url),
-    })
+    }),
   )
   .flat();
 
@@ -61,7 +61,7 @@ async function processStructureDefinition(artifacts, structureDefinition) {
       (r) =>
         r.base.includes(structureDefinition.name) ||
         r.base.includes("Resource") ||
-        r.base.includes("DomainResource")
+        r.base.includes("DomainResource"),
     );
 
   let doc = `---
@@ -125,8 +125,8 @@ ${escapeLinks(structureDefinition.snapshot?.element[0]?.definition ?? "")}
         <div class="text-sm">
             <span class="font-semibold">${name}</span> <span> (${type})</span>
         </div>
-        <div class="text-orange-900 line-clamp-3 truncate"> <span>${escapeLinks(
-          description
+        <div class="text-brand-900 line-clamp-3 truncate"> <span>${escapeLinks(
+          description,
         )}</span></div>
         ${
           expression
@@ -162,12 +162,12 @@ async function generateFHIRDocumentation() {
     const pathName = `./docs/Reference/fhir/model/resources/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
-      structureDefinition
+      structureDefinition,
     );
     fs.writeFileSync(pathName, content);
     fs.writeFileSync(
       "./static/fhir/R4/" + structureDefinition.name + ".json",
-      JSON.stringify(structureDefinition, null, 2)
+      JSON.stringify(structureDefinition, null, 2),
     );
   }
 
@@ -175,12 +175,12 @@ async function generateFHIRDocumentation() {
     const pathName = `./docs/Reference/fhir/model/types/${structureDefinition.name}.mdx`;
     const content = await processStructureDefinition(
       r4Artifacts,
-      structureDefinition
+      structureDefinition,
     );
     fs.writeFileSync(pathName, content);
     fs.writeFileSync(
       "./static/fhir/R4/" + structureDefinition.name + ".json",
-      JSON.stringify(structureDefinition, null, 2)
+      JSON.stringify(structureDefinition, null, 2),
     );
   }
 }
@@ -192,7 +192,7 @@ switch (process.argv[2]) {
   }
   default: {
     throw new Error(
-      "Invalid argument. Please provide either 'npm' or 'fhir' as an argument."
+      "Invalid argument. Please provide either 'npm' or 'fhir' as an argument.",
     );
   }
 }
