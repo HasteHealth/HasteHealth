@@ -1,6 +1,5 @@
 import {
   ArrowLeftOnRectangleIcon,
-  CircleStackIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import classNames from "classnames";
