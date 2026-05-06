@@ -11,10 +11,10 @@ export interface FHIRMetaReadonlyProps extends ClientProps {
 function MetaField({
   label,
   value,
-}: {
+}: Readonly<{
   label: string;
   value: React.ReactNode;
-}) {
+}>) {
   return (
     <div className="min-w-0 space-y-0.5">
       <dt className="text-xs font-medium text-slate-500">{label}</dt>
