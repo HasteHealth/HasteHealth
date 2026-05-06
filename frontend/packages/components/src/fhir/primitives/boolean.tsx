@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Input } from "../../base/input";
+import { DisplayIssues } from "../../base/containers";
 import { EditableProps } from "../types";
 
 export type FHIRBooleanEditableProps = EditableProps<boolean>;
@@ -12,16 +12,23 @@ export const FHIRBooleanEditable = ({
   issue,
 }: FHIRBooleanEditableProps) => {
   return (
-    <Input
-      hideBorder
-      label={label}
-      className="h-4 w-4"
-      issues={issue ? [issue] : []}
-      type="checkbox"
-      checked={value}
-      onChange={(e) => {
-        onChange?.call(this, e.target.checked);
-      }}
-    />
+    <div className="flex flex-col">
+      <label className="inline-flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
+          checked={value ?? false}
+          onChange={(e) => {
+            onChange?.call(this, e.target.checked);
+          }}
+        />
+        {label && (
+          <span className="text-xs font-medium leading-4 text-slate-700">
+            {label}
+          </span>
+        )}
+      </label>
+      <DisplayIssues issues={issue ? [issue] : []} />
+    </div>
   );
 };
