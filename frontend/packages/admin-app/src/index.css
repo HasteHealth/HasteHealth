@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		--hh-color-brand-50: 255 247 237;
+		--hh-color-brand-100: 255 237 213;
+		--hh-color-brand-200: 254 215 170;
+		--hh-color-brand-300: 253 186 116;
+		--hh-color-brand-400: 251 146 60;
+		--hh-color-brand-500: 249 115 22;
+		--hh-color-brand-600: 234 88 12;
+		--hh-color-brand-700: 194 65 12;
+		--hh-color-brand-800: 154 52 18;
+		--hh-color-brand-900: 124 45 18;
+	}
+}

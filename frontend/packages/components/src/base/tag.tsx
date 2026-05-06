@@ -1,11 +1,10 @@
 import classNames from "classnames";
 import React, { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
-interface TagProps
-  extends DetailedHTMLProps<
-    InputHTMLAttributes<HTMLSpanElement>,
-    HTMLSpanElement
-  > {
+interface TagProps extends DetailedHTMLProps<
+  InputHTMLAttributes<HTMLSpanElement>,
+  HTMLSpanElement
+> {
   className?: string;
   children: React.ReactNode;
   color?:
@@ -32,7 +31,7 @@ export function Tag({
         className,
         "text-nowrap inline-block text-xs font-medium me-2 px-2.5 py-0.5",
         {
-          "hover:bg-orange-200 hover:text-orange-900 bg-orange-200 text-orange-800 rounded":
+          "hover:bg-brand-200 hover:text-brand-900 bg-brand-200 text-brand-800 rounded":
             color === "blue",
           "hover:bg-gray-200 hover:text-gray-900 bg-gray-100 text-gray-800 rounded":
             color === "gray",
@@ -48,7 +47,7 @@ export function Tag({
             color === "purple",
           "hover:bg-pink-200 hover:text-pink-900 bg-pink-100 text-pink-800 rounded":
             color === "pink",
-        }
+        },
       )}
     >
       {children}

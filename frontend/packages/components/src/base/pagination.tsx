@@ -42,7 +42,7 @@ const PaginationItem = ({
         className={classNames(
           "cursor-pointer flex items-center justify-center px-2 h-6 leading-tight",
           {
-            "text-orange-600 border border-slate-300 bg-orange-50 hover:bg-orange-200 hover:text-orange-700 ":
+            "text-brand-600 border border-slate-300 bg-brand-50 hover:bg-brand-100 hover:text-brand-700":
               active,
 
             "text-slate-500  border border-slate-300 hover:bg-slate-100 hover:text-slate-700 ":

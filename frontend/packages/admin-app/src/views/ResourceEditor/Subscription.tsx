@@ -66,7 +66,7 @@ function ChannelParameters({
                         .slice(0, index)
                         .concat(
                           e.target.value,
-                          (resource?.channel.header ?? []).slice(index + 1)
+                          (resource?.channel.header ?? []).slice(index + 1),
                         );
 
                       onChange({
@@ -85,7 +85,7 @@ function ChannelParameters({
                       const header = (resource?.channel.header ?? [])
                         .slice(0, index)
                         .concat(
-                          (resource?.channel.header ?? []).slice(index + 1)
+                          (resource?.channel.header ?? []).slice(index + 1),
                         );
 
                       onChange({
@@ -105,7 +105,7 @@ function ChannelParameters({
             </div>
             <div className="mt-1">
               <span
-                className="flex items-center cursor-pointer text-xs hover:text-orange-700 text-orange-600"
+                className="flex items-center cursor-pointer text-xs hover:text-brand-700 text-brand-600"
                 onClick={() => {
                   onChange({
                     ...resource,
@@ -133,7 +133,7 @@ function ChannelParameters({
             value={
               resource?.channel._type?.extension?.find(
                 (e) =>
-                  e.url === "https://haste.health/Subscription/operation-code"
+                  e.url === "https://haste.health/Subscription/operation-code",
               )?.valueCode
             }
             onChange={(e) =>
@@ -147,7 +147,7 @@ function ChannelParameters({
                       ...(resource?.channel._type?.extension ?? []).filter(
                         (e) =>
                           e.url !==
-                          "https://haste.health/Subscription/operation-code"
+                          "https://haste.health/Subscription/operation-code",
                       ),
                       {
                         url: "https://haste.health/Subscription/operation-code" as id,
@@ -180,7 +180,7 @@ function SimpleSubscriptionView({
     const channel =
       resource?.channel?.type ??
       resource?.channel?._type?.extension?.find(
-        (e) => e.url === "https://haste.health/Subscription/channel-type"
+        (e) => e.url === "https://haste.health/Subscription/channel-type",
       )?.valueCode;
     setChannel(channel);
   }, [resource]);

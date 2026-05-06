@@ -195,7 +195,7 @@ function SearchColumnModalBody({
             );
           })}
           <div
-            className="cursor-pointer mt-1 text-xs hover:text-orange-500 text-slate-400"
+            className="cursor-pointer mt-1 text-xs hover:text-brand-500 text-slate-400"
             onClick={() => {
               props.onChange({
                 ...value,
@@ -464,7 +464,7 @@ function SearchParameterSortControl({
       return (
         <ArrowUpIcon
           className={classNames(
-            "cursor-pointer w-4 h-4 hover:text-orange-400 text-orange-400",
+            "cursor-pointer w-4 h-4 hover:text-brand-400 text-brand-400",
           )}
           onClick={() => {
             const values = [
@@ -490,9 +490,9 @@ function SearchParameterSortControl({
       return (
         <ArrowDownIcon
           className={classNames(
-            "cursor-pointer w-4 h-4 hover:text-orange-400",
+            "cursor-pointer w-4 h-4 hover:text-brand-400",
             {
-              "text-orange-400": (sortParam?.value ?? []).includes(
+              "text-brand-400": (sortParam?.value ?? []).includes(
                 `-${searchParameter.code}`,
               ),
             },
@@ -625,7 +625,7 @@ export function FHIRGenerativeSearchTableDisplay<Version extends FHIR_VERSION>({
                           }}
                         >
                           <div className="mr-2">{searchParameter.code}</div>
-                          <FunnelIcon className="hover:text-orange-400 cursor-pointer w-4 h-4" />
+                          <FunnelIcon className="hover:text-brand-400 cursor-pointer w-4 h-4" />
                         </div>
                         <div className="flex justify-end">
                           <SearchParameterSortControl

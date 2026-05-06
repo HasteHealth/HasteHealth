@@ -39,7 +39,7 @@ function ProjectCreateModal({
     getResource({
       resourceType: "StructureDefinition",
       id: "Project" as id,
-    })
+    }),
   );
   const [project, setProject] = useState<Project>({
     resourceType: "Project",
@@ -101,7 +101,7 @@ function ProjectUpdateModal({
     getResource({
       resourceType: "StructureDefinition",
       id: "Project" as id,
-    })
+    }),
   );
   useEffect(() => {
     client.read({}, R4, "Project", id).then((res) => {
@@ -229,7 +229,7 @@ export default function Projects() {
 
                     const newUrl = window.location.origin.replace(
                       `${currentTenant}_${currentProject}`,
-                      `${currentTenant}_${project.id}`
+                      `${currentTenant}_${project.id}`,
                     );
 
                     window.open(newUrl, "_blank");
@@ -258,7 +258,7 @@ export default function Projects() {
                         onClick={(e) => {
                           if (
                             confirm(
-                              "Do you want to delete project " + project.name
+                              "Do you want to delete project " + project.name,
                             )
                           ) {
                             if (confirm("Are you sure?")) {
@@ -266,7 +266,7 @@ export default function Projects() {
                                 .delete_instance({}, R4, "Project", project.id!)
                                 .then(() => {
                                   setProjects(
-                                    projects.filter((p) => p.id !== project.id)
+                                    projects.filter((p) => p.id !== project.id),
                                   );
                                 });
                               Toaster.promise(deletePromise, {
@@ -295,11 +295,11 @@ export default function Projects() {
                           navigate(
                             generatePath("/resources/Project/:id", {
                               id: project.id as string,
-                            })
+                            }),
                           );
                           e.stopPropagation();
                         }}
-                        className="text-orange-600 hover:text-orange-700 cursor-pointer"
+                        className="text-brand-600 hover:text-brand-700 cursor-pointer"
                       >
                         Update
                       </span>

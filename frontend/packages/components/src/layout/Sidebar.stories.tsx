@@ -60,7 +60,7 @@ const LayoutExample = () => (
           <SideBarItem logo={<InboxArrowDownIcon />}>
             <div className="flex">
               <span className="flex-1 whitespace-nowrap">Inbox</span>
-              <span className="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium text-orange-800 bg-orange-200 rounded-full dark:bg-orange-900 dark:text-orange-300">
+              <span className="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium text-brand-800 bg-brand-200 rounded-full dark:bg-brand-900 dark:text-brand-300">
                 3
               </span>
             </div>

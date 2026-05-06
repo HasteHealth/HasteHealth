@@ -75,9 +75,9 @@ const ACCENT_CLASSES: Record<
     heading: "text-rose-700",
   },
   orange: {
-    border: "border-l-orange-500",
-    badge: "bg-orange-50 text-orange-700",
-    heading: "text-orange-700",
+    border: "border-l-brand-500",
+    badge: "bg-brand-50 text-brand-700",
+    heading: "text-brand-700",
   },
   slate: {
     border: "border-l-slate-400",

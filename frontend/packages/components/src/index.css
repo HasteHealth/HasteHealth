@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --hh-color-brand-50: 255 247 237;
+    --hh-color-brand-100: 255 237 213;
+    --hh-color-brand-200: 254 215 170;
+    --hh-color-brand-300: 253 186 116;
+    --hh-color-brand-400: 251 146 60;
+    --hh-color-brand-500: 249 115 22;
+    --hh-color-brand-600: 234 88 12;
+    --hh-color-brand-700: 194 65 12;
+    --hh-color-brand-800: 154 52 18;
+    --hh-color-brand-900: 124 45 18;
+  }
+
   .required:after {
     content: " *";
     @apply text-red-500;
@@ -20,7 +33,7 @@
     @apply px-4 py-2 rounded-md inline-block cursor-pointer shadow-sm ring-1 ring-slate-700/10 disabled:bg-gray-100 disabled:hover:bg-gray-100 disabled:cursor-not-allowed disabled:ring-0 disabled:text-gray-400;
   }
   .btn-primary {
-    @apply text-white bg-orange-500 hover:bg-orange-500;
+    @apply text-white bg-brand-600 hover:bg-brand-700;
   }
   .btn-secondary {
     @apply hover:text-slate-800 text-slate-700 hover:bg-gray-50;

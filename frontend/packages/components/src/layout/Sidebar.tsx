@@ -1,11 +1,10 @@
 import classNames from "classnames";
 import React from "react";
 
-export interface SideBarItemProps
-  extends React.DetailedHTMLProps<
-    React.LiHTMLAttributes<HTMLLIElement>,
-    HTMLLIElement
-  > {
+export interface SideBarItemProps extends React.DetailedHTMLProps<
+  React.LiHTMLAttributes<HTMLLIElement>,
+  HTMLLIElement
+> {
   active?: boolean;
   logo?: React.ReactNode;
   children: React.ReactNode;
@@ -24,8 +23,8 @@ export function SideBarItem({
           "cursor-pointer flex items-center p-1 px-2 group rounded-lg group",
           {
             "text-slate-800 hover:bg-slate-200": !active,
-            "text-orange-900 bg-orange-200 ": active,
-          }
+            "text-brand-900 bg-brand-200": active,
+          },
         )}
       >
         {logo && (
@@ -39,20 +38,17 @@ export function SideBarItem({
   );
 }
 
-export interface SideBarItemGroupProps
-  extends React.DetailedHTMLProps<
-    React.LiHTMLAttributes<HTMLLIElement>,
-    HTMLLIElement
-  > {
+export interface SideBarItemGroupProps extends React.DetailedHTMLProps<
+  React.LiHTMLAttributes<HTMLLIElement>,
+  HTMLLIElement
+> {
   label?: string;
 }
 
 export function SideBarItemGroup(props: SideBarItemGroupProps) {
   return (
     <li {...props}>
-      <div className="px-2 text-orange-900 text-xs underline">
-        {props.label}
-      </div>
+      <div className="px-2 text-brand-900 text-xs underline">{props.label}</div>
       <div className="mt-1 ml-1">
         <ul className="space-y-1">{props.children}</ul>
       </div>
@@ -74,7 +70,7 @@ export function SideBar({
       id="sidebar-multi-level-sidebar"
       className={classNames(
         "flex relative top-0 left-0 z-1 transition-transform ",
-        { "translate-x-0": isOpen, "-translate-x-full": !isOpen }
+        { "translate-x-0": isOpen, "-translate-x-full": !isOpen },
       )}
       style={{ width: "250px" }}
       aria-label="Sidebar"

@@ -41,7 +41,7 @@ function Copyable({
       <label className="text-sm text-slate-800">{label}</label>
       <div className="flex flex-1 flex-row items-center">
         <span
-          className="text-sm block w-full whitespace-nowrap border px-2 py-1 cursor-pointer hover:bg-orange-100 truncate"
+          className="text-sm block w-full whitespace-nowrap border px-2 py-1 cursor-pointer hover:bg-brand-100 truncate"
           onClick={(e) => {
             e.preventDefault();
             copytoClipboard(value);

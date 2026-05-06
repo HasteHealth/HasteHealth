@@ -34,7 +34,7 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
         R4,
         "IdentityProvider",
         id,
-        {}
+        {},
       )
       .then((output) => {
         setRegistrationInformation(output);
@@ -49,7 +49,7 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
           For more information on how to register an external IDP read the
           following{" "}
           <a
-            className="text-orange-600 hover:text-orange-700 cursor-pointer"
+            className="text-brand-600 hover:text-brand-700 cursor-pointer"
             href="https://haste.health/documentation/Getting%20Started/Local_Development"
           >
             documentation

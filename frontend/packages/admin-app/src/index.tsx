@@ -156,9 +156,9 @@ function SystemBar() {
             className={classNames(
               "flex items-center justify-center  h-10 rounded-full px-4 text-sm text-slate-800",
               {
-                ["bg-orange-500 hover:bg-orange-500 text-white"]:
+                ["bg-brand-600 hover:bg-brand-600 text-white"]:
                   params.resourceType === type,
-                [" bg-gray-100 hover:bg-orange-500 hover:text-white p-2"]:
+                [" bg-gray-100 hover:bg-brand-600 hover:text-white p-2"]:
                   params.resourceType !== type,
               },
             )}
@@ -313,8 +313,8 @@ function Navbar() {
   return (
     <div className="px-4 sticky top-0 bg-white border-b z-20 text-sm">
       <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
-        <Logo className="h-12 w-12 mr-4 cursor-pointer" />
-        <h1 className="text-md font-semibold text-orange-500">Haste Health</h1>
+        <Logo className="h-12 w-12 mr-4 cursor-pointer text-brand-500" />
+        <h1 className="text-md font-semibold text-brand-500">Haste Health</h1>
         <div className="flex grow"></div>
         <div className="flex justify-center items-center space-x-8">
           <div className="min-w-72 flex grow">
@@ -338,7 +338,7 @@ function Navbar() {
               <div className="mt-2">
                 <a
                   className={classNames(
-                    "cursor-pointer block px-4 py-2 text-sm  hover:text-orange-800 hover:bg-orange-200",
+                    "cursor-pointer block px-4 py-2 text-sm hover:text-brand-800 hover:bg-brand-200",
                   )}
                   onClick={() => {
                     navigate(generatePath("/settings", {}));
@@ -347,7 +347,7 @@ function Navbar() {
                   Settings
                 </a>
                 <a
-                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-orange-800 hover:bg-orange-200"
+                  className="cursor-pointer block px-4 py-2 text-sm text-slate-800 hover:text-brand-800 hover:bg-brand-200"
                   onClick={() => {
                     hasteHealth.logout(window.location.origin);
                   }}
@@ -411,9 +411,9 @@ function ProjectRoot() {
               <div>
                 <span
                   className={classNames(
-                    "font-bold group-hover:text-orange-900 group-hover:underline",
+                    "font-bold group-hover:text-brand-900 group-hover:underline",
                     {
-                      "text-orange-900 underline":
+                      "text-brand-900 underline":
                         matches[matches.length - 1].id === "dashboard",
                     },
                   )}

@@ -99,7 +99,7 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-2 pl-10 pr-4",
                     {
-                      "bg-orange-500 text-white": active,
+                      "bg-brand-600 text-white": active,
                       "text-gray-900": !active,
                     },
                   )
@@ -115,7 +115,7 @@ export const Select = ({
                   classNames(
                     "relative cursor-default select-none py-2 pl-10 pr-4",
                     {
-                      "bg-orange-500 text-white": active,
+                      "bg-brand-600 text-white": active,
                       "text-gray-900": !active,
                     },
                   )
@@ -138,7 +138,7 @@ export const Select = ({
                           "absolute inset-y-0 left-0 flex items-center pl-3",
                           {
                             "text-white": active,
-                            "text-orange-600": !active,
+                            "text-brand-600": !active,
                           },
                         )}
                       >

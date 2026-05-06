@@ -1,7 +1,7 @@
 import React from "react";
 
 export const Logo = ({
-  className = "fill-orange-500",
+  className = "text-brand-500",
 }: Readonly<{ className?: string }>) => (
   <svg
     version="1.1"
@@ -15,7 +15,7 @@ export const Logo = ({
     className={className}
   >
     <path
-      fill="#f97316"
+      fill="currentColor"
       opacity="1.000000"
       stroke="none"
       d="
@@ -98,7 +98,7 @@ M774.347412,509.934814
 z"
     />
     <path
-      fill="#f97316"
+      fill="currentColor"
       opacity="1.000000"
       stroke="none"
       d="
