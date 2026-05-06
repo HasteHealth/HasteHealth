@@ -86,11 +86,69 @@ const ACCENT_CLASSES: Record<
   },
 };
 
+const StatCard = ({
+  title,
+  accent = "slate",
+  stats,
+}: {
+  title: string;
+  accent?: CategoryAccentColor;
+  stats: Record<string, number | undefined>;
+}) => {
+  const colors = ACCENT_CLASSES[accent];
+  const total = Object.values(stats).reduce(
+    (sum, v) => (sum ?? 0) + (v ?? 0),
+    0,
+  );
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className={`bg-white border border-slate-200 border-l-4 ${colors.border} rounded-lg shadow-sm flex flex-col`}
+    >
+      <div className="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
+        <h3
+          className={`text-sm font-semibold uppercase tracking-wide ${colors.heading}`}
+        >
+          {title}
+        </h3>
+        <span
+          className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.badge}`}
+        >
+          {total?.toLocaleString() ?? "—"} total
+        </span>
+      </div>
+      <div className="divide-y divide-slate-100">
+        {Object.entries(stats).map(([resourceType, count]) => (
+          <button
+            key={resourceType}
+            className="w-full flex items-center justify-between px-5 py-2.5 text-left hover:bg-slate-50 transition-colors group"
+            onClick={() =>
+              navigate(
+                generatePath("/resources/:resourceType", { resourceType }),
+              )
+            }
+          >
+            <span className="text-sm text-slate-700 group-hover:text-slate-900 font-medium">
+              {resourceType}
+            </span>
+            <span className="text-sm font-semibold text-slate-900 tabular-nums">
+              {typeof count === "number" ? (
+                count.toLocaleString()
+              ) : (
+                <span className="text-slate-300">—</span>
+              )}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const navigate = useNavigate();
 
   const client = useAtomValue(getClient);
   useEffect(() => {
@@ -251,65 +309,6 @@ const Dashboard = () => {
         }
       });
   }, [setStats]);
-
-  const StatCard = ({
-    title,
-    accent = "slate",
-    stats,
-  }: {
-    title: string;
-    accent?: CategoryAccentColor;
-    stats: Record<string, number | undefined>;
-  }) => {
-    const colors = ACCENT_CLASSES[accent];
-    const total = Object.values(stats).reduce(
-      (sum, v) => (sum ?? 0) + (v ?? 0),
-      0,
-    );
-
-    return (
-      <div
-        className={`bg-white border border-slate-200 border-l-4 ${colors.border} rounded-lg shadow-sm flex flex-col`}
-      >
-        <div className="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
-          <h3
-            className={`text-sm font-semibold uppercase tracking-wide ${colors.heading}`}
-          >
-            {title}
-          </h3>
-          <span
-            className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.badge}`}
-          >
-            {total?.toLocaleString() ?? "—"} total
-          </span>
-        </div>
-        <div className="divide-y divide-slate-100">
-          {Object.entries(stats).map(([resourceType, count]) => (
-            <button
-              key={resourceType}
-              className="w-full flex items-center justify-between px-5 py-2.5 text-left hover:bg-slate-50 transition-colors group"
-              onClick={() =>
-                navigate(
-                  generatePath("/resources/:resourceType", { resourceType }),
-                )
-              }
-            >
-              <span className="text-sm text-slate-700 group-hover:text-slate-900 font-medium">
-                {resourceType}
-              </span>
-              <span className="text-sm font-semibold text-slate-900 tabular-nums">
-                {count !== undefined ? (
-                  count.toLocaleString()
-                ) : (
-                  <span className="text-slate-300">—</span>
-                )}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="flex flex-col gap-6 w-full">
