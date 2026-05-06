@@ -6,6 +6,7 @@ import { markdown as fmarkdown } from "@haste-health/fhir-types/r4/types";
 import { CodeMirror } from "../../base";
 import { InputContainer } from "../../base/containers";
 import { EditableProps } from "../types";
+import { primitiveStackClass } from "./layout";
 
 export type FHIRMarkdownEditableProps = EditableProps<fmarkdown>;
 
@@ -19,11 +20,13 @@ export const FHIRMarkdownEditable = ({
 }: FHIRMarkdownEditableProps) => {
   return (
     <InputContainer label={label} issues={issue ? [issue] : []}>
-      <CodeMirror
-        extensions={extensions}
-        value={value}
-        onChange={(v) => onChange?.call(this, v as fmarkdown | undefined)}
-      />
+      <div className={primitiveStackClass}>
+        <CodeMirror
+          extensions={extensions}
+          value={value}
+          onChange={(v) => onChange?.call(this, v as fmarkdown | undefined)}
+        />
+      </div>
     </InputContainer>
   );
 };

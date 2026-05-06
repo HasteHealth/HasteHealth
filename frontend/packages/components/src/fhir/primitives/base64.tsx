@@ -5,6 +5,7 @@ import { Button } from "../../base/button";
 import { InputContainer } from "../../base/containers";
 import { Input } from "../../base/input";
 import { EditableProps } from "../types";
+import { primitiveStackClass } from "./layout";
 
 const convertFileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -43,7 +44,7 @@ export const FHIRBase64BinaryEditable = ({
   }, [value, issue]);
   return (
     <InputContainer label={label} issues={issues}>
-      <div className="flex">
+      <div className={primitiveStackClass}>
         <Input
           type="file"
           hideBorder={true}
@@ -56,15 +57,16 @@ export const FHIRBase64BinaryEditable = ({
           }}
         />
         {value && (
-          <Button
-            className="ml-1"
-            buttonType="secondary"
-            buttonSize="medium"
-            onClick={() => {
-              fileDownload(value, "data");
-            }}
-            children="Download"
-          />
+          <div className="flex justify-end">
+            <Button
+              buttonType="secondary"
+              buttonSize="medium"
+              onClick={() => {
+                fileDownload(value, "data");
+              }}
+              children="Download"
+            />
+          </div>
         )}
       </div>
     </InputContainer>

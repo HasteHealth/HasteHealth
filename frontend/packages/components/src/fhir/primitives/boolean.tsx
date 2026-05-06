@@ -12,17 +12,16 @@ export const FHIRBooleanEditable = ({
   issue,
 }: FHIRBooleanEditableProps) => {
   return (
-    <div className="inline-block">
-      <Input
-        hideBorder
-        label={label}
-        issues={issue ? [issue] : []}
-        type="checkbox"
-        checked={value}
-        onChange={(e) => {
-          onChange?.call(this, e.target.checked);
-        }}
-      />
-    </div>
+    <Input
+      hideBorder
+      label={label}
+      className="h-4 w-4"
+      issues={issue ? [issue] : []}
+      type="checkbox"
+      checked={value}
+      onChange={(e) => {
+        onChange?.call(this, e.target.checked);
+      }}
+    />
   );
 };
