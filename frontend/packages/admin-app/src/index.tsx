@@ -308,10 +308,10 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <div className="px-2 sticky top-0 bg-white border-b z-20">
-      <div className="flex items-center " style={{ height: "64px" }}>
-        <Logo className="h-16 w-16 mr-4 cursor-pointer" />
-        <h1 className="font-semibold text-orange-500">Haste Health</h1>
+    <div className="px-2 sticky top-0 bg-white border-b z-20 text-sm">
+      <div className="flex items-center " style={{ height: "60px" }}>
+        <Logo className="h-12 w-12 mr-4 cursor-pointer" />
+        <h1 className="text-md font-semibold text-orange-500">Haste Health</h1>
         <div className="flex grow"></div>
         <div className="flex justify-center items-center space-x-8">
           <div className="min-w-72 flex grow">
