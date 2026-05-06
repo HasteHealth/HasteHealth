@@ -39,6 +39,17 @@ type TypeProps = MetaProps<any, any> & {
 };
 type TypeComponent = React.FC<TypeProps>;
 
+function withFieldShell(component: TypeComponent): TypeComponent {
+  return function WrappedTypeComponent(props: TypeProps) {
+    const Component = component;
+    return (
+      <div className="w-full">
+        <Component {...props} />
+      </div>
+    );
+  };
+}
+
 type SharedProps<T> = {
   label?: string;
   value?: T;
@@ -59,7 +70,7 @@ function deriveSharedProps<T>(props: TypeProps): SharedProps<T> {
   };
 }
 
-export const TypeComponents: Record<string, TypeComponent> = {
+const BaseTypeComponents: Record<string, TypeComponent> = {
   "http://hl7.org/fhirpath/System.String": (props) => (
     <Primitives.FHIRStringEditable
       disabled={true}
@@ -168,7 +179,7 @@ export const TypeComponents: Record<string, TypeComponent> = {
       client={props.client}
       resourceTypesAllowed={getElementDefinition(
         props.sd,
-        props.elementIndex
+        props.elementIndex,
       ).element.type?.[0]?.targetProfile?.map((tp) => {
         const parts = tp.split("/");
         return parts[parts.length - 1] as ResourceType;
@@ -208,6 +219,13 @@ export const TypeComponents: Record<string, TypeComponent> = {
     />
   ),
 };
+
+export const TypeComponents = Object.fromEntries(
+  Object.entries(BaseTypeComponents).map(([name, component]) => [
+    name,
+    withFieldShell(component),
+  ]),
+) as Record<string, TypeComponent>;
 
 export const isTypeRenderingSupported = (type: string) => {
   return Object.keys(TypeComponents).includes(type);

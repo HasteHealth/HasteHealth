@@ -36,7 +36,7 @@ import { getElementDefinition } from "./helpers";
 import { MetaProps } from "./types";
 
 function EditorComponent(
-  props: MetaProps<any, any> & { type: ElementDefinitionType }
+  props: MetaProps<any, any> & { type: ElementDefinitionType },
 ) {
   const found = getElementDefinition(props.sd, props.elementIndex);
   const label = props.showLabel
@@ -69,7 +69,7 @@ function TypeChoiceTypeSelect({
 }>) {
   if (!element.type || element.type?.length <= 1) return undefined;
   return (
-    <div className="flex flex-1">
+    <div className="ml-auto w-full max-w-52 shrink-0">
       <Select
         value={type?.code}
         onChange={(option) => {
@@ -138,7 +138,7 @@ function isIndexableObject(v: unknown): v is Record<string, unknown> {
 
 function findTypeChoiceTypeBasedOnField(
   element: ElementDefinition,
-  value: Record<string, unknown> | undefined
+  value: Record<string, unknown> | undefined,
 ): ElementDefinitionType {
   if (!element.type?.[0]) throw new Error(`No Type found for ${element.path}.`);
 
@@ -153,7 +153,7 @@ function findTypeChoiceTypeBasedOnField(
 
 function getTypedFieldName(
   element: ElementDefinition,
-  type: ElementDefinitionType
+  type: ElementDefinitionType,
 ) {
   const fieldName = getFieldName(element.path);
   if (!isTypeChoice(element)) return fieldName;
@@ -163,7 +163,7 @@ function getTypedFieldName(
 function getValueAndPointer(
   element: ElementDefinition,
   pointer: Loc<any, any, any>,
-  value: unknown
+  value: unknown,
 ): {
   value: unknown;
   pointer: Loc<any, any, any>;
@@ -174,7 +174,7 @@ function getValueAndPointer(
 
   const type = findTypeChoiceTypeBasedOnField(
     element,
-    value as Record<string, unknown>
+    value as Record<string, unknown>,
   );
 
   const field = getTypedFieldName(element, type);
@@ -219,13 +219,18 @@ function LabelWrapper({
   const found = getElementDefinition(sd, elementIndex);
   if (!showLabel) return children;
   return (
-    <div>
-      <div className="flex items-center space-x-2">
-        <div className={classNames({ required: (found.element.min || 0) > 0 })}>
+    <div className="space-y-1">
+      <div className="flex items-start gap-2">
+        <div
+          className={classNames(
+            "min-h-8 pt-1.5 text-sm font-medium leading-5 text-slate-800",
+            { required: (found.element.min || 0) > 0 },
+          )}
+        >
           {capitalize(
             getFieldName(found.element.path)
               .replace(/([A-Z])/g, " $1")
-              .trim()
+              .trim(),
           )}
         </div>
         {(found.element.type || []).length > 1 && (
@@ -241,11 +246,11 @@ function LabelWrapper({
                 });
                 const fieldName = getTypedFieldName(
                   found.element,
-                  selectedType
+                  selectedType,
                 );
                 const newPointer = descend(
                   ascend(pointer)?.parent as Loc<any, any, any>,
-                  fieldName
+                  fieldName,
                 );
                 onChange({
                   op: "replace",
@@ -258,7 +263,9 @@ function LabelWrapper({
         )}
       </div>
 
-      <div className="text-gray-400 text-xs mb-1">{found.element.short}</div>
+      <div className="text-xs leading-4 text-slate-500">
+        {found.element.short}
+      </div>
 
       {children}
     </div>
@@ -302,7 +309,7 @@ const MetaValueSingular = React.memo((props: MetaProps<any, any>) => {
     if (!type) throw new Error("Type must be defined");
     if (!isTypeRenderingSupported(type.code)) return undefined;
     return (
-      <div>
+      <div className="space-y-1.5">
         <LabelWrapper {...props}>
           <EditorComponent {...props} type={type} />
         </LabelWrapper>
@@ -311,15 +318,15 @@ const MetaValueSingular = React.memo((props: MetaProps<any, any>) => {
   }
 
   return (
-    <div>
+    <div className="space-y-1.5">
       <LabelWrapper {...props}>
-        <div className="p-2 border rounded-md space-y-2">
+        <div className="space-y-2 rounded-md border border-slate-200 bg-slate-50/40 p-2.5">
           {children.map((childIndex) => {
             const childElement = getElementDefinition(sd, childIndex);
             // Skipping extensions and nested resources for now
             if (
               childElement.element.type?.find(
-                (t) => t.code === "Extension" || resourceTypes.has(t.code)
+                (t) => t.code === "Extension" || resourceTypes.has(t.code),
               )
             ) {
               return;
@@ -396,17 +403,13 @@ const MetaValueArray = React.memo((props: MetaProps<any, any>) => {
     );
   }
   return (
-    <div>
+    <div className="space-y-1.5">
       <LabelWrapper {...props}>
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {value.map((v, i) => (
             <div
               className={classNames(
-                "relative"
-                // {
-                //   "bg-gray-50": i % 2 === 1,
-                //   "bg-white": i % 2 === 0,
-                // }
+                "relative rounded-md border border-slate-200 bg-white p-2.5 pr-8",
               )}
               key={`${descend(pointer, i)}`}
             >
@@ -423,8 +426,9 @@ const MetaValueArray = React.memo((props: MetaProps<any, any>) => {
                 onChange={onChange}
               />
               {value.length > 0 && (
-                <div
-                  className="absolute top-1 right-1 text-slate-400 cursor-pointer hover:text-slate-500 "
+                <button
+                  type="button"
+                  className="absolute right-1.5 top-1.5 rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                   onClick={() => {
                     onChange({
                       path: descend(pointer, i),
@@ -434,12 +438,12 @@ const MetaValueArray = React.memo((props: MetaProps<any, any>) => {
                   }}
                 >
                   <XMarkIcon className="h-4 w-4" />
-                </div>
+                </button>
               )}
             </div>
           ))}
         </div>
-        <div className="mt-1">
+        <div className="pt-0.5">
           <Add
             onChange={() => {
               onChange({
@@ -488,21 +492,23 @@ export const FHIRGenerativeForm = ({
   }, [setValue]);
 
   return (
-    <MetaValueSingular
-      fhirVersion={fhirVersion}
-      client={client}
-      sd={structureDefinition}
-      elementIndex={0}
-      value={value}
-      type={structureDefinition.snapshot?.element?.[0]?.type?.[0]}
-      pointer={pointer(
-        fhirVersion,
-        structureDefinition.type as ResourceType,
-        value?.id || ("new" as id)
-      )}
-      onChange={onChange}
-      showLabel={false}
-      showInvalid={true}
-    />
+    <div className="space-y-2">
+      <MetaValueSingular
+        fhirVersion={fhirVersion}
+        client={client}
+        sd={structureDefinition}
+        elementIndex={0}
+        value={value}
+        type={structureDefinition.snapshot?.element?.[0]?.type?.[0]}
+        pointer={pointer(
+          fhirVersion,
+          structureDefinition.type as ResourceType,
+          value?.id || ("new" as id),
+        )}
+        onChange={onChange}
+        showLabel={false}
+        showInvalid={true}
+      />
+    </div>
   );
 };
