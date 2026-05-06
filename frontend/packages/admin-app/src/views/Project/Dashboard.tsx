@@ -369,7 +369,7 @@ const Dashboard = () => {
           accent="rose"
           stats={{
             Membership: stats?.membership,
-            AccessPolicy: stats?.accessPolicy,
+            AccessPolicyV2: stats?.accessPolicy,
             ClientApplication: stats?.clientApplication,
           }}
         />
