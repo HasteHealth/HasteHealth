@@ -4,7 +4,7 @@ import {
 } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { useAtom } from "jotai";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import {
   Link,
