@@ -1,5 +1,6 @@
 import {
   ArrowLeftOnRectangleIcon,
+  CircleStackIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import classNames from "classnames";
@@ -427,32 +428,6 @@ function ProjectRoot() {
             </div>
           }
         >
-          <SideBar.SideBarItemGroup label="Configuration">
-            <SideBar.SideBarItem
-              active={matches[0].params.resourceType === "OperationDefinition"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "OperationDefinition",
-                  }),
-                );
-              }}
-            >
-              Custom Operations
-            </SideBar.SideBarItem>
-            <SideBar.SideBarItem
-              active={matches[0].params.resourceType === "Subscription"}
-              onClick={() => {
-                navigate(
-                  generatePath("/resources/:resourceType", {
-                    resourceType: "Subscription",
-                  }),
-                );
-              }}
-            >
-              Subscriptions
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Clinical">
             <SideBar.SideBarItem
               active={matches[0].params.resourceType === "Patient"}
@@ -572,6 +547,45 @@ function ProjectRoot() {
               Client Applications
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Configuration">
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "OperationDefinition"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "OperationDefinition",
+                  }),
+                );
+              }}
+            >
+              Custom Operations
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={matches[0].params.resourceType === "Subscription"}
+              onClick={() => {
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: "Subscription",
+                  }),
+                );
+              }}
+            >
+              Subscriptions
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
+          <SideBar.SideBarItemGroup label="Import">
+            <SideBar.SideBarItem
+              active={
+                matches.find((match) => match.id === "bundle-import") !==
+                undefined
+              }
+              onClick={() => {
+                navigate(generatePath("/bundle-import", {}));
+              }}
+            >
+              Bundles
+            </SideBar.SideBarItem>
+          </SideBar.SideBarItemGroup>
           <SideBar.SideBarItemGroup label="Data">
             <SideBar.SideBarItem
               active={
@@ -599,19 +613,6 @@ function ProjectRoot() {
               }}
             >
               All Resources
-            </SideBar.SideBarItem>
-          </SideBar.SideBarItemGroup>
-          <SideBar.SideBarItemGroup label="Import">
-            <SideBar.SideBarItem
-              active={
-                matches.find((match) => match.id === "bundle-import") !==
-                undefined
-              }
-              onClick={() => {
-                navigate(generatePath("/bundle-import", {}));
-              }}
-            >
-              Bundles
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup>
           {/* Used because want to maintain a margin of at least 8 when shrinking. */}
