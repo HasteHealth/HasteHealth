@@ -69,14 +69,14 @@ export default function Home(): ReactNode {
 
   return (
     <Layout
-      wrapperClassName="bg-orange-50"
+      wrapperClassName="bg-brand-50"
       title={`Haste Health`}
       description="Modern healthcare clinical data repository. Built for performance and scale."
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
       <div
         id="tw-scope"
-        className="container mx-auto px-4 border-x border-y-0  border-orange-200"
+        className="container mx-auto px-4 border-x border-y-0  border-brand-200"
       >
         <main ref={containerRef} className=" z-1 text-orange-950">
           {/* <BorderVertical height={containerHeight} /> */}
