@@ -139,6 +139,9 @@ const SYSTEM_TYPES: r4Types.ResourceType[] = [
   "IdentityProvider",
 ];
 
+const APP_HEADER_HEIGHT_CLASS = "h-16";
+const APP_HEADER_OFFSET = "4rem";
+
 function SystemBar() {
   const params = useParams();
 
@@ -308,8 +311,8 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <div className="px-2 sticky top-0 bg-white border-b z-20 text-sm">
-      <div className="flex items-center " style={{ height: "60px" }}>
+    <div className="px-4 sticky top-0 bg-white border-b z-20 text-sm">
+      <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
         <Logo className="h-12 w-12 mr-4 cursor-pointer" />
         <h1 className="text-md font-semibold text-orange-500">Haste Health</h1>
         <div className="flex grow"></div>
@@ -366,10 +369,10 @@ type PageProps = {
 
 function Page(props: PageProps) {
   return (
-    <div className="px-4">
+    <div className="px-6">
       <div
-        className="py-4 flex flex-1"
-        style={{ height: "calc(100vh - 65px)" }}
+        className="py-6 flex flex-1"
+        style={{ height: `calc(100vh - ${APP_HEADER_OFFSET})` }}
       >
         <Toaster.Toaster />
         <Outlet />

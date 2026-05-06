@@ -33,8 +33,11 @@ export default function BatchImportView() {
   const [issues, setIssues] = useState<string[]>([]);
 
   return (
-    <div className="w-full flex flex-col items-center text-slate-700">
-      <div className="mt-[10%]">
+    <div className="w-full flex flex-col text-slate-700">
+      <div className="w-full max-w-2xl">
+        <h2 className="text-2xl font-semibold text-slate-800 mb-4">
+          Bundle Import
+        </h2>
         <Input
           label="Select Bundle to import (must be either a batch or transaction bundle)"
           issues={issues}

@@ -13,7 +13,9 @@ const DisplayResources = () => {
 
   return (
     <div className="flex flex-col flex-1 overflow-auto">
-      <h2 className="text-2xl font-semibold mb-2">Supported Resources</h2>
+      <h2 className="text-2xl font-semibold text-slate-800 mb-4">
+        Supported Resources
+      </h2>
       <Table
         data={capabilities?.rest?.[0].resource || []}
         onRowClick={(row) => {

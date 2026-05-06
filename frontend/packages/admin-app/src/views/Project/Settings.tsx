@@ -362,7 +362,7 @@ function SettingDisplay({ user }: Readonly<SettingProps>) {
 
   return (
     <div className="flex flex-col flex-1 space-y-4 w-full">
-      <h2 className="text-2xl font-semibold mb-0">Settings</h2>
+      <h2 className="text-2xl font-semibold text-slate-800">Settings</h2>
 
       <div className="grid md:grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-4 grid-flow-row-dense auto-cols-max">
         <Card>

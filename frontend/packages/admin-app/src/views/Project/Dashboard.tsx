@@ -313,7 +313,7 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-slate-800">Dashboard</h1>
         <p className="text-sm text-slate-500">
           Overview of FHIR resources stored in this project.
         </p>
