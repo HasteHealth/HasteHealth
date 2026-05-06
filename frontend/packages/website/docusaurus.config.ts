@@ -152,7 +152,7 @@ const config: Config = {
           label: "Start for free",
           position: "right",
           className:
-            "text-white bg-orange-600 hover:bg-orange-500 rounded-4xl px-4 py-2",
+            "text-white bg-brand-600 hover:bg-brand-500 rounded-4xl px-4 py-2",
         },
       ],
     },

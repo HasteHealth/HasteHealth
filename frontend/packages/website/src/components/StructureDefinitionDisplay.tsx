@@ -43,7 +43,7 @@ function DisplayType({ element }: Readonly<{ element: ElementDefinition }>) {
       <Link
         to={linkTo}
         className={`no-underline ${getColorCode(
-          (element.type ?? [])[0]?.code ?? ""
+          (element.type ?? [])[0]?.code ?? "",
         )} hover:underline`}
       >
         <span className={`text-md font-semibold`}>
@@ -62,7 +62,7 @@ function getColorCode(typeCode: string): string {
     case "uri":
     case "url":
     case "canonical":
-      return "text-orange-600";
+      return "text-brand-600";
 
     case "boolean":
     case "integer":
@@ -109,7 +109,7 @@ function SchemaItem({
         {requiredIndicator(element)}
       </summary>
       <div className="">
-        <span className="text-xs text-orange-900">{element.short}</span>
+        <span className="text-xs text-brand-900">{element.short}</span>
       </div>
     </>
   );
@@ -148,7 +148,7 @@ function SchemaItem({
 }
 
 export default function StructureDefinitionDisplay(
-  props: Readonly<{ sd: string }>
+  props: Readonly<{ sd: string }>,
 ) {
   const [sd, setSd] = React.useState<StructureDefinition>(null);
 
@@ -167,7 +167,7 @@ export default function StructureDefinitionDisplay(
     (
       element: ElementDefinition,
       nestedElements: React.JSX.Element[],
-      { curIndex }
+      { curIndex },
     ) => {
       if (curIndex == 0) {
         return <div>{nestedElements}</div>;
@@ -178,6 +178,6 @@ export default function StructureDefinitionDisplay(
           </SchemaItem>
         );
       }
-    }
+    },
   );
 }

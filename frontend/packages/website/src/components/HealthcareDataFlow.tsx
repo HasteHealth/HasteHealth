@@ -84,7 +84,7 @@ export default function HealthcareDataFlow() {
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       >
         <Link to="/docs/overview/what_is_haste_health">
-          <div className="pulse cursor-pointer bg-orange-50 hover:bg-orange-100 rounded-2xl shadow-xl w-40 h-40 flex items-center justify-center border border-orange-200">
+          <div className="pulse cursor-pointer bg-brand-50 hover:bg-brand-100 rounded-2xl shadow-xl w-40 h-40 flex items-center justify-center border border-brand-200">
             <img src="/img/logo.svg" alt="Haste Health" className="h-30" />
           </div>
         </Link>
@@ -194,12 +194,12 @@ function Endpoint({
   return (
     <div
       id={id}
-      className="cursor-pointer hover:bg-orange-100 bg-orange-50 rounded-xl shadow-md p-4 w-64 flex items-center gap-4 border border-orange-200"
+      className="cursor-pointer hover:bg-brand-100 bg-brand-50 rounded-xl shadow-md p-4 w-64 flex items-center gap-4 border border-brand-200"
     >
       <div className="text-4xl">{icon}</div>
       <div>
-        <div className="font-semibold text-orange-900">{title}</div>
-        <div className="text-sm text-orange-900">{subtitle}</div>
+        <div className="font-semibold text-brand-900">{title}</div>
+        <div className="text-sm text-brand-900">{subtitle}</div>
       </div>
     </div>
   );

@@ -36,7 +36,7 @@ function BorderBlock() {
   return (
     <div
       style={{ width: "calc(100vw - 1.1rem)" }}
-      className="border-b  border-orange-200 w-screen absolute left-0 -mt-6"
+      className="border-b  border-brand-200 w-screen absolute left-0 -mt-6"
     />
   );
 }
@@ -46,7 +46,7 @@ function BorderVertical({ height }: Readonly<{ height?: number }>) {
   return (
     <div
       style={{ height: height }}
-      className="border-0 md:border-l  border-orange-200  absolute left-1/2 -mt-6"
+      className="border-0 md:border-l  border-brand-200  absolute left-1/2 -mt-6"
     />
   );
 }
@@ -78,33 +78,33 @@ export default function Home(): ReactNode {
         id="tw-scope"
         className="container mx-auto px-4 border-x border-y-0  border-brand-200"
       >
-        <main ref={containerRef} className=" z-1 text-orange-950">
+        <main ref={containerRef} className=" z-1 text-brand-950">
           {/* <BorderVertical height={containerHeight} /> */}
           <div className="space-y-16">
             <header className="space-y-6 pt-16 p-8">
               <Heading
                 as="h1"
-                className="text-6xl md:text-7xl font-bold text-orange-950 "
+                className="text-6xl md:text-7xl font-bold text-brand-950 "
               >
                 {siteConfig.title}
               </Heading>
               <div className="">
-                <span className="text-2xl text-orange-950 font-semibold">
+                <span className="text-2xl text-brand-950 font-semibold">
                   Is an open source clinical data repository. Built for{" "}
-                  <span className="text-orange-600 ">performance</span> and{" "}
-                  <span className="text-orange-600 ">scale</span>.
+                  <span className="text-brand-600 ">performance</span> and{" "}
+                  <span className="text-brand-600 ">scale</span>.
                 </span>
               </div>
               <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
                 <Link
-                  className="block text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-orange-600 hover:bg-orange-500"
+                  className="block text-xl font-semibold text-white border-brand-950  rounded-md px-8 py-2 bg-brand-600 hover:bg-brand-500"
                   to="/docs/getting_started/quick_start"
                 >
                   Getting Started - 5min ⏱️
                 </Link>
 
                 <Link
-                  className="block text-xl font-semibold text-white border-orange-950  rounded-md px-8 py-2 bg-gray-600 hover:bg-gray-500"
+                  className="block text-xl font-semibold text-white border-brand-950  rounded-md px-8 py-2 bg-gray-600 hover:bg-gray-500"
                   to="/docs/overview/what_is_haste_health"
                 >
                   Documentation 📚
@@ -132,7 +132,7 @@ export default function Home(): ReactNode {
                   <DescriptionColumn
                     title={
                       <Link to="/docs/category/fhir">
-                        <span className="hover:underline hover:text-orange-500">
+                        <span className="hover:underline hover:text-brand-500">
                           FHIR
                         </span>
                       </Link>
@@ -153,7 +153,7 @@ export default function Home(): ReactNode {
                   <h3 className="text-5xl font-bold">How it works</h3>
                 </div>
                 <div className="grid md:grid-cols-3 grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-                  <div className="border rounded-md border-orange-200 p-6 space-y-2">
+                  <div className="border rounded-md border-brand-200 p-6 space-y-2">
                     <div>
                       <h4 className="text-3xl font-semibold">1. Ingest</h4>
                     </div>
@@ -162,7 +162,7 @@ export default function Home(): ReactNode {
                       messages, and bulk data exports.
                     </div>
                   </div>
-                  <div className="border rounded-md border-orange-200 p-6 space-y-2">
+                  <div className="border rounded-md border-brand-200 p-6 space-y-2">
                     <div>
                       <h4 className="text-3xl font-semibold">2. Store</h4>
                     </div>
@@ -171,7 +171,7 @@ export default function Home(): ReactNode {
                       for performance and scale.
                     </div>
                   </div>
-                  <div className="border rounded-md border-orange-200 p-6 space-y-2">
+                  <div className="border rounded-md border-brand-200 p-6 space-y-2">
                     <div>
                       <h4 className="text-3xl font-semibold">3. Access</h4>
                     </div>
@@ -189,7 +189,7 @@ export default function Home(): ReactNode {
               <div className="order-1 md:order-2 space-y-8">
                 <div>
                   <h3 className="text-5xl font-bold">
-                    <span class="text-orange-600 underline">
+                    <span class="text-brand-600 underline">
                       Interoperability
                     </span>{" "}
                     with the healthcare systems you already use
@@ -207,7 +207,7 @@ export default function Home(): ReactNode {
                       lab systems using{" "}
                       <Link
                         to="/docs/integration/healthcare_systems/lab_diagnostics"
-                        className="underline text-orange-900 hover:text-orange-800"
+                        className="underline text-brand-900 hover:text-brand-800"
                       >
                         standardized FHIR and HL7v2 interfaces
                       </Link>
@@ -226,7 +226,7 @@ export default function Home(): ReactNode {
                       organizations using{" "}
                       <Link
                         to="/docs/integration/healthcare_systems/health_information_exchange"
-                        className="underline text-orange-900 hover:text-orange-800"
+                        className="underline text-brand-900 hover:text-brand-800"
                       >
                         FHIR-based exchange protocols
                       </Link>
@@ -242,7 +242,7 @@ export default function Home(): ReactNode {
                       Meditech using{" "}
                       <Link
                         to="/docs/integration/healthcare_systems/ehr"
-                        className="underline text-orange-900 hover:text-orange-800"
+                        className="underline text-brand-900 hover:text-brand-800"
                       >
                         FHIR APIs and HL7v2 messaging
                       </Link>
@@ -260,7 +260,7 @@ export default function Home(): ReactNode {
                       with payer systems using{" "}
                       <Link
                         to="/docs/integration/healthcare_systems/payers_insurance"
-                        className="underline text-orange-900 hover:text-orange-800"
+                        className="underline text-brand-900 hover:text-brand-800"
                       >
                         FHIR
                       </Link>
@@ -294,7 +294,7 @@ export default function Home(): ReactNode {
                     <span>
                       Total throughput running on 10 threads using the{" "}
                       <a
-                        className="underline text-orange-900 hover:text-orange-800"
+                        className="underline text-brand-900 hover:text-brand-800"
                         href="https://synthea.mitre.org/downloads"
                       >
                         synthia data set
@@ -324,7 +324,7 @@ export default function Home(): ReactNode {
               <div className=" rounded-lg space-y-8">
                 <div>
                   <h3 className="text-5xl font-bold">
-                    <span className="text-orange-600 underline">Secure</span> by
+                    <span className="text-brand-600 underline">Secure</span> by
                     design
                   </h3>
                 </div>
@@ -350,7 +350,7 @@ export default function Home(): ReactNode {
                 <DescriptionColumn
                   title={
                     <Link
-                      className="hover:text-orange-500"
+                      className="hover:text-brand-500"
                       to="/docs/category/oauth-grant-types"
                     >
                       OIDC & SMART on FHIR
@@ -361,7 +361,7 @@ export default function Home(): ReactNode {
                 <DescriptionColumn
                   title={
                     <Link
-                      className="hover:text-orange-500"
+                      className="hover:text-brand-500"
                       to="/docs/api/authorization/access_control"
                     >
                       Access Policies
@@ -378,7 +378,7 @@ export default function Home(): ReactNode {
                 <div>
                   <h3 className="text-5xl font-bold">
                     Integration with{" "}
-                    <span class="text-orange-600 underline">AI</span>{" "}
+                    <span class="text-brand-600 underline">AI</span>{" "}
                     applications
                   </h3>
                 </div>

@@ -1,8 +1,8 @@
 @import "tailwindcss/theme.css" layer(theme);
 
 @theme {
+  
   --color-brand: rgb(249 115 22);
-
   --color-brand-50: rgb(255 247 237);
   --color-brand-100: rgb(255 237 213);
   --color-brand-200: rgb(254 215 170);
@@ -13,6 +13,22 @@
   --color-brand-700: rgb(194 65 12);
   --color-brand-800: rgb(154 52 18);
   --color-brand-900: rgb(124 45 18);
+  --color-brand-950: rgb(67 20 7);
+
+
+  /* Write teal */
+
+  /* --color-brand-50: rgb(240 253 252);
+  --color-brand-100: rgb(204 251 250);
+  --color-brand-200: rgb(153 246 243);
+  --color-brand-300: rgb(94 242 235);
+  --color-brand-400: rgb(45 237 227);
+  --color-brand-500: rgb(20 231 220);
+  --color-brand-600: rgb(17 207 197);
+  --color-brand-700: rgb(13 173 165);  
+  --color-brand-800: rgb(10 139 132);
+  --color-brand-900: rgb(7 105 100);
+  --color-brand-950: rgb(3 52 50); */
 }
 
 
@@ -29,10 +45,10 @@
 
 
 [data-theme='light'] .DocSearch {
-  --docsearch-primary-color: var(--color-orange-500); 
-  --docsearch-text-color: var(--color-orange-950);
-  --docsearch-secondary-text-color: var(--color-orange-950);
-  --docsearch-highlight-color: var(--color-orange-700);
+  --docsearch-primary-color: var(--color-brand-500); 
+  --docsearch-text-color: var(--color-brand-950);
+  --docsearch-secondary-text-color: var(--color-brand-950);
+  --docsearch-highlight-color: var(--color-brand-700);
 
   --docsearch-muted-color: var(--ifm-color-secondary-darkest);
   --docsearch-container-background: rgba(94, 100, 112, 0.7);
@@ -47,12 +63,12 @@
   --docsearch-hit-background: var(--ifm-color-white);
   /* Footer */
   --docsearch-footer-background: var(--ifm-color-white);
-  --docsearch-logo-color: var(--color-orange-950);
+  --docsearch-logo-color: var(--color-brand-950);
 }
 
 /* See https: //github.com/algolia/docsearch/pull/1949 */
 .cls-1, .cls-2 {
-  fill: var(--color-orange-950) !important;
+  fill: var(--color-brand-950) !important;
 }
 
 /**
@@ -63,20 +79,20 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary:oklch(70.5% 0.213 47.604);
-  --ifm-color-primary-dark:  oklch(64.6% 0.222 41.116); 
-  --ifm-color-primary-darker: oklch(55.3% 0.195 38.402) 
-  --ifm-color-primary-darkest: oklch(47% 0.157 37.304)
-  --ifm-color-primary-light: oklch(75% 0.183 55.934);
-  --ifm-color-primary-lighter: oklch(83.7% 0.128 66.29);
-  --ifm-color-primary-lightest: oklch(90.1% 0.076 70.697);
+  --ifm-color-primary: var(--color-brand-500);
+  --ifm-color-primary-dark: var(--color-brand-600);
+  --ifm-color-primary-darker: var(--color-brand-700);
+  --ifm-color-primary-darkest: var(--color-brand-800);
+  --ifm-color-primary-light: var(--color-brand-400);
+  --ifm-color-primary-lighter: var(--color-brand-300);
+  --ifm-color-primary-lightest: var(--color-brand-200);
   --ifm-code-font-size: 95%;
   --ifm-font-size-base: 85%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  background-color: var(--color-orange-50);
+  background-color: var(--color-brand-50);
   font-family: var(--ifm-heading-font-family);
-  color: var(--color-orange-950);
-  --ifm-heading-color: var(--color-orange-950);
+  color: var(--color-brand-950);
+  --ifm-heading-color: var(--color-brand-950);
 }
 
 .header-github-link::before {
