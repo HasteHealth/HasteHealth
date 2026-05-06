@@ -22,7 +22,7 @@ const DisplayResources = () => {
           navigate(
             generatePath("/resources/:resourceType", {
               resourceType: (row as CapabilityStatementRestResource).type,
-            })
+            }),
           );
         }}
         columns={[

@@ -55,7 +55,7 @@ function ResourceEditorTabs() {
                     ...resource,
                     resourceType,
                     id,
-                  } as Resource
+                  } as Resource,
                 )
           ).then((response) => {
             setResource(response);
@@ -77,8 +77,8 @@ function ResourceEditorTabs() {
               }),
               {
                 replace: true,
-              }
-            )
+              },
+            ),
           );
         } catch (e) {
           Toaster.error(`${e}`);
@@ -94,7 +94,7 @@ function ResourceEditorTabs() {
           {},
           R4,
           resourceType as ResourceType,
-          id as id
+          id as id,
         );
         Toaster.promise(deletePromise, {
           loading: "Deleting Resource",
@@ -106,8 +106,8 @@ function ResourceEditorTabs() {
           navigate(
             generatePath("/resources/:resourceType", {
               resourceType: resourceType as string,
-            })
-          )
+            }),
+          ),
         );
       },
     },
@@ -136,7 +136,7 @@ function ResourceEditorTabs() {
       .then((response) => {
         setResource(response.entry?.[0]?.resource);
         setStructureDefinition(
-          response.entry?.[1]?.resource as StructureDefinition
+          response.entry?.[1]?.resource as StructureDefinition,
         );
       });
   }, [resourceType, id]);

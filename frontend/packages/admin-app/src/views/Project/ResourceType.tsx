@@ -103,7 +103,7 @@ function InviteModal({
                   error: (error) => {
                     return getErrorMessage(error);
                   },
-                }
+                },
               );
             }}
           >
@@ -135,7 +135,7 @@ function ResourceTypeHeader({ refresh }: Readonly<{ refresh: () => void }>) {
                 generatePath("/resources/:resourceType/:id", {
                   resourceType: params.resourceType as string,
                   id: "new",
-                })
+                }),
               )
             }
           >
@@ -172,7 +172,7 @@ export default function ResourceTypeView() {
               generatePath("/resources/:resourceType/:id", {
                 resourceType: params.resourceType as string,
                 id: (row as Resource<R4, AllResourceTypes>).id as string,
-              })
+              }),
             );
           }}
           client={client}
