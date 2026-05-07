@@ -1,2 +1,16 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
+
+@theme {
+  --color-brand-50: rgb(240 253 252);
+  --color-brand-100: rgb(204 251 250);
+  --color-brand-200: rgb(153 246 243);
+  --color-brand-300: rgb(94 242 235);
+  --color-brand-400: rgb(45 237 227);
+  --color-brand-500: rgb(20 231 220);
+  --color-brand-600: rgb(17 207 197);
+  --color-brand-700: rgb(13 173 165);
+  --color-brand-800: rgb(10 139 132);
+  --color-brand-900: rgb(7 105 100);
+  --color-brand-950: rgb(3 52 50);
+}
