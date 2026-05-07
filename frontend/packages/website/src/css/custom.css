@@ -113,7 +113,11 @@
 }
 
 .navbar__logo {
-  height: 45px;
+  height: 47px;
+}
+
+.navbar {
+  height: 60px;
 }
 
 
