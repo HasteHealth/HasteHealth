@@ -1,10 +1,8 @@
 @import "tailwindcss/theme.css" layer(theme);
 
 @theme {
-  
+  /* orange */
   --color-brand: rgb(249 115 22);
-
-
   --color-brand-50: oklch(98% 0.016 73.684);
   --color-brand-100: oklch(95.4% 0.038 75.164);
   --color-brand-200: oklch(90.1% 0.076 70.697);
@@ -16,7 +14,6 @@
   --color-brand-800: oklch(47% 0.157 37.304);
   --color-brand-900: oklch(40.8% 0.123 38.172);
   --color-brand-950: oklch(26.6% 0.079 36.259);
-
 
   /* Write teal */
   --color-background: color-mix(in srgb, white 90%, var(--color-brand-50));

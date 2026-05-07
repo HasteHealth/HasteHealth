@@ -42,7 +42,7 @@ pub fn project_select_html(
                             in projects.iter() {
                                 div {
                                     a href=(admin_app::redirect_url(config, tenant, &get_project_id(project)?).unwrap_or("".to_string()))
-                                    class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-orange-50 hover:border-orange-200" {
+                                    class="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-900 transition-colors hover:bg-brand-50 hover:border-brand-200" {
                                         (project.name.value.as_ref().unwrap_or(&project.id.clone().unwrap_or_else(|| "Unnamed Project".to_string())))
                                     }
                                 }

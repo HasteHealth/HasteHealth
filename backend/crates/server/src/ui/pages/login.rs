@@ -58,18 +58,18 @@ pub fn login_form_html(
                 form class="space-y-4 md:space-y-6" action=(login_route) method="POST" {
                     div {
                         label for="email" class="block mb-2 text-sm font-medium text-slate-600 " { "Your email" }
-                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
+                        input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " placeholder="name@company.com" required name="email" value="" {}
                     }
                     div class="space-y-2" {
                         div {
                             label for="password" class="block mb-2 text-sm font-medium text-slate-600" { "Password" }
-                            input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required name="password" {}
+                            input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5" required name="password" {}
                         }
                         div class="flex items-center justify-between" {
-                            a href=(password_reset_route_str) class="text-sm font-medium text-orange-600 hover:underline " { "Forgot password?" }
+                            a href=(password_reset_route_str) class="text-sm font-medium text-brand-600 hover:underline " { "Forgot password?" }
                         }
                     }
-                    button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
+                    button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Sign in" }
                 }
 
                 @if let Some(identity_providers) = identity_providers {

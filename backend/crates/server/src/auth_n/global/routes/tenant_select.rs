@@ -36,14 +36,14 @@ pub async fn tenant_select_get<
                     div class="grid grid-cols-4 gap-1" {
                         div class="col-span-4" {
                             label for="tenant" class="block text-sm font-medium text-slate-600" { "Tenant" }
-                            input type="tenant" id="tenant" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " placeholder="Tenant id" required name="tenant" value="" {}
+                            input type="tenant" id="tenant" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " placeholder="Tenant id" required name="tenant" value="" {}
                         }
                     }
 
                     div class="space-y-4" {
-                        button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Continue" }
+                        button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Continue" }
                         div class="flex items-center justify-start" {
-                            a href=(signup_url) class="text-sm font-medium text-orange-600 hover:underline " { "Sign up" }
+                            a href=(signup_url) class="text-sm font-medium text-brand-600 hover:underline " { "Sign up" }
                         }
                     }
                 }

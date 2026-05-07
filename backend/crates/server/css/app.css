@@ -1,2 +1,32 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
+
+@theme {
+  /* orange */
+  --color-brand: rgb(249 115 22);
+  --color-brand-50: oklch(98% 0.016 73.684);
+  --color-brand-100: oklch(95.4% 0.038 75.164);
+  --color-brand-200: oklch(90.1% 0.076 70.697);
+  --color-brand-300: oklch(83.7% 0.128 66.29);
+  --color-brand-400: oklch(75% 0.183 55.934);
+  --color-brand-500: oklch(70.5% 0.213 47.604);
+  --color-brand-600: oklch(64.6% 0.222 41.116);
+  --color-brand-700: oklch(55.3% 0.195 38.402);
+  --color-brand-800: oklch(47% 0.157 37.304);
+  --color-brand-900: oklch(40.8% 0.123 38.172);
+  --color-brand-950: oklch(26.6% 0.079 36.259);
+
+  /* teal */
+  /* --color-brand: oklch(77.7% 0.152 181.912);
+  --color-brand-50: oklch(98.4% 0.014 180.72);
+  --color-brand-100: oklch(95.3% 0.051 180.801);
+  --color-brand-200: oklch(91% 0.096 180.426);
+  --color-brand-300: oklch(85.5% 0.138 181.071);
+  --color-brand-400: oklch(78.8% 0.182 181.716);
+  --color-brand-500: oklch(77.7% 0.152 181.912);
+  --color-brand-600: oklch(70.4% 0.14 182.503);
+  --color-brand-700: oklch(60% 0.118 184.704);
+  --color-brand-800: oklch(51.1% 0.096 186.391);
+  --color-brand-900: oklch(43.7% 0.078 188.216);
+  --color-brand-950: oklch(38.6% 0.063 188.416); */
+}

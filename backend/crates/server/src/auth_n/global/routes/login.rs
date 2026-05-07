@@ -48,11 +48,11 @@ pub async fn global_login_get(_: EmailSelect) -> Result<Response, OperationOutco
                             }
                             input type="email" id="email" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="" name="email" {}
                         }
-                        button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
+                        button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
                             "Continue"
                         }
                         div class="mt-2 flex items-center justify-start" {
-                            a href=(signup_url) class="text-sm font-medium text-orange-600 hover:underline " { "Sign up" }
+                            a href=(signup_url) class="text-sm font-medium text-brand-600 hover:underline " { "Sign up" }
                         }
                     }
                 }
@@ -132,7 +132,7 @@ pub async fn global_login_post<
         html! { div class="space-y-4 text-slate-900" {
 
                 r#"An email has been sent to your email address "#
-                span class="underline text-orange-600" { (&login_data.email) }
+                span class="underline text-brand-600" { (&login_data.email) }
                 r#"."#
 
                 div {

@@ -53,16 +53,16 @@ pub async fn global_signup_get<
 
                     div class="col-span-2" {
                         label for="first-name" class="block text-sm font-medium text-slate-600" { "First name" }
-                        input id="first-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " required name="first-name" value="" {}
+                        input id="first-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " required name="first-name" value="" {}
                     }
 
                     div class="col-span-2" {
                         label for="last-name" class="block text-sm font-medium text-slate-600" { "Last name" }
-                        input id="last-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5 " required name="last-name" {}
+                        input id="last-name" class="bg-gray-50 border border-gray-300 text-slate-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5 " required name="last-name" {}
                     }
                 }
                 div class="flex w-full" {
-                    button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
+                    button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
                         "Continue"
                     }
                 }
@@ -178,7 +178,7 @@ None,
             div {
                 span {
                     r#"An email has been sent to your email address "# 
-                    span class="underline text-orange-600" { (user.email.unwrap_or("unknown".to_string())) } 
+                    span class="underline text-brand-600" { (user.email.unwrap_or("unknown".to_string())) } 
                     r#" to reset your password"#
                 }
             }

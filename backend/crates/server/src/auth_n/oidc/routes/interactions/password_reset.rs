@@ -141,10 +141,10 @@ pub async fn password_reset_verify_get<
                 form class="space-y-4 md:space-y-6" action=(uri.path().to_string()) method="POST"{
                     input type="hidden" id="code" name="code" value=(query.code) {}
                     label for="password" class="block mb-2 text-sm font-medium text-gray-900"{"Enter your Password"}
-                    input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required="" name="password" {}
+                    input type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5" required="" name="password" {}
                     label for="password_confirm" class="block mb-2 text-sm font-medium text-gray-900"  {"Confirm your Password"}
-                    input type="password" id="password_confirm" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5" required="" name="password_confirm" {}
-                    button type="submit" class="w-full text-white bg-orange-500 hover:bg-orange-500 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"{"Continue"}
+                    input type="password" id="password_confirm" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand-600 focus:border-brand-600 block w-full p-2.5" required="" name="password_confirm" {}
+                    button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"{"Continue"}
                 }
             },
         ))
@@ -232,7 +232,7 @@ pub async fn password_reset_verify_post<
                     "Password has been reset successfully. "
                     @if let Some(admin_app_url) = admin_app_url {
                         "Go to the Admin App "
-                        a class="hover:underline cursor-pointer text-orange-600" href=(admin_app_url) { "here" }
+                        a class="hover:underline cursor-pointer text-brand-600" href=(admin_app_url) { "here" }
                         "."
                     }
                 }
