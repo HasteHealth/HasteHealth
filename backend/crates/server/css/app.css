@@ -3,6 +3,7 @@
 
 @theme {
   /* orange */
+  --color-background: color-mix(in srgb, white 90%, var(--color-brand-50));
   --color-brand: rgb(249 115 22);
   --color-brand-50: oklch(98% 0.016 73.684);
   --color-brand-100: oklch(95.4% 0.038 75.164);
@@ -17,7 +18,9 @@
   --color-brand-950: oklch(26.6% 0.079 36.259);
 
   /* teal */
-  /* --color-brand: oklch(77.7% 0.152 181.912);
+  /* 
+  --color-background: color-mix(in srgb, white 90%, var(--color-brand-50));
+  --color-brand: oklch(77.7% 0.152 181.912);
   --color-brand-50: oklch(98.4% 0.014 180.72);
   --color-brand-100: oklch(95.3% 0.051 180.801);
   --color-brand-200: oklch(91% 0.096 180.426);
