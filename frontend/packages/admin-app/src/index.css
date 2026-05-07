@@ -4,15 +4,31 @@
 
 @layer base {
 	:root {
-		--hh-color-brand-50: 255 247 237;
-		--hh-color-brand-100: 255 237 213;
-		--hh-color-brand-200: 254 215 170;
-		--hh-color-brand-300: 253 186 116;
-		--hh-color-brand-400: 251 146 60;
-		--hh-color-brand-500: 249 115 22;
-		--hh-color-brand-600: 234 88 12;
-		--hh-color-brand-700: 194 65 12;
-		--hh-color-brand-800: 154 52 18;
-		--hh-color-brand-900: 124 45 18;
+		/* --hh-color-brand-50: 240 253 250;
+		--hh-color-brand-100: 204 251 241;
+		--hh-color-brand-200: 153 246 228;
+		--hh-color-brand-300: 94 234 212;
+		--hh-color-brand-400: 45 212 191;
+		--hh-color-brand-500: 20 184 166;
+		--hh-color-brand-600: 13 148 136;
+		--hh-color-brand-700: 15 118 110;
+		--hh-color-brand-800: 17 94 89;
+		--hh-color-brand-900: 19 78 74; */
+
+
+        /* Teal */ 
+        /* do teal based on website colors for teal */
+        --hh-color-brand: 74.62 178.75 160.69;
+        --hh-color-brand-50: 240.28 253.09 250.13;
+        --hh-color-brand-100: 203.18 251.39 241.16;
+        --hh-color-brand-200: 149.69 246.7 228.12;
+        --hh-color-brand-300: 70.28 236.5 212.54;
+        --hh-color-brand-400: -101.02 221.8 194.08;
+        --hh-color-brand-500: -56.5 212.99 189.55;
+        --hh-color-brand-600: -54.12 187.01 166.99;
+        --hh-color-brand-700: -41.94 150.26 137.01;
+        --hh-color-brand-800: -23.98 119.59 110.92;
+        --hh-color-brand-900: -7.01 95.15 89.79;
+        --hh-color-brand-950: 10.71 78.58 74.4;
 	}
 }

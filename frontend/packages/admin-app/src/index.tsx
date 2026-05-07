@@ -32,7 +32,7 @@ import Search from "./components/Search";
 import SearchModal from "./components/SearchModal";
 import { REACT_APP_CLIENT_ID, REACT_APP_FHIR_BASE_URL } from "./config";
 import { createAdminAppClient, getClient } from "./db/client";
-import "./index.css";
+
 import reportWebVitals from "./reportWebVitals";
 import BundleImport from "./views/Project/BundleImport";
 import Dashboard from "./views/Project/Dashboard";
@@ -48,6 +48,8 @@ import SystemResources from "./views/System";
 import { ProjectInformation } from "@haste-health/generated-ops/r4";
 import { R4 } from "@haste-health/fhir-types/versions";
 import { Logo } from "./components/Logo";
+
+import "./index.css";
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -313,8 +315,7 @@ function Navbar() {
   return (
     <div className="px-4 sticky top-0 bg-white border-b z-20 text-sm">
       <div className={`flex items-center ${APP_HEADER_HEIGHT_CLASS}`}>
-        <Logo className="h-12 w-12 mr-4 cursor-pointer text-brand-500" />
-        <h1 className="text-md font-semibold text-brand-500">Haste Health</h1>
+        <Logo className="h-14 mr-4 cursor-pointer text-brand-500" />
         <div className="flex grow"></div>
         <div className="flex justify-center items-center space-x-8">
           <div className="min-w-72 flex grow">

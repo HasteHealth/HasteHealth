@@ -112,6 +112,10 @@
   background-color: var(--ifm-navbar-link-hover-color);
 }
 
+.navbar__logo {
+  height: 45px;
+}
+
 
 .carousel {
   margin: 0 auto;

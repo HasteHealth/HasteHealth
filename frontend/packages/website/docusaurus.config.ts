@@ -112,10 +112,10 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: "haste.health",
+      // title: "haste.health",
       logo: {
         alt: "haste.health",
-        src: "img/logo.svg",
+        src: "img/logo_text.svg",
       },
       items: [
         {
