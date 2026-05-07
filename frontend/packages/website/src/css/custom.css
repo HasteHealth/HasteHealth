@@ -19,6 +19,7 @@
 
 
   /* Write teal */
+  --color-background: color-mix(in srgb, white 60%, var(--color-brand-50));
   --color-brand: oklch(77.7% 0.152 181.912);
   --color-brand-50: oklch(98.4% 0.014 180.72);
   --color-brand-100: oklch(95.3% 0.051 180.801);
@@ -94,7 +95,7 @@
   --ifm-hover-overlay: var(--color-brand-100);
 
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  background-color: var(--color-brand-50);
+  background-color: var(--color-background);
   font-family: var(--ifm-heading-font-family);
   color: var(--color-brand-950);
   --ifm-heading-color: var(--color-brand-950);

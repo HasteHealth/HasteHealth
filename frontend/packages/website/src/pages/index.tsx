@@ -69,7 +69,7 @@ export default function Home(): ReactNode {
 
   return (
     <Layout
-      wrapperClassName="bg-brand-50"
+      wrapperClassName="bg-background"
       title={`Haste Health`}
       description="Modern healthcare clinical data repository. Built for performance and scale."
     >
