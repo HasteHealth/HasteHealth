@@ -40,13 +40,13 @@ export const Logo = ({
       <text
         x="108"
         y="19"
-        font-family="system-ui, -apple-system, sans-serif"
-        font-size="54"
-        font-weight="700"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        fontSize="54"
+        fontWeight="700"
         fill="#0f172a"
       >
         haste
-        <tspan font-weight="300" fill="#94a3b8">
+        <tspan fontWeight="300" fill="#94a3b8">
           .health
         </tspan>
       </text>
