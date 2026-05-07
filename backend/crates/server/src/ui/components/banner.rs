@@ -5,9 +5,8 @@ use crate::static_assets::asset_route;
 pub fn banner(header: &str, subheader: Option<&str>) -> Markup {
     html! {
         div class="flex flex-col items-center justify-center space-y-1" {
-            a href="#" class="relative flex items-center text-2xl font-semibold text-gray-900" {
-                img class="absolute h-12 mr-2" src=(asset_route("img/logo_text.svg")) alt="logo" style="left:-34px;" {}
-
+            a href="#" class="h-20 w-50 relative flex justify-center items-center text-2xl font-semibold text-gray-900" {
+                img src=(asset_route("img/logo_text.svg")) alt="logo"  {}
             }
             div class="flex space-x-1 items-center justify-center text-sm text-slate-400" {
                 div {
