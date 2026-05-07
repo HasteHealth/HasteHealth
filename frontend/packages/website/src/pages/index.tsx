@@ -3,68 +3,85 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import Heading from "@theme/Heading";
-import HealthcareDataFlow from "../components/HealthcareDataFlow";
 
-function DescriptionColumn(
-  props: Readonly<{
-    title: ReactNode;
-    description: ReactNode;
-  }>,
-) {
+const capabilityCards = [
+  {
+    title: "FHIR Native",
+    body: "Support clinical interoperability with modern FHIR APIs, search, and operations.",
+  },
+  {
+    title: "Extensible Platform",
+    body: "Support for extending the server at runtime with TypeScript plugins for custom logic and APIs.",
+  },
+  {
+    title: "SMART and OIDC",
+    body: "Use standards-based authN and authZ for provider apps, patient apps, and backend services.",
+  },
+  {
+    title: "High-Performance Core",
+    body: "Rust-native server architecture optimized for throughput, latency, and predictable operations.",
+  },
+];
+
+const architectureSteps = [
+  {
+    title: "Ingest",
+    body: "Receive data through FHIR APIs, HL7v2 messages, and system-to-system pipelines.",
+  },
+  {
+    title: "Normalize",
+    body: "Store resources in a consistent model with indexing for fast retrieval and search.",
+  },
+  {
+    title: "Serve",
+    body: "Deliver secure real-time data to EHR workflows, analytics, and AI-enabled products.",
+  },
+];
+
+const outcomeStats = [
+  { value: "<10ms", label: "Create and update latency" },
+  { value: "20k/s", label: "Resource throughput (10 threads)" },
+  { value: "<50ms", label: "Typical search response" },
+  { value: "<100MB", label: "Single-instance memory footprint" },
+];
+
+const useCases = [
+  {
+    title: "Provider and EHR Platforms",
+    body: "Power patient timelines, clinician workflows, and care coordination with normalized clinical data.",
+    href: "/docs/integration/healthcare_systems/ehr",
+  },
+  {
+    title: "Payers and Utilization Systems",
+    body: "Support eligibility, prior authorization, and claims-adjacent workflows with FHIR-first APIs.",
+    href: "/docs/integration/healthcare_systems/payers_insurance",
+  },
+  {
+    title: "AI and Decision Support",
+    body: "Expose governed clinical context for LLM applications and model-driven automation.",
+    href: "/docs/category/ai",
+  },
+];
+
+function SectionTitle(props: Readonly<{ title: string; subtitle?: string }>) {
   return (
-    <div className="space-y-1">
-      <div className="text-2xl font-bold underline ">{props.title}</div>
-      <span className="text-sm">{props.description}</span>
+    <div className="space-y-3">
+      <Heading
+        as="h2"
+        className="text-3xl md:text-4xl font-bold text-brand-950"
+      >
+        {props.title}
+      </Heading>
+      {props.subtitle ? (
+        <p className="text-base md:text-lg text-slate-700 max-w-4xl">
+          {props.subtitle}
+        </p>
+      ) : null}
     </div>
-  );
-}
-
-function CarouselCard(
-  props: Readonly<{ onClick?: () => void; children?: ReactNode }>,
-) {
-  return (
-    <div
-      className="carousel-card cursor-pointer flex items-center justify-center "
-      onClick={props.onClick}
-    >
-      {props.children}
-    </div>
-  );
-}
-
-function BorderBlock() {
-  return (
-    <div
-      style={{ width: "calc(100vw - 1.1rem)" }}
-      className="border-b  border-brand-200 w-screen absolute left-0 -mt-6"
-    />
-  );
-}
-
-function BorderVertical({ height }: Readonly<{ height?: number }>) {
-  console.log("height:", height);
-  return (
-    <div
-      style={{ height: height }}
-      className="border-0 md:border-l  border-brand-200  absolute left-1/2 -mt-6"
-    />
   );
 }
 
 export default function Home(): ReactNode {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const [_, setContainerHeight] = React.useState<number | undefined>(undefined);
-  React.useEffect(() => {
-    if (containerRef.current) {
-      let style = window.getComputedStyle(containerRef.current);
-      console.log("Container height:", containerRef.current.clientHeight);
-      console.log("Container margin top:", style.marginTop);
-      setContainerHeight(
-        containerRef.current.clientHeight +
-          Number.parseInt(style.marginTop, 10) / 2,
-      );
-    }
-  }, [containerRef]);
   const { siteConfig } = useDocusaurusContext();
 
   return (
@@ -74,339 +91,172 @@ export default function Home(): ReactNode {
       description="Modern healthcare clinical data repository. Built for performance and scale."
     >
       <meta name="algolia-site-verification" content="A94F28B6A640A6FE" />
-      <div
+      <main
         id="tw-scope"
-        className="container mx-auto px-4 border-x border-y-0  border-brand-200"
+        className="container mx-auto px-4 py-8 md:py-12 text-brand-950"
       >
-        <main ref={containerRef} className=" z-1 text-brand-950">
-          {/* <BorderVertical height={containerHeight} /> */}
-          <div className="space-y-16">
-            <header className="space-y-6 pt-16 p-8">
-              <Heading
-                as="h1"
-                className="text-6xl md:text-7xl font-bold text-brand-950 "
+        <section className="rounded-3xl border border-brand-200 bg-linear-to-br from-brand-50 via-white to-brand-100 px-6 py-12 md:px-10 md:py-16">
+          <div className="max-w-5xl space-y-8">
+            <div className="inline-flex items-center rounded-full border border-brand-200 bg-white px-4 py-2 text-sm font-semibold text-brand-900">
+              Open-source, high-performance FHIR server
+            </div>
+
+            <Heading
+              as="h1"
+              className="text-4xl md:text-6xl font-bold tracking-tight text-brand-950"
+            >
+              {siteConfig.title}: Enterprise Clinical Data Infrastructure
+            </Heading>
+
+            <p className="max-w-4xl text-lg md:text-2xl text-slate-700 leading-relaxed">
+              Build healthcare products on a modern, standards-first data
+              platform designed for interoperability, security, and operational
+              scale.
+            </p>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-7 py-3 text-lg font-semibold text-white transition-colors hover:bg-brand-500"
+                to="/docs/getting_started/quick_start"
               >
-                {siteConfig.title}
-              </Heading>
-              <div className="">
-                <span className="text-2xl text-brand-950 font-semibold">
-                  Is an open source clinical data repository. Built for{" "}
-                  <span className="text-brand-600 ">performance</span> and{" "}
-                  <span className="text-brand-600 ">scale</span>.
-                </span>
-              </div>
-              <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
-                <Link
-                  className="block text-xl font-semibold text-white border-brand-950  rounded-md px-8 py-2 bg-brand-600 hover:bg-brand-500"
-                  to="/docs/getting_started/quick_start"
-                >
-                  Getting Started - 5min ⏱️
-                </Link>
-
-                <Link
-                  className="block text-xl font-semibold text-white border-brand-950  rounded-md px-8 py-2 bg-gray-600 hover:bg-gray-500"
-                  to="/docs/overview/what_is_haste_health"
-                >
-                  Documentation 📚
-                </Link>
-              </div>
-            </header>
-
-            <BorderBlock />
-            <div className="grid md:grid-cols-2 grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-5xl font-bold">
-                    Easily store and retrieve healthcare data
-                  </h3>
-                </div>
-                <div>
-                  Haste Health acts as a central clinical data repository. It
-                  ingests healthcare data from many sources and exposes it
-                  through standard APIs that modern healthcare systems
-                  understand.
-                </div>
-              </div>
-              <div className="space-y-8">
-                <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                  <DescriptionColumn
-                    title={
-                      <Link to="/docs/category/fhir">
-                        <span className="hover:underline hover:text-brand-500">
-                          FHIR
-                        </span>
-                      </Link>
-                    }
-                    description="Built from the ground up to support the FHIR (Fast Healthcare Interoperability Resources) a modern, open standard created by HL7 to help healthcare systems securely exchange data."
-                  />
-                  <DescriptionColumn
-                    title="Hl7v2"
-                    description="Full interoperability with HL7v2 messaging to integrate with legacy healthcare systems."
-                  />
-                </div>
-              </div>
+                Start in 5 Minutes
+              </Link>
+              <Link
+                className="inline-flex items-center justify-center rounded-lg border border-brand-300 bg-white px-7 py-3 text-lg font-semibold text-brand-900 transition-colors hover:bg-brand-50"
+                to="/docs/overview/what_is_haste_health"
+              >
+                Explore Architecture
+              </Link>
             </div>
-            <BorderBlock />
-            <div className="grid grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-5xl font-bold">How it works</h3>
-                </div>
-                <div className="grid md:grid-cols-3 grid-cols-1 gap-4 grid-flow-row-dense auto-cols-max">
-                  <div className="border rounded-md border-brand-200 p-6 space-y-2">
-                    <div>
-                      <h4 className="text-3xl font-semibold">1. Ingest</h4>
-                    </div>
-                    <div>
-                      Connect healthcare systems using FHIR APIs, HL7v2
-                      messages, and bulk data exports.
-                    </div>
-                  </div>
-                  <div className="border rounded-md border-brand-200 p-6 space-y-2">
-                    <div>
-                      <h4 className="text-3xl font-semibold">2. Store</h4>
-                    </div>
-                    <div>
-                      Data is stored in a unified clinical data model optimized
-                      for performance and scale.
-                    </div>
-                  </div>
-                  <div className="border rounded-md border-brand-200 p-6 space-y-2">
-                    <div>
-                      <h4 className="text-3xl font-semibold">3. Access</h4>
-                    </div>
-                    <div>
-                      Your apps access data using FHIR APIs, OAuth & OIDC, and
-                      other modern api standards.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <BorderBlock />
-
-            <div className="grid md:grid-cols-2  grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
-              <div className="order-1 md:order-2 space-y-8">
-                <div>
-                  <h3 className="text-5xl font-bold">
-                    <span class="text-brand-600 underline">
-                      Interoperability
-                    </span>{" "}
-                    with the healthcare systems you already use
-                  </h3>
-                </div>
-              </div>
-              <div className="order-2 md:order-1 justify-center rounded-lg min-h-72 grid grid-cols-2 gap-4">
-                <div className="flex flex-col space-y-1">
-                  <h3 className="text-xl font-bold underline">
-                    Labs and Diagnostics
-                  </h3>
-                  <span>
-                    <span>
-                      Exchange results, orders, and clinical observations with
-                      lab systems using{" "}
-                      <Link
-                        to="/docs/integration/healthcare_systems/lab_diagnostics"
-                        className="underline text-brand-900 hover:text-brand-800"
-                      >
-                        standardized FHIR and HL7v2 interfaces
-                      </Link>
-                      .
-                    </span>
-                  </span>
-                </div>
-                <div className="flex flex-col space-y-1">
-                  <h3 className="text-xl font-bold underline">
-                    Health Information Exchanges
-                  </h3>
-                  <span>
-                    <span>
-                      Connect to regional and national health information
-                      exchanges to share patient data across healthcare
-                      organizations using{" "}
-                      <Link
-                        to="/docs/integration/healthcare_systems/health_information_exchange"
-                        className="underline text-brand-900 hover:text-brand-800"
-                      >
-                        FHIR-based exchange protocols
-                      </Link>
-                      .
-                    </span>
-                  </span>
-                </div>
-                <div className="flex flex-col space-y-1">
-                  <h3 className="text-xl font-bold underline">EHR Systems</h3>
-                  <span>
-                    <span>
-                      Integrate with major EHR systems like Epic, Cerner, and
-                      Meditech using{" "}
-                      <Link
-                        to="/docs/integration/healthcare_systems/ehr"
-                        className="underline text-brand-900 hover:text-brand-800"
-                      >
-                        FHIR APIs and HL7v2 messaging
-                      </Link>
-                      .
-                    </span>
-                  </span>
-                </div>
-                <div className="flex flex-col space-y-1">
-                  <h3 className="text-xl font-bold underline">
-                    Payer and Insurance Systems
-                  </h3>
-                  <span>
-                    <span>
-                      Exchange eligibility, claims, and prior authorization data
-                      with payer systems using{" "}
-                      <Link
-                        to="/docs/integration/healthcare_systems/payers_insurance"
-                        className="underline text-brand-900 hover:text-brand-800"
-                      >
-                        FHIR
-                      </Link>
-                      .
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </div>
-            <BorderBlock />
-            <div className="grid md:grid-cols-1 grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
-              <div className="space-y-8">
-                <h3 className="text-5xl font-bold">
-                  Built for real-world healthcare workloads
-                </h3>
-
-                <div className="justify-center rounded-lg grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="flex flex-col space-y-1">
-                    <h3 className="text-3xl font-bold">
-                      {"<10"}
-                      <span className="text-sm">ms</span>
-                    </h3>
-                    <span>
-                      Response time for updating and creating resources.
-                    </span>
-                  </div>
-                  <div className="flex flex-col space-y-1">
-                    <h3 className="text-3xl font-bold">
-                      {"20k"} <span className="text-sm">resources/second</span>
-                    </h3>
-                    <span>
-                      Total throughput running on 10 threads using the{" "}
-                      <a
-                        className="underline text-brand-900 hover:text-brand-800"
-                        href="https://synthea.mitre.org/downloads"
-                      >
-                        synthia data set
-                      </a>
-                      .
-                    </span>
-                  </div>
-                  <div className="flex flex-col space-y-1">
-                    <h3 className="text-3xl font-bold">
-                      {"<50"}
-                      <span className="text-sm">ms</span>
-                    </h3>
-                    <span>For most parameter/value search requests.</span>
-                  </div>
-                  <div className="flex flex-col space-y-1">
-                    <h3 className="text-3xl font-bold">
-                      {"<100"}
-                      <span className="text-sm">mb</span>
-                    </h3>
-                    <span>Memory usage for a single instance.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <BorderBlock />
-            <div className="grid md:grid-cols-1  grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
-              <div className=" rounded-lg space-y-8">
-                <div>
-                  <h3 className="text-5xl font-bold">
-                    <span className="text-brand-600 underline">Secure</span> by
-                    design
-                  </h3>
-                </div>
-                <div>
-                  <span>
-                    Haste Health is built from the ground up with security best
-                    practices to help you protect sensitive healthcare data and
-                    maintain compliance with healthcare regulations like HIPAA
-                    and HITECH.
-                  </span>
-                </div>
-              </div>
-              <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                <DescriptionColumn
-                  title={"Compliance"}
-                  description="Haste Health is designed to help you meet HIPAA and HITECH requirements for protecting electronic protected health information (ePHI)."
-                />
-                <DescriptionColumn
-                  title={"Best Practices"}
-                  description="Built-in support for encryption, access controls, and audit logging to help you secure healthcare data."
-                />
-
-                <DescriptionColumn
-                  title={
-                    <Link
-                      className="hover:text-brand-500"
-                      to="/docs/category/oauth-grant-types"
-                    >
-                      OIDC & SMART on FHIR
-                    </Link>
-                  }
-                  description="Industry-standard authentication using OpenID Connect and SMART on FHIR for secure healthcare application integration."
-                />
-                <DescriptionColumn
-                  title={
-                    <Link
-                      className="hover:text-brand-500"
-                      to="/docs/api/authorization/access_control"
-                    >
-                      Access Policies
-                    </Link>
-                  }
-                  description="Fine-grained authorization controls using AccessPolicy resources to define who can access what healthcare data."
-                />
-              </div>
-            </div>
-            <BorderBlock />
-
-            <div className="grid md:grid-cols-2  grid-cols-1 gap-8 grid-flow-row-dense auto-cols-max p-8">
-              <div className="order-1 md:order-2 rounded-lg space-y-8">
-                <div>
-                  <h3 className="text-5xl font-bold">
-                    Integration with{" "}
-                    <span class="text-brand-600 underline">AI</span>{" "}
-                    applications
-                  </h3>
-                </div>
-                <div>
-                  <span>
-                    Haste Health enables secure real-time clinical context for
-                    AI applications.
-                  </span>
-                </div>
-              </div>
-              <div className="order-2 md:order-1">
-                <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                  <DescriptionColumn
-                    title={"Model Context Protocol"}
-                    description="Easily provide LLMs with secure, real-time access to patient data using Haste's Model Context Protocol (MCP) implementation."
-                  />
-                  <DescriptionColumn
-                    title={"Control Data Access"}
-                    description="Support for detailed scopes to control exactly what data AI applications can access."
-                  />
-                </div>
-              </div>
-            </div>
-            <BorderBlock />
-            <div className="mt-36" />
           </div>
-        </main>
-      </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
+          <SectionTitle
+            title="Standards-Based by Design"
+            subtitle="Adopt quickly with the protocols your enterprise teams and partners already rely on."
+          />
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {capabilityCards.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-xl border border-brand-200 bg-brand-50/40 p-5"
+              >
+                <h3 className="text-lg font-semibold text-brand-900">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm text-slate-700 leading-6">
+                  {item.body}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
+          <SectionTitle
+            title="How Haste Health Works"
+            subtitle="A predictable data pipeline for enterprise healthcare operations."
+          />
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {architectureSteps.map((step, idx) => (
+              <article
+                key={step.title}
+                className="rounded-xl border border-brand-200 p-5"
+              >
+                <p className="text-sm font-semibold text-brand-600">
+                  Step {idx + 1}
+                </p>
+                <h3 className="mt-1 text-2xl font-semibold text-brand-900">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm text-slate-700 leading-6">
+                  {step.body}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
+          <SectionTitle
+            title="Performance for Real Clinical Workloads"
+            subtitle="Built to keep latency low and throughput high under production pressure."
+          />
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {outcomeStats.map((stat) => (
+              <article
+                key={stat.label}
+                className="rounded-xl border border-brand-200 bg-brand-50/30 p-5"
+              >
+                <p className="text-3xl font-bold text-brand-900">
+                  {stat.value}
+                </p>
+                <p className="mt-2 text-sm text-slate-700">{stat.label}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-sm text-slate-600">
+            Throughput benchmark based on 10-thread testing with a
+            Synthea-generated dataset.
+          </p>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-brand-200 bg-white p-6 md:p-8">
+          <SectionTitle
+            title="Built for Enterprise Healthcare Teams"
+            subtitle="Deploy one platform across clinical, operational, and intelligent application domains."
+          />
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {useCases.map((useCase) => (
+              <article
+                key={useCase.title}
+                className="rounded-xl border border-brand-200 p-5"
+              >
+                <h3 className="text-xl font-semibold text-brand-900">
+                  {useCase.title}
+                </h3>
+                <p className="mt-3 text-sm text-slate-700 leading-6">
+                  {useCase.body}
+                </p>
+                <Link
+                  to={useCase.href}
+                  className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:text-brand-600"
+                >
+                  Learn more
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-brand-300 bg-brand-950 px-6 py-10 md:px-10">
+          <div className="max-w-4xl space-y-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              Secure and Production-Ready
+            </h2>
+            <p className="text-brand-100 text-base md:text-lg leading-relaxed">
+              Protect ePHI with enterprise controls including standards-based
+              authentication, access policies, auditability, and modern
+              deployment practices aligned with HIPAA and HITECH expectations.
+            </p>
+            <div className="pt-2 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/docs/category/oauth-grant-types"
+                className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-brand-900 hover:bg-brand-50"
+              >
+                Review Security Model
+              </Link>
+              <Link
+                to="/docs/api/authorization/access_control"
+                className="inline-flex items-center justify-center rounded-lg border border-brand-400 px-6 py-3 text-base font-semibold text-brand-100 hover:bg-brand-900"
+              >
+                Explore Access Policies
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
     </Layout>
   );
 }
