@@ -1,6 +1,7 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
+import { ChevronRightIcon, HomeIcon } from "@heroicons/react/24/outline";
 
 import { Toaster } from "@haste-health/components";
 import {
@@ -24,7 +25,11 @@ import IdentityProviderView from "./IdentityProvider";
 import OperationDefinitionView from "./OperationDefinition";
 import SubscriptionView from "./Subscription";
 
-function ResourceEditorTabs() {
+function ResourceEditorTabs({
+  onStructureDefinitionChange,
+}: Readonly<{
+  onStructureDefinitionChange: (sd: StructureDefinition | undefined) => void;
+}>) {
   const client = useAtomValue(getClient);
   const [resource, setResource] = useState<Resource | undefined>(undefined);
   const [structureDefinition, setStructureDefinition] = useState<
@@ -44,7 +49,7 @@ function ResourceEditorTabs() {
             id === "new"
               ? client.create({}, R4, {
                   ...resource,
-                  resourceType, // Validate that resourceTypes align.
+                  resourceType,
                 } as Resource)
               : client.update(
                   {},
@@ -85,61 +90,83 @@ function ResourceEditorTabs() {
         }
       },
     },
-    {
-      key: "Delete",
-      className: "!text-red-600 hover:bg-red-600 hover:!text-white",
-      label: "Delete",
-      onClick: () => {
-        const deletePromise = client.delete_instance(
-          {},
-          R4,
-          resourceType as ResourceType,
-          id as id,
-        );
-        Toaster.promise(deletePromise, {
-          loading: "Deleting Resource",
-          success: () => `Deleted ${resourceType}`,
-          error: (error) => {
-            return getErrorMessage(error);
+    ...(id !== "new"
+      ? [
+          {
+            key: "Delete",
+            className: "!text-red-600 hover:bg-red-600 hover:!text-white",
+            label: "Delete",
+            onClick: () => {
+              const deletePromise = client.delete_instance(
+                {},
+                R4,
+                resourceType as ResourceType,
+                id as id,
+              );
+              Toaster.promise(deletePromise, {
+                loading: "Deleting Resource",
+                success: () => `Deleted ${resourceType}`,
+                error: (error) => {
+                  return getErrorMessage(error);
+                },
+              }).then(() =>
+                navigate(
+                  generatePath("/resources/:resourceType", {
+                    resourceType: resourceType as string,
+                  }),
+                ),
+              );
+            },
           },
-        }).then(() =>
-          navigate(
-            generatePath("/resources/:resourceType", {
-              resourceType: resourceType as string,
-            }),
-          ),
-        );
-      },
-    },
+        ]
+      : []),
   ];
 
   useEffect(() => {
+    if (!resourceType || !id) {
+      return;
+    }
+
+    const entries = [
+      ...(id === "new"
+        ? []
+        : [
+            {
+              request: {
+                method: "GET",
+                url: `${resourceType}/${id}`,
+              },
+            },
+          ]),
+      {
+        request: {
+          method: "GET",
+          url: `StructureDefinition/${resourceType}`,
+        },
+      },
+    ];
+
     client
       .batch({}, R4, {
         type: "batch",
         resourceType: "Bundle",
-        entry: [
-          {
-            request: {
-              method: "GET",
-              url: `${resourceType}/${id}`,
-            },
-          },
-          {
-            request: {
-              method: "GET",
-              url: `StructureDefinition/${resourceType}`,
-            },
-          },
-        ],
+        entry: entries,
       } as Bundle)
       .then((response) => {
+        if (id === "new") {
+          setResource(undefined);
+          const sd = response.entry?.[0]?.resource as StructureDefinition;
+          setStructureDefinition(sd);
+          onStructureDefinitionChange(sd);
+          return;
+        }
+
         setResource(response.entry?.[0]?.resource);
-        setStructureDefinition(
-          response.entry?.[1]?.resource as StructureDefinition,
-        );
+        const sd = response.entry?.[1]?.resource as StructureDefinition;
+        setStructureDefinition(sd);
+        onStructureDefinitionChange(sd);
       });
-  }, [resourceType, id]);
+  }, [resourceType, id, client, onStructureDefinitionChange]);
 
   switch (resourceType) {
     case "OperationDefinition":
@@ -203,12 +230,77 @@ function ResourceEditorTabs() {
 
 export default function ResourceEditor() {
   const { resourceType, id } = useParams();
+  const navigate = useNavigate();
+  const [structureDefinition, setStructureDefinition] = useState<
+    StructureDefinition | undefined
+  >(undefined);
+
+  const displayResourceType = resourceType || "Resource";
+  const displayId = id || "unknown";
+
   return (
-    <div className="flex flex-1 flex-col overflow-auto">
-      <h3 className="text-slate-800 text-2xl font-semibold mb-4">
-        {resourceType} {id}
-      </h3>
-      <ResourceEditorTabs />
+    <div className="flex flex-1 flex-col gap-6 overflow-auto">
+      <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-3 flex flex-wrap items-center gap-1 text-sm text-slate-500">
+          <button
+            className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            onClick={() => navigate(generatePath("/", {}))}
+            type="button"
+          >
+            <HomeIcon className="h-4 w-4" />
+            Home
+          </button>
+          <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+          <button
+            className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            onClick={() => navigate(generatePath("/resources", {}))}
+            type="button"
+          >
+            Resources
+          </button>
+          <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+          <button
+            className="rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+            onClick={() =>
+              navigate(
+                generatePath("/resources/:resourceType", {
+                  resourceType: displayResourceType,
+                }),
+              )
+            }
+            type="button"
+          >
+            {displayResourceType}
+          </button>
+          <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+          <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+            {displayId}
+          </span>
+        </div>
+
+        <h1 className="text-2xl font-semibold text-slate-900">
+          {displayResourceType} Editor
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          {displayId === "new"
+            ? `Create a new ${displayResourceType} and save it to your project.`
+            : `Review and update ${displayResourceType}/${displayId}.`}
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+            Status: {structureDefinition?.status ?? "unknown"}
+          </span>
+          <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+            Version: {structureDefinition?.version ?? "n/a"}
+          </span>
+        </div>
+      </header>
+
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <ResourceEditorTabs
+          onStructureDefinitionChange={setStructureDefinition}
+        />
+      </section>
     </div>
   );
 }

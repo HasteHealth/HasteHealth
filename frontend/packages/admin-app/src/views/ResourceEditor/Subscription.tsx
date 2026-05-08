@@ -185,94 +185,104 @@ function SimpleSubscriptionView({
     setChannel(channel);
   }, [resource]);
   return (
-    <div className="space-y-2 p-2">
-      <FHIRCodeEditable
-        required
-        client={client}
-        fhirVersion={R4}
-        system={"http://hl7.org/fhir/ValueSet/subscription-status" as uri}
-        label="Status"
-        value={resource?.status}
-        onChange={(e) =>
-          onChange({
-            ...resource,
-            resourceType: "Subscription",
-            status: e,
-          } as Subscription)
-        }
-      />
-      <Input
-        label="Criteria"
-        required
-        value={resource?.criteria}
-        onChange={(e) =>
-          onChange({
-            ...resource,
-            resourceType: "Subscription",
-            criteria: e.target.value,
-          } as Subscription)
-        }
-      />
-      <Input
-        label="Reason"
-        required
-        value={resource?.reason}
-        onChange={(e) =>
-          onChange({
-            ...resource,
-            resourceType: "Subscription",
-            reason: e.target.value,
-          } as Subscription)
-        }
-      />
-      <Select
-        required
-        label="Channel"
-        value={channel}
-        options={[
-          {
-            label: "Rest Hook",
-            value: "rest-hook",
-          },
-          {
-            label: "Message",
-            value: "message",
-          },
-          {
-            label: "Operation",
-            value: "operation",
-          },
-        ]}
-        onChange={(option) => {
-          if (option.value === "operation") {
+    <div className="space-y-3 p-2">
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+        Use the quick editor to define criteria, delivery channel, and endpoint
+        settings for this subscription.
+      </div>
+
+      <div className="space-y-2 rounded-md border border-slate-200 bg-white p-3">
+        <FHIRCodeEditable
+          required
+          client={client}
+          fhirVersion={R4}
+          system={"http://hl7.org/fhir/ValueSet/subscription-status" as uri}
+          label="Status"
+          value={resource?.status}
+          onChange={(e) =>
             onChange({
               ...resource,
               resourceType: "Subscription",
-              channel: {
-                _type: {
-                  extension: [
-                    {
-                      url: "https://haste.health/Subscription/channel-type" as id,
-                      valueCode: option.value as code,
-                    },
-                  ],
-                },
-              },
-            } as Subscription);
-          } else {
-            onChange({
-              ...resource,
-              resourceType: "Subscription",
-              channel: { type: option.value as code },
-            } as Subscription);
+              status: e,
+            } as Subscription)
           }
-        }}
-      />
-      <ChannelParameters
-        channel={channel}
-        resource={resource}
-        onChange={onChange}
-      />
+        />
+        <Input
+          label="Criteria"
+          required
+          value={resource?.criteria}
+          onChange={(e) =>
+            onChange({
+              ...resource,
+              resourceType: "Subscription",
+              criteria: e.target.value,
+            } as Subscription)
+          }
+        />
+        <Input
+          label="Reason"
+          required
+          value={resource?.reason}
+          onChange={(e) =>
+            onChange({
+              ...resource,
+              resourceType: "Subscription",
+              reason: e.target.value,
+            } as Subscription)
+          }
+        />
+      </div>
+
+      <div className="space-y-2 rounded-md border border-slate-200 bg-white p-3">
+        <Select
+          required
+          label="Channel"
+          value={channel}
+          options={[
+            {
+              label: "Rest Hook",
+              value: "rest-hook",
+            },
+            {
+              label: "Message",
+              value: "message",
+            },
+            {
+              label: "Operation",
+              value: "operation",
+            },
+          ]}
+          onChange={(option) => {
+            if (option.value === "operation") {
+              onChange({
+                ...resource,
+                resourceType: "Subscription",
+                channel: {
+                  _type: {
+                    extension: [
+                      {
+                        url: "https://haste.health/Subscription/channel-type" as id,
+                        valueCode: option.value as code,
+                      },
+                    ],
+                  },
+                },
+              } as Subscription);
+            } else {
+              onChange({
+                ...resource,
+                resourceType: "Subscription",
+                channel: { type: option.value as code },
+              } as Subscription);
+            }
+          }}
+        />
+        <ChannelParameters
+          channel={channel}
+          resource={resource}
+          onChange={onChange}
+        />
+      </div>
     </div>
   );
 }

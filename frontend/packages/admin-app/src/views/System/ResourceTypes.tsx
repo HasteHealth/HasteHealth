@@ -17,6 +17,13 @@ const RESOURCE_DESCRIPTIONS: Record<string, string> = {
     "Configure external identity providers for SMART / OIDC authentication.",
 };
 
+function pluralizeResourceType(resourceType: string) {
+  if (resourceType.endsWith("y")) {
+    return `${resourceType.slice(0, -1)}ies`;
+  }
+  return `${resourceType}s`;
+}
+
 export default function ResourceTypes() {
   const client = useAtomValue(getClient);
   const navigate = useNavigate();
@@ -24,6 +31,9 @@ export default function ResourceTypes() {
   const [refresh, setRefresh] = useState<(() => void) | undefined>(undefined);
 
   const resourceType = params.resourceType ?? "";
+  const title = resourceType
+    ? pluralizeResourceType(resourceType)
+    : "Resources";
   const description =
     RESOURCE_DESCRIPTIONS[resourceType] ??
     `Browse and manage ${resourceType} resources.`;
@@ -33,9 +43,7 @@ export default function ResourceTypes() {
       <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-slate-900">
-              {resourceType}s
-            </h1>
+            <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
             <p className="text-sm text-slate-500">{description}</p>
           </div>
           <button
@@ -55,7 +63,10 @@ export default function ResourceTypes() {
         </div>
       </header>
 
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden py-4 px-2">
+      <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="mb-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+          Select a row to open the full editor for that resource.
+        </div>
         <FHIRGenerativeSearchTable
           refresh={(refreshFnc) => {
             if (!refresh) {
@@ -75,7 +86,7 @@ export default function ResourceTypes() {
           fhirVersion={R4}
           resourceType={resourceType as ResourceType<R4>}
         />
-      </div>
+      </section>
     </div>
   );
 }

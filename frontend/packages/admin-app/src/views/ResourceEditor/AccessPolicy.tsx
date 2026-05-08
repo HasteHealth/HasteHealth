@@ -168,7 +168,7 @@ const AccessPolicyInvoke = ({
                       },
                     ],
                   },
-                }
+                },
               );
               Toaster.promise(invocation, {
                 loading: "Invocation",
@@ -210,7 +210,7 @@ export default function AccessPolicyView({
   onChange,
 }: AccessPolicyV2EditorProps) {
   return (
-    <div className="flex justify-center items-center py-2 px-1">
+    <div className="w-full">
       <Modal
         modalTitle="Evaluate Policy"
         ModalContent={(setOpen) => (
@@ -223,7 +223,7 @@ export default function AccessPolicyView({
             actions={[
               {
                 key: "EvaluatePolicy",
-                label: "Test policy",
+                label: "Evaluate Policy",
                 onClick: () => {
                   setOpen(true);
                 },

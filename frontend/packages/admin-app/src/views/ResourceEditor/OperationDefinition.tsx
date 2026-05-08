@@ -52,7 +52,7 @@ function getOperationCode(operation: OperationDefinition | undefined): string {
     operation?.extension?.find(
       (e) =>
         e.url ===
-        "https://haste-health.github.io/fhir-operation-definition/operation-code"
+        "https://haste-health.github.io/fhir-operation-definition/operation-code",
     )?.valueString ?? "";
   return code;
 }
@@ -137,7 +137,7 @@ const DeployModal = ({
                 {
                   code: getOperationCode(operation),
                   environment: JSON.parse(environment),
-                }
+                },
               );
 
               Toaster.promise(invocation, {
@@ -182,7 +182,11 @@ function OperationCodeEditor({
 }) {
   return (
     <div className="flex flex-1 flex-col overflow-auto">
-      <div className="border flex-1 flex">
+      <div className="mb-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+        Edit the operation source code, then deploy and invoke it directly from
+        this panel.
+      </div>
+      <div className="flex flex-1 rounded-md border border-slate-200">
         <CodeMirror
           extensions={extensions}
           value={value}
@@ -197,7 +201,7 @@ function OperationCodeEditor({
           }}
         />
       </div>
-      <div className="flex justify-start py-2 space-x-4">
+      <div className="flex justify-start space-x-4 py-2">
         <Modal
           modalTitle={`Deploy ${operation?.code}`}
           ModalContent={(setOpen) => (
@@ -258,30 +262,35 @@ function OperationAuditEvents({ operationId }: { operationId: string }) {
   }, [operationId, setAuditEvents]);
 
   return (
-    <Table
-      isLoading={loading}
-      data={auditEvents || []}
-      columns={[
-        {
-          id: "Outcome",
-          content: "Outcome",
-          selector: "$this.outcome",
-          selectorType: "fhirpath",
-        },
-        {
-          id: "Agent",
-          content: "Agent",
-          selector: "$this.agent.name",
-          selectorType: "fhirpath",
-        },
-        {
-          id: "Description",
-          content: "Description",
-          selector: "$this.outcomeDesc",
-          selectorType: "fhirpath",
-        },
-      ]}
-    />
+    <div className="space-y-2">
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+        Recent execution events for this operation.
+      </div>
+      <Table
+        isLoading={loading}
+        data={auditEvents || []}
+        columns={[
+          {
+            id: "Outcome",
+            content: "Outcome",
+            selector: "$this.outcome",
+            selectorType: "fhirpath",
+          },
+          {
+            id: "Agent",
+            content: "Agent",
+            selector: "$this.agent.name",
+            selectorType: "fhirpath",
+          },
+          {
+            id: "Description",
+            content: "Description",
+            selector: "$this.outcomeDesc",
+            selectorType: "fhirpath",
+          },
+        ]}
+      />
+    </div>
   );
 }
 
@@ -365,7 +374,7 @@ const InvocationModal = ({
                 new Operation(operation),
                 {},
                 R4,
-                JSON.parse(parameters)
+                JSON.parse(parameters),
               );
               Toaster.promise(invocation, {
                 loading: "Invocation",
@@ -438,7 +447,7 @@ export default function OperationDefinitionView({
                     ...(resource?.extension?.filter(
                       (e) =>
                         e.url !==
-                        "https://haste-health.github.io/fhir-operation-definition/operation-code"
+                        "https://haste-health.github.io/fhir-operation-definition/operation-code",
                     ) || []),
                     {
                       url: "https://haste-health.github.io/fhir-operation-definition/operation-code",

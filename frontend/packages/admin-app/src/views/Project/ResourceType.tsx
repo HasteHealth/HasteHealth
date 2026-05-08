@@ -1,6 +1,10 @@
-import { PlusIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronRightIcon,
+  HomeIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -12,7 +16,13 @@ import {
   Modal,
   Toaster,
 } from "@haste-health/components";
-import { Reference, code, uri } from "@haste-health/fhir-types/r4/types";
+import {
+  Reference,
+  StructureDefinition,
+  code,
+  id,
+  uri,
+} from "@haste-health/fhir-types/r4/types";
 import {
   AllResourceTypes,
   R4,
@@ -115,51 +125,106 @@ function InviteModal({
   );
 }
 
-function ResourceTypeHeader({ refresh }: Readonly<{ refresh: () => void }>) {
+function ResourceTypeHeader({
+  sd,
+  refresh,
+}: Readonly<{ sd: StructureDefinition | undefined; refresh: () => void }>) {
   const params = useParams();
   const navigate = useNavigate();
+  const resourceType = params.resourceType as string;
 
   return (
-    <div className="flex mb-4 justify-center items-center">
-      <h2 className="text-left flex text-2xl font-semibold text-slate-800 mr-4">
-        {params.resourceType}
-      </h2>
-      <div className="flex flex-1 justify-end">
-        <div>
-          <Button
-            className="ml-2 font-medium"
-            buttonSize="small"
-            buttonType="secondary"
-            onClick={() =>
-              navigate(
-                generatePath("/resources/:resourceType/:id", {
-                  resourceType: params.resourceType as string,
-                  id: "new",
-                }),
-              )
-            }
-          >
-            <div className="flex items-center justify-center ">
-              <PlusIcon className="w-4 h-4 mr-1" /> <span>New</span>
-            </div>
-          </Button>
-        </div>
+    <header className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-center gap-1 text-sm text-slate-500">
+        <button
+          className="inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+          onClick={() => navigate(generatePath("/", {}))}
+          type="button"
+        >
+          <HomeIcon className="h-4 w-4" />
+          Home
+        </button>
+        <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+        <button
+          className="rounded px-1 py-0.5 hover:bg-slate-100 hover:text-slate-700"
+          onClick={() => navigate(generatePath("/resources", {}))}
+          type="button"
+        >
+          Resources
+        </button>
+        <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+        <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+          {resourceType}
+        </span>
       </div>
-    </div>
+
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {resourceType}
+          </h1>
+          <p className="text-sm text-slate-500">
+            {sd?.snapshot?.element?.[0]?.definition ??
+              `Browse and manage ${resourceType} resources.`}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+              Status: {sd?.status ?? "unknown"}
+            </span>
+            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+              Version: {sd?.version ?? "n/a"}
+            </span>
+          </div>
+        </div>
+        <Button
+          className="font-medium"
+          buttonSize="small"
+          buttonType="secondary"
+          onClick={() =>
+            navigate(
+              generatePath("/resources/:resourceType/:id", {
+                resourceType,
+                id: "new",
+              }),
+            )
+          }
+        >
+          <div className="flex items-center justify-center">
+            <PlusIcon className="mr-1 h-4 w-4" />{" "}
+            <span>New {resourceType}</span>
+          </div>
+        </Button>
+      </div>
+    </header>
   );
 }
 
 export default function ResourceTypeView() {
   const client = useAtomValue(getClient);
   const params = useParams();
+  const [sd, setSd] = useState<StructureDefinition | undefined>(undefined);
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState<(() => void) | undefined>(undefined);
 
-  return (
-    <div className="flex flex-col flex-1 w-full text-slate-700">
-      {refresh && <ResourceTypeHeader refresh={refresh} />}
+  useEffect(() => {
+    client
+      .read({}, R4, "StructureDefinition", params.resourceType as id)
+      .then((res) => {
+        setSd(res);
+      })
+      .catch(() => {
+        Toaster.error("Failed to load structure definition for resource type.");
+      });
+  }, [client, params.resourceType]);
 
-      <div className="flex-grow" style={{ height: "calc(100% - 32px)" }}>
+  return (
+    <div className="flex w-full flex-1 flex-col gap-6 text-slate-700 overflow-auto">
+      {refresh && <ResourceTypeHeader sd={sd} refresh={refresh} />}
+
+      <section className="flex-grow rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="mb-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+          Click any row to view or edit that resource.
+        </div>
         <FHIRGenerativeSearchTable
           key={params.resourceType}
           refresh={(refreshFnc) => {
@@ -179,7 +244,7 @@ export default function ResourceTypeView() {
           fhirVersion={R4}
           resourceType={params.resourceType as ResourceType<R4>}
         />
-      </div>
+      </section>
     </div>
   );
 }

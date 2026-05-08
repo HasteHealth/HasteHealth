@@ -2,13 +2,15 @@ import React from "react";
 
 export const Logo = ({
   className = "text-brand-500",
-}: Readonly<{ className?: string }>) => (
+  onClick,
+}: Readonly<{ className?: string; onClick?: () => void }>) => (
   <svg
     viewBox="0 0 430 160"
     preserveAspectRatio="xMidYMid meet"
     role="img"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
+    onClick={onClick}
   >
     <title>Haste Health logo</title>
     <desc>

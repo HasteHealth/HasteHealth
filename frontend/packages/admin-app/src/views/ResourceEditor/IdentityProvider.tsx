@@ -43,23 +43,28 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <div className="text-lg font-medium">Documentation</div>
-        <p className="text-sm text-gray-500">
+      <section className="rounded-md border border-slate-200 bg-slate-50 p-3">
+        <h3 className="text-sm font-semibold text-slate-900">Documentation</h3>
+        <p className="mt-1 text-sm text-slate-600">
           For more information on how to register an external IDP read the
           following{" "}
           <a
-            className="text-brand-600 hover:text-brand-700 cursor-pointer"
+            className="cursor-pointer text-brand-600 hover:text-brand-700"
             href="https://haste.health/documentation/Getting%20Started/Local_Development"
+            rel="noreferrer"
+            target="_blank"
           >
             documentation
           </a>
           .
         </p>
-      </div>
-      <div className="space-y-2">
-        <div className="text-lg font-medium">Information</div>
-        <p className="text-sm text-gray-500">
+      </section>
+
+      <section className="space-y-2 rounded-md border border-slate-200 bg-white p-3">
+        <h3 className="text-sm font-semibold text-slate-900">
+          Registration Information
+        </h3>
+        <p className="text-sm text-slate-500">
           Registration information for registering an OIDC client with this
           identity provider.
         </p>
@@ -73,7 +78,7 @@ function RegistrationInformation({ id }: Readonly<{ id: id }>) {
             />
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
