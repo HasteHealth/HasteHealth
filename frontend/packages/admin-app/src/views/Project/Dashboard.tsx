@@ -23,7 +23,7 @@ import {
   CapabilityStatement,
   code,
   uri,
-} from "@haste-health/fhir-types/lib/generated/r4/types";
+} from "@haste-health/fhir-types/r4/types";
 
 type StatKey =
   | "patient"
