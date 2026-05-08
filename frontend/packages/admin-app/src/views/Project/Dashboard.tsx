@@ -240,9 +240,7 @@ function ResourceCategoryCard({
 function DashboardContent() {
   const navigate = useNavigate();
   const client = useAtomValue(getClient);
-  const capabilityStatement = useAtomValue(getCapabilities) as
-    | CapabilityStatement
-    | undefined;
+  const capabilityStatement = useAtomValue(getCapabilities);
   const endpointMetadata = useAtomValue(getEndpointMetadata);
 
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
@@ -378,30 +376,30 @@ function DashboardContent() {
       });
     }
 
-    if (!snapshot?.latestAuditTimestamp) {
+    if (snapshot?.latestAuditTimestamp) {
+      alerts.push({
+        severity: "healthy",
+        message: `Latest AuditEvent recorded ${formatRelativeTime(snapshot.latestAuditTimestamp)}.`,
+      });
+    } else {
       alerts.push({
         severity: "warn",
         message:
           "No AuditEvent activity found. Verify auditing is enabled for sensitive operations.",
       });
-    } else {
-      alerts.push({
-        severity: "healthy",
-        message: `Latest AuditEvent recorded ${formatRelativeTime(snapshot.latestAuditTimestamp)}.`,
-      });
     }
 
-    if (!oidcConfigured) {
-      alerts.push({
-        severity: "warn",
-        message:
-          "OIDC endpoints are incomplete. SMART/OIDC authorization may be unavailable.",
-      });
-    } else {
+    if (oidcConfigured) {
       alerts.push({
         severity: "healthy",
         message:
           "OIDC discovery, authorization, and token endpoints are configured.",
+      });
+    } else {
+      alerts.push({
+        severity: "warn",
+        message:
+          "OIDC endpoints are incomplete. SMART/OIDC authorization may be unavailable.",
       });
     }
 

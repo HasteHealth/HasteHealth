@@ -129,9 +129,7 @@ function CopyField({
 
 function SettingsContent({ user }: Readonly<SettingsProps>) {
   const client = useAtomValue(getClient);
-  const endpointMetadata = useAtomValue(getEndpointMetadata) as
-    | TenantEndpointInformation.Output
-    | undefined;
+  const endpointMetadata = useAtomValue(getEndpointMetadata);
 
   const [scopes, setScopes] = useState<HasteHealthListScopes.Output["scopes"]>(
     [],
