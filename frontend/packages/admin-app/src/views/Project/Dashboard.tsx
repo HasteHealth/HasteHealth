@@ -18,12 +18,7 @@ import { R4 } from "@haste-health/fhir-types/versions";
 import { getCapabilities } from "../../db/capabilities";
 import { getClient } from "../../db/client";
 import { getEndpointMetadata } from "../../db/endpointMeta";
-import {
-  Bundle,
-  CapabilityStatement,
-  code,
-  uri,
-} from "@haste-health/fhir-types/r4/types";
+import { Bundle, code, uri } from "@haste-health/fhir-types/r4/types";
 
 type StatKey =
   | "patient"

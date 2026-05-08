@@ -21,7 +21,6 @@ import {
   HasteHealthDeleteScope,
   HasteHealthListRefreshTokens,
   HasteHealthListScopes,
-  TenantEndpointInformation,
 } from "@haste-health/generated-ops/lib/r4/ops";
 import { IDTokenPayload } from "@haste-health/jwt/types";
 
