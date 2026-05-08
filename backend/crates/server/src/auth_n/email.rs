@@ -135,7 +135,7 @@ pub async fn send_password_reset_email<
                 }
             }
             div style="font-weight: 600; padding: 24px 0px;" { "To verify your email and set your password click below." }
-            a href=(api_url.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#007a55;display:inline-block;padding:12px 24px;text-decoration:none" target="_blank" {
+            a href=(api_url.as_str()) style="color:#ffffff;font-size:14px;font-weight:bold;background-color:#00786f;display:inline-block;padding:12px 24px;text-decoration:none" target="_blank" {
                 span { "Reset Password" }
             }
         },
