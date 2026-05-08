@@ -97,7 +97,7 @@ export default function HealthcareDataFlow() {
             id="ehr"
             icon="🏥"
             title="EHR System"
-            subtitle="Epic, Cerner etc..."
+            subtitle="Epic, Cerner, etc."
           />
         </Link>
       </div>
@@ -107,7 +107,7 @@ export default function HealthcareDataFlow() {
             id="app"
             icon="🔥"
             title="FHIR"
-            subtitle="FHIR compatible servers or apis."
+            subtitle="FHIR-compatible servers or APIs."
           />
         </Link>
       </div>
@@ -129,7 +129,7 @@ export default function HealthcareDataFlow() {
             id="web"
             icon="🌐"
             title="Web Application"
-            subtitle="Patient Portals, Dashboards, Analytics."
+            subtitle="Patient portals, dashboards, and analytics."
           />
         </Link>
       </div>
@@ -149,7 +149,7 @@ export default function HealthcareDataFlow() {
             id="ai"
             icon="🤖"
             title="AI"
-            subtitle="Feed and query data in AI Applications."
+            subtitle="Feed and query data in AI applications."
           />
         </Link>
       </div>

@@ -9,7 +9,7 @@ sidebar_position: 1
 ## Prerequisites
 Before loading sample data, ensure you have the following:
 - A running instance of Haste Health (refer to the [Quick Start](/docs/getting_started/quick_start) guide if needed).
-- `haste-health` CLI tool installed. You can find installation instructions in the [setting up cli tutorial](/docs/tutorials/cli).
+- `haste-health` CLI tool installed. You can find installation instructions in the [Setting Up CLI tutorial](/docs/tutorials/cli).
 
 ## Download Sample FHIR Data
 You can download sample FHIR data files from the Synthea project.
@@ -28,5 +28,5 @@ done
 After loading the data, you can verify that the data has been successfully imported by accessing the Haste Health admin interface or by querying the FHIR API directly. 
 
 ## Issues
-- If you encounter issue related to bundle size (413 http) errors, consider increasing the `MAX_REQUEST_BODY_SIZE` environment variable in your Docker setup.
+- If you encounter issues related to bundle size (413 HTTP) errors, consider increasing the `MAX_REQUEST_BODY_SIZE` environment variable in your Docker setup.
 For example, set `MAX_REQUEST_BODY_SIZE=8388608` for 8mb.

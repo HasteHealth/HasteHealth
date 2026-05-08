@@ -28,7 +28,7 @@ This guide provides step-by-step instructions on integrating Microsoft Azure Act
    - Click on "New registration".
    - Provide a name for your application.
    - Set the "Supported account types" based on your requirements.
-   - For platform set type as web.
+   - For platform, set type to Web.
    - We will leave redirect URI empty for now, we will add it later.
    - Click "Register".
 2. **Copy Configuration information**
@@ -36,10 +36,10 @@ This guide provides step-by-step instructions on integrating Microsoft Azure Act
     - Copy the "Application (client) ID"
     - Copy the "Directory (tenant) ID"
     - Click Endpoints
-    - Copy the following URLs:
-      - **OAuth 2.0 authorization endpoint (v2)**: URL for authorization requests.
-      - **OAuth 2.0 token endpoint (v2)l**: URL for token requests.
-      - **Json web key set Url**: This will be in the format `https://login.microsoftonline.com/[directory-tenant-id]/discovery/v2.0/keys`
+      - Copy the following URLs:
+         - **OAuth 2.0 authorization endpoint (v2)**: URL for authorization requests.
+         - **OAuth 2.0 token endpoint (v2)**: URL for token requests.
+         - **Json web key set Url**: This will be in the format `https://login.microsoftonline.com/[directory-tenant-id]/discovery/v2.0/keys`
 3. **Create IdentityProvider Resource in Haste Health**
    - Go to the Haste Health Admin App for your tenant.
    - Navigate to the system project.
@@ -49,10 +49,10 @@ This guide provides step-by-step instructions on integrating Microsoft Azure Act
       - **Name**: A friendly name for the identity provider (e.g., `AzureAD`).
       - **Status**: Set to `active`.
       - **Access Type**: Set to `oidc`.
-      - **Authorization_endpiont**: The OAuth 2.0 authorization endpoint copied from Azure.
+      - **Authorization_endpoint**: The OAuth 2.0 authorization endpoint copied from Azure.
       - **Token_endpoint**: The OAuth 2.0 token endpoint copied from Azure.
       - **Jwks_uri**: The Json web key set Url copied from Azure.
-      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to veirfy user).
+      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email`; note that OpenID is required to verify the user).
       - **Client ID**: The Application (client) ID copied from Azure.
       - **Client Secret**: You will need to create a client secret in Azure:
          - In the Azure portal, navigate to "Certificates & secrets" under your registered application.
@@ -64,5 +64,5 @@ This guide provides step-by-step instructions on integrating Microsoft Azure Act
    - Go back to your Azure AD application settings.
    - Navigate to "Authentication" under "Manage".
    - In the "Redirect URIs" section, add a new redirect URI for your Haste Health tenant:
-     `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+   `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 

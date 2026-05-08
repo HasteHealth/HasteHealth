@@ -15,7 +15,7 @@ tags:
 
 # Haste Health Integration
 
-This guide provides step-by-step instructions on integrating a seperate Haste Health tenant as an identity provider for your Project.
+This guide provides step-by-step instructions on integrating a separate Haste Health tenant as an identity provider for your Project.
 
 ## Prerequisites
 - Two Haste Health tenants and accounts with access to both Haste Health Admin Consoles.
@@ -28,9 +28,9 @@ This guide provides step-by-step instructions on integrating a seperate Haste He
      - **Name**: A friendly name for the application (e.g., `Haste Health IDP Client`).
      - **Grant Type**: Select `Authorization Code`
      - **Response Types**: Select `token`
-     - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to verify user).
+     - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email`; note that OpenID is required to verify the user).
      - **Redirect URIs**: Add a new redirect URI for your Haste Health tenant that will use this identity provider:
-       `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+       `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 2. **Copy Metadata**
    - Copy ClientId and Client secret (if set) from step 1.
    - Go to https://local.haste.health/.well-known/openid-configuration/w/[tenant]/[project]
@@ -45,21 +45,23 @@ This guide provides step-by-step instructions on integrating a seperate Haste He
       - **Name**: A friendly name for the identity provider (e.g., `Haste Health IDP`).
       - **Status**: Set to `active`.
       - **Access Type**: Set to `oidc`.
-      - **Authorization_endpiont**: The authorization_endpoint copied from step 2.
+      - **Authorization_endpoint**: The authorization_endpoint copied from step 2.
       - **Token_endpoint**: The token_endpoint copied from step 2.
       - **Jwks_uri**: The jwks_uri copied from step 2.
-      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to verify user).
+      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email`; note that OpenID is required to verify the user).
       - **Client ID**: The ClientId copied from step 1.
       - **Client Secret**: The Client secret copied from step 1.
       - **Enable PKCE**: We require PKCE so enable this option and use S256 as the code challenge method.
-4. **Set Health Tenant redirect url in Identity Provider Tenant**
-    - Go back to your Haste Health tenant you are using as an identity provider.
-    - Navigate to "Security" > "Client Applications".
-    - Edit the application you created in step 1.
-    - In the "Redirect URIs" section, ensure the redirect URI for your Haste Health tenant that will use this identity provider is added:
-      `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
-4. **Test the Integration**
-    - Click Projects in system admin app and modify at the bottom identity providers.
-    - Add the Haste Health identity provider to the desired project.
-    - Click the project and log out.
-    - Click to log in using the newly added Haste Health identity provider to ensure everything is set up correctly.
+
+4. **Set Health Tenant redirect URL in Identity Provider Tenant**
+   - Go back to your Haste Health tenant you are using as an identity provider.
+   - Navigate to "Security" > "Client Applications".
+   - Edit the application you created in step 1.
+   - In the "Redirect URIs" section, ensure the redirect URI for your Haste Health tenant that will use this identity provider is added:
+      `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+
+5. **Test the Integration**
+   - Click Projects in system admin app and modify at the bottom identity providers.
+   - Add the Haste Health identity provider to the desired project.
+   - Click the project and log out.
+   - Click to log in using the newly added Haste Health identity provider to ensure everything is set up correctly.

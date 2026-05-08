@@ -36,9 +36,9 @@ This guide provides step-by-step instructions on integrating Okta as an identity
     - Copy the "Client ID"
     - Copy the "Client Secret"
     - Click Edit and enable PKCE.
-    - Use the following URLS:
+    - Use the following URLs:
       - **OAuth 2.0 authorization endpoint (v2)**: `https://[your-okta-tenant-domain]/oauth2/v1/authorize`
-      - **OAuth 2.0 token endpoint (v2)l**: `https://[your-okta-tenant-domain]/oauth2/v1/token`
+      - **OAuth 2.0 token endpoint (v2)**: `https://[your-okta-tenant-domain]/oauth2/v1/token`
       - **Json web key set Url**: `https://[your-okta-tenant-domain]/oauth2/v1/keys`
 3. **Create IdentityProvider Resource in Haste Health**
    - Go to the Haste Health Admin App for your tenant.
@@ -52,17 +52,17 @@ This guide provides step-by-step instructions on integrating Okta as an identity
       - **Authorization_endpoint**: The OAuth 2.0 authorization endpoint copied from step 2.
       - **Token_endpoint**: The OAuth 2.0 token endpoint copied from step 2.
       - **Jwks_uri**: The Json web key set Url copied from step 2.
-      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to verify user).
+      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email`; note that OpenID is required to verify the user).
       - **Client ID**: The Application (client) ID copied from Okta.
       - **Client Secret**: The Client Secret copied from Okta in step 2.
       - **Enable PKCE**: Enable pkce and use S256 as the code challenge method.
       - Click **Create** to save the new Identity Provider configuration.
 4. **Add Redirect URI in Okta**
-   - Go back to your Okta
+   - Go back to your Okta application.
    - Navigate to the application you created.
    - Under general settings click edit.
    - In the "Redirect URIs" section, add a new redirect URI for your Haste Health tenant:
-     `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+     `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 
 5. **Test the Integration**
    - Click Projects in system admin app and modify at the bottom identity providers.

@@ -36,7 +36,7 @@ This guide provides step-by-step instructions on integrating Keycloak as an iden
    - Click Save
 2. **Copy Configuration information**
     Go to https://[keycloak-domain]/realms/[keycloak-realm]/.well-known/openid-configuration
-    And copy the following endpoints in the json for use later
+   And copy the following endpoints in the JSON for use later:
     - authorization_endpoint: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/auth`
     - token_endpoint: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/token`
     - jwks_uri: `https://[keycloak-domain]/realms/[keycloak-realm]/protocol/openid-connect/certs`
@@ -50,10 +50,10 @@ This guide provides step-by-step instructions on integrating Keycloak as an iden
       - **Name**: A friendly name for the identity provider (e.g., `Keycloak`).
       - **Status**: Set to `active`.
       - **Access Type**: Set to `oidc`.
-      - **Authorization_endpiont**: The OAuth 2.0 authorization endpoint copied from step 2.
+      - **Authorization_endpoint**: The OAuth 2.0 authorization endpoint copied from step 2.
       - **Token_endpoint**: The OAuth 2.0 token endpoint copied from step 2.
       - **Jwks_uri**: The Json web key set Url copied from step 2.
-      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email` note openid is required to veirfy user).
+      - **Scopes**: Specify the scopes required for your application (e.g., `openid profile email`; note that OpenID is required to verify the user).
       - **Client ID**: The Application (client) ID copied from Keycloak.
       - **Client Secret**: Copied from Keycloak in step 2.
       - **Enable PKCE**: Use S256 as the code challenge method.
@@ -62,7 +62,7 @@ This guide provides step-by-step instructions on integrating Keycloak as an iden
 4. **Add Redirect URI in Keycloak app**
    - Go back to your Keycloak client you created in step 2.
    - At the bottom in "Valid Redirect URIs" section, add a new redirect URI for your Haste Health tenant:
-     `https:://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
+   `https://[haste-health-host]/w/[my-tenant]/system/api/v1/oidc/federated/[idp-resource-id]/callback`
 
 5. **Test the Integration**
    - Click Projects in system admin app and modify at the bottom identity providers.
