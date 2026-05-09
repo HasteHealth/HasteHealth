@@ -30,7 +30,7 @@ pub async fn tenant_select_get<
 
     Ok(page_html(html! {
         (banner("Enter your tenant identifier", None))
-        div class="w-full bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
+        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow md:mt-0 xl:p-0 text-slate-700" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 form class="space-y-2" action=(action_url) method="POST" {
                     div class="grid grid-cols-4 gap-1" {
@@ -41,7 +41,7 @@ pub async fn tenant_select_get<
                     }
 
                     div class="space-y-4" {
-                        button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Continue" }
+                        button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center " { "Continue" }
                         div class="flex items-center justify-start" {
                             a href=(signup_url) class="text-sm font-medium text-brand-600 hover:underline " { "Sign up" }
                         }

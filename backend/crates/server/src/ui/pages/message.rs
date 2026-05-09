@@ -17,7 +17,7 @@ pub fn message_html(
 
     page_html(html! {
         (banner(tenant.map(|t| t.as_ref()).unwrap_or(""), project_name.as_ref().map(|p| p.as_ref())))
-        div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
+        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
             div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                 (message)
             }

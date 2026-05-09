@@ -41,7 +41,7 @@ pub async fn global_signup_get<
 ) -> Result<Response, OperationOutcomeError> {
     Ok(page_html(html! {
         (banner("Sign up", None))
-        div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
+        div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0 " {
             form class="space-y-4 p-6 sm:p-8" action=("/auth/signup") method="POST" {
                 div class="grid grid-cols-4 gap-1 space-y-1" {                
                     div class="col-span-4" {
@@ -62,7 +62,7 @@ pub async fn global_signup_get<
                     }
                 }
                 div class="flex w-full" {
-                    button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
+                    button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" {
                         "Continue"
                     }
                 }

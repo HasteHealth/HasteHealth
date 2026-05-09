@@ -34,7 +34,7 @@ pub fn scope_approval_html(
 
     page_html(html! {
             (banner(tenant.as_ref(), Some(&project_name)))
-            div class="w-full bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
+            div class="border border-brand-50 w-full bg-white   bg-white rounded-lg shadow  md:mt-0  xl:p-0" {
                 div class="p-6 space-y-4 md:space-y-6 sm:p-8" {
                     (client_app_header_html(client_application))
                     div {
@@ -70,7 +70,7 @@ pub fn scope_approval_html(
                             input readonly="" class="hidden" type="text" name="scope" value=(String::from(authorization_info.scope.clone())) {}
                             input readonly="" class="hidden" type="text" name="redirect_uri" value=(authorization_info.redirect_uri) {}
                             input readonly="" class="hidden" type="checkbox" name="accept" checked {}
-                            button type="submit" class="cursor-pointer w-full text-white bg-brand-500 hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800" {
+                            button type="submit" class="cursor-pointer w-full text-white bg-brand-600 hover:bg-brand-500 focus:ring-4 focus:outline-none focus:ring-brand-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-brand-500 dark:hover:bg-brand-500 dark:focus:ring-brand-800" {
                                 "Allow"
                             }
                         }
