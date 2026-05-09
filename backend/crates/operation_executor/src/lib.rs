@@ -1,6 +1,7 @@
 pub mod providers;
 pub mod structs;
 pub mod traits;
+pub mod validate;
 
 use haste_fhir_model::r4::generated::resources::OperationDefinition;
 use haste_fhir_model::r4::generated::types::{Extension, ExtensionValueTypeChoice};
