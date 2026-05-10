@@ -2,12 +2,13 @@ use crate::extract_code_from_operation_definition;
 use crate::providers::deno_embedded::run_code;
 use crate::structs::PluginCodeType;
 use crate::traits::OperationExecutor;
+use crate::validate::validate_parameters;
 use deno_core::serde_json::json;
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
 use haste_fhir_client::request::InvocationRequest;
 use haste_fhir_model::r4::generated::resources::{OperationDefinition, Parameters};
-use haste_fhir_model::r4::generated::terminology::IssueType;
+use haste_fhir_model::r4::generated::terminology::{IssueType, OperationParameterUse};
 use haste_fhir_operation_error::OperationOutcomeError;
 use std::io;
 use std::sync::Arc;
@@ -149,6 +150,12 @@ impl OperationExecutor for DenoPool {
         operation: &OperationDefinition,
         input: &InvocationRequest,
     ) -> Result<Parameters, OperationOutcomeError> {
+        validate_parameters(
+            get_parameters(input),
+            &operation.parameter.as_deref().unwrap_or_default(),
+            &OperationParameterUse::In(None),
+        )?;
+
         let (code, media_type) =
             extract_code_from_operation_definition(operation).ok_or_else(|| {
                 OperationOutcomeError::error(
@@ -181,12 +188,21 @@ impl OperationExecutor for DenoPool {
                 )
             })?;
 
-        haste_fhir_serialization_json::from_serde_value(output).map_err(|error| {
-            OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                format!("Operation custom code returned invalid Parameters payload: {error}"),
-            )
-        })
+        let output = haste_fhir_serialization_json::from_serde_value::<Parameters>(output)
+            .map_err(|error| {
+                OperationOutcomeError::error(
+                    IssueType::Invalid(None),
+                    format!("Operation custom code returned invalid Parameters payload: {error}"),
+                )
+            })?;
+
+        validate_parameters(
+            &output,
+            &operation.parameter.as_deref().unwrap_or_default(),
+            &OperationParameterUse::Out(None),
+        )?;
+
+        Ok(output)
     }
 }
 
