@@ -226,7 +226,7 @@ function OperationCodeEditor({
         >
           {(setOpen) => (
             <Button
-              buttonType="secondary"
+              buttonType="primary"
               onClick={(e) => {
                 e.preventDefault();
                 setOpen(true);
