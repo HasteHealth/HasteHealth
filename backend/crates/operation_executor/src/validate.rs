@@ -32,11 +32,7 @@ fn create_issue(
     }
 }
 
-/// Validate a [`Parameters`] resource against an [`OperationDefinition`]'s parameter list.
-///
-/// Only parameters whose `use` matches `direction` are considered.  
-/// Returns `Ok(())` if every constraint is satisfied, otherwise an
-/// [`OperationOutcomeError`] that accumulates **all** violations found.
+/// Validate Parameters against the corresponding OperationDefinitionParameter definitions for the specified direction.
 pub fn validate_parameters(
     parameters: &Parameters,
     operation_params: &[OperationDefinitionParameter],
