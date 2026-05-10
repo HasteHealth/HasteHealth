@@ -2,7 +2,8 @@ use haste_fhir_model::r4::generated::{
     resources::{
         OperationDefinitionParameter, OperationOutcomeIssue, Parameters, ParametersParameter,
     },
-    terminology::{IssueType, OperationParameterUse},
+    terminology::{IssueSeverity, IssueType, OperationParameterUse},
+    types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 
@@ -11,6 +12,22 @@ use haste_fhir_operation_error::OperationOutcomeError;
 pub enum ParameterDirection {
     In,
     Out,
+}
+
+fn create_issue(
+    severity: IssueSeverity,
+    type_: IssueType,
+    diagnostics: String,
+) -> OperationOutcomeIssue {
+    OperationOutcomeIssue {
+        severity: Box::new(severity),
+        code: Box::new(type_),
+        diagnostics: Some(Box::new(FHIRString {
+            value: Some(diagnostics),
+            ..Default::default()
+        })),
+        ..Default::default()
+    }
 }
 
 /// Validate a [`Parameters`] resource against an [`OperationDefinition`]'s parameter list.
@@ -28,32 +45,33 @@ pub fn validate_parameters(
         .filter(|p| matches!(p.use_, direction))
         .collect();
 
-    let supplied: &[ParametersParameter] = parameters.parameter.as_deref().unwrap_or_default();
+    let parameters_to_validate: &[ParametersParameter] =
+        parameters.parameter.as_deref().unwrap_or_default();
 
     let mut issues: Vec<OperationOutcomeIssue> = Vec::new();
 
     // --- Check each definition against what was supplied ---
-    for def in &parameter_definitions {
-        let name = match def.name.value.as_deref() {
+    for parameter_definition in &parameter_definitions {
+        let name = match parameter_definition.name.value.as_deref() {
             Some(n) => n,
             None => continue,
         };
 
-        let matches: Vec<&ParametersParameter> = supplied
+        let found_parameters: Vec<&ParametersParameter> = parameters_to_validate
             .iter()
             .filter(|p| p.name.value.as_deref() == Some(name))
             .collect();
 
-        let count = matches.len() as i64;
+        let count = found_parameters.len() as i64;
 
         // Minimum cardinality
-        let min = def.min.value.unwrap_or(0);
+        let min = parameter_definition.min.value.unwrap_or(0);
         if count < min {
             issues.push(OperationOutcomeIssue {
                 severity: Some("error".to_string()),
                 code: Some("invalid".to_string()),
                 diagnostics: Some(format!(
-                    "Parameter '{}' requires a minimum of {} occurrence(s) but {} were supplied.",
+                    "Parameter '{}' requires at least {} occurrence(s) but only {} were supplied.",
                     name, min, count
                 )),
                 ..Default::default()
@@ -61,7 +79,7 @@ pub fn validate_parameters(
         }
 
         // Maximum cardinality ("*" means unbounded)
-        if let Some(max_str) = def.max.value.as_deref() {
+        if let Some(max_str) = parameter_definition.max.value.as_deref() {
             if max_str != "*" {
                 if let Ok(max) = max_str.parse::<i64>() {
                     if count > max {
@@ -81,8 +99,8 @@ pub fn validate_parameters(
 
         // Recursively validate parts when both the definition and the
         // supplied parameter declare nested parts.
-        if let Some(part_defs) = &def.part {
-            for supplied_param in &matches {
+        if let Some(part_defs) = &parameter_definition.part {
+            for supplied_param in &found_parameters {
                 if let Some(supplied_parts) = &supplied_param.part {
                     let parts_as_parameters = Parameters {
                         parameter: Some(supplied_parts.clone()),
@@ -116,7 +134,7 @@ pub fn validate_parameters(
     }
 
     // --- Warn about parameters that have no matching definition ---
-    for supplied_param in supplied {
+    for supplied_param in parameters_to_validate {
         let name = supplied_param.name.value.as_deref().unwrap_or("<unnamed>");
         let defined = parameter_definitions
             .iter()
