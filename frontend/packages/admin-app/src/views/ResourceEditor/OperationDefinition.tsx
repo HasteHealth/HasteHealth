@@ -32,7 +32,7 @@ import { getErrorMessage } from "../../utilities";
 
 const extensions = [
   basicSetup,
-  javascript(),
+  javascript({ typescript: true }),
   keymap.of([
     {
       key: "Tab",
@@ -50,9 +50,7 @@ const extensions = [
 function getOperationCode(operation: OperationDefinition | undefined): string {
   const code: string =
     operation?.extension?.find(
-      (e) =>
-        e.url ===
-        "https://haste-health.github.io/fhir-operation-definition/operation-code",
+      (e) => e.url === "https://haste.health/Extension/custom-code",
     )?.valueString ?? "";
   return code;
 }
@@ -407,6 +405,30 @@ const InvocationModal = ({
   );
 };
 
+const DEFAULT_CODE = `
+interface Context {
+  request: {
+    id?: string;
+    resource?: string;
+    parameters: unknown;
+  }
+}
+
+export default async function(context: Context) {
+    const sd = await fhir.readResource("StructureDefinition", "Patient");
+
+    return {
+        resourceType: 'Parameters',
+        parameter: [
+            {
+                name: 'sd',
+                resource: sd
+            }
+        ]
+    };
+}
+`;
+
 export default function OperationDefinitionView({
   id,
   resourceType,
@@ -416,6 +438,25 @@ export default function OperationDefinitionView({
   onChange,
 }: OperationEditorProps) {
   const code: string = getOperationCode(resource);
+
+  useEffect(() => {
+    if (id === "new" && resource === undefined) {
+      onChange({
+        resourceType: "OperationDefinition",
+        id: "new",
+        code: "new",
+        status: "draft",
+        kind: "operation",
+        extension: [
+          {
+            url: "https://haste.health/Extension/custom-code",
+            valueString: DEFAULT_CODE,
+          },
+        ],
+      } as OperationDefinition);
+    }
+  }, [id, resource]);
+
   return (
     <ResourceEditorComponent
       id={id as id}
@@ -446,11 +487,10 @@ export default function OperationDefinitionView({
                   extension: [
                     ...(resource?.extension?.filter(
                       (e) =>
-                        e.url !==
-                        "https://haste-health.github.io/fhir-operation-definition/operation-code",
-                    ) || []),
+                        e.url !== "https://haste.health/Extension/custom-code",
+                    ) ?? []),
                     {
-                      url: "https://haste-health.github.io/fhir-operation-definition/operation-code",
+                      url: "https://haste.health/Extension/custom-code",
                       valueString: v,
                     },
                   ],
