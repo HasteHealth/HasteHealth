@@ -40,11 +40,11 @@ fn create_issue(
 pub fn validate_parameters(
     parameters: &Parameters,
     operation_params: &[OperationDefinitionParameter],
-    direction: OperationParameterUse,
+    direction: &OperationParameterUse,
 ) -> Result<(), OperationOutcomeError> {
     let parameter_definitions: Vec<&OperationDefinitionParameter> = operation_params
         .iter()
-        .filter(|p| matches!(p.use_, direction))
+        .filter(|p| std::mem::discriminant(p.use_.as_ref()) == std::mem::discriminant(direction))
         .collect();
 
     let parameters_to_validate: &[ParametersParameter] =
@@ -99,7 +99,7 @@ pub fn validate_parameters(
         // 2. Otherwise, use the type of the `value` field.
         if let Some(parameter_def_type) = &parameter_definition.type_ {
             let type_name: Option<String> = parameter_def_type.as_ref().into();
-            for found_parameter in found_parameters {
+            for found_parameter in found_parameters.iter() {
                 let type_ = if let Some(resource) = found_parameter.resource.as_ref() {
                     RUST_TO_FHIR_TYPE_MAP.get(resource.resource_type().as_ref())
                 } else {
@@ -130,7 +130,7 @@ pub fn validate_parameters(
                         parameter: Some(supplied_parts.clone()),
                         ..Default::default()
                     };
-                    validate_parameters(&parts_as_parameters, part_defs, direction)?;
+                    validate_parameters(&parts_as_parameters, part_defs, &direction)?;
                 }
             }
         }
@@ -143,7 +143,7 @@ pub fn validate_parameters(
             .iter()
             .any(|d| d.name.value.as_deref() == Some(name));
         if !defined {
-            let display_direction: Option<String> = (&direction).into();
+            let display_direction: Option<String> = (direction).into();
             issues.push(create_issue(
                 IssueSeverity::Error(None),
                 IssueType::Invalid(None),
@@ -219,7 +219,7 @@ mod tests {
             parameter: None,
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
     }
 
     #[test]
@@ -229,7 +229,7 @@ mod tests {
             parameter: Some(vec![make_param("subject")]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
     }
 
     #[test]
@@ -239,7 +239,7 @@ mod tests {
             parameter: Some(vec![make_param("unknown")]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
     }
 
     #[test]
@@ -249,7 +249,7 @@ mod tests {
             parameter: Some(vec![make_param("subject"), make_param("subject")]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, OperationParameterUse::In(None)).is_err());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
     }
 
     #[test]
@@ -261,7 +261,7 @@ mod tests {
             ..Default::default()
         };
         // No "in" definitions exist, so nothing to violate → should pass.
-        assert!(validate_parameters(&params, &defs, OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
     }
 
     #[test]
@@ -275,6 +275,6 @@ mod tests {
             ]),
             ..Default::default()
         };
-        assert!(validate_parameters(&params, &defs, OperationParameterUse::In(None)).is_ok());
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
     }
 }
