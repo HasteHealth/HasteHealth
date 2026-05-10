@@ -1,11 +1,13 @@
 use haste_fhir_model::r4::generated::{
     resources::{
-        OperationDefinitionParameter, OperationOutcomeIssue, Parameters, ParametersParameter,
+        OperationDefinitionParameter, OperationOutcome, OperationOutcomeIssue, Parameters,
+        ParametersParameter, RUST_TO_FHIR_TYPE_MAP,
     },
     terminology::{IssueSeverity, IssueType, OperationParameterUse},
     types::FHIRString,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
+use haste_reflect::MetaValue as _;
 
 /// Which direction of `OperationDefinition.parameter` to validate against.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -67,15 +69,14 @@ pub fn validate_parameters(
         // Minimum cardinality
         let min = parameter_definition.min.value.unwrap_or(0);
         if count < min {
-            issues.push(OperationOutcomeIssue {
-                severity: Some("error".to_string()),
-                code: Some("invalid".to_string()),
-                diagnostics: Some(format!(
+            issues.push(create_issue(
+                IssueSeverity::Error(None),
+                IssueType::Invariant(None),
+                format!(
                     "Parameter '{}' requires at least {} occurrence(s) but only {} were supplied.",
                     name, min, count
-                )),
-                ..Default::default()
-            });
+                ),
+            ));
         }
 
         // Maximum cardinality ("*" means unbounded)
@@ -83,16 +84,39 @@ pub fn validate_parameters(
             if max_str != "*" {
                 if let Ok(max) = max_str.parse::<i64>() {
                     if count > max {
-                        issues.push(OperationOutcomeIssue {
-                            severity: Some("error".to_string()),
-                            code: Some("invalid".to_string()),
-                            diagnostics: Some(format!(
+                        issues.push(create_issue(IssueSeverity::Error(None), IssueType::Invariant(None),
+                        format!(
                                 "Parameter '{}' allows a maximum of {} occurrence(s) but {} were supplied.",
                                 name, max, count
-                            )),
-                            ..Default::default()
-                        });
+                            )));
                     }
+                }
+            }
+        }
+
+        // Validate type if specified. The type of a supplied parameter is determined by:
+        // 1. If it has a `resource` field, use the resource type.
+        // 2. Otherwise, use the type of the `value` field.
+        if let Some(parameter_def_type) = &parameter_definition.type_ {
+            let type_name: Option<String> = parameter_def_type.as_ref().into();
+            for found_parameter in found_parameters {
+                let type_ = if let Some(resource) = found_parameter.resource.as_ref() {
+                    RUST_TO_FHIR_TYPE_MAP.get(resource.resource_type().as_ref())
+                } else {
+                    RUST_TO_FHIR_TYPE_MAP.get(found_parameter.value.typename())
+                };
+
+                if type_ != Some(&type_name.as_deref().unwrap_or_default()) {
+                    issues.push(create_issue(
+                        IssueSeverity::Error(None),
+                        IssueType::Invalid(None),
+                        format!(
+                            "Parameter '{}' expects type '{}' but found '{}'.",
+                            name,
+                            type_name.as_deref().unwrap_or("<unknown>"),
+                            type_.unwrap_or(&"<unknown>")
+                        ),
+                    ));
                 }
             }
         }
@@ -106,28 +130,7 @@ pub fn validate_parameters(
                         parameter: Some(supplied_parts.clone()),
                         ..Default::default()
                     };
-                    if let Err(part_error) =
-                        validate_parameters(&parts_as_parameters, part_defs, direction)
-                    {
-                        issues.push(OperationOutcomeIssue {
-                            severity: Some("error".to_string()),
-                            code: Some("invalid".to_string()),
-                            diagnostics: Some(format!(
-                                "In parameter '{}': {}",
-                                name,
-                                part_error
-                                    .outcome()
-                                    .issue
-                                    .as_deref()
-                                    .unwrap_or_default()
-                                    .iter()
-                                    .filter_map(|i| i.diagnostics.as_ref()?.value.as_deref())
-                                    .collect::<Vec<_>>()
-                                    .join("; ")
-                            )),
-                            ..Default::default()
-                        });
-                    }
+                    validate_parameters(&parts_as_parameters, part_defs, direction)?;
                 }
             }
         }
@@ -140,12 +143,15 @@ pub fn validate_parameters(
             .iter()
             .any(|d| d.name.value.as_deref() == Some(name));
         if !defined {
-            issues.push(format!(
-                "Parameter '{}' is not defined for the '{}' direction.",
-                name,
-                direction
-                    .into::<Option<String>>()
-                    .unwrap_or("<unknown>".to_string())
+            let display_direction: Option<String> = (&direction).into();
+            issues.push(create_issue(
+                IssueSeverity::Error(None),
+                IssueType::Invalid(None),
+                format!(
+                    "Parameter '{}' is not defined for the '{}' direction.",
+                    name,
+                    display_direction.as_deref().unwrap_or("<unknown>")
+                ),
             ));
         }
     }
@@ -153,11 +159,13 @@ pub fn validate_parameters(
     if issues.is_empty() {
         Ok(())
     } else {
-        let mut error = OperationOutcomeError::error(IssueType::Invalid(None), issues[0].clone());
-        for message in issues.into_iter().skip(1) {
-            error.push_issue(IssueType::Invalid(None), message);
-        }
-        Err(error)
+        Err(OperationOutcomeError::new(
+            None,
+            OperationOutcome {
+                issue: issues,
+                ..Default::default()
+            },
+        ))
     }
 }
 

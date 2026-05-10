@@ -2737,6 +2737,7 @@ dependencies = [
  "haste-fhir-model",
  "haste-fhir-operation-error",
  "haste-fhir-serialization-json",
+ "haste-reflect",
  "tokio",
 ]
 

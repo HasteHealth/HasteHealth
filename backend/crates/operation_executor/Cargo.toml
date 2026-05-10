@@ -18,6 +18,7 @@ haste-fhir-model = { path = "../fhir-model", version = "0.*" }
 haste-fhir-operation-error = { path = "../fhir-operation-error", version = "0.*" }
 haste-fhir-serialization-json = { path = "../fhir-serialization-json", version = "0.*" }
 tokio = { workspace = true, features = ["full"] }
+haste-reflect = { path = "../reflect", version = "0.*" }
 
 [build-dependencies]
 deno_core = "0.400.0"
