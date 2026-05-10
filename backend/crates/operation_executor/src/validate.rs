@@ -388,4 +388,53 @@ mod tests {
 
         assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
     }
+
+    #[test]
+    fn test_nested() {
+        let mut parent = make_def("parent", OperationParameterUse::In(None), 1, "1", None);
+
+        parent.part = Some(vec![make_def(
+            "child",
+            OperationParameterUse::In(None),
+            1,
+            "1",
+            Some(Box::new(AllTypes::String(None))),
+        )]);
+
+        let defs = vec![parent];
+
+        let mut child_param = make_param("child");
+        child_param.value = Some(ParametersParameterValueTypeChoice::String(Box::new(
+            FHIRString {
+                value: Some("I am a child parameter.".to_string()),
+                ..Default::default()
+            },
+        )));
+
+        let mut parent_param = make_param("parent");
+        parent_param.part = Some(vec![child_param.clone()]);
+
+        let params = Parameters {
+            parameter: Some(vec![parent_param.clone()]),
+            ..Default::default()
+        };
+
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+
+        child_param.value = Some(ParametersParameterValueTypeChoice::Integer(Box::new(
+            FHIRInteger {
+                value: Some(42),
+                ..Default::default()
+            },
+        )));
+
+        parent_param.part = Some(vec![child_param]);
+
+        let params = Parameters {
+            parameter: Some(vec![parent_param.clone()]),
+            ..Default::default()
+        };
+
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+    }
 }
