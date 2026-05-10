@@ -11,7 +11,7 @@ pub enum TenantResourceLimit {
     Unlimited,
 }
 
-static FREE_TIER_OPERATION_LIMITS: usize = 0;
+static FREE_TIER_OPERATION_DEFINITION_LIMITS: usize = 0;
 static FREE_TIER_SUBSCRIPTION_LIMITS: usize = 0;
 static FREE_TIER_SEARCH_PARAMETER_LIMITS: usize = 0;
 
@@ -25,7 +25,7 @@ static SUBSCRIPTION_LIMITS: LazyLock<
         ResourceType::OperationDefinition,
         TenantResourceLimit::Count(
             ResourceType::OperationDefinition,
-            FREE_TIER_OPERATION_LIMITS,
+            FREE_TIER_OPERATION_DEFINITION_LIMITS,
         ),
     );
     free_tier_limits.insert(
