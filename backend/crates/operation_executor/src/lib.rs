@@ -6,8 +6,8 @@ pub mod validate;
 use haste_fhir_model::r4::generated::resources::OperationDefinition;
 use haste_fhir_model::r4::generated::types::{Extension, ExtensionValueTypeChoice};
 
-const CUSTOM_CODE_EXTENSION_URL: &str = "https://haste.health/Extension/custom-code";
-const CUSTOM_CODE_TYPE_EXTENSION_URL: &str = "https://haste.health/Extension/custom-code-type";
+pub const CUSTOM_CODE_EXTENSION_URL: &str = "https://haste.health/Extension/custom-code";
+pub const CUSTOM_CODE_TYPE_EXTENSION_URL: &str = "https://haste.health/Extension/custom-code-type";
 
 pub(crate) fn extract_code_from_operation_definition(
     operation: &OperationDefinition,

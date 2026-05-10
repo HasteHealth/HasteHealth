@@ -199,8 +199,8 @@ function OperationCodeEditor({
           }}
         />
       </div>
-      <div className="flex justify-start space-x-4 py-2">
-        <Modal
+      <div className="flex justify-start space-x-4 py-2 px-1">
+        {/* <Modal
           modalTitle={`Deploy ${operation?.code}`}
           ModalContent={(setOpen) => (
             <DeployModal operation={operation} setOpen={setOpen} />
@@ -217,7 +217,7 @@ function OperationCodeEditor({
               Deploy
             </Button>
           )}
-        </Modal>
+        </Modal> */}
         <Modal
           modalTitle={`Invoke ${operation?.code}`}
           ModalContent={(setOpen) => (
@@ -444,11 +444,30 @@ export default function OperationDefinitionView({
       onChange({
         resourceType: "OperationDefinition",
         id: "new",
+        name: "New Operation",
         code: "new",
+        system: true,
+        type: false,
+        instance: false,
         status: "draft",
         kind: "operation",
+        parameter: [
+          {
+            name: "sd",
+            use: "out",
+            min: 1,
+            max: "1",
+            type: "StructureDefinition",
+          },
+        ],
         extension: [
           {
+            extension: [
+              {
+                url: "https://haste.health/Extension/custom-code-type",
+                valueString: "text/typescript",
+              },
+            ],
             url: "https://haste.health/Extension/custom-code",
             valueString: DEFAULT_CODE,
           },
@@ -490,6 +509,12 @@ export default function OperationDefinitionView({
                         e.url !== "https://haste.health/Extension/custom-code",
                     ) ?? []),
                     {
+                      extension: [
+                        {
+                          url: "https://haste.health/Extension/custom-code-type",
+                          valueString: "text/typescript",
+                        },
+                      ],
                       url: "https://haste.health/Extension/custom-code",
                       valueString: v,
                     },

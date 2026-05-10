@@ -1,8 +1,8 @@
-use crate::extract_code_from_operation_definition;
 use crate::providers::deno_embedded::run_code;
 use crate::structs::PluginCodeType;
 use crate::traits::OperationExecutor;
 use crate::validate::validate_parameters;
+use crate::{CUSTOM_CODE_EXTENSION_URL, extract_code_from_operation_definition};
 use deno_core::serde_json::json;
 use deno_core::{error::AnyError, serde_json};
 use haste_fhir_client::FHIRClient;
@@ -160,7 +160,10 @@ impl OperationExecutor for DenoPool {
             extract_code_from_operation_definition(operation).ok_or_else(|| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
-                    "OperationDefinition missing custom code extension metadata".to_string(),
+                    format!(
+                        "OperationDefinition missing custom code extension metadata '{}'",
+                        CUSTOM_CODE_EXTENSION_URL
+                    ),
                 )
             })?;
 

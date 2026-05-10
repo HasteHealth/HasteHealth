@@ -11,11 +11,11 @@ use haste_fhir_client::{
     request::{
         FHIRInvokeSystemResponse, FHIRRequest, FHIRResponse, InvocationRequest, InvokeResponse,
     },
+    url::{Parameter, ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{OperationDefinition, OperationDefinitionParameter, Resource},
-    terminology::{AllTypes, IssueType, OperationParameterUse},
-    types::{Extension, ExtensionValueTypeChoice, FHIRCode, FHIRString},
+    resources::{Resource, ResourceType},
+    terminology::IssueType,
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationInvocation;
@@ -167,9 +167,9 @@ impl<
         // tokio::task::spawn_blocking(f)
 
         Box::pin(async move {
-            if let Some(op_executor) = executors.find_operation(&context.request) {
-                let output: Resource = match &context.request {
-                    FHIRRequest::Invocation(request) => {
+            match &context.request {
+                FHIRRequest::Invocation(invoke_request) => {
+                    if let Some(op_executor) = executors.find_operation(&context.request) {
                         let output = op_executor
                             .execute(
                                 ServerOperationContext {
@@ -178,97 +178,67 @@ impl<
                                 },
                                 context.ctx.tenant.clone(),
                                 context.ctx.project.clone(),
-                                &request,
+                                &invoke_request,
                             )
                             .await?;
-                        Ok(Resource::from(output))
-                    }
-                    _ => Err(OperationOutcomeError::fatal(
-                        IssueType::Exception(None),
-                        "Operation not supported".to_string(),
-                    )),
-                }?;
 
-                context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
-                    FHIRInvokeSystemResponse { resource: output },
-                )));
+                        context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
+                            FHIRInvokeSystemResponse { resource: output },
+                        )));
 
-                Ok(context)
-            } else {
-                match get_request_operation_code(&context.request) {
-                    Some("execute-ts") => {
-                        let result = DENO_EXECUTOR
+                        Ok(context)
+                    } else if let Some(code) = get_request_operation_code(&context.request)
+                        && let bundle = context
+                            .ctx
+                            .client
+                            .search_type(
+                                context.ctx.clone(),
+                                ResourceType::OperationDefinition,
+                                ParsedParameters::new(vec![ParsedParameter::Resource(Parameter {
+                                    name: "code".to_string(),
+                                    value: vec![code.to_string()],
+                                    modifier: None,
+                                    chains: None,
+                                })]),
+                            )
+                            .await?
+                        && let Some(entry) = bundle
+                            .entry
+                            .as_deref()
+                            .unwrap_or_default()
+                            .into_iter()
+                            .next()
+                        && let Some(Resource::OperationDefinition(operation_definition)) =
+                            entry.resource.as_deref()
+                    {
+                        let output = DENO_EXECUTOR
                             .execute_operation(
                                 context.ctx.clone(),
                                 context.ctx.client.clone(),
-                                &OperationDefinition {
-                                    extension: Some(vec![Box::new(Extension {
-                                        url: "https://haste.health/Extension/custom-code".to_string(),
-                                        value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
-                                            value: Some(r#"
-                                                export default async function() {
-                                                    const sd = await fhir.readResource("StructureDefinition", "Patient");
-
-                                                    return {
-                                                        resourceType: 'Parameters',
-                                                        parameter: [
-                                                            {
-                                                                name: 'sd',
-                                                                resource: sd
-                                                            }
-                                                        ]
-                                                    };
-                                                }
-                                            "#.to_string()),
-                                            ..Default::default()
-                                        }))),
-                                        extension: Some(vec![Box::new(Extension {
-                                            url: "https://haste.health/Extension/custom-code-type".to_string(),
-                                            value: Some(ExtensionValueTypeChoice::String(Box::new(FHIRString {
-                                                value: Some("text/typescript".to_string()),
-                                                ..Default::default()
-                                            }))),
-                                            ..Default::default()
-                                        })]),
-                                        ..Default::default()
-                                    })]),
-                                    parameter: Some(vec![OperationDefinitionParameter {
-                                        name: Box::new(FHIRCode {
-                                            value: Some("sd".to_string()),
-                                            ..Default::default()
-                                        }),
-                                        type_: Some(Box::new(AllTypes::StructureDefinition(None))),
-                                        use_:  Box::new(OperationParameterUse::Out(None)),
-                                        ..Default::default()
-                                    }]),
-                                    ..Default::default()
-                                },
-                                match &context.request {
-                                    FHIRRequest::Invocation(invoke_request) => invoke_request,
-                                    _ => {
-                                        return Err(OperationOutcomeError::fatal(
-                                            IssueType::Invalid(None),
-                                            "Invalid request type for execute-ts operation"
-                                                .to_string(),
-                                        ));
-                                    }
-                                },
+                                operation_definition,
+                                &invoke_request,
                             )
                             .await?;
 
                         context.response = Some(FHIRResponse::Invoke(InvokeResponse::System(
                             FHIRInvokeSystemResponse {
-                                resource: Resource::Parameters(result),
+                                resource: Resource::Parameters(output),
                             },
                         )));
 
                         Ok(context)
+                    } else {
+                        // No operation found, return 404
+                        Err(OperationOutcomeError::error(
+                            IssueType::NotFound(None),
+                            "Operation not found".to_string(),
+                        ))
                     }
-                    _ => Err(OperationOutcomeError::fatal(
-                        IssueType::NotFound(None),
-                        "Operation not found".to_string(),
-                    )),
                 }
+                _ => Err(OperationOutcomeError::fatal(
+                    IssueType::Exception(None),
+                    "Operation not supported".to_string(),
+                )),
             }
         })
     }
