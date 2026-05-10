@@ -173,8 +173,11 @@ pub fn validate_parameters(
 mod tests {
     use super::*;
     use haste_fhir_model::r4::generated::{
-        resources::{OperationDefinitionParameter, Parameters, ParametersParameter},
-        terminology::OperationParameterUse,
+        resources::{
+            OperationDefinitionParameter, Parameters, ParametersParameter,
+            ParametersParameterValueTypeChoice, Patient, Practitioner, Resource,
+        },
+        terminology::{AllTypes, OperationParameterUse},
         types::{FHIRCode, FHIRInteger, FHIRString},
     };
 
@@ -183,6 +186,7 @@ mod tests {
         direction: OperationParameterUse,
         min: i64,
         max: &str,
+        type_: Option<Box<AllTypes>>,
     ) -> OperationDefinitionParameter {
         OperationDefinitionParameter {
             name: Box::new(FHIRCode {
@@ -198,6 +202,7 @@ mod tests {
                 value: Some(max.to_string()),
                 ..Default::default()
             }),
+            type_: type_,
             ..Default::default()
         }
     }
@@ -214,7 +219,13 @@ mod tests {
 
     #[test]
     fn required_param_missing_fails() {
-        let defs = vec![make_def("subject", OperationParameterUse::In(None), 1, "1")];
+        let defs = vec![make_def(
+            "subject",
+            OperationParameterUse::In(None),
+            1,
+            "1",
+            None,
+        )];
         let params = Parameters {
             parameter: None,
             ..Default::default()
@@ -224,7 +235,13 @@ mod tests {
 
     #[test]
     fn required_param_present_passes() {
-        let defs = vec![make_def("subject", OperationParameterUse::In(None), 1, "1")];
+        let defs = vec![make_def(
+            "subject",
+            OperationParameterUse::In(None),
+            1,
+            "1",
+            None,
+        )];
         let params = Parameters {
             parameter: Some(vec![make_param("subject")]),
             ..Default::default()
@@ -234,7 +251,13 @@ mod tests {
 
     #[test]
     fn extra_param_is_rejected() {
-        let defs = vec![make_def("subject", OperationParameterUse::In(None), 0, "1")];
+        let defs = vec![make_def(
+            "subject",
+            OperationParameterUse::In(None),
+            0,
+            "1",
+            None,
+        )];
         let params = Parameters {
             parameter: Some(vec![make_param("unknown")]),
             ..Default::default()
@@ -244,7 +267,13 @@ mod tests {
 
     #[test]
     fn max_exceeded_fails() {
-        let defs = vec![make_def("subject", OperationParameterUse::In(None), 0, "1")];
+        let defs = vec![make_def(
+            "subject",
+            OperationParameterUse::In(None),
+            0,
+            "1",
+            None,
+        )];
         let params = Parameters {
             parameter: Some(vec![make_param("subject"), make_param("subject")]),
             ..Default::default()
@@ -255,7 +284,13 @@ mod tests {
     #[test]
     fn out_direction_ignored_for_in_validation() {
         // An "out" definition should be invisible when validating "in"
-        let defs = vec![make_def("result", OperationParameterUse::Out(None), 1, "1")];
+        let defs = vec![make_def(
+            "result",
+            OperationParameterUse::Out(None),
+            1,
+            "1",
+            None,
+        )];
         let params = Parameters {
             parameter: None,
             ..Default::default()
@@ -266,7 +301,13 @@ mod tests {
 
     #[test]
     fn unbounded_max_passes() {
-        let defs = vec![make_def("note", OperationParameterUse::In(None), 0, "*")];
+        let defs = vec![make_def(
+            "note",
+            OperationParameterUse::In(None),
+            0,
+            "*",
+            None,
+        )];
         let params = Parameters {
             parameter: Some(vec![
                 make_param("note"),
@@ -276,5 +317,79 @@ mod tests {
             ..Default::default()
         };
         assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+    }
+
+    #[test]
+    fn basic_type_validation() {
+        let defs = vec![make_def(
+            "note",
+            OperationParameterUse::In(None),
+            0,
+            "*",
+            Some(Box::new(AllTypes::String(None))),
+        )];
+
+        let mut parameter_note = make_param("note");
+        parameter_note.value = Some(ParametersParameterValueTypeChoice::String(Box::new(
+            FHIRString {
+                value: Some("This is a note.".to_string()),
+                ..Default::default()
+            },
+        )));
+
+        let params = Parameters {
+            parameter: Some(vec![parameter_note.clone(), parameter_note.clone()]),
+            ..Default::default()
+        };
+
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+
+        parameter_note.value = Some(ParametersParameterValueTypeChoice::Integer(Box::new(
+            FHIRInteger {
+                value: Some(42),
+                ..Default::default()
+            },
+        )));
+
+        let params = Parameters {
+            parameter: Some(vec![parameter_note]),
+            ..Default::default()
+        };
+
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
+    }
+
+    #[test]
+    fn resource_validation() {
+        let defs = vec![make_def(
+            "note",
+            OperationParameterUse::In(None),
+            0,
+            "*",
+            Some(Box::new(AllTypes::Patient(None))),
+        )];
+
+        let mut parameter_note = make_param("note");
+        parameter_note.resource = Some(Box::new(Resource::Patient(Patient {
+            ..Default::default()
+        })));
+
+        let params = Parameters {
+            parameter: Some(vec![parameter_note.clone(), parameter_note.clone()]),
+            ..Default::default()
+        };
+
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_ok());
+
+        parameter_note.resource = Some(Box::new(Resource::Practitioner(Practitioner {
+            ..Default::default()
+        })));
+
+        let params = Parameters {
+            parameter: Some(vec![parameter_note]),
+            ..Default::default()
+        };
+
+        assert!(validate_parameters(&params, &defs, &OperationParameterUse::In(None)).is_err());
     }
 }
