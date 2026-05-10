@@ -13,9 +13,9 @@ use haste_fhir_client::{
     },
 };
 use haste_fhir_model::r4::generated::{
-    resources::{OperationDefinition, Resource},
-    terminology::IssueType,
-    types::{Extension, ExtensionValueTypeChoice, FHIRString},
+    resources::{OperationDefinition, OperationDefinitionParameter, Resource},
+    terminology::{AllTypes, IssueType, OperationParameterUse},
+    types::{Extension, ExtensionValueTypeChoice, FHIRCode, FHIRString},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
 use haste_fhir_ops::OperationInvocation;
@@ -213,7 +213,7 @@ impl<
                                                         resourceType: 'Parameters',
                                                         parameter: [
                                                             {
-                                                                name: 'message',
+                                                                name: 'sd',
                                                                 resource: sd
                                                             }
                                                         ]
@@ -232,6 +232,15 @@ impl<
                                         })]),
                                         ..Default::default()
                                     })]),
+                                    parameter: Some(vec![OperationDefinitionParameter {
+                                        name: Box::new(FHIRCode {
+                                            value: Some("sd".to_string()),
+                                            ..Default::default()
+                                        }),
+                                        type_: Some(Box::new(AllTypes::StructureDefinition(None))),
+                                        use_:  Box::new(OperationParameterUse::Out(None)),
+                                        ..Default::default()
+                                    }]),
                                     ..Default::default()
                                 },
                                 match &context.request {
