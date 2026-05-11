@@ -1,1 +1,1 @@
-cargo run generate test-scripts -i ./crates/artifacts/artifacts/r4/test_data/us_core -o ./testscripts/generated/us-core
+cargo run generate test-scripts -i ./crates/artifacts/artifacts/r4/test_data/us_core -o ./testscripts/us-core/generated
