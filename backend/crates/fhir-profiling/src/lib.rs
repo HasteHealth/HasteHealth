@@ -98,10 +98,8 @@ pub async fn validate_profile_by_url<'a>(
         .resolve(ResourceType::StructureDefinition, canonical_url)
         .await?
     else {
-        return Err(OperationOutcomeError::error(
-            IssueType::NotFound(None),
-            format!("Profile with url '{}' not found", canonical_url),
-        ));
+        tracing::warn!("Profile with url '{}' not found", canonical_url);
+        return Ok(OperationOutcome::default());
     };
 
     let ctx = Arc::new(FHIRProfileCTX::new(args.resolver.clone(), profile, value)?);

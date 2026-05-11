@@ -2584,6 +2584,7 @@ dependencies = [
  "haste-fhirpath",
  "haste-pointer",
  "haste-reflect",
+ "tracing",
 ]
 
 [[package]]

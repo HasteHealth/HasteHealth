@@ -84,7 +84,10 @@ fn get_id(resource: &Resource) -> String {
         Resource::SearchParameter(search_parameter) => {
             search_parameter.id.clone().unwrap_or_default()
         }
-        _ => todo!("Unsupported resource type"),
+        _ => todo!(
+            "Unsupported resource type '{}'",
+            resource.resource_type().as_ref()
+        ),
     }
 }
 
@@ -94,7 +97,10 @@ pub fn get_resource_type(resource: &Resource) -> ResourceType {
         Resource::CodeSystem(_) => ResourceType::CodeSystem,
         Resource::ValueSet(_) => ResourceType::ValueSet,
         Resource::SearchParameter(_) => ResourceType::SearchParameter,
-        _ => todo!("Unsupported resource type"),
+        _ => todo!(
+            "Unsupported resource type '{}'",
+            resource.resource_type().as_ref()
+        ),
     }
 }
 
@@ -151,12 +157,34 @@ pub async fn load_artifacts(
                     )
                     .await;
 
-                if let Ok(_res) = res {
-                    println!("Updated {}", resource_type.as_ref());
+                if let Ok(res) = res {
+                    tracing::info!(
+                        "Updated '{}' with id '{}'",
+                        resource_type.as_ref(),
+                        res.id().as_deref().unwrap_or("unknown")
+                    );
                 } else if let Err(err) = res {
-                    if let IssueType::Invalid(_) = err.outcome().issue[0].code.as_ref() {
-                        println!("BACKTRACE: {}", err.backtrace().unwrap());
-                        panic!("INVALID");
+                    let code = err.outcome().issue[0].code.as_ref();
+                    let diagnostic = err.outcome().issue[0]
+                        .diagnostics
+                        .as_deref()
+                        .and_then(|d| d.value.as_ref().map(|v| v.as_str()))
+                        .unwrap_or("unknown");
+
+                    match err.outcome().issue[0].code.as_ref() {
+                        IssueType::Invalid(_) => {
+                            tracing::error!("BACKTRACE: {}", err.backtrace().unwrap());
+                            panic!("INVALID");
+                        }
+                        _ => {
+                            tracing::error!(
+                                "Failed to update '{}' with id '{}'. Issue code: '{:?}', diagnostic: '{}'",
+                                resource_type.as_ref(),
+                                id,
+                                code,
+                                diagnostic
+                            );
+                        }
                     }
                 }
             }
@@ -166,7 +194,7 @@ pub async fn load_artifacts(
         }
     }
 
-    println!(
+    tracing::info!(
         "Loaded a total of '{}' artifacts with unique hashes '{}'",
         ARTIFACT_RESOURCES.len(),
         hashes.len(),

@@ -25,7 +25,7 @@ fn generate_key(
     )
 }
 
-static CACHE: LazyLock<Cache<String, Arc<Resource>>> = LazyLock::new(|| {
+static CACHE: LazyLock<Cache<String, Option<Arc<Resource>>>> = LazyLock::new(|| {
     // Cache entries live for 2 hours, after which they will be automatically evicted.
     CacheBuilder::new(10_000)
         .time_to_idle(std::time::Duration::from_secs(2 * 60 * 60))
@@ -65,11 +65,11 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
             canonical_url,
         );
         if let Some(cached) = CACHE.get(&key).await {
-            Ok(Some(cached.clone()))
+            Ok(cached.clone())
         } else {
             if let Some(url) = canonical_url.split('|').next()
                 // Perform search for an entry with the given canonical URL.
-                && let Some(resolved_resource) = self.0.client
+                && let resolved_resource = self.0.client
                     .search_type(
                         self.0.clone(),
                         resource_type,
@@ -84,9 +84,9 @@ impl<Client: FHIRClient<Arc<ServerCTX<Client>>, OperationOutcomeError>> Canonica
                     .entry
                     .and_then(|mut e| e.pop()).and_then(|e| e.resource)
             {
-                let resource = Arc::new(*resolved_resource);
-                CACHE.insert(key, resource.clone()).await;
-                return Ok(Some(resource));
+                let arced_resource = resolved_resource.map(|r| Arc::new(*r));
+                CACHE.insert(key, arced_resource.clone()).await;
+                return Ok(arced_resource);
             }
 
             Ok(None)

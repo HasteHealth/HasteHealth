@@ -23,6 +23,7 @@ fn load_resources() -> Vec<Box<Resource>> {
             str::from_utf8(&data.data).unwrap(),
         )
         .expect("Failed to parse artifact parameters JSON");
+
         resources.extend(flatten_if_bundle(resource));
     }
 
