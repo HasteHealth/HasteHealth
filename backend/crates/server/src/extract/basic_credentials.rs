@@ -10,7 +10,7 @@ pub struct BasicCredentials(pub String, pub String);
 pub struct BasicCredentialsHeader(pub Option<BasicCredentials>);
 
 impl BasicCredentialsHeader {
-    fn from_header(contents: &str) -> Result<Self, OperationOutcomeError> {
+    pub fn from_header(contents: &str) -> Result<Self, OperationOutcomeError> {
         let decoded_content: String =
             String::from_utf8(BASE64_STANDARD.decode(contents).map_err(|_| {
                 OperationOutcomeError::error(

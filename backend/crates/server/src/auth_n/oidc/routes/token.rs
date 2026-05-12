@@ -4,7 +4,7 @@ use crate::{
         oidc::{
             code_verification,
             error::{OIDCError, OIDCErrorCode},
-            extract::{body::ParsedBody, client_app::find_client_app},
+            extract::{body::OAuthTokenBody, client_app::find_client_app},
             routes::scope::verify_requested_scope_is_subset,
             schemas,
         },
@@ -340,7 +340,7 @@ fn verify_client(
         }
     }
 
-    if client_app.id.as_ref() != Some(&token_request_body.client_id) {
+    if client_app.id.as_ref() != token_request_body.client_id.as_ref() {
         return Err(OIDCError::new(
             OIDCErrorCode::AccessDenied,
             Some("Invalid credentials".to_string()),
@@ -424,7 +424,14 @@ pub async fn client_credentials_to_token_response<
     token_body: &schemas::token_body::OAuth2TokenBody,
     method: ClientCredentialsMethod,
 ) -> Result<TokenResponse, OIDCError> {
-    let client_id = &token_body.client_id;
+    let Some(client_id) = &token_body.client_id else {
+        return Err(OIDCError::new(
+            OIDCErrorCode::InvalidRequest,
+            Some("client_id is required for client_credentials grant type.".to_string()),
+            token_body.redirect_uri.clone(),
+        ));
+    };
+
     let client_app =
         find_client_app(state, tenant.clone(), project.clone(), client_id.clone()).await?;
 
@@ -498,7 +505,7 @@ pub async fn token<
     Cached(TenantIdentifier { tenant }): Cached<TenantIdentifier>,
     Cached(ProjectIdentifier { project }): Cached<ProjectIdentifier>,
     State(state): State<Arc<AppState<Repo, Search, Terminology>>>,
-    ParsedBody(token_body): ParsedBody<schemas::token_body::OAuth2TokenBody>,
+    OAuthTokenBody(token_body): OAuthTokenBody,
 ) -> Result<Response, OIDCError> {
     match &token_body.grant_type {
         schemas::token_body::OAuth2TokenBodyGrantType::ClientCredentials => {
@@ -515,7 +522,13 @@ pub async fn token<
             Ok(Json(response).into_response())
         }
         schemas::token_body::OAuth2TokenBodyGrantType::RefreshToken => {
-            let client_id = &token_body.client_id;
+            let Some(client_id) = &token_body.client_id else {
+                return Err(OIDCError::new(
+                    OIDCErrorCode::InvalidRequest,
+                    Some("client_id is required for refresh_token grant type.".to_string()),
+                    token_body.redirect_uri.clone(),
+                ));
+            };
             let refresh_token = &token_body.refresh_token.as_ref().ok_or_else(|| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidRequest,
@@ -638,7 +651,14 @@ pub async fn token<
             Ok(Json(response).into_response())
         }
         schemas::token_body::OAuth2TokenBodyGrantType::AuthorizationCode => {
-            let client_id = &token_body.client_id;
+            let Some(client_id) = &token_body.client_id else {
+                return Err(OIDCError::new(
+                    OIDCErrorCode::InvalidRequest,
+                    Some("client_id is required for authorization_code grant type.".to_string()),
+                    token_body.redirect_uri.clone(),
+                ));
+            };
+
             let code = token_body.code.as_ref().ok_or_else(|| {
                 OIDCError::new(
                     OIDCErrorCode::InvalidRequest,

@@ -4,16 +4,16 @@ use axum::{
 };
 use haste_fhir_model::r4::generated::terminology::IssueType;
 use haste_fhir_operation_error::OperationOutcomeError;
-use serde::de::DeserializeOwned;
+
+use crate::{auth_n::oidc::schemas, extract::basic_credentials::BasicCredentialsHeader};
 
 /// Extracts and parses the request body into the specified type T.
 /// Supports 'application/json', 'application/fhir+json', and 'application/x-www-form-urlencoded' content types.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ParsedBody<T>(pub T);
+#[derive(Debug, Clone)]
+pub struct OAuthTokenBody(pub schemas::token_body::OAuth2TokenBody);
 
-impl<T, S> FromRequest<S> for ParsedBody<T>
+impl<S> FromRequest<S> for OAuthTokenBody
 where
-    T: DeserializeOwned,
     S: Send + Sync,
 {
     type Rejection = OperationOutcomeError;
@@ -33,21 +33,24 @@ where
             )
         })?;
 
-        match content_type {
+        let mut token_body = match content_type {
             "application/json" | "application/fhir+json" => {
-                let body = serde_json::from_slice::<T>(&bytes).map_err(|e| {
+                let body = serde_json::from_slice::<schemas::token_body::OAuth2TokenBody>(&bytes)
+                    .map_err(|e| {
                     println!("JSON parse error: {:?}", e);
                     OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
                 })?;
 
-                Ok(ParsedBody(body))
+                body
             }
             "application/x-www-form-urlencoded" => {
-                let body = serde_html_form::from_bytes::<T>(&bytes).map_err(|e| {
-                    OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
-                })?;
+                let body =
+                    serde_html_form::from_bytes::<schemas::token_body::OAuth2TokenBody>(&bytes)
+                        .map_err(|e| {
+                            OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
+                        })?;
 
-                Ok(ParsedBody(body))
+                body
             }
             _ => {
                 return Err(OperationOutcomeError::fatal(
@@ -56,6 +59,18 @@ where
                         .to_string(),
                 ));
             }
+        };
+
+        // In event the client credentials were sent in Basic Auth header we insert them here.
+        if let Some(basic_header) = parts.headers.get(axum::http::header::AUTHORIZATION)
+            && let Some(basic_header) = basic_header.to_str().ok()
+            && let Ok(BasicCredentialsHeader(Some(basic_credentials))) =
+                BasicCredentialsHeader::from_header(basic_header)
+        {
+            token_body.client_id = Some(basic_credentials.0);
+            token_body.client_secret = Some(basic_credentials.1);
         }
+
+        Ok(OAuthTokenBody(token_body))
     }
 }

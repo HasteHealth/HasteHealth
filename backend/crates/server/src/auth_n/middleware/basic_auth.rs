@@ -87,7 +87,7 @@ pub async fn basic_auth_middleware<
                 &project,
                 &None,
                 &OAuth2TokenBody {
-                    client_id: credentials.0.clone(),
+                    client_id: Some(credentials.0.clone()),
                     client_secret: Some(credentials.1.clone()),
                     code: None,
                     code_verifier: None,
