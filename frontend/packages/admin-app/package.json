@@ -73,6 +73,6 @@
     "@types/react-dom": "^19.2.2",
     "@types/react-window": "^1.8.8",
     "tailwindcss": "^3.4.17",
-    "wrangler": "^4.20.1"
+    "wrangler": "^4.59.1"
   }
 }
