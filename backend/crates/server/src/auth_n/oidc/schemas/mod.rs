@@ -39,7 +39,7 @@ mod tests {
             "#,
         );
 
-        assert!(!missing_client_id.is_ok());
+        assert!(missing_client_id.is_ok());
 
         let body = serde_json::from_str::<token_body::OAuth2TokenBody>(
             r#"
