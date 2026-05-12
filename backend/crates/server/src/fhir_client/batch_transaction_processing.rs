@@ -166,14 +166,8 @@ pub fn bundle_entry_to_fhir_request(
                 .collect(),
         );
 
-        let Ok(fhir_request) =
-            fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)
-        else {
-            return Err(OperationOutcomeError::error(
-                IssueType::Invalid(None),
-                "Invalid Bundle entry".to_string(),
-            ));
-        };
+        let fhir_request =
+            fhir_http::http_request_to_fhir_request(SupportedFHIRVersions::R4, http_request)?;
 
         Ok(fhir_request)
     } else {

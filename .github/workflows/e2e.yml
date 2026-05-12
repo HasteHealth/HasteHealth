@@ -101,7 +101,15 @@ jobs:
 
         working-directory: ./backend
 
-      - name: Run Testscripts
+      - name: Run Base Testscripts
         run: ./target/debug/haste-health testscript run -i testscripts/base -w 2000
         working-directory: ./backend
 
+      - name: Load US Core Profiles
+        run : node scripts/load_us_core.mjs
+        working-directory: ./backend
+
+      - name: Run US Core Testscripts
+        run: ./target/debug/haste-health testscript run -i testscripts/us-core -w 2000
+        working-directory: ./backend
+        
