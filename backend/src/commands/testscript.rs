@@ -96,6 +96,7 @@ pub async fn testscript_commands(
                     .filter(|e| e.metadata().unwrap().is_file())
                     .filter(|f| f.file_name().to_string_lossy().ends_with(".json"))
                 {
+                    println!("Processing file: {}", entry.path().display());
                     let testscripts = load_testscript_files(&entry.path());
                     for testscript in testscripts.into_iter() {
                         let testscript = Arc::new(testscript);

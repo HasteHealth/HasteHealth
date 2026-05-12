@@ -250,7 +250,7 @@ fn generate_testscript_from_file(file_path: &Path) -> Result<TestScript, String>
                         ..Default::default()
                     })),
                     code: Some(Box::new(FHIRCode {
-                        value: Some("delete".to_string()),
+                        value: Some("deleteCondMultiple".to_string()),
                         ..Default::default()
                     })),
                     ..Default::default()
