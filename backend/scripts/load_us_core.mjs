@@ -53,10 +53,15 @@ function loadUSCoreProfiles() {
   writeFileSync(tmpFile, JSON.stringify(bundle));
 
   console.log(`Sending transaction with ${entries.length} entries ...`);
+
   try {
-    execFileSync("cargo", ["run", "api", "transaction", "--file", tmpFile], {
-      stdio: "inherit",
-    });
+    execFileSync(
+      join(__dirname, "../target/debug/haste-health"),
+      ["api", "transaction", "--file", tmpFile],
+      {
+        stdio: "inherit",
+      },
+    );
   } finally {
     unlinkSync(tmpFile);
   }
