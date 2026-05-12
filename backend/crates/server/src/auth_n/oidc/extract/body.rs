@@ -37,7 +37,7 @@ where
             "application/json" | "application/fhir+json" => {
                 let body = serde_json::from_slice::<schemas::token_body::OAuth2TokenBody>(&bytes)
                     .map_err(|e| {
-                    println!("JSON parse error: {:?}", e);
+                    tracing::error!("JSON parse error: {:?}", e);
                     OperationOutcomeError::fatal(IssueType::Invalid(None), e.to_string())
                 })?;
 
