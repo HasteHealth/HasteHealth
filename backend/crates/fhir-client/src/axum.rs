@@ -49,7 +49,7 @@ fn add_headers(response: &FHIRResponse) -> HeaderMap {
     let mut header = HeaderMap::new();
     header.insert(
         axum::http::header::CONTENT_TYPE,
-        "application/fhir+json".parse().unwrap(),
+        "application/fhir+json; charset=utf-8".parse().unwrap(),
     );
 
     match response {
