@@ -557,6 +557,9 @@ fn process_history_parameters<'a>(
                         );
                     }
                 }
+                "_count" | "_offset" => {
+                    // Ignore offset and count parameter as these parameters are held separately and not used in the where clause.
+                }
                 _ => {}
             },
             _ => {
@@ -619,7 +622,37 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
             HistoryRequest::System(_request) => {}
         };
 
-        query_builder.push(" ORDER BY sequence DESC LIMIT 100");
+        let count =
+            if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("count") {
+                // Enforce a maximum count of 100 to prevent abuse and performance issues.
+                std::cmp::min(
+                    100,
+                    count_param
+                        .value
+                        .get(0)
+                        .and_then(|v| v.parse::<usize>().ok())
+                        .unwrap_or(100),
+                )
+            } else {
+                100
+            };
+
+        query_builder
+            .push(" ORDER BY sequence DESC LIMIT ")
+            .push_bind(count as i64);
+
+        if let Some(ParsedParameter::Result(offset_param)) = history_parameters.get("offset") {
+            let offset = std::cmp::max(
+                offset_param
+                    .value
+                    .get(0)
+                    .and_then(|v| v.parse::<usize>().ok())
+                    .unwrap_or(0),
+                0,
+            );
+
+            query_builder.push(" OFFSET ").push_bind(offset as i64);
+        }
 
         let query = query_builder.build_query_as();
 
