@@ -60,7 +60,7 @@ function ResourceHistory() {
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<BundleEntry[]>([]);
   const [diff, setDiff] = useState<[BundleEntry, BundleEntry] | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -100,13 +100,25 @@ function ResourceHistory() {
           }}
           columns={[
             {
+              id: "resource",
+              content: "Resource",
+              selector: "$this.resource.type().type",
+              selectorType: "fhirpath",
+            },
+            {
+              id: "id",
+              content: "ID",
+              selector: "$this.resource.id",
+              selectorType: "fhirpath",
+            },
+            {
               id: "interaction",
               content: "Interaction",
               selector: "$this.request.method",
               selectorType: "fhirpath",
             },
             {
-              id: "Version",
+              id: "version",
               content: "Version",
               selector: "$this.resource.meta.versionId",
               selectorType: "fhirpath",
@@ -115,11 +127,11 @@ function ResourceHistory() {
               id: "Author",
               content: "Author",
               selector:
-                "$this.resource.meta.extension.where(url='https://haste.health/author').valueReference.reference",
+                "$this.resource.meta.extension.where(url='https://haste.health/author').value.reference",
               selectorType: "fhirpath",
             },
             {
-              id: "Updated at",
+              id: "updated-at",
               content: "Updated at",
               selector: "$this.resource.meta.lastUpdated",
               selectorType: "fhirpath",
@@ -160,13 +172,13 @@ export default function ResourceEditorComponent({
               ? resource
               : ({
                   resourceType: structureDefinition?.type,
-                } as Resource)
+                } as Resource),
           );
           return newResource;
         });
       }
     },
-    [structureDefinition, onChange]
+    [structureDefinition, onChange],
   );
 
   return (

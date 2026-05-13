@@ -38,7 +38,9 @@ import BundleImport from "./views/Project/BundleImport";
 import Dashboard from "./views/Project/Dashboard";
 import EmptyWorkspace from "./views/Project/EmptyWorkspace";
 import ResourceEditor from "./views/ResourceEditor/index";
+import SystemHistory from "./views/Project/SystemHistory";
 import ResourceType from "./views/Project/ResourceType";
+import TypeHistory from "./views/Project/TypeHistory";
 import Resources from "./views/Project/Resources";
 import Settings from "./views/Project/Settings";
 import Projects from "./views/System/Projects";
@@ -289,9 +291,19 @@ const router =
                           element: <ResourceType />,
                         },
                         {
+                          id: "type-history",
+                          path: "resources/:resourceType/history",
+                          element: <TypeHistory />,
+                        },
+                        {
                           id: "instance",
                           path: "resources/:resourceType/:id",
                           element: <ResourceEditor />,
+                        },
+                        {
+                          id: "system-history",
+                          path: "history/system",
+                          element: <SystemHistory />,
                         },
                         {
                           id: "bundle-import",
@@ -511,6 +523,17 @@ function ProjectRoot() {
               }}
             >
               Audit Events
+            </SideBar.SideBarItem>
+            <SideBar.SideBarItem
+              active={
+                matches.find((match) => match.id === "system-history") !==
+                undefined
+              }
+              onClick={() => {
+                navigate(generatePath("/history/system", {}));
+              }}
+            >
+              Event History
             </SideBar.SideBarItem>
           </SideBar.SideBarItemGroup>
 

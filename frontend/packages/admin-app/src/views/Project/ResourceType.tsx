@@ -1,4 +1,5 @@
 import {
+  ClockIcon,
   ChevronRightIcon,
   HomeIcon,
   PlusIcon,
@@ -176,24 +177,43 @@ function ResourceTypeHeader({
             </span>
           </div>
         </div>
-        <Button
-          className="font-medium"
-          buttonSize="small"
-          buttonType="secondary"
-          onClick={() =>
-            navigate(
-              generatePath("/resources/:resourceType/:id", {
-                resourceType,
-                id: "new",
-              }),
-            )
-          }
-        >
-          <div className="flex items-center justify-center">
-            <PlusIcon className="mr-1 h-4 w-4" />{" "}
-            <span>New {resourceType}</span>
-          </div>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            className="font-medium"
+            buttonSize="small"
+            buttonType="secondary"
+            onClick={() =>
+              navigate(
+                generatePath("/resources/:resourceType/history", {
+                  resourceType,
+                }),
+              )
+            }
+          >
+            <div className="flex items-center justify-center">
+              <ClockIcon className="mr-1 h-4 w-4" />
+              <span>History</span>
+            </div>
+          </Button>
+          <Button
+            className="font-medium"
+            buttonSize="small"
+            buttonType="secondary"
+            onClick={() =>
+              navigate(
+                generatePath("/resources/:resourceType/:id", {
+                  resourceType,
+                  id: "new",
+                }),
+              )
+            }
+          >
+            <div className="flex items-center justify-center">
+              <PlusIcon className="mr-1 h-4 w-4" />{" "}
+              <span>New {resourceType}</span>
+            </div>
+          </Button>
+        </div>
       </div>
     </header>
   );
