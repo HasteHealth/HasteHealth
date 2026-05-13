@@ -1,5 +1,5 @@
 use crate::{
-    fhir::{CachePolicy, FHIRRepository, ResourcePollingValue},
+    fhir::{CachePolicy, FHIRRepository, ResourceHistoryValue, ResourcePollingValue},
     pg::{
         PGConnection, StoreError,
         utilities::{commit_transaction, create_transaction},
@@ -35,6 +35,12 @@ struct ReturnSingularResource {
 struct ReturnVersionedResource {
     resource: FHIRJson<Resource>,
     version_id: VersionId,
+}
+
+#[derive(sqlx::FromRow, Debug)]
+struct HistoryValue {
+    pub resource: FHIRJson<Resource>,
+    pub request_method: String,
 }
 
 async fn read_version_ids_from_cache<'a>(
@@ -271,7 +277,7 @@ impl FHIRRepository for PGConnection {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         request: &HistoryRequest,
-    ) -> Result<Vec<Resource>, OperationOutcomeError> {
+    ) -> Result<Vec<ResourceHistoryValue>, OperationOutcomeError> {
         match self {
             PGConnection::Pool(pool, _) => {
                 let res = history(pool, tenant_id, project_id, request).await?;
@@ -573,12 +579,12 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
     tenant: &'a TenantId,
     project: &'a ProjectId,
     history_request: &'a HistoryRequest,
-) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send + 'a {
+) -> impl Future<Output = Result<Vec<ResourceHistoryValue>, OperationOutcomeError>> + Send + 'a {
     async move {
         let mut conn = connection.acquire().await.map_err(StoreError::from)?;
 
         let mut query_builder: QueryBuilder<Postgres> =
-            QueryBuilder::new(r#"SELECT resource FROM resources WHERE  "#);
+            QueryBuilder::new(r#"SELECT resource, request_method FROM resources WHERE  "#);
 
         let mut clauses = query_builder.separated(" AND ");
         clauses
@@ -617,12 +623,18 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
 
         let query = query_builder.build_query_as();
 
-        let result: Vec<ReturnSingularResource> = query
+        let result: Vec<HistoryValue> = query
             .fetch_all(&mut *conn)
             .await
             .map_err(StoreError::from)?;
 
-        Ok(result.into_iter().map(|r| r.resource.0).collect::<Vec<_>>())
+        Ok(result
+            .into_iter()
+            .map(|r| ResourceHistoryValue {
+                resource: r.resource.0,
+                request_method: r.request_method,
+            })
+            .collect::<Vec<_>>())
     }
 }
 

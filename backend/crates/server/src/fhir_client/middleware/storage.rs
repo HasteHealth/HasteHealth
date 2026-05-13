@@ -24,8 +24,8 @@ use haste_fhir_client::{
     url::{ParsedParameter, ParsedParameters},
 };
 use haste_fhir_model::r4::generated::{
-    resources::{Bundle, BundleEntry, Resource},
-    terminology::{BundleType, IssueType},
+    resources::{Bundle, BundleEntry, BundleEntryRequest, Resource},
+    terminology::{BundleType, HttpVerb, IssueType},
     types::{FHIRUnsignedInt, FHIRUri},
 };
 use haste_fhir_operation_error::OperationOutcomeError;
@@ -46,7 +46,41 @@ impl Middleware {
     }
 }
 
-pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, resources: Vec<Resource>) -> Bundle {
+pub fn to_bundle_entry(resource: Resource, request_method: Option<String>) -> BundleEntry {
+    let resource_type = resource.resource_type();
+    let id = resource.id().as_ref().map(|s| s.as_str()).unwrap_or("");
+
+    let mut entry = BundleEntry::default();
+
+    if let Some(request_method) = request_method {
+        let http_verb = HttpVerb::try_from(request_method).unwrap_or(HttpVerb::POST(None));
+        entry.request = Some(BundleEntryRequest {
+            url: Box::new(FHIRUri {
+                value: match http_verb {
+                    HttpVerb::POST(_) => Some(resource_type.as_ref().to_string()),
+                    HttpVerb::DELETE(_) | HttpVerb::PUT(_) | HttpVerb::PATCH(_) => {
+                        Some(format!("{}/{}", resource_type.as_ref(), id))
+                    }
+                    _ => None,
+                },
+                ..Default::default()
+            }),
+            method: Box::new(http_verb),
+            ..Default::default()
+        });
+    }
+
+    entry.fullUrl = Some(Box::new(FHIRUri {
+        value: Some(format!("{}/{}", resource_type.as_ref(), id)),
+        ..Default::default()
+    }));
+
+    entry.resource = Some(Box::new(resource));
+
+    entry
+}
+
+pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, entries: Vec<BundleEntry>) -> Bundle {
     Bundle {
         id: None,
         meta: None,
@@ -57,23 +91,7 @@ pub fn to_bundle(bundle_type: BundleType, total: Option<i64>, resources: Vec<Res
             })
         }),
         type_: Box::new(bundle_type),
-        entry: Some(
-            resources
-                .into_iter()
-                .map(|r| BundleEntry {
-                    fullUrl: Some(Box::new(FHIRUri {
-                        value: Some(format!(
-                            "{}/{}",
-                            r.resource_type().as_ref(),
-                            r.id().as_ref().map(|s| s.as_str()).unwrap_or("")
-                        )),
-                        ..Default::default()
-                    })),
-                    resource: Some(Box::new(r)),
-                    ..Default::default()
-                })
-                .collect(),
-        ),
+        entry: Some(entries),
         ..Default::default()
     }
 }
@@ -296,7 +314,12 @@ impl<
                                 bundle: to_bundle(
                                     BundleType::History(None),
                                     None,
-                                    history_resources,
+                                    history_resources
+                                        .into_iter()
+                                        .map(|r| {
+                                            to_bundle_entry(r.resource, Some(r.request_method))
+                                        })
+                                        .collect(),
                                 ),
                             },
                         ))))
@@ -312,13 +335,18 @@ impl<
                                 bundle: to_bundle(
                                     BundleType::History(None),
                                     None,
-                                    history_resources,
+                                    history_resources
+                                        .into_iter()
+                                        .map(|r| {
+                                            to_bundle_entry(r.resource, Some(r.request_method))
+                                        })
+                                        .collect(),
                                 ),
                             },
                         ))))
                     }
                     HistoryRequest::System(_) => {
-                        let history_resources: Vec<Resource> = state
+                        let history_resources = state
                             .repo
                             .history(&context.ctx.tenant, &context.ctx.project, &history_request)
                             .await?;
@@ -328,7 +356,12 @@ impl<
                                 bundle: to_bundle(
                                     BundleType::History(None),
                                     None,
-                                    history_resources,
+                                    history_resources
+                                        .into_iter()
+                                        .map(|r| {
+                                            to_bundle_entry(r.resource, Some(r.request_method))
+                                        })
+                                        .collect(),
                                 ),
                             },
                         ))))
@@ -553,7 +586,10 @@ impl<
                                 bundle: to_bundle(
                                     BundleType::Searchset(None),
                                     search_results.total,
-                                    resources,
+                                    resources
+                                        .into_iter()
+                                        .map(|r| to_bundle_entry(r, None))
+                                        .collect(),
                                 ),
                             },
                         ))))
@@ -590,7 +626,10 @@ impl<
                                 bundle: to_bundle(
                                     BundleType::Searchset(None),
                                     search_results.total,
-                                    resources,
+                                    resources
+                                        .into_iter()
+                                        .map(|r| to_bundle_entry(r, None))
+                                        .collect(),
                                 ),
                             },
                         ))))

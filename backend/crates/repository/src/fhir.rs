@@ -18,6 +18,12 @@ pub struct ResourcePollingValue {
     pub fhir_method: FHIRMethod,
 }
 
+#[derive(Clone)]
+pub struct ResourceHistoryValue {
+    pub resource: Resource,
+    pub request_method: String,
+}
+
 #[derive(PartialEq, Eq)]
 pub enum CachePolicy {
     NoCache,
@@ -73,7 +79,7 @@ pub trait FHIRRepository: Sized {
         tenant_id: &TenantId,
         project_id: &ProjectId,
         request: &HistoryRequest,
-    ) -> impl Future<Output = Result<Vec<Resource>, OperationOutcomeError>> + Send;
+    ) -> impl Future<Output = Result<Vec<ResourceHistoryValue>, OperationOutcomeError>> + Send;
     fn get_sequence(
         &self,
         tenant_id: &TenantId,
