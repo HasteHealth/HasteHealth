@@ -13,9 +13,6 @@ export default function SystemHistory() {
   const client = useAtomValue(getClient);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<BundleEntry[]>([]);
-  const [diff, setDiff] = useState<[BundleEntry, BundleEntry] | undefined>(
-    undefined,
-  );
 
   const loadHistory = () => {
     setLoading(true);

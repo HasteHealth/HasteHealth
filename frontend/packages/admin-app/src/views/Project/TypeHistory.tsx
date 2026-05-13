@@ -15,9 +15,6 @@ export default function TypeHistory() {
   const { resourceType } = useParams();
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<BundleEntry[]>([]);
-  const [diff, setDiff] = useState<[BundleEntry, BundleEntry] | undefined>(
-    undefined,
-  );
 
   const loadHistory = () => {
     if (!resourceType) {
