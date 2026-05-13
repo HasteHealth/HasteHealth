@@ -9,28 +9,44 @@ import { R4 } from "@haste-health/fhir-types/versions";
 import { getClient } from "../../db/client";
 import { getErrorMessage } from "../../utilities";
 
+const HISTORY_PAGE_SIZE = 25;
+
 export default function SystemHistory() {
   const client = useAtomValue(getClient);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [history, setHistory] = useState<BundleEntry[]>([]);
 
-  const loadHistory = () => {
-    setLoading(true);
+  const loadHistory = (offset = 0) => {
+    if (offset === 0) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     client
-      .history_system({}, R4)
+      .history_system({}, R4, `_offset=${offset}&_count=${HISTORY_PAGE_SIZE}`)
       .then((response) => {
-        setHistory(response);
+        setHistory((current) =>
+          offset === 0 ? response : [...current, ...response],
+        );
+        setHasMore(response.length === HISTORY_PAGE_SIZE);
       })
       .catch((error) => {
         Toaster.error(getErrorMessage(error));
       })
       .finally(() => {
-        setLoading(false);
+        if (offset === 0) {
+          setLoading(false);
+        } else {
+          setLoadingMore(false);
+        }
       });
   };
 
   useEffect(() => {
-    loadHistory();
+    loadHistory(0);
   }, [client]);
 
   return (
@@ -50,7 +66,7 @@ export default function SystemHistory() {
             buttonType="secondary"
             buttonSize="small"
             className="font-medium"
-            onClick={loadHistory}
+            onClick={() => loadHistory(0)}
           >
             <span className="flex items-center gap-1">
               <ArrowPathIcon className="h-4 w-4" />
@@ -108,6 +124,19 @@ export default function SystemHistory() {
             },
           ]}
         />
+
+        {hasMore && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              buttonType="secondary"
+              buttonSize="small"
+              onClick={() => loadHistory(history.length)}
+              disabled={loadingMore}
+            >
+              {loadingMore ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
       </section>
     </div>
   );

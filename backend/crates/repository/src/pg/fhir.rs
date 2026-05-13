@@ -623,7 +623,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
         };
 
         let count =
-            if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("count") {
+            if let Some(ParsedParameter::Result(count_param)) = history_parameters.get("_count") {
                 // Enforce a maximum count of 100 to prevent abuse and performance issues.
                 std::cmp::min(
                     100,
@@ -641,7 +641,7 @@ fn history<'a, 'c, Connection: Acquire<'c, Database = Postgres> + Send + 'a>(
             .push(" ORDER BY sequence DESC LIMIT ")
             .push_bind(count as i64);
 
-        if let Some(ParsedParameter::Result(offset_param)) = history_parameters.get("offset") {
+        if let Some(ParsedParameter::Result(offset_param)) = history_parameters.get("_offset") {
             let offset = std::cmp::max(
                 offset_param
                     .value

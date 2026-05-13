@@ -27,6 +27,7 @@ import { R4 } from "@haste-health/fhir-types/versions";
 import { getClient } from "../db/client";
 
 const extensions = [basicSetup, json()];
+const HISTORY_PAGE_SIZE = 25;
 
 function JSONEditor({
   value,
@@ -58,21 +59,53 @@ function ResourceHistory() {
   const client = useAtomValue(getClient);
   const { resourceType, id } = useParams();
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [history, setHistory] = useState<BundleEntry[]>([]);
   const [diff, setDiff] = useState<[BundleEntry, BundleEntry] | undefined>(
     undefined,
   );
 
-  useEffect(() => {
-    setLoading(true);
+  const loadHistory = (offset = 0) => {
+    if (!resourceType || !id) {
+      setHistory([]);
+      setHasMore(false);
+      setLoading(false);
+      return;
+    }
+
+    if (offset === 0) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     client
-      .history_instance({}, R4, resourceType as ResourceType, id as id)
+      .history_instance(
+        {},
+        R4,
+        resourceType as ResourceType,
+        id as id,
+        `_offset=${offset}&_count=${HISTORY_PAGE_SIZE}`,
+      )
       .then((response) => {
-        setHistory(response);
-        setLoading(false);
-        return response;
+        setHistory((current) =>
+          offset === 0 ? response : [...current, ...response],
+        );
+        setHasMore(response.length === HISTORY_PAGE_SIZE);
+      })
+      .finally(() => {
+        if (offset === 0) {
+          setLoading(false);
+        } else {
+          setLoadingMore(false);
+        }
       });
-  }, [resourceType, id, setHistory]);
+  };
+
+  useEffect(() => {
+    loadHistory(0);
+  }, [resourceType, id, client]);
 
   return (
     <Modal
@@ -86,58 +119,73 @@ function ResourceHistory() {
       )}
     >
       {(openModal) => (
-        <Table
-          isLoading={loading}
-          data={history.map((d, i) => ({ ...d, index: i })) ?? []}
-          onRowClick={(_row: unknown) => {
-            const row = _row as { index: number };
-            setDiff([
-              history[row.index],
-              history[row.index + 1] ?? history[row.index],
-            ]);
+        <div>
+          <Table
+            isLoading={loading}
+            data={history.map((d, i) => ({ ...d, index: i })) ?? []}
+            onRowClick={(_row: unknown) => {
+              const row = _row as { index: number };
+              setDiff([
+                history[row.index],
+                history[row.index + 1] ?? history[row.index],
+              ]);
 
-            openModal(true);
-          }}
-          columns={[
-            {
-              id: "resource",
-              content: "Resource",
-              selector: "$this.resource.type().type",
-              selectorType: "fhirpath",
-            },
-            {
-              id: "id",
-              content: "ID",
-              selector: "$this.resource.id",
-              selectorType: "fhirpath",
-            },
-            {
-              id: "interaction",
-              content: "Interaction",
-              selector: "$this.request.method",
-              selectorType: "fhirpath",
-            },
-            {
-              id: "version",
-              content: "Version",
-              selector: "$this.resource.meta.versionId",
-              selectorType: "fhirpath",
-            },
-            {
-              id: "Author",
-              content: "Author",
-              selector:
-                "$this.resource.meta.extension.where(url='https://haste.health/author').value.reference",
-              selectorType: "fhirpath",
-            },
-            {
-              id: "updated-at",
-              content: "Updated at",
-              selector: "$this.resource.meta.lastUpdated",
-              selectorType: "fhirpath",
-            },
-          ]}
-        />
+              openModal(true);
+            }}
+            columns={[
+              {
+                id: "resource",
+                content: "Resource",
+                selector: "$this.resource.type().type",
+                selectorType: "fhirpath",
+              },
+              {
+                id: "id",
+                content: "ID",
+                selector: "$this.resource.id",
+                selectorType: "fhirpath",
+              },
+              {
+                id: "interaction",
+                content: "Interaction",
+                selector: "$this.request.method",
+                selectorType: "fhirpath",
+              },
+              {
+                id: "version",
+                content: "Version",
+                selector: "$this.resource.meta.versionId",
+                selectorType: "fhirpath",
+              },
+              {
+                id: "Author",
+                content: "Author",
+                selector:
+                  "$this.resource.meta.extension.where(url='https://haste.health/author').value.reference",
+                selectorType: "fhirpath",
+              },
+              {
+                id: "updated-at",
+                content: "Updated at",
+                selector: "$this.resource.meta.lastUpdated",
+                selectorType: "fhirpath",
+              },
+            ]}
+          />
+
+          {hasMore && (
+            <div className="mt-3 flex justify-center">
+              <Button
+                buttonType="secondary"
+                buttonSize="small"
+                onClick={() => loadHistory(history.length)}
+                disabled={loadingMore}
+              >
+                {loadingMore ? "Loading..." : "Load more"}
+              </Button>
+            </div>
+          )}
+        </div>
       )}
     </Modal>
   );
