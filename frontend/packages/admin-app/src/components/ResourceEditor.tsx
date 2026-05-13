@@ -67,13 +67,6 @@ function ResourceHistory() {
   );
 
   const loadHistory = (offset = 0) => {
-    if (!resourceType || !id) {
-      setHistory([]);
-      setHasMore(false);
-      setLoading(false);
-      return;
-    }
-
     if (offset === 0) {
       setLoading(true);
     } else {
@@ -92,6 +85,7 @@ function ResourceHistory() {
         setHistory((current) =>
           offset === 0 ? response : [...current, ...response],
         );
+        // Assume that if we get full page their are more results.
         setHasMore(response.length === HISTORY_PAGE_SIZE);
       })
       .finally(() => {
