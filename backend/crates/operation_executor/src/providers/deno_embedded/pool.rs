@@ -191,13 +191,20 @@ impl OperationExecutor for DenoPool {
                 )
             })?;
 
-        let output = haste_fhir_serialization_json::from_sonic_value::<Parameters>(output)
-            .map_err(|error| {
+        let output = haste_fhir_serialization_json::from_bytes::<Parameters>(
+            &serde_json::to_vec(&output).map_err(|e| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),
-                    format!("Operation custom code returned invalid Parameters payload: {error}"),
+                    format!("Failed to serialize operation custom code output: {e}"),
                 )
-            })?;
+            })?,
+        )
+        .map_err(|error| {
+            OperationOutcomeError::error(
+                IssueType::Invalid(None),
+                format!("Operation custom code returned invalid Parameters payload: {error}"),
+            )
+        })?;
 
         validate_parameters(
             &output,
