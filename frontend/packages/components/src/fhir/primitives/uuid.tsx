@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Input } from "../../base/input";
 import { EditableProps } from "../types";
 
-type UUID = `${string}-${string}-${string}-${string}`;
+export type UUID = `${string}-${string}-${string}-${string}`;
 
 export type FHIRUUIDEditableProps = EditableProps<UUID>;
 

@@ -24,8 +24,8 @@ import {
   dateTime,
   decimal,
   id,
+  instant,
   integer,
-  markdown,
   uri,
   url,
 } from "@haste-health/fhir-types/r4/types";
@@ -34,7 +34,8 @@ import * as ComplexTypes from "../complex";
 import * as Primitives from "../primitives";
 import { getElementDefinition } from "./helpers";
 import { MetaProps } from "./types";
-import { markdown } from "@codemirror/lang-markdown";
+import { OID } from "../primitives/oid";
+import { UUID } from "../primitives/uuid";
 
 type TypeProps = MetaProps<any, any> & {
   label?: string;
@@ -97,6 +98,9 @@ const BaseTypeComponents: Record<string, TypeComponent> = {
   dateTime: (props) => (
     <Primitives.FHIRDateTimeEditable {...deriveSharedProps<dateTime>(props)} />
   ),
+  time: (props) => (
+    <Primitives.FHIRTimeEditable {...deriveSharedProps<string>(props)} />
+  ),
   markdown: (props) => (
     <Primitives.FHIRMarkdownEditable {...deriveSharedProps<markdown>(props)} />
   ),
@@ -120,6 +124,33 @@ const BaseTypeComponents: Record<string, TypeComponent> = {
   ),
   integer: (props) => (
     <Primitives.FHIRIntegerEditable {...deriveSharedProps<integer>(props)} />
+  ),
+  base64Binary: (props) => (
+    <Primitives.FHIRBase64BinaryEditable
+      {...deriveSharedProps<string>(props)}
+    />
+  ),
+  canonical: (props) => (
+    <Primitives.FHIRCanonicalEditable {...deriveSharedProps<string>(props)} />
+  ),
+  instant: (props) => (
+    <Primitives.FHIRInstantEditable {...deriveSharedProps<instant>(props)} />
+  ),
+  oid: (props) => (
+    <Primitives.FHIROIDEditable {...deriveSharedProps<OID>(props)} />
+  ),
+  unsignedInt: (props) => (
+    <Primitives.FHIRUnsignedIntegerEditable
+      {...deriveSharedProps<number>(props)}
+    />
+  ),
+  positiveInt: (props) => (
+    <Primitives.FHIRPositiveIntegerEditable
+      {...deriveSharedProps<number>(props)}
+    />
+  ),
+  uuid: (props) => (
+    <Primitives.FHIRUUIDEditable {...deriveSharedProps<UUID>(props)} />
   ),
   Address: (props) => (
     <ComplexTypes.FHIRAddressEditable {...deriveSharedProps<Address>(props)} />
@@ -223,6 +254,8 @@ const BaseTypeComponents: Record<string, TypeComponent> = {
       {...deriveSharedProps<Meta>(props)}
     />
   ),
+  // Todo [Timing, Money, Duration, MoneyQuantity, SimpleQuantity] trial [SampleData, Signature, Age, Distance]
+  // MetadataTypes review and Special Purpose Data types review.
 };
 
 export const TypeComponents = Object.fromEntries(

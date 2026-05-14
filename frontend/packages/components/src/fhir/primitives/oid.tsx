@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Input } from "../../base/input";
 import { EditableProps } from "../types";
 
-type OID = `urn:oid:${string}`;
+export type OID = `urn:oid:${string}`;
 
 export type FHIROIDEditableProps = EditableProps<OID>;
 
