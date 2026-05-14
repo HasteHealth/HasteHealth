@@ -97,7 +97,7 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                     }
                 };
                 let resource_json = match resource {
-                    Cell::Json(json) => json,
+                    Cell::Bytes(json_bytes) => json_bytes,
                     _ => {
                         panic!("Unexpected cell type for resource: {:?}", i[5]);
                     }
@@ -112,16 +112,18 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                     }
                 };
 
-                let id = resource_json
-                    .get("id")
+                let resource =
+                    haste_fhir_serialization_json::from_bytes::<serde_json::Value>(&resource_json)
+                        .expect("Failed to parse resource JSON");
+
+                let id = resource
+                    .id()
                     .and_then(|js| js.as_str().map(|s| ResourceId::new(s.to_string())));
-                let version_id = resource_json
+                let version_id = resource
                     .get("meta")
                     .and_then(|meta| meta.get("versionId"))
                     .and_then(|version| version.as_str().map(|s| VersionId::new(s.to_string())));
-                let resource_type = resource_json
-                    .get("resourceType")
-                    .and_then(|js| js.as_str().map(|s| ResourceType::try_from(s).unwrap()));
+                let resource_type = resource.resource_type();
 
                 IndexResource {
                     id: id.expect("Failed to extract id"),
@@ -130,8 +132,7 @@ impl<Search: SearchEngine + Clone> Destination for ESSearchDestination<Search> {
                     project,
                     fhir_method,
                     resource_type: resource_type.expect("Failed to extract resource_type"),
-                    resource: haste_fhir_serialization_json::from_serde_value(resource_json)
-                        .unwrap(),
+                    resource: resource,
                 }
             })
             .collect::<Vec<_>>();

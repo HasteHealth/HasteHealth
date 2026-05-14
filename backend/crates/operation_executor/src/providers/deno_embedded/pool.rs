@@ -191,7 +191,7 @@ impl OperationExecutor for DenoPool {
                 )
             })?;
 
-        let output = haste_fhir_serialization_json::from_serde_value::<Parameters>(output)
+        let output = haste_fhir_serialization_json::from_sonic_value::<Parameters>(output)
             .map_err(|error| {
                 OperationOutcomeError::error(
                     IssueType::Invalid(None),

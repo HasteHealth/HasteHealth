@@ -62,20 +62,20 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
                 impl FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let mut json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
+                        Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_sonic_value(json: *mut sonic_rs::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         match context {
                             haste_fhir_serialization_json::Context::AsField(context) => {
                                 let mut value = None;
                                 let mut extensions = None;
                                 let mut id = None;
 
-                                let json = unsafe { &mut *(json as *mut serde_json::Value) };
+                                let json = unsafe { &mut *(json as *mut sonic_rs::Value) };
 
                                 if let Some(json_value) = json.get_mut(context.field){
-                                    value = Some(#value_type::from_serde_value(json_value, haste_fhir_serialization_json::Context::AsValue)?);
+                                    value = Some(#value_type::from_sonic_value(json_value, haste_fhir_serialization_json::Context::AsValue)?);
                                 }
 
                                 if let Some(json_element_fields) = json.get_mut(&("_".to_string() + context.field)) {
@@ -84,8 +84,8 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
                                             "Expected an object for element fields".to_string(),
                                         ));
                                     }
-                                    extensions = Option::from_serde_value(json_element_fields, ("extension", false).into())?;
-                                    id = Option::from_serde_value(json_element_fields, ("id", false).into())?;
+                                    extensions = Option::from_sonic_value(json_element_fields, ("extension", false).into())?;
+                                    id = Option::from_sonic_value(json_element_fields, ("id", false).into())?;
                                 }
 
                                 Ok(Self {
@@ -95,7 +95,7 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
                                 })
                             }
                             haste_fhir_serialization_json::Context::AsValue => {
-                                let value = #value_type::from_serde_value(json, haste_fhir_serialization_json::Context::AsValue)?;
+                                let value = #value_type::from_sonic_value(json, haste_fhir_serialization_json::Context::AsValue)?;
                                 let mut parsed = Self::default();
                                 parsed.value = value;
                                 Ok(parsed)
@@ -105,6 +105,7 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
                 }
             };
 
+            
             // println!("{}", expanded.to_string());
 
             expanded.into()
@@ -122,7 +123,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                 let code = get_attribute_value(&variant.attrs, "code");
                 if let Some(code) = code {
                     Some(quote! {
-                        #code =>  Ok(#name::#variant_name(None))
+                        Some(#code) =>  Ok(#name::#variant_name(None))
                     })
                 } else {
                     None
@@ -134,7 +135,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                 let code = get_attribute_value(&variant.attrs, "code");
                 if let Some(code) = code {
                     Some(quote! {
-                        #code =>  Ok(#name::#variant_name(element))
+                        Some(#code) =>  Ok(#name::#variant_name(element))
                     })
                 } else {
                     None
@@ -145,11 +146,11 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let mut json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
+                        Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let json = unsafe { &mut *(json as *mut serde_json::Value) };
+                    fn from_sonic_value(json: *mut sonic_rs::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                        let json = unsafe { &mut *(json as *mut sonic_rs::Value) };
                         match context {
                             haste_fhir_serialization_json::Context::AsField(context) => {
                                 let mut element = None;
@@ -160,14 +161,14 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                                             "Expected an object for element fields".to_string(),
                                         ));
                                     }
-                                    element = Some(Element::from_serde_value(json_element_fields, haste_fhir_serialization_json::Context::AsValue)?);
+                                    element = Some(Element::from_sonic_value(json_element_fields, haste_fhir_serialization_json::Context::AsValue)?);
                                 }
                                 match json.get(context.field) {
-                                    Some(serde_json::Value::String(s)) => {
-                                        match s.as_str(){
+                                    Some(v) => {
+                                        match v.as_str(){
                                             #(#variants_deserialize_value_with_element),*,
                                             variant => Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
-                                                format!("Invalid code '{}' for field '{}'", variant, context.field)
+                                                format!("Invalid code '{}' for field '{}'", variant.unwrap_or("null"), context.field)
                                             )),
                                         }
                                     },
@@ -180,15 +181,8 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                                 }
                             }
                             haste_fhir_serialization_json::Context::AsValue => {
-                                match json {
-                                    serde_json::Value::String(s) => {
-                                        match s.as_str() {
-                                            #(#variants_deserialize_value),*,
-                                            variant => Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
-                                                format!("Invalid code '{}' for value set enum", variant)
-                                            )),
-                                        }
-                                    },
+                                match json.as_str() {
+                                    #(#variants_deserialize_value),*,
                                     _ => return Err(haste_fhir_serialization_json::errors::DeserializeError::InvalidType(
                                         "Expected a string for value set enum".to_string(),
                                     )),
@@ -198,8 +192,6 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
                     }
                 }
             };
-
-            //println!("{}", expanded.to_string());
 
             expanded.into()
         }
@@ -255,7 +247,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
 
                 quote! {
                     #field_name => {
-                        let #value_variable_name: #full_value_type = #variant_type::from_serde_value(json, haste_fhir_serialization_json::Context::AsField(context))?;
+                        let #value_variable_name: #full_value_type = #variant_type::from_sonic_value(json, haste_fhir_serialization_json::Context::AsField(context))?;
                         // #reference_validation
                         Ok(Self::#name(value))
                     }
@@ -268,7 +260,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
                         Err(haste_fhir_serialization_json::errors::DeserializeError::CannotDeserializeTypeChoiceAsValue)
                     }
 
-                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_sonic_value(json: *mut sonic_rs::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         match context {
                             haste_fhir_serialization_json::Context::AsField(context) => {
                                 // Handle deserialization for each variant
@@ -314,7 +306,7 @@ fn create_primitive_struct_handler(
         if #field_variable == #field_str || #field_variable == #extension_str {
            #found_fields_variable.insert(#field_str);
            #found_fields_variable.insert(#extension_str);
-           #field_ident = Some(#field_type::from_serde_value(#obj_variable, (#field_str, true).into())?);
+           #field_ident = Some(#field_type::from_sonic_value(#obj_variable, (#field_str, true).into())?);
         }
     }
 }
@@ -338,13 +330,13 @@ fn create_type_choice_struct_handler(
             if(#primitive_variant == #field_variable || #extension_variant == #field_variable) {
                 #found_fields_variable.insert(#primitive_variant);
                 #found_fields_variable.insert(#extension_variant);
-                #field_ident = Some(#field_type::from_serde_value(#obj_variable, (#primitive_variant, true).into())?);
+                #field_ident = Some(#field_type::from_sonic_value(#obj_variable, (#primitive_variant, true).into())?);
             }
         }
     });
 
     quote! {
-        if [#(#all_type_choice_variants),*].contains(&#field_variable.as_str()) {
+        if [#(#all_type_choice_variants),*].contains(&#field_variable) {
             if let Some(existing_type_choice) = #field_ident {
                 return Err(haste_fhir_serialization_json::errors::DeserializeError::DuplicateTypeChoiceVariant(
                     #field_variable.to_string(),
@@ -352,7 +344,7 @@ fn create_type_choice_struct_handler(
             }
             #(#primitive_checks)else *
             else {
-                #field_ident = Some(#field_type::from_serde_value(#obj_variable, (#field_variable, false).into())?);
+                #field_ident = Some(#field_type::from_sonic_value(#obj_variable, (#field_variable, false).into())?);
             }
         }
     }
@@ -372,7 +364,7 @@ fn create_complex_struct_handler(
         if #field_variable == #field_str {
           #found_fields_variable.insert(#field_str);
           let field_value =  unsafe { (*#obj_variable).get_mut(#field_str).unwrap() };
-          #field_ident = Some(#field_type::from_serde_value(field_value, haste_fhir_serialization_json::Context::AsValue)?);
+          #field_ident = Some(#field_type::from_sonic_value(field_value, haste_fhir_serialization_json::Context::AsValue)?);
         }
     }
 }
@@ -502,10 +494,10 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let mut json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
+                        Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(#obj_variable: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_sonic_value(#obj_variable: *mut sonic_rs::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let mut #obj_variable = {
                             match context {
                                 haste_fhir_serialization_json::Context::AsValue => {
@@ -513,9 +505,9 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                                 }
                                 haste_fhir_serialization_json::Context::AsField(context) => {
                                     unsafe {
-                                        let k = (*#obj_variable).get_mut(context.field).map(|v| v as *mut serde_json::Value)
+                                        let k = (*#obj_variable).get_mut(context.field).map(|v| v as *mut sonic_rs::Value)
                                             .ok_or_else(|| haste_fhir_serialization_json::errors::DeserializeError::MissingRequiredField(context.field.to_string()));
-                                        k as Result<*mut serde_json::Value, haste_fhir_serialization_json::errors::DeserializeError>
+                                        k as Result<*mut sonic_rs::Value, haste_fhir_serialization_json::errors::DeserializeError>
                                     }
                                 }
                             }
@@ -532,14 +524,14 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
                                 ));
                             };
 
-                            json_obj.keys()
+                            json_obj.iter().map(|(k, _)| k)
                         };
 
 
                         #check_resource_type
                         #(#declare_fields)*
                         for #field_variable in keys {
-                            if !#found_fields_ident.contains(#field_variable.as_str()){
+                            if !#found_fields_ident.contains(#field_variable){
                             #(#set_value)else *
                             else {
                                 return Err(haste_fhir_serialization_json::errors::DeserializeError::UnknownField(
@@ -560,8 +552,6 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
     }
 }
 
-
-
 pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
     let name = input.ident;
     let determine_by = get_attribute_value(&input.attrs, "determine_by").unwrap();
@@ -578,7 +568,7 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
 
                 quote! {
                     #field_name => {
-                        Ok(Self::#name(#variant_type::from_serde_value(json, haste_fhir_serialization_json::Context::AsValue)?))
+                        Ok(Self::#name(#variant_type::from_sonic_value(json, haste_fhir_serialization_json::Context::AsValue)?))
                     }
                 }
             });
@@ -587,12 +577,12 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let mut json = serde_json::from_str(s)?;
-                        Self::from_serde_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
+                        Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
-                    fn from_serde_value(json: *mut serde_json::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
+                    fn from_sonic_value(json: *mut sonic_rs::Value, context: haste_fhir_serialization_json::Context) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
                         let json = {
-                            let json = unsafe { &mut *(json as *mut serde_json::Value) };
+                            let json = unsafe { &mut *(json as *mut sonic_rs::Value) };
                             match &context {
                                 haste_fhir_serialization_json::Context::AsValue => {
                                    Ok(json)
@@ -619,8 +609,6 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
                     }
                 }
             };
-
-            // println!("{}", expanded.to_string());
 
             expanded.into()
         }

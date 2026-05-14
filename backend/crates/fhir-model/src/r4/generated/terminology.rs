@@ -3,8 +3,10 @@
 use self::super::types::Element;
 use haste_fhir_serialization_json::derive::{FHIRJSONDeserialize, FHIRJSONSerialize};
 use haste_reflect::MetaValue;
+use sonic_rs::{JsonContainerTrait, JsonValueMutTrait, JsonValueTrait};
 use std::any::Any;
 use std::io::Write;
+
 #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
 #[fhir_serialize_type = "valueset"]
 pub enum FHIRVersion {

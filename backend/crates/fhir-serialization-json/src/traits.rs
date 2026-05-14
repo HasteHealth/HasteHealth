@@ -1,7 +1,7 @@
 use std::io::BufWriter;
 
 use crate::errors::DeserializeError;
-use serde_json::Value;
+use sonic_rs::Value;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -57,7 +57,7 @@ impl<'a> From<(&'a String, bool)> for Context<'a> {
 
 pub trait FHIRJSONDeserializer: Sized {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError>;
-    fn from_serde_value(v: *mut Value, context: Context) -> Result<Self, DeserializeError>;
+    fn from_sonic_value(v: *mut Value, context: Context) -> Result<Self, DeserializeError>;
 }
 
 pub trait IsFHIRPrimitive {

@@ -4,8 +4,10 @@ use self::super::terminology;
 use self::super::types::*;
 use haste_fhir_serialization_json;
 use haste_reflect::{MetaValue, derive::Reflect};
+use sonic_rs::{JsonContainerTrait, JsonValueMutTrait, JsonValueTrait};
 use std::io::Write;
 use thiserror::Error;
+
 #[derive(
     Clone,
     Reflect,

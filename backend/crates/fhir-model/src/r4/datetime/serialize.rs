@@ -4,7 +4,7 @@ use crate::r4::datetime::{
 use haste_fhir_serialization_json::errors::DeserializeError;
 use haste_fhir_serialization_json::{Context, SerializeError};
 use haste_fhir_serialization_json::{FHIRJSONDeserializer, FHIRJSONSerializer};
-use serde_json::Value;
+use sonic_rs::{JsonValueTrait, Value};
 
 fn get_value<'a>(value: &'a Value, context: &Context) -> Option<&'a Value> {
     match context {
@@ -17,11 +17,11 @@ impl FHIRJSONDeserializer for DateTime {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        DateTime::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        DateTime::from_sonic_value(&mut json_value, Context::AsValue)
     }
 
-    fn from_serde_value(
+    fn from_sonic_value(
         value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
@@ -70,11 +70,11 @@ impl FHIRJSONDeserializer for Date {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        Date::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        Date::from_sonic_value(&mut json_value, Context::AsValue)
     }
 
-    fn from_serde_value(
+    fn from_sonic_value(
         value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
@@ -123,11 +123,11 @@ impl FHIRJSONDeserializer for Time {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        Time::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        Time::from_sonic_value(&mut json_value, Context::AsValue)
     }
 
-    fn from_serde_value(
+    fn from_sonic_value(
         value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
@@ -176,11 +176,11 @@ impl FHIRJSONDeserializer for Instant {
     fn from_json_str(
         s: &str,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        Instant::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        Instant::from_sonic_value(&mut json_value, Context::AsValue)
     }
 
-    fn from_serde_value(
+    fn from_sonic_value(
         value: *mut Value,
         context: haste_fhir_serialization_json::Context,
     ) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {

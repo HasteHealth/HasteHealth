@@ -1,6 +1,6 @@
 use crate::errors::DeserializeError;
 use crate::traits::{Context, FHIRJSONDeserializer};
-use serde_json::Value;
+use sonic_rs::{JsonValueMutTrait, JsonValueTrait, Value, json};
 
 fn get_value<'a>(value: &'a mut Value, context: &Context) -> Option<&'a mut Value> {
     match context {
@@ -11,10 +11,10 @@ fn get_value<'a>(value: &'a mut Value, context: &Context) -> Option<&'a mut Valu
 
 impl FHIRJSONDeserializer for i64 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        i64::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        i64::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let value = unsafe { &mut *(value as *mut Value) };
         let k = get_value(value, &context).and_then(|v| v.as_i64());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("i64".to_string()))
@@ -23,10 +23,10 @@ impl FHIRJSONDeserializer for i64 {
 
 impl FHIRJSONDeserializer for u64 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        u64::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        u64::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let value = unsafe { &mut *(value as *mut Value) };
         let k = get_value(value, &context).and_then(|v| v.as_u64());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("u64".to_string()))
@@ -35,10 +35,10 @@ impl FHIRJSONDeserializer for u64 {
 
 impl FHIRJSONDeserializer for f64 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        f64::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        f64::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let value = unsafe { &mut *(value as *mut Value) };
         let k = get_value(value, &context).and_then(|v| v.as_f64());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("f64".to_string()))
@@ -47,10 +47,10 @@ impl FHIRJSONDeserializer for f64 {
 
 impl FHIRJSONDeserializer for bool {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        bool::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        bool::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let value = unsafe { &mut *(value as *mut Value) };
         let k = get_value(value, &context).and_then(|v| v.as_bool());
         k.ok_or_else(|| DeserializeError::FailedToConvertType("bool".to_string()))
@@ -59,15 +59,14 @@ impl FHIRJSONDeserializer for bool {
 
 impl FHIRJSONDeserializer for String {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        String::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        String::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let value = unsafe { &mut *(value as *mut Value) };
-        let k = get_value(value, &context).and_then(|v| match v.take() {
-            Value::String(s) => Some(s),
-            _ => None,
-        });
+        let k = get_value(value, &context)
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
 
         k.ok_or_else(|| DeserializeError::FailedToConvertType("String".to_string()))
     }
@@ -78,17 +77,17 @@ where
     T: FHIRJSONDeserializer,
 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        Vec::<T>::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        Vec::<T>::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(v: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(v: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let v = unsafe { &mut *(v as *mut Value) };
         match &context {
             Context::AsValue => {
                 if let Some(json_array) = v.as_array_mut() {
                     json_array
                         .into_iter()
-                        .map(|item| T::from_serde_value(item, Context::AsValue))
+                        .map(|item| T::from_sonic_value(item, Context::AsValue))
                         .collect()
                 } else {
                     Err(DeserializeError::InvalidType(
@@ -103,7 +102,7 @@ where
                     {
                         json_array
                             .into_iter()
-                            .map(|item| T::from_serde_value(item, Context::AsValue))
+                            .map(|item| T::from_sonic_value(item, Context::AsValue))
                             .collect()
                     } else {
                         Err(DeserializeError::InvalidType(
@@ -159,24 +158,25 @@ where
                     );
 
                     for i in 0..length {
-                        let mut json_v = serde_json::map::Map::new();
+                        let mut json_v: Value = json!({});
+                        // Safe to unwrap: we just constructed it as an object.
+                        let obj = json_v.as_object_mut().unwrap();
+
                         let value = values.as_mut().and_then(|v| v.get_mut(i));
                         let element = elements.as_mut().and_then(|v| v.get_mut(i));
 
                         if let Some(value) = value
                             && !value.is_null()
                         {
-                            json_v.insert("fake_v".to_string(), value.take());
+                            obj.insert(&"fake_v", std::mem::take(value));
                         }
                         if let Some(element) = element
                             && !element.is_null()
                         {
-                            json_v.insert("_fake_v".to_string(), element.take());
+                            obj.insert(&"_fake_v", std::mem::take(element));
                         }
-                        let res = T::from_serde_value(
-                            &mut Value::Object(json_v),
-                            ("fake_v", true).into(),
-                        )?;
+
+                        let res = T::from_sonic_value(&mut json_v, ("fake_v", true).into())?;
                         return_v.push(res);
                     }
 
@@ -192,22 +192,22 @@ where
     T: FHIRJSONDeserializer,
 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        Option::<T>::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        Option::<T>::from_sonic_value(&mut json_value, Context::AsValue)
     }
 
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
         let value = unsafe { &mut *(value as *mut Value) };
         match &context {
             Context::AsField(field_context) => match value.get(field_context.field) {
-                Some(_v) => T::from_serde_value(value, context).map(|res| Some(res)),
+                Some(_v) => T::from_sonic_value(value, context).map(|res| Some(res)),
                 None => Ok(None),
             },
             Context::AsValue => {
                 if value.is_null() {
                     Ok(None)
                 } else {
-                    T::from_serde_value(value, context).map(|res| Some(res))
+                    T::from_sonic_value(value, context).map(|res| Some(res))
                 }
             }
         }
@@ -219,10 +219,10 @@ where
     T: FHIRJSONDeserializer,
 {
     fn from_json_str(s: &str) -> Result<Self, DeserializeError> {
-        let mut json_value: Value = serde_json::from_str(s)?;
-        Box::<T>::from_serde_value(&mut json_value, Context::AsValue)
+        let mut json_value: Value = sonic_rs::from_str(s)?;
+        Box::<T>::from_sonic_value(&mut json_value, Context::AsValue)
     }
-    fn from_serde_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
-        T::from_serde_value(value, context).map(|res| Box::new(res))
+    fn from_sonic_value(value: *mut Value, context: Context) -> Result<Self, DeserializeError> {
+        T::from_sonic_value(value, context).map(|res| Box::new(res))
     }
 }

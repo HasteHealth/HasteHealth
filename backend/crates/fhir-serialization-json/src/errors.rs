@@ -8,6 +8,8 @@ pub enum DeserializeError {
     FailedToConvertType(String),
     #[error("Failed to parse JSON {0}")]
     FailedToParseJSON(#[from] serde_json::Error),
+    #[error("Failed to parse JSON {0}")]
+    FailedToParseJSONSonic(#[from] sonic_rs::Error),
     #[error("Cannot deserialize as value a typechoice variant")]
     CannotDeserializeTypeChoiceAsValue,
     #[error("Unknown field encountered: {0}")]

@@ -2539,6 +2539,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "sonic-rs",
  "sqlx",
  "thiserror 2.0.18",
 ]

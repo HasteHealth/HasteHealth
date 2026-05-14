@@ -15,14 +15,14 @@ pub fn from_str<T: FHIRJSONDeserializer>(s: &str) -> Result<T, errors::Deseriali
 }
 
 pub fn from_bytes<T: FHIRJSONDeserializer>(bytes: &[u8]) -> Result<T, errors::DeserializeError> {
-    let mut value = serde_json::from_slice(bytes)?;
-    T::from_serde_value(&mut value, Context::AsValue)
+    let mut value = sonic_rs::from_slice(bytes)?;
+    T::from_sonic_value(&mut value, Context::AsValue)
 }
 
-pub fn from_serde_value<T: FHIRJSONDeserializer>(
-    mut value: serde_json::Value,
+pub fn from_sonic_value<T: FHIRJSONDeserializer>(
+    mut value: sonic_rs::Value,
 ) -> Result<T, errors::DeserializeError> {
-    T::from_serde_value(&mut value, Context::AsValue)
+    T::from_sonic_value(&mut value, Context::AsValue)
 }
 
 pub fn to_string<T: FHIRJSONSerializer>(value: &T) -> Result<String, SerializeError> {
