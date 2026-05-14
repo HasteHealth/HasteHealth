@@ -25,6 +25,7 @@ import {
   decimal,
   id,
   integer,
+  markdown,
   uri,
   url,
 } from "@haste-health/fhir-types/r4/types";
@@ -33,6 +34,7 @@ import * as ComplexTypes from "../complex";
 import * as Primitives from "../primitives";
 import { getElementDefinition } from "./helpers";
 import { MetaProps } from "./types";
+import { markdown } from "@codemirror/lang-markdown";
 
 type TypeProps = MetaProps<any, any> & {
   label?: string;
@@ -94,6 +96,9 @@ const BaseTypeComponents: Record<string, TypeComponent> = {
   ),
   dateTime: (props) => (
     <Primitives.FHIRDateTimeEditable {...deriveSharedProps<dateTime>(props)} />
+  ),
+  markdown: (props) => (
+    <Primitives.FHIRMarkdownEditable {...deriveSharedProps<markdown>(props)} />
   ),
   uri: (props) => (
     <Primitives.FHIRUriEditable {...deriveSharedProps<uri>(props)} />
