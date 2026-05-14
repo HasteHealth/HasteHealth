@@ -23,7 +23,7 @@ import { FHIRReferenceReadOnly } from "./ReferenceReadOnly";
 import { FHIRSimpleQuantityEditable } from "./SimpleQuantity";
 import { FHIRTimingEditable } from "./Timing";
 import { FHIRMoneyEditable } from "./Money";
-import { FHIRSampledDataEditable } from "./SampleData";
+import { FHIRSampledDataEditable } from "./SampledData";
 import { FHIRSignatureEditable } from "./Signature";
 
 export {
