@@ -14,6 +14,7 @@ export const FHIRMoneyEditable = ({
   issue,
   label,
   client,
+  fhirVersion,
 }: FHIRMoneyEditableProps) => {
   return (
     <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
@@ -26,7 +27,7 @@ export const FHIRMoneyEditable = ({
         <FHIRCodeEditable
           client={client}
           label="Currency"
-          fhirVersion="4.0"
+          fhirVersion={fhirVersion}
           value={value?.currency}
           onChange={(v) => onChange?.({ ...value, currency: v })}
         />
