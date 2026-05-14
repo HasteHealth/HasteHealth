@@ -254,6 +254,9 @@ const BaseTypeComponents: Record<string, TypeComponent> = {
       {...deriveSharedProps<Meta>(props)}
     />
   ),
+  Timing: (props) => (
+    <ComplexTypes.FHIRTimingEditable {...deriveSharedProps<Timing>(props)} />
+  ),
   // Todo [Timing, Money, Duration, MoneyQuantity, SimpleQuantity] trial [SampleData, Signature, Age, Distance]
   // MetadataTypes review and Special Purpose Data types review.
 };
