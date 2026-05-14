@@ -61,7 +61,7 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
             let expanded = quote! {
                 impl FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let mut json = serde_json::from_str(s)?;
+                        let mut json = sonic_rs::from_str(s)?;
                         Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
@@ -145,7 +145,7 @@ pub fn deserialize_valueset(input: DeriveInput) -> TokenStream {
             let expanded: TokenStream = quote! {
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let mut json = serde_json::from_str(s)?;
+                        let mut json = sonic_rs::from_str(s)?;
                         Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
@@ -493,7 +493,7 @@ pub fn deserialize_complex(input: DeriveInput, deserialize_complex_type: Deseria
             let expanded = quote! {
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let mut json = serde_json::from_str(s)?;
+                        let mut json = sonic_rs::from_str(s)?;
                         Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
@@ -576,7 +576,7 @@ pub fn enum_variant_deserialization(input: DeriveInput) -> TokenStream {
             let expanded = quote!{
                 impl haste_fhir_serialization_json::FHIRJSONDeserializer for #name {
                     fn from_json_str(s: &str) -> Result<Self, haste_fhir_serialization_json::errors::DeserializeError> {
-                        let mut json = serde_json::from_str(s)?;
+                        let mut json = sonic_rs::from_str(s)?;
                         Self::from_sonic_value(&mut json, haste_fhir_serialization_json::Context::AsValue)
                     }
 
