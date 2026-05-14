@@ -13,12 +13,14 @@ import {
   HumanName,
   Identifier,
   Meta,
+  Money,
   Period,
   Quantity,
   Range,
   Ratio,
   Reference,
   ResourceType,
+  Timing,
   code,
   date,
   dateTime,
@@ -257,7 +259,10 @@ const BaseTypeComponents: Record<string, TypeComponent> = {
   Timing: (props) => (
     <ComplexTypes.FHIRTimingEditable {...deriveSharedProps<Timing>(props)} />
   ),
-  // Todo [Timing, Money, Duration, MoneyQuantity, SimpleQuantity] trial [SampleData, Signature, Age, Distance]
+  Money: (props) => (
+    <ComplexTypes.FHIRMoneyEditable {...deriveSharedProps<Money>(props)} />
+  ),
+  // Todo [ Money, Duration, MoneyQuantity, SimpleQuantity] trial [SampleData, Signature, Age, Distance]
   // MetadataTypes review and Special Purpose Data types review.
 };
 

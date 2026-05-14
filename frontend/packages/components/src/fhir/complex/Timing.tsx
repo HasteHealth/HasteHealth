@@ -1,67 +1,41 @@
 import React from "react";
 import { dateTime, Timing } from "@haste-health/fhir-types/r4/types";
+import { InputContainer } from "../../base/containers";
+import { FHIRDateTimeEditable } from "../primitives/datetime";
+import { EditableProps } from "../types";
+import { complexFieldGridClass } from "./layout";
 
-export interface FHIRTimingEditableProps {
-  value?: Timing;
-  label?: string;
-  onChange: (v: Timing | undefined) => void;
-}
+export type FHIRTimingEditableProps = EditableProps<Timing>;
 
-/**
- * Simple editable Timing component for FHIR Timing datatype.
- * Only supports basic display/edit of event array and code (repeat/when/frequency not implemented).
- */
-export const FHIRTimingEditable: React.FC<FHIRTimingEditableProps> = ({
+export const FHIRTimingEditable = ({
   value,
-  label,
   onChange,
-}) => {
-  const [local, setLocal] = React.useState<Timing | undefined>(value);
-
-  React.useEffect(() => {
-    setLocal(value);
-  }, [value]);
-
-  const handleEventChange = (idx: number, newVal: string) => {
-    const events = local?.event ? [...local.event] : [];
-    events[idx] = newVal as dateTime;
-    const updated: Timing = { ...local, event: events };
-    setLocal(updated);
-    onChange(updated);
-  };
-
-  const handleAddEvent = () => {
-    const events = local?.event
-      ? ([...local.event, ""] as dateTime[])
-      : ([""] as dateTime[]);
-    const updated: Timing = { ...local, event: events };
-    setLocal(updated);
-    onChange(updated);
-  };
-
-  const handleRemoveEvent = (idx: number) => {
-    const events = local?.event ? local.event.filter((_, i) => i !== idx) : [];
-    const updated: Timing = { ...local, event: events };
-    setLocal(updated);
-    onChange(updated);
-  };
-
+  issue,
+  label,
+}: FHIRTimingEditableProps) => {
   return (
-    <div className="flex flex-col gap-2">
-      {label && <label className="font-medium text-sm mb-1">{label}</label>}
-      <div className="flex flex-col gap-1">
-        {(local?.event ?? []).map((ev, idx) => (
+    <InputContainer hideBorder label={label} issues={issue ? [issue] : []}>
+      <div className={complexFieldGridClass}>
+        {(value?.event ?? []).map((ev, idx) => (
           <div key={idx} className="flex gap-2 items-center">
-            <input
-              type="datetime-local"
-              className="border rounded px-2 py-1 text-sm flex-1"
+            <FHIRDateTimeEditable
+              label={`Event ${idx + 1}`}
               value={ev}
-              onChange={(e) => handleEventChange(idx, e.target.value)}
+              onChange={(newVal) => {
+                const events = value?.event ? [...value.event] : [];
+                events[idx] = newVal as dateTime;
+                onChange?.({ ...value, event: events });
+              }}
             />
             <button
               type="button"
               className="text-xs text-red-500 hover:underline"
-              onClick={() => handleRemoveEvent(idx)}
+              onClick={() => {
+                const events = value?.event
+                  ? value.event.filter((_, i) => i !== idx)
+                  : [];
+                onChange?.({ ...value, event: events });
+              }}
             >
               Remove
             </button>
@@ -70,11 +44,14 @@ export const FHIRTimingEditable: React.FC<FHIRTimingEditableProps> = ({
         <button
           type="button"
           className="text-xs text-blue-600 hover:underline mt-1 self-start"
-          onClick={handleAddEvent}
+          onClick={() => {
+            const events = value?.event ? [...value.event, ""] : [""];
+            onChange?.({ ...value, event: events as dateTime[] });
+          }}
         >
           Add Event
         </button>
       </div>
-    </div>
+    </InputContainer>
   );
 };
