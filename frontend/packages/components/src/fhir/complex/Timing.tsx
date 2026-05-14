@@ -4,6 +4,8 @@ import { InputContainer } from "../../base/containers";
 import { FHIRDateTimeEditable } from "../primitives/datetime";
 import { EditableProps } from "../types";
 import { complexFieldGridClass } from "./layout";
+import { XMarkIcon } from "@heroicons/react/16/solid";
+import { Add } from "../../base";
 
 export type FHIRTimingEditableProps = EditableProps<Timing>;
 
@@ -29,7 +31,7 @@ export const FHIRTimingEditable = ({
             />
             <button
               type="button"
-              className="text-xs text-red-500 hover:underline"
+              className=" rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
               onClick={() => {
                 const events = value?.event
                   ? value.event.filter((_, i) => i !== idx)
@@ -37,20 +39,19 @@ export const FHIRTimingEditable = ({
                 onChange?.({ ...value, event: events });
               }}
             >
-              Remove
+              <XMarkIcon className="h-4 w-4" />
             </button>
           </div>
         ))}
-        <button
-          type="button"
-          className="text-xs text-blue-600 hover:underline mt-1 self-start"
-          onClick={() => {
+
+        <Add
+          onChange={() => {
             const events = value?.event ? [...value.event, ""] : [""];
             onChange?.({ ...value, event: events as dateTime[] });
           }}
         >
           Add Event
-        </button>
+        </Add>
       </div>
     </InputContainer>
   );
