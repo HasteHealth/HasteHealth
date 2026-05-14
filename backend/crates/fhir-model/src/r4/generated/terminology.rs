@@ -3,7 +3,7 @@
 use self::super::types::Element;
 use haste_fhir_serialization_json::derive::{FHIRJSONDeserialize, FHIRJSONSerialize};
 use haste_reflect::MetaValue;
-use sonic_rs::{JsonContainerTrait, JsonValueMutTrait, JsonValueTrait};
+use sonic_rs::{JsonValueMutTrait, JsonValueTrait};
 use std::any::Any;
 use std::io::Write;
 
