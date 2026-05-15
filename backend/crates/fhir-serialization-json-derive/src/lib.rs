@@ -1,4 +1,5 @@
 mod deserialize;
+mod deserialize_serde;
 mod serialize;
 mod utilities;
 
@@ -94,6 +95,7 @@ enum DeserializeComplexType {
         reference
     )
 )]
+
 pub fn deserialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 

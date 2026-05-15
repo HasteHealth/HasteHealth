@@ -4,7 +4,8 @@ use self::super::resources::Resource;
 use self::super::terminology;
 use haste_fhir_serialization_json;
 use haste_fhir_serialization_json::FHIRJSONDeserializer;
-use haste_reflect::{derive::Reflect, MetaValue};
+use haste_reflect::{MetaValue, derive::Reflect};
+use serde::Deserialize;
 use std::io::Write;
 #[derive(
     Clone,
@@ -292,6 +293,21 @@ pub struct FHIRString {
     #[doc = "The actual value"]
     pub value: Option<String>,
 }
+
+impl<'de> Deserialize<'de> for FHIRString {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = Option::<String>::deserialize(deserializer)?;
+        Ok(FHIRString {
+            id: None,
+            extension: None,
+            value: s,
+        })
+    }
+}
+
 #[derive(
     Clone,
     Reflect,
