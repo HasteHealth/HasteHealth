@@ -4,12 +4,53 @@ use crate::r4::datetime::{
 use haste_fhir_serialization_json::errors::DeserializeError;
 use haste_fhir_serialization_json::{Context, SerializeError};
 use haste_fhir_serialization_json::{FHIRJSONDeserializer, FHIRJSONSerializer};
+use serde::Deserialize;
 use serde_json::Value;
 
 fn get_value<'a>(value: &'a Value, context: &Context) -> Option<&'a Value> {
     match context {
         Context::AsValue => Some(value),
         Context::AsField(field_context) => value.get(field_context.field),
+    }
+}
+
+impl<'de> Deserialize<'de> for DateTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_datetime(&value).map_err(|_| serde::de::Error::custom("invalid FHIR dateTime"))
+    }
+}
+
+impl<'de> Deserialize<'de> for Date {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_date(&value).map_err(|_| serde::de::Error::custom("invalid FHIR date"))
+    }
+}
+
+impl<'de> Deserialize<'de> for Time {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_time(&value).map_err(|_| serde::de::Error::custom("invalid FHIR time"))
+    }
+}
+
+impl<'de> Deserialize<'de> for Instant {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        parse_instant(&value).map_err(|_| serde::de::Error::custom("invalid FHIR instant"))
     }
 }
 

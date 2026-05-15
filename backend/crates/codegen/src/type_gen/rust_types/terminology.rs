@@ -160,7 +160,7 @@ fn generate_enum_variants(value_set: ValueSet) -> Option<TokenStream> {
             });
 
             return Some(quote! {
-                #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize)]
+                #[derive(Debug, Clone, FHIRJSONSerialize, FHIRJSONDeserialize, FHIRSerdeDeserialize)]
                 #[fhir_serialize_type = "valueset"]
                 pub enum #terminology_enum_name {
                     #(#enum_variants),*,
@@ -274,6 +274,8 @@ fn load_terminologies(
         for entry in walker
             .filter_map(|e| e.ok())
             .filter(|e| e.metadata().unwrap().is_file())
+            // Filter for json only
+            .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
         {
             let resource = load::load_from_file(entry.path())
                 .map_err(|f| OperationOutcomeError::error(IssueType::Exception(None), f))?;
@@ -457,7 +459,7 @@ pub async fn generate(
             use self::super::types::Element;
             use std::any::Any;
             use haste_reflect::MetaValue;
-            use haste_fhir_serialization_json::derive::{FHIRJSONSerialize, FHIRJSONDeserialize};
+            use haste_fhir_serialization_json::derive::{FHIRJSONSerialize, FHIRJSONDeserialize, FHIRSerdeDeserialize};
             use std::io::Write;
             #(#codes)*
         },

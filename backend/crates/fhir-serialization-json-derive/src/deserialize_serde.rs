@@ -2,6 +2,8 @@ use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{Data, DeriveInput, Field, Type};
 
+use crate::utilities::get_attribute_value;
+
 fn get_field_type(field: &Field) -> proc_macro2::Ident {
     match &field.ty {
         Type::Path(path) => path.path.segments.first().unwrap().ident.clone(),
@@ -28,7 +30,7 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
             let value_type = get_field_type(value_field_found.unwrap());
 
             let deserialize_impl = quote! {
-               impl<'de> Deserialize<'de> for #name {
+               impl<'de> serde::Deserialize<'de> for #name {
                     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
                     where
                         D: serde::Deserializer<'de>,
@@ -45,6 +47,52 @@ pub fn fhir_primitive_deserialization(input: DeriveInput) -> TokenStream {
 
             deserialize_impl.into()
         }
-        _ => panic!("Only structs can be serialized for primitive serializer."),
+        _ => panic!("Only structs can be serialized for primitive deserializer."),
+    }
+}
+
+pub fn valueset_deserialization(input: DeriveInput) -> TokenStream {
+    let name = input.ident;
+    match input.data {
+        Data::Enum(data) => {
+            let variants_deserialize_value = data.variants.iter().filter_map(|variant| {
+                let variant_name = variant.ident.to_owned();
+                let code = get_attribute_value(&variant.attrs, "code");
+                if let Some(code) = code {
+                    Some(quote! {
+                        #code =>  Ok(#name::#variant_name(None))
+                    })
+                } else {
+                    None
+                }
+            });
+
+            let visitor_name = format_ident!("{}Visitor", name);
+            let name_str = name.to_string();
+
+            let deserialize_impl = quote! {
+                impl<'de> serde::Deserialize<'de> for #name {
+                    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+                        struct #visitor_name;
+                            impl<'de> serde::de::Visitor<'de> for #visitor_name {
+                                type Value = #name;
+                                fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                                    write!(f, "a string code for {}", #name_str)
+                                }
+                                fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<#name, E> {
+                                    match v {
+                                        #(#variants_deserialize_value),*,
+                                        other => Err(E::custom(format!("Unknown code '{}' for {}", other, #name_str))),
+                                    }
+                                }
+                            }
+                        d.deserialize_str(#visitor_name)
+                    }
+                }
+            };
+
+            deserialize_impl.into()
+        }
+        _ => panic!("Only enums can be serialized for value set deserializer."),
     }
 }
