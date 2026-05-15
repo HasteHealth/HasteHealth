@@ -11,3 +11,7 @@ hello:
 performance:
   label: Performance
   description: Performance related posts
+
+feature-update:
+  label: Feature Update
+  description: Feature update posts
