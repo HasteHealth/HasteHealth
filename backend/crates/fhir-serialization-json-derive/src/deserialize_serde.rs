@@ -11,6 +11,7 @@ fn get_field_type(field: &Field) -> proc_macro2::Ident {
     }
 }
 
+#[allow(dead_code)]
 fn is_optional_field(field: &Field) -> bool {
     let field_type = get_field_type(field);
     if field_type == "Option" { true } else { false }

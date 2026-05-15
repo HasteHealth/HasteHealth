@@ -3,7 +3,10 @@ pub mod r4;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::r4::generated::resources::{Practitioner, Resource};
+    use crate::r4::{
+        datetime::Date,
+        generated::resources::{Practitioner, Resource},
+    };
     use haste_fhir_serialization_json::{FHIRJSONDeserializer, errors::DeserializeError};
     use haste_reflect::MetaValue;
     use r4::generated::{resources::Patient, types::Address};
@@ -468,5 +471,105 @@ mod tests {
             haste_fhir_serialization_json::to_string(&patient).unwrap(),
             "{\"resourceType\":\"Patient\",\"name\":[{\"family\":\"Doe\",\"_given\":[null,{\"id\":\"given-2\"}],\"given\":[\"John\",null],\"prefix\":[\"Mr.\"]}]}"
         );
+    }
+
+    #[test]
+    fn test_serde_terminology() {
+        use crate::r4::generated::terminology::AdministrativeGender;
+
+        let admin_gender = serde_json::from_str::<AdministrativeGender>("\"male\"");
+
+        assert!(matches!(admin_gender, Ok(AdministrativeGender::Male(None))));
+    }
+
+    #[test]
+    fn test_serde_primitve() {
+        use crate::r4::generated::types::{
+            FHIRBoolean, FHIRDate, FHIRDecimal, FHIRInteger, FHIRPositiveInt, FHIRString,
+        };
+
+        let date = serde_json::from_str::<FHIRDate>("\"2020-01-01\"");
+
+        assert!(matches!(
+            date,
+            Ok(FHIRDate {
+                value: Some(Date::YearMonthDay(2020, 1, 1)),
+                id: None,
+                extension: None
+            })
+        ));
+
+        let date = serde_json::from_str::<FHIRDate>("\"bad\"");
+
+        assert!(matches!(date, Err(_)));
+
+        let fhir_string = serde_json::from_str::<FHIRString>("\"hello\"");
+
+        assert!(matches!(
+            fhir_string,
+            Ok(FHIRString {
+                value: Some(_),
+                id: None,
+                extension: None
+            })
+        ));
+
+        let fhir_boolean = serde_json::from_str::<FHIRBoolean>("true");
+
+        assert!(matches!(
+            fhir_boolean,
+            Ok(FHIRBoolean {
+                value: Some(true),
+                id: None,
+                extension: None
+            })
+        ));
+
+        let fhir_boolean = serde_json::from_str::<FHIRBoolean>("false");
+
+        assert!(matches!(
+            fhir_boolean,
+            Ok(FHIRBoolean {
+                value: Some(false),
+                id: None,
+                extension: None
+            })
+        ));
+
+        let fhir_integer = serde_json::from_str::<FHIRInteger>("42");
+        assert!(matches!(
+            fhir_integer,
+            Ok(FHIRInteger {
+                value: Some(42),
+                id: None,
+                extension: None
+            })
+        ));
+
+        let fhir_positive_int = serde_json::from_str::<FHIRPositiveInt>("42");
+        assert!(matches!(
+            fhir_positive_int,
+            Ok(FHIRPositiveInt {
+                value: Some(42),
+                id: None,
+                extension: None
+            })
+        ));
+
+        let invalid_fhir_positive_int = serde_json::from_str::<FHIRPositiveInt>("42.5");
+        assert!(matches!(invalid_fhir_positive_int, Ok(_)));
+
+        let invalid_positive_int = serde_json::from_str::<FHIRPositiveInt>("-1");
+        assert!(matches!(invalid_positive_int, Err(_)));
+
+        let fhir_decimal = serde_json::from_str::<FHIRDecimal>("3.14");
+        assert!(matches!(
+            fhir_decimal,
+            Ok(FHIRDecimal {
+                value: Some(3.14),
+                id: None,
+                extension: None
+            })
+        ));
     }
 }
