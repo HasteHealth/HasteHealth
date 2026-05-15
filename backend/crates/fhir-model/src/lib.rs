@@ -557,7 +557,7 @@ mod tests {
         ));
 
         let invalid_fhir_positive_int = serde_json::from_str::<FHIRPositiveInt>("42.5");
-        assert!(matches!(invalid_fhir_positive_int, Ok(_)));
+        assert!(matches!(invalid_fhir_positive_int, Err(_)));
 
         let invalid_positive_int = serde_json::from_str::<FHIRPositiveInt>("-1");
         assert!(matches!(invalid_positive_int, Err(_)));
