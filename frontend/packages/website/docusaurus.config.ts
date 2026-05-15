@@ -88,6 +88,8 @@ const config: Config = {
           trackingID: "G-HH00J38YZ5",
         },
         blog: {
+          blogSidebarTitle: "All posts",
+          blogSidebarCount: "ALL",
           showReadingTime: true,
           feedOptions: {
             type: ["rss", "atom"],
