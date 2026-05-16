@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{Data, DeriveInput, Field, Type};
 
-use crate::utilities::get_attribute_value;
+use crate::{DeserializeComplexType, utilities::get_attribute_value};
 
 fn get_field_type(field: &Field) -> proc_macro2::Ident {
     match &field.ty {
@@ -97,3 +97,35 @@ pub fn valueset_deserialization(input: DeriveInput) -> TokenStream {
         _ => panic!("Only enums can be serialized for value set deserializer."),
     }
 }
+
+pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
+    let name = input.ident;
+    match input.data {
+        Data::Enum(data) => {
+            let name_str = name.to_string();
+
+            let deserialize_impl = quote! {
+                impl #name {
+                    pub fn try_deserialize_from_key(){}
+                    pub fn merge(){}
+                }
+            };
+
+            deserialize_impl.into()
+        }
+        _ => panic!("Only enums can be deserialized for type choice deserializer."),
+    }
+}
+
+// pub fn complex_deserialization(
+//     input: DeriveInput,
+//     deserialize_complex_type: DeserializeComplexType,
+// ) -> TokenStream {
+//     let name = input.ident;
+//     match input.data {
+//         Data::Struct(data) => {
+
+//         }
+//         _ => panic!("Only structs can be deserialized for complex deserializer."),
+//     }
+// }

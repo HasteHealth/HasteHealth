@@ -435,9 +435,13 @@ pub mod conditionals {
         }
     }
 
-    pub fn is_primitive(element: &ElementDefinition) -> bool {
+    pub fn is_primitive_type(fhir_type: &str) -> bool {
+        FHIR_PRIMITIVES.contains_key(fhir_type)
+    }
+
+    pub fn is_primitive_element(element: &ElementDefinition) -> bool {
         let types = extract::field_types(element);
-        types.len() == 1 && FHIR_PRIMITIVES.contains_key(types[0])
+        types.len() == 1 && is_primitive_type(types[0])
     }
 
     pub fn is_nested_complex(element: &ElementDefinition) -> bool {

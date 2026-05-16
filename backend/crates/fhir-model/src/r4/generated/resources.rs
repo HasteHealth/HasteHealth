@@ -513,6 +513,7 @@ impl Default for ActivityDefinitionSubjectTypeChoice {
 #[type_choice_field_name = "timing"]
 pub enum ActivityDefinitionTimingTypeChoice {
     Timing(Box<Timing>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Age(Box<Age>),
     Period(Box<Period>),
@@ -887,10 +888,12 @@ pub struct AdverseEvent {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "onset"]
 pub enum AllergyIntoleranceOnsetTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Age(Box<Age>),
     Period(Box<Period>),
     Range(Box<Range>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for AllergyIntoleranceOnsetTypeChoice {
@@ -1291,7 +1294,9 @@ pub struct AuditEventSource {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum AuditEventEntityDetailValueTypeChoice {
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
 }
 impl Default for AuditEventEntityDetailValueTypeChoice {
@@ -1508,6 +1513,7 @@ pub struct Binary {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "collected"]
 pub enum BiologicallyDerivedProductCollectionCollectedTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -1555,6 +1561,7 @@ pub struct BiologicallyDerivedProductCollection {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "time"]
 pub enum BiologicallyDerivedProductProcessingTimeTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -1602,6 +1609,7 @@ pub struct BiologicallyDerivedProductProcessing {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "time"]
 pub enum BiologicallyDerivedProductManipulationTimeTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -2464,6 +2472,7 @@ pub struct CapabilityStatement {
 pub enum CarePlanActivityDetailScheduledTypeChoice {
     Timing(Box<Timing>),
     Period(Box<Period>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for CarePlanActivityDetailScheduledTypeChoice {
@@ -2867,6 +2876,7 @@ pub struct CatalogEntry {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum ChargeItemOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
@@ -3279,6 +3289,7 @@ pub struct ClaimCareTeam {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
 pub enum ClaimSupportingInfoTimingTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -3297,7 +3308,9 @@ impl Default for ClaimSupportingInfoTimingTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ClaimSupportingInfoValueTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
     Attachment(Box<Attachment>),
@@ -3539,6 +3552,7 @@ pub struct ClaimAccident {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
 pub enum ClaimItemServicedTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -3945,6 +3959,7 @@ pub struct ClaimResponseItem {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
 pub enum ClaimResponseAddItemServicedTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -4367,6 +4382,7 @@ pub struct ClaimResponse {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
 pub enum ClinicalImpressionEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -4607,12 +4623,18 @@ pub struct CodeSystemConceptDesignation {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum CodeSystemConceptPropertyValueTypeChoice {
+    #[primitive]
     Code(Box<FHIRCode>),
     Coding(Box<Coding>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
 }
 impl Default for CodeSystemConceptPropertyValueTypeChoice {
@@ -4789,6 +4811,7 @@ pub struct CodeSystem {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
 pub enum CommunicationPayloadContentTypeChoice {
+    #[primitive]
     String(Box<FHIRString>),
     Attachment(Box<Attachment>),
     # [reference (targets = ["Resource"])]
@@ -4922,6 +4945,7 @@ pub struct Communication {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "content"]
 pub enum CommunicationRequestPayloadContentTypeChoice {
+    #[primitive]
     String(Box<FHIRString>),
     Attachment(Box<Attachment>),
     # [reference (targets = ["Resource"])]
@@ -4963,6 +4987,7 @@ pub struct CommunicationRequestPayload {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum CommunicationRequestOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -5375,7 +5400,9 @@ pub struct Composition {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "source"]
 pub enum ConceptMapSourceTypeChoice {
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
 }
 impl Default for ConceptMapSourceTypeChoice {
@@ -5393,7 +5420,9 @@ impl Default for ConceptMapSourceTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "target"]
 pub enum ConceptMapTargetTypeChoice {
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
 }
 impl Default for ConceptMapTargetTypeChoice {
@@ -5646,10 +5675,12 @@ pub struct ConceptMap {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "onset"]
 pub enum ConditionOnsetTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Age(Box<Age>),
     Period(Box<Period>),
     Range(Box<Range>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ConditionOnsetTypeChoice {
@@ -5667,10 +5698,12 @@ impl Default for ConditionOnsetTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "abatement"]
 pub enum ConditionAbatementTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Age(Box<Age>),
     Period(Box<Period>),
     Range(Box<Range>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ConditionAbatementTypeChoice {
@@ -6156,13 +6189,21 @@ pub struct ContractTermOfferParty {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ContractTermOfferAnswerValueTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Uri(Box<FHIRUri>),
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
@@ -6430,6 +6471,7 @@ pub struct ContractTermActionSubject {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum ContractTermActionOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
@@ -7025,6 +7067,7 @@ pub struct Coverage {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
 pub enum CoverageEligibilityRequestServicedTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -7250,6 +7293,7 @@ pub struct CoverageEligibilityRequest {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
 pub enum CoverageEligibilityResponseServicedTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -7268,7 +7312,9 @@ impl Default for CoverageEligibilityResponseServicedTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "allowed"]
 pub enum CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoice {
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     String(Box<FHIRString>),
     Money(Box<Money>),
 }
@@ -7289,7 +7335,9 @@ impl Default for CoverageEligibilityResponseInsuranceItemBenefitAllowedTypeChoic
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "used"]
 pub enum CoverageEligibilityResponseInsuranceItemBenefitUsedTypeChoice {
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     String(Box<FHIRString>),
     Money(Box<Money>),
 }
@@ -7510,6 +7558,7 @@ pub struct CoverageEligibilityResponse {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "identified"]
 pub enum DetectedIssueIdentifiedTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -7901,6 +7950,7 @@ pub struct DeviceDefinitionUdiDeviceIdentifier {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "manufacturer"]
 pub enum DeviceDefinitionManufacturerTypeChoice {
+    #[primitive]
     String(Box<FHIRString>),
     # [reference (targets = ["Organization"])]
     Reference(Box<Reference>),
@@ -8233,6 +8283,7 @@ pub enum DeviceRequestParameterValueTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Quantity(Box<Quantity>),
     Range(Box<Range>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
 }
 impl Default for DeviceRequestParameterValueTypeChoice {
@@ -8273,6 +8324,7 @@ pub struct DeviceRequestParameter {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum DeviceRequestOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
@@ -8391,6 +8443,7 @@ pub struct DeviceRequest {
 pub enum DeviceUseStatementTimingTypeChoice {
     Timing(Box<Timing>),
     Period(Box<Period>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
 }
 impl Default for DeviceUseStatementTimingTypeChoice {
@@ -8474,6 +8527,7 @@ pub struct DeviceUseStatement {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
 pub enum DiagnosticReportEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -9875,6 +9929,7 @@ pub struct Evidence {
 pub enum EvidenceVariableCharacteristicDefinitionTypeChoice {
     # [reference (targets = ["Group"])]
     Reference(Box<Reference>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
     CodeableConcept(Box<CodeableConcept>),
     Expression(Box<Expression>),
@@ -9896,6 +9951,7 @@ impl Default for EvidenceVariableCharacteristicDefinitionTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "participantEffective"]
 pub enum EvidenceVariableCharacteristicParticipantEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Duration(Box<Duration>),
@@ -10456,6 +10512,7 @@ pub struct ExplanationOfBenefitCareTeam {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
 pub enum ExplanationOfBenefitSupportingInfoTimingTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -10474,7 +10531,9 @@ impl Default for ExplanationOfBenefitSupportingInfoTimingTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ExplanationOfBenefitSupportingInfoValueTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
     Attachment(Box<Attachment>),
@@ -10708,6 +10767,7 @@ pub struct ExplanationOfBenefitAccident {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
 pub enum ExplanationOfBenefitItemServicedTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -10946,6 +11006,7 @@ pub struct ExplanationOfBenefitItem {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "serviced"]
 pub enum ExplanationOfBenefitAddItemServicedTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Period(Box<Period>),
 }
@@ -11205,7 +11266,9 @@ pub struct ExplanationOfBenefitProcessNote {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "allowed"]
 pub enum ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     String(Box<FHIRString>),
     Money(Box<Money>),
 }
@@ -11226,6 +11289,7 @@ impl Default for ExplanationOfBenefitBenefitBalanceFinancialAllowedTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "used"]
 pub enum ExplanationOfBenefitBenefitBalanceFinancialUsedTypeChoice {
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
     Money(Box<Money>),
 }
@@ -11448,7 +11512,9 @@ pub struct ExplanationOfBenefit {
 #[type_choice_field_name = "born"]
 pub enum FamilyMemberHistoryBornTypeChoice {
     Period(Box<Period>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for FamilyMemberHistoryBornTypeChoice {
@@ -11468,6 +11534,7 @@ impl Default for FamilyMemberHistoryBornTypeChoice {
 pub enum FamilyMemberHistoryAgeTypeChoice {
     Age(Box<Age>),
     Range(Box<Range>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for FamilyMemberHistoryAgeTypeChoice {
@@ -11485,10 +11552,13 @@ impl Default for FamilyMemberHistoryAgeTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "deceased"]
 pub enum FamilyMemberHistoryDeceasedTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
     Age(Box<Age>),
     Range(Box<Range>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for FamilyMemberHistoryDeceasedTypeChoice {
@@ -11509,6 +11579,7 @@ pub enum FamilyMemberHistoryConditionOnsetTypeChoice {
     Age(Box<Age>),
     Range(Box<Range>),
     Period(Box<Period>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for FamilyMemberHistoryConditionOnsetTypeChoice {
@@ -11685,6 +11756,7 @@ pub struct Flag {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "start"]
 pub enum GoalStartTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -11706,8 +11778,11 @@ pub enum GoalTargetDetailTypeChoice {
     Quantity(Box<Quantity>),
     Range(Box<Range>),
     CodeableConcept(Box<CodeableConcept>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
     Ratio(Box<Ratio>),
 }
@@ -11726,6 +11801,7 @@ impl Default for GoalTargetDetailTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "due"]
 pub enum GoalTargetDueTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
     Duration(Box<Duration>),
 }
@@ -12014,6 +12090,7 @@ pub struct GraphDefinition {
 #[type_choice_field_name = "value"]
 pub enum GroupCharacteristicValueTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
     Quantity(Box<Quantity>),
     Range(Box<Range>),
@@ -12146,7 +12223,9 @@ pub struct Group {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "module"]
 pub enum GuidanceResponseModuleTypeChoice {
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -12588,7 +12667,9 @@ pub struct ImagingStudy {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum ImmunizationOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationOccurrenceTypeChoice {
@@ -12686,7 +12767,9 @@ pub struct ImmunizationReaction {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "doseNumber"]
 pub enum ImmunizationProtocolAppliedDoseNumberTypeChoice {
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationProtocolAppliedDoseNumberTypeChoice {
@@ -12704,7 +12787,9 @@ impl Default for ImmunizationProtocolAppliedDoseNumberTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "seriesDoses"]
 pub enum ImmunizationProtocolAppliedSeriesDosesTypeChoice {
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationProtocolAppliedSeriesDosesTypeChoice {
@@ -12853,7 +12938,9 @@ pub struct Immunization {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "doseNumber"]
 pub enum ImmunizationEvaluationDoseNumberTypeChoice {
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationEvaluationDoseNumberTypeChoice {
@@ -12871,7 +12958,9 @@ impl Default for ImmunizationEvaluationDoseNumberTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "seriesDoses"]
 pub enum ImmunizationEvaluationSeriesDosesTypeChoice {
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationEvaluationSeriesDosesTypeChoice {
@@ -12978,7 +13067,9 @@ pub struct ImmunizationRecommendationRecommendationDateCriterion {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "doseNumber"]
 pub enum ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
@@ -12998,7 +13089,9 @@ impl Default for ImmunizationRecommendationRecommendationDoseNumberTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "seriesDoses"]
 pub enum ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for ImmunizationRecommendationRecommendationSeriesDosesTypeChoice {
@@ -13187,7 +13280,9 @@ pub struct ImplementationGuideDefinitionGrouping {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "example"]
 pub enum ImplementationGuideDefinitionResourceExampleTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
 }
 impl Default for ImplementationGuideDefinitionResourceExampleTypeChoice {
@@ -13243,6 +13338,7 @@ pub struct ImplementationGuideDefinitionResource {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "name"]
 pub enum ImplementationGuideDefinitionPageNameTypeChoice {
+    #[primitive]
     Url(Box<FHIRUrl>),
     # [reference (targets = ["Binary"])]
     Reference(Box<Reference>),
@@ -13371,7 +13467,9 @@ pub struct ImplementationGuideDefinition {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "example"]
 pub enum ImplementationGuideManifestResourceExampleTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
 }
 impl Default for ImplementationGuideManifestResourceExampleTypeChoice {
@@ -14947,6 +15045,7 @@ pub struct MeasureReport {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "created"]
 pub enum MediaCreatedTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -15192,6 +15291,7 @@ impl Default for MedicationAdministrationMedicationTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
 pub enum MedicationAdministrationEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -15856,8 +15956,10 @@ pub struct MedicationKnowledgePackaging {
 #[type_choice_field_name = "value"]
 pub enum MedicationKnowledgeDrugCharacteristicValueTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    #[primitive]
     String(Box<FHIRString>),
     Quantity(Box<Quantity>),
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
 }
 impl Default for MedicationKnowledgeDrugCharacteristicValueTypeChoice {
@@ -16098,6 +16200,7 @@ pub struct MedicationKnowledge {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "reported"]
 pub enum MedicationRequestReportedTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
     # [reference (targets = ["Patient" , "Practitioner" , "PractitionerRole" , "RelatedPerson" , "Organization"])]
     Reference(Box<Reference>),
@@ -16192,6 +16295,7 @@ pub struct MedicationRequestDispenseRequest {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "allowed"]
 pub enum MedicationRequestSubstitutionAllowedTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -16368,6 +16472,7 @@ impl Default for MedicationStatementMedicationTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
 pub enum MedicationStatementEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -16735,6 +16840,7 @@ pub struct MedicinalProductAuthorizationJurisdictionalAuthorization {
 #[type_choice_field_name = "date"]
 pub enum MedicinalProductAuthorizationProcedureDateTypeChoice {
     Period(Box<Period>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
 }
 impl Default for MedicinalProductAuthorizationProcedureDateTypeChoice {
@@ -17644,6 +17750,7 @@ pub struct MedicinalProductUndesirableEffect {
 #[type_choice_field_name = "event"]
 pub enum MessageDefinitionEventTypeChoice {
     Coding(Box<Coding>),
+    #[primitive]
     Uri(Box<FHIRUri>),
 }
 impl Default for MessageDefinitionEventTypeChoice {
@@ -17813,6 +17920,7 @@ pub struct MessageDefinition {
 #[type_choice_field_name = "event"]
 pub enum MessageHeaderEventTypeChoice {
     Coding(Box<Coding>),
+    #[primitive]
     Uri(Box<FHIRUri>),
 }
 impl Default for MessageHeaderEventTypeChoice {
@@ -18710,9 +18818,11 @@ pub struct NutritionOrder {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "effective"]
 pub enum ObservationEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
 }
 impl Default for ObservationEffectiveTypeChoice {
@@ -18732,13 +18842,18 @@ impl Default for ObservationEffectiveTypeChoice {
 pub enum ObservationValueTypeChoice {
     Quantity(Box<Quantity>),
     CodeableConcept(Box<CodeableConcept>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
     Range(Box<Range>),
     Ratio(Box<Ratio>),
     SampledData(Box<SampledData>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -18791,13 +18906,18 @@ pub struct ObservationReferenceRange {
 pub enum ObservationComponentValueTypeChoice {
     Quantity(Box<Quantity>),
     CodeableConcept(Box<CodeableConcept>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
     Range(Box<Range>),
     Ratio(Box<Ratio>),
     SampledData(Box<SampledData>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -19506,24 +19626,43 @@ pub struct OrganizationAffiliation {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ParametersParameterValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -19624,7 +19763,9 @@ pub struct Parameters {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "deceased"]
 pub enum PatientDeceasedTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
 }
 impl Default for PatientDeceasedTypeChoice {
@@ -19642,7 +19783,9 @@ impl Default for PatientDeceasedTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "multipleBirth"]
 pub enum PatientMultipleBirthTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
 }
 impl Default for PatientMultipleBirthTypeChoice {
@@ -20277,6 +20420,7 @@ pub struct PlanDefinitionActionRelatedAction {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
 pub enum PlanDefinitionActionTimingTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Age(Box<Age>),
     Period(Box<Period>),
@@ -20323,7 +20467,9 @@ pub struct PlanDefinitionActionParticipant {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "definition"]
 pub enum PlanDefinitionActionDefinitionTypeChoice {
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Uri(Box<FHIRUri>),
 }
 impl Default for PlanDefinitionActionDefinitionTypeChoice {
@@ -20764,8 +20910,10 @@ pub struct PractitionerRole {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "performed"]
 pub enum ProcedurePerformedTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
+    #[primitive]
     String(Box<FHIRString>),
     Age(Box<Age>),
     Range(Box<Range>),
@@ -20937,6 +21085,7 @@ pub struct Procedure {
 #[type_choice_field_name = "occurred"]
 pub enum ProvenanceOccurredTypeChoice {
     Period(Box<Period>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
 }
 impl Default for ProvenanceOccurredTypeChoice {
@@ -21066,12 +21215,19 @@ pub struct Provenance {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "answer"]
 pub enum QuestionnaireItemEnableWhenAnswerTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     String(Box<FHIRString>),
     Coding(Box<Coding>),
     Quantity(Box<Quantity>),
@@ -21120,9 +21276,13 @@ pub struct QuestionnaireItemEnableWhen {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum QuestionnaireItemAnswerOptionValueTypeChoice {
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     String(Box<FHIRString>),
     Coding(Box<Coding>),
     # [reference (targets = ["Resource"])]
@@ -21167,13 +21327,21 @@ pub struct QuestionnaireItemAnswerOption {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum QuestionnaireItemInitialValueTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Uri(Box<FHIRUri>),
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
@@ -21369,13 +21537,21 @@ pub struct Questionnaire {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum QuestionnaireResponseItemAnswerValueTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Uri(Box<FHIRUri>),
     Attachment(Box<Attachment>),
     Coding(Box<Coding>),
@@ -21664,6 +21840,7 @@ pub struct RequestGroupActionRelatedAction {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "timing"]
 pub enum RequestGroupActionTimingTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Age(Box<Age>),
     Period(Box<Period>),
@@ -21996,6 +22173,7 @@ impl Default for ResearchElementDefinitionSubjectTypeChoice {
 #[type_choice_field_name = "definition"]
 pub enum ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
     Expression(Box<Expression>),
     DataRequirement(Box<DataRequirement>),
@@ -22017,6 +22195,7 @@ impl Default for ResearchElementDefinitionCharacteristicDefinitionTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "studyEffective"]
 pub enum ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Duration(Box<Duration>),
@@ -22039,6 +22218,7 @@ impl Default for ResearchElementDefinitionCharacteristicStudyEffectiveTypeChoice
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "participantEffective"]
 pub enum ResearchElementDefinitionCharacteristicParticipantEffectiveTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Duration(Box<Duration>),
@@ -22424,6 +22604,7 @@ pub struct ResearchSubject {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum RiskAssessmentOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -22442,6 +22623,7 @@ impl Default for RiskAssessmentOccurrenceTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "probability"]
 pub enum RiskAssessmentPredictionProbabilityTypeChoice {
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
     Range(Box<Range>),
 }
@@ -23038,6 +23220,7 @@ impl Default for ServiceRequestQuantityTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum ServiceRequestOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
@@ -23057,6 +23240,7 @@ impl Default for ServiceRequestOccurrenceTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "asNeeded"]
 pub enum ServiceRequestAsNeededTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -23254,6 +23438,7 @@ pub struct Slot {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "collected"]
 pub enum SpecimenCollectionCollectedTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -23325,6 +23510,7 @@ pub struct SpecimenCollection {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "time"]
 pub enum SpecimenProcessingTimeTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
 }
@@ -23489,6 +23675,7 @@ pub struct Specimen {
 #[type_choice_field_name = "minimumVolume"]
 pub enum SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
     Quantity(Box<Quantity>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for SpecimenDefinitionTypeTestedContainerMinimumVolumeTypeChoice {
@@ -23960,24 +24147,43 @@ pub struct StructureMapGroupInput {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "defaultValue"]
 pub enum StructureMapGroupRuleSourceDefaultValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -24080,10 +24286,15 @@ pub struct StructureMapGroupRuleSource {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum StructureMapGroupRuleTargetParameterValueTypeChoice {
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
 }
 impl Default for StructureMapGroupRuleTargetParameterValueTypeChoice {
@@ -25026,6 +25237,7 @@ pub struct SubstanceReferenceInformationClassification {
 pub enum SubstanceReferenceInformationTargetAmountTypeChoice {
     Quantity(Box<Quantity>),
     Range(Box<Range>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for SubstanceReferenceInformationTargetAmountTypeChoice {
@@ -25342,6 +25554,7 @@ pub struct SubstanceSourceMaterial {
 #[type_choice_field_name = "amount"]
 pub enum SubstanceSpecificationMoietyAmountTypeChoice {
     Quantity(Box<Quantity>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for SubstanceSpecificationMoietyAmountTypeChoice {
@@ -25417,6 +25630,7 @@ impl Default for SubstanceSpecificationPropertyDefiningSubstanceTypeChoice {
 #[type_choice_field_name = "amount"]
 pub enum SubstanceSpecificationPropertyAmountTypeChoice {
     Quantity(Box<Quantity>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for SubstanceSpecificationPropertyAmountTypeChoice {
@@ -25706,6 +25920,7 @@ pub enum SubstanceSpecificationRelationshipAmountTypeChoice {
     Quantity(Box<Quantity>),
     Range(Box<Range>),
     Ratio(Box<Ratio>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for SubstanceSpecificationRelationshipAmountTypeChoice {
@@ -25879,6 +26094,7 @@ pub struct SupplyDeliverySuppliedItem {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum SupplyDeliveryOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
@@ -25982,6 +26198,7 @@ pub enum SupplyRequestParameterValueTypeChoice {
     CodeableConcept(Box<CodeableConcept>),
     Quantity(Box<Quantity>),
     Range(Box<Range>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
 }
 impl Default for SupplyRequestParameterValueTypeChoice {
@@ -26022,6 +26239,7 @@ pub struct SupplyRequestParameter {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "occurrence"]
 pub enum SupplyRequestOccurrenceTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Timing(Box<Timing>),
@@ -26138,24 +26356,43 @@ pub struct TaskRestriction {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum TaskInputValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -26228,24 +26465,43 @@ pub struct TaskInput {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum TaskOutputValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -27794,12 +28050,19 @@ pub struct ValueSetCompose {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ValueSetExpansionParameterValueTypeChoice {
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
 }
 impl Default for ValueSetExpansionParameterValueTypeChoice {

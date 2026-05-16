@@ -143,7 +143,7 @@ fn get_struct_key_value(
         quote! {}
     };
 
-    let primitive_attribute = if conditionals::is_primitive(element) {
+    let primitive_attribute = if conditionals::is_primitive_element(element) {
         quote! {
         #[primitive]
         }
@@ -230,7 +230,16 @@ fn create_type_choice(
                 quote! {}
             };
 
+            let primitive_attribute = if conditionals::is_primitive_type(fhir_type) {
+                quote! {
+                    #[primitive]
+                }
+            } else {
+                quote! {}
+            };
+
             quote! {
+                #primitive_attribute
                 #target_types
                 #enum_name(#rust_type)
             }

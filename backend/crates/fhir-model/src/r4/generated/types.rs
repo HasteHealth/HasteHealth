@@ -511,6 +511,7 @@ pub struct Age {
 pub enum AnnotationAuthorTypeChoice {
     # [reference (targets = ["Practitioner" , "Patient" , "RelatedPerson" , "Organization"])]
     Reference(Box<Reference>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for AnnotationAuthorTypeChoice {
@@ -799,6 +800,7 @@ pub struct DataRequirementCodeFilter {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum DataRequirementDateFilterValueTypeChoice {
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
     Period(Box<Period>),
     Duration(Box<Duration>),
@@ -934,6 +936,7 @@ pub struct Distance {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "asNeeded"]
 pub enum DosageAsNeededTypeChoice {
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
     CodeableConcept(Box<CodeableConcept>),
 }
@@ -1199,24 +1202,43 @@ pub struct ElementDefinitionType {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "defaultValue"]
 pub enum ElementDefinitionDefaultValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -1265,24 +1287,43 @@ impl Default for ElementDefinitionDefaultValueTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "fixed"]
 pub enum ElementDefinitionFixedTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -1331,24 +1372,43 @@ impl Default for ElementDefinitionFixedTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "pattern"]
 pub enum ElementDefinitionPatternTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -1397,24 +1457,43 @@ impl Default for ElementDefinitionPatternTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ElementDefinitionExampleValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -1485,13 +1564,21 @@ pub struct ElementDefinitionExample {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "minValue"]
 pub enum ElementDefinitionMinValueTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
     Quantity(Box<Quantity>),
 }
@@ -1510,13 +1597,21 @@ impl Default for ElementDefinitionMinValueTypeChoice {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "maxValue"]
 pub enum ElementDefinitionMaxValueTypeChoice {
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
     Quantity(Box<Quantity>),
 }
@@ -1769,24 +1864,43 @@ pub struct Expression {
 #[fhir_serialize_type = "typechoice"]
 #[type_choice_field_name = "value"]
 pub enum ExtensionValueTypeChoice {
+    #[primitive]
     Base64Binary(Box<FHIRBase64Binary>),
+    #[primitive]
     Boolean(Box<FHIRBoolean>),
+    #[primitive]
     Canonical(Box<FHIRCanonical>),
+    #[primitive]
     Code(Box<FHIRCode>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
+    #[primitive]
     Decimal(Box<FHIRDecimal>),
+    #[primitive]
     Id(Box<FHIRId>),
+    #[primitive]
     Instant(Box<FHIRInstant>),
+    #[primitive]
     Integer(Box<FHIRInteger>),
+    #[primitive]
     Markdown(Box<FHIRMarkdown>),
+    #[primitive]
     Oid(Box<FHIROid>),
+    #[primitive]
     PositiveInt(Box<FHIRPositiveInt>),
+    #[primitive]
     String(Box<FHIRString>),
+    #[primitive]
     Time(Box<FHIRTime>),
+    #[primitive]
     UnsignedInt(Box<FHIRUnsignedInt>),
+    #[primitive]
     Uri(Box<FHIRUri>),
+    #[primitive]
     Url(Box<FHIRUrl>),
+    #[primitive]
     Uuid(Box<FHIRUuid>),
     Address(Box<Address>),
     Age(Box<Age>),
@@ -2422,6 +2536,7 @@ pub struct Signature {
 pub enum SubstanceAmountAmountTypeChoice {
     Quantity(Box<Quantity>),
     Range(Box<Range>),
+    #[primitive]
     String(Box<FHIRString>),
 }
 impl Default for SubstanceAmountAmountTypeChoice {
@@ -2595,7 +2710,9 @@ pub enum TriggerDefinitionTimingTypeChoice {
     Timing(Box<Timing>),
     # [reference (targets = ["Schedule"])]
     Reference(Box<Reference>),
+    #[primitive]
     Date(Box<FHIRDate>),
+    #[primitive]
     DateTime(Box<FHIRDateTime>),
 }
 impl Default for TriggerDefinitionTimingTypeChoice {
