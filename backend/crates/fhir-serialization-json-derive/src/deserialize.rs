@@ -1,25 +1,11 @@
-use crate::{DeserializeComplexType, utilities::{ get_attribute_value, get_cardinality_attributes,  get_type_choice_attribute, is_attribute_present}};
+use crate::{DeserializeComplexType, utilities::{ get_attribute_value, get_cardinality_attributes, get_field_name, get_field_type, get_type_choice_attribute, is_attribute_present, is_optional_field, is_type_choice_field}};
 use core::panic;
 
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use syn::{Data, DeriveInput, Field, Fields, Ident, Type};
+use syn::{Data, DeriveInput, Field, Fields, Ident};
 
-fn is_type_choice_field(field: &Field) -> bool {
-    is_attribute_present(&field.attrs, "type_choice_variants")
-}
 
-fn get_field_type(field: &Field) -> proc_macro2::Ident {
-    match &field.ty {
-        Type::Path(path) => path.path.segments.first().unwrap().ident.clone(),
-        _ => panic!("Unsupported field type for serialization"),
-    }
-}
-
-fn is_optional_field(field: &Field) -> bool {
-    let field_type = get_field_type(field);
-    if field_type == "Option" { true } else { false }
-}
 
 fn unwrap_and_validate_cardinality_field(
     field: &Field,
@@ -293,11 +279,7 @@ pub fn deserialize_typechoice(input: DeriveInput) -> TokenStream {
     }
 }
 
-/// Use rename_field attribute if present else use the struct name
-fn get_field_name(field: &Field) -> String {
-    get_attribute_value(&field.attrs, "rename_field")
-        .unwrap_or_else(|| field.ident.as_ref().unwrap().to_string())
-}
+
 
 fn create_primitive_struct_handler(
     found_fields_variable: &Ident,

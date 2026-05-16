@@ -1,6 +1,12 @@
 use core::panic;
 use quote::ToTokens;
-use syn::{Attribute, Expr, Lit, Meta, MetaList, Token, punctuated::Punctuated};
+use syn::{Attribute, Expr, Field, Lit, Meta, MetaList, Token, Type, punctuated::Punctuated};
+
+/// Use rename_field attribute if present else use the struct name
+pub fn get_field_name(field: &Field) -> String {
+    get_attribute_value(&field.attrs, "rename_field")
+        .unwrap_or_else(|| field.ident.as_ref().unwrap().to_string())
+}
 
 pub fn get_attribute_value(attrs: &[Attribute], attribute: &str) -> Option<String> {
     attrs.iter().find_map(|attr| match &attr.meta {
@@ -19,6 +25,22 @@ pub fn get_attribute_value(attrs: &[Attribute], attribute: &str) -> Option<Strin
         }
         _ => None,
     })
+}
+
+pub fn get_field_type(field: &Field) -> proc_macro2::Ident {
+    match &field.ty {
+        Type::Path(path) => path.path.segments.first().unwrap().ident.clone(),
+        _ => panic!("Unsupported field type for serialization"),
+    }
+}
+
+pub fn is_optional_field(field: &Field) -> bool {
+    let field_type = get_field_type(field);
+    if field_type == "Option" { true } else { false }
+}
+
+pub fn is_type_choice_field(field: &Field) -> bool {
+    is_attribute_present(&field.attrs, "type_choice_variants")
 }
 
 pub fn is_attribute_present(attrs: &[Attribute], attribute: &str) -> bool {
