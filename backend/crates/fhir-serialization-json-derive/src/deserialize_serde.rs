@@ -173,15 +173,34 @@ pub fn typechoice_deserialization(input: DeriveInput) -> TokenStream {
     }
 }
 
-// pub fn complex_deserialization(
-//     input: DeriveInput,
-//     deserialize_complex_type: DeserializeComplexType,
-// ) -> TokenStream {
-//     let name = input.ident;
-//     match input.data {
-//         Data::Struct(data) => {
+pub fn complex_deserialization(
+    input: DeriveInput,
+    deserialize_complex_type: DeserializeComplexType,
+) -> TokenStream {
+    let name = input.ident;
+    match input.data {
+        Data::Struct(data) => {
+            let visitor_name = format_ident!("{}Visitor", name);
+            let deserialize_impl = quote! {
+                impl<'de> serde::Deserialize<'de> for #name {
+                    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+                        struct #visitor_name;
+                            impl<'de> serde::de::Visitor<'de> for #visitor_name {
+                                type Value = #name;
+                                fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                                    todo!("Implement complex")
+                                }
+                                fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<#name, E> {
+                                    todo!("Implement complex")
+                                }
+                            }
+                        d.deserialize_str(#visitor_name)
+                    }
+                }
+            };
 
-//         }
-//         _ => panic!("Only structs can be deserialized for complex deserializer."),
-//     }
-// }
+            deserialize_impl.into()
+        }
+        _ => panic!("Only structs can be deserialized for complex deserializer."),
+    }
+}
