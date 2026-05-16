@@ -191,7 +191,7 @@ fn extension_ident(field_ident: &Ident) -> Ident {
     format_ident!("__{}_ext", field_ident)
 }
 
-fn typechoice_variant_found(field_ident: &Ident) -> Ident {
+fn typechoice_variant_found_ident(field_ident: &Ident) -> Ident {
     format_ident!("__{}_choice_variant_", field_ident)
 }
 
@@ -230,9 +230,9 @@ fn create_complex_field_declaration(field: &FieldInformation) -> Vec<proc_macro2
 
             // We need to track if we've found a type choice variant for this field
             // To check that extension field aligns or field if primitive extension found first.
-            let typechoice_variant_found = typechoice_variant_found(&field.ident);
+            let typechoice_variant_found_ident = typechoice_variant_found_ident(&field.ident);
             tc_declarations.push(quote! {
-               let mut #typechoice_variant_found: Option<&str> = None;
+               let mut #typechoice_variant_found_ident: Option<&str> = None;
             });
 
             tc_declarations
